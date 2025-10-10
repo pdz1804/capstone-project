@@ -1,70 +1,154 @@
-# Capstone Project - 251
+# Lecture Processing Pipeline
 
-## Overview
-
-A small, robust Python script to batch‑download research PDFs and auto‑name them using site‑specific rules (arXiv, ACL Anthology, CVF/OpenAccess, ACM DL, AAAI OJS). It verifies real PDFs, retries on network hiccups, and writes a CSV log + end‑of‑run stats.
+A comprehensive tool for processing educational content, featuring automatic speech recognition (ASR) for lecture videos and optical character recognition (OCR) for lecture slides. Built with Python and optimized for academic use cases.
 
 ## Features
 
-- Deduplicates input URLs.
-- Smart, human‑readable filenames via domain heuristics (+ PDF metadata fallback).
-- PDF validation (signature check).
-- Automatic retries with exponential backoff.
-- Clear summary & `download_log.csv` (success/failure + reasons).
-- Collision‑safe filenames (`(2)`, `(3)`, …).
+- High-accuracy speech-to-text conversion using PhoWhisper
+- OCR for extracting text from lecture slides and PDFs
+- Video processing with audio extraction capabilities
+- Structured output in multiple formats (TXT, CSV, JSON)
+- Optimized for batch processing of multiple files
 
-## Requirements
+## Getting Started
 
-Create `requirements.txt`:
+### Prerequisites
 
-```
-requests>=2.32.3
-tqdm>=4.66.4
-beautifulsoup4>=4.12.3
-lxml>=5.3.0
-python-slugify>=8.0.4
-pypdf>=4.2.0
-tenacity>=9.0.0
-```
+- Python 3.9+
+- Tesseract OCR (for slide processing)
+- FFmpeg (for audio/video processing)
 
-## Install
+### Installation
 
-```bash
-# (optional) create venv
-python -m venv .venv
-# Linux/macOS
-source .venv/bin/activate
-# Windows
-# .\.venv\Scripts\activate
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/lecture-processing-pipeline.git
+   cd lecture-processing-pipeline
+   ```
 
-pip install -r requirements.txt
-```
+2. Create and activate a virtual environment (recommended):
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Install system dependencies:
+   - **Windows**: 
+     - Download and install [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki)
+     - Download and install [FFmpeg](https://ffmpeg.org/download.html)
+     - Add both to your system PATH
+   
+   - **Linux**:
+     ```bash
+     sudo apt update
+     sudo apt install tesseract-ocr tesseract-ocr-vie ffmpeg
+     ```
+   
+   - **macOS**:
+     ```bash
+     brew install tesseract tesseract-lang ffmpeg
+     ```
 
 ## Usage
 
+The application has two main modes: `asr` for speech recognition and `ocr` for slide processing. Use the appropriate mode based on your needs.
+
+### 1. Speech Recognition (ASR) Mode
+
+Process lecture videos or audio files to extract text transcripts:
+
 ```bash
-python download_papers.py --out downloads
+python main.py asr [options] <input_files>
+
+Options:
+  --model {tiny,base,small,medium,large}  Whisper model size (default: small)
+  --language LANG                        Language code (e.g., vi, en, ja)
+  --output-dir DIR                       Output directory (default: results/asr/)
+  --format {txt,json,csv}               Output format (default: txt)
+  --device {cpu,cuda}                    Device to use for inference
 ```
 
-- PDFs saved to `downloads/`.
-- A CSV log appears at `downloads/download_log.csv`.
+Example:
+```bash
+# Process a single video file
+python main.py asr --model large --language vi --format json data/videos/lecture1.mp4
 
-> The script uses the `RAW_URLS` list embedded at the top of `download_papers.py`. Add/remove URLs there.
+# Process multiple files
+python main.py asr data/videos/lecture1.mp4 data/videos/lecture2.mp4
+```
 
-## Output & Naming
+### 2. Slide Processing (OCR) Mode
 
-- **Naming order**: site heuristic → PDF `/Title` metadata → `Content-Disposition` filename → URL tail.
-- Examples:
-  - `2024-title-arxiv-2407.12345v1.pdf`
-  - `2023-title-aclanthology-2023.emnlp-main.825.pdf`
-  - `transform-retrieve-generate-cvpr2022.pdf`
+Extract text from lecture slides or PDFs:
 
-## Troubleshooting
+```bash
+python main.py ocr [options] <input_files>
 
-- **`not-pdf-content`**: The URL responded with HTML or a gated page (cookies/paywall). Open it in a browser or use an alternative PDF link.
-- **Network errors**: The script auto‑retries. Persistent failures will be listed in the summary and CSV with reasons.
-- **Duplicate names**: The script appends `(2)`, `(3)`, etc.
+Options:
+  --output-dir DIR      Output directory (default: results/ocr/)
+  --lang LANG           Language for OCR (default: vie+eng)
+  --preprocess {none,adaptive,otsu}  Image preprocessing method (default: adaptive)
+  --output-format {txt,json}  Output format (default: txt)
+```
 
-## Customize
+Example:
+```bash
+# Process all PDF files in a directory
+python main.py ocr --lang vie+eng --preprocess adaptive data/slides/*.pdf
 
-- Read URLs from a file, add concurrency, or route outputs by venue/year—happy to extend the script if you want.
+# Process specific image files
+python main.py ocr slide1.jpg slide2.png
+```
+
+## 📁 Project Structure
+
+```
+.
+├── data/                   # Input/output data
+│   ├── audio/             # Extracted audio files
+│   ├── slides/            # Lecture slides (PDF/Images)
+│   └── videos/            # Lecture videos
+├── models/                # Pretrained models
+├── results/               # Processing results
+│   ├── asr/              # Speech recognition outputs
+│   └── ocr/              # OCR outputs
+├── main.py                # Main entry point for the application
+├── audio_processor.py     # Audio processing and ASR (imported by main.py)
+├── slide_processor.py     # Slide processing and OCR (imported by main.py)
+├── requirements.txt       # Python dependencies
+└── README.md             # This file
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- OpenAI Whisper for the speech recognition model
+- Tesseract OCR for text extraction
+- All contributors who helped improve this project
+  - `videos/`: Input lecture videos
+  - `slides/`: Input lecture slides
+- `results/`: Output directory for transcripts and OCR results
+
+## Notes
+
+- For best OCR results, ensure slides are high-contrast and well-lit
+- PhoWhisper works best with clear audio and minimal background noise
+- Processing time depends on video/slide length and hardware capabilities
