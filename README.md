@@ -134,18 +134,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- OpenAI Whisper for the speech recognition model
-- Tesseract OCR for text extraction
-- All contributors who helped improve this project
-  - `videos/`: Input lecture videos
-  - `slides/`: Input lecture slides
-- `results/`: Output directory for transcripts and OCR results
 
 ## Notes
 
