@@ -73,13 +73,63 @@ class LlamaIndexRAG:
         self.llm_provider = llm_provider
         self.index = None
         self.query_engine = None
-        self.vector_store = None
+        self.nodes = None
         
         # Initialize performance tracker and logging
         self.tracker = PerformanceTracker("llamaindex")
         self.logger = setup_logging("llamaindex")
         
         self.logger.info(f"Initializing LlamaIndex RAG with {vector_store_type} and {llm_provider}")
+        
+    def cleanup_storage(self):
+        """Clean up existing vector stores to ensure fresh start"""
+        import shutil
+        # NOTE: On some platforms (Windows) files in use can cause
+        # race conditions when attempting to delete persistent stores.
+        # To make benchmarks safer and non-destructive, we intentionally
+        # avoid deleting existing vector store files here. Instead, the
+        # benchmark flow will overwrite or persist new data when rebuilding.
+        self.logger.info("Skipping destructive cleanup of LlamaIndex vector stores (non-destructive mode)")
+        print("🧹 Skipping deletion of LlamaIndex vector stores (kept for safety)")
+
+        # Reset internal state so the instance will recreate stores when asked
+        self.index = None
+        self.query_engine = None
+        self.nodes = None
+
+        print(f"✅ LlamaIndex storage cleanup skipped")
+        
+    def cleanup_storage_destructive(self):
+        """Destructive cleanup - actually delete vector store files from disk"""
+        import shutil
+        self.logger.warning("Performing DESTRUCTIVE cleanup - deleting LlamaIndex vector store files")
+        
+        # Reset in-memory state first
+        self.index = None
+        self.query_engine = None
+        self.nodes = None
+        
+        # Delete actual files from disk
+        try:
+            if self.vector_store_type == "faiss":
+                index_path = Config.VECTOR_STORE_CONFIGS["faiss"].index_path
+                if Path(index_path).exists():
+                    # Remove the entire directory
+                    shutil.rmtree(Path(index_path).parent, ignore_errors=True)
+                    self.logger.info(f"Deleted FAISS index directory: {Path(index_path).parent}")
+                    
+            elif self.vector_store_type == "chroma":
+                persist_directory = Config.VECTOR_STORE_CONFIGS["chroma"].index_path
+                if Path(persist_directory).exists():
+                    # Remove the entire Chroma database directory
+                    shutil.rmtree(persist_directory, ignore_errors=True)
+                    self.logger.info(f"Deleted Chroma database directory: {persist_directory}")
+                    
+        except Exception as e:
+            self.logger.error(f"Failed to delete LlamaIndex vector store files: {e}")
+            # Don't raise - continue with benchmark even if deletion fails
+        
+        print(f"🗑️ LlamaIndex destructive cleanup completed")
         
     def _setup_global_settings(self):
         """Setup global settings with embedding model and LLM"""
@@ -158,7 +208,7 @@ class LlamaIndexRAG:
         else:
             raise ValueError(f"Unsupported vector store: {self.vector_store_type}")
     
-    def process_documents(self, documents: List[Dict[str, str]]) -> List[Document]:
+    def process_documents(self, documents: List[Dict[str, str]]):
         """Process documents into LlamaIndex format"""
         self.logger.info(f"Processing {len(documents)} documents")
         self.tracker.start_timer()
@@ -177,17 +227,14 @@ class LlamaIndexRAG:
         
         return llamaindex_docs
     
-    def create_index(self, documents: List[Document]):
+    def create_index(self, documents):
         """Create vector index from documents"""
         self.logger.info("Creating vector index")
-        
-        # Setup global settings (track this as embedding setup time)
-        embedding_start = time.time()
-        self._setup_global_settings()
-        self.tracker.metrics.embedding_time = time.time() - embedding_start
-        
-        # Track indexing time separately
+        # Start combined timer for setting up vector store and creating index
         self.tracker.start_timer()
+        
+        # Setup global settings
+        self._setup_global_settings()
         
         # Setup vector store
         self._setup_vector_store()
@@ -200,14 +247,19 @@ class LlamaIndexRAG:
             documents,
             storage_context=storage_context
         )
-        
+        # Stop the indexing timer and record combined vector processing time
         self.tracker.stop_timer("indexing_time")
+        # For consistency with other implementations, mirror indexing_time to vector_processing_time
+        self.tracker.metrics.vector_processing_time = getattr(self.tracker.metrics, 'indexing_time', 0.0)
         
         # Persist index
         if self.vector_store_type == "faiss":
             persist_dir = Config.VECTOR_STORE_CONFIGS["faiss"].index_path
             Path(persist_dir).parent.mkdir(parents=True, exist_ok=True)
             self.index.storage_context.persist(persist_dir=persist_dir)
+            # Ensure vector_processing_time includes persist time (approx)
+            # Note: we already stopped the timer after index creation; include small persist delta
+            # (If you want precise timing, start/stop around persist explicitly)
         
         self.logger.info("Vector index created successfully")
     
@@ -329,9 +381,13 @@ Answer:"""
         
         self.logger.info("Index loaded successfully")
     
-    def run_benchmark(self, test_queries: List[str], save_results: bool = True) -> Dict[str, Any]:
-        """Run benchmark tests"""
-        self.logger.info("Starting benchmark tests")
+    def run_benchmark(self, test_queries: List[str], save_results: bool = True, num_queries: int = None) -> Dict[str, Any]:
+        """Run benchmark tests with advanced evaluation"""
+        self.logger.info("Starting LlamaIndex benchmark tests")
+        
+        # Limit number of queries if specified
+        if num_queries is not None:
+            test_queries = test_queries[:num_queries]
         
         results = {
             "method": "llamaindex",
@@ -344,8 +400,8 @@ Answer:"""
         total_start_time = time.time()
         
         # Initialize evaluation tracking
-        all_retrieval_accuracies = []
         all_answer_qualities = []
+        all_relevances = []
         
         for query in test_queries:
             self.logger.info(f"Benchmarking query: {query}")
@@ -364,8 +420,8 @@ Answer:"""
                 retrieved_docs=retrieved_docs
             )
             
-            all_retrieval_accuracies.append(evaluation['retrieval_accuracy'])
-            all_answer_qualities.append(evaluation['answer_quality'])
+            all_answer_qualities.append(evaluation.get('answer_quality', 0.0))
+            all_relevances.append(evaluation.get('relevance', 0.0))
             
             query_result = {
                 "query": query,
@@ -378,14 +434,15 @@ Answer:"""
         total_time = time.time() - total_start_time
         
         # Calculate average evaluation metrics
-        avg_retrieval_accuracy = sum(all_retrieval_accuracies) / len(all_retrieval_accuracies) if all_retrieval_accuracies else 0.0
         avg_answer_quality = sum(all_answer_qualities) / len(all_answer_qualities) if all_answer_qualities else 0.0
+        avg_relevance = sum(all_relevances) / len(all_relevances) if all_relevances else 0.0
         
         # Record performance metrics
         self.tracker.record_memory_usage()
         self.tracker.metrics.total_time = total_time
-        self.tracker.metrics.retrieval_accuracy = avg_retrieval_accuracy
+        # Record averaged LLM-based metrics
         self.tracker.metrics.answer_quality = avg_answer_quality
+        self.tracker.metrics.relevance = avg_relevance
         
         results["performance"] = self.tracker.metrics.to_dict()
         

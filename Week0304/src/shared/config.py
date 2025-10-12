@@ -107,6 +107,19 @@ class Config:
         "What role does knowledge distillation play in training Re2G?"
     ]
     
+    # Default number of queries to test (can be overridden via command line)
+    DEFAULT_NUM_QUERIES = 1  # Start with 1 query for testing, can be increased
+    
+    # Standardized RAG prompt template for consistent evaluation
+    RAG_PROMPT_TEMPLATE = """You are a helpful AI assistant that answers questions based on the provided context. Use only the information from the context to answer the question. If the context doesn't contain enough information to answer the question, say so clearly.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer:"""
+    
     # Paths
     DATA_DIR = "./data"
     LOGS_DIR = "./logs"
@@ -114,12 +127,11 @@ class Config:
     
     # Performance metrics to track
     METRICS = [
-        "embedding_time",
-        "indexing_time", 
+        "vector_processing_time",  # Combined embedding + indexing time
         "retrieval_time",
         "generation_time",
         "total_time",
         "memory_usage",
-        "retrieval_accuracy",
-        "answer_quality"
+        "answer_quality",
+        "relevance"
     ]

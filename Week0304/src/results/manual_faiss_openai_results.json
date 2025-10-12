@@ -7,7 +7,7 @@
       "query": "What is Re2G and how does it combine retrieval and reranking?",
       "response": {
         "question": "What is Re2G and how does it combine retrieval and reranking?",
-        "answer": "Re2G is a system that significantly advances the state-of-the-art in various tasks such as slot filling, question answering, fact checking, and dialog across five KILT datasets. It combines retrieval and reranking by using the score from the reranker, rather than the initial retrieval score, to weight the impact of each sequence in generation. This approach allows the reranker to be trained through the ground truth on target output, although it results in the gradient for the query encoder being zero since the marginalization does not depend on the inner product from the query and passage representation vectors. The architecture also integrates results from BM25 to further improve accuracy.",
+        "answer": "Re2G is a system that significantly advances the state-of-the-art in various tasks such as slot filling, question answering, fact checking, and dialog across five KILT datasets. It combines retrieval and reranking by using a reranker to score the retrieved sequences rather than relying solely on the initial retrieval scores. This approach allows the reranker to be trained through the ground truth on the target output, which improves the overall performance. The architecture of Re2G enables the integration of results from BM25, further enhancing accuracy. However, it also presents a challenge where the gradient for the query encoder becomes zero since the marginalization does not depend on the inner product of the query and passage representation vectors. To address this, potential resolutions include combining the scores from the DPR and reranker, freezing the query encoder, or employing online knowledge distillation.",
         "source_documents": [
           "Re2G-BM25 55.83\u00b11.76 72.72 \u00b11.58 17.15\u00b10.51 19.17 \u00b10.56 11.13 \u00b10.57 12.52 \u00b10.63\nKGI0 48.04\u00b11.77 71.02 \u00b11.61 16.75\u00b10.48 19.04 \u00b10.53 9.48 \u00b10.53 10.74 \u00b10.59\nTable 3: Development Set Results for Re2G Variations\nbecause it has selected some entity as a filler related\nin a different way (6/17) or it has failed to retrieve\nthe necessary passage (9/17).\n6 Conclusions\nRe2G considerably advanced the state-of-the-art\nacross five KILT datasets, and still holds the top po-\nsition in four of the five. Relative to previous work,\nsuch as RAG or KGI, Re2G substantially improves\nboth in retrieval and end-to-end performance on\nslot filling, question answering, fact checking, and\ndialog. The reranker alone improves performance\nand enables the inclusion of multiple sources of\ninitial retrieval. This architecture permits us to\nintegrate results from BM25, further improving ac-\ncuracy. Our online knowledge distillation is able\nto improve the performance of DPR in four of the",
           "Consider that in Re2G the score from the\nreranker, not the initial retrieval, is used to weight\nthe impact of each sequence in generation. This al-\nlows the reranker to be trained through the ground\ntruth on target output, but it means the gradient for\nthe query encoder will be zero since the marginal-\nization no longer depends on the inner product from\nthe query and passage representation vectors.\nP(sj) =softmax(zr)j\nP(ti|sj) =softmax(BART(sj)i)ti\nloss = \u2212\n\u2211\ni,j\nlog (P(ti|sj) \u00b7P(sj))\nWe consider three possible resolutions to this\nissue.\n\u2022 Combine the DPR and reranker scores\n\u2022 Freeze the query encoder\n\u2022 Online Knowledge Distillation\nThe first candidate solution is tempting but fa-\ntally flawed. By adding the log softmax from DPR\nand the reranker we can ensure that both systems\nare trained through impact in generation. However,\nif the DPR score is added to the reranker score, then\nthe DPR score is being trained to provide a com-\nplementary signal to the reranker. Therefore, when",
@@ -39,17 +39,17 @@
           0.5898662805557251
         ]
       },
-      "query_time": 4.620619058609009,
+      "query_time": 5.672696590423584,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.84
+        "answer_quality": 1.0,
+        "relevance": 1.0
       }
     },
     {
       "query": "How does the joint training scheme in OK-VQA differ from using DPR separately?",
       "response": {
         "question": "How does the joint training scheme in OK-VQA differ from using DPR separately?",
-        "answer": "I cannot find the answer in the provided context.",
+        "answer": "The context does not provide information about OK-VQA or how its joint training scheme differs from using DPR separately. Therefore, I cannot answer the question.",
         "source_documents": [
           "RA-VQA\n(a) VQA Score vs Ktest\n5 10 20 50 80 100\nKtest\n0.775\n0.800\n0.825\n0.850\n0.875\n0.900\n0.925\n0.950\n0.975Recall@5\nRA-VQA-FrDPR (baseline)\nRA-VQA-NoPR (ablation)\nRA-VQA\n(b) Recall vs Ktest\nFigure 5: Comparison of model performance as more\ndocuments are retrieved in testing. These models are\nall trained with Ktrain = 5. In RA-VQA full joint train-\ning (green), combining model predictions with pseudo\nrelevance labels yields higher PRRecall at low Ktest,\nshowing that full joint training improves retrieval; RA-\nVQA-NoPR (orange), which uses only model predic-\ntions in training, achieves a higher VQA Score with\nlower Pseudo Relevance Recall compared to the RA-\nVQA-FrDPR with frozen DPR in training (blue), which\nsuggests that Pseudo Relevance is only an approximate\nmeasurement of actual relevance.\nPRRecall is improved dramatically as Ktest in-\ncreases from 5 to 50, after which only marginal im-\nprovement is observed. Similarly, the VQA Score\nof these models is improved as more documents",
           "in training is costly (large Ktrain). Fig. 4 shows\nthat RA-VQA can be trained with relatively few\nretrieved documents (Ktrain = 5). We gradually in-\ncrease Ktrain while fixing Ktest = Ktrain (dash lines)\nand Ktest = 50 (solid lines). RA-VQA achieves\nconsistent performance ( \u223c54.4 VQA Score) at\nKtrain \u22655 and Ktest = 50, which suggests that\nour joint training scheme is able to gather most\nuseful knowledge into a top-50 list even when the\nmodel is trained to retrieve fewer documents. This\nis not the case for the frozen DPR systems which re-\nquire increasing Ktrain to obtain best performance.\nRA-VQA\u2019s superior performance shows that joint\ntraining of retrieval and generation yields clear ben-\n11245",
@@ -81,10 +81,10 @@
           0.5047165155410767
         ]
       },
-      "query_time": 2.8242366313934326,
+      "query_time": 1.5514872074127197,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.2675807150595883
+        "answer_quality": 0.0,
+        "relevance": 0.0
       }
     },
     {
@@ -123,17 +123,17 @@
           0.5371549129486084
         ]
       },
-      "query_time": 1.8909618854522705,
+      "query_time": 1.5524890422821045,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.5709267791032496
+        "answer_quality": 0.9,
+        "relevance": 1.0
       }
     },
     {
       "query": "What are the three dimensions that ARES evaluates in RAG systems?",
       "response": {
         "question": "What are the three dimensions that ARES evaluates in RAG systems?",
-        "answer": "The three dimensions that ARES evaluates in RAG systems are context relevance, answer faithfulness, and answer relevance.",
+        "answer": "ARES evaluates RAG systems based on three dimensions: context relevance, answer faithfulness, and answer relevance.",
         "source_documents": [
           "3.3 Ranking RAG Systems with Confidence\nIntervals\nOnce we have prepared our LLM judges, we need\nto use them to score and rank the competing RAG\nsystems. To do this, ARES samples the in-domain\nquery-document-answer triples produced by each\nRAG approach, and the judges label each triple,\npredicting their context relevance, answer faithful-\nness, and answer relevance. By averaging the in-\ndividual predicted labels for each in-domain triple,\nwe calculate the RAG system performance across\neach of the three metrics.\nIn principle, we could simply report these aver-\nage scores as quality metrics for each RAG system.\nHowever, these scores reflect entirely unlabeled\ndata with predictions from a synthetically-trained\nLLM judge, and hence they may not be entirely\naccurate. As an extreme alternative, we could use\njust the small human preference validation set dis-\ncussed previously for evaluation, reporting the ex-\ntent to which each RAG system agrees with (or",
           "corpus of documents and a RAG system, ARES\nreports three evaluation scores: context relevance\n(is the retrieved information pertinent to the test\nquestion), answer faithfulness (is the response gen-\nerated by the language model properly grounded\nin the retrieved context), and answer relevance (is\nthe response also relevant to the question). A good\n338",
@@ -165,17 +165,17 @@
           0.3651144504547119
         ]
       },
-      "query_time": 2.095700263977051,
+      "query_time": 1.5440850257873535,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.8315166951011455
+        "answer_quality": 1.0,
+        "relevance": 1.0
       }
     },
     {
       "query": "What are the main advantages of neural retrieval over BM25 in these papers?",
       "response": {
         "question": "What are the main advantages of neural retrieval over BM25 in these papers?",
-        "answer": "I cannot find the answer in the provided context.",
+        "answer": "The context does not provide specific advantages of neural retrieval over BM25. It mentions that BM25 is a powerful retrieval system and that neural retrieval is notoriously difficult to improve over traditional IR. Additionally, it states that the ICT pre-trained retriever outperforms BM25 in certain datasets, but it does not detail the advantages of neural retrieval in general. Therefore, I cannot answer the question based on the provided context.",
         "source_documents": [
           "LSTM (Peters et al., 2018).5\nAs with ICT, we use the alternate encoders to\npre-compute the encoded evidence blocks hb and\nto initialize the question encoding hq, which is\n\ufb01ne-tuned. Based on existing IR literature and the\nintuition that LMs do not explicitly optimize for\nretrieval, we do not expect these to be strong base-\nlines, but they demonstrate the dif\ufb01culty of encod-\ning blocks of text into 128 dimensions.\n8.2 Results\nThe main results are show in Table 5. The \ufb01rst\nresult to note is that BM25 is a powerful re-\ntrieval system. Word matching is important, and\n3https://lucene.apache.org/\n4https://tfhub.dev/google/nnlm-en-dim128/1\n5https://allennlp.org/elmo",
           "BM25 is not trainable, the retrieved evidence con-\nsidered during \ufb01ne-tuning is static. Inspired by\nBERTserini (Yang et al., 2019), the \ufb01nal score is\na learned weighted sum of the BM25 and reader\nscore. Our implementation is based on Lucene.3\nLanguage Models While unsupervised neural\nretrieval is notoriously dif\ufb01cult to improve over\ntraditional IR (Lin, 2019), we include them as\nbaselines for comparison. We experiment with\nunsupervised pooled representations from neural\nlanguage models (LM), which has been shown\nto be state-of-the-art unsupervised representa-\ntions (Perone et al., 2018). We compare with two\nwidely-used 128-dimensional representations: (1)\nNNLM, context- independent embeddings from a\nfeed-forward LMs (Bengio et al., 2003), 4 and (2)\nELM O (small), a context-dependent bidirectional\nLSTM (Peters et al., 2018).5\nAs with ICT, we use the alternate encoders to\npre-compute the encoded evidence blocks hb and\nto initialize the question encoding hq, which is",
@@ -207,17 +207,17 @@
           0.541638970375061
         ]
       },
-      "query_time": 1.7262911796569824,
+      "query_time": 3.0232584476470947,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.27542679900744416
+        "answer_quality": 0.76,
+        "relevance": 0.8
       }
     },
     {
       "query": "How do these papers address the challenge of end-to-end training in RAG systems?",
       "response": {
         "question": "How do these papers address the challenge of end-to-end training in RAG systems?",
-        "answer": "I cannot find the answer in the provided context.",
+        "answer": "The context does not provide specific information on how the papers address the challenge of end-to-end training in RAG systems. Therefore, I cannot answer the question based on the provided context.",
         "source_documents": [
           "HSR and FSR also explain the relatively weak\nperformance of RAG*. We see that although RAG*\nand RA-VQA-FrDPR have similar FSRs, RAG*\nhas higher PRRecall but lower HSR (by -2.73%).\nThis suggests RAG*\u2019s DPR model is not well\nmatched to its answer generator. The result is that\nretrieved documents remain unexploited. In man-\nual examination of gradients of document scores\nin training, we find anecdotally that adjustments to\ndocument scores are often counter-intuitive: doc-\numents that do not contain answers can still have\ntheir scores upvoted if the answer generator hap-\npens to find a correct answer by relying only on the\nability of T5 model. This works against a model\u2019s\nability to find answers in retrieved documents even\nwhen those documents are relevant.\n4.4.4 Effects of Ktrain\nAs noted, retrieving a large collection of documents\nin training is costly (large Ktrain). Fig. 4 shows\nthat RA-VQA can be trained with relatively few\nretrieved documents (Ktrain = 5). We gradually in-",
           "3.3 Ranking RAG Systems with Confidence\nIntervals\nOnce we have prepared our LLM judges, we need\nto use them to score and rank the competing RAG\nsystems. To do this, ARES samples the in-domain\nquery-document-answer triples produced by each\nRAG approach, and the judges label each triple,\npredicting their context relevance, answer faithful-\nness, and answer relevance. By averaging the in-\ndividual predicted labels for each in-domain triple,\nwe calculate the RAG system performance across\neach of the three metrics.\nIn principle, we could simply report these aver-\nage scores as quality metrics for each RAG system.\nHowever, these scores reflect entirely unlabeled\ndata with predictions from a synthetically-trained\nLLM judge, and hence they may not be entirely\naccurate. As an extreme alternative, we could use\njust the small human preference validation set dis-\ncussed previously for evaluation, reporting the ex-\ntent to which each RAG system agrees with (or",
@@ -249,17 +249,17 @@
           0.4587439298629761
         ]
       },
-      "query_time": 6.100628614425659,
+      "query_time": 1.7411954402923584,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.3186029776674938
+        "answer_quality": 0.36,
+        "relevance": 0.2
       }
     },
     {
       "query": "What evaluation metrics are proposed for assessing RAG system performance?",
       "response": {
         "question": "What evaluation metrics are proposed for assessing RAG system performance?",
-        "answer": "The evaluation metrics proposed for assessing RAG system performance are context relevance, answer faithfulness, and answer relevance. Additionally, Kendall\u2019s \u03c4 is mentioned as a metric for measuring the accuracy of pairwise comparisons between RAG systems.",
+        "answer": "The proposed evaluation metrics for assessing RAG system performance are context relevance, answer faithfulness, and answer relevance. Additionally, Kendall\u2019s \u03c4 is used for measuring the accuracy of pairwise comparisons between RAG systems.",
         "source_documents": [
           "3.3 Ranking RAG Systems with Confidence\nIntervals\nOnce we have prepared our LLM judges, we need\nto use them to score and rank the competing RAG\nsystems. To do this, ARES samples the in-domain\nquery-document-answer triples produced by each\nRAG approach, and the judges label each triple,\npredicting their context relevance, answer faithful-\nness, and answer relevance. By averaging the in-\ndividual predicted labels for each in-domain triple,\nwe calculate the RAG system performance across\neach of the three metrics.\nIn principle, we could simply report these aver-\nage scores as quality metrics for each RAG system.\nHowever, these scores reflect entirely unlabeled\ndata with predictions from a synthetically-trained\nLLM judge, and hence they may not be entirely\naccurate. As an extreme alternative, we could use\njust the small human preference validation set dis-\ncussed previously for evaluation, reporting the ex-\ntent to which each RAG system agrees with (or",
           "will be comparing different RAG configurations\nthrough individual pairwise comparisons of model\nchoices, retriever selection, and document prepro-\ncessing. We want to make sure that ARES has satis-\nfactory accuracy in pairwise comparisons across a\nvariety of performance gaps between RAG systems.\nKendall\u2019s \u03c4 is explicitly designed for measuring the\naccuracy of such pairwise comparisons, calculating\nthe correlation between a perfectly accurate pair-\nwise ranking and an experimental pairwise ranking.\nThus, it is a popular and widespread metric used in\ninformation retrieval, allowing developers to eval-\nuate ranking systems empirically. Therefore, we\nbelieve Kendall\u2019s tau and prediction accuracy pro-\nvide meaningful metrics for testing the efficacy of\nARES as a RAG evaluation system.\n5 Results & Analysis\n5.1 ARES Ranking\nTable 1 summarizes our main evaluation of ARES\n(with DeBERTa-v3-Large as the pretrained basis\nfor the judges). We compare against RAGAS (ver-",
@@ -291,17 +291,17 @@
           0.5346637964248657
         ]
       },
-      "query_time": 3.050501823425293,
+      "query_time": 1.6968679428100586,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.8868112798264642
+        "answer_quality": 0.9,
+        "relevance": 1.0
       }
     },
     {
       "query": "What are the computational benefits mentioned for non-parametric memory in transformers?",
       "response": {
         "question": "What are the computational benefits mentioned for non-parametric memory in transformers?",
-        "answer": "I cannot find the answer in the provided context.",
+        "answer": "The context does not provide specific information about the computational benefits of non-parametric memory in transformers. Therefore, I cannot answer the question based on the provided context.",
         "source_documents": [
           "memory in the datastore? To test this, we train a Transformer LM with no dropout. Figure 8 shows\nthat this model eventually reaches zero training loss, indicating that it can make perfect predictions\nfor all examples in the training set; the model has memorized the dataset. Naturally, the memorizing\nLM over\ufb01ts, i.e. the training loss drops to 0 while the best validation perplexity is much higher at\n28.59. For comparison, the vanilla Transformer LM (with dropout) has a much higher training loss\n(shown in Figure 8), but also generalizes better with a validation perplexity of 17.96. This result\nshows that the Transformer has suf\ufb01cient capacity to memorize the training set.\n7",
           "easier problem than implicitly memorizing the next word in model parameters.\nSimple vs Neural Representation We observe that many long-tail phenomena manifest as rare\nn-grams (e.g. names). Is it therefore possible to interpolate an n-gram model with a Transformer\nLM, as an alternative to our kNN approach? Figure 7 shows little improvement from using n-gram\nLMs \u2013 0.2 perplexity points (similarly to Bakhtin et al. (2018)). This result highlights the need to\nuse the learned representation function f(\u00b7) to measure similarity between more varied contexts.\nImplicit vs Explicit Memory If a neural representation function is crucial for kNN-LM, could\nimplicitly memorizing the training dataset in the neural network parameters replace the explicit\nmemory in the datastore? To test this, we train a Transformer LM with no dropout. Figure 8 shows\nthat this model eventually reaches zero training loss, indicating that it can make perfect predictions",
@@ -333,17 +333,17 @@
           0.4585023522377014
         ]
       },
-      "query_time": 1.423710823059082,
+      "query_time": 1.6004481315612793,
       "evaluation": {
-        "retrieval_accuracy": 0.6666666666666666,
-        "answer_quality": 0.2798573540280857
+        "answer_quality": 0.4,
+        "relevance": 0.5
       }
     },
     {
       "query": "How does prompt compression in LLMLingua maintain semantic integrity?",
       "response": {
         "question": "How does prompt compression in LLMLingua maintain semantic integrity?",
-        "answer": "I cannot find the answer in the provided context.",
+        "answer": "LLMLingua maintains semantic integrity in prompt compression by employing a coarse-to-fine method that includes a budget controller to dynamically allocate different compression ratios to various components of the original prompts. This approach allows for the preservation of essential information while reducing the length of the prompts. Additionally, the method ensures that the compressed prompts can still be effectively understood by LLMs, as evidenced by the ability of models like GPT-4 to recover significant semantic information from the compressed prompts.",
         "source_documents": [
           "be not suitable when the LLMs can be accessed via\nAPIs only.\nApproaches that attempt to reduce the length of\noriginal prompts while preserving essential infor-\nmation have emerged lately. These approaches are\ngrounded in the concept that natural language is\ninherently redundant (Shannon, 1951) and thus can\nbe compressed. Gilbert et al. (2023) also indicate\nthat LLMs can effectively reconstruct source code\nfrom compressed text descriptions while maintain-\ning a high level of functional accuracy. Therefore,\nwe follow this line of studies to compress a long\nprompt into a shorter one without any gradient flow\nthrough the LLMs to support applications based on\na larger range of LLMs.\nIn terms of information entropy, tokens with\nlower perplexity (PPL) contribute less to the over-\nall entropy gains of the language model. In other\nwords, removing tokens with lower perplexity has\na relatively minor impact on the LLM\u2019s compre-\nhension of the context. Motivated by this, Li",
           "all entropy gains of the language model. In other\nwords, removing tokens with lower perplexity has\na relatively minor impact on the LLM\u2019s compre-\nhension of the context. Motivated by this, Li\n(2023) propose Selective-Context, which first em-\nploys a small language model to compute the self-\ninformation of each lexical unit (such as sentences,\nphrases, or tokens) in original prompts, and then\ndrops the less informative content for prompt com-\npression. However, this method not only ignores\nthe interdependence between the compressed con-\ntents but also neglects the correspondence between\nthe LLM being targeted and the small language\nmodel used for prompt compression.\nThis paper proposes LLMLingua, a coarse-\nto-fine prompt compression method, to address\nthe aforementioned issues. Specifically, we first\npresent a budget controller to dynamically allo-\ncate different compression ratios to various com-\nponents in original prompts such as the instruction,",
@@ -375,17 +375,17 @@
           0.6147186756134033
         ]
       },
-      "query_time": 1.673217535018921,
+      "query_time": 2.9878029823303223,
       "evaluation": {
-        "retrieval_accuracy": 0.6666666666666666,
-        "answer_quality": 0.26993451066961
+        "answer_quality": 0.98,
+        "relevance": 1.0
       }
     },
     {
       "query": "What role does knowledge distillation play in training Re2G?",
       "response": {
         "question": "What role does knowledge distillation play in training Re2G?",
-        "answer": "Knowledge distillation in training Re2G serves as a method to transfer knowledge from a teacher model (the reranker) to a student model (the DPR model). It provides labels to the DPR model by using the probability distributions over retrieved passages from both models. This process allows the student model to learn not only from positive and negative instances but also from degrees of negativeness. Additionally, it occurs online during the training of the reranker, which helps stabilize training and improve performance by providing soft labels for more passages than just the top-k used for generation.",
+        "answer": "Knowledge distillation in training Re2G serves as a method to transfer knowledge from a teacher model (the reranker) to a student model (the DPR model). It provides labels to the DPR model by calculating the KL-divergence between the probability distributions over retrieved passages from both models. This process occurs online while the reranker is being trained, allowing the student model to learn not only from positive and negative instances but also from degrees of negativeness. Additionally, it helps in providing soft labels for more passages, as the student model retrieves 12 passages but only uses the top-k (k = 5) for generation. Overall, knowledge distillation enhances the training signal and improves performance in various datasets.",
         "source_documents": [
           "in two phases, first from the provenance ground\ntruth and then again in generation training in the\nRAG model.\nThe third solution is our novel application of\nknowledge distillation [Hinton et al., 2015]. We use\nthe reranker as a teacher model to provide labels to\nthe DPR student model. We distill the knowledge\nacross architectures: from an interaction model\nto a representation model. Further, this knowl-\nedge distillation occurs online, while the reranker\nis being trained. The loss for the initial retrieval is\ntherefore the KL-divergence between the probabil-\nity distribution it gives over the retrieved passages\nand the reranker\u2019s probability distribution over the\nsame passages. A temperature hyperparameter T\nsmooths these distributions to prevent excessive\nloss and stabilize training.\n2705",
           "Hindsight [Paranjape et al., 2021] 56.08 74.27 17.06 19.19 11.92 13.39\nRe2G (ours) 60.10 79.98 16.76 18.90 11.39 12.98\nSEAL [Bevilacqua et al., 2022] 57.55 78.96 16.65 18.34 10.45 11.63\nKGI0 [Glass et al., 2021] 55.37 78.45 16.36 18.57 10.36 11.79\nRAG [Petroni et al., 2021] 57.75 74.61 11.57 13.11 7.59 8.75\nKILT-WEB 2 [Piktus et al., 2021] 41.54 68.25 13.94 15.66 6.55 7.57\nTable 1: KILT leaderboard top systems\nloss = DKL\n(\nsoftmax\n(zs\nT\n)\ued79\ued79\ued79softmax\n(zt\nT\n))\n\u00b7T2\nThe knowledge distillation has the usual advan-\ntage of providing signal not only of positive and\nnegative instances, but degrees of negativeness. In\naddition, since we retrieve n = 12passages from\nDPR but only use the top-k (k = 5) for generation,\nthe knowledge distillation loss is providing a (soft)\nlabel for more passages.\n3.5 Inference\nAt inference time the query is encoded using the\nDPR query encoder and the top-12 passages from\nthe HNSW index are returned. The query is also\npassed to BM25 search, specifically Anserini 5,",
@@ -417,21 +417,20 @@
           0.5319093465805054
         ]
       },
-      "query_time": 3.8028366565704346,
+      "query_time": 3.6128878593444824,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.7777777777777778
+        "answer_quality": 1.0,
+        "relevance": 1.0
       }
     }
   ],
   "performance": {
-    "embedding_time": 25.35576891899109,
-    "indexing_time": 0.02620244026184082,
-    "retrieval_time": 0.11625361442565918,
-    "generation_time": 3.68149733543396,
-    "total_time": 29.26033067703247,
-    "memory_usage": 1073.15625,
-    "retrieval_accuracy": 0.9333333333333333,
-    "answer_quality": 0.5318434888240859
+    "vector_processing_time": 15.861870288848877,
+    "retrieval_time": 0.04829096794128418,
+    "generation_time": 3.5632083415985107,
+    "total_time": 51.753576040267944,
+    "memory_usage": 1097.609375,
+    "relevance": 0.75,
+    "answer_quality": 0.7300000000000001
   }
 }

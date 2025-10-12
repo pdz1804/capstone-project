@@ -233,7 +233,7 @@ Future Directions:
         
         self.logger.info(f"Created {len(sample_docs)} sample documents")
     
-    def run_implementation_benchmark(self, implementation_name: str, vector_store: str, llm_provider: str, documents: List[Dict[str, str]], rebuild: bool = True) -> Dict[str, Any]:
+    def run_implementation_benchmark(self, implementation_name: str, vector_store: str, llm_provider: str, documents: List[Dict[str, str]], rebuild: bool = True, num_queries: int = None, force_delete: bool = False) -> Dict[str, Any]:
         """Run benchmark for a specific implementation"""
         self.logger.info(f"Benchmarking {implementation_name} with {vector_store} and {llm_provider}")
         
@@ -248,7 +248,21 @@ Future Directions:
             start_time = time.time()
             
             if rebuild:
-                # Process documents and create index
+                if force_delete:
+                    # Destructive cleanup - actually delete files on disk
+                    self.logger.warning(f"Force deleting vector stores for {implementation_name}")
+                    if hasattr(rag_system, 'cleanup_storage_destructive'):
+                        rag_system.cleanup_storage_destructive()
+                    else:
+                        # Fallback to regular cleanup for implementations that don't have destructive method
+                        rag_system.cleanup_storage()
+                
+                # NOTE: For regular rebuild (not force_delete), we intentionally do not delete 
+                # persistent vector store files on disk (to avoid file-lock issues on Windows). 
+                # The implementations' cleanup_storage() methods are now non-destructive
+                # and we rely on create_* methods to overwrite/persist new data.
+
+                # Process documents and create index (rebuild by overwriting)
                 if implementation_name == "manual":
                     rag_system.process_documents(documents)
                     rag_system.create_vector_index()
@@ -273,8 +287,12 @@ Future Directions:
             
             setup_time = time.time() - start_time
             
-            # Run benchmark
-            results = rag_system.run_benchmark(Config.TEST_QUERIES, save_results=True)
+            # Run benchmark with specified number of queries
+            test_queries = Config.TEST_QUERIES
+            if num_queries is not None:
+                test_queries = test_queries[:num_queries]
+                
+            results = rag_system.run_benchmark(test_queries, save_results=True, num_queries=num_queries)
             results["setup_time"] = setup_time
             
             self.logger.info(f"Completed benchmark for {implementation_name}")
@@ -291,7 +309,7 @@ Future Directions:
                 "performance": {}
             }
     
-    def run_comprehensive_benchmark(self, vector_stores: List[str] = None, llm_providers: List[str] = None, rebuild: bool = True) -> Dict[str, Any]:
+    def run_comprehensive_benchmark(self, vector_stores: List[str] = None, llm_providers: List[str] = None, rebuild: bool = True, num_queries: int = None, force_delete: bool = False) -> Dict[str, Any]:
         """Run comprehensive benchmark across all implementations"""
         self.logger.info("Starting comprehensive benchmark")
         
@@ -299,13 +317,19 @@ Future Directions:
             vector_stores = ["faiss", "chroma"]
         if llm_providers is None:
             llm_providers = ["openai"]  # Start with OpenAI only for stability
+            
+        # Use specified number of queries or default
+        if num_queries is None:
+            num_queries = Config.DEFAULT_NUM_QUERIES
+            llm_providers = ["openai"]  # Start with OpenAI only for stability
         
         # Prepare test data
         documents = self.prepare_test_data()
         
         all_results = {
             "benchmark_timestamp": time.time(),
-            "test_queries": Config.TEST_QUERIES,
+            "test_queries": Config.TEST_QUERIES[:num_queries],
+            "num_queries": num_queries,
             "configurations": [],
             "summary": {}
         }
@@ -318,7 +342,7 @@ Future Directions:
                     self.logger.info(f"Running configuration: {config_name}")
                     
                     result = self.run_implementation_benchmark(
-                        impl_name, vector_store, llm_provider, documents, rebuild
+                        impl_name, vector_store, llm_provider, documents, rebuild, num_queries, force_delete
                     )
                     
                     all_results["configurations"].append(result)
@@ -377,15 +401,13 @@ Future Directions:
         
         if successful_configs:
             # Find best performers
-            best_total_time = min(successful_configs, key=lambda x: x.get("performance", {}).get("total_time", float('inf')))
             best_memory = min(successful_configs, key=lambda x: x.get("performance", {}).get("memory_usage", float('inf')))
-            best_retrieval_acc = max(successful_configs, key=lambda x: x.get("performance", {}).get("retrieval_accuracy", 0))
+            best_relevance = max(successful_configs, key=lambda x: x.get("performance", {}).get("relevance", 0))
             best_answer_quality = max(successful_configs, key=lambda x: x.get("performance", {}).get("answer_quality", 0))
             
             report.append("### 🏆 Key Findings\n")
-            report.append(f"- **Fastest Overall**: {best_total_time['method'].title()} ({best_total_time['vector_store']}) - {best_total_time.get('performance', {}).get('total_time', 0):.2f}s\n")
-            report.append(f"- **Most Memory Efficient**: {best_memory['method'].title()} ({best_memory['vector_store']}) - {best_memory.get('performance', {}).get('memory_usage', 0):.2f}MB\n")
-            report.append(f"- **Best Retrieval Accuracy**: {best_retrieval_acc['method'].title()} ({best_retrieval_acc['vector_store']}) - {best_retrieval_acc.get('performance', {}).get('retrieval_accuracy', 0):.3f}\n")
+            report.append(f"- **Most Memory Efficient**: {best_memory['method'].title()} ({best_memory['vector_store']}) - {best_memory.get('performance', {}).get('memory_usage', 0):.0f}MB\n")
+            report.append(f"- **Best Relevance (LLM)**: {best_relevance['method'].title()} ({best_relevance['vector_store']}) - {best_relevance.get('performance', {}).get('relevance', 0):.3f}\n")
             report.append(f"- **Best Answer Quality**: {best_answer_quality['method'].title()} ({best_answer_quality['vector_store']}) - {best_answer_quality.get('performance', {}).get('answer_quality', 0):.3f}\n\n")
         
         report.append("### 🎯 Implementation Approaches\n")
@@ -397,37 +419,37 @@ Future Directions:
         
         # Performance Overview with detailed table
         report.append("## ⚡ Performance Overview\n")
-        report.append("### Comprehensive Performance Matrix\n")
-        report.append("| Implementation | Vector Store | LLM | Total Time (s) | Memory (MB) | Setup (s) | Embedding (s) | Indexing (s) | Retrieval (s) | Generation (s) |\n")
-        report.append("|---------------|--------------|-----|----------------|-------------|-----------|---------------|--------------|---------------|----------------|\n")
+        report.append("### Performance Metrics\n")
+        report.append("| Implementation | Vector Store | Setup (s) | Vector Processing (s) | Retrieval (s) | Generation (s) | Process Memory (MB) |\n")
+        report.append("|---------------|--------------|-----------|----------------------|---------------|----------------|-----------------|\n")
         
         for config in successful_configs:
             perf = config.get("performance", {})
             # Fix missing values with proper fallbacks
-            total_time = perf.get('total_time', 0) or 0
             memory_usage = perf.get('memory_usage', 0) or 0
             setup_time = config.get('setup_time', 0) or 0
-            embedding_time = perf.get('embedding_time', 0) or 0
-            indexing_time = perf.get('indexing_time', 0) or 0
+            vector_processing_time = perf.get('vector_processing_time', 0) or 0
             retrieval_time = perf.get('retrieval_time', 0) or 0
             generation_time = perf.get('generation_time', 0) or 0
             
-            # Mark missing values as 'X'
-            total_time_str = f"{total_time:.2f}" if total_time > 0 else "X"
-            memory_usage_str = f"{memory_usage:.1f}" if memory_usage > 0 else "X"
+            # Mark missing or zero values as 'X' for clarity
+            memory_usage_str = f"{memory_usage:.0f}" if memory_usage > 0 else "X"
             setup_time_str = f"{setup_time:.2f}" if setup_time > 0 else "X"
-            embedding_time_str = f"{embedding_time:.3f}" if embedding_time > 0 else "X"
-            indexing_time_str = f"{indexing_time:.3f}" if indexing_time > 0 else "X"
+            vector_processing_time_str = f"{vector_processing_time:.3f}" if vector_processing_time > 0 else "X"
             retrieval_time_str = f"{retrieval_time:.3f}" if retrieval_time > 0 else "X"
             generation_time_str = f"{generation_time:.3f}" if generation_time > 0 else "X"
             
-            report.append(f"| **{config['method'].title()}** | {config['vector_store']} | {config['llm_provider']} | "
-                         f"{total_time_str} | {memory_usage_str} | "
-                         f"{setup_time_str} | {embedding_time_str} | "
-                         f"{indexing_time_str} | {retrieval_time_str} | "
-                         f"{generation_time_str} |\n")
+            report.append(f"| **{config['method'].title()}** | {config['vector_store']} | "
+                         f"{setup_time_str} | {vector_processing_time_str} | "
+                         f"{retrieval_time_str} | {generation_time_str} | {memory_usage_str} |\n")
         
         report.append("\n")
+        report.append("**Metrics Explanation:**\n")
+        report.append("- **Setup**: Time to initialize components and load models\n")
+        report.append("- **Vector Processing**: Combined embedding generation + vector index creation time\n")
+        report.append("- **Retrieval**: Time to query vector store and retrieve relevant documents\n")
+        report.append("- **Generation**: Time for LLM to generate the final answer\n")
+        report.append("- **Process Memory**: Total Python process memory (RSS) including models, data, and runtime\n\n")
         
         # Quality Metrics Analysis
         report.append("## 🎯 Quality Metrics Analysis\n")
@@ -446,8 +468,8 @@ Future Directions:
         # Generate detailed tables for each implementation
         for impl_name, configs in impl_configs.items():
             report.append(f"#### {impl_name.title()} Implementation Results\n")
-            report.append("| Vector Store | Query | Retrieval Accuracy | Answer Quality | Response Time (s) |\n")
-            report.append("|--------------|-------|-------------------|----------------|------------------|\n")
+            report.append("| Vector Store | Query | Relevance (LLM) | Answer Quality | Response Time (s) |\n")
+            report.append("|--------------|-------|-----------------|----------------|------------------|\n")
             
             for config in configs:
                 vector_store = config['vector_store']
@@ -456,37 +478,38 @@ Future Directions:
                 for i, query_result in enumerate(queries[:10]):  # Show first 10 queries
                     query_text = query_result.get('query', f'Query {i+1}')[:50] + "..." if len(query_result.get('query', '')) > 50 else query_result.get('query', f'Query {i+1}')
                     evaluation = query_result.get('evaluation', {})
-                    retrieval_acc = evaluation.get('retrieval_accuracy', 0)
+                    relevance = evaluation.get('relevance', 0)
                     answer_qual = evaluation.get('answer_quality', 0)
                     query_time = query_result.get('query_time', 0)
                     
                     # Mark missing values as 'X'
-                    retrieval_acc_str = f"{retrieval_acc:.3f}" if retrieval_acc > 0 else "X"
+                    relevance_str = f"{relevance:.3f}" if relevance > 0 else "X"
                     answer_qual_str = f"{answer_qual:.3f}" if answer_qual > 0 else "X"
                     query_time_str = f"{query_time:.3f}" if query_time > 0 else "X"
                     
-                    report.append(f"| {vector_store} | {query_text} | {retrieval_acc_str} | {answer_qual_str} | {query_time_str} |\n")
+                    report.append(f"| {vector_store} | {query_text} | {relevance_str} | {answer_qual_str} | {query_time_str} |\n")
             
             report.append("\n")
         
         # Summary quality table
         report.append("### Overall Quality Summary\n")
-        report.append("| Implementation | Vector Store | Retrieval Accuracy | Answer Quality | Combined Score |\n")
-        report.append("|---------------|--------------|-------------------|----------------|----------------|\n")
-        
+        report.append("| Implementation | Vector Store | Relevance (LLM) | Answer Quality | Combined Score |\n")
+        report.append("|---------------|--------------|-----------------|----------------|----------------|\n")
+
         for config in successful_configs:
             perf = config.get("performance", {})
-            retrieval_acc = perf.get("retrieval_accuracy", 0)
+            # Handle both old and new field names for backward compatibility
+            relevance = perf.get("relevance", perf.get("retrieval_accuracy", 0))
             answer_qual = perf.get("answer_quality", 0)
-            combined = (retrieval_acc + answer_qual) / 2 if retrieval_acc > 0 and answer_qual > 0 else 0
-            
+            combined = (relevance + answer_qual) / 2 if relevance > 0 and answer_qual > 0 else 0
+
             # Mark missing values as 'X'
-            retrieval_acc_str = f"{retrieval_acc:.3f}" if retrieval_acc > 0 else "X"
+            relevance_str = f"{relevance:.3f}" if relevance > 0 else "X"
             answer_qual_str = f"{answer_qual:.3f}" if answer_qual > 0 else "X"
             combined_str = f"{combined:.3f}" if combined > 0 else "X"
-            
+
             report.append(f"| **{config['method'].title()}** | {config['vector_store']} | "
-                         f"{retrieval_acc_str} | {answer_qual_str} | {combined_str} |\n")
+                         f"{relevance_str} | {answer_qual_str} | {combined_str} |\n")
         
         report.append("\n### Quality Insights\n")
         
@@ -495,15 +518,16 @@ Future Directions:
         for config in successful_configs:
             method = config['method']
             if method not in quality_analysis:
-                quality_analysis[method] = {'retrieval': [], 'answer': []}
+                quality_analysis[method] = {'relevance': [], 'answer': []}
             perf = config.get("performance", {})
-            quality_analysis[method]['retrieval'].append(perf.get("retrieval_accuracy", 0))
+            # Handle both old and new field names for backward compatibility
+            quality_analysis[method]['relevance'].append(perf.get("relevance", perf.get("retrieval_accuracy", 0)))
             quality_analysis[method]['answer'].append(perf.get("answer_quality", 0))
-        
+
         for method, scores in quality_analysis.items():
-            avg_retrieval = sum(scores['retrieval']) / len(scores['retrieval']) if scores['retrieval'] else 0
+            avg_relevance = sum(scores['relevance']) / len(scores['relevance']) if scores['relevance'] else 0
             avg_answer = sum(scores['answer']) / len(scores['answer']) if scores['answer'] else 0
-            report.append(f"- **{method.title()}**: Avg Retrieval = {avg_retrieval:.3f}, Avg Answer Quality = {avg_answer:.3f}\n")
+            report.append(f"- **{method.title()}**: Avg Relevance = {avg_relevance:.3f}, Avg Answer Quality = {avg_answer:.3f}\n")
         
         report.append("\n")
         
@@ -560,9 +584,13 @@ Future Directions:
             
             # Quality metrics
             report.append(f"\n#### 🎯 Quality Assessment\n")
-            report.append(f"- **Retrieval Accuracy**: {perf.get('retrieval_accuracy', 0):.3f}\n")
-            report.append(f"- **Answer Quality**: {perf.get('answer_quality', 0):.3f}\n")
-            report.append(f"- **Overall Score**: {(perf.get('retrieval_accuracy', 0) + perf.get('answer_quality', 0))/2:.3f}\n")
+            # Handle both old and new field names for backward compatibility
+            relevance = perf.get('relevance', perf.get('retrieval_accuracy', 0))
+            answer_quality = perf.get('answer_quality', 0)
+            overall_score = (relevance + answer_quality) / 2
+            report.append(f"- **Relevance (LLM)**: {relevance:.3f}\n")
+            report.append(f"- **Answer Quality**: {answer_quality:.3f}\n")
+            report.append(f"- **Overall Score**: {overall_score:.3f}\n")
             
             report.append("\n")
         
@@ -702,25 +730,25 @@ Future Directions:
             for config in successful_configs:
                 method = config['method']
                 if method not in method_stats:
-                    method_stats[method] = {'times': [], 'memory': [], 'retrieval': [], 'quality': []}
+                    method_stats[method] = {'times': [], 'memory': [], 'relevance': [], 'quality': []}
                 
                 perf = config.get("performance", {})
                 method_stats[method]['times'].append(perf.get('total_time', 0))
                 method_stats[method]['memory'].append(perf.get('memory_usage', 0))
-                method_stats[method]['retrieval'].append(perf.get('retrieval_accuracy', 0))
+                method_stats[method]['relevance'].append(perf.get('relevance', 0))
                 method_stats[method]['quality'].append(perf.get('answer_quality', 0))
             
             report.append("### Average Performance by Method\n")
-            report.append("| Method | Avg Time (s) | Avg Memory (MB) | Avg Retrieval Acc | Avg Answer Quality |\n")
-            report.append("|--------|--------------|-----------------|-------------------|--------------------|\n")
+            report.append("| Method | Avg Time (s) | Avg Memory (MB) | Avg Relevance (LLM) | Avg Answer Quality |\n")
+            report.append("|--------|--------------|-----------------|---------------------|--------------------|\n")
             
             for method, stats in method_stats.items():
                 avg_time = sum(stats['times']) / len(stats['times']) if stats['times'] else 0
                 avg_memory = sum(stats['memory']) / len(stats['memory']) if stats['memory'] else 0
-                avg_retrieval = sum(stats['retrieval']) / len(stats['retrieval']) if stats['retrieval'] else 0
+                avg_relevance = sum(stats['relevance']) / len(stats['relevance']) if stats['relevance'] else 0
                 avg_quality = sum(stats['quality']) / len(stats['quality']) if stats['quality'] else 0
                 
-                report.append(f"| **{method.title()}** | {avg_time:.2f} | {avg_memory:.1f} | {avg_retrieval:.3f} | {avg_quality:.3f} |\n")
+                report.append(f"| **{method.title()}** | {avg_time:.2f} | {avg_memory:.1f} | {avg_relevance:.3f} | {avg_quality:.3f} |\n")
             
             report.append("\n")
         
@@ -847,7 +875,7 @@ Future Directions:
                     }
                 ],
                 max_tokens=4000,
-                temperature=0.3
+                temperature=0
             )
             
             analysis = response.choices[0].message.content
@@ -1010,14 +1038,14 @@ Please be specific with numbers from the data and provide actionable insights. F
         # Add basic metrics comparison
         if data.get("metrics"):
             report.append("## Performance Metrics Summary\n\n")
-            report.append("| Method | Total Time (s) | Memory (MB) | Retrieval Acc. | Answer Quality |\n")
-            report.append("|--------|---------------|-------------|----------------|----------------|\n")
+            report.append("| Method | Total Time (s) | Memory (MB) | Relevance (LLM) | Answer Quality |\n")
+            report.append("|--------|---------------|-------------|-----------------|----------------|\n")
             
             for method, metrics in data["metrics"].items():
                 perf = metrics.get("metrics", {})
                 report.append(f"| {method.title()} | {perf.get('total_time', 0):.2f} | ")
                 report.append(f"{perf.get('memory_usage', 0):.2f} | ")
-                report.append(f"{perf.get('retrieval_accuracy', 0):.3f} | ")
+                report.append(f"{perf.get('relevance', 0):.3f} | ")
                 report.append(f"{perf.get('answer_quality', 0):.3f} |\n")
             
             report.append("\n")
@@ -1071,11 +1099,32 @@ def main():
     parser.add_argument("--llm-providers", nargs="+", choices=["openai", "azure", "gemini", "ollama"], default=["openai"])
     parser.add_argument("--data-dir", default="./data")
     parser.add_argument("--rebuild", action="store_true", help="Rebuild all vector stores")
+    parser.add_argument("--force-delete", action="store_true", help="Force destructive cleanup of vector stores (WARNING: deletes files on disk)")
     parser.add_argument("--report-only", action="store_true", help="Generate report from existing results")
     parser.add_argument("--ai-report", action="store_true", help="Generate AI-powered analysis report")
     parser.add_argument("--both-reports", action="store_true", help="Generate both template and AI reports")
+    parser.add_argument("--num-queries", type=int, default=Config.DEFAULT_NUM_QUERIES, 
+                        help=f"Number of test queries to run (default: {Config.DEFAULT_NUM_QUERIES})")
     
     args = parser.parse_args()
+    
+    # Safety check for force-delete on Windows
+    if args.force_delete:
+        import platform
+        if platform.system() == "Windows":
+            print("⚠️  WARNING: --force-delete will delete vector store files on disk.")
+            print("   This may cause file lock errors on Windows if files are in use.")
+            print("   Consider using regular --rebuild instead (non-destructive).")
+            
+        print("\n🚨 DESTRUCTIVE OPERATION CONFIRMED:")
+        print("   This will permanently delete existing vector store files.")
+        confirmation = input("   Type 'DELETE' to confirm: ")
+        
+        if confirmation != "DELETE":
+            print("❌ Operation cancelled. Use --rebuild for safe non-destructive rebuilding.")
+            return
+        
+        print("✅ Destructive cleanup confirmed. Proceeding...")
     
     # Initialize benchmark runner
     benchmark = RAGBenchmark(data_dir=args.data_dir)
@@ -1110,7 +1159,9 @@ def main():
         results = benchmark.run_comprehensive_benchmark(
             vector_stores=args.vector_stores,
             llm_providers=args.llm_providers,
-            rebuild=args.rebuild
+            rebuild=args.rebuild,
+            num_queries=args.num_queries,
+            force_delete=args.force_delete
         )
         
         # Generate comparison report (template by default)
