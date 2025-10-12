@@ -17,7 +17,6 @@ from langchain.chains import RetrievalQA
 from langchain_community.llms import OpenAI
 from langchain.schema import Document
 from langchain_openai import ChatOpenAI
-from langchain_community.llms import Ollama
 from langchain_community.chat_models import ChatOllama
 
 try:
@@ -46,6 +45,53 @@ class LangChainRAG:
         self.logger = setup_logging("langchain")
         
         self.logger.info(f"Initializing LangChain RAG with {vector_store_type} and {llm_provider}")
+        
+    def cleanup_storage(self):
+        """Clean up existing vector stores to ensure fresh start"""
+        import shutil
+        # NOTE: On some platforms (Windows) files in use can cause
+        # race conditions when attempting to delete persistent stores.
+        # To make benchmarks safer and non-destructive, we intentionally
+        # avoid deleting existing vector store files here. Instead, the
+        # benchmark flow will overwrite or persist new data when rebuilding.
+        self.logger.info("Skipping destructive cleanup of LangChain vector stores (non-destructive mode)")
+        print("🧹 Skipping deletion of LangChain vector stores (kept for safety)")
+
+        # Reset internal state so the instance will recreate stores when asked
+        self.vector_store = None
+        self.retrieval_chain = None
+        print(f"✅ LangChain storage cleanup skipped")
+        
+    def cleanup_storage_destructive(self):
+        """Destructive cleanup - actually delete vector store files from disk"""
+        import shutil
+        self.logger.warning("Performing DESTRUCTIVE cleanup - deleting LangChain vector store files")
+        
+        # Reset in-memory state first
+        self.vector_store = None
+        self.retrieval_chain = None
+        
+        # Delete actual files from disk
+        try:
+            if self.vector_store_type == "faiss":
+                index_path = Config.VECTOR_STORE_CONFIGS["faiss"].index_path
+                if Path(index_path).exists():
+                    # Remove the entire directory
+                    shutil.rmtree(Path(index_path).parent, ignore_errors=True)
+                    self.logger.info(f"Deleted FAISS index directory: {Path(index_path).parent}")
+                    
+            elif self.vector_store_type == "chroma":
+                persist_directory = Config.VECTOR_STORE_CONFIGS["chroma"].index_path
+                if Path(persist_directory).exists():
+                    # Remove the entire Chroma database directory
+                    shutil.rmtree(persist_directory, ignore_errors=True)
+                    self.logger.info(f"Deleted Chroma database directory: {persist_directory}")
+                    
+        except Exception as e:
+            self.logger.error(f"Failed to delete LangChain vector store files: {e}")
+            # Don't raise - continue with benchmark even if deletion fails
+        
+        print(f"🗑️ LangChain destructive cleanup completed")
         
     def _setup_embeddings(self):
         """Setup embedding model"""
@@ -97,6 +143,7 @@ class LangChainRAG:
     def process_documents(self, documents: List[Dict[str, str]]) -> List[Document]:
         """Process and chunk documents"""
         self.logger.info(f"Processing {len(documents)} documents")
+        # Start combined timer for embedding + vector store creation
         self.tracker.start_timer()
         
         # Setup text splitter
@@ -117,8 +164,11 @@ class LangChainRAG:
         
         # Split documents
         split_docs = text_splitter.split_documents(langchain_docs)
+    # Do not stop vector_processing_time here — embedding and index creation
+    # are performed in create_vector_store() and should be included in the
+    # combined vector_processing_time. We'll stop the timer there.
         
-        self.tracker.stop_timer("document_processing_time")
+    # Return split documents for downstream embedding/indexing
         self.logger.info(f"Created {len(split_docs)} chunks")
         
         return split_docs
@@ -126,14 +176,9 @@ class LangChainRAG:
     def create_vector_store(self, documents: List[Document]):
         """Create and populate vector store"""
         self.logger.info(f"Creating {self.vector_store_type} vector store")
-        
-        # Setup embeddings (track this as embedding setup time)
-        embedding_start = time.time()
+        # Setup embeddings and vector store. We include the time for embeddings
+        # and index creation in the tracker's 'vector_processing_time'.
         self._setup_embeddings()
-        self.tracker.metrics.embedding_time = time.time() - embedding_start
-        
-        # Track indexing time separately
-        self.tracker.start_timer()
         
         # Create vector store
         if self.vector_store_type == "faiss":
@@ -156,8 +201,9 @@ class LangChainRAG:
             self.vector_store.persist()
         else:
             raise ValueError(f"Unsupported vector store: {self.vector_store_type}")
-        
-        self.tracker.stop_timer("indexing_time")
+        # Stop the combined embedding+indexing timer now that store creation finished
+        self.tracker.stop_timer("vector_processing_time")
+
         self.logger.info("Vector store created successfully")
     
     def setup_retrieval_chain(self):
@@ -205,15 +251,11 @@ class LangChainRAG:
         # Prepare context from retrieved documents
         context = "\n\n".join([doc.page_content for doc in retrieved_docs])
         
-        # Create prompt manually (replicating what RetrievalQA does internally)
-        # This manual approach allows us to measure only the LLM inference time
-        # without including retrieval overhead
-        prompt = f"""Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
-
-{context}
-
-Question: {question}
-Answer:"""
+        # Use standardized prompt template from config
+        prompt = Config.RAG_PROMPT_TEMPLATE.format(
+            context=context,
+            question=question
+        )
         
         # Call LLM directly for generation only (bypassing retrieval_chain for timing)
         # Alternative approach: Use self.retrieval_chain({"query": question}) for production
@@ -264,9 +306,13 @@ Answer:"""
         
         self.logger.info("Vector store loaded successfully")
     
-    def run_benchmark(self, test_queries: List[str], save_results: bool = True) -> Dict[str, Any]:
-        """Run benchmark tests"""
+    def run_benchmark(self, test_queries: List[str], save_results: bool = True, num_queries: int = None) -> Dict[str, Any]:
+        """Run benchmark tests with advanced evaluation"""
         self.logger.info("Starting benchmark tests")
+        
+        # Limit number of queries if specified
+        if num_queries is not None:
+            test_queries = test_queries[:num_queries]
         
         results = {
             "method": "langchain",
@@ -277,10 +323,9 @@ Answer:"""
         }
         
         total_start_time = time.time()
-        
         # Track evaluation metrics
-        total_retrieval_accuracy = 0.0
         total_answer_quality = 0.0
+        total_relevance = 0.0
         
         for query in test_queries:
             self.logger.info(f"Benchmarking query: {query}")
@@ -296,8 +341,8 @@ Answer:"""
                 retrieved_docs=response["source_documents"]
             )
             
-            total_retrieval_accuracy += evaluation['retrieval_accuracy']
-            total_answer_quality += evaluation['answer_quality']
+            total_answer_quality += evaluation.get('answer_quality', 0.0)
+            total_relevance += evaluation.get('relevance', 0.0)
             
             query_result = {
                 "query": query,
@@ -308,12 +353,15 @@ Answer:"""
             results["queries"].append(query_result)
         
         total_time = time.time() - total_start_time
-        
+
         # Calculate average evaluation metrics
         num_queries = len(test_queries)
-        self.tracker.metrics.retrieval_accuracy = total_retrieval_accuracy / num_queries if num_queries > 0 else 0.0
+
+        # Store averaged evaluation metrics (LLM-based)
         self.tracker.metrics.answer_quality = total_answer_quality / num_queries if num_queries > 0 else 0.0
-        
+        # Save relevance as a metric too
+        self.tracker.metrics.relevance = total_relevance / num_queries if num_queries > 0 else 0.0
+
         # Record performance metrics
         self.tracker.record_memory_usage()
         self.tracker.metrics.total_time = total_time
@@ -333,7 +381,7 @@ Answer:"""
             metrics_path = f"{Config.LOGS_DIR}/langchain_{self.vector_store_type}_{self.llm_provider}_metrics.json"
             self.tracker.save_metrics(metrics_path)
         
-        self.logger.info(f"Benchmark completed - Avg Retrieval Accuracy: {self.tracker.metrics.retrieval_accuracy:.3f}, Avg Answer Quality: {self.tracker.metrics.answer_quality:.3f}")
+        self.logger.info(f"Benchmark completed - Avg Answer Quality: {self.tracker.metrics.answer_quality:.3f}, Avg Relevance: {getattr(self.tracker.metrics, 'relevance', 0.0):.3f}")
         return results
 
 def main():

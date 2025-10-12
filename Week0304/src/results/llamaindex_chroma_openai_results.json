@@ -7,7 +7,7 @@
       "query": "What is Re2G and how does it combine retrieval and reranking?",
       "response": {
         "question": "What is Re2G and how does it combine retrieval and reranking?",
-        "answer": "Re2G is a model that significantly advances the state-of-the-art in various natural language processing tasks, including slot filling, question answering, fact checking, and dialogue systems. It combines retrieval and reranking by utilizing a two-step process: first, it retrieves relevant passages using a retrieval mechanism (like BM25 or DPR), and then it applies a reranker to evaluate and score these passages based on their relevance to the query.\n\nIn Re2G, the score from the reranker, rather than the initial retrieval score, is used to weight the impact of each sequence during the generation process. This allows the reranker to be trained on the ground truth of the target output, although it results in the gradient for the query encoder being zero, as the marginalization does not depend on the inner product of the query and passage representation vectors. To address this issue, the authors consider several potential solutions, including combining the scores from the DPR and reranker, freezing the query encoder, or employing online knowledge distillation. However, combining the scores is deemed flawed because it would train the DPR score to provide a complementary signal to the reranker, which could undermine the effectiveness of the reranking process.",
+        "answer": "Re2G is a model that significantly advances the state-of-the-art in various natural language processing tasks, including slot filling, question answering, fact checking, and dialogue systems. It combines retrieval and reranking by utilizing a two-step process: first, it retrieves relevant passages using methods like BM25 and Dense Passage Retrieval (DPR), and then it employs a reranker to evaluate and score these passages based on their relevance to the query.\n\nIn Re2G, the score from the reranker, rather than the initial retrieval scores, is used to weight the impact of each sequence during the generation process. This allows the reranker to be trained on the ground truth of the target output, although it results in the gradient for the query encoder being zero, as the marginalization does not depend on the inner product of the query and passage representation vectors. To address this issue, the authors consider several potential solutions, including combining the scores from DPR and the reranker, freezing the query encoder, or using online knowledge distillation. However, combining the scores is deemed flawed because it would train the DPR to provide a complementary signal to the reranker, which could undermine the effectiveness of the reranking process.",
         "source_documents": [
           "Re2G-BM25 55.83\u00b11.76 72.72 \u00b11.58 17.15\u00b10.51 19.17 \u00b10.56 11.13 \u00b10.57 12.52 \u00b10.63\nKGI0 48.04\u00b11.77 71.02 \u00b11.61 16.75\u00b10.48 19.04 \u00b10.53 9.48 \u00b10.53 10.74 \u00b10.59\nTable 3: Development Set Results for Re2G Variations\nbecause it has selected some entity as a filler related\nin a different way (6/17) or it has failed to retrieve\nthe necessary passage (9/17).\n6 Conclusions\nRe2G considerably advanced the state-of-the-art\nacross five KILT datasets, and still holds the top po-\nsition in four of the five. Relative to previous work,\nsuch as RAG or KGI, Re2G substantially improves\nboth in retrieval and end-to-end performance on\nslot filling, question answering, fact checking, and\ndialog. The reranker alone improves performance\nand enables the inclusion of multiple sources of\ninitial retrieval. This architecture permits us to\nintegrate results from BM25, further improving ac-\ncuracy. Our online knowledge distillation is able\nto improve the performance of DPR in four of the",
           "Consider that in Re2G the score from the\nreranker, not the initial retrieval, is used to weight\nthe impact of each sequence in generation. This al-\nlows the reranker to be trained through the ground\ntruth on target output, but it means the gradient for\nthe query encoder will be zero since the marginal-\nization no longer depends on the inner product from\nthe query and passage representation vectors.\nP(sj) =softmax(zr)j\nP(ti|sj) =softmax(BART(sj)i)ti\nloss = \u2212\n\u2211\ni,j\nlog (P(ti|sj) \u00b7P(sj))\nWe consider three possible resolutions to this\nissue.\n\u2022 Combine the DPR and reranker scores\n\u2022 Freeze the query encoder\n\u2022 Online Knowledge Distillation\nThe first candidate solution is tempting but fa-\ntally flawed. By adding the log softmax from DPR\nand the reranker we can ensure that both systems\nare trained through impact in generation. However,\nif the DPR score is added to the reranker score, then\nthe DPR score is being trained to provide a com-\nplementary signal to the reranker. Therefore, when",
@@ -15,9 +15,9 @@
         ],
         "metadata": [
           {
+            "source": "data\\proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "chunk_id": 438,
             "filename": "proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
-            "source": "data\\proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "doc_id": 6
           },
           {
@@ -28,8 +28,8 @@
           },
           {
             "filename": "proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
-            "source": "data\\proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "chunk_id": 460,
+            "source": "data\\proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "doc_id": 6
           }
         ],
@@ -39,10 +39,10 @@
           0.6635615131267423
         ]
       },
-      "query_time": 5.4719812870025635,
+      "query_time": 5.05039644241333,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.84
+        "answer_quality": 1.0,
+        "relevance": 1.0
       }
     },
     {
@@ -63,15 +63,15 @@
             "doc_id": 7
           },
           {
-            "source": "data\\proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
-            "filename": "proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
             "chunk_id": 510,
+            "filename": "proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
+            "source": "data\\proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
             "doc_id": 7
           },
           {
             "chunk_id": 506,
-            "filename": "proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
             "source": "data\\proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
+            "filename": "proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
             "doc_id": 7
           }
         ],
@@ -81,10 +81,10 @@
           0.6093980915858138
         ]
       },
-      "query_time": 0.7790334224700928,
+      "query_time": 0.6067776679992676,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.163
+        "answer_quality": 0.1,
+        "relevance": 0.0
       }
     },
     {
@@ -106,8 +106,8 @@
           },
           {
             "source": "data\\proceedings-of-the-2023-conference-on-empirical-methods-in-natural-language-processing-pages-13358-13376.pdf",
-            "filename": "proceedings-of-the-2023-conference-on-empirical-methods-in-natural-language-processing-pages-13358-13376.pdf",
             "chunk_id": 607,
+            "filename": "proceedings-of-the-2023-conference-on-empirical-methods-in-natural-language-processing-pages-13358-13376.pdf",
             "doc_id": 8
           },
           {
@@ -123,10 +123,10 @@
           0.6294901411291761
         ]
       },
-      "query_time": 1.0089473724365234,
+      "query_time": 1.2300481796264648,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.5709267791032496
+        "answer_quality": 0.9,
+        "relevance": 1.0
       }
     },
     {
@@ -145,15 +145,15 @@
             "filename": "proceedings-of-the-2024-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf"
           },
           {
-            "chunk_id": 668,
             "source": "data\\proceedings-of-the-2024-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
+            "chunk_id": 668,
             "filename": "proceedings-of-the-2024-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "doc_id": 9
           },
           {
+            "filename": "proceedings-of-the-2024-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "source": "data\\proceedings-of-the-2024-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "chunk_id": 654,
-            "filename": "proceedings-of-the-2024-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "doc_id": 9
           }
         ],
@@ -163,17 +163,17 @@
           0.5430820896610865
         ]
       },
-      "query_time": 1.205589771270752,
+      "query_time": 1.0101542472839355,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.8000838527578501
+        "answer_quality": 1.0,
+        "relevance": 1.0
       }
     },
     {
       "query": "What are the main advantages of neural retrieval over BM25 in these papers?",
       "response": {
         "question": "What are the main advantages of neural retrieval over BM25 in these papers?",
-        "answer": "The main advantages of neural retrieval over BM25, as indicated in the provided context, include:\n\n1. **Performance on Natural Questions**: The ICT pre-trained retriever outperforms BM25 by a significant margin (6 to 19 points in exact match) on datasets where users are seeking information, such as Natural Questions, WebQuestions, and CuratedTrec. This suggests that neural retrieval can better capture the nuances of user queries and provide more relevant results in these contexts.\n\n2. **Handling Complex Queries**: Neural retrieval models, particularly those based on language models, may be better equipped to understand and process complex queries compared to BM25, which relies heavily on exact word matching.\n\n3. **Learning Representations**: Neural retrieval systems can learn to represent text in a more nuanced way through training, potentially capturing semantic relationships that BM25's word-matching approach may miss.\n\nHowever, it is also noted that in datasets where question askers already know the answer (like SQuAD), BM25's precise word representation can outperform neural retrieval due to the nature of the retrieval problem.",
+        "answer": "The main advantages of neural retrieval over BM25, as indicated in the provided context, include:\n\n1. **Performance on Natural Questions**: The ICT pre-trained retriever outperforms BM25 by a significant margin (6 to 19 points in exact match) on datasets where users are seeking information, such as Natural Questions, WebQuestions, and CuratedTrec. This suggests that neural retrieval can better capture the nuances of user queries and provide more relevant results in these contexts.\n\n2. **Handling Complex Queries**: Neural retrieval models, particularly those based on language models, may be better equipped to understand and process complex queries that go beyond simple word matching, which is a limitation of BM25.\n\n3. **Learning from Data**: Unlike BM25, which is a static retrieval system based on word matching, neural retrieval models can be fine-tuned and learn from data, potentially improving their performance over time as they adapt to the specific characteristics of the queries and documents.\n\n4. **Integration with Language Understanding**: Neural retrieval models can leverage deep learning techniques to understand language context and semantics, which may lead to better retrieval performance in scenarios where exact word matches are not sufficient.\n\nHowever, it is also noted that in datasets like SQuAD, where the question askers already know the answer, BM25's precise word representation can outperform neural retrieval models, highlighting that the effectiveness of each approach can depend on the specific context and dataset.",
         "source_documents": [
           "Based on existing IR literature and the\nintuition that LMs do not explicitly optimize for\nretrieval, we do not expect these to be strong base-\nlines, but they demonstrate the dif\ufb01culty of encod-\ning blocks of text into 128 dimensions.\n8.2 Results\nThe main results are show in Table 5. The \ufb01rst\nresult to note is that BM25 is a powerful re-\ntrieval system. Word matching is important, and\n3https://lucene.apache.org/\n4https://tfhub.dev/google/nnlm-en-dim128/1\n5https://allennlp.org/elmo\n\nModel Evidence SQuADRetrieved\nDRQA 5 documents 27.1\nDRQA (DS) 5 documents 28.4\nDRQA (DS + MTL) 5 documents 29.8\nBERT SERINI 5 documents 19.1\nBERT SERINI 29 paragraphs 36.6\nBERT SERINI 100 paragraphs 38.6\nBM25 + BERT 5 blocks 34.7(gold deriv.)\nTable 6: Analysis: Results comparable to previous\nwork in the strongly supervised setting, where models\nhave access to gold derivations from SQuAD. Differ-\nent systems segment Wikipedia differently. There are\n5.1M documents, 29.5M paragraphs, and 12.1M blocks\nin the December 12, 2016 Wikipedia snapshot.\ndense vector representations derived from lan-\nguage models do not readily capture this.\nWe also show that on questions that were de-\nrived from real users who are seeking informa-\ntion (Natural Questions, WebQuestions, and Cu-\nratedTrec), our ICT pre-trained retriever outper-\nforms BM25 by a large marge\u20146 to 19 points in\nexact match depending on the dataset.\nHowever, in datasets where the question askers\nalready know the answer, i.e. SQuAD and Triv-\niaQA, the retrieval problem resembles traditional\nIR. In this setting, a highly compressed 128-\ndimensional vector cannot match BM25\u2019s ability\nto precisely represent every word in the evidence.\nThe notable drop between development and test\naccuracy for SQuAD is a re\ufb02ection of an artifact\nin the dataset\u2014its 100k questions are derived from\nonly 536 documents. Therefore, good retrieval tar-\ngets are highly correlated between training exam-\nples, violating the IID assumption, and making it\nunsuitable for learned retrieval. We strongly sug-\ngest that those who are interested in end-to-end\nopen-domain QA models no longer train and eval-\nuate with SQuAD for this reason.\n9 Analysis\n9.1 Strongly supervised comparison\nTo verify that our BM25 baseline is indeed state\nof the art, we also provide direct comparisons with\nDrQA\u2019s setup, where systems have access to gold\nanswer derivations from SQuAD (Rajpurkar et al.,\n2016). While many systems have been proposed\nfollowing DrQA\u2019s original setting, we compare\nonly to the original system and the best system that\n0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1\n20\n25\n30\n35\nICT masking rate\nNatural Questions\nExact Match\nORQA\nBM25 + BERT\nFigure 3: Analysis: Performance on our open version\nof the Natural Questions dev set with various mask-\ning rates for the ICT pre-training. Too much masking\nprevents the model from learning to exploit exact n-\ngram overlap. Too little masking makes language un-\nderstanding unnecessary.\nwe are aware of\u2014BERTserini (Yang et al., 2019).\nDrQA\u2019s reader is DocReader (Chen et al.,\n2017), and they use TF-IDF to retrieve the top k\ndocuments. They also include distant supervision\nbased on TF-IDF retrieval. BERTserini\u2019s reader is\nderived from base BERT (much like our reader),\nand they use BM25 to retrieve the topk paragraphs\n(much like our BM25 baseline). A major differ-\nence is that BERTserini uses true paragraphs from\nWikipedia rather than arbitrary blocks, resulting in\nmore evidence blocks due to uneven lengths.",
           "LSTM (Peters et al., 2018).5\nAs with ICT, we use the alternate encoders to\npre-compute the encoded evidence blocks hb and\nto initialize the question encoding hq, which is\n\ufb01ne-tuned. Based on existing IR literature and the\nintuition that LMs do not explicitly optimize for\nretrieval, we do not expect these to be strong base-\nlines, but they demonstrate the dif\ufb01culty of encod-\ning blocks of text into 128 dimensions.\n8.2 Results\nThe main results are show in Table 5. The \ufb01rst\nresult to note is that BM25 is a powerful re-\ntrieval system. Word matching is important, and\n3https://lucene.apache.org/\n4https://tfhub.dev/google/nnlm-en-dim128/1\n5https://allennlp.org/elmo",
@@ -185,15 +185,15 @@
             "filename": "2019-latent-retrieval-for-weakly-supervised-open-domain-question-answering-arxiv-1906-00300.pdf"
           },
           {
-            "filename": "2019-latent-retrieval-for-weakly-supervised-open-domain-question-answering-arxiv-1906-00300.pdf",
             "chunk_id": 208,
             "source": "data\\2019-latent-retrieval-for-weakly-supervised-open-domain-question-answering-arxiv-1906-00300.pdf",
+            "filename": "2019-latent-retrieval-for-weakly-supervised-open-domain-question-answering-arxiv-1906-00300.pdf",
             "doc_id": 3
           },
           {
-            "filename": "2019-latent-retrieval-for-weakly-supervised-open-domain-question-answering-arxiv-1906-00300.pdf",
-            "source": "data\\2019-latent-retrieval-for-weakly-supervised-open-domain-question-answering-arxiv-1906-00300.pdf",
             "chunk_id": 207,
+            "source": "data\\2019-latent-retrieval-for-weakly-supervised-open-domain-question-answering-arxiv-1906-00300.pdf",
+            "filename": "2019-latent-retrieval-for-weakly-supervised-open-domain-question-answering-arxiv-1906-00300.pdf",
             "doc_id": 3
           }
         ],
@@ -203,17 +203,17 @@
           0.6328030367605728
         ]
       },
-      "query_time": 3.827073097229004,
+      "query_time": 3.347602367401123,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.9384615384615385
+        "answer_quality": 0.92,
+        "relevance": 1.0
       }
     },
     {
       "query": "How do these papers address the challenge of end-to-end training in RAG systems?",
       "response": {
         "question": "How do these papers address the challenge of end-to-end training in RAG systems?",
-        "answer": "The papers address the challenge of end-to-end training in RAG systems by highlighting the importance of aligning the document retrieval model (DPR) with the answer generator. They note that RAG systems can benefit from a loss function that incorporates marginalized likelihoods over retrieved documents, which increases the training score of a document when it improves prediction. However, they also point out that in certain scenarios, such as the OK-VQA dataset, the RAG loss function can inadvertently reward documents that do not contribute to answering a question, leading to suboptimal performance. This suggests that careful consideration of the training data and the relationship between retrieval and generation components is crucial for effective end-to-end training in RAG systems.",
+        "answer": "The papers address the challenge of end-to-end training in RAG systems by highlighting the importance of aligning the document retrieval model (DPR) with the answer generator. They note that RAG systems can benefit from a loss function that incorporates marginalized likelihoods over retrieved documents, which increases the training score of a document when it improves prediction. However, they also point out that in certain scenarios, such as the OK-VQA experiments, the RAG system did not perform well due to the nature of the training questions. Many questions were answerable using closed-book methods, leading to the RAG loss function rewarding documents that did not contribute to the answers. This misalignment can hinder the effectiveness of end-to-end training, as it may result in the model relying on irrelevant documents. The papers suggest that careful consideration of the training data and the relationship between the retrieval and generation components is crucial for improving performance in RAG systems.",
         "source_documents": [
           "HSR and FSR also explain the relatively weak\nperformance of RAG*. We see that although RAG*\nand RA-VQA-FrDPR have similar FSRs, RAG*\nhas higher PRRecall but lower HSR (by -2.73%).\nThis suggests RAG*\u2019s DPR model is not well\nmatched to its answer generator. The result is that\nretrieved documents remain unexploited. In man-\nual examination of gradients of document scores\nin training, we find anecdotally that adjustments to\ndocument scores are often counter-intuitive: doc-\numents that do not contain answers can still have\ntheir scores upvoted if the answer generator hap-\npens to find a correct answer by relying only on the\nability of T5 model. This works against a model\u2019s\nability to find answers in retrieved documents even\nwhen those documents are relevant.\n4.4.4 Effects of Ktrain\nAs noted, retrieving a large collection of documents\nin training is costly (large Ktrain). Fig. 4 shows\nthat RA-VQA can be trained with relatively few\nretrieved documents (Ktrain = 5). We gradually in-",
           "3.3 Ranking RAG Systems with Confidence\nIntervals\nOnce we have prepared our LLM judges, we need\nto use them to score and rank the competing RAG\nsystems. To do this, ARES samples the in-domain\nquery-document-answer triples produced by each\nRAG approach, and the judges label each triple,\npredicting their context relevance, answer faithful-\nness, and answer relevance. By averaging the in-\ndividual predicted labels for each in-domain triple,\nwe calculate the RAG system performance across\neach of the three metrics.\nIn principle, we could simply report these aver-\nage scores as quality metrics for each RAG system.\nHowever, these scores reflect entirely unlabeled\ndata with predictions from a synthetically-trained\nLLM judge, and hence they may not be entirely\naccurate. As an extreme alternative, we could use\njust the small human preference validation set dis-\ncussed previously for evaluation, reporting the ex-\ntent to which each RAG system agrees with (or",
@@ -221,9 +221,9 @@
         ],
         "metadata": [
           {
-            "chunk_id": 509,
             "source": "data\\proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
             "filename": "proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
+            "chunk_id": 509,
             "doc_id": 7
           },
           {
@@ -233,9 +233,9 @@
             "doc_id": 9
           },
           {
-            "filename": "proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
             "source": "data\\proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
             "chunk_id": 474,
+            "filename": "proceedings-of-the-2022-conference-on-empirical-methods-in-natural-language-processing-pages-11238-11254.pdf",
             "doc_id": 7
           }
         ],
@@ -245,17 +245,17 @@
           0.5820166698270791
         ]
       },
-      "query_time": 3.2496042251586914,
+      "query_time": 2.819725513458252,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.9076923076923077
+        "answer_quality": 0.92,
+        "relevance": 1.0
       }
     },
     {
       "query": "What evaluation metrics are proposed for assessing RAG system performance?",
       "response": {
         "question": "What evaluation metrics are proposed for assessing RAG system performance?",
-        "answer": "The evaluation metrics proposed for assessing RAG system performance include:\n\n1. Context relevance\n2. Answer faithfulness\n3. Answer relevance\n\nAdditionally, the Kendall rank correlation coefficient (Kendall\u2019s \u03c4) is used to calculate the correlation between the correct ranking and the ARES ranking, which is particularly useful for measuring the accuracy of pairwise comparisons.",
+        "answer": "The evaluation metrics proposed for assessing RAG system performance include context relevance, answer faithfulness, and answer relevance. Additionally, the Kendall rank correlation coefficient (Kendall\u2019s \u03c4) is used to calculate the correlation between the correct ranking and the ARES ranking, measuring the accuracy of pairwise comparisons between RAG systems.",
         "source_documents": [
           "3.3 Ranking RAG Systems with Confidence\nIntervals\nOnce we have prepared our LLM judges, we need\nto use them to score and rank the competing RAG\nsystems. To do this, ARES samples the in-domain\nquery-document-answer triples produced by each\nRAG approach, and the judges label each triple,\npredicting their context relevance, answer faithful-\nness, and answer relevance. By averaging the in-\ndividual predicted labels for each in-domain triple,\nwe calculate the RAG system performance across\neach of the three metrics.\nIn principle, we could simply report these aver-\nage scores as quality metrics for each RAG system.\nHowever, these scores reflect entirely unlabeled\ndata with predictions from a synthetically-trained\nLLM judge, and hence they may not be entirely\naccurate. As an extreme alternative, we could use\njust the small human preference validation set dis-\ncussed previously for evaluation, reporting the ex-\ntent to which each RAG system agrees with (or",
           "70.0%, 72.5%, 75.0%, . . . , 90.0%).\nEach split also represents a different mock RAG\nsystem. Since we know the success percentages of\neach dataset split, we know the appropriate rank-\ning of each mock RAG system. This allows us to\n342\n\ntest ARES success at both scoring and ranking the\nmock RAG systems appropriately across the three\nevaluation criteria.\n4.3 Metrics\nTo calculate the correlation between the correct\nranking and the ARES ranking, we use the Kendall\nrank correlation coefficient or Kendall\u2019s \u03c4 :\n\u03c4 = (# of concordant pairs) \u2212 (# of discordant pairs)\n# of pairs total\nConcordant pairs are defined as two ordinal val-\nues in the ranking where the earlier value in the\nsequence is lower than the later value in the se-\nquence. Discordant pairs are defined as two ordinal\nvalues in the ranking where the earlier value in the\nsequence is greater than or equal to the later value\nin the sequence. A Kendall\u2019s \u03c4 greater than 0.9 is\nconsidered successful but it ranges from 0.0 to 1.0.\nIn development, researchers and engineers\nwill be comparing different RAG configurations\nthrough individual pairwise comparisons of model\nchoices, retriever selection, and document prepro-\ncessing. We want to make sure that ARES has satis-\nfactory accuracy in pairwise comparisons across a\nvariety of performance gaps between RAG systems.\nKendall\u2019s \u03c4 is explicitly designed for measuring the\naccuracy of such pairwise comparisons, calculating\nthe correlation between a perfectly accurate pair-\nwise ranking and an experimental pairwise ranking.\nThus, it is a popular and widespread metric used in\ninformation retrieval, allowing developers to eval-\nuate ranking systems empirically. Therefore, we\nbelieve Kendall\u2019s tau and prediction accuracy pro-\nvide meaningful metrics for testing the efficacy of\nARES as a RAG evaluation system.\n5 Results & Analysis\n5.1 ARES Ranking\nTable 1 summarizes our main evaluation of ARES\n(with DeBERTa-v3-Large as the pretrained basis\nfor the judges). We compare against RAGAS (ver-\nsion 0.0.18) and a baseline few-shot prompted GPT-\n3.5 judge ( gpt-3.5-turbo-16k). For the few-shot\nGPT-3.5 judge, we provide few-shot examples for\nguiding predictions; the prompts are included in\nAppendices A.2, A.3, and A.4. For both ARES\nand the GPT-3.5 judge baseline, we augment the\nLLM with PPI, using a 300-datapoint human pref-\nerence validation set to rectify the ML predictions\nand produce confidence intervals.\nAcross almost all settings across the datasets\nfrom KILT and SuperGLUE, ARES provides a\nmore accurate ranking of RAG systems than RA-\nGAS. ARES averages a Kendall\u2019s\u03c4 0.065 higher\nfor context relevance and 0.132 higher for answer\nrelevance than RAGAS . Additionally, the LLM-\njudge is substantially more accurate than RAGAS\nat predicting context relevance and answer rele-\nvance of a query-passage-answer triple. For con-\ntext relevance, ARES with a fine-tuned LLM-judge\nis 59.9 percentage points higher than RAGASwhile\nfor answer relevance, our system is 14.4 percent-\nage points higher than RAGAS . Overall, ARES\nprovides a more accurate system for automatically\nevaluating RAG configurations than RAGAS by\nleveraging domain-adaptive techniques for prompt-\ning and training as well as utilizing PPI to bolster\nmodel predictions.\nAs an additional comparison, we also include\nthe Kendall\u2019s \u03c4 for RAG ranking with the ARES\nLLM judge without PPI; for all datasets tested, PPI\nimproved the ranking prediction accuracy of the\nfine-tuned LLM judge. Furthermore, we included\na sampled annotations configuration, in which we\nsampled 150-datapoints from each mock RAG sys-\ntem, totalling 1,350 annotations.",
@@ -263,9 +263,9 @@
         ],
         "metadata": [
           {
-            "filename": "proceedings-of-the-2024-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "source": "data\\proceedings-of-the-2024-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "chunk_id": 668,
+            "filename": "proceedings-of-the-2024-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "doc_id": 9
           },
           {
@@ -285,10 +285,10 @@
           0.6469046215923944
         ]
       },
-      "query_time": 2.122027635574341,
+      "query_time": 1.9660084247589111,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.8799999999999999
+        "answer_quality": 0.98,
+        "relevance": 1.0
       }
     },
     {
@@ -315,9 +315,9 @@
             "doc_id": 2
           },
           {
+            "source": "data\\2019-generalization-through-memorization-nearest-neighbor-language-models-arxiv-1911-00172.pdf",
             "filename": "2019-generalization-through-memorization-nearest-neighbor-language-models-arxiv-1911-00172.pdf",
             "chunk_id": 152,
-            "source": "data\\2019-generalization-through-memorization-nearest-neighbor-language-models-arxiv-1911-00172.pdf",
             "doc_id": 2
           }
         ],
@@ -327,17 +327,17 @@
           0.5818761192864363
         ]
       },
-      "query_time": 2.9344799518585205,
+      "query_time": 0.8598318099975586,
       "evaluation": {
-        "retrieval_accuracy": 0.6666666666666666,
-        "answer_quality": 0.163
+        "answer_quality": 0.1,
+        "relevance": 0.0
       }
     },
     {
       "query": "How does prompt compression in LLMLingua maintain semantic integrity?",
       "response": {
         "question": "How does prompt compression in LLMLingua maintain semantic integrity?",
-        "answer": "LLMLingua maintains semantic integrity in prompt compression by employing a coarse-to-fine approach that dynamically allocates different compression ratios to various components of the original prompts, such as instructions. This method ensures that essential information is preserved while less informative content is removed. Additionally, the use of a budget controller allows for a more nuanced compression process, which helps maintain the interdependence between the compressed contents. The effectiveness of this approach is further supported by the ability of LLMs to comprehend and reconstruct the semantic information from the compressed prompts, as demonstrated by the varying degrees of recovery achieved with different small language models.",
+        "answer": "LLMLingua maintains semantic integrity in prompt compression by employing a coarse-to-fine approach that dynamically allocates different compression ratios to various components of the original prompts, such as instructions. This method ensures that essential information is preserved while less informative content is removed. Additionally, the use of a budget controller allows for a more nuanced compression process, which helps to retain the interdependence between the compressed contents. By leveraging the capabilities of LLMs to comprehend semantic information, LLMLingua effectively reconstructs the original prompts from the compressed versions, ensuring that the core meaning and context are maintained.",
         "source_documents": [
           "be not suitable when the LLMs can be accessed via\nAPIs only.\nApproaches that attempt to reduce the length of\noriginal prompts while preserving essential infor-\nmation have emerged lately. These approaches are\ngrounded in the concept that natural language is\ninherently redundant (Shannon, 1951) and thus can\nbe compressed. Gilbert et al. (2023) also indicate\nthat LLMs can effectively reconstruct source code\nfrom compressed text descriptions while maintain-\ning a high level of functional accuracy. Therefore,\nwe follow this line of studies to compress a long\nprompt into a shorter one without any gradient flow\nthrough the LLMs to support applications based on\na larger range of LLMs.\nIn terms of information entropy, tokens with\nlower perplexity (PPL) contribute less to the over-\nall entropy gains of the language model. In other\nwords, removing tokens with lower perplexity has\na relatively minor impact on the LLM\u2019s compre-\nhension of the context. Motivated by this, Li",
           "all entropy gains of the language model. In other\nwords, removing tokens with lower perplexity has\na relatively minor impact on the LLM\u2019s compre-\nhension of the context. Motivated by this, Li\n(2023) propose Selective-Context, which first em-\nploys a small language model to compute the self-\ninformation of each lexical unit (such as sentences,\nphrases, or tokens) in original prompts, and then\ndrops the less informative content for prompt com-\npression. However, this method not only ignores\nthe interdependence between the compressed con-\ntents but also neglects the correspondence between\nthe LLM being targeted and the small language\nmodel used for prompt compression.\nThis paper proposes LLMLingua, a coarse-\nto-fine prompt compression method, to address\nthe aforementioned issues. Specifically, we first\npresent a budget controller to dynamically allo-\ncate different compression ratios to various com-\nponents in original prompts such as the instruction,",
@@ -345,15 +345,15 @@
         ],
         "metadata": [
           {
-            "source": "data\\proceedings-of-the-2023-conference-on-empirical-methods-in-natural-language-processing-pages-13358-13376.pdf",
             "filename": "proceedings-of-the-2023-conference-on-empirical-methods-in-natural-language-processing-pages-13358-13376.pdf",
+            "source": "data\\proceedings-of-the-2023-conference-on-empirical-methods-in-natural-language-processing-pages-13358-13376.pdf",
             "chunk_id": 561,
             "doc_id": 8
           },
           {
+            "chunk_id": 562,
             "filename": "proceedings-of-the-2023-conference-on-empirical-methods-in-natural-language-processing-pages-13358-13376.pdf",
             "source": "data\\proceedings-of-the-2023-conference-on-empirical-methods-in-natural-language-processing-pages-13358-13376.pdf",
-            "chunk_id": 562,
             "doc_id": 8
           },
           {
@@ -369,10 +369,10 @@
           0.6802592357708153
         ]
       },
-      "query_time": 3.4537177085876465,
+      "query_time": 2.418833017349243,
       "evaluation": {
-        "retrieval_accuracy": 0.6666666666666666,
-        "answer_quality": 0.8666666666666667
+        "answer_quality": 1.0,
+        "relevance": 1.0
       }
     },
     {
@@ -387,21 +387,21 @@
         ],
         "metadata": [
           {
-            "filename": "proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "source": "data\\proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
+            "filename": "proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "chunk_id": 420,
             "doc_id": 6
           },
           {
             "filename": "proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
-            "source": "data\\proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "chunk_id": 423,
+            "source": "data\\proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "doc_id": 6
           },
           {
+            "chunk_id": 432,
             "filename": "proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
             "source": "data\\proceedings-of-the-2022-conference-of-the-north-american-chapter-of-the-association-for-computational-linguistics.pdf",
-            "chunk_id": 432,
             "doc_id": 6
           }
         ],
@@ -411,21 +411,20 @@
           0.6261968288558517
         ]
       },
-      "query_time": 2.3785836696624756,
+      "query_time": 3.9913570880889893,
       "evaluation": {
-        "retrieval_accuracy": 1.0,
-        "answer_quality": 0.7777777777777778
+        "answer_quality": 0.98,
+        "relevance": 1.0
       }
     }
   ],
   "performance": {
-    "embedding_time": 4.210396766662598,
-    "indexing_time": 4.2795140743255615,
-    "retrieval_time": 0.04000091552734375,
-    "generation_time": 2.3375837802886963,
-    "total_time": 26.443366050720215,
-    "memory_usage": 1482.16796875,
-    "retrieval_accuracy": 0.9333333333333333,
-    "answer_quality": 0.6907608922459391
+    "vector_processing_time": 7.458192586898804,
+    "retrieval_time": 0.06813168525695801,
+    "generation_time": 3.9232254028320312,
+    "total_time": 45.496285915374756,
+    "memory_usage": 1488.109375,
+    "relevance": 0.8,
+    "answer_quality": 0.79
   }
 }

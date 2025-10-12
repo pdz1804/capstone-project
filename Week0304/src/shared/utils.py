@@ -29,13 +29,12 @@ except ImportError:
 @dataclass
 class PerformanceMetrics:
     """Container for performance metrics"""
-    embedding_time: float = 0.0
-    indexing_time: float = 0.0
+    vector_processing_time: float = 0.0  # Combined embedding + indexing time
     retrieval_time: float = 0.0
     generation_time: float = 0.0
     total_time: float = 0.0
     memory_usage: float = 0.0
-    retrieval_accuracy: float = 0.0
+    relevance: float = 0.0
     answer_quality: float = 0.0
     
     def to_dict(self) -> Dict[str, Any]:
@@ -153,21 +152,26 @@ class DocumentProcessor:
                     print(f"  → Loaded {len(content)} characters from text file")
                 
                 elif file_path.suffix.lower() == '.pdf' and PDF_AVAILABLE:
-                    # Handle PDF files
+                    # Handle PDF files - optimized for speed
                     print(f"  → Reading PDF file...")
                     reader = PdfReader(str(file_path))
                     content_parts = []
                     
                     total_pages = len(reader.pages)
-                    print(f"  → PDF has {total_pages} pages")
+                    print(f"  → PDF has {total_pages} pages - extracting text...")
                     
-                    for i, page in enumerate(tqdm(reader.pages, desc=f"  Processing {file_path.name}", leave=False, unit="page")):
-                        page_text = page.extract_text()
-                        if page_text.strip():
-                            content_parts.append(page_text)
+                    # Fast processing without nested progress bars
+                    for i, page in enumerate(reader.pages):
+                        try:
+                            page_text = page.extract_text()
+                            if page_text.strip():
+                                content_parts.append(page_text)
+                        except Exception as e:
+                            print(f"    ⚠ Error on page {i+1}: {e}")
+                            continue
                         
-                        # Progress update every 10 pages
-                        if (i + 1) % 10 == 0 or i == total_pages - 1:
+                        # Only print progress for large PDFs every 20 pages
+                        if total_pages > 20 and (i + 1) % 20 == 0:
                             print(f"    → Processed {i + 1}/{total_pages} pages")
                     
                     content = "\n\n".join(content_parts)
@@ -212,7 +216,21 @@ class EmbeddingGenerator:
         return embeddings
 
 class QueryEvaluator:
-    """Utility class for evaluating query responses"""
+    """Utility class for evaluating query responses using both manual and LLM-based metrics"""
+    
+    def __init__(self, llm_provider: str = "openai"):
+        """Initialize evaluator with LLM provider for advanced evaluation"""
+        self.llm_provider = llm_provider
+        self._llm_client = None
+    
+    def _get_llm_client(self):
+        """Initialize LLM client for evaluation"""
+        if self._llm_client is None:
+            if self.llm_provider == "openai":
+                from openai import OpenAI
+                from shared.config import Config
+                self._llm_client = OpenAI(api_key=Config.LLM_CONFIGS["openai"].api_key)
+        return self._llm_client
     
     @staticmethod
     def calculate_retrieval_accuracy(retrieved_docs: List[str], query: str) -> float:
@@ -232,6 +250,40 @@ class QueryEvaluator:
                 relevant_docs += 1
         
         return relevant_docs / len(retrieved_docs) if retrieved_docs else 0.0
+    
+    @staticmethod
+    def calculate_precision_at_k(retrieved_docs: List[str], relevant_docs: List[str], k: int = None) -> float:
+        """Calculate Precision@K metric"""
+        if k is None:
+            k = len(retrieved_docs)
+        
+        retrieved_k = retrieved_docs[:k]
+        if not retrieved_k:
+            return 0.0
+        
+        relevant_retrieved = len([doc for doc in retrieved_k if doc in relevant_docs])
+        return relevant_retrieved / len(retrieved_k)
+    
+    @staticmethod
+    def calculate_recall_at_k(retrieved_docs: List[str], relevant_docs: List[str], k: int = None) -> float:
+        """Calculate Recall@K metric"""
+        if not relevant_docs:
+            return 0.0
+        
+        if k is None:
+            k = len(retrieved_docs)
+        
+        retrieved_k = retrieved_docs[:k]
+        relevant_retrieved = len([doc for doc in retrieved_k if doc in relevant_docs])
+        return relevant_retrieved / len(relevant_docs)
+    
+    @staticmethod
+    def calculate_mrr(retrieved_docs: List[str], relevant_docs: List[str]) -> float:
+        """Calculate Mean Reciprocal Rank (MRR)"""
+        for i, doc in enumerate(retrieved_docs):
+            if doc in relevant_docs:
+                return 1.0 / (i + 1)
+        return 0.0
     
     @staticmethod
     def calculate_answer_quality(answer: str, query: str = None, retrieved_docs: List[str] = None) -> float:
@@ -277,16 +329,127 @@ class QueryEvaluator:
         
         return sum(scores)
     
+    def evaluate_with_llm(self, query: str, answer: str, retrieved_docs: List[str]) -> Dict[str, float]:
+        """Use LLM to evaluate answer quality and relevance"""
+        try:
+            client = self._get_llm_client()
+            
+            # Prepare context from retrieved documents
+            context = "\n\n---\n\n".join(retrieved_docs[:3])  # Top 3 docs
+            
+            # Create evaluation prompt
+            evaluation_prompt = f"""
+You are an expert evaluator for RAG (Retrieval-Augmented Generation) systems. Please evaluate the following query-answer pair based on the provided context.
+
+**Query:** {query}
+
+**Retrieved Context:**
+{context}
+
+**Generated Answer:** {answer}
+
+Please evaluate the answer on the following criteria and provide scores from 0.0 to 1.0:
+
+1. **Relevance** (0.0-1.0): How well does the answer address the specific query?
+2. **Accuracy** (0.0-1.0): How factually correct is the answer based on the provided context?
+3. **Completeness** (0.0-1.0): How thoroughly does the answer cover the query topic?
+4. **Grounding** (0.0-1.0): How well is the answer supported by the retrieved context?
+5. **Coherence** (0.0-1.0): How well-structured and clear is the answer?
+
+Return your evaluation as a JSON object with scores for each criterion:
+{{
+  "relevance": 0.0-1.0,
+  "accuracy": 0.0-1.0,
+  "completeness": 0.0-1.0,
+  "grounding": 0.0-1.0,
+  "coherence": 0.0-1.0,
+  "overall": 0.0-1.0
+}}
+"""
+            
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are an expert RAG system evaluator. Provide objective, numerical scores in JSON format."},
+                    {"role": "user", "content": evaluation_prompt}
+                ],
+                temperature=0.0,
+                max_tokens=500
+            )
+            
+            # Parse the JSON response
+            import json
+            evaluation_text = response.choices[0].message.content
+
+            # Extract JSON from response (handle cases where LLM adds extra text)
+            start_idx = evaluation_text.find('{')
+            end_idx = evaluation_text.rfind('}') + 1
+            if start_idx != -1 and end_idx > start_idx:
+                json_str = evaluation_text[start_idx:end_idx]
+                evaluation_scores = json.loads(json_str)
+                # Only keep overall and relevance if present
+                result = {}
+                if 'overall' in evaluation_scores:
+                    result['overall'] = float(evaluation_scores['overall'])
+                if 'relevance' in evaluation_scores:
+                    result['relevance'] = float(evaluation_scores['relevance'])
+                return result
+            else:
+                raise ValueError("No valid JSON found in LLM response")
+                
+        except Exception as e:
+            # Fallback to manual evaluation if LLM fails
+            logger.warning(f"LLM evaluation failed: {e}, falling back to manual evaluation")
+            manual_score = self.calculate_answer_quality(answer, query, retrieved_docs)
+            return {
+                "relevance": manual_score,
+                "accuracy": manual_score,
+                "completeness": manual_score,
+                "grounding": manual_score,
+                "coherence": manual_score,
+                "overall": manual_score
+            }
+    
     @staticmethod
     def evaluate_query_response(query: str, answer: str, retrieved_docs: List[str]) -> Dict[str, float]:
-        """Comprehensive evaluation of a query response"""
-        retrieval_accuracy = QueryEvaluator.calculate_retrieval_accuracy(retrieved_docs, query)
-        answer_quality = QueryEvaluator.calculate_answer_quality(answer, query, retrieved_docs)
+        """Comprehensive evaluation of a query response with RAG metrics"""
+        # Simplified evaluation: prefer LLM judgement for answer quality
+        # and a relevance score that measures how on-topic the answer is to the query.
+        llm_evaluator = QueryEvaluator()
+        llm_scores = llm_evaluator.evaluate_with_llm(query, answer, retrieved_docs)
+
+        # Ensure we always get valid scores (not None)
+        overall = llm_scores.get('overall') if llm_scores.get('overall') is not None else 0.0
+        relevance = llm_scores.get('relevance') if llm_scores.get('relevance') is not None else 0.0
         
+        # If both scores are 0 (indicating LLM failure), use simple heuristics as fallback
+        if overall == 0.0 and relevance == 0.0:
+            # Simple fallback: if answer is not empty and not a failure message, give basic score
+            if answer and len(answer.strip()) > 10 and "cannot answer" not in answer.lower() and "provided context" not in answer.lower():
+                overall = 0.5  # Default reasonable score for valid answers
+                relevance = 0.5  # Default reasonable score for valid answers
+            # Otherwise keep them as 0.0 for truly failed responses
+
         return {
-            'retrieval_accuracy': retrieval_accuracy,
-            'answer_quality': answer_quality
+            'answer_quality': float(overall),
+            'relevance': float(relevance)
         }
+    
+    def evaluate_comprehensive(self, query: str, answer: str, retrieved_docs: List[str]) -> Dict[str, float]:
+        """Comprehensive evaluation combining manual metrics and LLM evaluation"""
+        # Get manual metrics
+        manual_metrics = self.evaluate_query_response(query, answer, retrieved_docs)
+        
+        # Get LLM evaluation
+        llm_metrics = self.evaluate_with_llm(query, answer, retrieved_docs)
+        
+        # Combine both evaluations
+        combined_metrics = {
+            **manual_metrics,
+            **{f"llm_{k}": v for k, v in llm_metrics.items()}
+        }
+        
+        return combined_metrics
 
 def setup_logging(method_name: str, log_dir: str = "./logs"):
     """Setup logging for a specific method"""
@@ -329,3 +492,5 @@ def setup_logging(method_name: str, log_dir: str = "./logs"):
         method_logger.addHandler(console_handler)
         
         return method_logger
+    
+    

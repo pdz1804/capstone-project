@@ -19,16 +19,16 @@ import chromadb
 import openai
 import requests
 
-# Use LangChain's text splitter for better performance
-try:
-    from langchain_text_splitters import RecursiveCharacterTextSplitter
-    LANGCHAIN_SPLITTER_AVAILABLE = True
-except ImportError:
-    try:
-        from langchain.text_splitter import RecursiveCharacterTextSplitter
-        LANGCHAIN_SPLITTER_AVAILABLE = True
-    except ImportError:
-        LANGCHAIN_SPLITTER_AVAILABLE = False
+# Use minimal LangChain imports for better text splitting while keeping most functionality manual
+import numpy as np
+from sentence_transformers import SentenceTransformer
+import faiss
+import chromadb
+import openai
+import requests
+
+# Import LangChain text splitter for better chunking
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 try:
     import google.generativeai as genai
@@ -40,12 +40,12 @@ from shared.utils import PerformanceTracker, DocumentProcessor, setup_logging, Q
 
 class ManualRAG:
     """
-    Manual RAG implementation from scratch with optimized text splitting
+    Manual RAG implementation with minimal dependencies
     
-    This implementation provides maximum control over the RAG pipeline while
-    using LangChain's RecursiveCharacterTextSplitter for optimal chunking performance.
-    All other components (embedding, indexing, retrieval, generation) are implemented
-    manually for educational purposes and performance optimization.
+    This implementation provides maximum control over the RAG pipeline with custom
+    implementations for most components: embedding, indexing, retrieval, and generation.
+    Uses LangChain's RecursiveCharacterTextSplitter for consistent chunking with other pipelines,
+    but implements everything else manually. Serves as both an educational example and performance baseline.
     """
     
     def __init__(self, vector_store_type: str = "faiss", llm_provider: str = "openai"):
@@ -67,6 +67,58 @@ class ManualRAG:
         
         self.logger.info(f"Initializing Manual RAG with {vector_store_type} and {llm_provider}")
         
+    def cleanup_storage(self):
+        """Clean up existing vector stores to ensure fresh start"""
+        import shutil
+        # NOTE: On some platforms (Windows) files in use can cause
+        # race conditions when attempting to delete persistent stores.
+        # To make benchmarks safer and non-destructive, we intentionally
+        # avoid deleting existing vector store files here. Instead, the
+        # benchmark flow will overwrite or persist new data when rebuilding.
+        self.logger.info("Skipping destructive cleanup of Manual vector stores (non-destructive mode)")
+        print("🧹 Skipping deletion of Manual vector stores (kept for safety)")
+        
+        # Reset internal state so the instance will recreate stores when asked
+        self.vector_index = None
+        self.documents = []
+        self.chunks = []
+        self.embeddings = None
+        
+        print(f"✅ Manual storage cleanup skipped")
+        
+    def cleanup_storage_destructive(self):
+        """Destructive cleanup - actually delete vector store files from disk"""
+        import shutil
+        self.logger.warning("Performing DESTRUCTIVE cleanup - deleting Manual vector store files")
+        print(f"🧹 Destructively cleaning up existing vector stores...")
+        
+        # Delete actual files from disk
+        try:
+            if self.vector_store_type == "faiss":
+                index_path = Path(Config.VECTOR_STORE_CONFIGS["faiss"].index_path)
+                if index_path.exists():
+                    shutil.rmtree(index_path, ignore_errors=True)
+                    self.logger.info(f"Deleted FAISS index at {index_path}")
+                    print(f"  ✓ Removed FAISS index at {index_path}")
+            
+            elif self.vector_store_type == "chroma":
+                index_path = Path(Config.VECTOR_STORE_CONFIGS["chroma"].index_path)
+                if index_path.exists():
+                    shutil.rmtree(index_path, ignore_errors=True)
+                    self.logger.info(f"Deleted Chroma DB at {index_path}")
+                    print(f"  ✓ Removed Chroma DB at {index_path}")
+                    
+        except Exception as e:
+            self.logger.error(f"Failed to delete Manual vector store files: {e}")
+            # Don't raise - continue with benchmark even if deletion fails
+        
+        # Reset internal state
+        self.vector_index = None
+        self.documents = []
+        self.chunks = []
+        self.embeddings = None
+        
+        print(f"🗑️ Manual destructive cleanup completed")
     def _load_embedding_model(self):
         """Load the embedding model"""
         if self.embedding_model is None:
@@ -77,42 +129,33 @@ class ManualRAG:
             )
     
     def _chunk_documents(self, documents: List[Dict[str, str]]) -> List[Dict[str, Any]]:
-        """Chunk documents using LangChain's text splitter for better performance"""
+        """Chunk documents using LangChain's RecursiveCharacterTextSplitter (same as LangChain pipeline)"""
         from tqdm import tqdm
         
         self.logger.info(f"Chunking {len(documents)} documents")
-        print(f"📄 Starting to chunk {len(documents)} documents...")
+        print(f"📄 Starting to chunk {len(documents)} documents using LangChain's RecursiveCharacterTextSplitter...")
+        
+        # Setup text splitter (same as LangChain pipeline)
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=Config.CHUNKING_CONFIG.chunk_size,
+            chunk_overlap=Config.CHUNKING_CONFIG.chunk_overlap,
+            separators=Config.CHUNKING_CONFIG.separators
+        )
         
         chunks = []
         chunk_id = 0
         
-        # Initialize LangChain text splitter for better performance
-        if LANGCHAIN_SPLITTER_AVAILABLE:
-            print(f"  Using LangChain's RecursiveCharacterTextSplitter for optimal performance")
-            text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=Config.CHUNKING_CONFIG.chunk_size,
-                chunk_overlap=Config.CHUNKING_CONFIG.chunk_overlap,
-                separators=Config.CHUNKING_CONFIG.separators,
-                length_function=len,
-                is_separator_regex=False,
-            )
-        else:
-            print(f"  ⚠️ LangChain text splitter not available, falling back to manual chunking")
+        print(f"  Using LangChain RecursiveCharacterTextSplitter")
+        print(f"  Chunk size: {Config.CHUNKING_CONFIG.chunk_size}")
+        print(f"  Chunk overlap: {Config.CHUNKING_CONFIG.chunk_overlap}")
+        print(f"  Separators: {Config.CHUNKING_CONFIG.separators}")
         
         for doc_idx, doc in enumerate(tqdm(documents, desc="Chunking documents", unit="doc")):
             print(f"  Processing document {doc_idx + 1}/{len(documents)}: {doc.get('filename', 'Unknown')}")
             text = doc['content']
             
-            if LANGCHAIN_SPLITTER_AVAILABLE:
-                # Use LangChain's text splitter (much faster and more robust)
-                text_chunks = text_splitter.split_text(text)
-            else:
-                # Fallback to manual chunking
-                text_chunks = DocumentProcessor.chunk_text(
-                    text,
-                    Config.CHUNKING_CONFIG.chunk_size,
-                    Config.CHUNKING_CONFIG.chunk_overlap
-                )
+            # Use LangChain text splitter for better chunking
+            text_chunks = text_splitter.split_text(text)
             
             print(f"    → Created {len(text_chunks)} chunks from {len(text)} characters")
             
@@ -244,26 +287,28 @@ class ManualRAG:
         # Chunk documents
         print(f"\n1️⃣ CHUNKING PHASE")
         self.chunks = self._chunk_documents(documents)
-        
+
         # Generate embeddings
         print(f"\n2️⃣ EMBEDDING PHASE")
         chunk_texts = [chunk['text'] for chunk in self.chunks]
         self.embeddings = self._generate_embeddings(chunk_texts)
-        
-        self.tracker.stop_timer("embedding_time")
+
+        # Do not stop vector_processing_time here. We want vector_processing_time to
+        # include both embedding and indexing (index creation/persist). The timer
+        # will be stopped in create_vector_index() after the index is created.
         print(f"\n✅ Document processing complete!")
         print(f"📊 Summary:")
         print(f"  - Documents processed: {len(documents)}")
         print(f"  - Chunks created: {len(self.chunks)}")
         print(f"  - Embeddings generated: {self.embeddings.shape}")
-        print(f"  - Processing time: {self.tracker.metrics.embedding_time:.2f}s")
+        print(f"  - Vector processing time: {self.tracker.metrics.vector_processing_time:.2f}s")
     
     def create_vector_index(self):
         """Create vector index"""
         print(f"\n3️⃣ INDEXING PHASE")
         self.logger.info(f"Creating {self.vector_store_type} vector index")
         print(f"🔗 Creating {self.vector_store_type.upper()} vector index...")
-        self.tracker.start_timer()
+        # Note: We don't time indexing separately as it's included in vector_processing_time
         
         if self.embeddings is None:
             raise ValueError("Embeddings not generated. Call process_documents() first.")
@@ -294,8 +339,10 @@ class ManualRAG:
         else:
             raise ValueError(f"Unsupported vector store: {self.vector_store_type}")
         
-        self.tracker.stop_timer("indexing_time")
-        print(f"✅ Vector index created in {self.tracker.metrics.indexing_time:.2f}s")
+        # Stop the combined embedding + indexing timer now that index creation finished
+        self.tracker.stop_timer("vector_processing_time")
+
+        print(f"✅ Vector index created successfully")
         self.logger.info("Vector index created successfully")
     
     def load_existing_index(self):
@@ -464,22 +511,18 @@ class ManualRAG:
         return response.json()["response"]
     
     def generate_answer(self, query: str, context_chunks: List[Dict[str, Any]]) -> str:
-        """Generate answer using LLM"""
+        """Generate answer using LLM with standardized prompt"""
         self.logger.info(f"Generating answer using {self.llm_provider}")
         self.tracker.start_timer()
         
         # Prepare context
         context = "\n\n".join([chunk['chunk']['text'] for chunk in context_chunks])
         
-        # Create prompt
-        prompt = f"""Based on the following context, please answer the question. If the answer cannot be found in the context, say "I cannot find the answer in the provided context."
-
-Context:
-{context}
-
-Question: {query}
-
-Answer:"""
+        # Use standardized prompt template from config
+        prompt = Config.RAG_PROMPT_TEMPLATE.format(
+            context=context,
+            question=query
+        )
         
         # Call appropriate LLM
         if self.llm_provider == "openai":
@@ -518,9 +561,13 @@ Answer:"""
         self.logger.info("Query processed successfully")
         return response
     
-    def run_benchmark(self, test_queries: List[str], save_results: bool = True) -> Dict[str, Any]:
-        """Run benchmark tests"""
+    def run_benchmark(self, test_queries: List[str], save_results: bool = True, num_queries: int = None) -> Dict[str, Any]:
+        """Run benchmark tests with advanced evaluation"""
         from tqdm import tqdm
+        
+        # Limit number of queries if specified
+        if num_queries is not None:
+            test_queries = test_queries[:num_queries]
         
         print(f"\n🎯 Starting benchmark with {len(test_queries)} test queries...")
         self.logger.info("Starting benchmark tests")
@@ -536,8 +583,8 @@ Answer:"""
         total_start_time = time.time()
         
         # Track evaluation metrics
-        total_retrieval_accuracy = 0.0
         total_answer_quality = 0.0
+        total_relevance = 0.0
         
         for i, query in enumerate(tqdm(test_queries, desc="Running benchmark queries", unit="query")):
             print(f"\n📝 Query {i+1}/{len(test_queries)}: {query}")
@@ -550,18 +597,18 @@ Answer:"""
             query_time = query_end_time - query_start_time
             print(f"  ⏱️ Query completed in {query_time:.2f}s")
             
-            # Evaluate the response
+            # Evaluate the response (LLM-based answer quality & relevance)
             evaluation = QueryEvaluator.evaluate_query_response(
                 query=query,
                 answer=response["answer"],
                 retrieved_docs=response["source_documents"]
             )
-            
-            total_retrieval_accuracy += evaluation['retrieval_accuracy']
-            total_answer_quality += evaluation['answer_quality']
-            
-            print(f"  📊 Retrieval Accuracy: {evaluation['retrieval_accuracy']:.3f}")
-            print(f"  📊 Answer Quality: {evaluation['answer_quality']:.3f}")
+
+            total_answer_quality += evaluation.get('answer_quality', 0.0)
+            total_relevance += evaluation.get('relevance', 0.0)
+
+            print(f"  📊 Answer Quality: {evaluation.get('answer_quality', 0.0):.3f}")
+            print(f"  📊 Relevance: {evaluation.get('relevance', 0.0):.3f}")
             
             query_result = {
                 "query": query,
@@ -575,8 +622,8 @@ Answer:"""
         
         # Calculate average evaluation metrics
         num_queries = len(test_queries)
-        self.tracker.metrics.retrieval_accuracy = total_retrieval_accuracy / num_queries if num_queries > 0 else 0.0
         self.tracker.metrics.answer_quality = total_answer_quality / num_queries if num_queries > 0 else 0.0
+        self.tracker.metrics.relevance = total_relevance / num_queries if num_queries > 0 else 0.0
         
         # Record performance metrics
         self.tracker.record_memory_usage()
@@ -589,8 +636,8 @@ Answer:"""
         print(f"  - Total time: {total_time:.2f}s")
         print(f"  - Average time per query: {total_time/len(test_queries):.2f}s")
         print(f"  - Memory usage: {self.tracker.metrics.memory_usage:.2f}MB")
-        print(f"  - Average Retrieval Accuracy: {self.tracker.metrics.retrieval_accuracy:.3f}")
         print(f"  - Average Answer Quality: {self.tracker.metrics.answer_quality:.3f}")
+        print(f"  - Average Relevance: {getattr(self.tracker.metrics, 'relevance', 0.0):.3f}")
         
         if save_results:
             # Save detailed results
@@ -607,7 +654,7 @@ Answer:"""
             print(f"  💾 Results saved to: {results_path}")
             print(f"  📋 Metrics saved to: {metrics_path}")
         
-        self.logger.info(f"Benchmark completed - Avg Retrieval Accuracy: {self.tracker.metrics.retrieval_accuracy:.3f}, Avg Answer Quality: {self.tracker.metrics.answer_quality:.3f}")
+        self.logger.info(f"Benchmark completed - Avg Answer Quality: {self.tracker.metrics.answer_quality:.3f}, Avg Relevance: {getattr(self.tracker.metrics, 'relevance', 0.0):.3f}")
         return results
 
 def main():
@@ -619,6 +666,8 @@ def main():
     parser.add_argument("--llm", choices=["openai", "azure", "gemini", "ollama"], default="openai")
     parser.add_argument("--data-dir", default="./data")
     parser.add_argument("--rebuild", action="store_true", help="Rebuild vector store")
+    parser.add_argument("--num-queries", type=int, default=Config.DEFAULT_NUM_QUERIES, 
+                        help=f"Number of test queries to run (default: {Config.DEFAULT_NUM_QUERIES})")
     
     args = parser.parse_args()
     
@@ -627,6 +676,9 @@ def main():
     
     try:
         if args.rebuild:
+            # Clean up existing storage first
+            rag.cleanup_storage()
+            
             # Load documents
             documents = DocumentProcessor.load_documents_from_directory(args.data_dir)
             if not documents:
@@ -642,8 +694,8 @@ def main():
             # Load existing index
             rag.load_existing_index()
         
-        # Run benchmark
-        results = rag.run_benchmark(Config.TEST_QUERIES)
+        # Run benchmark with specified number of queries
+        results = rag.run_benchmark(Config.TEST_QUERIES, num_queries=args.num_queries)
         
         print(f"Benchmark completed. Results saved to results directory.")
         print(f"Total time: {results['performance']['total_time']:.2f}s")
