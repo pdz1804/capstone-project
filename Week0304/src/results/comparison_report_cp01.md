@@ -45,9 +45,9 @@ This comprehensive report analyzes three distinct approaches to building RAG (Re
 | -------------------- | ------------ | --------- | --------------------- | ------------- | -------------- | ------------------- |
 | **Manual**     | faiss        | 15.86     | 15.862                | 0.048         | 3.563          | 1098                |
 | **Manual**     | chroma       | 16.33     | 16.333                | 0.180         | 3.160          | 1285                |
-| **Langchain**  | faiss        | 14.84     | 14.435                | 0.056         | 3.321          | 1382                |
+| **Langchain**  | faiss        | 14.44     | 14.435                | 0.056         | 3.321          | 1382                |
 | **Langchain**  | chroma       | 17.61     | 17.607                | 0.041         | 2.620          | 1487                |
-| **Llamaindex** | faiss        | 7.43      | 7.417                 | 0.051         | 2.285          | 1411                |
+| **Llamaindex** | faiss        | 7.42      | 7.417                 | 0.051         | 2.285          | 1411                |
 | **Llamaindex** | chroma       | 7.46      | 7.458                 | 0.068         | 3.923          | 1488                |
 
 **Metrics Explanation:**
@@ -153,20 +153,6 @@ This comprehensive report analyzes three distinct approaches to building RAG (Re
 - **Manual**: Avg Relevance = 0.735, Avg Answer Quality = 0.717
 - **Langchain**: Avg Relevance = 0.735, Avg Answer Quality = 0.663
 - **Llamaindex**: Avg Relevance = 0.875, Avg Answer Quality = 0.862
-
-## 🏗️ Technical Architecture Comparison
-
-### Framework Dependencies and Complexity
-
-| Aspect                      | LangChain                        | LlamaIndex                | Manual                             |
-| --------------------------- | -------------------------------- | ------------------------- | ---------------------------------- |
-| **Dependencies**      | High (langchain-community, etc.) | Medium (llama-index-core) | Low (sentence-transformers, faiss) |
-| **Setup Complexity**  | Medium                           | Medium                    | High                               |
-| **Customization**     | High                             | High                      | Maximum                            |
-| **Learning Curve**    | Medium                           | Medium                    | High                               |
-| **Production Ready**  | Yes                              | Yes                       | Requires work                      |
-| **Documentation**     | Extensive                        | Good                      | N/A                                |
-| **Community Support** | Large                            | Growing                   | N/A                                |
 
 ## 📈 Detailed Performance Breakdown
 
@@ -295,85 +281,6 @@ This comprehensive report analyzes three distinct approaches to building RAG (Re
 - **Relevance (LLM)**: 0.800
 - **Answer Quality**: 0.790
 - **Overall Score**: 0.795
-
-## 🔍 Query-by-Query Analysis
-
-## 💻 Resource Utilization
-
-### Memory Usage Patterns
-
-| Rank | Configuration     | Memory Usage (MB) | Efficiency Rating |
-| ---- | ----------------- | ----------------- | ----------------- |
-| 1    | manual-faiss      | 1097.61           | 🟢 Excellent      |
-| 2    | manual-chroma     | 1284.66           | 🟡 Good           |
-| 3    | langchain-faiss   | 1381.77           | 🟡 Good           |
-| 4    | llamaindex-faiss  | 1411.46           | 🔴 High           |
-| 5    | langchain-chroma  | 1486.70           | 🔴 High           |
-| 6    | llamaindex-chroma | 1488.11           | 🔴 High           |
-
-## 💰 Cost Analysis
-
-### Development and Operational Costs
-
-| Factor                         | LangChain      | LlamaIndex     | Manual           |
-| ------------------------------ | -------------- | -------------- | ---------------- |
-| **Development Time**     | Low (1-2 days) | Low (1-2 days) | High (1-2 weeks) |
-| **Learning Curve**       | Medium         | Medium         | High             |
-| **Maintenance**          | Low            | Low            | High             |
-| **Performance Tuning**   | Medium         | Medium         | High Control     |
-| **Debugging Complexity** | Medium         | Medium         | High             |
-| **Team Onboarding**      | Easy           | Easy           | Difficult        |
-
-## 🎯 Recommendations Matrix
-
-### Use Case Recommendations
-
-| Scenario                          | Recommended Approach | Reasoning                   |
-| --------------------------------- | -------------------- | --------------------------- |
-| **Rapid Prototyping**       | LangChain            | Quick setup, extensive docs |
-| **Production System**       | Manual/LlamaIndex    | Better performance control  |
-| **Research/Education**      | Manual               | Understanding internals     |
-| **Enterprise Integration**  | LangChain            | Mature ecosystem            |
-| **Data-Heavy Applications** | LlamaIndex           | Advanced indexing features  |
-| **Performance Critical**    | Manual               | Maximum optimization        |
-| **Limited Resources**       | Manual               | Minimal dependencies        |
-| **Complex Workflows**       | LangChain            | Rich integration options    |
-
-## 🛠️ Implementation Guide
-
-### Quick Start Complexity Assessment
-
-#### LangChain Implementation
-
-**Complexity**: ⭐⭐⭐ (Medium)
-
-```python
-# Typical setup - ~20 lines of code
-from langchain.vectorstores import FAISS
-from langchain.embeddings import HuggingFaceEmbeddings
-# ... implementation
-```
-
-#### LlamaIndex Implementation
-
-**Complexity**: ⭐⭐⭐ (Medium)
-
-```python
-# Typical setup - ~25 lines of code
-from llama_index.core import VectorStoreIndex
-from llama_index.core import Settings
-# ... implementation
-```
-
-#### Manual Implementation
-
-**Complexity**: ⭐⭐⭐⭐⭐ (High)
-
-```python
-# Typical setup - ~100+ lines of code
-# Full control over embedding, chunking, retrieval
-# Custom similarity functions, reranking, etc.
-```
 
 ## 📊 Performance Summary
 
