@@ -2,6 +2,9 @@
 downloads/
 data/
 AGENTS.md
+*.hf_cache/
+Week0506/output/
+Week0506/test_single_pdf.py
 
 # -------------------------
 # Python
