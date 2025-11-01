@@ -49,7 +49,12 @@ Nghiên cứu này đánh giá hiệu suất của các pipeline truy xuất th�
 
 ### 5. ColBERTv2 (`colbert-ir/colbertv2.0`)
 - **Kiến trúc**: Late-interaction multi-vector với RAGatouille
-- **Cách hoạt động**: Mã hóa từng token thành vector riêng, tính MaxSim giữa query và document tokens
+- **Cách hoạt động**:
+  - ColBERT relies on fine-grained contextual late interaction: it encodes each passage into a matrix of token-level embeddings. 
+  - Then at search time, it embeds every query into another matrix and efficiently finds passages that contextually match the query using scalable vector-similarity (MaxSim) operators.
+  - These rich interactions allow ColBERT to surpass the quality of single-vector representation models, while scaling efficiently to large corpora.
+  
+    $\rightarrow$ Mã hóa từng token thành vector riêng, tính MaxSim giữa query và document tokens
 - **Ưu điểm**: Khả năng khớp chi tiết ở mức token, không bị giới hạn bởi giai đoạn đầu
 - **Nhược điểm**: Indexing nặng, tốn tài nguyên
 
