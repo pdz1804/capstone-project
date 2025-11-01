@@ -33,21 +33,21 @@
 
 | Pipeline | Config (Model / Index) | Thời gian Index | Thời gian Embed | Thời gian Retrieve/Rerank | Tổng Thời gian | nDCG@3 | Recall@3 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **BM25 (Raw)** | `rank-bm25` (Okapi) | ~1s | N/A |  3 min | 3 min | 0.2821 | 0.3085 |
-| **Dense (MiniLM-L6 Raw)** | `s-t/all-MiniLM-L6-v2` / Flat (Numpy) | Không index (N/A) | 1 min | ~1s | ~1s | 0.8658 | 0.9125 |
-| **Dense (BGE-Small Raw)** | `BAAI/bge-small-en-v1.5` / Flat (Numpy) | Không index (N/A) | 2.5 min | ~1s | ~1s | **0.8855** | **0.9257** |
+| **BM25 (Raw)** | `rank-bm25` (Okapi) | ~1s | N/A |  3m | 3m | 0.2821 | 0.3085 |
+| **Dense (MiniLM-L6 Raw)** | `s-t/all-MiniLM-L6-v2` / Flat (Numpy) | Không index (N/A) | 1m | ~1s | 1m | 0.8658 | 0.9125 |
+| **Dense (BGE-Small Raw)** | `BAAI/bge-small-en-v1.5` / Flat (Numpy) | Không index (N/A) | 2.5m | ~1s | 2.5m | **0.8855** | **0.9257** |
 | **Hybrid (BM25+MiniLM RRF)** | RRF (`rrf_k=60`) | N/A | N/A | ~1s | ~1s | 0.5786 | 0.6885 |
 | **Hybrid (BM25+BGE RRF)** | RRF (`rrf_k=60`) | N/A | N/A | ~1s | ~1s | 0.5830 | 0.6787 |
-| **BM25 + Rerank (BGE-L)** | `BAAI/bge-reranker-large` (Top 30) | N/A | N/A | 103.12s | 103.12s | 0.4469 | 0.4592 |
-| **MiniLM + Rerank (BGE-L)** | `BAAI/bge-reranker-large` (Top 30) | N/A | N/A | 103.54s | 103.54s | 0.9196 | 0.9526 |
-| **BGE-S + Rerank (BGE-L)** | `BAAI/bge-reranker-large` (Top 30) | N/A | N/A | 103.37s | 103.37s | **0.9248** | **0.9598** |
-| **Hy(MiniLM) + Rerank (BGE-L)** | `BAAI/bge-reranker-large` (Top 30) | N/A | N/A | 103.97s | 103.97s | 0.9176 | 0.9490 |
-| **Hy(BGE-S) + Rerank (BGE-L)** | `BAAI/bge-reranker-large` (Top 30) | N/A | N/A | 103.58s | 103.58s | 0.9234 | 0.9562 |
-| **BM25 + Rerank (MiniLM-12)** | `cross-encoder/ms-marco-MiniLM-L-12-v2` (Top 30) | N/A | N/A | 17.81s | 17.81s | 0.4459 | 0.4574 |
-| **MiniLM + Rerank (MiniLM-12)** | `cross-encoder/ms-marco-MiniLM-L-12-v2` (Top 30) | N/A | N/A | 18.33s | 18.33s | 0.9089 | 0.9460 |
-| **BGE-S + Rerank (MiniLM-12)** | `cross-encoder/ms-marco-MiniLM-L-12-v2` (Top 30) | N/A | N/A | 18.07s | 18.07s | 0.9107 | 0.9496 |
-| **Hy(MiniLM) + Rerank (MiniLM-12)** | `cross-encoder/ms-marco-MiniLM-L-12-v2` (Top 30) | N/A | N/A | 17.90s | 17.90s | 0.9092 | 0.9460 |
-| **Hy(BGE-S) + Rerank (MiniLM-12)** | `cross-encoder/ms-marco-MiniLM-L-12-v2` (Top 30) | N/A | N/A | 18.69s | 18.69s | 0.9112 | 0.9496 |
+| **BM25 + Rerank (BGE-L)** | `BAAI/bge-reranker-large` (Top 30) | N/A | N/A | 1m43s | 1m43s | 0.4469 | 0.4592 |
+| **MiniLM + Rerank (BGE-L)** | `BAAI/bge-reranker-large` (Top 30) | N/A | N/A | 1m43s | 1m43s | 0.9196 | 0.9526 |
+| **BGE-S + Rerank (BGE-L)** | `BAAI/bge-reranker-large` (Top 30) | N/A | N/A | 1m43s | 1m43s | **0.9248** | **0.9598** |
+| **Hy(MiniLM) + Rerank (BGE-L)** | `BAAI/bge-reranker-large` (Top 30) | N/A | N/A | 1m43s | 1m43s | 0.9176 | 0.9490 |
+| **Hy(BGE-S) + Rerank (BGE-L)** | `BAAI/bge-reranker-large` (Top 30) | N/A | N/A | 1m43s | 1m43s | 0.9234 | 0.9562 |
+| **BM25 + Rerank (MiniLM-12)** | `cross-encoder/ms-marco-MiniLM-L-12-v2` (Top 30) | N/A | N/A | ~17s | ~17s | 0.4459 | 0.4574 |
+| **MiniLM + Rerank (MiniLM-12)** | `cross-encoder/ms-marco-MiniLM-L-12-v2` (Top 30) | N/A | N/A | ~17s | ~17s | 0.9089 | 0.9460 |
+| **BGE-S + Rerank (MiniLM-12)** | `cross-encoder/ms-marco-MiniLM-L-12-v2` (Top 30) | N/A | N/A | ~17s | ~17s | 0.9107 | 0.9496 |
+| **Hy(MiniLM) + Rerank (MiniLM-12)** | `cross-encoder/ms-marco-MiniLM-L-12-v2` (Top 30) | N/A | N/A | ~17s | ~17s | 0.9092 | 0.9460 |
+| **Hy(BGE-S) + Rerank (MiniLM-12)** | `cross-encoder/ms-marco-MiniLM-L-12-v2` (Top 30) | N/A | N/A | ~18s | ~18s | 0.9112 | 0.9496 |
 | **ColBERTv2 (RAGatouille)** | `colbert-ir/colbertv2.0` / FAISS (`nbits=2`, `doc_maxlen=80`, **faiss-cpu**) | 34m47s | (Kết hợp với index) | 6.5s | 34m53s | **0.9638** | **0.9412** |
 ---
 
