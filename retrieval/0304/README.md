@@ -1,10 +1,10 @@
 # Evaluation and Conclusion
 
 ## Evaluation Table
-| Method | Index/Embedding Time | Inference Time (1000 queries) | nDCG@10 | Recall@10 |
+| Method | Indexing/Embedding Time | Retrieval Time (1000 queries) | nDCG@10 | Recall@10 |
 | :--- | :--- | :--- | :--- | :--- |
-| **BM25** | Very fast (a few minutes, tokenization only) | **44 min 29 s** – 1 CPU core | 0.0663 | 0.1133 |
-| **Dense** | Very slow (≈20 min for the first time – assuming GPU T4) | **~6 seconds** | **0.2411** | **0.3557** |
+| **BM25** | Very fast (1 min) | **44 min** – 1 CPU | 0.0663 | 0.1133 |
+| **Dense** | Very slow (20 min) | **~6 seconds** | **0.2411** | **0.3557** |
 | **Hybrid (Weighted Sum)** | None (reused existing indexes) | ~1 second (score fusion only) | 0.2348 | 0.3427 |
 | **Hybrid (RRF)** | None (reused existing indexes) | ~1 second (rank fusion only) | 0.1949 | 0.3207 |
 
