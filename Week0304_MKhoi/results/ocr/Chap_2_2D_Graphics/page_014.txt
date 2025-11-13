@@ -1,0 +1,27 @@
+Clamp Algorithm
+
+// camera.x is player.x as long as its clamped within the valid range
+camera.x = clamp(player.x, screenWidth / 2,
+hCount * screenWidth - screenWidth / 2)
+
+Iterator i = bgSpriteList.begin()
+while i != bgSpriteList.end()
+Sprite s = i.value()
+
+// find the first bg image to draw
+
+if (camera.x - s.x) < screenWidth
+// Image 1: s.x = 0, camera.x = 480, screenWidth/2 = 480
+// 0 - 480 + 480 = 0
+draw s at (s.x - camera.x + screenWidth/2, 0)
+// draw the bg image after this, since it might also be visible
+i++
+s = i.value()
+draw s at (s.x - camera.x + screenWidth/2, 0)
+break
+
+end
+
+i++
+
+loop

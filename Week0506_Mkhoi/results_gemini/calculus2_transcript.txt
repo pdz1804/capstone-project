@@ -1,0 +1,130 @@
+Chào các em, hôm nay chúng ta học bài giới hạn và liên tục của hàm hai biến.
+Ta vào phần giới hạn.
+Để tiện theo dõi chúng ta xét giới hạn hàm một biến trước mà chúng ta đã biết trong giải tích 1 hay là ở phổ thông lớp 11.
+Thì lim fx khi x tiến x0 bằng A nếu như với mọi epsilon lớn hơn 0 tồn tại delta lớn hơn 0 với mọi x thuộc df.
+Sao cho khoảng cách từ x đến x0 lớn hơn 0, để cho nó x khác với x0 và bé hơn delta.
+Thì fx - a, khoảng cách giữa fx và a này sẽ bé hơn epsilon.
+Thì đối với hàm hai biến f bằng fxy ta cũng có chính xác cái định nghĩa này.
+Là chúng ta thấy lim fxy khi xy tiến đến x0y0.
+xy là một cái điểm có tọa độ xy, còn x0y0 là cái điểm trước cho trước, M0 có tọa độ x0y0.
+Thì cái điểm này nó tiến đến x0y0.
+Thì cái hàm fxy này sẽ tiến đến A, chúng ta có thể ghi ký hiệu của định giới hạn kép là ký hiệu này, hoặc là ký hiệu này cũng được.
+Nó hoàn toàn giống như ở trên với mọi epsilon cho trước, tồn tại một delta lớn hơn 0, với mọi cái điểm xy nằm trong tập xác định của hàm số.
+xy này phân biệt đối với x0y0, tức là khác x0y0.
+Thì cái này là khoảng cách từ cái điểm xy đến điểm x0y0 bé hơn delta thì khoảng cách từ fxy đến A này phải bé hơn epsilon.
+Ở đây có một cái lưu ý là giới hạn của hàm một biến thì x tiến đến x0 chỉ có thể tiến bằng hai cách, tức là tiến về bên trái.
+gọi là giới hạn trái và kiếm về bên phải gọi là giới hạn phải.
+Còn trong cái tích phân ở giới hạn kép này thì cái điểm xy này tiến đến điểm M0 cho trước bằng nhiều cách khác nhau, không những theo đường thẳng mà có thể theo bất kỳ một đường cong nào đó.
+Vì định nghĩa giới hạn kép và giới hạn của hàm một biến vừa cũng là định nghĩa là giống nhau hoàn toàn, cho nên tính chất của giới hạn kép nó hoàn toàn giống như tính chất của hàm giới hạn hàm một biến.
+Lim của tổng bằng tổng hai lim.
+Lim của tích là bằng có thể tách ra là bằng tích hai lim với điều kiện nó không trùng với cái dạng vô định là 0 nhân vô cực.
+Lim của thương là bằng thương của hai lim.
+Cũng với điều kiện là nó không trùng với cái dạng vô định là vô cùng trên vô cùng.
+Hay là 0 trên 0.
+Rồi ở đây có một định lý kẹp là cái hàm g này nó lớn hơn bằng f nhỏ hơn bằng h với mọi xy.
+Trong cái lân cận của x0y0, tức là nó sắp sát với x0y0.
+Và giả sử như giới hạn của hàm này và giới hạn của hàm này cùng tiến đến một số M thì cái hàm G này cũng tiến đến M.
+Và trên thực tế thì ta hay dùng cái định lý kẹp này để chúng ta tìm giới hạn của hàm hai biến.
+Đối với hàm một biến thì chúng ta đã học trong giải tích 1, nó có rất là nhiều phương pháp để tìm giới hạn.
+Còn đối với hàm hai biến thì nó ít công cụ hơn.
+Và tìm giới hạn của hàm A biến là nó phức tạp hơn nhiều.
+Bây giờ chúng ta xét một số cái ví dụ.
+Tìm giới hạn của hàm hai biến này khi xy tiến đến 0 0.
+Thì trong ví dụ này chúng ta dùng định lý kẹp để chúng ta trị tuyệt đối của f này sẽ lớn hơn bằng 0 hiển nhiên rồi và bé hơn bằng trị tuyệt đối của cái hàm f đây.
+Thì trị tuyệt đối của tổng là bằng bé hơn bằng tổng của trị tuyệt đối.
+Rồi sin của 1 phần x thì luôn luôn bé hơn bằng 1 cho nên chúng ta có cái đánh giá này.
+Thì ở đây chúng ta có f bị kẹp bởi hàm g và hàm h.
+Thì cái hàm này tất nhiên là vì hàm 0 cho nên tiến đến 0 khi xy tiến đến 0 0.
+Và bên này cũng vậy, khi xy tiến đến x0 0 thì cái này sẽ tiến đến 0.
+Vậy nó kẹp hai bên thì suy ra là giới hạn này, giới hạn này cũng sẽ tiến đến 0.
+Lim của trị tuyệt đối bằng 0 thì suy ra lim của f cũng bằng 0.
+Vậy chúng ta dùng định lý kẹp để chúng ta giải bài này.
+Ví dụ tiếp theo là tìm giới hạn của hàm này.
+Đây cũng là hàm hai biến.
+Khi xy tiến đến 0 0 thì ta cũng dùng định lý kẹp, chúng ta kẹp cái hàm fxy này bởi bên một bên là 0, một bên là 3 trị tuyệt đối của y.
+Tại vì cái này luôn luôn bé hơn bằng 1.
+Lưu ý là x bình cộng xy nó khác với 0 0 thì có nghĩa là cái mẫu này không có bằng 0.
+Rồi bây giờ chúng ta thấy là đây là tiến đến 0 hiển nhiên rồi.
+3 lần trị tuyệt đối y thì cái hàm này hàm hai biến này cũng sẽ tiến đến 0 khi xy tiến đến 0 0.
+Vậy dùng định lý kẹp thì chúng ta cũng được cái kết quả giống như ví dụ vừa rồi.
+Ở trong bài này thì chúng ta thấy là chúng ta chọn hai cái dãy, cái dãy thứ nhất là xn, yn = 1/n 0.
+Đây là dãy những cái điểm mà có hoành độ là 1/n, tung độ là 0, có nghĩa là cái dãy điểm này nằm trên trục hoành về bên phải của trục hoành.
+Khi mà n càng lớn thì cái điểm này càng tiến về 0, tiến từ bên phải về 0.
+Và khi đó chúng ta thay fxy thay vô, thay 1/n và 0 vô thì chúng ta sẽ được là 1.
+Chọn dãy thứ hai là xn'n' là này, đây là dãy những điểm nằm trên trục tung bên phải trục tung.
+Ở phía trên của trục tung.
+Thì những điểm này cũng tiến về 0 0 và giá trị của hàm số tại những giải điểm này luôn luôn bằng 2.
+Điều này có nghĩa là chúng ta sẽ chỉ ra được hai cái dãy.
+Tiến đến 0 0, hai dãy điểm tiến đến 0 mà giá trị của hàm số ở những cái dãy điểm đó tiến đến hai số khác nhau thì giới hạn của hàm này không tồn tại.
+Tức là chúng ta tiến đến cái điểm 0 0 này bằng hai cái cách khác nhau, cách thứ nhất là tiến theo trục hoành, cách thứ hai là tiến theo trục tung và giá trị của hàm số tại những dãy điểm đó sẽ tiến đến hai số khác nhau thì giới hạn không tồn tại.
+Xét ví dụ này.
+Tìm giới hạn của hàm này.
+Thì ở đây chúng ta chọn y bằng kx.
+Thì chúng ta thế vô, chúng ta thấy là fxy là sẽ bằng k trên 1 phần k.
+Có nghĩa là fxy nó phụ thuộc vào k mà điều này có nghĩa là không tồn tại giới hạn, lý do tại sao?
+y = kx có nghĩa là chúng ta tiến đến cái điểm 0 0 này bằng những đường thẳng y = kx.
+Ví dụ như cho cho k = 1, chúng ta sẽ tiến đến ờ 0 0 bởi những điểm nằm trên cái đường y = x, cho k = 2 cho tiến đến 0 0 bởi những điểm y = 2x và chúng ta tiến đến 0 0 bởi những đường thẳng khác nhau thì giá trị của hàm số là nó thay đổi thì giới hạn của hàm không có.
+Điều này cái vấn đề đặt ra là lần sau chúng ta biết được mà chúng ta chọn y = kx thì chúng ta dự đoán là chúng ta thấy bậc của tử là bậc 2, xy là bậc 2, bậc mẫu cũng là bậc 2 cho nên hai cái bậc này mà nó bằng nhau thì khả năng là giới hạn không tồn tại, cho nên chúng ta phải đi theo cái hướng là chọn những cái dãy điểm phù hợp để chúng ta để cái hàm nó sẽ tiến đến những số khác nhau.
+Cách làm đối với bài này chúng ta sẽ làm cũng có thể làm bằng cách của cái ví dụ vừa rồi cũng được.
+Thì hoặc ở ví dụ vừa rồi chúng ta cũng có thể chọn cách này để chúng ta làm.
+Rồi ví dụ này thì đây là hàm fxy là bằng xy^3 trên x bình cộng y^6 thì dựa vào cái hàm này chúng ta có thể chọn cái dãy xn, yn, thứ nhất là 1/n 0 thì khi 1/n 0 thế vào đây thì chúng ta sẽ được ờ f xynn = 0 thế vào thôi, chúng ta sẽ được 0 liền.
+Một chọn một dãy thứ hai là 1/n^3, 1/n.
+Có nghĩa là những dãy điểm này nằm trên cái đường y bằng x mũ 3, cái đường cong y = x^3.
+Và khi thế vô thì chúng ta lại thấy được 1/2.
+Vậy là chúng ta có hai dãy điểm tiến đến 0 0 mà giá trị của hàm số ở những cái dãy điểm đó sẽ tiến đến hai số khác nhau thì giới hạn không có.
+Bài này chúng ta cũng có thể xét cái dãy điểm là y bằng kx^3 và chúng ta thế vô cũng được.
+Chúng ta cũng sẽ có không tồn tại giới hạn.
+Rồi tương tự như vậy, bài này thì chúng ta chọn những dãy điểm 1/n 0.
+Với dãy điểm này thì giới hạn của giá trị của hàm số là 0 và chúng ta chọn dãy điểm này, lý do tại sao chúng ta chọn dãy điểm đặc biệt như thế này, là khi chúng ta thế 1/n 1/n bình vào đây thì nó sẽ bay bớt cái này còn lại là 1/n^4, thì bậc là bậc 4, đây cũng bậc 4 luôn, đây cũng bậc 4 luôn.
+Và tóm lại là giá trị là bằng 1/2.
+Vậy nó cũng tồn tại hai cái dãy điểm và giới hạn của hàm số sẽ không có.
+Tiếp theo một cái phương pháp khác để tìm giới hạn của hàm hai biến là đối với cái này chúng ta thấy đây xy ở đây cũng xy giống như nhau luôn thì chúng ta sẽ đặt T = xy.
+Khi mà xy tiến đến 0 0 thì cái cái biến T này sẽ tiến đến 0.
+Vậy chúng ta có thể đưa cái giới hạn kép này về giới hạn của hàm một biến T và chúng này chúng ta dùng cái phương pháp làm tìm giới hạn của hàm một biến, chúng ta có thể dùng cái vô cùng bé tương đương hay là chúng ta có thể dùng nhân lượng liên hợp chúng ta tính là bằng -3.
+Tương tự như vậy, bài này cũng có thể đặt T = x bình + y và xy tiến đến 0 0 thì chúng ta sẽ có T tiến đến 0 và chúng ta cũng đưa về được giới hạn của hàm một biến và dễ dàng tính được là bằng 6.
+Qua hai cái ví dụ này chúng ta có một cái phương pháp đó là sử dụng giới hạn của hàm một biến để tính giới hạn kép.
+Rồi đối với bài này thì nó lại có một cái phương pháp khác để tìm giới hạn kép, đó là chúng ta sử dụng hệ trục tọa độ cực.
+Chúng ta đặt x = r cos t, y = r sin t, khi mà xy tiến đến 0 0 thì T hiển nhiên là nó không tiến đến đâu hết, vì đến chạy xung quanh cái điểm 0 thì cái góc T này nó tùy ý.
+Tuy nhiên cái R là cái khoảng cách từ cái điểm xy đến góc tọa độ thì cái R này càng ngày nó càng tiến về 0.
+Vậy chúng ta có R tiến về 0 và thế vô thì đến đây chúng ta rút gọn bớt đi thì chúng ta ra được một cái hàm hai biến RT.
+Tuy nhiên cái trị tuyệt đối của cái phần này là bé hơn hoặc bằng 1, vậy là nó phụ thuộc vào R và R tiến về 0 thì cái giá cái hàm này sẽ tiến về 0.
+Có nghĩa là từ đây xuống đây, từ đây xuống đây chúng ta sử dụng định lý kẹp để chúng ta tính.
+Đó là một cái phương pháp để dùng tọa độ cực để tính giới hạn kép.
+Rồi cái phần liên tục thì nó hoàn toàn giống như hàm một biến.
+Cái hàm liên tục tại điểm M0 nếu như lim của fx khi xy tiến đến cái M0 này sẽ bằng với lại f của x0y0.
+Vậy để kiểm tra một cái hàm có liên tục tại một điểm nào đó hay không thì chúng ta kiểm tra cái giá trị này có tồn tại hay không.
+Và tiếp tiếp theo chúng ta tính giới hạn kép xong rồi chúng ta so sánh hai cái này với nhau mà nó bằng nhau thì nó hàm nó liên tục.
+Ở đây thì ở phần này thầy nói thêm một số cái khái niệm mà chúng ta cũng đã biết trong giải tích 1 rồi.
+Hàm liên tục.
+Nếu nó liên tục tại mọi điểm mà nó xác định.
+Tổng hiệu tích của hai hàm liên tục là liên tục, đây là của các hàm một hàm một biến cũng có ý trang như vậy.
+Thương hợp có hai hàm liên tục là liên tục.
+Rồi chúng ta có định nghĩa hàm sơ cấp thì giống y chang như trong giải tích 1, những cái hàm này gọi là hàm sơ cấp.
+Hàm hằng, hàm mũ, hàm lũy thừa, hàm lượng giác, hàm lượng giác ngược và hàm logarit.
+Rồi cái hàm mà thu được từ các cái hàm sơ cấp bằng hữu hạn các cái phép toán này nó gọi là hàm sơ cấp.
+Đây là hàm sơ cấp cơ bản thì ra dưới này là hàm sơ cấp.
+Và hàm sơ cấp thì liên tục tại những điểm mà nó xác định.
+Cũng ở trong giải tích 1 trong hàm một biến chúng ta cũng có tất cả những cái khái niệm này.
+Vậy ví dụ này thì tìm những điểm gián đoạn của hàm xy trên x + y.
+Thì cái hàm này là hàm sơ cấp thì nó sẽ liên tục trên mọi điểm mà nó xác định.
+Thì cái tập xác định của nó là x + y khác 0.
+Vậy nó sẽ gián đoạn trên cái đường thẳng x + y = 0.
+Khảo sát tính liên tục của hàm này thì cái hàm này cũng là hàm cái tập xác định, trước tiên là chúng ta thấy tập xác định của hàm này là r bình.
+Những xy mà khác 0 0 thì tính theo công thức này, còn tại xy bằng 0 0 là tính theo này là bằng 0.
+Thì tập xác định là r bình.
+Thì cái hàm này với những xy mà khác 0 0 thì cái hàm này là hàm sơ cấp cho nên nó liên tục với mọi điểm khác 0 0.
+Vậy để khảo sát tính liên tục của hàm này thì thực ra chúng ta chỉ khảo sát tại điểm 0 0 mà thôi.
+Giá trị của hàm số tại 0 0 là nó bằng 0, vậy tiếp theo chúng ta đi tìm giới hạn kép của hàm này tại 0 0.
+Chúng ta viết chúng ta lồng vô để chúng ta có thể dùng cái giới hạn của hàm một biến rất là quen thuộc này.
+Thì chúng ta viết cái này trở lại thành cái dạng này thì cái này là tiến đến 1.
+Còn ở chỗ này chúng ta có thể dùng định lý kẹp chúng ta kẹp lại và chỗ này tiến đến 0.
+Thì đây, như thế này đây.
+Vậy là giới hạn của hàm này là bằng 0 và nó bằng với f00 suy ra cái hàm liên tục tại 0 0 và như lúc nãy thầy nói thì cái hàm này liên tục trên r bình.
+Tìm tất cả các giá trị của a để hàm này liên tục tại 0 0 thì chúng ta trước tiên chúng ta thấy là f00 là bằng a rồi.
+Bây giờ chúng ta đi tìm giới hạn kép.
+Thì giới hạn kép này là dễ dàng tính là nó không có.
+Có thể dùng cái phương pháp y bằng kx hay là chọn hai dãy số, hai giải điểm thì giới hạn không tồn tại.
+Như vậy là không tồn tại A để hàm liên tục tại 0 0.
+Phía sau này có rất là nhiều ví dụ rất là hay, các em có thể làm thêm.
+Bài học đến đây kết thúc.
+Cảm ơn sự quan tâm theo dõi của các em.

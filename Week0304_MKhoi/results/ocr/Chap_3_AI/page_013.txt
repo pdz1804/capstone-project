@@ -1,0 +1,5 @@
+State-Based Behaviors
+
+° State Machines for AI
+° Implementation
+° State Design Pattern (Reading exercise)

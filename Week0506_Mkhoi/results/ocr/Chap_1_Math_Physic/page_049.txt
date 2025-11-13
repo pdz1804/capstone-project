@@ -1,0 +1,11 @@
+MORE READING
+
+* Lengyel, Eric. Mathematics for 3D Game Programming and
+Computer Graphics (Third Edition) . Boston: Course
+Technology, 2012
+
+* Ericson, Christer. Real-time Collision Detection . San
+Francisco: Morgan Kaufmann, 2005
+
+* Fielder, Glenn. Gaffer on Games — Game Physics.
+http://gafferongames.com/game-physics/

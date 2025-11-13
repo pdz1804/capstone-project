@@ -1,0 +1,17 @@
+AABB VERSUS AABB
+INTERSECTION
+
+A.max B.max B.max A.max
+| H
+A.min B.min Bmin A.min
+1: A.max.x < B.min.x 2: B.max.x < A.min.x
+B.max A.max
+A
+; A.min B.max
+B.min
+A,max
+A
+B.min
+
+A.min
+3: A.max.y < B.min.y 4: B.max.y < A.min.y
