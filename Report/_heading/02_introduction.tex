@@ -1,0 +1,89 @@
+\chapter{Introduction}
+
+\section{Motivations}
+
+Modern educational environments present \textbf{two fundamental challenges} related to \textbf{information processing and retrieval}. First, students conducting \textbf{self-directed learning} face the task of navigating distributed \textbf{multimodal educational resources} across multiple platforms. These resources include video lectures, interactive tutorials, research papers, and technical documentation. The process of locating and organizing these resources requires substantial time investment. Furthermore, students must perform \textbf{manual information synthesis} across different modalities—for instance, connecting conceptual explanations from video content with related textual materials. This manual synthesis process creates \textbf{high cognitive load} and represents a barrier to efficient learning \cite{bib01, bib02}.
+
+This \textbf{information management challenge} exists at institutional levels as well. At \textbf{Ho Chi Minh City University of Technology (HCMUT)}, the volume of educational content continues to expand across multiple formats including lecture videos, audio recordings, presentation slides, and text documents. \textbf{Traditional text-based processing methods} for this content present limitations. These methods typically rely on \textbf{transcript generation}, which introduces transcription errors and removes important contextual information present in visual components such as diagrams and mathematical notation, as well as auditory elements including speaker emphasis and intonation patterns.
+
+Recent developments in \textbf{multimodal Large Language Models (LLMs)} provide potential solutions to these challenges. \textbf{Models and applications such as NotebookLM and Google's Gemini 2.5 Flash} demonstrate capabilities for processing and reasoning across text, image, and audio modalities \cite{bib03, bib04}. These advances suggest the feasibility of developing educational systems that can process lecture materials across multiple modalities without information loss. This technical foundation motivates our investigation into integrating \textbf{Retrieval-Augmented Generation (RAG)} techniques with \textbf{multimodal representation learning} for educational applications. The proposed system aims to address both institutional content management needs at HCMUT and the broader requirements of self-directed multimodal learning.\section{Objectives}
+
+The primary objective of this project is to design and implement a \textbf{web-based system} that enables students to search, summarize, and study lecture materials through a \textbf{multimodal RAG pipeline}. The proposed system aims to:
+
+\begin{itemize}
+    \item Integrate \textbf{textual, visual, and audio information} from lecture videos, slides, and documents into a \textbf{unified retrieval system}. 
+    \item Apply \textbf{Optical Character Recognition (OCR)} and \textbf{Automatic Speech Recognition (ASR)} to extract text from slides and audio content, enabling content indexing and retrieval.
+    \item Employ a \textbf{hybrid retrieval mechanism} that combines sparse and dense embeddings with cross-modal verification for reliable and accurate information retrieval.
+    \item Utilize a \textbf{Large Language Model (LLM)} to ground retrieved evidence and generate coherent, contextually accurate responses.
+    \item Provide \textbf{personalized study tools}, including lecture summarization and study roadmap generation, to improve review efficiency and exam readiness.
+\end{itemize}
+
+Through these objectives, the system aims to enhance accessibility and understanding of complex lecture content, serving as an \textbf{intelligent assistant} that bridges \textbf{multimodal information} with \textbf{adaptive learning}.
+
+\section{Scope}
+
+This project focuses on the development of a \textbf{prototype system} that processes lecture-related multimodal data and supports retrieval, summarization, and study roadmap generation. The scope includes:
+
+\begin{itemize}
+    \item \textbf{Data ingestion} from multiple sources such as videos, slides, and documents.
+    \item \textbf{Extraction of textual and visual information} through OCR and ASR techniques.
+    \item \textbf{Construction of a multimodal retrieval pipeline} using both dense and sparse embeddings.
+    \item \textbf{Deployment of a RAG-based reasoning layer} powered by an LLM.
+    \item \textbf{Design of a frontend web interface} that allows students to search for relevant content and receive summaries or study guidance.
+\end{itemize}
+
+The project does not aim to develop new models from scratch but rather focuses on \textbf{integrating existing multimodal models} and retrieval techniques into a \textbf{cohesive and practical educational application}.
+
+\section{Challenges}
+
+The challenges encountered in this project can be divided into \textbf{theoretical} and \textbf{technical} categories.
+
+\subsection*{Theoretical Challenges}
+
+The theoretical challenges stem from the wide range of concepts that must be understood and applied, including:
+
+\begin{itemize}
+    \item \textbf{Retrieval-Augmented Generation (RAG)} and its adaptation to multimodal contexts.
+    \item \textbf{Prompt engineering strategies} for reliable question-answering and summarization.
+    \item \textbf{Vision-Language Models (VLMs)} for visual understanding and alignment.
+    \item \textbf{Optical Character Recognition (OCR)} and \textbf{Automatic Speech Recognition (ASR)} for extracting multimodal input data.
+    \item \textbf{Retrieval techniques} such as dense retrieval, sparse retrieval, and hybrid reranking.
+    \item \textbf{Multi-embedding approaches} for representing diverse data types.
+    \item \textbf{Architectural design of multimodal pipelines} for scalable, efficient processing.
+\end{itemize}
+
+Understanding and synthesizing these theoretical foundations require careful study and analysis to ensure that each component works coherently within the system.
+
+\subsection*{Technical Challenges}
+
+The technical challenges lie in implementing and optimizing these theories into a \textbf{robust and reproducible workflow}. These include:
+
+\begin{itemize}
+    \item \textbf{Integrating heterogeneous processing modules} (OCR, ASR, visual embedding, text embedding) into a unified pipeline.
+    \item \textbf{Ensuring data synchronization} between different modalities and storage layers.
+    \item \textbf{Selecting suitable technologies, frameworks, and models} for performance, scalability, and cost-effectiveness.
+    \item \textbf{Managing cross-modal retrieval and reranking} efficiently to minimize latency and improve precision.
+    \item \textbf{Conducting experiments and evaluations} to determine the most suitable configuration for retrieval and summarization.
+    \item \textbf{(Optional) Deploying the system} with considerations for cloud environments, scalability, and real-time performance.
+\end{itemize}
+
+Addressing these challenges requires both \textbf{theoretical understanding} and \textbf{practical engineering effort} to ensure a \textbf{functional multimodal RAG system} that supports real-world educational use cases.
+
+\section{Structure of the Report}
+
+The remainder of this report is organized as follows:
+
+\begin{itemize}
+    \item \textbf{Chapter 1: Declaration of Authorship} – Confirms that the work presented in this report is original and completed by the authors.
+    \item \textbf{Chapter 2: Abstract} – Summarizes the motivation, objectives, and contributions of the project in a concise form.
+    \item \textbf{Chapter 3: Introduction} – Provides background, motivations, objectives, scope, challenges, and the structure of the report.
+    \item \textbf{Chapter 4: Preliminary Study} – Presents foundational knowledge, key theories, and tools relevant to multimodal retrieval and large language models.
+    \item \textbf{Chapter 5: Related Work} – Reviews existing literature and prior systems related to multimodal RAG, OCR, ASR, and visual-language integration.
+    \item \textbf{Chapter 6: Our Approach} – Describes the proposed architecture, system design, and methodologies for integrating multimodal retrieval and reasoning.
+    \item \textbf{Chapter 7: Initial Implementation} – Details the practical setup, model configurations, and partial implementation results.
+    \item \textbf{Chapter 8: Evaluation Methods} – Defines the metrics, datasets, and procedures used to evaluate system performance and effectiveness.
+    \item \textbf{Chapter 9: Our Plan} – Outlines future work, improvements, and long-term development strategies for the project.
+\end{itemize}
+
+\newpage
+

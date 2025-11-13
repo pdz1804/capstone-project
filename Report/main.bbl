@@ -1,0 +1,150 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{bib01}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=a2f141ce02a7ec89384d0b4e136f61f7}{%
+           family={Eppler},
+           familyi={E\bibinitperiod},
+           given={M.\bibnamedelimi J.},
+           giveni={M\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=84e789a9c5eca42cc3f5ba49ecc41bde}{%
+           family={Mengis},
+           familyi={M\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{99211015f1b7b24acb754792f91fc082}
+      \strng{fullhash}{99211015f1b7b24acb754792f91fc082}
+      \strng{fullhashraw}{99211015f1b7b24acb754792f91fc082}
+      \strng{bibnamehash}{99211015f1b7b24acb754792f91fc082}
+      \strng{authorbibnamehash}{99211015f1b7b24acb754792f91fc082}
+      \strng{authornamehash}{99211015f1b7b24acb754792f91fc082}
+      \strng{authorfullhash}{99211015f1b7b24acb754792f91fc082}
+      \strng{authorfullhashraw}{99211015f1b7b24acb754792f91fc082}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The Information Society}
+      \field{number}{5}
+      \field{title}{The Concept of Information Overload: A Review of Literature from Organization Science, Accounting, Marketing, MIS, and Related Disciplines}
+      \field{volume}{20}
+      \field{year}{2004}
+      \field{pages}{325\bibrangedash 344}
+      \range{pages}{20}
+    \endentry
+    \entry{bib02}{book}{}{}
+      \name{author}{3}{}{%
+        {{hash=376ea5eea4e2127d4a885ab15ead9616}{%
+           family={Sweller},
+           familyi={S\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod}}}%
+        {{hash=512e4e9f3d073dc54132a55f5517b1b3}{%
+           family={Ayres},
+           familyi={A\bibinitperiod},
+           given={P.},
+           giveni={P\bibinitperiod}}}%
+        {{hash=fee6af09e5fa6712afc4d173465d338b}{%
+           family={Kalyuga},
+           familyi={K\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{bf62980fb810ec8628e068bab21c1573}
+      \strng{fullhash}{bf62980fb810ec8628e068bab21c1573}
+      \strng{fullhashraw}{bf62980fb810ec8628e068bab21c1573}
+      \strng{bibnamehash}{bf62980fb810ec8628e068bab21c1573}
+      \strng{authorbibnamehash}{bf62980fb810ec8628e068bab21c1573}
+      \strng{authornamehash}{bf62980fb810ec8628e068bab21c1573}
+      \strng{authorfullhash}{bf62980fb810ec8628e068bab21c1573}
+      \strng{authorfullhashraw}{bf62980fb810ec8628e068bab21c1573}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Cognitive Load Theory}
+      \field{year}{2011}
+    \endentry
+    \entry{bib03}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=92918cfdbd5f689c95b602a9f361afd1}{%
+           family={{Google AI}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{fullhash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{fullhashraw}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{bibnamehash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{authorbibnamehash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{authornamehash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{authorfullhash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{authorfullhashraw}{92918cfdbd5f689c95b602a9f361afd1}
+      \field{extraname}{1}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{Google Blog}
+      \field{title}{NotebookLM: AI-powered research and writing partner}
+      \verb{urlraw}
+      \verb https://blog.google/technology/ai/notebooklm-google-ai/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/ai/notebooklm-google-ai/
+      \endverb
+    \endentry
+    \entry{bib04}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=92918cfdbd5f689c95b602a9f361afd1}{%
+           family={{Google AI}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{fullhash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{fullhashraw}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{bibnamehash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{authorbibnamehash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{authornamehash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{authorfullhash}{92918cfdbd5f689c95b602a9f361afd1}
+      \strng{authorfullhashraw}{92918cfdbd5f689c95b602a9f361afd1}
+      \field{extraname}{2}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{Google Blog}
+      \field{title}{Introducing Gemini 2.0: our new AI model for the agentic era}
+      \verb{urlraw}
+      \verb https://blog.google/technology/google-deepmind/google-gemini-ai-update-december-2024/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/google-deepmind/google-gemini-ai-update-december-2024/
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
