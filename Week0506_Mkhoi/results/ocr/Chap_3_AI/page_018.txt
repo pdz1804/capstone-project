@@ -1,0 +1,12 @@
+BEHAVIOR TREE
+
+*Fallback “Sequence .
+*Stops at the first child *Stops at the first child
+
+that returns success or that returns failure or
+running (read “or”) running (read “and”)
+
+Ub -Tick (going down)
+fT -Success (up)
+4Ÿ ‘Running (up)
+°Failure (up)

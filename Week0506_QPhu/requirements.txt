@@ -1,0 +1,36 @@
+# Core Docling dependencies - Updated with verified versions
+docling[all]==2.58.0
+
+# GPU acceleration support - Verified working versions
+# PyTorch with CUDA 11.8 support - these are automatically installed with docling[all]
+torch==2.6.0+cu118
+# torchvision==0.21.0+cu118  # Installed automatically
+# torchaudio==2.6.0+cu118   # Installed automatically
+# For manual PyTorch installation if needed:
+# pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu118
+
+# ML and processing dependencies - Verified versions
+transformers==4.57.1
+pillow==11.3.0
+opencv-python==4.12.0.88
+numpy==2.2.6
+pandas==2.2.3
+
+# Audio processing - Verified versions
+librosa==0.11.0
+# soundfile  # Installed automatically with librosa
+whisper-openai==1.0.0
+
+# OCR engines - Installed automatically with docling[all]
+# tesserocr  # Optional, rapidocr is the default working engine
+# easyocr    # Available but had Vietnamese language compatibility issues
+
+# Utility libraries - Verified versions
+# pathlib    # Built-in Python module, no installation needed
+tqdm==4.67.1
+rich==14.1.0
+loguru==0.7.3
+
+# Optional: Vision Language Models - Available if needed
+# sentence-transformers
+# huggingface-hub

@@ -1,0 +1,31 @@
+Send Packet A
+
+| (méo =
+i Send Packet A i
+p„ Acknowledge Packet A _—-
+<—————
+
+Sender Receiver
+
+Send Packet A
+———>
+
+Send Packet B
+————>
+
+Send Packet C
+
+———>
+= Acknowledge Packet A =
+——
+Ì Acknowledge Packet C ;
+¬mmmm=m=mm
+
+ai. (timeout) —
+Sender Send Packet B Receiver
+— >
+
+Acknowledge Packet B
+-——
+
+&

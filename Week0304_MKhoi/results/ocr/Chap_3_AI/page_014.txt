@@ -1,0 +1,5 @@
+State Machines for AI
+
+° Example: Stealth game
+
+Player found?

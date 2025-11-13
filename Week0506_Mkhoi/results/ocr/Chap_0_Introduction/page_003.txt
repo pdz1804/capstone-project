@@ -1,0 +1,19 @@
+Course Introduction
+
+Assessment:
+
+80%: Assignments (6-7)
+
+* One 3D
+
+20%: Final Exam (multiple choices + writing test - 75 minutes)
+Reference:
+
+[1] Sanjay Madhav, Game Programming Algorithms and Techniques -
+A Platform Agnostic Approach, 2014.
+
+[2] Al Sweigart, Making Games with Python & Pygame, 2012.
+[3] Mat Buckland, Programming Game Al By Example, 2004.
+
+[4] Paul V Craven, Program Arcade Games With Python and Pygame,
+2014.

@@ -1,0 +1,16 @@
+Background Sprite List
+
+const int screenWidth = 960 // An iPhone 4/4S sideways is 960x640
+// All the screen-sized image backgrounds
+string backgrounds[] = { "bgl.png", "bg2.png", /*...*/}
+// The total number of screen-sized images horizontally
+int hCount = 0
+foreach string s in backgrounds
+Sprite bgSprite
+bgSprite.image.Load(s)
+// 1st screen would be x=0, 2nd x=960, 3rd x=1920,
+bgSprite.x = hCount * screenWidth
+bgSprite.y = 0
+bgSpriteList .Add(bgSprite)
+screenCount++
+loop
