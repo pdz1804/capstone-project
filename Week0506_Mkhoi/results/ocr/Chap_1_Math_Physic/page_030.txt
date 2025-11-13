@@ -1,0 +1,6 @@
+AXIS-ALIGNED BOUNDING
+BOX
+
+class AABB2D
+Vector2 min
+Vector2 max

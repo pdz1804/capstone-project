@@ -1,0 +1,3 @@
+Swept Sphere Intersection
+
+¢ Bullet through paper problem

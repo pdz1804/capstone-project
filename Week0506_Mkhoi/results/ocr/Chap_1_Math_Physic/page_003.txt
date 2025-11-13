@@ -1,0 +1,12 @@
+VECTOR
+
+* Representation:
+
+* In code:
+class Vector3
+float x
+float y
+float z
+end
+
+Jf //

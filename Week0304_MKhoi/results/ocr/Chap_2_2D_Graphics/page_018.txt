@@ -1,0 +1,15 @@
+4-ways Scrolling
+
+// This assumes we have an 2D array [row] [column] of all the segments
+for int i = 0, i < vCount, i++
+// Is this the correct row?
+if (camera.y - segments[i][0].y) < screenHeight
+for int j = 0, j < hCount, j++
+// Is this the correct column?
+if (camera.x - segments[i] [j].x) < screenWidth
+// This is the top left visible segment
+end
+loop
+end
+
+loop

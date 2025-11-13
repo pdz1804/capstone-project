@@ -1,0 +1,10 @@
+Admissible Heuristics
+
+* h(x): Manhattan distance or Euclidean distance
+
+wT]
+
+Manhattan Distance Euclidean Distance
+h(x) =6 h(x) = 4.24
+
+h(x) =| start.x — end.x| +|start.y — end.y| A(x) = \|(start.x — end. x) + (start.y — end. yy
