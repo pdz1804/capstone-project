@@ -1,0 +1,13 @@
+UDP
+
+8 bits 16 bits 32 bits
+
+‡ ‡ |
+(20 byes
+
+Destination IP Address
+
+UDP Source Port
+Header (8) Length
+
+Data (x+ bytes) Data..

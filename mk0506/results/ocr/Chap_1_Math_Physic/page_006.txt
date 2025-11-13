@@ -1,6 +1,0 @@
-SUBTRACTION
-
-° Example: imagine you are designing a UI arrow system for a
-game
-
-arrowVector = objective.position — player.position

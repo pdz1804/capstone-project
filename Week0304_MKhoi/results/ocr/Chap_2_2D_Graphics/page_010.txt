@@ -1,0 +1,3 @@
+Sprite Sheet
+
+Tool: TexturePacker

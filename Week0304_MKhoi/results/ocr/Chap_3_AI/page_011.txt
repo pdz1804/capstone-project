@@ -1,0 +1,3 @@
+A* Algorithm
+
+* f(x) = h(x) + g(x)

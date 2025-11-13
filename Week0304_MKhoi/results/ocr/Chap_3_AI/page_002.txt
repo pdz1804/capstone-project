@@ -1,0 +1,7 @@
+Outline
+
+° Real Al versus Game Al
+° Path finding
+
+* State-Based Behaviors
+° Strategy and Planning

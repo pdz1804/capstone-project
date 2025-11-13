@@ -1,9 +1,0 @@
-PLANE
-
-P.n+d=0
-
-struct Plane
-Vector3 normal
-float d
-
-end

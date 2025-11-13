@@ -1,7 +1,0 @@
-IP
-
-8bits 16 bits 32 bits
-
-(20 bytes) Source IP Address
-Destination IP Address
-Data (x+ bytes)
