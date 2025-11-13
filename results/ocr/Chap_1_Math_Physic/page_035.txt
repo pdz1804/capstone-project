@@ -1,8 +1,0 @@
-SPHERE VERSUS SPHERE
-INTERSECTION
-
-|.1 - BI? < (ra + ru) |4 — BL? > (
-
-(a) (b)
-
-Two spheres intersect (a) and do not intersect (b).

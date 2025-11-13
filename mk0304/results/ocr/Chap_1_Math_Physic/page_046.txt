@@ -1,0 +1,18 @@
+EULER AND SEMI-IMPLICIT
+EULER INTEGRATION
+
+class PhysicsObject
+// List of all the force vectors active on this object
+List forces
+Vector3 acceleration, velocity, position
+float mass
+
+function Update(float deltaTime)
+Vector3 sumOfForces = sum of forces in forces
+acceleration = sumOfForces / mass
+
+// Euler Integration
+position += velocity * deltaTime
+velocity += acceleration * deltaTime
+end
+end

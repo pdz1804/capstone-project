@@ -1,0 +1,23 @@
+Implementation
+
+function AIController.SetState(AIState newState)
+// Exit actions
+if state == Patrol
+// Exit Patrol state
+else if state == Death
+// Exit Death state
+else if state == Attack
+// Exit Attack state
+
+end
+state = newState
+
+// Enter actions
+if state == Patrol
+// Enter Patrol state
+else if state == Death
+// Enter Death state
+else if state == Attack
+// Enter Attack state
+end
+end
