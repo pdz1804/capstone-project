@@ -1,0 +1,7 @@
+RAYS AND LINE SEGMENTS
+R(t) = Rp + vt
+
+struct RayCast
+Vector3 startPoint
+Vector3 endPoint
+end

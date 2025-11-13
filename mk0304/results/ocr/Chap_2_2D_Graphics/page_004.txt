@@ -1,0 +1,17 @@
+Sprite
+
+SortedList spriteList
+
+// When creating a new sprite...
+
+Sprite newSprite = specify image and desired x/y
+newSprite.drawOrder = set desired draw order value
+// Add to sorted list based on draw order value
+spriteList.Add(newSprite.drawOrder, newSprite)
+
+// When it's time to draw...
+
+foreach Sprite s in spriteList
+s.Draw()
+
+loop

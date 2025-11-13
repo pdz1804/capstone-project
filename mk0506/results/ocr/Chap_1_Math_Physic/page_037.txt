@@ -1,0 +1,7 @@
+LINE SEGMENT VERSUS PLANE
+INTERSECTION
+
+R(t)=Ro +vt
+P-n+d=0
+
+Ay đị

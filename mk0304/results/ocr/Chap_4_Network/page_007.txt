@@ -1,0 +1,15 @@
+TCP (header)
+
+8 bits 16 bits 32 bits
+
+(20 bytes)
+Source IP Address
+Destination IP Address
+Destinaton Port
+
+Hee Acknowledgement Number
+
+leader
+
+TP NI Offset | Reserved | Flags [Window
+—Opim | Paddig

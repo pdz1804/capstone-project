@@ -1,0 +1,412 @@
+Chào các em, hôm nay chúng ta học bài giới hạn và liên tục của hàng 2 biến
+Để tiền theo dõi chúng ta xét giới hạn hàng 1 biến trước mà chúng ta đã biết trong giới tích 1 hay là ở phổ thông lớp 11
+Thì liên fx khi ít đến 0 bằng A, nếu như với mọi epsilon lớn hơn 0, tồn tại delta lớn hơn 0 với mọi x thuộc df
+So cho khoảng cách từ ít đến 0 lớn hơn 0 để cho nó ít khác với 0 và bá hơn delta
+Thì fx từ A khoảng cách giữa fx và A này sẽ bá hơn epsilon
+Thì đối với hàng 2 biến f bằng fxy, ta cũng có chính xác cái định nghĩa này
+Là chúng ta thấy liên fx khi xy tiến đến 0 0
+Xy là một cái điểm có tọa độ là xy, còn x 0 0 là cái điểm trước cho trước
+M0 có tọa độ x 0 0
+Thì cái điểm này nó tiến đến x 0 0
+Thì cái hàm fx này sẽ tiến đến A
+Chúng ta có thể ghi ký hiệu quy định giới hạn kép là ký hiệu này hoặc là ký hiệu này cũng được
+Nó hoàn toàn giống như ở trên
+Với mọi epsilon cho trước, còn tại một delta lớn hơn 0
+Có mọi cái điểm xy nằm trong tập xác định của hàm số
+Xy này phân biệt đối với x0 0, tức là khác x0 0
+Thì cái này là khoảng cách từ điểm xy đến điểm x0 0 bé hơn delta
+Thì khoảng cách từ fx đến A này phải bá hơn epsilon
+Ở đây có một cái lưu ý là giới hạn của hàm 1 biến thì ít tiến đến x0 0
+Thì có thể tiến bằng 2 cách, tức là tiến về bên trái
+Gọi là giới hạn trái và tiến về bên phải gọi là giới hạn phải
+Còn trong cái ít phân ở giới hạn kép này thì cái điểm xy này tiến đến điểm 10 euro
+Cho trước bằng nhiều cách khác nhau
+Không những theo đường thẳng mà có thể theo bất kỳ một đường căng nào đó
+Vì định nghĩa giới hạn kép và giới hạn của hàm 1 biến
+Cũng là giống nhau, hoàn toàn
+Cho nên tính chất của giới hạn kép đó hoàn toàn giống như tính chất của giới hạn hàm 1 biến
+Là liêm của tổng bằng tổng 2 liêm
+Liêm của tích là bằng tích 2 liêm
+Với điều kiện nó không trùng với cái dạng vô định là không nhân vô cực
+Liêm của thương và bằng thương của 2 liêm
+Cũng với điều kiện là nó không trùng với cái dạng vô định là vô cùng trên vô cùng
+Hay là không đi không
+Rồi ở đây có một lý kẹp là cái hàm G này nó lớn hơn bằng F, nhỏ hơn bằng H
+Với mọi ít y trong cái lăn cặn của x0, 0
+Tức là nó sắp sắp với x0, 0
+Và giả sử như giới hạn của hàm này và giới hạn của hàm này cùng tiến đến một số M
+Thì cái hàm G này cũng tiến đến M
+Và trên thực tế thì ta hay dùng cái định lý kẹp này để chúng ta tìm giới hạn của hàm 2 biến
+Đối với hàm 1 biến thì chúng ta đã học trong giới tích 1, nó có rất nhiều phương pháp để tìm giới hạn
+Còn đối với hàm 2 biến thì nó ít công cụ hơn
+Và tìm giới hạn của hàm 2 biến là nó phức tạp hơn nhiều
+Bây giờ chúng ta xếp một số cái ví dụ
+Tìm giới hạn của hàm 2 biến này khi xy tiến đến 0, 0
+Thì trong ví dụ này chúng ta dùng định lý kẹp
+Chúng ta tìm giới hạn của hàm 2 biến này sẽ lớn hơn bằng 0 hiện nhiên rồi
+Và bá hơn bằng tìm giới hạn của hàm F đây
+Thì tìm giới hạn của hàm F đây
+Thì tìm giới hạn của tổng là bá hơn bằng tổng của tìm giới hạn của hàm F
+Rồi sinh của 1 phần x thì luôn luôn bá hơn bằng 1
+Cho nên chúng ta có cái
+Cái giá này
+Thì ở đây chúng ta có F
+Kẹp bởi hàm
+G và hàm H
+Thì cái hàm này
+Tất nhiên là vì hàm 0 cho nên tiến đến 0
+Khi xy tiến đến 0, 0
+Và bên này cũng vậy
+Khi xy tiến đến x0, 0 thì cái này sẽ tiến đến
+0
+Và nó kẹp 2 bên thì suy ra là giới hạn này
+Giới hạn này cũng sẽ tiến đến 0
+Và liêm của trị thực đối bằng 0
+Thì suy ra liêm của F cũng bằng 0
+Và chúng ta dùng
+Đường lý kẹp để chúng ta giải bài này
+Ví dụ tiếp theo
+Là tìm giới hạn của hàm này
+Đây cũng là hàm 2 biến
+Khi xy tiến đến 0, 0
+Thì ta cũng dùng đường lý kẹp
+Chúng ta kẹp cái hàm F xy này
+Bởi bên 1 bên là 0
+Một bên là 3 trị thực đối bằng y
+Tại vì cái này luôn luôn bái hơn 1 bằng 1
+Lưu ý là x bình cộng xy
+Nó khác với 0, 0
+Thì có nghĩa là mẫu này không có bằng 0
+Rồi bây giờ chúng ta thấy là
+Đây là tiến đến 0 hiện nhiên rồi
+3 lần thì cái hàm 2 biến này
+Thì cái hàm này cũng sẽ tiến đến 0
+Khi xy tiến đến 0, 0
+Và dùng đường lý kẹp thì ta cũng được kết quả giống như ví dụ rồi
+Ở trong bài này
+Thì
+Chúng ta thấy là
+Chúng ta chọn 2 cái dãy
+Cái dãy thứ nhất là xn, yn bằng 1 phần n 0
+Đây là dãy những cái điểm
+Mà có oanh độ là 1 phần n
+Tung độ là 0
+Có nghĩa là cái dãy điểm này nằm trên trục
+Oanh về bên phải của trục oanh
+Khi mà n càng lớn
+Thì cái điểm này càng tiến về 0
+Tiến từ bên phải về 0
+Khi đó chúng ta thay xn, yn thay vô
+Thay 1 phần n và 0 vô
+Thì chúng ta sẽ được là 1
+Chọn dãy thứ 2 là
+Xn phải, yn phải là này
+Đây là dãy những điểm nằm trên trục tung
+Bên phải trục tung
+Phía trên của trục tung
+Thì những điểm này càng tiến về 0,0
+Và giá trị của hàm số tại những dãy điểm này
+Luôn luôn bằng 2
+Điều này có nghĩa là chúng ta sẽ chỉ ra được 2 cái dãy
+Tiến đến 0,0
+2 giải điểm đến 0 và giá trị của hàm số
+Ở những giải điểm đó tiến đến 2 số khác nhau
+Thì giới hạn của hàm này không tồn tại
+Chúng ta tiến đến 0,0
+Bằng 2 cái cách khác nhau
+Cách thứ nhất là tiến theo tục hoành
+Cách thứ 2 là tiến theo tục tung
+Và giá trị của hàm số
+Tại những giải điểm đó sẽ tiến đến 2 số khác nhau
+Thì giới hạn không tồn tại
+Xét ví dụ này
+Tìm giới hạn của hàm này
+Thì
+Đây chúng ta chọn Y bằng KX
+Thì chúng ta thế vô
+Chúng ta thấy là FSI là sẽ bằng K
+Thế 1 phần K
+Có nghĩa là FSI nó phụ thuộc vào K
+Mà điều này có nghĩa là không tồn tại giới hạn
+Lý do tại sao
+Y bằng KX
+Có nghĩa là chúng ta tiến đến cái điểm 0,0
+Bằng những đường thẳng Y bằng KX
+Ví dụ như cho cao bằng 1
+Chúng ta tiến đến 0,0
+Bởi những điểm nằm trên cái đường Y bằng X
+Cho cao bằng 2 cho tiến đến 0,0
+Bởi những điểm Y bằng 2X
+Và chúng ta tới tiến đến 0,0
+Bởi những đường thẳng khác nhau
+Thì giá trị của hàm số là nó thay đổi
+Thì giới hạn của hàm không có
+Điều này
+Cái vấn đề đặt ra là
+Làm sao chúng ta biết được
+Mà chúng ta chọn Y bằng KX
+Thì chúng ta dự đoán là chúng ta thấy
+Bậc của tử là bậc 2
+X Y là bậc 2
+Bậc mẫu cũng là bậc 2
+Cho nên 2 cái bậc này mà nó bàn nhau
+Thì khả năng là giới hạn không tồn tại
+Cho nên chúng ta phải đi theo cái hướng là
+Chọn những cái giải điểm phù hợp
+Để chúng ta
+Để cái hàm nó sẽ tiến đến những số khác nhau
+Cách làm đối với bài này chúng ta sẽ làm
+Cũng có thể làm bằng cách
+Của cái ví dụ vừa rồi cũng được
+Thì hoặc
+Ở ví dụ vừa rồi chúng ta cũng có thể chọn cách này để chúng ta làm
+Rồi
+Ví dụ này
+Thì đây là
+Hàm FXY là bằng X Y mũ 3 trên X bình cộng Y mũ 6
+Thì dựa vào cái hàm này chúng ta có thể chọn cái giải
+Thứ nhất là 1 phần N 0
+Thì khi 1 phần N 0 thế vào đây
+Thì chúng ta sẽ được
+F
+X N Y n bằng 0
+Thế vào thôi chúng ta thấy được 0 liền
+Một tròn một giải thứ 2 là 1 phần N mũ 3
+1 phần N
+Có nghĩa là những giải điểm này nằm trên cái đường
+Y bằng X mũ 3
+Cái đường cao Y bằng Y mũ 3
+Và khi thế vô thì chúng ta thấy được 1 phần 2
+Vậy là chúng ta có 2 giải điểm tiến đến 0 0
+Mà giá trị của 2 một số
+Ở những giải điểm đó
+Thì tiến đến 2 số khác nhau thì giới hạn không có
+Bài này chúng ta cũng có thể xét cái giải điểm là
+Y bằng KX mũ 3
+Và chúng ta thế vô cũng được
+Chúng ta cũng sẽ có 0 tồn tại giới hạn
+Rồi tương tự như vậy
+Bài này thì chúng ta chọn những giải điểm
+1 phần N 0
+Với giải điểm này thì giá trị của hành số là 0
+Và chúng ta chọn cái giải điểm này
+Lý do tại sao chúng ta chọn cái giải điểm đặc biệt như thế này
+Khi chúng ta thế 1 phần N 1 phần N bình vào đây
+Thì nó sẽ bay bước
+Cái này còn lại là 1 phần N 14
+Thì bật là bật 4
+Đây cũng bật 4 luôn
+Đây cũng bật 4 luôn
+Và tốm lại là
+Giá trị là 1 phần 2
+Vậy nó cũng tồn tại 2 cái giải điểm
+Và giới hạn của hành số sẽ không có
+Tiếp theo 1 cái phương pháp khác
+Để tìm giới hạn của hành 2 biến
+Là đối với cái này chúng ta thấy
+Đây, đây, đây, đây, đây
+Còn đây giống như nhau luôn
+Thì chúng ta sẽ đặt T bằng đây
+Khi mà x, đây tiến đến 0,0
+Thì cái biến T này sẽ tiến đến 0
+Vậy chúng ta có
+Thể đưa cái giới hạn kép này
+Về giới hạn của hành 1 biến T
+Và chúng ta dùng cái phương pháp
+Là tìm giới hạn của hành 1 biến
+Chúng ta có thể dùng cái vô cùng bái tương đương
+Cho chúng ta có thể dùng
+Nhân lượng liên hợp
+Chúng ta tính
+Bằng 1 trừ 3
+Tương tự như vậy
+Bài này cũng có thể đặt
+T bằng x bình cộng y
+Và x y tiến đến 0,0
+Thì chúng ta sẽ có t tiến đến 0
+Và chúng ta cũng đưa về được
+Giới hạn của hành 1 biến
+Và dễ dàng tính được là 6
+Qua 2 cái ví dụ này
+Chúng ta có một cái phương pháp
+Đó là sử dụng
+Giới hạn của hành 1 biến
+Để tính giới hạn kép
+Rồi đối với bài này
+Thì nó là có một cái phương pháp khác
+Để tìm giới hạn kép
+Đó là chúng ta sử dụng
+Hệ trục tổ độ cực
+Chúng ta đặt x bằng r
+Có ti bằng r sinh t
+Khi mà x y tiến đến 0,0
+Thì t hiển nhiên là
+Nó không tiến đến đâu hết
+Vì nó chạy xung quanh cái điểm 0
+Thì cái góc t này nó tùy ý
+Tuy nhiên
+Cái r là có khoảng cách
+Từ cái điểm x y đến góc tổ độ
+Thì cái r này càng ngày
+Nó càng tiến về 0
+Vậy chúng ta có
+R tiến về 0
+Và thế vô
+Thì đến đây
+Chúng ta rút gọn bớt đi
+Thì chúng ta ra được một cái hành
+2 biến r t
+Tuy nhiên
+Cái tiền thiệt đối của cái phần này
+Là bán hơn 1 bằng 1
+Vậy là nó phụ thuộc vào r
+Và r tiến về 0
+Thì giá các hàm này sẽ tiến về 0
+Có nghĩa là từ đây xuống đây
+Chúng ta
+Từ đây xuống đây chúng ta sẽ dùng
+Để lý kẹp
+Để chúng ta tính
+Đó là một cái phương pháp
+Để dùng
+Độ độ cực
+Để tính với hạn kép
+Rồi có phần liên tục
+Thì nó hoàn toàn giống như
+Hàm 1 biến
+Cái hàm liên tục
+Tại điểm m0
+Nếu như
+Lim của fx
+Khi xy tiến đến m0 này
+Sẽ bằng với lại
+fx0y0
+Vậy để kiểm tra
+Một cái hàm có liên tục
+Tại một điểm nào đó là 0
+Thì chúng ta kiểm tra
+Giá trị này có tồn tại hay không
+Và tiếp theo
+Để tính với hạn kép
+Xong rồi chúng ta so sánh
+Hai cái này với nhau
+Mà nó bằng nhau
+Thì nó hàm liên tục
+Ở đây thì
+Phần này thầy nói
+Thêm một số cái khái niệm
+Mà chúng ta cũng đã biết
+Trong giới tích 1 rồi
+Hàm liên tục
+Nếu nó liên tục
+Tại mọi điểm mà nó xác định
+Tổng hiệu tích
+Của hai hàm liên tục
+Là liên tục
+Vậy là của các hàm
+Hàm mục biến
+Cũng có y chang như vậy
+Thương
+Hợp hai lĩnh tục
+Và liên tục
+Rồi
+Chúng ta có
+Đình nghĩa hàm sơ cấp
+Thì giống y chang
+Như đông giải tích 1
+Những cái hàm này
+Gọi là hàm sơ cấp
+Hàm hàm mũ
+Hàm lưỡi thừa
+Hàm lượng giác
+Hàm lượng giác ngược
+Và hàm logarit
+Rồi
+Cái hàm mà thu được
+Từ các cái hàm sơ cấp
+Bằng hữu hàng các cái phép toán này
+Nó gọi là hàm sơ cấp
+Đây là hàm sơ cấp cơ bản
+Thì ở đây dưới này là hàm sơ cấp
+Và hàm sơ cấp
+Thì liên tục
+Tại những điểm mà nó xác định
+Cũng ở trong giải tích 1
+Trong hàm mục biến
+Chúng ta cũng có tất cả
+Những cái khái niệm này
+Vậy
+Ví dụ này
+Tìm những điểm gián đoạn
+Của hàm
+X Y trên X cộng Y
+Thì cái hàm này
+Là hàm sơ cấp
+Thì nó sẽ liên tục
+Trên mọi điểm
+Mà nó xác định
+Thì cái tập xác định
+Của nó là
+X cộng Y khác không
+Vậy
+Nó sẽ gián đoạn
+Trên cái đường thẳng
+X cộng Y bằng không
+Khảo sát tính liên tục
+Của hàm này
+Thì cái hàm này
+Cũng là
+Cái tập xác định
+Thứ tiên mà chúng ta thấy
+Tập xác định của hàm này là
+R'
+Những X Y mà khác không không
+Thì tính theo công thức này
+Còn tải đi bằng không không
+Là tính theo
+Mạch đã bằng không
+Thì tập xác định là R'
+Thì cái hàm này
+Với những X Y mà khác không không
+Thì cái hàm này là hàm sơ cấp
+Cho nên nó liên tục
+Với mọi điểm khác không không
+Vậy để khảo sát tính liên tục
+Của hàm này
+Thì thực ra chúng ta chỉ khảo sát
+Tại điểm không không mà thôi
+Giá trị của hàm số tại không không là nó bằng không
+Vậy tiếp theo chúng ta đi tìm giới hạn kép của hàm này tại không không
+Chúng ta viết
+Chúng ta lòng vô địa chúng ta có thể dùng cái giới hạn của hàm
+Một biến rất là quen thuộc này
+Thì chúng ta viết cái này để lại thành cái dạng này
+Thì cái này là tiến đến 1
+Còn ở chỗ này
+Chúng ta có thể dùng để liên kẹp
+Chúng ta kẹp lại và chỗ này tiến đến 0
+Thì
+Vậy như thế này đây
+Vậy là giới hạn của hàm này
+Là bằng
+0
+Và nó bằng và F00 suy ra cái hàm liên tục
+Tại 0 không
+Và
+Như lúc nãy thầy nói
+Thì cái hàm này liên tục
+Tên ARBIN
+Tìm tất cả cái chế thị của A để hàm này liên tục tại 0 không
+Thì chúng ta trước tiên
+Chúng ta thấy là F00 là bằng A rồi
+Giờ chúng ta đi tìm giới hạn kẹp
+Thì giới hạn kẹp này là dễ dàng tính là nó không có
+Có thể dùng cái phương pháp Y bằng KX
+Hay là chọn 2 dạy số
+2 dạy điểm
+Thì giới hạn không tồn tại
+Như vậy là không tồn tại A để hàm liên tục tại 0 không
+Phía sau này có rất là nhiều ví dụ đó
+Và 2 các em có thể làm thêm
+Bài học đến đây kết thúc
+Cảm ơn sự quan tâm theo dõi của các em
