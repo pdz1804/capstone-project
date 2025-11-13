@@ -3,10 +3,10 @@ downloads/
 data/
 AGENTS.md
 *.hf_cache/
-Week0506_QPhu/output/
-Week0506_QPhu/final_input/
-Week0506_QPhu/final_output/
-Week0506_QPhu/test_single_pdf.py
+Week0506_QPhu_Processor/output/
+Week0506_QPhu_Processor/final_input/
+Week0506_QPhu_Processor/final_output/
+Week0506_QPhu_Processor/test_single_pdf.py
 
 # -------------------------
 # Python
