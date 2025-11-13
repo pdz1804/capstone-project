@@ -119,6 +119,7 @@ class ManualRAG:
         self.embeddings = None
         
         print(f"🗑️ Manual destructive cleanup completed")
+    
     def _load_embedding_model(self):
         """Load the embedding model"""
         if self.embedding_model is None:

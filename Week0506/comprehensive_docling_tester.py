@@ -58,7 +58,7 @@ def main():
             enable_asr=True,        # Enable ASR for audio content
             ocr_engine="easyocr",   # Use EasyOCR with GPU for ADVANCED image processing
             ocr_languages=["eng"],  # Focus on English for better accuracy
-            vlm_model="granite_docling",  # Use VLM for visual understanding
+            vlm_model="granite_docling",  # Use VLM for visual understanding - currently this is just for design, not in used yet
             export_images=True,     # Extract and save images
             export_tables=True,     # Extract and save tables
             export_metadata=True,   # Include detailed metadata
