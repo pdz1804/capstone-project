@@ -527,3 +527,25 @@ For questions, issues, or collaboration:
 **Last Updated**: November 14, 2025  
 **Version**: 1.0.0  
 **Status**: Active Development
+
+
+## Notes
+
+#### Core Implementation Files
+- `src/main.py` - Main entry point
+- `src/audio_processor.py` - Whisper ASR processor
+- `src/slide_processor.py` - Tesseract OCR processor
+- `src/gemini.py` - Google Gemini ASR processor
+
+
+#### Additional Files
+- `src/whisper.py` - Whisper ASR
+- `src/transcribe.py` - Wav2Vec ASR
+- `src/geminisd.py` - Google Gemini OCR
+- `src/deepseekoff.py` - DeepSeek OCR
+
+
+#### Statistics Files
+- `asr rank.md` - ASR comparison
+- `ocr rank.md` - OCR comparison
+- `model comparison.md` - Detailed model analysis
