@@ -1,0 +1,24 @@
+| Video Type    | video list name                        |   #video |   #query | #overall duration                           |
+|---------------|----------------------------------------|----------|----------|---------------------------------------------|
+| Lecture       | climate-week-at-columbia-engineering   |        4 |       26 | 5.91 hours 5.34 hours 9.35 hours 8.97 hours |
+| Lecture       | rag-lecture                            |       19 |       38 |                                             |
+| Lecture       | ai-agent-lecture                       |       39 |       45 |                                             |
+| Lecture       | daubechies-wavelet-lecture             |        4 |       25 |                                             |
+| Lecture       | daubechies-art-and-mathematics-lecture |        4 |       21 | 4.87 hours                                  |
+| Lecture       | tech-ceo-lecture                       |        4 |       31 | 4.83 hours                                  |
+| Lecture       | dspy-lecture                           |        9 |       38 | 4.22 hours                                  |
+| Lecture       | trading-for-beginners                  |        2 |       23 | 4.11 hours                                  |
+| Lecture       | ahp-superdecision                      |       11 |       24 | 2.40 hours                                  |
+| Lecture       | decision-making-science                |        4 |       26 | 2.20 hours                                  |
+| Lecture       | 12-days-of-openai                      |       12 |       35 | 3.43 hours                                  |
+| Lecture       | autogen                                |       23 |       44 | 8.70 hours                                  |
+| Documentary   | fights-in-animal-kingdom               |        1 |       11 | 3.00 hours                                  |
+| Documentary   | nature-scenes                          |        1 |       17 | 3.98 hours                                  |
+| Documentary   | education-united-nations               |        6 |       39 | 8.41 hours                                  |
+| Documentary   | elon-musk                              |        1 |       13 | 8.63 hours                                  |
+| Documentary   | jeff-bezos                             |        3 |       34 | 4.47 hours                                  |
+|               | black-myth-wukong                      |       10 |       23 | 21.36 hours                                 |
+|               | primetime-emmy-awards                  |        3 |       17 | 7.31 hours                                  |
+| Entertainment | journey-through-china                  |        1 |       27 | 3.37 hours                                  |
+|               | fia-awards                             |        1 |       27 | 3.02 hours                                  |
+|               | game-awards                            |        2 |       18 | 6.73 hours                                  |

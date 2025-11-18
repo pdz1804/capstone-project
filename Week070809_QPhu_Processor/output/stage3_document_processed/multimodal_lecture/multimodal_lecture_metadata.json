@@ -1,0 +1,59 @@
+{
+  "file_info": {
+    "name": "multimodal_lecture.md",
+    "path": "output\\stage1_normalized\\normalized_markdown\\multimodal_lecture.md",
+    "size": 4282,
+    "type": "text",
+    "modified": 1763495259.0673726
+  },
+  "document_info": {
+    "title": "Advanced Deep Learning Lecture - Computer Vision and NLP",
+    "docling_version": "1.7.0",
+    "filename": "multimodal_lecture.md",
+    "mimetype": "text/markdown",
+    "binary_hash": 13462560097496832480
+  },
+  "content_stats": {
+    "total_pages": 0,
+    "total_images": 0,
+    "total_tables": 1,
+    "total_texts": 98,
+    "total_text_length": 4305
+  },
+  "processing_info": {
+    "processor_version": "MultimodalDocumentProcessor-v1.0",
+    "docling_version": "1.7.0",
+    "processing_timestamp": "2025-11-19T02:49:46.926224",
+    "gpu_used": true,
+    "ocr_enabled": true,
+    "vlm_enabled": true,
+    "asr_enabled": true,
+    "image_filtering": {
+      "min_width": 100,
+      "min_height": 100,
+      "min_area": 10000
+    }
+  },
+  "pages": [],
+  "images_details": [],
+  "tables_details": [
+    {
+      "index": 0,
+      "id": "table_000",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "structure": {
+        "rows": 5,
+        "columns": 4,
+        "column_names": [
+          "Stage",
+          "Input",
+          "Output",
+          "Tools Required"
+        ],
+        "has_data": true
+      }
+    }
+  ]
+}

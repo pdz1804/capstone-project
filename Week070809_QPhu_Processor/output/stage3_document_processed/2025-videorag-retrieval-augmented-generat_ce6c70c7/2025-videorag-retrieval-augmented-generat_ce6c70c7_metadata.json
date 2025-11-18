@@ -1,0 +1,598 @@
+{
+  "file_info": {
+    "name": "2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf",
+    "path": "output\\stage1_normalized\\original_files\\2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf",
+    "size": 7006475,
+    "type": "pdf",
+    "modified": 1757173080.3232064
+  },
+  "document_info": {
+    "title": "VideoRAG: Retrieval-Augmented Generation with Extreme Long-Context Videos",
+    "docling_version": "1.7.0",
+    "filename": "2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf",
+    "mimetype": "application/pdf",
+    "binary_hash": 1151770904033644966
+  },
+  "content_stats": {
+    "total_pages": 18,
+    "total_images": 5,
+    "total_tables": 4,
+    "total_texts": 382,
+    "total_text_length": 78076
+  },
+  "processing_info": {
+    "processor_version": "MultimodalDocumentProcessor-v1.0",
+    "docling_version": "1.7.0",
+    "processing_timestamp": "2025-11-19T02:49:17.188282",
+    "gpu_used": true,
+    "ocr_enabled": true,
+    "vlm_enabled": true,
+    "asr_enabled": true,
+    "image_filtering": {
+      "min_width": 100,
+      "min_height": 100,
+      "min_area": 10000
+    }
+  },
+  "pages": [
+    {
+      "page_number": 2,
+      "page_key": 1,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 8,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 8
+      }
+    },
+    {
+      "page_number": 3,
+      "page_key": 2,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 91,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 90
+      }
+    },
+    {
+      "page_number": 4,
+      "page_key": 3,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 14,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 14
+      }
+    },
+    {
+      "page_number": 5,
+      "page_key": 4,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 16,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 16
+      }
+    },
+    {
+      "page_number": 6,
+      "page_key": 5,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 11,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 11
+      }
+    },
+    {
+      "page_number": 7,
+      "page_key": 6,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 14,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 13
+      }
+    },
+    {
+      "page_number": 8,
+      "page_key": 7,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 10,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 9,
+      "page_key": 8,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 12,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 11
+      }
+    },
+    {
+      "page_number": 10,
+      "page_key": 9,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 13,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 13
+      }
+    },
+    {
+      "page_number": 11,
+      "page_key": 10,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 51,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 50
+      }
+    },
+    {
+      "page_number": 12,
+      "page_key": 11,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 38,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 3,
+        "tables": 0,
+        "texts": 35
+      }
+    },
+    {
+      "page_number": 13,
+      "page_key": 12,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 6,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 6
+      }
+    },
+    {
+      "page_number": 14,
+      "page_key": 13,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 19,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 19
+      }
+    },
+    {
+      "page_number": 15,
+      "page_key": 14,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 18,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 18
+      }
+    },
+    {
+      "page_number": 16,
+      "page_key": 15,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 11,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 10
+      }
+    },
+    {
+      "page_number": 17,
+      "page_key": 16,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 19,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 19
+      }
+    },
+    {
+      "page_number": 18,
+      "page_key": 17,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 27,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 27
+      }
+    },
+    {
+      "page_number": 19,
+      "page_key": 18,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 0,
+      "has_content": false,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 0
+      }
+    }
+  ],
+  "images_details": [
+    {
+      "index": 0,
+      "id": "image_000",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image there are few pictures of people and some text.",
+      "vlm_description": "In this image there are few pictures of people and some text.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "logo",
+        "confidence": 0.6127299070358276,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 3,
+      "bbox": {
+        "x1": 109.3751220703125,
+        "y1": 716.3095092773438,
+        "x2": 501.674560546875,
+        "y2": 589.4964141845703
+      },
+      "dimensions": {
+        "width": 392.3,
+        "height": 126.81
+      },
+      "area": 49748.71,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 1,
+      "id": "image_001",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image there is a graph with different colors and a scale on the right.",
+      "vlm_description": "In this image there is a graph with different colors and a scale on the right.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "bar_chart",
+        "confidence": 1.0,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 11,
+      "bbox": {
+        "x1": 114.52619171142578,
+        "y1": 719.1041793823242,
+        "x2": 497.0642395019531,
+        "y2": 633.0936889648438
+      },
+      "dimensions": {
+        "width": 382.54,
+        "height": 86.01
+      },
+      "area": 32902.29,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 2,
+      "id": "image_002",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image we can see four people sitting on chairs. In front of them there is a table. On the table there is a laptop, a cup, a book, a plant, a book, a book stand, a plant, a cupboard and a wall.",
+      "vlm_description": "In this image we can see four people sitting on chairs. In front of them there is a table. On the table there is a laptop, a cup, a book, a plant, a book, a book stand, a plant, a cupboard and a wall.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "other",
+        "confidence": 0.965310275554657,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 12,
+      "bbox": {
+        "x1": 118.24795532226562,
+        "y1": 251.87359619140625,
+        "x2": 239.3732147216797,
+        "y2": 183.58172607421875
+      },
+      "dimensions": {
+        "width": 121.13,
+        "height": 68.29
+      },
+      "area": 8271.87,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 3,
+      "id": "image_003",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image we can see a group of people sitting on chairs. In front of them there is a table. On the table there is a laptop, a cup, a book, a plant, a bottle and a few other objects. In the background there is a wall. On the wall there are some objects.",
+      "vlm_description": "In this image we can see a group of people sitting on chairs. In front of them there is a table. On the table there is a laptop, a cup, a book, a plant, a bottle and a few other objects. In the background there is a wall. On the wall there are some objects.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "other",
+        "confidence": 0.8670655488967896,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 12,
+      "bbox": {
+        "x1": 249.98956298828125,
+        "y1": 251.30517578125,
+        "x2": 369.8164367675781,
+        "y2": 183.53863525390625
+      },
+      "dimensions": {
+        "width": 119.83,
+        "height": 67.77
+      },
+      "area": 8120.25,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 4,
+      "id": "image_004",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image we can see a group of people sitting on chairs and there are laptops in their hands. In the background there is a shelf with some objects.",
+      "vlm_description": "In this image we can see a group of people sitting on chairs and there are laptops in their hands. In the background there is a shelf with some objects.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "screenshot",
+        "confidence": 0.627258837223053,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 12,
+      "bbox": {
+        "x1": 380.9895935058594,
+        "y1": 251.05621337890625,
+        "x2": 500.5465087890625,
+        "y2": 183.45660400390625
+      },
+      "dimensions": {
+        "width": 119.56,
+        "height": 67.6
+      },
+      "area": 8082.0,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    }
+  ],
+  "tables_details": [
+    {
+      "index": 0,
+      "id": "table_000",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 7,
+      "bbox": {
+        "x1": 129.24005126953125,
+        "y1": 703.0851593017578,
+        "x2": 482.13604736328125,
+        "y2": 635.5265655517578
+      },
+      "dimensions": {
+        "width": 352.9,
+        "height": 67.56
+      },
+      "area": 23841.16,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 4,
+        "columns": 6,
+        "column_names": [
+          "Video Type",
+          "#video list",
+          "#video",
+          "#query",
+          "#avg. queries per list",
+          "#overall duration"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 1,
+      "id": "table_001",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 8,
+      "bbox": {
+        "x1": 108.35738372802734,
+        "y1": 691.1964950561523,
+        "x2": 502.907958984375,
+        "y2": 442.93304443359375
+      },
+      "dimensions": {
+        "width": 394.55,
+        "height": 248.26
+      },
+      "area": 97952.49,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 27,
+        "columns": 9,
+        "column_names": [
+          "",
+          "Lecture.NaiveRAG",
+          "Lecture.VideoRAG",
+          "Documentary.NaiveRAG",
+          "Documentary.VideoRAG",
+          "Entertainment.NaiveRAG",
+          "Entertainment.VideoRAG",
+          "All.NaiveRAG",
+          "All.VideoRAG"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 2,
+      "id": "table_002",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 9,
+      "bbox": {
+        "x1": 108.5542221069336,
+        "y1": 659.9894104003906,
+        "x2": 503.32965087890625,
+        "y2": 584.4270782470703
+      },
+      "dimensions": {
+        "width": 394.78,
+        "height": 75.56
+      },
+      "area": 29830.15,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 6,
+        "columns": 17,
+        "column_names": [
+          "",
+          "LLaMA-VID.lec",
+          "LLaMA-VID.doc",
+          "LLaMA-VID.ent",
+          "LLaMA-VID.all",
+          "VideoAgent.lec",
+          "VideoAgent.doc",
+          "VideoAgent.ent",
+          "VideoAgent.all",
+          "NotebookLM.lec",
+          "NotebookLM.doc",
+          "NotebookLM.ent",
+          "NotebookLM.all",
+          "VideoRAG.lec",
+          "VideoRAG.doc",
+          "VideoRAG.ent",
+          "VideoRAG.all"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 3,
+      "id": "table_003",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 16,
+      "bbox": {
+        "x1": 109.40583801269531,
+        "y1": 454.11492919921875,
+        "x2": 502.21209716796875,
+        "y2": 209.3125
+      },
+      "dimensions": {
+        "width": 392.81,
+        "height": 244.8
+      },
+      "area": 96159.93,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 22,
+        "columns": 5,
+        "column_names": [
+          "Video Type",
+          "video list name",
+          "#video",
+          "#query",
+          "#overall duration"
+        ],
+        "has_data": true
+      }
+    }
+  ]
+}
