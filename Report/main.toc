@@ -12,24 +12,32 @@
 \contentsline {chapter}{\numberline {4}Preliminary Study}{11}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Automatic Speech Recognition}{11}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Optical Character Recognition}{14}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Multimodal Fusion and Cross-Attentional Models}{17}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Multimodal Embedding}{18}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Retrieval-Augmented Generation}{20}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1}Historical Evolution of Retrieval-Augmented Generation}{20}{subsection.4.5.1}%
-\contentsline {subsection}{\numberline {4.5.2}Multimodal RAG: The Convergence}{22}{subsection.4.5.2}%
-\contentsline {subsection}{\numberline {4.5.3}Pipeline}{23}{subsection.4.5.3}%
-\contentsline {subsection}{\numberline {4.5.4}Retrieval}{24}{subsection.4.5.4}%
-\contentsline {subsection}{\numberline {4.5.5}Rerankers}{26}{subsection.4.5.5}%
-\contentsline {subsection}{\numberline {4.5.6}Augmentation}{28}{subsection.4.5.6}%
-\contentsline {subsection}{\numberline {4.5.7}Generator}{29}{subsection.4.5.7}%
-\contentsline {subsection}{\numberline {4.5.8}Prompt Engineering}{31}{subsection.4.5.8}%
-\contentsline {chapter}{\numberline {5}Related Work}{33}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Retrieval Methodologies for Educational Content}{33}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Educational applications}{35}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Multimodal Retrieval}{35}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Modality Fusion}{36}{subsection.5.2.2}%
-\contentsline {chapter}{\numberline {6}Our Approach}{38}{chapter.6}%
-\contentsline {chapter}{\numberline {7}Initial Implementation}{39}{chapter.7}%
-\contentsline {chapter}{\numberline {8}Evaluation Methods}{40}{chapter.8}%
-\contentsline {chapter}{\numberline {9}Our Plan}{41}{chapter.9}%
-\contentsline {chapter}{\numberline {10}Conclusion}{42}{chapter.10}%
+\contentsline {section}{\numberline {4.3}Transformer}{17}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Multimodal Fusion and Cross-Attentional Models}{19}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Multimodal Embedding}{21}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Retrieval-Augmented Generation}{24}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Historical Evolution of Retrieval-Augmented Generation}{24}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Multimodal RAG: The Convergence}{26}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Pipeline}{27}{subsection.4.6.3}%
+\contentsline {subsection}{\numberline {4.6.4}Retrieval}{29}{subsection.4.6.4}%
+\contentsline {subsection}{\numberline {4.6.5}Rerankers}{31}{subsection.4.6.5}%
+\contentsline {subsection}{\numberline {4.6.6}Augmentation}{33}{subsection.4.6.6}%
+\contentsline {subsection}{\numberline {4.6.7}Generator}{35}{subsection.4.6.7}%
+\contentsline {subsection}{\numberline {4.6.8}Prompt Engineering}{37}{subsection.4.6.8}%
+\contentsline {chapter}{\numberline {5}Related Work}{39}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Retrieval Methodologies for Educational Content}{39}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Educational applications}{41}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Multimodal Retrieval}{41}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Modality Fusion}{42}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}NotebookLM}{43}{subsection.5.2.3}%
+\contentsline {chapter}{\numberline {6}Our Approach}{46}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Experiments on Embeddings and Retrieval Methods}{46}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Experimental Methodology}{46}{subsection.6.1.1}%
+\contentsline {subsection}{\numberline {6.1.2}Pipeline Analysis and Results}{48}{subsection.6.1.2}%
+\contentsline {section}{\numberline {6.2}Justification for Retrieval-Augmented Generation (RAG)}{50}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Comparative Analysis of Alternatives}{50}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Summary of Trade-offs}{51}{subsection.6.2.2}%
+\contentsline {chapter}{\numberline {7}Initial Implementation}{52}{chapter.7}%
+\contentsline {chapter}{\numberline {8}Evaluation Methods}{53}{chapter.8}%
+\contentsline {chapter}{\numberline {9}Our Plan}{54}{chapter.9}%
+\contentsline {chapter}{\numberline {10}Conclusion}{55}{chapter.10}%

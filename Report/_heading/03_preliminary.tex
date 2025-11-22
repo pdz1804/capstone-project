@@ -4,6 +4,13 @@
 
 Automatic Speech Recognition (ASR) is the process of converting spoken language into text and has undergone significant evolution, progressing from traditional statistical pipelines to modern end-to-end neural architectures~\cite{graves2006ctc, chan2015las}. Its applications span a wide range of domains, including voice assistants, captioning, transcription, and accessibility technologies. Recent research has increasingly focused on enhancing robustness, supporting low-resource languages, and leveraging large-scale pretraining to improve generalization and reduce reliance on labeled data~\cite{baevski2020wav2vec2, radford2022whisper}.
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/pdz/09-asr-pipeline.png}
+    \caption{ASR pipeline \cite{asr_pipeline_rg}}
+    \label{fig:ASR_Pipeline}
+\end{figure}
+
 Automatic Speech Recognition (ASR) is the task of converting an acoustic signal into a sequence of words. Formally, the goal of an ASR system is to determine the most probable word sequence $\hat{W}$ given an input acoustic observation $X$:
 
 \begin{equation}
@@ -92,6 +99,13 @@ ASR has advanced from early GMM–HMM systems to end-to-end neural architectures
 
 Optical Character Recognition (OCR) has long been regarded as a cornerstone technology in the field of document analysis, enabling the automatic extraction of textual information from scanned documents and images. Over the years, its evolution has been marked by significant advancements, beginning with simple rule-based and template-matching approaches and progressing toward sophisticated deep learning models. Today, OCR systems achieve near-human performance across multiple domains, making them an essential component in automation, digitization, and intelligent data processing \cite{smith2007tesseract, chen2021textrecognition}.
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/pdz/10-ocr-pipeline.jpg}
+    \caption{OCR pipeline.}
+    \label{fig:OCR pipeline}
+\end{figure}
+
 The origins of OCR can be traced back to mechanical devices developed in the early 20th century, which were capable of recognizing characters in limited contexts. During the 1950s through the 1970s, template matching emerged as the dominant approach, though it was often constrained by sensitivity to font variations and document quality \cite{govindaraju1993handwritten}. By the 1970s, OCR technology saw commercial adoption in industries such as banking and postal services, where it was applied to automate check processing and mail sorting. Despite these advances, early commercial systems lacked robustness, often struggling with noise and inconsistencies in printed text \cite{mori1992historical}.
 
 Conventional OCR pipelines were typically divided into sequential stages: segmentation, feature extraction, and classification. Early methods relied heavily on hand-crafted features such as zoning, projection profiles, and contour analysis, which were then processed using statistical classifiers, including Support Vector Machines (SVMs) and Hidden Markov Models (HMMs) \cite{casey1996survey}. While these approaches performed adequately for printed text, handwriting recognition posed greater challenges due to variability in writing styles, cursiveness, and the presence of ligatures. To address this, researchers explored techniques such as elastic matching and Dynamic Time Warping (DTW), which offered improved flexibility. Gradual integration of statistical modeling further enhanced performance, paving the way for more advanced approaches \cite{plamondon2000handwriting}.
@@ -130,12 +144,79 @@ Despite remarkable progress, OCR continues to face several challenges that limit
 
 OCR has undergone a profound transformation, evolving from rigid template-based recognition to flexible, data-driven deep learning and transformer-based systems. These advancements have enabled robust performance across a wide range of domains, from structured documents to complex natural scenes. As OCR continues to underpin automation, accessibility, and large-scale digitization efforts, ongoing research is likely to focus on improving its robustness, adaptability, and inclusivity. Future developments will ensure that OCR remains an indispensable technology in bridging the gap between visual and textual information.
 
+\section{Transformer}
+The Transformer architecture, introduced by Vaswani et al. in 2017, revolutionized sequence modeling by relying entirely on self-attention mechanisms, dispensing with recurrent and convolutional structures~\cite{vaswani2017attention}. This design enabled efficient parallelization during training and excelled at capturing long-range dependencies, leading to state-of-the-art performance in natural language processing tasks such as machine translation, text generation, and language understanding.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/pdz/06-transformers-architecture.png}
+    \caption{The Transformer - model architecture \cite{vaswani2017attention}.}
+    \label{fig:Transformer architecture}
+\end{figure}
+
+A Transformer consists of an \textbf{Encoder} and a \textbf{Decoder}, each composed of $N$ identical layers ($N = 6$ in the original implementation).
+
+Each Encoder layer contains two sub-layers:
+\begin{enumerate}
+    \item Multi-head self-attention.
+    \item Position-wise fully connected feed-forward network.
+\end{enumerate}
+Each sub-layer is wrapped with a residual connection~\cite{vaswani2017attention}. Formally, the output of each sub-layer is:
+\[
+\mathrm{LayerNorm}(x + \mathrm{Sublayer}(x)).
+\]
+
+Each Decoder layer contains three sub-layers:
+\begin{enumerate}
+    \item Masked multi-head self-attention, preventing each position from attending to future tokens.
+    \item Multi-head attention over the Encoder outputs.
+    \item Position-wise feed-forward network.
+\end{enumerate}
+As in the Encoder, residual connections and layer normalization are applied to each sub-layer~\cite{vaswani2017attention}.
+
+Because the Transformer contains no recurrence or convolution, positional information must be injected explicitly. The model adds Positional Encodings to input embeddings at the bottoms of both the Encoder and Decoder stacks~\cite{vaswani2017attention}. The original Transformer uses sinusoidal encodings defined as:
+\[
+\mathrm{PE}(pos, 2i) = \sin\left(\frac{pos}{10000^{2i / d_{\text{model}}}}\right),
+\]
+\[
+\mathrm{PE}(pos, 2i+1) = \cos\left(\frac{pos}{10000^{2i / d_{\text{model}}}}\right),
+\]
+where $pos$ is the token position and $i$ is the dimension index~\cite{vaswani2017attention}. Each dimension corresponds to a sinusoid at a different frequency, enabling the model to encode both absolute and relative positional patterns.
+
+Self-attention computes an output for each position by mapping a query vector to a set of key-value pairs~\cite{vaswani2017attention}.
+
+
+Similarity between queries and keys is computed via the dot product $QK^{T}$, followed by a softmax to obtain attention weights. Because large values can destabilize gradients when the dimensionality $d_{K}$ is high, the dot products are scaled by $\sqrt{d_{K}}$~\cite{vaswani2017attention}:
+\[
+\mathrm{Attention}(Q, K, V)
+= \mathrm{softmax}\left( \frac{QK^{T}}{\sqrt{d_{K}}} \right) V.
+\]
+
+Instead of performing a single attention operation, the Transformer projects queries, keys, and values into $h$ subspaces using learned linear transformations~\cite{vaswani2017attention}. Attention is computed independently in each head:
+\[
+\text{head}_{i} = \mathrm{Attention}(QW_i^{Q},\, KW_i^{K},\, VW_i^{V}).
+\]
+The outputs of all $h$ heads are concatenated and linearly transformed~\cite{vaswani2017attention}:
+\[
+\mathrm{MultiHead}(Q,K,V) = 
+\mathrm{Concat}(\text{head}_1, \ldots, \text{head}_h) W^{O}.
+\]
+
+This mechanism allows the model to capture multiple types of relationships simultaneously by attending to diverse representation subspaces~\cite{vaswani2017attention}.
+
 
 \section{Multimodal Fusion and Cross-Attentional Models}
 
 For specific data types and stages within retrieval pipelines, more specialized architectures are necessary. In the context of video, which inherently combine visual frames, audio signals, motion dynamics, and transcripts generated through automatic speech recognition (ASR), reliance on purely visual encoders such as CLIP fails to exploit the full range of available modalities. To address this limitation, the Multi-level Multi-modal Hybrid Fusion (M2HF) model has been proposed. This model integrates three complementary mechanisms. It first applies multi-stream feature extraction in order to capture representations from visual, audio, motion, and ASR-text channels. It then employs attentional fusion, where attention blocks are used to generate enriched cross-modal features, such as audio-guided visual representations, rather than relying on naive concatenation. Finally, it implements multi-level fusion strategies, combining modalities at both the feature level and the decision level, thereby producing richer and more informative retrieval signals~\cite{liu2022m2hf}.
 
 Cross-attentional models constitute another important development, particularly in the reranking stage of retrieval pipelines. Unlike dual-encoder architectures, which encode queries and documents independently, cross-attentional models such as BERT-based cross-encoders compute deep, token-level interactions between queries and documents. This capacity allows them to capture fine-grained semantic distinctions, such as differentiating between “a slide explaining photosynthesis” and “a slide merely mentioning photosynthesis.” Their ability to model these nuanced relationships has consistently led to state-of-the-art performance in reranking tasks. However, these gains come at the cost of high computational complexity, which renders such models impractical for large-scale, first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}. Instead, their most effective application lies in second-stage reranking, where they refine a smaller set of candidate results returned by a more efficient retrieval mechanism~\cite{pinecone2025rerankers}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/pdz/17-cross-attention.jpg}
+    \caption{Cross-attention \cite{raschka2024_multimodal_llms}.}
+    \label{fig:Cross-attention}
+\end{figure}
 
 Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$:
 
@@ -174,6 +255,13 @@ where $0 \leq \alpha \leq 1$ is a learnable fusion coefficient.
 
 The rapid development of multimodal embedding architectures has significantly broadened the scope of retrieval systems, enabling richer representations across heterogeneous data sources. Early foundation models such as CLIP (2021) established a strong baseline for cross-modal embeddings by jointly training on 400 million image–text pairs and learning a shared embedding space for both modalities~\cite{radford2021clip}. CLIP’s dual-encoder design not only facilitated zero-shot image–text retrieval but also became a widely adopted backbone for subsequent multimodal systems. Building upon this foundation, recent research has extended embeddings to additional modalities and specialized domains.
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/pdz/05-multimodal-embedding.png}
+    \caption{Multimodal embedding \cite{aiedge_multimodal_rag}.}
+    \label{fig:Multimodal embedding}
+\end{figure}
+
 Each input modality $m \in \{\text{text}, \text{audio}, \text{vision}\}$ is encoded into a latent vector using a modality-specific encoder:
 \begin{equation}
     z_m = f_m(x_m; \theta_m)
@@ -211,7 +299,7 @@ Finally, an important trend is the narrowing performance gap between multimodal 
 \subsection{Historical Evolution of Retrieval-Augmented Generation}
 
 \textbf{2017--2019: Pre-RAG foundations.}
-Open-domain question answering prior to RAG largely followed a retrieve-then-read pipeline, where a sparse retriever fetched passages and a neural reader extracted answers. DrQA exemplified this architecture and established the modern baseline of TF--IDF/BM25 retrieval paired with a neural reader~\cite{chen2017drqa}. Neural methods then began to learn retrieval: ORQA jointly trained a dense retriever and reader from QA supervision, demonstrating that learned dual encoders could outperform purely sparse heuristics while remaining efficient at query time~\cite{orqa2019}. In parallel, kNN-LMs showed that a language model’s predictions can be conditioned on a non-parametric, external datastore during inference, anticipating the later concept of ``semi-parametric'' models that fluidly combine internal parameters with external memory~\cite{khandelwal2020knnlm}. Together, these developments set the stage for retrieval and generation to be tightly coupled rather than treated as disjoint stages.
+Open-domain question answering prior to RAG largely followed a retrieve-then-read pipeline, where a sparse retriever fetched passages and a neural reader extracted answers. DrQA exemplified this architecture and established the modern baseline of TF-IDF/BM25 retrieval paired with a neural reader~\cite{chen2017drqa}. Neural methods then began to learn retrieval: ORQA jointly trained a dense retriever and reader from QA supervision, demonstrating that learned dual encoders could outperform purely sparse heuristics while remaining efficient at query time~\cite{orqa2019}. In parallel, kNN-LMs showed that a language model’s predictions can be conditioned on a non-parametric, external datastore during inference, anticipating the later concept of ``semi-parametric'' models that fluidly combine internal parameters with external memory~\cite{khandelwal2020knnlm}. Together, these developments set the stage for retrieval and generation to be tightly coupled rather than treated as disjoint stages.
 
 \textbf{2020: Formalizing retrieval-augmented generation.}
 REALM introduced end-to-end differentiable retrieval during pretraining so that a masked-LM objective could backpropagate through a large document index, demonstrating that external, updateable knowledge could be learned and consulted by the LM at scale~\cite{realm2020}. Shortly afterward, RAG combined a dense retriever (DPR) with a sequence-to-sequence generator (BART), training the entire model so that gradients update both retriever and generator. This ``general-purpose fine-tuning recipe'' showed that a medium-sized LM augmented with learned retrieval can outperform substantially larger parametric-only models on knowledge-intensive tasks~\cite{lewis2020rag}.
@@ -260,8 +348,14 @@ Evaluation and instruction‑tuning keep pace. A recent survey consolidates comp
 
 \subsection{Pipeline}
 
-The RAG pipeline integrates retrieval mechanisms with generative language models to produce accurate and contextually grounded outputs. The process begins with query vectorization, where the user input is encoded into a high-dimensional vector representation using models such as BERT or Sentence Transformers. This query vector is then matched against a pre-indexed vector database to identify semantically similar entries, allowing the system to retrieve the most relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/pdz/02-multimodal-rag-pipeline.jpg}
+    \caption{Multimodal RAG pipeline \cite{aiedge_multimodal_rag}.}
+    \label{fig:Multimodal RAG pipeline}
+\end{figure}
 
+The RAG pipeline integrates retrieval mechanisms with generative language models to produce accurate and contextually grounded outputs. The process begins with query vectorization, where the user input is encoded into a high-dimensional vector representation using models such as BERT or Sentence Transformers. This query vector is then matched against a pre-indexed vector database to identify semantically similar entries, allowing the system to retrieve the most relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}.
 After retrieval, the selected data may undergo preprocessing steps for example, summarization, filtering, or restructuring to ensure compatibility with the downstream language model. The processed information is then incorporated into the input context of a large language model (LLM), enabling it to generate responses that combine the retrieved evidence with its own pre-trained knowledge~\cite{izacard2021leveraging}.
 
 The Retrieval-Augmented Generation (RAG) architecture consists of two primary modules: the retriever and the generator. The retriever is responsible for identifying relevant documents or passages from an external knowledge source. It typically operates using methods such as sparse retrieval (e.g., BM25), dense vector retrieval based on embedding similarity, or hybrid/neural retrieval models~\cite{lewis2020rag, luan2021sparse_dense}. These techniques allow the system to efficiently search large-scale corpora and return the most semantically relevant information.
@@ -270,9 +364,18 @@ The generator then consumes both the user query and the retrieved context to pro
 
 By combining retrieval with generation, RAG reduces hallucination rates, improves factual accuracy, and enables the model to access up-to-date or domain-specific knowledge without needing to retrain the entire language model. This makes RAG a practical and scalable solution for knowledge-intensive tasks in machine learning and natural language processing~\cite{lewis2020rag, izacard2021leveraging, gao2023rag_survey}.
 
+
+
 Moreover, recent advances in multimodal RAG further expand its capabilities. For example, mRAG systematically explores different modality configurations (text, image, video, table), retrieval strategies, reranking, and how to integrate retrieved evidence into generation, achieving significant improvements without fine-tuning~\cite{hu2025mrag}. Another variant, HM-RAG, proposes a hierarchical multi-agent architecture where multiple retrieval agents (text, graph, web) work collaboratively and feed into a decision agent, improving answer accuracy on multimodal benchmarks~\cite{liu2025hmrag}. In visually rich QA settings, models like mR²AG adapt retrieval dynamically and reflect on the relevance of retrieved multimodal evidence to guide generation~\cite{zhang2024mr2ag}. These innovations illustrate that RAG combined with multimodal retrieval and generation is becoming increasingly powerful   especially for complex, knowledge-intensive, multimodal educational applications.
 
 \subsection{Retrieval}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/pdz/16-bm25.png}
+    \caption{BM25 \cite{geeksforgeeks_bm25}.}
+    \label{fig:BM25}
+\end{figure}
 
 Sparse retrieval models represent the classical approach to information retrieval, mapping texts into high-dimensional, sparse vectors based on lexical features~\cite{robertson2009probabilistic, formal2021splade}. These methods, such as TF-IDF and BM25, rely on keyword frequency statistics to determine relevance. The resulting vectors excel at exact keyword matching, making them highly effective and interpretable for queries where specific terms are crucial~\cite{robertson2009probabilistic}. More advanced models like SPLADE are also based on this sparse representation paradigm~\cite{formal2021splade}. The underlying scoring function for these models can typically be expressed as an inner product between the sparse vector representations of the query and the document. Retrieval is traditionally performed efficiently using an inverted index~\cite{formal2021splade}. However, they can struggle with keyword mismatches, which means they cannot effectively handle semantic similarity where the exact keywords are not present in the document~\cite{formal2021splade}.
 
@@ -337,13 +440,20 @@ and the normalization function is applied column-wise.
 
 Rerankers, commonly implemented as cross-encoders, refine search results by jointly encoding a query--document pair to compute a relevance score. Unlike bi-encoders, which independently embed queries and documents into fixed-length vectors, rerankers leverage full token-level interactions, enabling more precise semantic matching. They are typically integrated into two-stage retrieval pipelines, where the first-stage retriever generates candidate documents and the reranker refines their ordering to achieve higher accuracy.
 
-\textbf{Key functions:} Rerankers model token-level cross-attention between the query and document, allowing nuanced reasoning such as entity correspondence, negation detection, factual verification, semantic alignment, and multi-hop reasoning. This yields high relevance precision, especially in long-form document retrieval, question answering, and factual verification tasks.
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/pdz/18-reranker.jpg}
+    \caption{Reranker \cite{together2024_rerank_llamarank}.}
+    \label{fig:Reranker}
+\end{figure}
+
+Rerankers model token-level cross-attention between the query and document, allowing nuanced reasoning such as entity correspondence, negation detection, factual verification, semantic alignment, and multi-hop reasoning. This yields high relevance precision, especially in long-form document retrieval, question answering, and factual verification tasks.
 
 Rerankers are computationally expensive and therefore operate on a narrowed candidate set rather than the full corpus. This architecture is decomposed as follows:
 \begin{itemize}
-    \item \textbf{Stage 1 (Efficient Retrieval):} A bi-encoder or sparse retriever (e.g., BM25, DPR, ColBERT) selects the top-$k$ candidates efficiently using vector similarity or lexical matching.
-    \item \textbf{Stage 2 (Precision Reranking):} A cross-encoder transformer takes $(q, d)$ jointly as input and outputs a scalar relevance score used to reorder the candidate list.
+    \item Stage 1 (Efficient Retrieval): A bi-encoder or sparse retriever (e.g., BM25, DPR, ColBERT) selects the top-$k$ candidates efficiently using vector similarity or lexical matching.
+    \item Stage 2 (Precision Reranking): A cross-encoder transformer takes $(q, d)$ jointly as input and outputs a scalar relevance score used to reorder the candidate list.
 \end{itemize}
 
 This separation balances scalability and accuracy: fast retrieval reduces search space, while rerankers optimize precision at the top ranks.
@@ -401,6 +511,13 @@ These methods collectively highlight two major trends in reranking research: (1)
 
 \subsection{Augmentation}
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/pdz/07-augmentation.png}
+    \caption{Augmentation \cite{obot_rag_guide}}
+    \label{fig:Augmentation}
+\end{figure}
+
 Augmentation in Retrieval-Augmented Generation (RAG) refers to the process of expanding or transforming retrieved knowledge prior to generation, enabling the model to leverage richer, more structured evidence. Unlike raw retrieval pipelines, augmentation enhances retrieved data through summarization, compression, restructuring, or synthetic expansion, improving relevance and reducing noise \cite{yoon2024compact, asai2023selfrag}.
 
 Given a retrieved document set $D = \{d_1, \dots, d_k\}$, augmentation produces a transformed set $D' = \mathcal{A}(D)$ where $\mathcal{A}$ is an augmentation operator such as summarization, chunk merging, entity extraction, or reasoning-based synthesis. Formally:
@@ -447,6 +564,13 @@ Augmentation thus serves as a knowledge refinement stage that restructures retri
 \subsection{Generator}
 
 The generator in Retrieval-Augmented Generation (RAG) serves as the synthesis module that produces the final output by conditioning on both the user query and retrieved evidence. Unlike standalone parametric language models that rely solely on internal representations, RAG generators incorporate retrieved documents to enhance factual grounding and reduce hallucinations \cite{gao2023rag_survey}. Retrieved knowledge is integrated directly into the decoding process, ensuring that outputs are grounded in external sources rather than purely statistical predictions.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/pdz/13-generation.png}
+    \caption{Generator \cite{wolfe2024_rag_guide}}
+    \label{fig:Generator}
+\end{figure}
 
 Formally, given a query $q$ retrieves a document set $D = \{d_1, \dots, d_k\}$, the generator models the output sequence $y = (y_1, \dots, y_T)$ as:
 \[
@@ -506,10 +630,11 @@ Prompt engineering also underpins efforts to produce \textbf{structured and reli
 Early prompt engineering relied heavily on manual experimentation, making it labor-intensive and heuristic-driven. Recent research has shifted toward automated strategies that systematically search, optimize, or learn prompts using algorithmic techniques.
 A direct approach to \textbf{automated prompt optimization} is searching over a space of candidate prompts and selecting the best-performing one based on validation metrics. This includes searching over instruction phrasing, ordering of few-shot examples, or choice of examples. Since exhaustive search is infeasible due to a large combinatorial space, recent work frames prompt selection as a multi-armed bandit or best-arm identification problem, where each prompt is an ``arm’’ with an unknown reward. For example, TRIPLE \cite{shi2024triple} uses bandit algorithms to balance exploration and exploitation under a limited query budget, yielding better prompts with fewer evaluations. Other approaches employ evolutionary search or Monte Carlo tree search, demonstrating that automated discovery can outperform manually engineered prompts.
 Beyond discrete text search, another line of work treats prompts as continuous parameters. Prefix-Tuning \cite{li2021prefix} learns soft prompt vectors that steer model behavior without modifying model weights. AutoPrompt \cite{shin2020autoprompt} performs gradient-guided search over discrete tokens, iteratively updating trigger tokens based on gradient signals. AutoPrompt showed that masked language models can perform tasks such as sentiment classification and natural language inference near state-of-the-art accuracy without fine-tuning, and also demonstrated improved factual recall on probing benchmarks. These approaches bridge classic training with prompt design, though continuous prompts may sacrifice interpretability.
-Other methods refine an initial human-written prompt through iterative edits. GrIPS \cite{prasad2023grips} applies gradient-free heuristic edits—adding, removing, or reordering phrases—and retains only modifications that improve performance, making it suitable for closed-source models. Notably, optimized prompts sometimes appear nonsensical to humans yet perform better, revealing model-specific quirks. Instruction Induction and Automatic Prompt Engineer (APE) \cite{zhou2022ape} generate candidate instructions using an LLM itself, then score and select the best. APE notably discovered a more effective variant of chain-of-thought prompting (``Let’s work this out in a step-by-step way to be sure we have the right answer.'') that exceeded human-designed prompts on tasks.
+Other methods refine an initial human-written prompt through iterative edits. GrIPS \cite{prasad2023grips} applies gradient-free heuristic edits adding, removing, or reordering phrases and retains only modifications that improve performance, making it suitable for closed-source models. Notably, optimized prompts sometimes appear nonsensical to humans yet perform better, revealing model-specific quirks. Instruction Induction and Automatic Prompt Engineer (APE) \cite{zhou2022ape} generate candidate instructions using an LLM itself, then score and select the best. APE notably discovered a more effective variant of chain-of-thought prompting (``Let’s work this out in a step-by-step way to be sure we have the right answer.'') that exceeded human-designed prompts on tasks.
 Recent work such as OPRO \cite{yao2023opro} frames prompt optimization as a task performed by the LLM itself. A meta-prompt maintains a history of candidate prompts and their performance, and the model proposes new candidates iteratively. This closes the optimization loop and enables the model to generate self-improving prompts. While promising, meta-prompting must avoid trivial variations and overfitting to validation data.
 Reinforcement learning (RL) offers another avenue by treating prompts as actions optimized for a reward function, such as validation accuracy or human preference. RLPrompt \cite{deng2022rlprompt} applies policy gradients to optimize discrete prompt tokens, achieving improvements over manual baselines. Although less widely adopted due to large search spaces and sparse rewards, RL-based approaches align naturally with interactive and user-feedback-driven prompting scenarios.
 These developments illustrate a shift from heuristic prompt crafting toward principled optimization pipelines, leveraging search, gradients, RL, and LLM-driven meta-optimization to discover high-performing prompts beyond human intuition.
 
 Overall, prompt engineering has matured from ad-hoc phrasing tricks into a systematic methodology spanning demonstrations, reasoning scaffolds, structural constraints, and automated optimization. As LLMs scale and deploy into real-world applications, prompt engineering remains central to achieving reliable, controllable, and domain-aligned model behavior.
 
+\newpage
