@@ -48,5 +48,61 @@ A further refinement is cross-attentional fusion, which departs from dual-encode
 
 However, the computational cost of cross-attention makes such models impractical for large-scale first-stage retrieval, though they are highly effective in reranking top candidates. An important practical dimension of fusion is modality balancing, which ensures that no single modality dominates the relevance scoring process. Techniques such as modality-specific weighting and loss balancing are commonly used to achieve this. In M2HF, a multimodal balance loss was introduced to encourage the model to utilize audio and motion signals alongside visual cues~\cite{liu2022m2hf}. This balancing is essential in educational contexts for instance, in mathematics lectures, transcripts may not explicitly describe the content of diagrams, making the visual modality indispensable for accurate retrieval.
 
+\subsection{NotebookLM}
+
+NotebookLM is an AI-powered note-taking and research assistant developed by Google Labs, built on the Gemini family of models \cite{notebooklm-google, gemini-model}. Designed to synthesize information from user-uploaded materials, the system emphasizes grounded responses, multimodal comprehension, and support for research workflows. While NotebookLM is marketed as a general-purpose productivity tool, its capabilities overlap with multimodal educational assistants such as our proposed system for HCMUT lectures.
+
+NotebookLM supports diverse input formats, including PDF documents, Google Docs, Google Slides, web URLs, text files, and YouTube links \cite{notebooklm-docs}. The system performs structured ingestion and can interpret textual content as well as visual elements such as tables, diagrams, and slide images. Recent updates introduce multimodal reasoning, enabling question answering based on charts, images, and transcripts rather than purely textual content \cite{notebooklm-update-2025}.
+
+This multimodal capability aligns with academic materials that combine formulas, diagrams, and spoken explanations. However, NotebookLM treats uploaded materials as isolated documents rather than components of a structured pedagogical sequence, limiting its effectiveness for course-level organization.
+
+NotebookLM employs Retrieval-Augmented Generation to ensure responses are grounded in uploaded documents rather than solely in parametric model memory \cite{rag-framework}. When answering a query, the system retrieves relevant text segments and conditions generation on them, frequently accompanied by inline citations that reference specific sections of the source material. This reduces hallucinations and supports academic verification \cite{notebooklm-citations}.
+
+Despite this grounding, complex analytical tasks such as mathematical reasoning, algorithm evaluation, or code execution may still rely on internal model reasoning and can produce incorrect interpretations without external validation layers.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/pdz/11-notebooklm.png}
+    \caption{NotebookLM \cite{notebooklm-google-ai}.}
+    \label{fig:NotebookLM}
+\end{figure}
+
+Beyond static summarization and Q\&A, NotebookLM introduces several learning-focused features:
+
+\begin{itemize}
+    \item structured document summaries \cite{notebooklm-summaries}
+    \item AI-generated flashcards and quizzes for active recall \cite{notebooklm-learning}
+    \item podcast-style audio overviews generated from uploaded materials \cite{notebooklm-audio}
+    \item narrated visual summaries similar to lecture recap videos \cite{notebooklm-video}
+\end{itemize}
+
+These features support multiple learning modalities (reading, listening, reviewing). However, generated study resources depend on document completeness and may not capture contextual elements conveyed verbally during lectures.
+
+
+NotebookLM enforces privacy by not using uploaded materials for model training and storing sources privately unless shared \cite{notebooklm-privacy}. This makes the tool suitable for proprietary lecture materials. The system is deployed on both web and mobile platforms, supporting flexible access \cite{notebooklm-mobile}.
+
+In contrast, an institutional deployment such as our proposed system may require deeper integration with internal platforms, including lecture capture pipelines, LMS authentication, and course-specific permissions.
+
+
+Although NotebookLM provides strong baseline functionality, several limitations motivate our specialized system:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{6cm}|p{7cm}|}
+\hline
+\textbf{NotebookLM Limitation} & \textbf{Opportunity for Our System} \\ \hline
+Manual document uploads & Automatic ingestion from slides, recordings, LMS \\ \hline
+Document-centric representation & Course-aware structuring by lecture/week/topic \\ \hline
+Limited semantic reasoning for math, code, circuits & Domain-specific multimodal understanding (STEM-focused) \\ \hline
+Generic responses without instructor oversight & Instructor feedback loops and domain-tuned prompting \\ \hline
+Summaries not pedagogically sequenced & Curriculum-aligned learning path generation \\ \hline
+\end{tabular}
+\caption{Comparison between NotebookLM and our proposed system.}
+\label{tab:comparison-notebooklm}
+\end{table}
+
+Thus, while NotebookLM is an effective multimodal research assistant, it is not optimized for end-to-end lecture understanding. Our system aims to bridge this gap through structured course-centric knowledge modeling, domain-specific reasoning, and automated ingestion of lecture materials.
+
+
 
 \newpage
