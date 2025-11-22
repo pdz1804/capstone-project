@@ -1,0 +1,40 @@
+{
+  "file_info": {
+    "name": "Text mining by using Python2025.md",
+    "path": "output\\stage1_normalized\\normalized_markdown\\Text mining by using Python2025.md",
+    "size": 7010,
+    "type": "text",
+    "modified": 1763495259.120257
+  },
+  "document_info": {
+    "title": "Text mining by using Python: Application to patent documents",
+    "docling_version": "1.7.0",
+    "filename": "Text mining by using Python2025.md",
+    "mimetype": "text/markdown",
+    "binary_hash": 447623929591280042
+  },
+  "content_stats": {
+    "total_pages": 0,
+    "total_images": 0,
+    "total_tables": 0,
+    "total_texts": 77,
+    "total_text_length": 6795
+  },
+  "processing_info": {
+    "processor_version": "MultimodalDocumentProcessor-v1.0",
+    "docling_version": "1.7.0",
+    "processing_timestamp": "2025-11-19T02:49:48.161465",
+    "gpu_used": true,
+    "ocr_enabled": true,
+    "vlm_enabled": true,
+    "asr_enabled": true,
+    "image_filtering": {
+      "min_width": 100,
+      "min_height": 100,
+      "min_area": 10000
+    }
+  },
+  "pages": [],
+  "images_details": [],
+  "tables_details": []
+}
