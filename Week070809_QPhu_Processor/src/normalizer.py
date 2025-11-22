@@ -584,35 +584,117 @@ class DocumentNormalizer:
     # ======================== HTML Normalization ========================
     
     def _normalize_html(self, file_path: Path, stem: str):
-        """Normalize HTML to Markdown."""
+        """Normalize HTML to Markdown and PDF."""
         if not BS4_AVAILABLE:
             print("WARNING: BeautifulSoup not available, skipping HTML processing")
             return
         
         try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                html_content = f.read()
+            # Convert to PDF using LibreOffice (preserves layout, images, styling)
+            if self.config.generate_pdf:
+                print("  → Trying LibreOffice for HTML to PDF conversion...")
+                if self._html_to_pdf_libreoffice(file_path, stem):
+                    print("  → ✓ LibreOffice HTML→PDF conversion successful")
+                else:
+                    print("  → LibreOffice not available for HTML, PDF not generated")
             
-            soup = BeautifulSoup(html_content, 'html.parser')
-            
-            # Remove script and style elements
-            for script in soup(["script", "style"]):
-                script.decompose()
-            
-            # Extract text
-            text = soup.get_text()
-            
-            # Clean up whitespace
-            lines = (line.strip() for line in text.splitlines())
-            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-            text = '\n'.join(chunk for chunk in chunks if chunk)
-            
+            # Also extract text to Markdown for text-based retrieval
             if self.config.generate_markdown:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    html_content = f.read()
+                
+                soup = BeautifulSoup(html_content, 'html.parser')
+                
+                # Remove script and style elements
+                for script in soup(["script", "style"]):
+                    script.decompose()
+                
+                # Extract text
+                text = soup.get_text()
+                
+                # Clean up whitespace
+                lines = (line.strip() for line in text.splitlines())
+                chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+                text = '\n'.join(chunk for chunk in chunks if chunk)
+                
                 self._save_markdown(stem, text)
         
         except Exception as e:
             print(f"ERROR: Error processing HTML {file_path}: {str(e)}")
             raise
+    
+    def _html_to_pdf_libreoffice(self, file_path: Path, stem: str) -> bool:
+        """Convert HTML to PDF using LibreOffice (preserves layout, images, CSS styling)."""
+        pdf_path = self.pdf_dir / f"{stem}.pdf"
+        
+        try:
+            import subprocess
+            import sys
+            
+            # Try platform-specific LibreOffice paths
+            if sys.platform == 'win32':
+                soffice_paths = [
+                    r"C:\Program Files\LibreOffice\program\soffice.exe",
+                    r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
+                ]
+            elif sys.platform == 'darwin':  # macOS
+                soffice_paths = [
+                    "/Applications/LibreOffice.app/Contents/MacOS/soffice",
+                ]
+            else:  # Linux and other Unix-like systems
+                soffice_paths = [
+                    "/usr/bin/soffice",
+                    "/usr/local/bin/soffice",
+                    "soffice",  # Try PATH
+                ]
+            
+            # Find LibreOffice
+            soffice = None
+            for path in soffice_paths:
+                if Path(path).exists():
+                    soffice = path
+                    break
+            
+            if not soffice:
+                return False
+            
+            print(f"    ✓ Found LibreOffice for HTML: {soffice}")
+            
+            # Convert HTML to PDF using LibreOffice with window suppression
+            cmd = [
+                soffice,
+                "--headless",
+                "--convert-to", "pdf",
+                "--outdir", str(self.pdf_dir),
+                str(file_path)
+            ]
+            
+            # Configure subprocess to hide window on Windows
+            conversion_kwargs = {'capture_output': True, 'timeout': 60}
+            
+            if sys.platform == 'win32':
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = subprocess.SW_HIDE
+                
+                conversion_kwargs['startupinfo'] = startupinfo
+                conversion_kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+            
+            result = subprocess.run(cmd, **conversion_kwargs)
+            
+            # LibreOffice outputs with original filename, rename if needed
+            output_pdf = self.pdf_dir / f"{file_path.stem}.pdf"
+            if output_pdf.exists() and output_pdf != pdf_path:
+                output_pdf.rename(pdf_path)
+            
+            if pdf_path.exists():
+                return True
+            else:
+                return False
+        
+        except Exception as e:
+            print(f"    ✗ LibreOffice HTML conversion failed: {str(e)}")
+            return False
     
     # ======================== Excel Normalization ========================
     
