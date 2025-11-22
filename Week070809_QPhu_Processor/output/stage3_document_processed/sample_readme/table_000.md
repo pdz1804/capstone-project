@@ -1,0 +1,6 @@
+| Feature          | Status   | Priority   |
+|------------------|----------|------------|
+| PDF Processing   | ✅       | High       |
+| OCR Support      | ✅       | High       |
+| Audio Processing | ✅       | Medium     |
+| Visual Analysis  | ✅       | High       |
