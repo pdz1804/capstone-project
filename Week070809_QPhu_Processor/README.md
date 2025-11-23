@@ -4,7 +4,7 @@ A comprehensive, production-ready document processing pipeline that normalizes, 
 
 **Handles any document type** — DOCX, PPTX, PDF, HTML, Images, Excel, CSV, Video, Audio — and prepares them for both text-based and image-based RAG systems.
 
-**Platform Support:** Windows | macOS | Linux  
+**Platform Support:** Windows | macOS | Linux
 **Python Version:** 3.9+
 
 ## Overview
@@ -54,6 +54,7 @@ This pipeline handles any document type through a three-stage architecture optim
 ### Why This Architecture?
 
 **Dual RAG Approach:**
+
 - **Normalized PDFs** → Used for image-based retrieval (preserves visual layout)
 - **Docling-processed Markdown** → Used for text-based semantic search
 - **Original files** → Processed by Docling (better quality than re-processing PDFs)
@@ -62,22 +63,23 @@ This pipeline handles any document type through a three-stage architecture optim
 
 ### Input Files → Processing → RAG Outputs
 
-| Input Type | Stage 1: Normalization | Stage 2: Media | Stage 3: Docling | Output for RAG |
-|-----------|------------------------|----------------|------------------|----------------|
-| **DOCX/PPTX** | → PDF (image-based RAG) | - | Original → Markdown | PDF + Markdown |
-| **HTML** | → PDF (image-based RAG) | - | Original → Markdown | PDF + Markdown |
-| **Images** | → PDF (image-based RAG) | - | Original → Markdown | PDF + Markdown |
-| **Excel/CSV** | → Markdown (stored) | - | ❌ Not processed | Markdown only |
-| **Video** | - | → Audio → Text | Text → Markdown | Markdown |
-| **Audio** | - | → Text | Text → Markdown | Markdown |
-| **PDF** | ✅ Kept as-is | - | Original → Markdown | PDF + Markdown |
-| **Markdown** | ✅ Kept as-is | - | Original → Markdown | Markdown |
+| Input Type          | Stage 1: Normalization   | Stage 2: Media   | Stage 3: Docling     | Output for RAG |
+| ------------------- | ------------------------ | ---------------- | -------------------- | -------------- |
+| **DOCX/PPTX** | → PDF (image-based RAG) | -                | Original → Markdown | PDF + Markdown |
+| **HTML**      | → PDF (image-based RAG) | -                | Original → Markdown | PDF + Markdown |
+| **Images**    | → PDF (image-based RAG) | -                | Original → Markdown | PDF + Markdown |
+| **Excel/CSV** | → Markdown (stored)     | -                | ❌ Not processed     | Markdown only  |
+| **Video**     | -                        | → Audio → Text | Text → Markdown     | Markdown       |
+| **Audio**     | -                        | → Text          | Text → Markdown     | Markdown       |
+| **PDF**       | ✅ Kept as-is            | -                | Original → Markdown | PDF + Markdown |
+| **Markdown**  | ✅ Kept as-is            | -                | Original → Markdown | Markdown       |
 
 **Key Insight**: We create PDFs for image-based RAG, but process ORIGINAL files (not PDFs) through Docling for better text extraction quality!
 
 ## ✨ Key Features
 
 ### Universal Format Support
+
 - **Documents**: DOCX, PPTX, ODT, RTF
 - **Web**: HTML, MHTML
 - **Spreadsheets**: XLSX, XLS, CSV
@@ -86,6 +88,7 @@ This pipeline handles any document type through a three-stage architecture optim
 - **Already normalized**: PDF, MD, TXT
 
 ### Advanced Processing
+
 - **Intelligent Normalization**: Converts everything to PDF/Markdown
 - **Media Understanding**: Audio transcription + frame extraction
 - **Deep Document Analysis**: Docling-powered OCR, VLM, table extraction
@@ -93,6 +96,7 @@ This pipeline handles any document type through a three-stage architecture optim
 - **Robust Error Handling**: Detailed logging and error recovery
 
 ### RAG-Optimized Outputs
+
 - **Text-based retrieval**: Clean markdown for semantic search
 - **Image-based retrieval**: Processed PDFs and extracted images
 - **Hybrid approach**: Combine text and visual information
@@ -185,11 +189,13 @@ pip install -r requirements.txt
 Install these based on your needs:
 
 **Windows:**
+
 - **LibreOffice** (Required for DOCX/PPTX → PDF with images): https://www.libreoffice.org/download/
 - **FFmpeg** (Required for video/audio processing): https://ffmpeg.org/download.html
 - **Tesseract OCR** (Optional, for enhanced OCR): https://github.com/UB-Mannheim/tesseract/wiki
 
 **Linux (Ubuntu/Debian):**
+
 ```bash
 # Required dependencies
 sudo apt-get update
@@ -200,6 +206,7 @@ sudo apt-get install -y tesseract-ocr-eng tesseract-ocr-vie
 ```
 
 **Mac:**
+
 ```bash
 # Using Homebrew
 brew install libreoffice ffmpeg tesseract
@@ -212,33 +219,35 @@ brew install libreoffice ffmpeg tesseract
 For serverless environments (AWS Lambda, Google Cloud Functions, etc.), you have two options:
 
 1. **Use LibreOffice Layer** (Recommended for Lambda):
+
    ```bash
    # Use pre-built LibreOffice layer for AWS Lambda
    # See: https://github.com/shelfio/libreoffice-lambda-layer
    # Add layer ARN to your Lambda function
    ```
-
 2. **Install in Docker container**:
+
    ```dockerfile
    FROM public.ecr.aws/lambda/python:3.11
-   
+
    # Install LibreOffice
    RUN yum install -y wget tar gzip
    RUN wget https://downloadarchive.documentfoundation.org/libreoffice/old/7.6.4.1/rpm/x86_64/LibreOffice_7.6.4.1_Linux_x86-64_rpm.tar.gz
    RUN tar -xf LibreOffice_7.6.4.1_Linux_x86-64_rpm.tar.gz
    RUN cd LibreOffice_7.6.4.1_Linux_x86-64_rpm/RPMS && yum install -y *.rpm
-   
+
    # Install FFmpeg
    RUN yum install -y ffmpeg
-   
+
    # Copy application code
    COPY requirements.txt .
    RUN pip install -r requirements.txt
-   
+
    COPY src/ ./src/
    ```
 
 **Note on LibreOffice:**
+
 - **Required for**: DOCX/PPTX → PDF conversion with preserved images
 - **Fallback behavior**: If LibreOffice not found, pipeline uses ReportLab (text-only PDFs, no images)
 - **Detection**: Automatic cross-platform detection (Windows/Mac/Linux)
@@ -252,6 +261,7 @@ python src/pipeline.py input/ output/
 ```
 
 That's it! The pipeline will:
+
 1. ✅ Normalize all documents to PDF/Markdown
 2. ✅ Extract and transcribe audio from videos
 3. ✅ Process everything with Docling for RAG
@@ -397,11 +407,13 @@ output/
 ### Understanding the Outputs
 
 **For RAG Systems:**
+
 - **Image-Based Retrieval**: Use `stage1_normalized/normalized_pdfs/` → ColPali, ColQwen, etc.
 - **Text-Based Retrieval**: Use `stage3_document_processed/*/[name].md` → Dense/BM25/Hybrid embedding
 - **Hybrid Approach**: Combine both for best results
 
 **Key Points:**
+
 - Stage 1 creates PDFs preserving visual layout (charts, diagrams, formatting)
 - Stage 3 processes ORIGINAL files (not PDFs) through Docling for cleaner text extraction
 - Transcripts go through Docling for consistent markdown formatting
@@ -475,28 +487,32 @@ ProcessingConfig(
 
 ### System Dependencies Summary
 
-| Dependency | Purpose | Required? | Installation |
-|-----------|---------|-----------|--------------|
-| **LibreOffice** | DOCX/PPTX → PDF with images | **Recommended** | System package (not pip) |
-| **FFmpeg** | Video/Audio processing | **Required** for media | System package |
-| **Tesseract OCR** | Enhanced OCR | Optional | System package |
-| **Python 3.9+** | Runtime | **Required** | Standard Python |
+| Dependency              | Purpose                      | Required?                    | Installation             |
+| ----------------------- | ---------------------------- | ---------------------------- | ------------------------ |
+| **LibreOffice**   | DOCX/PPTX → PDF with images | **Recommended**        | System package (not pip) |
+| **FFmpeg**        | Video/Audio processing       | **Required** for media | System package           |
+| **Tesseract OCR** | Enhanced OCR                 | Optional                     | System package           |
+| **Python 3.9+**   | Runtime                      | **Required**           | Standard Python          |
 
 ### Cross-Platform Compatibility
 
 **✅ Windows:**
+
 - LibreOffice: Auto-detected in `C:\Program Files\LibreOffice\`
 - Works with silent background execution (no console popups)
 
 **✅ macOS:**
+
 - LibreOffice: Auto-detected in `/Applications/LibreOffice.app/`
 - Works with standard LibreOffice installation
 
 **✅ Linux (Ubuntu/Debian/CentOS):**
+
 - LibreOffice: Auto-detected in `/usr/bin/soffice` or `/usr/local/bin/soffice`
 - Install via: `apt-get install libreoffice` or `yum install libreoffice`
 
 **⚠️ AWS Lambda / Serverless:**
+
 - **Option 1**: Use LibreOffice Lambda Layer (https://github.com/shelfio/libreoffice-lambda-layer)
 - **Option 2**: Docker container with LibreOffice installed (see Dockerfile example above)
 - **Option 3**: Accept fallback to ReportLab (text-only PDFs, no images)
@@ -504,6 +520,7 @@ ProcessingConfig(
 ### Fallback Behavior
 
 **If LibreOffice NOT installed:**
+
 ```
 DOCX/PPTX Processing:
 ├─ ✓ Extracts text content
@@ -513,6 +530,7 @@ DOCX/PPTX Processing:
 ```
 
 **If LibreOffice IS installed:**
+
 ```
 DOCX/PPTX Processing:
 ├─ ✓ Extracts text content
@@ -575,24 +593,28 @@ export WHISPER_MODEL=base
 ## 🎯 Use Cases
 
 ### 1. Educational Content Processing
+
 ```bash
 # Process lecture slides, videos, and transcripts
 python src/pipeline.py lectures/ processed_lectures/ --asr-model large-v3
 ```
 
 ### 2. Document Archive Digitization
+
 ```bash
 # Process scanned PDFs and images with OCR
 python src/pipeline.py archive/ digitized/ --skip-media
 ```
 
 ### 3. Video Content Analysis
+
 ```bash
 # Extract transcripts and frames from videos
 python src/pipeline.py videos/ analyzed/ --media-only --frame-interval 50
 ```
 
 ### 4. Mixed Document Collection
+
 ```bash
 # Process everything: docs, images, videos, spreadsheets
 python src/pipeline.py mixed_content/ processed/
@@ -601,14 +623,17 @@ python src/pipeline.py mixed_content/ processed/
 ## 🔄 Comparison with Previous Weeks
 
 ### Week0506_Mkhoi_OCR_ASR
+
 - ✅ Copied: Audio extraction, Whisper transcription
 - ✨ Enhanced: Chunked processing, frame extraction, multiple output formats
 
 ### Week0506_QPhu_Processor
+
 - ✅ Copied: Docling document processing
 - ✨ Enhanced: Integrated into 3-stage pipeline, handles normalized inputs
 
 ### Week070809 (This Week)
+
 - ✨ **NEW**: Complete normalization layer
 - ✨ **NEW**: Unified pipeline orchestration
 - ✨ **NEW**: Support for ALL document types
