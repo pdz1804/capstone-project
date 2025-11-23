@@ -161,7 +161,6 @@ class DocumentNormalizer:
         """Setup logging configuration."""
         log_file = self.output_dir / "normalization.log"
         
-    
     def normalize_batch(self) -> Dict:
         """
         Normalize all files in the input directory.
@@ -206,13 +205,16 @@ class DocumentNormalizer:
             # Presentations
             '.pptx', '.ppt', '.odp',
             # Web
-            '.html', '.htm', '.mhtml',
+            '.html', '.htm', '.mhtml', '.xhtml',  # Added .xhtml
             # Spreadsheets
             '.xlsx', '.xls', '.csv',
             # Images
-            '.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif',
+            '.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif', '.webp',  # Added .webp
             # Already normalized (just copy)
-            '.pdf', '.md', '.txt'
+            '.pdf', '.md', '.txt',
+            # Text formats
+            '.adoc', '.asciidoc', '.asc',  # Added AsciiDoc
+            '.vtt'  # Added WebVTT
         }
         
         files = []
@@ -237,12 +239,13 @@ class DocumentNormalizer:
         
         print(f"Normalizing {file_type}: {file_path.name}")
         
-        # Get safe filename (truncate if too long)
+        # Get safe filename (truncate if too long) - Windows 260 char path limit
         safe_stem = self._get_safe_filename(stem)
         
-        # Copy original file for Docling processing (Stage 3)
-        # Skip markdown/text and CSV (text-only, no images to preserve)
-        if ext not in ['.md', '.txt', '.csv']:
+        # Copy ALL files except media to original_files for Stage 3 Docling processing
+        # Use safe_stem to avoid Windows path length issues
+        media_extensions = {'.mp4', '.avi', '.mov', '.mp3', '.wav', '.aac', '.ogg', '.flac', '.m4a'}
+        if ext not in media_extensions:
             original_copy = self.originals_dir / f"{safe_stem}{ext}"
             shutil.copy2(file_path, original_copy)
             print(f"  → Saved original for Docling: {original_copy.name}")
@@ -252,18 +255,22 @@ class DocumentNormalizer:
             self._normalize_docx(file_path, safe_stem)
         elif ext in ['.pptx', '.ppt']:
             self._normalize_pptx(file_path, safe_stem)
-        elif ext in ['.html', '.htm', '.mhtml']:
+        elif ext in ['.html', '.htm', '.mhtml', '.xhtml']:
             self._normalize_html(file_path, safe_stem)
         elif ext in ['.xlsx', '.xls']:
-            self._normalize_excel(file_path, safe_stem)
+            self._copy_to_originals_only(file_path, safe_stem)  # Excel: only copy to originals
         elif ext == '.csv':
-            self._normalize_csv(file_path, safe_stem)
-        elif ext in ['.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif']:
+            self._copy_to_originals_only(file_path, safe_stem)  # CSV: only copy to originals
+        elif ext in ['.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif', '.webp']:
             self._normalize_image(file_path, safe_stem)
         elif ext == '.pdf':
             self._copy_pdf(file_path, safe_stem)
-        elif ext in ['.md', '.txt']:
+        elif ext == '.txt':
+            self._txt_to_md(file_path, safe_stem)
+        elif ext == '.md':
             self._copy_text(file_path, safe_stem)
+        elif ext in ['.adoc', '.asciidoc', '.asc', '.vtt']:
+            self._copy_to_originals_only(file_path, safe_stem)  # AsciiDoc/WebVTT: only copy to originals
         else:
             print(f"WARNING: Unsupported file type: {ext}")
     
@@ -272,12 +279,14 @@ class DocumentNormalizer:
         type_map = {
             '.docx': 'document', '.doc': 'document', '.odt': 'document', '.rtf': 'document',
             '.pptx': 'presentation', '.ppt': 'presentation', '.odp': 'presentation',
-            '.html': 'web', '.htm': 'web', '.mhtml': 'web',
+            '.html': 'web', '.htm': 'web', '.mhtml': 'web', '.xhtml': 'web',
             '.xlsx': 'spreadsheet', '.xls': 'spreadsheet',
             '.csv': 'csv',
             '.png': 'image', '.jpg': 'image', '.jpeg': 'image', '.bmp': 'image',
-            '.tiff': 'image', '.tif': 'image',
+            '.tiff': 'image', '.tif': 'image', '.webp': 'image',
             '.pdf': 'pdf',
+            '.adoc': 'asciidoc', '.asciidoc': 'asciidoc', '.asc': 'asciidoc',
+            '.vtt': 'webvtt',
             '.md': 'markdown', '.txt': 'text'
         }
         return type_map.get(ext.lower(), 'unknown')
@@ -305,7 +314,7 @@ class DocumentNormalizer:
     # ======================== DOCX Normalization ========================
     
     def _normalize_docx(self, file_path: Path, stem: str):
-        """Normalize DOCX files to PDF and Markdown."""
+        """Normalize DOCX files to PDF only (no markdown conversion)."""
         if not PYTHON_DOCX_AVAILABLE:
             print("WARNING: python-docx not available, skipping DOCX processing")
             return
@@ -313,12 +322,7 @@ class DocumentNormalizer:
         try:
             doc = Document(file_path)
             
-            # Extract to Markdown
-            if self.config.generate_markdown:
-                markdown_content = self._docx_to_markdown(doc)
-                self._save_markdown(stem, markdown_content)
-            
-            # Convert to PDF - Try LibreOffice first (best quality)
+            # Convert to PDF only - Try LibreOffice first (best quality)
             if self.config.generate_pdf:
                 print("  → Trying LibreOffice for PDF conversion...")
                 if not self._docx_to_pdf_libreoffice(file_path, stem):
@@ -332,6 +336,7 @@ class DocumentNormalizer:
             print(f"ERROR: Error processing DOCX {file_path}: {str(e)}")
             raise
     
+    # Unused anymore but maybe keep
     def _docx_to_markdown(self, doc: 'Document') -> str:
         """Convert DOCX document to Markdown."""
         markdown_lines = []
@@ -361,6 +366,7 @@ class DocumentNormalizer:
         
         return "\n".join(markdown_lines)
     
+    # Unused anymore but maybe keep
     def _table_to_markdown(self, table) -> str:
         """Convert a DOCX table to Markdown format."""
         rows = []
@@ -377,8 +383,10 @@ class DocumentNormalizer:
             return rows[0]
         return ""
     
+    # Convert docx to pdf using libreoffice
     def _docx_to_pdf_libreoffice(self, file_path: Path, stem: str) -> bool:
         """Convert DOCX/PPTX to PDF using LibreOffice (best quality, preserves images)."""
+        # Use safe stem to avoid Windows path length issues
         pdf_path = self.pdf_dir / f"{stem}.pdf"
         
         try:
@@ -456,12 +464,16 @@ class DocumentNormalizer:
             print(f"    ✗ LibreOffice error: {e}")
             return False
     
+    # Fallback PDF conversion using ReportLab (text-only)
     def _docx_to_pdf(self, doc: 'Document', stem: str):
-        """Convert DOCX document to PDF using ReportLab (fallback only)."""
+        """Convert DOCX document to PDF using ReportLab (fallback only).
+        Uses safe stem to avoid Windows path length issues.
+        """
         if not REPORTLAB_AVAILABLE:
             print("WARNING: ReportLab not available, cannot convert DOCX to PDF")
             return
         
+        # Use safe stem
         pdf_path = self.pdf_dir / f"{stem}.pdf"
         
         try:
@@ -508,12 +520,7 @@ class DocumentNormalizer:
         try:
             prs = Presentation(file_path)
             
-            # Extract to Markdown
-            if self.config.generate_markdown:
-                markdown_content = self._pptx_to_markdown(prs)
-                self._save_markdown(stem, markdown_content)
-            
-            # Convert to PDF - Try LibreOffice first (best quality, preserves images)
+            # Convert to PDF only - Try LibreOffice first (best quality, preserves images)
             if self.config.generate_pdf:
                 print("  → Trying LibreOffice for PDF conversion...")
                 if not self._docx_to_pdf_libreoffice(file_path, stem):
@@ -527,6 +534,7 @@ class DocumentNormalizer:
             print(f"ERROR: Error processing PPTX {file_path}: {str(e)}")
             raise
     
+    # Unused anymore but maybe keep
     def _pptx_to_markdown(self, prs: 'Presentation') -> str:
         """Convert PPTX presentation to Markdown."""
         markdown_lines = []
@@ -543,12 +551,15 @@ class DocumentNormalizer:
         
         return "\n".join(markdown_lines)
     
+    # Unused anymore but maybe keep
     def _pptx_to_pdf(self, prs: 'Presentation', stem: str):
-        """Convert PPTX presentation to PDF."""
+        """Convert PPTX presentation to PDF using ReportLab (fallback only).
+        Uses safe stem to avoid Windows path length issues."""
         if not REPORTLAB_AVAILABLE:
             print("WARNING: ReportLab not available, cannot convert PPTX to PDF")
             return
         
+        # Use safe stem
         pdf_path = self.pdf_dir / f"{stem}.pdf"
         
         try:
@@ -597,27 +608,6 @@ class DocumentNormalizer:
                     print("  → ✓ LibreOffice HTML→PDF conversion successful")
                 else:
                     print("  → LibreOffice not available for HTML, PDF not generated")
-            
-            # Also extract text to Markdown for text-based retrieval
-            if self.config.generate_markdown:
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    html_content = f.read()
-                
-                soup = BeautifulSoup(html_content, 'html.parser')
-                
-                # Remove script and style elements
-                for script in soup(["script", "style"]):
-                    script.decompose()
-                
-                # Extract text
-                text = soup.get_text()
-                
-                # Clean up whitespace
-                lines = (line.strip() for line in text.splitlines())
-                chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-                text = '\n'.join(chunk for chunk in chunks if chunk)
-                
-                self._save_markdown(stem, text)
         
         except Exception as e:
             print(f"ERROR: Error processing HTML {file_path}: {str(e)}")
@@ -625,6 +615,7 @@ class DocumentNormalizer:
     
     def _html_to_pdf_libreoffice(self, file_path: Path, stem: str) -> bool:
         """Convert HTML to PDF using LibreOffice (preserves layout, images, CSS styling)."""
+        # Use safe stem to avoid Windows path length issues
         pdf_path = self.pdf_dir / f"{stem}.pdf"
         
         try:
@@ -682,7 +673,7 @@ class DocumentNormalizer:
             
             result = subprocess.run(cmd, **conversion_kwargs)
             
-            # LibreOffice outputs with original filename, rename if needed
+            # LibreOffice outputs with original filename, rename to safe name if needed
             output_pdf = self.pdf_dir / f"{file_path.stem}.pdf"
             if output_pdf.exists() and output_pdf != pdf_path:
                 output_pdf.rename(pdf_path)
@@ -699,104 +690,67 @@ class DocumentNormalizer:
     # ======================== Excel Normalization ========================
     
     def _normalize_excel(self, file_path: Path, stem: str):
-        """Normalize Excel files to Markdown tables."""
-        if not PANDAS_AVAILABLE:
-            print("WARNING: pandas not available, skipping Excel processing")
-            return
-        
-        try:
-            # Read all sheets
-            excel_file = pd.ExcelFile(file_path)
-            markdown_lines = []
-            
-            for sheet_name in excel_file.sheet_names:
-                df = pd.read_excel(file_path, sheet_name=sheet_name)
-                
-                # Limit rows if needed
-                if len(df) > self.config.max_table_rows:
-                    print(f"WARNING: Sheet '{sheet_name}' has {len(df)} rows, truncating to {self.config.max_table_rows}")
-                    df = df.head(self.config.max_table_rows)
-                
-                markdown_lines.append(f"## Sheet: {sheet_name}\n")
-                markdown_lines.append(df.to_markdown(index=False))
-                markdown_lines.append("\n---\n")
-            
-            if self.config.generate_markdown:
-                markdown_content = "\n".join(markdown_lines)
-                self._save_markdown(stem, markdown_content)
-        
-        except Exception as e:
-            print(f"ERROR: Error processing Excel {file_path}: {str(e)}")
-            raise
+        """Normalize Excel files - no conversion needed, Docling will handle it."""
+        # Excel files are already copied to original_files for Docling processing
+        # No markdown conversion needed here
+        print(f"  → Excel file ready for Docling processing")
+        pass
     
     # ======================== CSV Normalization ========================
     
     def _normalize_csv(self, file_path: Path, stem: str):
-        """Normalize CSV files to Markdown tables."""
-        if not PANDAS_AVAILABLE:
-            print("WARNING: pandas not available, skipping CSV processing")
-            return
-        
-        try:
-            df = pd.read_csv(file_path)
-            
-            # Limit rows if needed
-            if len(df) > self.config.max_table_rows:
-                print(f"WARNING: CSV has {len(df)} rows, truncating to {self.config.max_table_rows}")
-                df = df.head(self.config.max_table_rows)
-            
-            if self.config.generate_markdown:
-                markdown_content = df.to_markdown(index=False)
-                self._save_markdown(stem, markdown_content)
-        
-        except Exception as e:
-            print(f"ERROR: Error processing CSV {file_path}: {str(e)}")
-            raise
+        """Normalize CSV files - no conversion needed, Docling will handle it."""
+        # CSV files are already copied to original_files for Docling processing
+        # No markdown conversion needed here
+        print(f"  → CSV file ready for Docling processing")
+        pass
     
+    def _copy_to_originals_only(self, file_path: Path, stem: str):
+        """Copy files to original_files only (already done in _normalize_file)."""
+        # File already copied to original_files for Docling processing
+        print(f"  → File ready for Docling processing")
+        pass
+        
     # ======================== Image Normalization ========================
     
     def _normalize_image(self, file_path: Path, stem: str):
-        """Normalize image files to PDF."""
-        if not PIL_AVAILABLE:
-            print("WARNING: PIL not available, skipping image processing")
-            return
+        """Normalize image files - NO PDF conversion, let Docling handle natively."""
+        # CRITICAL FIX: Do NOT convert images to PDF!
+        # Docling processes images better than converted PDFs
+        # Images already copied to original_files/, no additional processing needed
         
-        try:
-            if self.config.generate_pdf and IMG2PDF_AVAILABLE:
-                # Convert image to PDF using img2pdf
-                pdf_path = self.pdf_dir / f"{stem}.pdf"
-                
-                with open(file_path, 'rb') as img_file:
-                    pdf_bytes = img2pdf.convert(img_file.read())
-                
-                with open(pdf_path, 'wb') as pdf_file:
-                    pdf_file.write(pdf_bytes)
-                
-                print(f"Converted image to PDF: {pdf_path}")
-            elif self.config.generate_pdf:
-                # Fallback: copy image to PDF directory for later processing
-                shutil.copy(file_path, self.pdf_dir / file_path.name)
-                print(f"Copied image for later OCR processing: {file_path.name}")
+        print(f"  → Image ready for Docling native processing (no PDF conversion)")
         
-        except Exception as e:
-            print(f"ERROR: Error processing image {file_path}: {str(e)}")
-            raise
+        # Note: Image was already copied to original_files/ in _normalize_file()
+        # Docling will process it directly with VLM, picture classification, etc.
     
     # ======================== Direct Copy Operations ========================
     
     def _copy_pdf(self, file_path: Path, stem: str):
-        """Copy PDF files to normalized directory."""
+        """Copy PDF files to normalized directory with safe name."""
         if self.config.generate_pdf:
-            dest = self.pdf_dir / file_path.name
+            dest = self.pdf_dir / f"{stem}.pdf"
             shutil.copy(file_path, dest)
-            print(f"Copied PDF: {file_path.name}")
+            print(f"Copied PDF: {dest.name}")
+    
+    def _txt_to_md(self, file_path: Path, stem: str):
+        """Convert TXT to MD format with safe name."""
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Use safe stem
+        md_path = self.markdown_dir / f"{stem}.md"
+        with open(md_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        print(f"  → Converted TXT to MD: {md_path.name}")
     
     def _copy_text(self, file_path: Path, stem: str):
-        """Copy text/markdown files to normalized directory."""
+        """Copy markdown files to normalized directory with safe name."""
         if self.config.generate_markdown:
-            dest = self.markdown_dir / file_path.name
+            dest = self.markdown_dir / f"{stem}.md"
             shutil.copy(file_path, dest)
-            print(f"Copied text file: {file_path.name}")
+            print(f"  → Copied markdown file: {dest.name}")
     
     # ======================== Helper Methods ========================
     
