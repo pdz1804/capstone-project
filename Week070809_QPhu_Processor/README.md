@@ -2,28 +2,29 @@
 
 A comprehensive, production-ready document processing pipeline that normalizes, processes, and prepares multimodal documents for RAG (Retrieval-Augmented Generation) systems.
 
-**Handles any document type** — DOCX, PPTX, PDF, HTML, Images, Excel, CSV, Video, Audio — and prepares them for both text-based and image-based RAG systems.
+**Handles any document type** — DOCX, PPTX, PDF, HTML, Images, Excel, CSV, Video, Audio, AsciiDoc, WebVTT — and prepares them for both text-based and image-based RAG systems.
 
 **Platform Support:** Windows | macOS | Linux
 **Python Version:** 3.9+
 
 ## Overview
 
-This pipeline handles any document type through a three-stage architecture optimized for dual-mode RAG (text-based + image-based retrieval):
+This pipeline handles any document type through a **four-stage architecture** optimized for dual-mode RAG (text-based + image-based retrieval):
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│        INPUT: DOCX, PPTX, HTML, Images, Excel, CSV,        │
-│              Video, Audio, PDF, Markdown, Text              │
+│     INPUT: DOCX, PPTX, HTML, XHTML, Images, Excel, CSV,    │
+│       Video, Audio, PDF, Markdown, Text, AsciiDoc, WebVTT   │
 └────────────────┬────────────────────────────────────────────┘
                  │
                  ▼
 ┌─────────────────────────────────────────────────────────────┐
 │         STAGE 1: NORMALIZATION (normalizer.py)              │
-│  • DOCX/PPTX/HTML → PDF (for image-based RAG)               │
-│  • Images → PDF (for image-based RAG)                       │
-│  • Excel/CSV → Markdown (not processed by Docling)          │
-│  • Keep originals for Docling processing                    │
+│  • DOCX/PPTX/HTML/XHTML → PDF (for image-based RAG)         │
+│  • Images (PNG/JPG/BMP/TIFF/WEBP) → PDF (for image RAG)     │
+│  • TXT → Markdown (simple text files)                       │
+│  • Copy ALL originals to original_files/ (for Docling)      │
+│  • Note: NO markdown conversion for DOCX/PPTX/HTML/CSV      │
 └────────────────┬────────────────────────────────────────────┘
                  │
                  ▼
@@ -31,23 +32,40 @@ This pipeline handles any document type through a three-stage architecture optim
 │       STAGE 2: MEDIA PROCESSING (media_processor.py)        │
 │  • Video → Audio → Text transcription (Whisper)             │
 │  • Audio → Text transcription (Whisper)                     │
+│  • Export: .json, .srt, .vtt, .txt, .md                     │
 │  • Optional: Extract video frames for image retrieval       │
 └────────────────┬────────────────────────────────────────────┘
                  │
                  ▼
 ┌─────────────────────────────────────────────────────────────┐
 │       STAGE 3: DOCLING PROCESSING (document_processor.py)   │
-│  • Original DOCX/PPTX/HTML/Images → Markdown (Docling)      │
-│  • Transcribed text → Markdown (Docling)                    │
-│  • Note: Process originals, NOT normalized PDFs             │
+│  • SMART DEDUPLICATION: Process each file only ONCE         │
+│  • Priority 1: Normalized PDFs (converted files)            │
+│    - DOCX→PDF, PPTX→PDF, HTML→PDF, Images→PDF              │
+│  • Priority 2: Original files NOT converted to PDF          │
+│    - Only files that weren't in normalized_pdfs             │
+│  • Priority 3: Markdown files (TXT→MD conversions)          │
+│  • Priority 4: Transcripts (.md only, not .json/.srt/.vtt)  │
+│  • Result: NO duplicate processing, optimal quality         │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│         STAGE 4: CONSOLIDATION (consolidator.py)            │
+│  • Combine outputs into unified RAG-ready structure         │
+│  • For each document:                                       │
+│    - file.pdf (optional, from normalized_pdfs)              │
+│    - file.md (required, from Docling output)                │
+│    - docling_additional/ (optional, images/tables/etc)      │
+│  • Output: stage4_rag_ready/                                │
 └────────────────┬────────────────────────────────────────────┘
                  │
                  ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                   OUTPUTS FOR RAG                            │
-│  📄 Text-based RAG: Docling-processed markdown               │
-│  🖼️ Image-based RAG: Normalized PDFs + extracted images     │
-│  📊 Structured data: JSON metadata, tables                  │
+│  📄 Text-based RAG: Unified markdown (file.md)               │
+│  🖼️ Image-based RAG: Normalized PDFs (file.pdf)             │
+│  📊 Additional: Images, tables in docling_additional/       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -58,86 +76,112 @@ This pipeline handles any document type through a three-stage architecture optim
 - **Normalized PDFs** → Used for image-based retrieval (preserves visual layout)
 - **Docling-processed Markdown** → Used for text-based semantic search
 - **Original files** → Processed by Docling (better quality than re-processing PDFs)
+- **Unified Structure** → Stage 4 consolidates everything into consistent RAG-ready format
+
+**Key Principle:** Process ORIGINAL files through Docling for best text extraction quality, while keeping normalized PDFs separate for image-based RAG.
 
 ## 🔄 Processing Workflow
 
 ### Input Files → Processing → RAG Outputs
 
-| Input Type          | Stage 1: Normalization   | Stage 2: Media   | Stage 3: Docling     | Output for RAG |
-| ------------------- | ------------------------ | ---------------- | -------------------- | -------------- |
-| **DOCX/PPTX** | → PDF (image-based RAG) | -                | Original → Markdown | PDF + Markdown |
-| **HTML**      | → PDF (image-based RAG) | -                | Original → Markdown | PDF + Markdown |
-| **Images**    | → PDF (image-based RAG) | -                | Original → Markdown | PDF + Markdown |
-| **Excel/CSV** | → Markdown (stored)     | -                | ❌ Not processed     | Markdown only  |
-| **Video**     | -                        | → Audio → Text | Text → Markdown     | Markdown       |
-| **Audio**     | -                        | → Text          | Text → Markdown     | Markdown       |
-| **PDF**       | ✅ Kept as-is            | -                | Original → Markdown | PDF + Markdown |
-| **Markdown**  | ✅ Kept as-is            | -                | Original → Markdown | Markdown       |
+| Input Type          | Stage 1: Normalization   | Stage 2: Media   | Stage 3: Docling     | Stage 4: Consolidation | Final Output |
+| ------------------- | ------------------------ | ---------------- | -------------------- | ---------------------- | ------------ |
+| **DOCX/PPTX** | → PDF (image RAG)       | -                | Original → Markdown | Combine PDF + MD      | PDF + MD     |
+| **HTML/XHTML** | → PDF (image RAG)       | -                | Original → Markdown | Combine PDF + MD      | PDF + MD     |
+| **Images (PNG/JPG/BMP/TIFF/WEBP)** | → PDF (image RAG) | - | Original → Markdown | Combine PDF + MD | PDF + MD |
+| **Excel/CSV** | ❌ NOT converted         | -                | ❌ CSV only          | Combine             | MD only      |
+| **Video**     | -                        | → Audio → Text  | .md → Markdown      | Combine              | MD only      |
+| **Audio**     | -                        | → Text          | .md → Markdown      | Combine              | MD only      |
+| **PDF**       | ✅ Kept as-is            | -                | Original → Markdown | Combine PDF + MD      | PDF + MD     |
+| **Markdown**  | ✅ Kept as-is            | -                | Process             | Combine              | MD only      |
+| **AsciiDoc**  | ✅ Copy to originals     | -                | Process             | Combine              | MD only      |
+| **Text**      | → Markdown              | -                | Process             | Combine              | MD only      |
+| **WebVTT**    | ✅ Copy to originals     | -                | Process             | Combine              | MD only      |
 
-**Key Insight**: We create PDFs for image-based RAG, but process ORIGINAL files (not PDFs) through Docling for better text extraction quality!
+**Key Changes from Previous Version:**
+
+- **Stage 1**: NO longer converts DOCX/PPTX/HTML/CSV to markdown (only TXT→MD)
+- **Stage 2**: NOW exports transcript.md alongside .json/.srt/.vtt/.txt
+- **Stage 3**: Processes ALL 4 input sources: original_files/, normalized_pdfs/, normalized_markdown/, transcripts/*.md
+- **Stage 4**: NEW - Consolidates into unified structure (file.pdf + file.md + docling_additional/)
 
 ## ✨ Key Features
 
 ### Universal Format Support
 
 - **Documents**: DOCX, PPTX, ODT, RTF
-- **Web**: HTML, MHTML
+- **Web**: HTML, MHTML, XHTML
 - **Spreadsheets**: XLSX, XLS, CSV
-- **Images**: PNG, JPG, JPEG, BMP, TIFF
+- **Images**: PNG, JPG, JPEG, BMP, TIFF, WEBP
 - **Media**: MP4, AVI, MOV, WAV, MP3, M4A
-- **Already normalized**: PDF, MD, TXT
+- **Markup**: Markdown, AsciiDoc (.adoc, .asciidoc, .asc)
+- **Subtitles**: WebVTT (.vtt)
+- **Already normalized**: PDF, TXT
 
 ### Advanced Processing
 
-- **Intelligent Normalization**: Converts everything to PDF/Markdown
-- **Media Understanding**: Audio transcription + frame extraction
+- **Intelligent Normalization**: Converts to PDF only (no markdown conversion)
+- **Media Understanding**: Audio transcription (with markdown export) + frame extraction
 - **Deep Document Analysis**: Docling-powered OCR, VLM, table extraction
 - **GPU Acceleration**: CUDA support for faster processing
+- **Unified Consolidation**: Consistent RAG-ready output structure
 - **Robust Error Handling**: Detailed logging and error recovery
 
 ### RAG-Optimized Outputs
 
-- **Text-based retrieval**: Clean markdown for semantic search
-- **Image-based retrieval**: Processed PDFs and extracted images
+- **Text-based retrieval**: Clean unified markdown for semantic search
+- **Image-based retrieval**: Processed PDFs with preserved visual layout
 - **Hybrid approach**: Combine text and visual information
 - **Metadata rich**: JSON files with structure and statistics
+- **Organized structure**: file.pdf + file.md + docling_additional/ per document
 
 ## 📁 Project Structure
 
 ```
 Week070809_QPhu_Processor/
-├── pipeline.py                  # Main entry point - RUN THIS!
 ├── requirements.txt             # Python dependencies
-├── README.md                    # This file
+├── README.md                    # This file (updated architecture)
 │
 ├── src/                         # Source code modules
-│   ├── normalizer.py            # Stage 1: Format normalization
-│   ├── media_processor.py       # Stage 2: Video/Audio processing
-│   ├── document_processor.py    # Stage 3: Docling-based processing
+│   ├── pipeline.py              # Main entry point - RUN THIS!
+│   ├── normalizer.py            # Stage 1: PDF normalization only
+│   ├── media_processor.py       # Stage 2: Video/Audio + MD export
+│   ├── document_processor.py    # Stage 3: Docling processing
+│   ├── consolidator.py          # Stage 4: RAG-ready consolidation
 │   └── utils.py                 # Utility functions
 │
 ├── input/                       # Place your raw files here
 │
 └── output/                      # Processing outputs (auto-created)
-    ├── stage1_normalized/       # Normalized PDFs and Markdown
+    ├── stage1_normalized/       # Stage 1 outputs
     │   ├── normalized_pdfs/     # PDF files for image-based RAG
-    │   ├── normalized_markdown/ # Quick preview markdown
-    │   ├── docling_originals/   # Original files for Docling
+    │   ├── normalized_markdown/ # TXT→MD files only
+    │   ├── original_files/      # ALL original files (for Docling)
     │   └── normalization_metadata/
     │
-    ├── stage2_media_processed/  # Media processing outputs
+    ├── stage2_media_processed/  # Stage 2 outputs
     │   ├── audio/               # Extracted audio files
-    │   ├── transcripts/         # Text transcriptions
+    │   ├── transcripts/         # Text transcriptions (.json/.srt/.vtt/.txt/.md)
     │   ├── frames/              # Extracted video frames
     │   └── media_metadata/
     │
-    ├── stage3_document_processed/ # Final RAG-ready documents
+    ├── stage3_document_processed/ # Stage 3 outputs
     │   ├── {filename}/          # Per-document folder
-    │   │   ├── {filename}.md    # Markdown for text-based RAG
+    │   │   ├── {filename}.md    # Docling markdown
     │   │   ├── {filename}_metadata.json
     │   │   ├── images/          # Extracted images
-    │   │   └── tables/          # Extracted tables (CSV/MD)
+    │   │   └── tables/          # Extracted tables
     │   └── logs/
+    │
+    ├── stage4_rag_ready/        # Stage 4: Final RAG-ready outputs
+    │   ├── {document_name}/     # Per-document folder
+    │   │   ├── {document_name}.pdf          # Optional: normalized PDF
+    │   │   ├── {document_name}.md           # Required: unified markdown
+    │   │   └── docling_additional/          # Optional: extra files
+    │   │       ├── images/                  # Extracted images
+    │   │       ├── tables/                  # Extracted tables
+    │   │       └── {document_name}_metadata.json
+    │   └── consolidation.log
     │
     └── pipeline_stats.json      # Overall processing statistics
 ```
@@ -161,10 +205,10 @@ pip install -r requirements.txt
 # Mac: brew install libreoffice
 
 # 4. Put your files in input/ folder and run!
-python pipeline.py input/ output/
+python src/pipeline.py input/ output/
 ```
 
-**That's it!** Your documents are now processed and ready for RAG.
+**That's it!** Your documents are now processed and ready for RAG in `output/stage4_rag_ready/`.
 
 ---
 
@@ -214,44 +258,7 @@ brew install libreoffice ffmpeg tesseract
 # Or download LibreOffice: https://www.libreoffice.org/download/
 ```
 
-**AWS Lambda / Serverless Deployment:**
-
-For serverless environments (AWS Lambda, Google Cloud Functions, etc.), you have two options:
-
-1. **Use LibreOffice Layer** (Recommended for Lambda):
-
-   ```bash
-   # Use pre-built LibreOffice layer for AWS Lambda
-   # See: https://github.com/shelfio/libreoffice-lambda-layer
-   # Add layer ARN to your Lambda function
-   ```
-2. **Install in Docker container**:
-
-   ```dockerfile
-   FROM public.ecr.aws/lambda/python:3.11
-
-   # Install LibreOffice
-   RUN yum install -y wget tar gzip
-   RUN wget https://downloadarchive.documentfoundation.org/libreoffice/old/7.6.4.1/rpm/x86_64/LibreOffice_7.6.4.1_Linux_x86-64_rpm.tar.gz
-   RUN tar -xf LibreOffice_7.6.4.1_Linux_x86-64_rpm.tar.gz
-   RUN cd LibreOffice_7.6.4.1_Linux_x86-64_rpm/RPMS && yum install -y *.rpm
-
-   # Install FFmpeg
-   RUN yum install -y ffmpeg
-
-   # Copy application code
-   COPY requirements.txt .
-   RUN pip install -r requirements.txt
-
-   COPY src/ ./src/
-   ```
-
-**Note on LibreOffice:**
-
-- **Required for**: DOCX/PPTX → PDF conversion with preserved images
-- **Fallback behavior**: If LibreOffice not found, pipeline uses ReportLab (text-only PDFs, no images)
-- **Detection**: Automatic cross-platform detection (Windows/Mac/Linux)
-- **No Python package**: LibreOffice is a system-level application, not a pip package
+## Usage
 
 ### Basic Usage
 
@@ -260,11 +267,12 @@ For serverless environments (AWS Lambda, Google Cloud Functions, etc.), you have
 python src/pipeline.py input/ output/
 ```
 
-That's it! The pipeline will:
+The pipeline will:
 
-1. ✅ Normalize all documents to PDF/Markdown
-2. ✅ Extract and transcribe audio from videos
-3. ✅ Process everything with Docling for RAG
+1. ✅ Normalize documents to PDF only (no markdown conversion)
+2. ✅ Extract and transcribe audio from videos (export .md format)
+3. ✅ Process ALL files through Docling (originals + normalized PDFs + transcripts)
+4. ✅ Consolidate into unified RAG-ready structure
 
 ### Advanced Usage
 
@@ -286,6 +294,53 @@ python src/pipeline.py input/ output/ --frame-interval 50
 
 # Don't extract video frames (faster, no image retrieval)
 python src/pipeline.py input/ output/ --no-frames
+
+# Fast mode: Disable VLM, skip images/tables export (much faster)
+python src/pipeline.py input/ output/ --fast-mode
+
+# Disable VLM only (keep images/tables export)
+python src/pipeline.py input/ output/ --no-vlm
+
+# Export images from documents (enabled by default)
+python src/pipeline.py input/ output/ --export-images
+
+# Export tables from documents (enabled by default)
+python src/pipeline.py input/ output/ --export-tables
+
+# Force reprocess all files (ignore cache)
+python src/pipeline.py input/ output/ --force
+```
+
+### Processing Modes
+
+**🚀 Fast Mode (Recommended for development/testing)**
+```bash
+# Fastest processing: OCR-only, no VLM, no images/tables export
+python src/pipeline.py input/ output/ --fast-mode
+```
+- ⚡ **3-5x faster** than full mode
+- ✅ All text content extracted
+- ✅ Tables inline in markdown
+- ❌ No VLM image descriptions
+- ❌ No separate image/table files
+
+**🎯 Balanced Mode (Default)**
+```bash
+# Default: VLM enabled, images/tables exported
+python src/pipeline.py input/ output/
+```
+- 🎨 **VLM image descriptions** (SmolVLM-256M)
+- ✅ All text + structure extracted
+- ✅ Images and tables exported separately
+- ⏱️ Slower but highest quality
+
+**🔧 Custom Mode**
+```bash
+# OCR-only but with images/tables export
+python src/pipeline.py input/ output/ --no-vlm
+
+# VLM enabled but skip images/tables export (for markdown-only RAG)
+python src/pipeline.py input/ output/ --no-export-images --no-export-tables
 ```
 
 ## 🎓 Python API Usage
@@ -293,7 +348,7 @@ python src/pipeline.py input/ output/ --no-frames
 ### Full Pipeline
 
 ```python
-from src.pipeline import DocumentProcessingPipeline, PipelineConfig
+from pipeline import DocumentProcessingPipeline, PipelineConfig
 
 # Create configuration
 config = PipelineConfig(
@@ -303,7 +358,7 @@ config = PipelineConfig(
     use_gpu=True
 )
 
-# Run pipeline
+# Run pipeline (includes all 4 stages)
 pipeline = DocumentProcessingPipeline(
     input_dir="input",
     output_dir="output",
@@ -311,7 +366,7 @@ pipeline = DocumentProcessingPipeline(
 )
 
 stats = pipeline.run()
-print(f"Processed {stats['total_output_files']} files")
+print(f"RAG-ready files: {stats['stages']['consolidation']['total_documents']}")
 ```
 
 ### Individual Stages
@@ -322,9 +377,11 @@ print(f"Processed {stats['total_output_files']} files")
 from src.normalizer import DocumentNormalizer, NormalizerConfig
 
 config = NormalizerConfig(
-    generate_pdf=True,
-    generate_markdown=True,
-    excel_to_markdown=True
+    generate_pdf=True,           # Create PDFs for image RAG
+    generate_markdown=False,     # NO markdown conversion (except TXT)
+    image_to_pdf=True,           # Convert images to PDF
+    excel_to_markdown=False,     # NO Excel→MD conversion
+    csv_to_markdown=False        # NO CSV→MD conversion
 )
 
 normalizer = DocumentNormalizer("input", "output/normalized", config)
@@ -340,7 +397,12 @@ config = MediaProcessorConfig(
     extract_audio=True,
     enable_transcription=True,
     asr_model="base",
-    extract_frames=True
+    extract_frames=True,
+    export_txt=True,
+    export_json=True,
+    export_srt=True,
+    export_vtt=True,
+    export_markdown=True         # NEW: Export .md format
 )
 
 processor = MediaProcessor("input/videos", "output/media", config)
@@ -355,12 +417,43 @@ from src.document_processor import MultimodalDocumentProcessor, ProcessingConfig
 config = ProcessingConfig(
     use_gpu=True,
     enable_ocr=True,
-    enable_vlm=True,
-    export_markdown=True
+    enable_vlm=True,      # Enable VLM for image descriptions (slower)
+    export_markdown=True,
+    export_images=True,   # Export images to docling_additional/
+    export_tables=True    # Export tables to docling_additional/
 )
 
-processor = MultimodalDocumentProcessor("input/pdfs", "output/docs", config)
+# For fast processing, disable VLM:
+# config.enable_vlm = False
+
+# Stage 3 processes from 4 sources:
+# 1. original_files/ (best quality)
+# 2. normalized_pdfs/ (may have better OCR)
+# 3. normalized_markdown/ (existing MD files)
+# 4. transcripts/*.md (video/audio transcripts)
+
+processor = MultimodalDocumentProcessor("input", "output/docs", config)
 stats = processor.process_batch()
+```
+
+#### Stage 4: Consolidation Only
+
+```python
+from src.consolidator import Stage4Consolidator, ConsolidatorConfig
+
+config = ConsolidatorConfig()
+
+consolidator = Stage4Consolidator(
+    stage1_dir="output/stage1_normalized",
+    stage3_dir="output/stage3_document_processed",
+    output_dir="output/stage4_rag_ready",
+    config=config
+)
+
+stats = consolidator.consolidate()
+print(f"Documents: {stats['total_documents']}")
+print(f"With PDF: {stats['with_pdf']}")
+print(f"With Markdown: {stats['with_markdown']}")
 ```
 
 ## 📊 Output Structure
@@ -370,53 +463,77 @@ After processing, your output directory will contain:
 ```
 output/
 ├── stage1_normalized/
-│   ├── normalized_pdfs/         # PDFs for IMAGE-BASED RAG retrieval
-│   │   ├── document1.pdf        # Original DOCX → PDF
-│   │   ├── presentation1.pdf    # Original PPTX → PDF
-│   │   └── image1.pdf           # Original PNG → PDF
-│   ├── normalized_markdown/     # Markdown files (Excel/CSV only)
-│   │   └── spreadsheet1.md      # Excel → Markdown table
-│   ├── normalization_metadata/  # Processing statistics
-│   └── normalization.log
+│   ├── normalized_pdfs/         # PDFs for IMAGE-BASED RAG
+│   │   ├── document1.pdf        # DOCX → PDF (LibreOffice)
+│   │   ├── presentation1.pdf    # PPTX → PDF (LibreOffice)
+│   │   ├── webpage1.pdf         # HTML → PDF (LibreOffice)
+│   │   └── image1.pdf           # PNG/JPG → PDF (Pillow)
+│   ├── normalized_markdown/     # TXT → MD only (NO other conversions)
+│   │   └── text_file.md         # TXT → Markdown
+│   ├── original_files/          # ALL originals (for Docling Stage 3)
+│   │   ├── document1.docx       # Original DOCX
+│   │   ├── presentation1.pptx   # Original PPTX
+│   │   ├── webpage1.html        # Original HTML
+│   │   ├── spreadsheet1.xlsx    # Original Excel
+│   │   ├── data.csv             # Original CSV
+│   │   ├── diagram.png          # Original image
+│   │   └── notes.md             # Original markdown
+│   └── normalization_metadata/
 │
 ├── stage2_media_processed/
-│   ├── extracted_audio/         # Audio files from videos (.wav)
-│   ├── transcripts/            # Transcriptions (.txt, .json, .srt, .vtt)
-│   │   ├── video1.txt           # Plain text transcript
-│   │   ├── video1.json          # Full Whisper output with timestamps
+│   ├── audio/                   # Extracted audio (.wav)
+│   ├── transcripts/             # NEW: Includes .md format!
+│   │   ├── video1.json          # Full Whisper output
 │   │   ├── video1.srt           # SRT subtitles
-│   │   └── video1.vtt           # WebVTT subtitles
-│   ├── extracted_frames/       # Video frames for image retrieval (optional)
-│   ├── media_metadata/         # Processing statistics
-│   └── media_processing.log
+│   │   ├── video1.vtt           # WebVTT subtitles
+│   │   ├── video1.txt           # Plain text
+│   │   └── video1.md            # Markdown with timestamps (NEW!)
+│   ├── frames/                  # Video frames (optional)
+│   └── media_metadata/
 │
-├── stage3_document_processed/  # Docling-processed outputs for TEXT-BASED RAG
-│   ├── [document_name]/        # One folder per ORIGINAL document
-│   │   ├── [document_name].md  # Docling markdown (text-based RAG)
-│   │   ├── [document_name]_metadata.json
-│   │   ├── images/             # Extracted images from document
-│   │   └── tables/             # Extracted tables (.csv, .md)
-│   ├── [transcript_name]/      # Transcripts also processed by Docling
-│   │   └── [transcript_name].md # Cleaned transcript markdown
+├── stage3_document_processed/   # Docling outputs (from 4 sources)
+│   ├── document1/               # From original_files/document1.docx
+│   │   ├── document1.md         # Docling markdown (high quality)
+│   │   ├── document1_metadata.json
+│   │   ├── images/
+│   │   └── tables/
+│   ├── document1_normalized/    # From normalized_pdfs/document1.pdf
+│   │   └── document1_normalized.md  # May have better OCR
+│   ├── video1/                  # From transcripts/video1.md
+│   │   └── video1.md            # Processed transcript
 │   └── logs/
 │
-├── pipeline_stats.json          # Overall pipeline statistics
-└── pipeline_[timestamp].log     # Detailed execution log
+├── stage4_rag_ready/            # 🎯 FINAL RAG-READY OUTPUTS
+│   ├── document1/               # Consolidated document
+│   │   ├── document1.pdf        # ← From stage1/normalized_pdfs/
+│   │   ├── document1.md         # ← From stage3 (best version)
+│   │   └── docling_additional/  # ← From stage3
+│   │       ├── images/
+│   │       ├── tables/
+│   │       └── document1_metadata.json
+│   ├── video1/                  # Video transcript (no PDF)
+│   │   └── video1.md
+│   └── consolidation.log
+│
+└── pipeline_stats.json
 ```
 
-### Understanding the Outputs
+### Understanding the Stage 4 RAG-Ready Output
 
-**For RAG Systems:**
+**For RAG Systems, USE THIS DIRECTORY:** `output/stage4_rag_ready/`
 
-- **Image-Based Retrieval**: Use `stage1_normalized/normalized_pdfs/` → ColPali, ColQwen, etc.
-- **Text-Based Retrieval**: Use `stage3_document_processed/*/[name].md` → Dense/BM25/Hybrid embedding
-- **Hybrid Approach**: Combine both for best results
+Each document folder contains:
 
-**Key Points:**
+- **file.pdf** (optional): Normalized PDF for image-based RAG (ColPali, ColQwen)
+- **file.md** (required): Unified markdown for text-based RAG (BM25, Dense, Hybrid)
+- **docling_additional/** (optional): Supplementary files (images, tables, metadata)
 
-- Stage 1 creates PDFs preserving visual layout (charts, diagrams, formatting)
-- Stage 3 processes ORIGINAL files (not PDFs) through Docling for cleaner text extraction
-- Transcripts go through Docling for consistent markdown formatting
+**Benefits:**
+
+- ✅ Consistent structure across all document types
+- ✅ Easy to integrate with RAG pipelines (just point to stage4_rag_ready/)
+- ✅ Both PDF and Markdown available in single location
+- ✅ No need to navigate multiple stage directories
 
 ## 🔧 Configuration Options
 
@@ -424,11 +541,13 @@ output/
 
 ```python
 PipelineConfig(
-    enable_normalization=True,      # Run Stage 1
-    enable_media_processing=True,   # Run Stage 2
-    enable_document_processing=True, # Run Stage 3
+    enable_normalization=True,      # Run Stage 1 (PDF normalization)
+    enable_media_processing=True,   # Run Stage 2 (video/audio → text)
+    enable_document_processing=True, # Run Stage 3 (Docling processing)
+    # Stage 4 (consolidation) always runs if Stage 3 completes
     use_gpu=True,                   # Enable GPU acceleration
-    keep_intermediate_files=True    # Keep normalized files
+    keep_intermediate_files=True,   # Keep stage1/stage2/stage3 files
+    skip_processed=True             # Skip already-processed files (cache)
 )
 ```
 
@@ -436,12 +555,11 @@ PipelineConfig(
 
 ```python
 NormalizerConfig(
-    generate_pdf=True,              # Create PDFs for image retrieval
-    generate_markdown=True,         # Create markdown for text retrieval
-    image_to_pdf=True,              # Convert images to PDF
-    excel_to_markdown=True,         # Convert Excel to markdown tables
-    csv_to_markdown=True,           # Convert CSV to markdown tables
-    max_table_rows=1000,            # Max rows in markdown tables
+    generate_pdf=True,              # Create PDFs for image RAG
+    generate_markdown=False,        # NO markdown (except TXT→MD)
+    image_to_pdf=True,              # Convert PNG/JPG/WEBP to PDF
+    excel_to_markdown=False,        # NO Excel→MD conversion
+    csv_to_markdown=False,          # NO CSV→MD conversion
     pdf_page_size="A4"              # PDF page size
 )
 ```
@@ -450,17 +568,16 @@ NormalizerConfig(
 
 ```python
 MediaProcessorConfig(
-    extract_audio=True,             # Extract audio from video
-    enable_transcription=True,      # Transcribe audio to text
-    asr_model="base",               # Whisper model: tiny/base/small/medium/large
-    audio_sample_rate=16000,        # Audio sample rate
-    extract_frames=True,            # Extract frames from video
-    frame_interval=100,             # Extract every Nth frame
-    min_frame_quality=0.5,          # Skip blurry frames
-    export_txt=True,                # Export plain text transcript
-    export_json=True,               # Export JSON with timestamps
-    export_srt=True,                # Export SRT subtitles
-    export_vtt=True                 # Export WebVTT subtitles
+    extract_audio=True,
+    enable_transcription=True,
+    asr_model="base",               # tiny/base/small/medium/large/large-v3
+    extract_frames=True,
+    frame_interval=100,
+    export_txt=True,
+    export_json=True,
+    export_srt=True,
+    export_vtt=True,
+    export_markdown=True            # NEW: Export .md format
 )
 ```
 
@@ -468,18 +585,28 @@ MediaProcessorConfig(
 
 ```python
 ProcessingConfig(
-    use_gpu=True,                   # Use GPU for processing
-    enable_ocr=True,                # Enable OCR for scanned docs
-    enable_vlm=True,                # Enable Visual Language Model
-    enable_asr=False,               # Enable audio processing
-    ocr_engine="rapidocr",          # OCR engine: tesseract/easyocr/rapidocr
-    export_markdown=True,           # Export to markdown
-    export_images=True,             # Extract images
-    export_tables=True,             # Extract tables
-    export_metadata=True,           # Export metadata JSON
-    min_image_width=100,            # Filter small images
-    min_image_height=100,           # Filter small images
-    min_image_area=10000            # Filter by total area
+    use_gpu=True,
+    enable_ocr=True,
+    enable_vlm=True,                # 🎨 VLM for image descriptions (slower but better)
+    enable_asr=False,               # Audio handled in Stage 2
+    export_markdown=True,
+    export_images=True,             # ✅ Enabled by default - extracts images to docling_additional/
+    export_tables=True,             # ✅ Enabled by default - extracts tables to docling_additional/
+    export_metadata=True
+)
+```
+
+**Processing Modes:**
+- **Full Mode** (default): `enable_vlm=True` - Uses SmolVLM-256M for image descriptions, slower but highest quality
+- **Fast Mode**: `enable_vlm=False` - OCR-only processing, 3-5x faster, still extracts all text/tables
+- **Note**: Images/tables export adds processing time but provides separate files in `docling_additional/`
+
+### Consolidator Configuration
+
+```python
+ConsolidatorConfig(
+    copy_pdfs=True,                 # Copy normalized PDFs
+    include_additional_files=True   # Include images/tables
 )
 ```
 
@@ -499,145 +626,147 @@ ProcessingConfig(
 **✅ Windows:**
 
 - LibreOffice: Auto-detected in `C:\Program Files\LibreOffice\`
-- Works with silent background execution (no console popups)
+- Works with silent background execution
 
 **✅ macOS:**
 
 - LibreOffice: Auto-detected in `/Applications/LibreOffice.app/`
-- Works with standard LibreOffice installation
 
-**✅ Linux (Ubuntu/Debian/CentOS):**
+**✅ Linux:**
 
-- LibreOffice: Auto-detected in `/usr/bin/soffice` or `/usr/local/bin/soffice`
-- Install via: `apt-get install libreoffice` or `yum install libreoffice`
-
-**⚠️ AWS Lambda / Serverless:**
-
-- **Option 1**: Use LibreOffice Lambda Layer (https://github.com/shelfio/libreoffice-lambda-layer)
-- **Option 2**: Docker container with LibreOffice installed (see Dockerfile example above)
-- **Option 3**: Accept fallback to ReportLab (text-only PDFs, no images)
-
-### Fallback Behavior
-
-**If LibreOffice NOT installed:**
-
-```
-DOCX/PPTX Processing:
-├─ ✓ Extracts text content
-├─ ✓ Converts to Markdown
-├─ ⚠️ PDF created with ReportLab (text-only, NO images)
-└─ ℹ️ Message: "LibreOffice not found, using ReportLab (text-only)"
-```
-
-**If LibreOffice IS installed:**
-
-```
-DOCX/PPTX Processing:
-├─ ✓ Extracts text content
-├─ ✓ Converts to Markdown
-├─ ✓ PDF created with LibreOffice (preserves images, formatting)
-└─ ℹ️ Message: "LibreOffice conversion successful (images preserved)"
-```
-
-### Docker Deployment Example
-
-```dockerfile
-FROM python:3.11-slim
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libreoffice \
-    ffmpeg \
-    tesseract-ocr \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
-WORKDIR /app
-
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
-COPY src/ ./src/
-
-# Create input/output directories
-RUN mkdir -p input output
-
-# Run pipeline
-CMD ["python", "src/pipeline.py", "input/", "output/"]
-```
-
-### Environment Variables (Optional)
-
-```bash
-# Force LibreOffice path (override auto-detection)
-export SOFFICE_PATH="/custom/path/to/soffice"
-
-# Disable GPU (for CPU-only environments)
-export USE_GPU=false
-
-# Set Whisper model size
-export WHISPER_MODEL=base
-```
-
-### Production Checklist
-
-- [ ] LibreOffice installed (or accept text-only fallback)
-- [ ] FFmpeg installed (if processing video/audio)
-- [ ] Sufficient disk space (videos can be large)
-- [ ] GPU available (optional, for faster processing)
-- [ ] Firewall allows outbound connections (for model downloads)
-- [ ] Write permissions for output directory
+- LibreOffice: Auto-detected in `/usr/bin/soffice`
 
 ## 🎯 Use Cases
 
 ### 1. Educational Content Processing
 
 ```bash
-# Process lecture slides, videos, and transcripts
-python src/pipeline.py lectures/ processed_lectures/ --asr-model large-v3
+# Process lecture slides + videos + transcripts
+python pipeline.py lectures/ processed_lectures/ --asr-model large-v3
+# Output: stage4_rag_ready/ with PDFs + unified markdown
 ```
 
 ### 2. Document Archive Digitization
 
 ```bash
 # Process scanned PDFs and images with OCR
-python src/pipeline.py archive/ digitized/ --skip-media
+python pipeline.py archive/ digitized/
+# Output: stage4_rag_ready/ with PDFs + markdown
 ```
 
 ### 3. Video Content Analysis
 
 ```bash
 # Extract transcripts and frames from videos
-python src/pipeline.py videos/ analyzed/ --media-only --frame-interval 50
+python pipeline.py videos/ analyzed/ --frame-interval 50
+# Output: stage4_rag_ready/ with markdown transcripts
 ```
 
 ### 4. Mixed Document Collection
 
 ```bash
 # Process everything: docs, images, videos, spreadsheets
-python src/pipeline.py mixed_content/ processed/
+python pipeline.py mixed_content/ processed/
+# Output: stage4_rag_ready/ with unified structure
 ```
 
-## 🔄 Comparison with Previous Weeks
+## 🔄 Key Changes from Previous Version
 
-### Week0506_Mkhoi_OCR_ASR
+### Stage 1: Normalization
 
-- ✅ Copied: Audio extraction, Whisper transcription
-- ✨ Enhanced: Chunked processing, frame extraction, multiple output formats
+**OLD:**
 
-### Week0506_QPhu_Processor
+- ✅ DOCX → PDF (LibreOffice)
+- ✅ DOCX → Markdown (python-docx)
+- ✅ PPTX → PDF (LibreOffice)
+- ✅ PPTX → Markdown (python-pptx)
+- ✅ HTML → Markdown (BeautifulSoup)
+- ✅ Excel → Markdown (openpyxl)
+- ✅ CSV → Markdown (pandas)
 
-- ✅ Copied: Docling document processing
-- ✨ Enhanced: Integrated into 3-stage pipeline, handles normalized inputs
+**NEW:**
 
-### Week070809 (This Week)
+- ✅ DOCX → PDF (LibreOffice) **ONLY**
+- ❌ NO DOCX → Markdown
+- ✅ PPTX → PDF (LibreOffice) **ONLY**
+- ❌ NO PPTX → Markdown
+- ✅ HTML/XHTML → PDF (LibreOffice) **ONLY**
+- ❌ NO HTML → Markdown
+- ❌ NO Excel → Markdown
+- ❌ NO CSV → Markdown
+- ✅ TXT → Markdown (NEW, simple text files)
+- ✅ Copy ALL files to original_files/ (for Docling)
+- ✅ Support WEBP, XHTML, AsciiDoc, WebVTT (NEW formats)
 
-- ✨ **NEW**: Complete normalization layer
-- ✨ **NEW**: Unified pipeline orchestration
-- ✨ **NEW**: Support for ALL document types
-- ✨ **NEW**: Optimized for RAG pipelines
+**Reasoning:** Let Docling handle markdown conversion for better quality. Stage 1 focuses on PDF creation for image-based RAG only.
+
+### Stage 2: Media Processing
+
+**OLD:**
+
+- ✅ Video → Audio → Transcription
+- ✅ Export formats: .json, .srt, .vtt, .txt
+
+**NEW:**
+
+- ✅ Video → Audio → Transcription
+- ✅ Export formats: .json, .srt, .vtt, .txt, **.md** (NEW!)
+- ✅ Markdown format includes readable timestamps (HH:MM:SS)
+
+**Reasoning:** Export .md format so transcripts can be processed by Docling in Stage 3.
+
+### Stage 3: Document Processing
+
+**OLD:**
+
+- ✅ Process from: original_files/, normalized_markdown/, transcripts/
+- ✅ Docling processes all supported formats
+
+**NEW:**
+
+- ✅ Process from **4 sources**:
+  1. original_files/ (best quality)
+  2. normalized_pdfs/ (may have better OCR) **NEW!**
+  3. normalized_markdown/ (existing MD/TXT files)
+  4. transcripts/\*.md **only** (filtered .json/.srt/.vtt/.txt)
+- ✅ Added format support: WEBP, XHTML, CSV, AsciiDoc, WebVTT
+
+**Reasoning:** Process normalized PDFs for potential OCR improvements. Filter transcript files to avoid duplicates.
+
+### Stage 4: Consolidation (NEW!)
+
+**NEW STAGE:**
+
+- ✅ Consolidate outputs into unified RAG-ready structure
+- ✅ For each document:
+  - file.pdf (from stage1/normalized_pdfs/)
+  - file.md (from stage3, best version)
+  - docling_additional/ (images, tables, metadata)
+- ✅ Output directory: stage4_rag_ready/
+
+**Reasoning:** Provide consistent, easy-to-use output structure for RAG pipelines.
+
+---
+
+## Summary of Pipeline Flow
+
+```
+INPUT FILES
+    ↓
+STAGE 1: Create PDFs for image RAG + copy originals
+    ↓
+STAGE 2: Transcribe media (export .md)
+    ↓
+STAGE 3: Process ALL files through Docling
+         (originals + normalized PDFs + markdown + transcripts.md)
+    ↓
+STAGE 4: Consolidate into unified RAG-ready structure
+         (file.pdf + file.md + docling_additional/)
+    ↓
+RAG-READY OUTPUT
+```
+
+**Final output location:** `output/stage4_rag_ready/`
 
 ---
 
