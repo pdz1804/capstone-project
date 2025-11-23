@@ -25,6 +25,7 @@ import argparse
 from src.normalizer import DocumentNormalizer, NormalizerConfig
 from src.media_processor import MediaProcessor, MediaProcessorConfig
 from src.document_processor import MultimodalDocumentProcessor, ProcessingConfig
+from src.consolidator import Stage4Consolidator, ConsolidatorConfig
 
 
 @dataclass
@@ -76,8 +77,8 @@ class PipelineConfig:
                 enable_ocr=True,
                 enable_vlm=True,
                 export_markdown=True,
-                export_images=True,
-                export_tables=True
+                export_images=False,  # Disabled by default for speed
+                export_tables=False   # Disabled by default for speed
             )
 
 
@@ -109,7 +110,8 @@ class DocumentProcessingPipeline:
             "raw": self.input_dir,
             "normalized": self.output_dir / "stage1_normalized",
             "media_processed": self.output_dir / "stage2_media_processed",
-            "final_processed": self.output_dir / "stage3_document_processed"
+            "final_processed": self.output_dir / "stage3_document_processed",
+            "rag_ready": self.output_dir / "stage4_rag_ready"
         }
         
         for stage_name, stage_dir in self.stage_dirs.items():
@@ -176,9 +178,16 @@ class DocumentProcessingPipeline:
                 doc_stats = self._run_document_processing()
                 self.pipeline_stats["stages"]["document_processing"] = doc_stats
             
+            # Stage 4: Consolidation to RAG-ready format
+            print("\n" + "="*80)
+            print("STAGE 4: CONSOLIDATION (RAG-Ready)")
+            print("="*80)
+            consolidation_stats = self._run_consolidation()
+            self.pipeline_stats["stages"]["consolidation"] = consolidation_stats
+            
             # Finalize
             self.pipeline_stats["end_time"] = datetime.now().isoformat()
-            self.pipeline_stats["total_output_files"] = self._count_files(self.stage_dirs["final_processed"])
+            self.pipeline_stats["total_output_files"] = self._count_files(self.stage_dirs["rag_ready"])
             
             # Save pipeline statistics
             self._save_pipeline_stats()
@@ -273,6 +282,15 @@ class DocumentProcessingPipeline:
                 print(f"    (PDFs, DOCX, PPTX, HTML, Images - full quality for Docling)")
                 inputs_to_process.append(originals_dir)
             
+            # Add normalized PDFs for better OCR quality
+            normalized_pdf_dir = self.stage_dirs["normalized"] / "normalized_pdfs"
+            if normalized_pdf_dir.exists():
+                pdf_files = list(normalized_pdf_dir.glob("*.pdf"))
+                if pdf_files:
+                    print(f"  → Adding normalized PDFs from: {normalized_pdf_dir}")
+                    print(f"    (Converted DOCX/PPTX/HTML - may have better OCR than originals)")
+                    inputs_to_process.append(normalized_pdf_dir)
+            
             # Add markdown/text files that were already in that format
             normalized_md_dir = self.stage_dirs["normalized"] / "normalized_markdown"
             if normalized_md_dir.exists() and any(normalized_md_dir.iterdir()):
@@ -313,6 +331,38 @@ class DocumentProcessingPipeline:
         
         except Exception as e:
             print(f"ERROR: ✗ Document processing failed: {str(e)}")
+            raise
+    
+    def _run_consolidation(self) -> Dict:
+        """
+        Run Stage 4: Consolidate outputs into RAG-ready format.
+        
+        Creates unified output structure:
+        - file.pdf (optional, from normalized_pdfs)
+        - file.md (required, from Docling output)
+        - docling_additional/ (optional, supplementary Docling outputs)
+        """
+        print("Consolidating outputs into RAG-ready format...")
+        
+        try:
+            consolidator = Stage4Consolidator(
+                stage1_dir=self.stage_dirs["normalized"],
+                stage3_dir=self.stage_dirs["final_processed"],
+                output_dir=self.stage_dirs["rag_ready"],
+                config=ConsolidatorConfig()
+            )
+            
+            stats = consolidator.consolidate()
+            
+            print(f"✓ Consolidation complete: {stats['total_documents']} documents prepared")
+            print(f"  → {stats['with_pdf']} documents with PDF")
+            print(f"  → {stats['with_markdown']} documents with Markdown")
+            print(f"  → {stats['with_additional']} documents with additional files")
+            
+            return stats
+        
+        except Exception as e:
+            print(f"ERROR: ✗ Consolidation failed: {str(e)}")
             raise
     
     def _count_files(self, directory: Path) -> int:
@@ -382,8 +432,8 @@ def create_default_configs():
             enable_ocr=True,
             enable_vlm=True,
             export_markdown=True,
-            export_images=True,
-            export_tables=True
+            export_images=False,  # Disabled by default for speed
+            export_tables=False   # Disabled by default for speed
         )
     )
 
@@ -430,6 +480,8 @@ Examples:
     # Features
     parser.add_argument("--no-frames", action="store_true", help="Don't extract video frames")
     parser.add_argument("--frame-interval", type=int, default=100, help="Extract every Nth frame")
+    parser.add_argument("--export-images", action="store_true", help="Export images from documents (slower)")
+    parser.add_argument("--export-tables", action="store_true", help="Export tables from documents (slower)")
     
     args = parser.parse_args()
     
@@ -452,6 +504,9 @@ Examples:
     config.media_config.asr_model = args.asr_model
     config.media_config.extract_frames = not args.no_frames
     config.media_config.frame_interval = args.frame_interval
+    
+    config.document_config.export_images = args.export_images
+    config.document_config.export_tables = args.export_tables
     
     # Run pipeline
     pipeline = DocumentProcessingPipeline(
