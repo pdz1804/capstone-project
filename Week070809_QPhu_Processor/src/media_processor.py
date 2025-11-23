@@ -198,21 +198,39 @@ class AudioTranscriber:
             self._load_model()
     
     def _load_model(self):
-        """Load Whisper model."""
+        """Load Whisper model with GPU support and automatic CPU fallback."""
         if not TORCH_AVAILABLE or not WHISPER_AVAILABLE:
             print("ERROR: torch and whisper required for transcription")
             return
         
+        # Determine device
         self.device = "cuda" if self.config.use_gpu and torch.cuda.is_available() else "cpu"
+        
+        if self.config.use_gpu and not torch.cuda.is_available():
+            print("WARNING: GPU requested but CUDA not available, falling back to CPU")
+        
         print(f"Loading Whisper model '{self.config.asr_model}' on {self.device}")
         
         try:
             self.model = whisper.load_model(self.config.asr_model, device=self.device)
-            print(f"Model loaded successfully")
+            print(f"✓ Model loaded successfully on {self.device}")
         except Exception as e:
-            print(f"ERROR: Error loading Whisper model: {str(e)}")
-            print(f"Available models: {whisper.available_models()}")
-            raise
+            # If GPU loading fails, try CPU fallback
+            if self.device == "cuda":
+                print(f"WARNING: GPU loading failed: {str(e)}")
+                print("Attempting CPU fallback...")
+                try:
+                    self.device = "cpu"
+                    self.model = whisper.load_model(self.config.asr_model, device="cpu")
+                    print(f"✓ Model loaded successfully on CPU (fallback)")
+                except Exception as cpu_error:
+                    print(f"ERROR: CPU fallback also failed: {str(cpu_error)}")
+                    print(f"Available models: {whisper.available_models()}")
+                    raise
+            else:
+                print(f"ERROR: Error loading Whisper model: {str(e)}")
+                print(f"Available models: {whisper.available_models()}")
+                raise
     
     def transcribe(self, audio_path: Union[str, Path]) -> Optional[Dict]:
         """
@@ -508,7 +526,6 @@ class MediaProcessor:
         """Setup logging configuration."""
         log_file = self.output_dir / "media_processing.log"
         
-    
     def process_batch(self) -> Dict:
         """
         Process all video/audio files in input directory.
@@ -585,7 +602,7 @@ class MediaProcessor:
             if transcript:
                 # Save transcripts in various formats
                 transcript_paths = self._save_transcripts(file_path.stem, transcript)
-                results["transcript_path"] = transcript_paths.get('txt')
+                results["transcript_path"] = transcript_paths.get('md')  # Use .md for Docling processing
                 results["transcript_text"] = transcript.get('text')
                 self.stats["transcribed"] += 1
         
@@ -614,7 +631,7 @@ class MediaProcessor:
     
     def _save_transcripts(self, stem: str, transcript: Dict) -> Dict[str, Path]:
         """
-        Save transcript in multiple formats.
+        Save transcript in multiple formats including markdown.
         
         Args:
             stem: Base filename
@@ -631,6 +648,13 @@ class MediaProcessor:
             with open(txt_path, 'w', encoding='utf-8') as f:
                 f.write(transcript.get('text', ''))
             paths['txt'] = txt_path
+        
+        # Markdown format for Stage 3 Docling processing
+        md_path = self.transcript_dir / f"{stem}.md"
+        markdown_content = self._transcript_to_markdown(stem, transcript)
+        with open(md_path, 'w', encoding='utf-8') as f:
+            f.write(markdown_content)
+        paths['md'] = md_path
         
         # JSON with full metadata
         if self.config.export_json:
@@ -660,6 +684,48 @@ class MediaProcessor:
             paths['vtt'] = vtt_path
         
         return paths
+    
+    def _transcript_to_markdown(self, stem: str, transcript: Dict) -> str:
+        """
+        Convert transcript to structured markdown format.
+        
+        Format:
+        # Transcript: {filename}
+        
+        **Duration**: {duration}
+        **Language**: {language}
+        
+        ## Transcript Content
+        
+        **[00:00:00]** Text segment 1...
+        **[00:00:05]** Text segment 2...
+        """
+        lines = []
+        
+        # Header
+        lines.append(f"# Transcript: {stem}\n")
+        lines.append(f"**Duration**: {transcript.get('duration', 'N/A')}")
+        lines.append(f"**Language**: {transcript.get('language', 'auto')}\n")
+        lines.append("## Transcript Content\n")
+        
+        # Add segments with timestamps
+        if 'segments' in transcript:
+            for segment in transcript['segments']:
+                timestamp = self._format_timestamp_readable(segment['start'])
+                text = segment['text'].strip()
+                lines.append(f"**[{timestamp}]** {text}\n")
+        else:
+            # Fallback to plain text
+            lines.append(transcript.get('text', ''))
+        
+        return '\n'.join(lines)
+    
+    def _format_timestamp_readable(self, seconds: float) -> str:
+        """Format seconds as readable timestamp [HH:MM:SS]."""
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
     
     def _format_timestamp(self, seconds: float) -> str:
         """Format seconds as SRT/VTT timestamp."""

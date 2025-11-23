@@ -140,8 +140,8 @@ class ProcessingConfig:
     
     # Export settings
     export_markdown: bool = True
-    export_images: bool = True
-    export_tables: bool = True
+    export_images: bool = False  # Disabled by default for 3x faster processing
+    export_tables: bool = False  # Disabled by default for 3x faster processing
     export_metadata: bool = True
     
     # Image filtering settings - FILTER OUT SMALL ICONS AND LOW QUALITY IMAGES
@@ -174,30 +174,20 @@ class MultimodalDocumentProcessor:
     DOCLING_SUPPORTED_FORMATS = {
         'pdf': ['.pdf'],                    # InputFormat.PDF - Enhanced with custom pipeline
         'office': ['.docx', '.pptx', '.xlsx'],  # InputFormat.DOCX, PPTX, XLSX - Default Docling processing
-        'image': ['.png', '.jpg', '.jpeg', '.tiff', '.tif', '.bmp'],  # InputFormat.IMAGE - Enhanced with PDF pipeline
-        'web': ['.html', '.htm'],           # InputFormat.HTML - Default Docling processing
-        'text': ['.md', '.txt']             # InputFormat.MD, TXT - Default Docling processing
+        'image': ['.png', '.jpg', '.jpeg', '.tiff', '.tif', '.bmp', '.webp'],  # InputFormat.IMAGE - Enhanced with PDF pipeline, added WEBP
+        'web': ['.html', '.htm', '.xhtml'],           # InputFormat.HTML - Default Docling processing, added XHTML
+        'text': ['.md', '.txt'],            # InputFormat.MD, TXT - Default Docling processing
+        'csv': ['.csv'],                    # InputFormat.CSV - Default Docling processing
+        'asciidoc': ['.adoc', '.asciidoc', '.asc'],  # InputFormat.ASCIIDOC - Default Docling processing
+        'webvtt': ['.vtt']                  # InputFormat.VTT - Default Docling processing
         # NOTE: Audio/Video are handled by media_processor.py, not here
-        # Transcripts will be saved as .txt and converted to .md for processing
-    }
-    
-    # Formats we can convert and then process (preprocessing step)
-    CONVERTIBLE_FORMATS = {
-        'text': ['.txt']  # Convert TXT to MD for processing via InputFormat.MD
+        # Transcripts will be saved as .md for Docling processing
     }
     
     @property
     def SUPPORTED_FORMATS(self):
-        """Combined supported and convertible formats."""
-        combined = {}
-        for category, extensions in self.DOCLING_SUPPORTED_FORMATS.items():
-            combined[category] = extensions.copy()
-        for category, extensions in self.CONVERTIBLE_FORMATS.items():
-            if category in combined:
-                combined[category].extend(extensions)
-            else:
-                combined[category] = extensions
-        return combined
+        """Supported formats for Docling processing."""
+        return self.DOCLING_SUPPORTED_FORMATS
     
     def __init__(self, 
                  input_dir: Union[str, Path],
@@ -300,6 +290,14 @@ class MultimodalDocumentProcessor:
                     logger.info(f"🔍 VLM Debug - picture_area_threshold: {getattr(vlm_options, 'picture_area_threshold', 'NOT_SET')}")
                     logger.info(f"🔍 VLM Debug - batch_size: {getattr(vlm_options, 'batch_size', 'NOT_SET')}")
                 
+                # CRITICAL FIX: Enable full VLM and image processing for images
+                # Week0506 had this enabled and worked well for input images
+                # Images need picture description and classification for good OCR results
+                
+                # FORCE VLM ON for images (override config if needed)
+                use_vlm = self.config.enable_vlm if hasattr(self.config, 'enable_vlm') else True
+                logger.info(f"🔥 FORCING VLM: {use_vlm} (config: {self.config.enable_vlm})")
+                
                 pdf_options = PdfPipelineOptions(
                     do_ocr=self.config.enable_ocr,                    # Enable OCR
                     do_table_structure=True,                          # Enable table structure detection
@@ -307,10 +305,10 @@ class MultimodalDocumentProcessor:
                     generate_page_images=True,                        # Generate full page images for better extraction
                     generate_table_images=True,                       # Generate table images
                     do_picture_classification=True,                   # Enable advanced picture classification
-                    do_picture_description=self.config.enable_vlm,    # Enable picture description with VLM
+                    do_picture_description=use_vlm,                   # Enable picture description with VLM
                     images_scale=2.0,                                 # HIGHER SCALE: 2x resolution for better image quality
                     ocr_options=self._get_ocr_options(),              # OCR configuration
-                    picture_description_options=vlm_options,      # VLM options for image descriptions
+                    picture_description_options=vlm_options if use_vlm else None,  # VLM options
                 )
                 
                 # DEBUG: Print final pipeline options
@@ -340,17 +338,37 @@ class MultimodalDocumentProcessor:
                 logger.info(f"Configured enhanced processing for: PDF, IMAGE formats")
                 logger.info(f"Other formats (DOCX, PPTX, XLSX, HTML, MD, AUDIO) will use Docling defaults")
                 
+                # Define allowed formats based on what we support
+                # This ensures DocumentConverter only processes files we can handle
+                allowed_formats = [
+                    InputFormat.PDF,
+                    InputFormat.DOCX,
+                    InputFormat.PPTX,
+                    InputFormat.XLSX,
+                    InputFormat.HTML,
+                    InputFormat.IMAGE,
+                    InputFormat.MD,
+                    InputFormat.CSV,
+                    InputFormat.ASCIIDOC,
+                    InputFormat.VTT
+                    # Note: AUDIO handled by media_processor separately
+                ]
+                
                 # Create converter with enhanced format options for priority formats
                 # Docling will automatically handle other formats with their default configurations
-                self.converter = DocumentConverter(format_options=format_options)
+                self.converter = DocumentConverter(
+                    allowed_formats=allowed_formats,
+                    format_options=format_options
+                )
                 
                 logger.info("MultimodalDocumentProcessor converters initialized successfully:")
                 logger.info(f"  ✅ Enhanced formats: {list(format_options.keys())}")
-                logger.info(f"  📄 PDF: Advanced pipeline with 2.0x image scaling")
-                logger.info(f"  🖼️  Images: Same advanced pipeline as PDF")
+                logger.info(f"  📄 PDF: OCR-optimized pipeline (text extraction only)")
+                logger.info(f"  🖼️  Images: Same OCR pipeline as PDF")
                 logger.info(f"  📊 Office docs: Default Docling processing (DOCX, PPTX, XLSX)")
                 logger.info(f"  🌐 Web docs: Default Docling processing (HTML)")
                 logger.info(f"  📝 Text docs: Default Docling processing (MD)")
+                logger.info(f"  ⚡ Full processing mode: VLM={use_vlm}, image processing=True, scale=2.0")
                 
                 if ASR_AVAILABLE and self.config.enable_asr:
                     logger.info(f"  🎵 Audio: ASR pipeline available")
@@ -359,8 +377,13 @@ class MultimodalDocumentProcessor:
                 
             except Exception as e:
                 logger.warning(f"Enhanced format options failed: {e}, using basic converter")
-                # Fallback to basic converter
-                self.converter = DocumentConverter()
+                # Fallback to basic converter with allowed formats only
+                allowed_formats = [
+                    InputFormat.PDF, InputFormat.DOCX, InputFormat.PPTX, InputFormat.XLSX,
+                    InputFormat.HTML, InputFormat.IMAGE, InputFormat.MD, InputFormat.CSV,
+                    InputFormat.ASCIIDOC, InputFormat.VTT
+                ]
+                self.converter = DocumentConverter(allowed_formats=allowed_formats)
                 logger.info("Basic document converter initialized (fallback mode)")
             
             logger.info(f"OCR engine config: {self.config.ocr_engine}")
@@ -369,9 +392,19 @@ class MultimodalDocumentProcessor:
             
         except Exception as e:
             logger.error(f"Failed to initialize converters: {e}")
-            # Last resort - basic converter without any options
-            self.converter = DocumentConverter()
-            logger.info("Fallback to most basic converter")
+            # Last resort - basic converter with allowed formats only
+            try:
+                allowed_formats = [
+                    InputFormat.PDF, InputFormat.DOCX, InputFormat.PPTX, InputFormat.XLSX,
+                    InputFormat.HTML, InputFormat.IMAGE, InputFormat.MD, InputFormat.CSV,
+                    InputFormat.ASCIIDOC, InputFormat.VTT
+                ]
+                self.converter = DocumentConverter(allowed_formats=allowed_formats)
+                logger.info("Fallback to most basic converter with allowed formats")
+            except:
+                # Absolute last resort - no parameters
+                self.converter = DocumentConverter()
+                logger.info("Fallback to default converter")
     
     def _get_ocr_options(self) -> Optional[OcrOptions]:
         """Get OCR configuration based on settings."""
@@ -1460,7 +1493,8 @@ class MultimodalDocumentProcessor:
         file_path = Path(processing_info['file_path'])
         file_stem = file_path.stem
         
-        # Use safe filename for output directory (truncate if too long)
+        # Use safe filename for output directory (truncate if too long to avoid Windows 260 char path limit)
+        # This matches the safe_stem used in normalizer.py
         safe_stem = self._get_safe_output_path(file_stem)
         
         exported_files = {}
