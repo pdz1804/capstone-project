@@ -4,7 +4,7 @@
     "path": "output\\stage1_normalized\\original_files\\DeepSeekOCR-test-page05.png",
     "size": 210293,
     "type": "image",
-    "modified": 1761237853.2241163
+    "modified": 1763804437.6059096
   },
   "document_info": {
     "title": "DeepSeekOCR-test-page05",
@@ -23,7 +23,7 @@
   "processing_info": {
     "processor_version": "MultimodalDocumentProcessor-v1.0",
     "docling_version": "1.7.0",
-    "processing_timestamp": "2025-11-19T02:49:43.291776",
+    "processing_timestamp": "2025-11-23T10:29:29.290981",
     "gpu_used": true,
     "ocr_enabled": true,
     "vlm_enabled": true,

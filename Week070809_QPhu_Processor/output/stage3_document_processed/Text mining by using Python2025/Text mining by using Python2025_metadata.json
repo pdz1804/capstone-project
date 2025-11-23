@@ -4,7 +4,7 @@
     "path": "output\\stage1_normalized\\normalized_markdown\\Text mining by using Python2025.md",
     "size": 7010,
     "type": "text",
-    "modified": 1763495259.120257
+    "modified": 1763868360.410676
   },
   "document_info": {
     "title": "Text mining by using Python: Application to patent documents",
@@ -23,7 +23,7 @@
   "processing_info": {
     "processor_version": "MultimodalDocumentProcessor-v1.0",
     "docling_version": "1.7.0",
-    "processing_timestamp": "2025-11-19T02:49:48.161465",
+    "processing_timestamp": "2025-11-23T10:29:33.953080",
     "gpu_used": true,
     "ocr_enabled": true,
     "vlm_enabled": true,

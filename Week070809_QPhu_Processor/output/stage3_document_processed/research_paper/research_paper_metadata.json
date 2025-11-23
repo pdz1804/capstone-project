@@ -4,7 +4,7 @@
     "path": "output\\stage1_normalized\\normalized_markdown\\research_paper.md",
     "size": 3928,
     "type": "text",
-    "modified": 1763495259.0832982
+    "modified": 1763868360.21427
   },
   "document_info": {
     "title": "Keywords: Multimodal AI, Educational Technology, Document Processing, OCR, NLP, Computer Vision",
@@ -23,7 +23,7 @@
   "processing_info": {
     "processor_version": "MultimodalDocumentProcessor-v1.0",
     "docling_version": "1.7.0",
-    "processing_timestamp": "2025-11-19T02:49:47.699676",
+    "processing_timestamp": "2025-11-23T10:29:33.447725",
     "gpu_used": true,
     "ocr_enabled": true,
     "vlm_enabled": true,

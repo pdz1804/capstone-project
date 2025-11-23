@@ -4,7 +4,7 @@
     "path": "output\\stage1_normalized\\original_files\\2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf",
     "size": 7006475,
     "type": "pdf",
-    "modified": 1757173080.3232064
+    "modified": 1763804437.6059096
   },
   "document_info": {
     "title": "VideoRAG: Retrieval-Augmented Generation with Extreme Long-Context Videos",
@@ -23,7 +23,7 @@
   "processing_info": {
     "processor_version": "MultimodalDocumentProcessor-v1.0",
     "docling_version": "1.7.0",
-    "processing_timestamp": "2025-11-19T02:49:17.188282",
+    "processing_timestamp": "2025-11-23T10:29:03.909149",
     "gpu_used": true,
     "ocr_enabled": true,
     "vlm_enabled": true,

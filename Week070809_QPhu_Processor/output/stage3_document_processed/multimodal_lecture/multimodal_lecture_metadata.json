@@ -4,7 +4,7 @@
     "path": "output\\stage1_normalized\\normalized_markdown\\multimodal_lecture.md",
     "size": 4282,
     "type": "text",
-    "modified": 1763495259.0673726
+    "modified": 1763868345.1768646
   },
   "document_info": {
     "title": "Advanced Deep Learning Lecture - Computer Vision and NLP",
@@ -23,7 +23,7 @@
   "processing_info": {
     "processor_version": "MultimodalDocumentProcessor-v1.0",
     "docling_version": "1.7.0",
-    "processing_timestamp": "2025-11-19T02:49:46.926224",
+    "processing_timestamp": "2025-11-23T10:29:32.665444",
     "gpu_used": true,
     "ocr_enabled": true,
     "vlm_enabled": true,

@@ -4,7 +4,7 @@
     "path": "output\\stage1_normalized\\normalized_markdown\\INTRO_PHASE2_2025.md",
     "size": 3023,
     "type": "text",
-    "modified": 1763495252.7942095
+    "modified": 1763868324.834502
   },
   "document_info": {
     "title": "INTRO_PHASE2_2025",
@@ -23,7 +23,7 @@
   "processing_info": {
     "processor_version": "MultimodalDocumentProcessor-v1.0",
     "docling_version": "1.7.0",
-    "processing_timestamp": "2025-11-19T02:49:46.063845",
+    "processing_timestamp": "2025-11-23T10:29:31.866914",
     "gpu_used": true,
     "ocr_enabled": true,
     "vlm_enabled": true,
