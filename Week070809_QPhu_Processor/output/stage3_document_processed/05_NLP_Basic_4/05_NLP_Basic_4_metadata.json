@@ -4,7 +4,7 @@
     "path": "output\\stage2_media_processed\\transcripts\\05_NLP_Basic_4.txt",
     "size": 2609,
     "type": "text",
-    "modified": 1763495277.3560276
+    "modified": 1763868431.272913
   },
   "document_info": {
     "title": "05_NLP_Basic_4_temp",
@@ -23,7 +23,7 @@
   "processing_info": {
     "processor_version": "MultimodalDocumentProcessor-v1.0",
     "docling_version": "1.7.0",
-    "processing_timestamp": "2025-11-19T02:49:48.654076",
+    "processing_timestamp": "2025-11-23T10:29:34.466784",
     "gpu_used": true,
     "ocr_enabled": true,
     "vlm_enabled": true,

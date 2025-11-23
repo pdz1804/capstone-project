@@ -4,7 +4,7 @@
     "path": "output\\stage1_normalized\\normalized_markdown\\course_syllabus.txt",
     "size": 5773,
     "type": "text",
-    "modified": 1763495252.7149885
+    "modified": 1763868324.4427776
   },
   "document_info": {
     "title": "course_syllabus_temp",
@@ -23,7 +23,7 @@
   "processing_info": {
     "processor_version": "MultimodalDocumentProcessor-v1.0",
     "docling_version": "1.7.0",
-    "processing_timestamp": "2025-11-19T02:49:45.751379",
+    "processing_timestamp": "2025-11-23T10:29:31.536695",
     "gpu_used": true,
     "ocr_enabled": true,
     "vlm_enabled": true,
