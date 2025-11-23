@@ -12,7 +12,7 @@
 \contentsline {figure}{\numberline {4.7}{\ignorespaces BM25 \blx@tocontentsinit {0}\cite {geeksforgeeks_bm25}.}}{29}{figure.caption.14}%
 \contentsline {figure}{\numberline {4.8}{\ignorespaces Reranker \blx@tocontentsinit {0}\cite {together2024_rerank_llamarank}.}}{31}{figure.caption.15}%
 \contentsline {figure}{\numberline {4.9}{\ignorespaces Augmentation \blx@tocontentsinit {0}\cite {obot_rag_guide}}}{34}{figure.caption.16}%
-\contentsline {figure}{\numberline {4.10}{\ignorespaces Generator \blx@tocontentsinit {0}\cite {wolfe2024_rag_guide}}}{35}{figure.caption.17}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Generation \blx@tocontentsinit {0}\cite {wolfe2024_rag_guide}}}{35}{figure.caption.17}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {5.1}{\ignorespaces NotebookLM \blx@tocontentsinit {0}\cite {notebooklm-google-ai}.}}{44}{figure.caption.18}%
 \addvspace {10\p@ }

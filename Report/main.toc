@@ -22,7 +22,7 @@
 \contentsline {subsection}{\numberline {4.6.4}Retrieval}{29}{subsection.4.6.4}%
 \contentsline {subsection}{\numberline {4.6.5}Rerankers}{31}{subsection.4.6.5}%
 \contentsline {subsection}{\numberline {4.6.6}Augmentation}{33}{subsection.4.6.6}%
-\contentsline {subsection}{\numberline {4.6.7}Generator}{35}{subsection.4.6.7}%
+\contentsline {subsection}{\numberline {4.6.7}Generation}{35}{subsection.4.6.7}%
 \contentsline {subsection}{\numberline {4.6.8}Prompt Engineering}{37}{subsection.4.6.8}%
 \contentsline {chapter}{\numberline {5}Related Work}{39}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Retrieval Methodologies for Educational Content}{39}{section.5.1}%

@@ -2558,14 +2558,14 @@
     <bcf:citekey order="134" intorder="1">hu2025mrag</bcf:citekey>
     <bcf:citekey order="135" intorder="1">liu2025hmrag</bcf:citekey>
     <bcf:citekey order="136" intorder="1">zhang2024mr2ag</bcf:citekey>
-    <bcf:citekey order="137" intorder="1">geeksforgeeks_bm25</bcf:citekey>
-    <bcf:citekey order="138" intorder="1">geeksforgeeks_bm25</bcf:citekey>
-    <bcf:citekey order="139" intorder="1">robertson2009probabilistic</bcf:citekey>
-    <bcf:citekey order="139" intorder="2">formal2021splade</bcf:citekey>
-    <bcf:citekey order="140" intorder="1">robertson2009probabilistic</bcf:citekey>
+    <bcf:citekey order="137" intorder="1">robertson2009probabilistic</bcf:citekey>
+    <bcf:citekey order="137" intorder="2">formal2021splade</bcf:citekey>
+    <bcf:citekey order="138" intorder="1">robertson2009probabilistic</bcf:citekey>
+    <bcf:citekey order="139" intorder="1">formal2021splade</bcf:citekey>
+    <bcf:citekey order="140" intorder="1">formal2021splade</bcf:citekey>
     <bcf:citekey order="141" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="142" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="143" intorder="1">formal2021splade</bcf:citekey>
+    <bcf:citekey order="142" intorder="1">geeksforgeeks_bm25</bcf:citekey>
+    <bcf:citekey order="143" intorder="1">geeksforgeeks_bm25</bcf:citekey>
     <bcf:citekey order="144" intorder="1">karpukhin2020dense</bcf:citekey>
     <bcf:citekey order="145" intorder="1">karpukhin2020dense</bcf:citekey>
     <bcf:citekey order="146" intorder="1">karpukhin2020dense</bcf:citekey>
