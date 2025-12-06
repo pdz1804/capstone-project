@@ -1,0 +1,30 @@
+# 1. Activate the virtual environment first
+myenv\Scripts\activate
+
+# 2. Navigate to the merged pipeline directory
+cd Week091011-Merge
+
+# 3. Test the merge to make sure everything works
+python test_merge.py
+
+# 4. Test the new retrieval system
+python test_retrieval.py
+
+# 5. Run the complete pipeline (after adding documents to input/)
+python run_pipeline.py --input input/ --output output/ --mode full
+
+
+python run_pipeline.py `
+>>     --input output/processing/stage4_rag_ready/ `
+>>     --output output/ `
+>>     --mode retrieval `
+>>     --rag-mode image `
+>>     --image-retrieval
+
+python run_pipeline.py --input input/ --output output/ --config config/default.yaml --mode full --rag-mode both
+
+python run_pipeline.py --input output/processing/stage4_rag_ready/ --output output/ --mode test --rag-mode image --image-retrieval --interactive
+
+
+
+
