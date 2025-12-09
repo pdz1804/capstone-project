@@ -144,7 +144,7 @@ def initialize_pipeline():
                 retrieval_methods=["bm25", "dense", "hybrid"],
                 retrieval_top_k=10,
                 enable_image_retrieval=True,
-                colqwen_model=yaml_colqwen.get('model', 'vidore/colqwen2-v1.0'),
+                colqwen_model=os.environ.get('RAG_COLQWEN_MODEL', yaml_colqwen.get('model', 'vidore/colqwen2-v1.0')),
                 colqwen_dtype=yaml_colqwen.get('dtype', 'bfloat16'),
 
                 # Prioritize environment variable, then YAML, then default to 8bit
@@ -451,7 +451,6 @@ async def build_index():
         import yaml
         from src.unified_rag_pipeline import UnifiedRAGPipeline, UnifiedRAGConfig
         from src.generation.generator import GenerationConfig
-        from src.processing.document_processor import PipelineConfig
         
         # Clean old image retrieval index to force rebuild
         image_retrieval_dir = OUTPUT_DIR / "image_retrieval"
@@ -694,6 +693,8 @@ if __name__ == "__main__":
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload (dev mode)")
     parser.add_argument("--quantization", "-q", choices=["none", "4bit", "8bit"], 
                        help="Quantization level for ColQwen/ColPali models (none=unquantized/original)")
+    parser.add_argument("--model", "-m", default=None,
+                       help="Specific ColQwen/ColPali model to use (e.g., vidore/colqwen2.5-v0.2)")
     
     args = parser.parse_args()
     
@@ -701,6 +702,10 @@ if __name__ == "__main__":
     if args.quantization:
         os.environ["RAG_COLQWEN_QUANTIZATION"] = args.quantization
         print(f"Configuration: Quantization set to '{args.quantization}'")
+
+    if args.model:
+        os.environ["RAG_COLQWEN_MODEL"] = args.model
+        print(f"Configuration: Model set to '{args.model}'")
     
     # Run the server
     print(f"Starting server on http://{args.host}:{args.port} (reload={args.reload})")
