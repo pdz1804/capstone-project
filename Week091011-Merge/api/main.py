@@ -59,7 +59,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -146,7 +146,9 @@ def initialize_pipeline():
                 enable_image_retrieval=True,
                 colqwen_model=yaml_colqwen.get('model', 'vidore/colqwen2-v1.0'),
                 colqwen_dtype=yaml_colqwen.get('dtype', 'bfloat16'),
-                colqwen_quantization=yaml_colqwen.get('quantization', '8bit'),
+
+                # Prioritize environment variable, then YAML, then default to 8bit
+                colqwen_quantization=os.environ.get('RAG_COLQWEN_QUANTIZATION') if os.environ.get('RAG_COLQWEN_QUANTIZATION') and os.environ.get('RAG_COLQWEN_QUANTIZATION') != 'none' else (None if os.environ.get('RAG_COLQWEN_QUANTIZATION') == 'none' else yaml_colqwen.get('quantization', '8bit')),
                 colqwen_pdf_dpi=yaml_colqwen.get('pdf_dpi', 150),
             )
             
@@ -683,5 +685,23 @@ async def health_check():
 
 
 if __name__ == "__main__":
+    import argparse
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    
+    parser = argparse.ArgumentParser(description="RAG Pipeline API Server")
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload (dev mode)")
+    parser.add_argument("--quantization", "-q", choices=["none", "4bit", "8bit"], 
+                       help="Quantization level for ColQwen/ColPali models (none=unquantized/original)")
+    
+    args = parser.parse_args()
+    
+    # Set environment variable for quantization if specified
+    if args.quantization:
+        os.environ["RAG_COLQWEN_QUANTIZATION"] = args.quantization
+        print(f"Configuration: Quantization set to '{args.quantization}'")
+    
+    # Run the server
+    print(f"Starting server on http://{args.host}:{args.port} (reload={args.reload})")
+    uvicorn.run("main:app", host=args.host, port=args.port, reload=args.reload)
