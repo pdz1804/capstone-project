@@ -1,17 +1,19 @@
 # Unified RAG Pipeline Requirements
 # Combines Document Processing + Information Retrieval
 
-transformers==4.47.0
-peft==0.11.1
+transformers==4.57.3
+peft==0.14.0
 sentence-transformers==3.0.1
 accelerate>=0.30.0
 huggingface-hub>=0.23.0
 
 # ColPali / ColQwen
-colpali-engine==0.3.7
+colpali-engine==0.3.13
 
 # ColBERT / Ragotouille
 ragatouille>=0.0.8
+
+nvidia-nccl-cu12-2.27.3
 
 # ======================== Core Processing ========================
 # Docling - Advanced document understanding framework
@@ -60,6 +62,7 @@ openai-whisper  # Whisper ASR
 transformers     # For additional models
 torch             # PyTorch for ML models
 torchaudio        # Audio processing with PyTorch
+# torch-2.8.0 torchaudio-2.8.0 torchvision-0.23.0 triton-3.4.0
 
 # Video frame extraction
 opencv-python     # Computer vision
@@ -122,6 +125,13 @@ mypy              # Type checker
 # Hugging Face hub for model downloads
 huggingface-hub
 
+
+# ------ API ------
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+
 # ======================== System Dependencies Required ========================
 # - FFmpeg: Required for video/audio processing
 #   Windows: Download from https://ffmpeg.org/download.html
@@ -154,7 +164,7 @@ huggingface-hub
 # 3. Install requirements:
 #    pip install -r requirements.txt
 #
-# 4. For GPU support, install PyTorch with CUDA:
+# 4. For GPU support, install PyTorch with CUDA (here it is 11.8):
 #    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 #
 # 5. For GPU FAISS support (optional):
