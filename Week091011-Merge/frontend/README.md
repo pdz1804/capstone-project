@@ -29,8 +29,11 @@ npm install
 ```bash
 cd api
 python main.py
-# Or with uvicorn for hot reload:
-uvicorn main:app --reload --port 8000
+# This will start with auto-reload enabled, watching api/, src/, and config/ directories
+
+# Or with uvicorn directly for more control:
+cd ..
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000 --reload-dir api --reload-dir src --reload-dir config
 ```
 
 ### 4. Start the Frontend
