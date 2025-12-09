@@ -451,7 +451,6 @@ async def build_index():
         import yaml
         from src.unified_rag_pipeline import UnifiedRAGPipeline, UnifiedRAGConfig
         from src.generation.generator import GenerationConfig
-        from src.processing.document_processor import PipelineConfig
         
         # Clean old image retrieval index to force rebuild
         image_retrieval_dir = OUTPUT_DIR / "image_retrieval"
