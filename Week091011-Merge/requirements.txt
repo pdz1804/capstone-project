@@ -1,11 +1,26 @@
 # Unified RAG Pipeline Requirements
 # Combines Document Processing + Information Retrieval
 
+transformers==4.47.0
+peft==0.11.1
+sentence-transformers==3.0.1
+accelerate>=0.30.0
+huggingface-hub>=0.23.0
+
+# ColPali / ColQwen
+colpali-engine==0.3.7
+
+# ColBERT / Ragotouille
+ragatouille>=0.0.8
+
 # ======================== Core Processing ========================
 # Docling - Advanced document understanding framework
 docling[all]>=2.0.0
 docling-core>=2.0.0
 docling-parse>=2.0.0
+
+# quantization for colpali/colqwen if necessary
+bitsandbytes
 
 # ======================== Document Normalization ========================
 # Office document processing
@@ -57,21 +72,14 @@ rapidocr-onnxruntime  # Rapid OCR
 
 # ======================== Information Retrieval ========================
 # Dense retrieval
-sentence-transformers  # Sentence embeddings
-faiss-cpu             # Vector similarity search (CPU version)
-# faiss-gpu           # Use this for GPU version instead
+# faiss-cpu             # Vector similarity search (CPU version)
+faiss-gpu-cu12           # Use this for GPU version instead
 
 # Sparse retrieval
 rank-bm25             # BM25 implementation
 
 # Reranking
 # transformers         # Cross-encoders for reranking (already listed above)
-
-# ColBERT
-ragatouille           # ColBERT implementation
-
-# Multi-modal retrieval
-colpali-engine==0.3.7        # ColPali for multi-modal retrieval
 
 # Dataset handling
 datasets            # HuggingFace datasets
