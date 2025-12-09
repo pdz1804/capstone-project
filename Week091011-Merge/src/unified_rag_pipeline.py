@@ -380,7 +380,7 @@ class UnifiedRAGPipeline:
                     # Build ColQwen config from pipeline config (same as when building index)
                     colqwen_config = {
                         "model": self.config.colqwen_model,
-                        "dtype": self.config.colqwen_dtype,
+                        "torch_dtype": self.config.colqwen_dtype,
                         "load_in_4bit": self.config.colqwen_quantization == "4bit",
                         "load_in_8bit": self.config.colqwen_quantization == "8bit",
                         "device_map": "auto",
@@ -424,7 +424,7 @@ class UnifiedRAGPipeline:
             # Build ColQwen config from pipeline config
             colqwen_config = {
                 "model": self.config.colqwen_model,
-                "dtype": self.config.colqwen_dtype,
+                "torch_dtype": self.config.colqwen_dtype,
                 "load_in_4bit": self.config.colqwen_quantization == "4bit",
                 "load_in_8bit": self.config.colqwen_quantization == "8bit",
                 "device_map": "auto",
