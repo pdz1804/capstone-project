@@ -8,7 +8,7 @@ accelerate>=0.30.0
 huggingface-hub>=0.23.0
 
 # ColPali / ColQwen
-colpali-engine==0.3.4
+colpali-engine==0.3.7
 
 # ColBERT / Ragotouille
 ragatouille>=0.0.8
