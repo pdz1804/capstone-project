@@ -131,16 +131,24 @@ class UnifiedRAGConfig:
         if self.generation_config is None:
             self.generation_config = GenerationConfig()
         
-        # Sync rag_mode with enable flags
+        # Sync rag_mode with enable flags - but only if flags are at their defaults
+        # This allows explicit enable_retrieval=False to be respected
+        default_enable_retrieval = True
+        default_enable_image_retrieval = False
+        
         if self.rag_mode == "text":
-            self.enable_retrieval = True
-            self.enable_image_retrieval = False
+            # Only sync if flags are at defaults (not explicitly overridden)
+            if self.enable_retrieval == default_enable_retrieval and self.enable_image_retrieval == default_enable_image_retrieval:
+                self.enable_retrieval = True
+                self.enable_image_retrieval = False
         elif self.rag_mode == "image":
-            self.enable_retrieval = False
-            self.enable_image_retrieval = True
+            if self.enable_retrieval == default_enable_retrieval and self.enable_image_retrieval == default_enable_image_retrieval:
+                self.enable_retrieval = False
+                self.enable_image_retrieval = True
         elif self.rag_mode == "both":
-            self.enable_retrieval = True
-            self.enable_image_retrieval = True
+            if self.enable_retrieval == default_enable_retrieval and self.enable_image_retrieval == default_enable_image_retrieval:
+                self.enable_retrieval = True
+                self.enable_image_retrieval = True
         
         # Enable reranker if model specified
         if self.reranker_model:

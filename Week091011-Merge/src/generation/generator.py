@@ -51,19 +51,66 @@ CITATION_PROMPT_TEMPLATE = """You are a helpful AI assistant that answers questi
 
 IMPORTANT INSTRUCTIONS:
 1. Use ONLY information from the provided context to answer the question
-2. Include inline citations using the format [X.Y] where X is the file number and Y is the chunk number from that file
+2. Include inline citations as MARKDOWN HYPERLINKS using the format [X.Y](#chunk-X-Y) for text chunks or [X.Y](#image-X-Y) for images
+   - Text chunks start from [1.1], [1.2], etc. and use anchor #chunk-1-1, #chunk-1-2, etc.
+   - Image citations start from [2.1], [2.2], etc. and use anchor #image-2-1, #image-2-2, etc.
 3. If the context doesn't contain enough information, say so clearly
 4. Be concise but thorough
+5. **OUTPUT YOUR ANSWER IN MARKDOWN FORMAT**
+
+CRITICAL: MATHEMATICAL FORMULAS MUST USE DOLLAR SIGNS, NOT SQUARE BRACKETS
+- Citations use markdown hyperlinks: [1.6](#chunk-1-6) for text or [2.3](#image-2-3) for images
+- Math formulas MUST use dollar signs: $formula$ or $$formula$$
+- NEVER use square brackets for math formulas like [formula] - this is WRONG
+- Citation format: [X.Y](#chunk-X-Y) for text chunks, [X.Y](#image-X-Y) for images
+
+MARKDOWN FORMATTING REQUIREMENTS:
+- Use **bold** for important terms and concepts
+- Use *italic* for emphasis
+- Use proper markdown headings (##, ###) for sections if needed
+- For mathematical formulas and equations:
+  * ALWAYS use inline math with single dollar signs: $formula$ 
+    Example: The score is $E = mc^2$ where $E$ is energy [1.2](#chunk-1-2)
+  * ALWAYS use block math with double dollar signs for displayed equations:
+    $$
+    \\text{{Score}}(q, d) = \\text{{inner product}}(V_q, V_d)
+    $$
+    Example:
+    $$
+    \\text{{Score}}(q, d) = \\text{{inner product}}(V_q, V_d)
+    $$
+    where $V_q$ and $V_d$ are vectors [1.6](#chunk-1-6)
+  * NEVER write formulas in square brackets like [formula] - this will NOT render correctly
+- Use code blocks with triple backticks for code snippets
+- Use bullet points or numbered lists for lists
+- Ensure proper paragraph breaks with blank lines
 
 CONTEXT DOCUMENTS:
 {context}
 
 QUESTION: {question}
 
-Provide your answer with inline citations [X.Y] referencing the source documents. After your answer, list the files and contents you cited.
+Provide your answer in MARKDOWN format with inline citations as MARKDOWN HYPERLINKS referencing the source documents. 
 
-ANSWER FORMAT:
-<Your answer with inline citations like [1.1], [2.1], etc.>
+CRITICAL FORMATTING RULES:
+- Citations: Use markdown hyperlink format [X.Y](#chunk-X-Y) for text or [X.Y](#image-X-Y) for images
+  - Text chunks: [1.1](#chunk-1-1), [1.2](#chunk-1-2), etc.
+  - Images: [2.1](#image-2-1), [2.2](#image-2-2), etc.
+- Math formulas: MUST use $ for inline or $$ for block math (e.g., $V_q$ or $$\\text{{Score}} = ...$$)
+- NEVER mix them up: citations = markdown hyperlinks, math = dollar signs
+
+After your answer, list the files and contents you cited.
+
+ANSWER FORMAT (in Markdown):
+<Your answer in markdown format with inline citations as markdown hyperlinks like [1.1](#chunk-1-1) for text or [2.1](#image-2-1) for images>
+<ALWAYS use $$ for block math formulas and $ for inline math - NEVER use square brackets for math>
+
+Example of correct format:
+The formula for sparse retrieval is:
+$$
+\\text{{Score}}(q, d) = \\text{{inner product}}(V_q, V_d)
+$$
+where $V_q$ and $V_d$ are sparse vectors [1.6](#chunk-1-6). For images, you might reference [2.1](#image-2-1) or [2.3](#image-2-3).
 
 Files:
 [1] <filename>
@@ -81,12 +128,43 @@ ANSWER:"""
 
 SIMPLE_PROMPT_TEMPLATE = """You are a helpful AI assistant that answers questions based on the provided context.
 
+IMPORTANT: Output your answer in MARKDOWN format.
+
+CRITICAL: MATHEMATICAL FORMULAS MUST USE DOLLAR SIGNS, NOT SQUARE BRACKETS
+- Math formulas MUST use dollar signs: $formula$ or $$formula$$
+- NEVER use square brackets for math formulas like [formula] - this is WRONG
+
+MARKDOWN FORMATTING REQUIREMENTS:
+- Use **bold** for important terms and concepts
+- Use *italic* for emphasis
+- Use proper markdown headings (##, ###) for sections if needed
+- For mathematical formulas and equations:
+  * ALWAYS use inline math with single dollar signs: $formula$ 
+    Example: The score is $E = mc^2$ where $E$ is energy
+  * ALWAYS use block math with double dollar signs for displayed equations:
+    $$
+    \\text{{Score}}(q, d) = \\text{{inner product}}(V_q, V_d)
+    $$
+    Example:
+    $$
+    \\text{{Score}}(q, d) = \\text{{inner product}}(V_q, V_d)
+    $$
+    where $V_q$ and $V_d$ are vectors
+  * NEVER write formulas in square brackets like [formula] - this will NOT render correctly
+- Use code blocks with triple backticks for code snippets
+- Use bullet points or numbered lists for lists
+- Ensure proper paragraph breaks with blank lines
+
 Context:
 {context}
 
 Question: {question}
 
-Answer based only on the provided context. If the context doesn't contain enough information, say so.
+Answer based only on the provided context in MARKDOWN format. 
+
+CRITICAL: For mathematical formulas, ALWAYS use $ for inline or $$ for block math (e.g., $V_q$ or $$\\text{{Score}} = ...$$). NEVER use square brackets for math formulas.
+
+If the context doesn't contain enough information, say so.
 
 Answer:"""
 
@@ -171,7 +249,8 @@ class RAGGenerator:
                     'filename': filename,
                     'text': chunk.get('text', ''),
                     'score': chunk.get('score', 0),
-                    'id': chunk.get('id', '')
+                    'id': chunk.get('id', ''),
+                    'retrieval_info': chunk.get('retrieval_info', {})  # Include raw scores
                 }
                 
                 # Format chunk with citation marker
@@ -329,8 +408,8 @@ class RAGGenerator:
         
         logger.info(f"Retrieved docs: {len(retrieved_docs)} total, {len(text_docs)} text, {len(image_docs)} images")
         
-        # Debug: log image doc info
-        for i, img_doc in enumerate(image_docs[:3]):
+        # Debug: log image doc info (all images)
+        for i, img_doc in enumerate(image_docs):
             logger.info(f"Image doc {i}: source={img_doc.get('source')}, path={img_doc.get('source_path')}, page={img_doc.get('page')}")
         
         # Prepare image paths for vision model
@@ -363,9 +442,11 @@ class RAGGenerator:
         if use_citations:
             formatted_context, file_map, chunk_map = self._format_context_with_citations(text_docs)
             
-            # Add image references to context
+            # Add image references to context with proper citation numbering (starting from 2.x)
             if image_descriptions:
-                image_context = "\n\nRelevant Images (see attached):\n" + "\n".join(image_descriptions)
+                image_context = "\n\nRelevant Images (see attached):\n"
+                for idx, desc in enumerate(image_descriptions, 1):
+                    image_context += f"[2.{idx}] {desc}\n"
                 formatted_context += image_context
             
             prompt = CITATION_PROMPT_TEMPLATE.format(
@@ -395,7 +476,12 @@ Extract and describe relevant information from the images to help answer the que
 
 {prompt}
 
-IMPORTANT: If the answer can be found in the images (like diagrams, architecture figures, etc.), describe what you see and use that information to answer."""
+CRITICAL FORMATTING RULES:
+- Output your answer in MARKDOWN format
+- For mathematical formulas: ALWAYS use $ for inline math or $$ for block math (e.g., $V_q$ or $$text{{Score}} = ...$$)
+- NEVER use square brackets for math formulas like [formula] - only use markdown hyperlinks for citations
+- Citations MUST be markdown hyperlinks: [1.1](#chunk-1-1) for text chunks, [2.1](#image-2-1) for images
+- If the answer can be found in the images (like diagrams, architecture figures, etc.), describe what you see and use that information to answer."""
         
         # Generate answer
         logger.info(f"Generating answer for query: {query[:50]}... (with {len(image_paths)} images)")
@@ -427,12 +513,29 @@ IMPORTANT: If the answer can be found in the images (like diagrams, architecture
             "num_images": len(image_paths),
             "files": {v: k for k, v in file_map.items()},  # file_number -> filename
             "contents": {
-                f"[{k[0]}.{k[1]}]": {
-                    "text": v['text'][:200] + "..." if len(v['text']) > 200 else v['text'],
-                    "filename": v['filename'],
-                    "score": v['score']
+                **{
+                    f"[{k[0]}.{k[1]}]": {
+                        "type": "text",
+                        "text": v['text'][:200] + "..." if len(v['text']) > 200 else v['text'],
+                        "full_text": v['text'],
+                        "filename": v['filename'],
+                        "score": v['score'],
+                        "id": f"chunk-{k[0]}-{k[1]}",
+                        "retrieval_info": v.get('retrieval_info', {})  # Include raw scores
+                    }
+                    for k, v in chunk_map.items()
+                },
+                **{
+                    f"[2.{idx}]": {
+                        "type": "image",
+                        "source": img_doc.get('source', 'unknown'),
+                        "page": img_doc.get('page', 0),
+                        "source_path": img_doc.get('source_path', ''),
+                        "score": img_doc.get('score', 0),
+                        "id": f"image-2-{idx}"
+                    }
+                    for idx, img_doc in enumerate(image_docs, 1)
                 }
-                for k, v in chunk_map.items()
             },
             "retrieved_docs": retrieved_docs
         }

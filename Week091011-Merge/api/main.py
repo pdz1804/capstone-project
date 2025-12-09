@@ -24,11 +24,15 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from pydantic import BaseModel
+import yaml
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.unified_rag_pipeline import UnifiedRAGPipeline, UnifiedRAGConfig, PipelineConfig
+import yaml
+from src.unified_rag_pipeline import UnifiedRAGPipeline, UnifiedRAGConfig
+from src.generation.generator import GenerationConfig
+from src.processor.pipeline import PipelineConfig
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -40,7 +44,7 @@ async def lifespan(app: FastAPI):
     """Lifespan context manager for startup/shutdown events."""
     # Startup
     try:
-        initialize_pipeline()
+        logger.info("API startup")
     except Exception as e:
         logger.error(f"Startup initialization failed: {e}")
     yield
@@ -75,17 +79,13 @@ CONFIG_PATH = BASE_DIR / "config" / "default.yaml"
 INPUT_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-# Global pipeline instance
-pipeline: Optional[UnifiedRAGPipeline] = None
-
-
 # Pydantic models
 class SearchRequest(BaseModel):
     query: str
     top_k: int = 10
     retriever_type: str = "hybrid"
     include_images: bool = True
-    images_for_generation: int = 3  # Number of top images to include in generation
+    images_for_generation: int = 5  # Number of top images to include in generation
 
 
 class FileDeleteRequest(BaseModel):
@@ -120,100 +120,142 @@ def get_file_info(file_path: Path) -> Dict[str, Any]:
     }
 
 
-def initialize_pipeline():
-    """Initialize or get the pipeline instance."""
-    global pipeline
-    
-    if pipeline is None:
-        try:
-            # Load config from YAML
-            import yaml
-            with open(CONFIG_PATH, 'r') as f:
-                yaml_config = yaml.safe_load(f) or {}
-            
-            # Get colqwen config
-            yaml_colqwen = yaml_config.get('image_retrieval', {}).get('colqwen', {})
-            
-            # Create pipeline config
-            config = UnifiedRAGConfig(
-                enable_processing=False,  # Processing is done separately
-                enable_retrieval=True,
-                enable_generation=True,
-                enable_evaluation=False,
-                rag_mode="both",
-                retrieval_methods=["bm25", "dense", "hybrid"],
-                retrieval_top_k=10,
-                enable_image_retrieval=True,
-                colqwen_model=yaml_colqwen.get('model', 'vidore/colqwen2-v1.0'),
-                colqwen_dtype=yaml_colqwen.get('dtype', 'bfloat16'),
-                colqwen_quantization=yaml_colqwen.get('quantization', '8bit'),
-                colqwen_pdf_dpi=yaml_colqwen.get('pdf_dpi', 150),
-            )
-            
-            pipeline = UnifiedRAGPipeline(
-                input_dir=INPUT_DIR,
-                output_dir=OUTPUT_DIR,
-                config=config
-            )
-            
-            # Try to load existing indexes
-            try:
-                pipeline.setup_retrievers(load_existing=True)
-            except Exception as e:
-                logger.warning(f"Could not load existing text index: {e}")
-            
-            try:
-                pipeline.setup_image_retrievers(load_existing=True)
-            except Exception as e:
-                logger.warning(f"Could not load existing image index: {e}")
-            
-            logger.info("Pipeline initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize pipeline: {e}")
-            raise
-    
-    return pipeline
+def load_yaml_config() -> Dict[str, Any]:
+    """Load the pipeline YAML config."""
+    with open(CONFIG_PATH, 'r') as f:
+        return yaml.safe_load(f) or {}
+
+
+def build_runtime_config(yaml_config: Dict[str, Any], enable_generation: bool = True) -> UnifiedRAGConfig:
+    """
+    Build a UnifiedRAGConfig from YAML for request-scoped pipelines.
+    Mirrors the retrieval-related options used in CLI/index.
+    """
+    yaml_colqwen = yaml_config.get('image_retrieval', {}).get('colqwen', {})
+    yaml_image_retrieval_enabled = yaml_config.get('image_retrieval', {}).get('enabled', False)
+    rag_mode = yaml_config.get('pipeline', {}).get('rag_mode', 'text')
+    enable_image_retrieval = rag_mode in ["image", "both"] or yaml_image_retrieval_enabled
+
+    return UnifiedRAGConfig(
+        enable_processing=False,
+        enable_retrieval=True,
+        enable_generation=enable_generation,
+        enable_evaluation=False,
+        processing_config=PipelineConfig(),
+        rag_mode=rag_mode,
+        retrieval_methods=yaml_config.get('pipeline', {}).get('retrievers', ['bm25', 'dense', 'hybrid']),
+        enable_image_retrieval=enable_image_retrieval,
+        image_retrieval_methods=yaml_config.get('image_retrieval', {}).get('methods', ['colqwen']),
+        colqwen_model=yaml_colqwen.get('model', 'vidore/colqwen2-v1.0'),
+        colqwen_dtype=yaml_colqwen.get('dtype', 'bfloat16'),
+        colqwen_quantization=yaml_colqwen.get('quantization', '8bit'),
+        colqwen_pdf_dpi=yaml_colqwen.get('pdf_dpi', 150),
+        generation_config=GenerationConfig()
+    )
 
 
 @app.get("/api/status")
 async def get_status() -> Dict[str, Any]:
-    """Get pipeline status."""
+    """
+    Get pipeline status - lightweight version that reads metadata files
+    without loading the full pipeline (optimized for frequent polling).
+    """
     try:
-        pipe = initialize_pipeline()
-        
         status = {
-            "ready": pipe.retriever_manager is not None or pipe.image_retriever_manager is not None,
+            "ready": False,
             "indexed_docs": 0,
             "image_pages": 0,
             "text_index": None,
             "image_index": None
         }
         
-        # Text index info
-        if pipe.retriever_manager:
-            status["text_index"] = {
-                "chunks": len(pipe.retriever_manager.documents) if hasattr(pipe.retriever_manager, 'documents') else 0,
-                "docs": pipe.retriever_manager.raw_doc_count if hasattr(pipe.retriever_manager, 'raw_doc_count') else 0,
-                "retrievers": pipe.retriever_manager.get_available_retrievers() if hasattr(pipe.retriever_manager, 'get_available_retrievers') else []
-            }
-            status["indexed_docs"] = status["text_index"]["chunks"]
+        # Check text index metadata (lightweight - just read JSON files)
+        retrieval_dir = OUTPUT_DIR / "retrieval"
+        if retrieval_dir.exists():
+            # Check for documents.json to get chunk count
+            docs_file = retrieval_dir / "documents.json"
+            if docs_file.exists():
+                try:
+                    with open(docs_file, 'r', encoding='utf-8') as f:
+                        documents = json.load(f)
+                    
+                    # Get available retrievers from subdirectories
+                    retrievers = []
+                    for subdir in retrieval_dir.iterdir():
+                        if subdir.is_dir() and subdir.name in ['bm25', 'dense', 'hybrid']:
+                            # Check if index files exist
+                            if subdir.name == 'bm25':
+                                if (subdir / "bm25_index.pkl").exists():
+                                    retrievers.append('bm25')
+                            elif subdir.name == 'dense':
+                                if (subdir / "faiss_index.bin").exists():
+                                    retrievers.append('dense')
+                            elif subdir.name == 'hybrid':
+                                if (subdir / "bm25_index.pkl").exists() and (subdir / "faiss_index.bin").exists():
+                                    retrievers.append('hybrid')
+                    
+                    # Count unique source documents
+                    sources = set()
+                    for doc in documents:
+                        source = doc.get('source', '')
+                        if source:
+                            sources.add(source)
+                    
+                    status["text_index"] = {
+                        "chunks": len(documents),
+                        "docs": len(sources),
+                        "retrievers": retrievers
+                    }
+                    status["indexed_docs"] = len(documents)
+                    status["ready"] = True
+                except Exception as e:
+                    logger.debug(f"Could not read text index metadata: {e}")
         
-        # Image index info
-        if pipe.image_retriever_manager:
-            total_pages = 0
-            for name, retriever in pipe.image_retriever_manager.retrievers.items():
-                total_pages += len(retriever.index) if hasattr(retriever, 'index') else 0
-            
-            status["image_index"] = {
-                "pages": total_pages,
-                "pdfs": len(set(doc.get('source', '') for retriever in pipe.image_retriever_manager.retrievers.values() for doc in getattr(retriever, 'index', [])))
-            }
-            status["image_pages"] = total_pages
+        # Check image index metadata (lightweight - just read JSON files)
+        image_retrieval_dir = OUTPUT_DIR / "image_retrieval"
+        if image_retrieval_dir.exists():
+            meta_file = image_retrieval_dir / "image_index_meta.json"
+            if meta_file.exists():
+                try:
+                    with open(meta_file, 'r', encoding='utf-8') as f:
+                        image_meta = json.load(f)
+                    
+                    # Read ColQwen metadata for page count
+                    colqwen_meta = image_retrieval_dir / "colqwen" / "colqwen_meta.json"
+                    total_pages = 0
+                    if colqwen_meta.exists():
+                        with open(colqwen_meta, 'r', encoding='utf-8') as f:
+                            cq_meta = json.load(f)
+                        total_pages = cq_meta.get('num_pages', 0)
+                    
+                    status["image_index"] = {
+                        "pages": total_pages,
+                        "retrievers": image_meta.get('retrievers', [])
+                    }
+                    status["image_pages"] = total_pages
+                    if total_pages > 0:
+                        status["ready"] = True
+                except Exception as e:
+                    logger.debug(f"Could not read image index metadata: {e}")
         
         return status
     except Exception as e:
         logger.error(f"Status check failed: {e}")
         return {"ready": False, "indexed_docs": 0, "image_pages": 0, "error": str(e)}
+
+
+@app.get("/api/processing-stats")
+async def get_processing_stats() -> Dict[str, Any]:
+    """Get processing pipeline statistics."""
+    try:
+        stats_file = OUTPUT_DIR / "processing" / "pipeline_stats.json"
+        if stats_file.exists():
+            with open(stats_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {"error": "No processing stats found"}
+    except Exception as e:
+        logger.error(f"Failed to load processing stats: {e}")
+        return {"error": str(e)}
 
 
 @app.get("/api/config")
@@ -391,17 +433,13 @@ async def process_documents(background_tasks: BackgroundTasks):
         logger.info(f"Output directory: {OUTPUT_DIR}")
         logger.info(f"Config path: {CONFIG_PATH}")
         
-        # Import here to ensure fresh import
-        import sys
-        from src.unified_rag_pipeline import UnifiedRAGPipeline, UnifiedRAGConfig, PipelineConfig
-        
-        # Create processing config
+        # Create processing config - only processing, no retrieval/indexing
         config = UnifiedRAGConfig(
             enable_processing=True,
-            enable_retrieval=False,
+            enable_retrieval=False,  # Explicitly disable retrieval
             enable_generation=False,
             enable_evaluation=False,
-            rag_mode="text"
+            rag_mode="text"  # rag_mode won't override enable_retrieval=False due to fix in __post_init__
         )
         
         # Initialize pipeline
@@ -436,31 +474,33 @@ async def process_documents(background_tasks: BackgroundTasks):
 @app.post("/api/index")
 async def build_index():
     """Build/rebuild retrieval index using config file (same as CLI)."""
-    global pipeline
-    
     try:
         logger.info("Starting index building...")
         logger.info(f"Input directory: {INPUT_DIR}")
         logger.info(f"Output directory: {OUTPUT_DIR}")
         logger.info(f"Config path: {CONFIG_PATH}")
         
-        # Import here to ensure fresh import
-        import shutil
-        import yaml
-        from src.unified_rag_pipeline import UnifiedRAGPipeline, UnifiedRAGConfig
-        from src.generation.generator import GenerationConfig
-        from src.processing.document_processor import PipelineConfig
-        
-        # Clean old image retrieval index to force rebuild
+        # Clean old indexes to force rebuild
+        # Clean image retrieval index
         image_retrieval_dir = OUTPUT_DIR / "image_retrieval"
         if image_retrieval_dir.exists():
             logger.info(f"Removing old image retrieval index: {image_retrieval_dir}")
             shutil.rmtree(image_retrieval_dir)
         
+        # Clean text retrieval index (check both possible directory names)
+        # The pipeline uses OUTPUT_DIR / "retrieval" but RAGRetrieverManager may use "retrieval_index"
+        text_retrieval_dirs = [
+            OUTPUT_DIR / "retrieval",  # Used by UnifiedRAGPipeline
+            OUTPUT_DIR / "retrieval_index"  # Default used by RAGRetrieverManager if index_dir not specified
+        ]
+        for text_retrieval_dir in text_retrieval_dirs:
+            if text_retrieval_dir.exists():
+                logger.info(f"Removing old text retrieval index: {text_retrieval_dir}")
+                shutil.rmtree(text_retrieval_dir)
+        
         # Load config from YAML file (exactly like CLI does)
         logger.info(f"Loading config from: {CONFIG_PATH}")
-        with open(CONFIG_PATH, 'r') as f:
-            yaml_config = yaml.safe_load(f) or {}
+        yaml_config = load_yaml_config()
         
         logger.info(f"Config loaded: rag_mode={yaml_config.get('pipeline', {}).get('rag_mode')}, "
                    f"enable_retrieval={yaml_config.get('pipeline', {}).get('enable_retrieval')}, "
@@ -513,11 +553,6 @@ async def build_index():
         if results.get("status") == "failed":
             raise HTTPException(status_code=500, detail=results.get("error", "Indexing failed"))
         
-        # Reinitialize the global pipeline to load new index
-        logger.info("Reinitializing global pipeline...")
-        pipeline = None
-        initialize_pipeline()
-        
         return {
             "status": "completed",
             "results": results
@@ -530,11 +565,125 @@ async def build_index():
         raise HTTPException(status_code=500, detail=f"Indexing error: {str(e)}")
 
 
+@app.post("/api/index/{index_type}")
+async def build_specific_index(index_type: str):
+    """Build/rebuild a specific index type (text or image)."""
+    if index_type not in ["text", "image"]:
+        raise HTTPException(status_code=400, detail="index_type must be 'text' or 'image'")
+    
+    try:
+        logger.info(f"Starting {index_type} index building...")
+        logger.info(f"Input directory: {INPUT_DIR}")
+        logger.info(f"Output directory: {OUTPUT_DIR}")
+        logger.info(f"Config path: {CONFIG_PATH}")
+        
+        # Load config from YAML file
+        logger.info(f"Loading config from: {CONFIG_PATH}")
+        yaml_config = load_yaml_config()
+        
+        # Build UnifiedRAGConfig from YAML
+        processing_config = PipelineConfig()
+        generation_config = GenerationConfig()
+        
+        yaml_colqwen = yaml_config.get('image_retrieval', {}).get('colqwen', {})
+        yaml_image_retrieval_enabled = yaml_config.get('image_retrieval', {}).get('enabled', False)
+        rag_mode = yaml_config.get('pipeline', {}).get('rag_mode', 'text')
+        
+        enable_image_retrieval = rag_mode in ["image", "both"] or yaml_image_retrieval_enabled
+        
+        if index_type == "text":
+            # Clean text retrieval index
+            text_retrieval_dirs = [
+                OUTPUT_DIR / "retrieval",
+                OUTPUT_DIR / "retrieval_index"
+            ]
+            for text_retrieval_dir in text_retrieval_dirs:
+                if text_retrieval_dir.exists():
+                    logger.info(f"Removing old text retrieval index: {text_retrieval_dir}")
+                    shutil.rmtree(text_retrieval_dir)
+            
+            # Build config for text retrieval only
+            config = UnifiedRAGConfig(
+                enable_processing=False,
+                enable_retrieval=True,
+                enable_generation=False,
+                enable_evaluation=False,
+                enable_image_retrieval=False,  # Disable image retrieval
+                processing_config=processing_config,
+                rag_mode="text",
+                retrieval_methods=yaml_config.get('pipeline', {}).get('retrievers', ['bm25', 'dense', 'hybrid']),
+                generation_config=generation_config
+            )
+        else:  # index_type == "image"
+            # Clean image retrieval index
+            image_retrieval_dir = OUTPUT_DIR / "image_retrieval"
+            if image_retrieval_dir.exists():
+                logger.info(f"Removing old image retrieval index: {image_retrieval_dir}")
+                shutil.rmtree(image_retrieval_dir)
+            
+            # Build config for image retrieval only
+            config = UnifiedRAGConfig(
+                enable_processing=False,
+                enable_retrieval=False,  # Disable text retrieval
+                enable_generation=False,
+                enable_evaluation=False,
+                enable_image_retrieval=True,
+                processing_config=processing_config,
+                rag_mode="image",
+                image_retrieval_methods=yaml_config.get('image_retrieval', {}).get('methods', ['colqwen']),
+                colqwen_model=yaml_colqwen.get('model', 'vidore/colqwen2-v1.0'),
+                colqwen_dtype=yaml_colqwen.get('dtype', 'bfloat16'),
+                colqwen_quantization=yaml_colqwen.get('quantization', None),
+                colqwen_pdf_dpi=yaml_colqwen.get('pdf_dpi', 150),
+                generation_config=generation_config
+            )
+        
+        # Create pipeline instance with loaded config
+        pipeline_instance = UnifiedRAGPipeline(
+            input_dir=str(INPUT_DIR),
+            output_dir=str(OUTPUT_DIR),
+            config=config
+        )
+        
+        logger.info(f"Pipeline config: enable_retrieval={pipeline_instance.config.enable_retrieval}, "
+                   f"enable_image_retrieval={pipeline_instance.config.enable_image_retrieval}, "
+                   f"rag_mode={pipeline_instance.config.rag_mode}")
+        
+        # Run the pipeline
+        logger.info(f"Pipeline initialized, starting {index_type} indexing...")
+        results = pipeline_instance.run()
+        
+        logger.info(f"{index_type.capitalize()} indexing completed: {results}")
+        
+        if results.get("status") == "failed":
+            raise HTTPException(status_code=500, detail=results.get("error", f"{index_type.capitalize()} indexing failed"))
+        
+        return {
+            "status": "completed",
+            "index_type": index_type,
+            "results": results
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"{index_type.capitalize()} indexing failed with exception: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"{index_type.capitalize()} indexing error: {str(e)}")
+
+
 @app.post("/api/search")
 async def search(request: SearchRequest) -> Dict[str, Any]:
     """Search the indexed documents."""
     try:
-        pipe = initialize_pipeline()
+        yaml_config = load_yaml_config()
+        runtime_config = build_runtime_config(yaml_config, enable_generation=True)
+        pipe = UnifiedRAGPipeline(
+            input_dir=INPUT_DIR,
+            output_dir=OUTPUT_DIR,
+            config=runtime_config
+        )
+        pipe.setup_retrievers(load_existing=True)
+        pipe.setup_image_retrievers(load_existing=True)
         
         results = {
             "query": request.query,
@@ -566,17 +715,24 @@ async def search(request: SearchRequest) -> Dict[str, Any]:
         # Generate answer
         if pipe.generator and (results["text_results"] or results["image_results"]):
             try:
-                # Use all text results but only top N images for generation
+                # Use all text results but top N images for generation (default 5)
                 images_for_gen = results["image_results"][:request.images_for_generation]
                 
                 # Debug: log image info
-                logger.info(f"Sending {len(images_for_gen)} images to generator")
+                logger.info(f"Sending {len(images_for_gen)} images to generator for context and citations")
                 for img in images_for_gen:
                     logger.info(f"  Image: {img.get('source')}, page {img.get('page')}, path: {img.get('source_path')}")
                 
                 all_results = results["text_results"] + images_for_gen
                 gen_result = pipe.generator.generate(request.query, all_results)
                 results["answer"] = gen_result.get("answer", "")
+                
+                # Copy contents (citations) from generator result
+                if "contents" in gen_result:
+                    results["contents"] = gen_result["contents"]
+                
+                # Keep all images used for generation in results (for citations display)
+                results["image_results"] = images_for_gen
             except Exception as e:
                 logger.error(f"Generation failed: {e}")
                 import traceback
@@ -684,4 +840,23 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    import sys
+    from pathlib import Path
+    
+    # Get the parent directory to watch for changes in src/ and other modules
+    base_dir = Path(__file__).parent.parent
+    reload_dirs = [
+        str(base_dir / "api"),
+        str(base_dir / "src"),
+        str(base_dir / "config"),
+    ]
+    
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        reload_dirs=reload_dirs,
+        reload_includes=["*.py"],
+        reload_excludes=["*.pyc", "__pycache__", "*.pyo"]
+    )
