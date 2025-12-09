@@ -31,7 +31,7 @@ import {
 // API base URL - configurable via environment variable for deployment
 const API_BASE = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api` 
-  : '/api'
+  : 'https://distributed-hitachi-connect-regardless.trycloudflare.com/api'
 
 // File type icon helper
 const getFileIcon = (type) => {
