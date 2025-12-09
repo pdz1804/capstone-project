@@ -35,7 +35,7 @@ import {
 // API base URL - configurable via environment variable for deployment
 const API_BASE = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api` 
-  : '/api'
+  : 'https://distributed-hitachi-connect-regardless.trycloudflare.com/api'
 
 // File type icon helper
 const getFileIcon = (type) => {
@@ -246,10 +246,15 @@ function App() {
     setResults(null)
     
     try {
+      console.log('Sending search request to:', `${API_BASE}/search`)
+      console.log('Query:', query)
       const response = await axios.post(`${API_BASE}/search`, { query, top_k: 10 })
+      console.log('Search response:', response.data)
       setResults(response.data)
     } catch (error) {
       console.error('Search failed:', error)
+      console.error('Error details:', error.response?.data || error.message)
+      alert(`Search failed: ${error.response?.data?.detail || error.message || 'Unknown error'}`)
     }
     setSearchLoading(false)
   }

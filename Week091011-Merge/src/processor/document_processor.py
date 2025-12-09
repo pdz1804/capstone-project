@@ -691,17 +691,46 @@ class MultimodalDocumentProcessor:
                 if hasattr(page, 'image') and page.image:
                     try:
                         page_image_path = doc_output_dir / f"page_{page_key:03d}_full.png"
-                        page.image.save(page_image_path)
                         
-                        extracted_images.append({
-                            'index': f"page_{page_key}",
-                            'type': 'full_page',
-                            'page_no': page_key,
-                            'saved_path': str(page_image_path),
-                            'caption': f"Full page {page_key + 1}"
-                        })
-                        page_images_extracted = True
-                        logger.debug(f"Extracted full page {page_key} image")
+                        # Convert ImageRef to PIL Image if needed
+                        page_image_data = page.image
+                        pil_image = None
+                        
+                        # Handle ImageRef objects (from Docling with generate_page_images=True)
+                        if hasattr(page_image_data, 'uri') and str(page_image_data.uri).startswith('data:'):
+                            # Extract base64 data from data URI
+                            import base64
+                            data_uri = str(page_image_data.uri)
+                            
+                            # Parse data URI format: data:image/png;base64,<base64_data>
+                            header, base64_data = data_uri.split(',', 1)
+                            image_bytes = base64.b64decode(base64_data)
+                            
+                            # Convert to PIL Image
+                            pil_image = Image.open(BytesIO(image_bytes))
+                        
+                        # Handle PIL Images directly
+                        elif isinstance(page_image_data, Image.Image):
+                            pil_image = page_image_data
+                        elif hasattr(page_image_data, 'save'):  # Check if it has save method
+                            pil_image = page_image_data
+                        
+                        # Save the PIL image
+                        if pil_image:
+                            pil_image.save(page_image_path, "PNG", optimize=False, compress_level=1)
+                            
+                            extracted_images.append({
+                                'index': f"page_{page_key}",
+                                'type': 'full_page',
+                                'page_no': page_key,
+                                'saved_path': str(page_image_path),
+                                'caption': f"Full page {page_key + 1}"
+                            })
+                            page_images_extracted = True
+                            logger.debug(f"Extracted full page {page_key} image")
+                        else:
+                            logger.warning(f"Could not convert page {page_key} image to PIL Image")
+                            
                     except Exception as e:
                         logger.warning(f"Failed to extract page {page_key} image: {e}")
         

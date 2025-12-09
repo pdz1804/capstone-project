@@ -104,6 +104,14 @@ class SimpleBM25Retriever(BaseRetriever):
         """Index documents using BM25."""
         logger.info(f"Indexing {len(documents)} documents with BM25...")
         
+        if not documents:
+            logger.warning("Cannot index BM25 with empty document list")
+            self.documents = []
+            self.tokenized_docs = []
+            self.bm25 = None
+            self.is_indexed = False
+            return
+        
         self.documents = documents
         self.tokenized_docs = [self._tokenize(doc['text']) for doc in documents]
         self.bm25 = BM25Okapi(self.tokenized_docs)
@@ -157,6 +165,14 @@ class SimpleDenseRetriever(BaseRetriever):
     def index_documents(self, documents: List[Dict[str, Any]]) -> None:
         """Index documents using dense embeddings."""
         logger.info(f"Indexing {len(documents)} documents with dense embeddings...")
+        
+        if not documents:
+            logger.warning("Cannot index Dense retriever with empty document list")
+            self.documents = []
+            self.embeddings = None
+            self.index = None
+            self.is_indexed = False
+            return
         
         self._load_model()
         self.documents = documents
@@ -221,6 +237,11 @@ class SimpleHybridRetriever(BaseRetriever):
     def index_documents(self, documents: List[Dict[str, Any]]) -> None:
         """Index documents with both retrievers."""
         logger.info(f"Indexing {len(documents)} documents with hybrid retrieval...")
+        
+        if not documents:
+            logger.warning("Cannot index Hybrid retriever with empty document list")
+            self.is_indexed = False
+            return
         
         self.bm25_retriever.index_documents(documents)
         self.dense_retriever.index_documents(documents)
