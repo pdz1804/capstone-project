@@ -250,7 +250,7 @@ class SimpleHybridRetriever(BaseRetriever):
         logger.info("Hybrid indexing completed")
     
     def search(self, query: str, top_k: int = 10) -> List[Dict[str, Any]]:
-        """Search using hybrid approach (RRF - Reciprocal Rank Fusion)."""
+        """Search using hybrid approach with min-max normalization and weighted sum."""
         if not self.is_indexed:
             logger.error("Documents not indexed. Call index_documents() first.")
             return []
@@ -262,29 +262,60 @@ class SimpleHybridRetriever(BaseRetriever):
         bm25_results = self.bm25_retriever.search(query, expanded_k)
         dense_results = self.dense_retriever.search(query, expanded_k)
         
-        # Track individual retriever rankings and scores
-        bm25_ranks = {}  # doc_id -> (rank, score)
-        dense_ranks = {}  # doc_id -> (rank, score)
+        # Track individual retriever rankings and raw scores
+        bm25_scores_dict = {}  # doc_id -> raw_score
+        dense_scores_dict = {}  # doc_id -> raw_score
+        bm25_ranks = {}  # doc_id -> rank
+        dense_ranks = {}  # doc_id -> rank
         
-        # Create document score maps
-        doc_scores = {}
-        
-        # Add BM25 scores (using reciprocal rank fusion)
+        # Collect raw scores
         for rank, result in enumerate(bm25_results, 1):
             doc_id = result['id']
-            rrf_score = 1.0 / (60 + rank)  # RRF with k=60
-            doc_scores[doc_id] = doc_scores.get(doc_id, 0) + (1 - self.alpha) * rrf_score
-            bm25_ranks[doc_id] = (rank, result.get('score', 0))
+            bm25_scores_dict[doc_id] = result.get('score', 0)
+            bm25_ranks[doc_id] = rank
         
-        # Add dense scores (using reciprocal rank fusion)
         for rank, result in enumerate(dense_results, 1):
             doc_id = result['id']
-            rrf_score = 1.0 / (60 + rank)  # RRF with k=60
-            doc_scores[doc_id] = doc_scores.get(doc_id, 0) + self.alpha * rrf_score
-            dense_ranks[doc_id] = (rank, result.get('score', 0))
+            dense_scores_dict[doc_id] = result.get('score', 0)
+            dense_ranks[doc_id] = rank
+        
+        # Min-max normalization for BM25 scores
+        def min_max_normalize(scores_dict):
+            """Normalize scores to [0, 1] range using min-max normalization."""
+            if not scores_dict:
+                return {}
+            scores = list(scores_dict.values())
+            min_score = min(scores)
+            max_score = max(scores)
+            
+            if max_score == min_score:
+                # All scores are the same, return uniform normalized scores
+                return {doc_id: 1.0 for doc_id in scores_dict.keys()}
+            
+            return {
+                doc_id: (score - min_score) / (max_score - min_score)
+                for doc_id, score in scores_dict.items()
+            }
+        
+        # Normalize BM25 scores (Dense scores are already normalized from cosine similarity)
+        bm25_normalized = min_max_normalize(bm25_scores_dict)
+        
+        # Combine scores using weighted sum: 0.5 * BM25_normalized + 0.5 * Dense
+        # Note: self.alpha is the weight for dense, so (1 - self.alpha) is for BM25
+        # Default alpha=0.5 means equal weights
+        all_doc_ids = set(bm25_scores_dict.keys()) | set(dense_scores_dict.keys())
+        combined_scores = {}
+        
+        for doc_id in all_doc_ids:
+            bm25_norm_score = bm25_normalized.get(doc_id, 0.0)
+            dense_score = dense_scores_dict.get(doc_id, 0.0)
+            
+            # Weighted combination: (1-alpha) * BM25_normalized + alpha * Dense
+            combined_score = (1 - self.alpha) * bm25_norm_score + self.alpha * dense_score
+            combined_scores[doc_id] = combined_score
         
         # Sort by combined score
-        sorted_docs = sorted(doc_scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
+        sorted_docs = sorted(combined_scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
         
         # Create result objects with source information
         results = []
@@ -295,8 +326,11 @@ class SimpleHybridRetriever(BaseRetriever):
                 doc = doc_map[doc_id]
                 
                 # Get individual retriever info
-                bm25_info = bm25_ranks.get(doc_id, (None, None))
-                dense_info = dense_ranks.get(doc_id, (None, None))
+                bm25_raw = bm25_scores_dict.get(doc_id)
+                bm25_norm = bm25_normalized.get(doc_id)
+                bm25_rank = bm25_ranks.get(doc_id)
+                dense_raw = dense_scores_dict.get(doc_id)
+                dense_rank = dense_ranks.get(doc_id)
                 
                 results.append({
                     'id': doc_id,
@@ -304,15 +338,16 @@ class SimpleHybridRetriever(BaseRetriever):
                     'source': doc['source'],
                     'score': float(score),
                     'rank': i + 1,
-                    # Hybrid fusion details
+                    # Hybrid fusion details with raw scores
                     'retrieval_info': {
-                        'bm25_rank': bm25_info[0],
-                        'bm25_score': bm25_info[1],
-                        'dense_rank': dense_info[0],
-                        'dense_score': dense_info[1],
-                        'in_bm25': doc_id in bm25_ranks,
-                        'in_dense': doc_id in dense_ranks,
-                        'in_both': doc_id in bm25_ranks and doc_id in dense_ranks
+                        'bm25_rank': bm25_rank,
+                        'bm25_score': float(bm25_raw) if bm25_raw is not None else None,
+                        'bm25_score_normalized': float(bm25_norm) if bm25_norm is not None else None,
+                        'dense_rank': dense_rank,
+                        'dense_score': float(dense_raw) if dense_raw is not None else None,
+                        'in_bm25': doc_id in bm25_scores_dict,
+                        'in_dense': doc_id in dense_scores_dict,
+                        'in_both': doc_id in bm25_scores_dict and doc_id in dense_scores_dict
                     }
                 })
         
