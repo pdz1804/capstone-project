@@ -4710,38 +4710,6 @@
       \verb 2411.01920
       \endverb
     \endentry
-    \entry{geeksforgeeks_bm25}{online}{}
-      \name{author}{1}{}{%
-        {{hash=1177055b25bfffa093c01b50548b5f25}{%
-           family={Sharma},
-           familyi={S\bibinitperiod},
-           given={Sanjulika},
-           giveni={S\bibinitperiod}}}%
-      }
-      \strng{namehash}{1177055b25bfffa093c01b50548b5f25}
-      \strng{fullhash}{1177055b25bfffa093c01b50548b5f25}
-      \strng{bibnamehash}{1177055b25bfffa093c01b50548b5f25}
-      \strng{authorbibnamehash}{1177055b25bfffa093c01b50548b5f25}
-      \strng{authornamehash}{1177055b25bfffa093c01b50548b5f25}
-      \strng{authorfullhash}{1177055b25bfffa093c01b50548b5f25}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{month}{11}
-      \field{title}{What is BM25 (Best Matching 25) Algorithm}
-      \field{urlday}{23}
-      \field{urlmonth}{11}
-      \field{urlyear}{2025}
-      \field{year}{2025}
-      \field{urldateera}{ce}
-      \verb{urlraw}
-      \verb https://www.geeksforgeeks.org/what-is-bm25-best-matching-25-algorithm/
-      \endverb
-      \verb{url}
-      \verb https://www.geeksforgeeks.org/what-is-bm25-best-matching-25-algorithm/
-      \endverb
-    \endentry
     \entry{robertson2009probabilistic}{article}{}
       \name{author}{2}{}{%
         {{hash=c35334bf2da757f89a8ca82025f62cb9}{%
@@ -4815,6 +4783,38 @@
       \field{year}{2021}
       \verb{eprint}
       \verb 2109.10086
+      \endverb
+    \endentry
+    \entry{geeksforgeeks_bm25}{online}{}
+      \name{author}{1}{}{%
+        {{hash=1177055b25bfffa093c01b50548b5f25}{%
+           family={Sharma},
+           familyi={S\bibinitperiod},
+           given={Sanjulika},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{1177055b25bfffa093c01b50548b5f25}
+      \strng{fullhash}{1177055b25bfffa093c01b50548b5f25}
+      \strng{bibnamehash}{1177055b25bfffa093c01b50548b5f25}
+      \strng{authorbibnamehash}{1177055b25bfffa093c01b50548b5f25}
+      \strng{authornamehash}{1177055b25bfffa093c01b50548b5f25}
+      \strng{authorfullhash}{1177055b25bfffa093c01b50548b5f25}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{11}
+      \field{title}{What is BM25 (Best Matching 25) Algorithm}
+      \field{urlday}{23}
+      \field{urlmonth}{11}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.geeksforgeeks.org/what-is-bm25-best-matching-25-algorithm/
+      \endverb
+      \verb{url}
+      \verb https://www.geeksforgeeks.org/what-is-bm25-best-matching-25-algorithm/
       \endverb
     \endentry
     \entry{singh2022scirepeval}{inproceedings}{}
@@ -5811,406 +5811,6 @@
       \field{title}{RLPrompt: Optimizing Discrete Text Prompts with Reinforcement Learning}
       \field{year}{2022}
     \endentry
-    \entry{notebooklm-google}{misc}{}
-      \name{author}{2}{}{%
-        {{hash=c5f76afce521afbe2458ccddf74f2021}{%
-           family={Martin},
-           familyi={M\bibinitperiod},
-           given={Raiza},
-           giveni={R\bibinitperiod}}}%
-        {{hash=a3023608255f364af91891d8411a7d7e}{%
-           family={Johnson},
-           familyi={J\bibinitperiod},
-           given={Steven},
-           giveni={S\bibinitperiod}}}%
-      }
-      \strng{namehash}{c0359adba2088498e7153d0c43db868b}
-      \strng{fullhash}{c0359adba2088498e7153d0c43db868b}
-      \strng{bibnamehash}{c0359adba2088498e7153d0c43db868b}
-      \strng{authorbibnamehash}{c0359adba2088498e7153d0c43db868b}
-      \strng{authornamehash}{c0359adba2088498e7153d0c43db868b}
-      \strng{authorfullhash}{c0359adba2088498e7153d0c43db868b}
-      \field{extraname}{1}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Google Labs Blog}
-      \field{month}{7}
-      \field{title}{NotebookLM: How to try Google’s experimental AI-first notebook}
-      \field{year}{2023}
-      \verb{urlraw}
-      \verb https://blog.google/technology/ai/notebooklm-google-ai/
-      \endverb
-      \verb{url}
-      \verb https://blog.google/technology/ai/notebooklm-google-ai/
-      \endverb
-    \endentry
-    \entry{gemini-model}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=daaaa5529255581e955ef8f6b6e334ea}{%
-           family={DeepMind},
-           familyi={D\bibinitperiod},
-           given={Google},
-           giveni={G\bibinitperiod}}}%
-      }
-      \strng{namehash}{daaaa5529255581e955ef8f6b6e334ea}
-      \strng{fullhash}{daaaa5529255581e955ef8f6b6e334ea}
-      \strng{bibnamehash}{daaaa5529255581e955ef8f6b6e334ea}
-      \strng{authorbibnamehash}{daaaa5529255581e955ef8f6b6e334ea}
-      \strng{authornamehash}{daaaa5529255581e955ef8f6b6e334ea}
-      \strng{authorfullhash}{daaaa5529255581e955ef8f6b6e334ea}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Google DeepMind Blog}
-      \field{title}{Introducing Gemini: A Multimodal Foundation Model}
-      \field{year}{2024}
-      \verb{urlraw}
-      \verb https://deepmind.google/technologies/gemini/
-      \endverb
-      \verb{url}
-      \verb https://deepmind.google/technologies/gemini/
-      \endverb
-    \endentry
-    \entry{notebooklm-google-ai}{misc}{}
-      \name{author}{2}{}{%
-        {{hash=c5f76afce521afbe2458ccddf74f2021}{%
-           family={Martin},
-           familyi={M\bibinitperiod},
-           given={Raiza},
-           giveni={R\bibinitperiod}}}%
-        {{hash=a3023608255f364af91891d8411a7d7e}{%
-           family={Johnson},
-           familyi={J\bibinitperiod},
-           given={Steven},
-           giveni={S\bibinitperiod}}}%
-      }
-      \strng{namehash}{c0359adba2088498e7153d0c43db868b}
-      \strng{fullhash}{c0359adba2088498e7153d0c43db868b}
-      \strng{bibnamehash}{c0359adba2088498e7153d0c43db868b}
-      \strng{authorbibnamehash}{c0359adba2088498e7153d0c43db868b}
-      \strng{authornamehash}{c0359adba2088498e7153d0c43db868b}
-      \strng{authorfullhash}{c0359adba2088498e7153d0c43db868b}
-      \field{extraname}{2}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Google Labs Blog}
-      \field{month}{7}
-      \field{title}{NotebookLM: How to try Google’s experimental AI-first notebook}
-      \field{year}{2023}
-      \verb{urlraw}
-      \verb https://blog.google/technology/ai/notebooklm-google-ai/
-      \endverb
-      \verb{url}
-      \verb https://blog.google/technology/ai/notebooklm-google-ai/
-      \endverb
-    \endentry
-    \entry{notebooklm-docs}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=983c52640a12a623a7c768d318b27633}{%
-           family={Labs},
-           familyi={L\bibinitperiod},
-           given={Google},
-           giveni={G\bibinitperiod}}}%
-      }
-      \strng{namehash}{983c52640a12a623a7c768d318b27633}
-      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
-      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
-      \field{extraname}{1}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Developer Docs}
-      \field{title}{NotebookLM Documentation}
-      \field{year}{2024}
-      \verb{urlraw}
-      \verb https://notebooklm.google.com/get-started
-      \endverb
-      \verb{url}
-      \verb https://notebooklm.google.com/get-started
-      \endverb
-    \endentry
-    \entry{notebooklm-update-2025}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=983c52640a12a623a7c768d318b27633}{%
-           family={Labs},
-           familyi={L\bibinitperiod},
-           given={Google},
-           giveni={G\bibinitperiod}}}%
-      }
-      \strng{namehash}{983c52640a12a623a7c768d318b27633}
-      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
-      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
-      \field{extraname}{2}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Google Blog}
-      \field{month}{4}
-      \field{title}{NotebookLM Update: Expanded Multimodal Reasoning}
-      \field{year}{2025}
-      \verb{urlraw}
-      \verb https://blog.google/technology/google-labs/notebooklm-updates/
-      \endverb
-      \verb{url}
-      \verb https://blog.google/technology/google-labs/notebooklm-updates/
-      \endverb
-    \endentry
-    \entry{rag-framework}{inproceedings}{}
-      \true{moreauthor}
-      \true{morelabelname}
-      \name{author}{3}{}{%
-        {{hash=ecbe786a5668bf643d74bb24fe1c3cfe}{%
-           family={Lewis},
-           familyi={L\bibinitperiod},
-           given={Patrick},
-           giveni={P\bibinitperiod}}}%
-        {{hash=79978685fd7b37606022b06c0f6419a1}{%
-           family={Perez},
-           familyi={P\bibinitperiod},
-           given={Ethan},
-           giveni={E\bibinitperiod}}}%
-        {{hash=d205faec67355b6e0ec49f82a492324c}{%
-           family={Piktus},
-           familyi={P\bibinitperiod},
-           given={Aleksandra},
-           giveni={A\bibinitperiod}}}%
-      }
-      \strng{namehash}{aa6cbfbfada4b209505238d4429dc4a3}
-      \strng{fullhash}{aa6cbfbfada4b209505238d4429dc4a3}
-      \strng{bibnamehash}{aa6cbfbfada4b209505238d4429dc4a3}
-      \strng{authorbibnamehash}{aa6cbfbfada4b209505238d4429dc4a3}
-      \strng{authornamehash}{aa6cbfbfada4b209505238d4429dc4a3}
-      \strng{authorfullhash}{aa6cbfbfada4b209505238d4429dc4a3}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{booktitle}{Advances in Neural Information Processing Systems (NeurIPS)}
-      \field{title}{Retrieval-Augmented Generation for Knowledge-Intensive NLP}
-      \field{year}{2020}
-      \verb{urlraw}
-      \verb https://arxiv.org/abs/2005.11401
-      \endverb
-      \verb{url}
-      \verb https://arxiv.org/abs/2005.11401
-      \endverb
-    \endentry
-    \entry{notebooklm-citations}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=983c52640a12a623a7c768d318b27633}{%
-           family={Labs},
-           familyi={L\bibinitperiod},
-           given={Google},
-           giveni={G\bibinitperiod}}}%
-      }
-      \strng{namehash}{983c52640a12a623a7c768d318b27633}
-      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
-      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
-      \field{extraname}{3}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Product Update}
-      \field{title}{NotebookLM Adds Automatic Source Citations}
-      \field{year}{2024}
-      \verb{urlraw}
-      \verb https://blog.google/technology/ai/notebooklm-citations/
-      \endverb
-      \verb{url}
-      \verb https://blog.google/technology/ai/notebooklm-citations/
-      \endverb
-    \endentry
-    \entry{notebooklm-summaries}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=983c52640a12a623a7c768d318b27633}{%
-           family={Labs},
-           familyi={L\bibinitperiod},
-           given={Google},
-           giveni={G\bibinitperiod}}}%
-      }
-      \strng{namehash}{983c52640a12a623a7c768d318b27633}
-      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
-      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
-      \field{extraname}{4}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Feature Overview}
-      \field{title}{Generate Structured Summaries with NotebookLM}
-      \field{year}{2024}
-      \verb{urlraw}
-      \verb https://blog.google/technology/ai/notebooklm-summaries/
-      \endverb
-      \verb{url}
-      \verb https://blog.google/technology/ai/notebooklm-summaries/
-      \endverb
-    \endentry
-    \entry{notebooklm-learning}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=983c52640a12a623a7c768d318b27633}{%
-           family={Labs},
-           familyi={L\bibinitperiod},
-           given={Google},
-           giveni={G\bibinitperiod}}}%
-      }
-      \strng{namehash}{983c52640a12a623a7c768d318b27633}
-      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
-      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
-      \field{extraname}{5}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Google Labs Blog}
-      \field{title}{Active Learning Features in NotebookLM: Quizzes and Flashcards}
-      \field{year}{2025}
-      \verb{urlraw}
-      \verb https://blog.google/technology/ai/notebooklm-learning-tools/
-      \endverb
-      \verb{url}
-      \verb https://blog.google/technology/ai/notebooklm-learning-tools/
-      \endverb
-    \endentry
-    \entry{notebooklm-audio}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=983c52640a12a623a7c768d318b27633}{%
-           family={Labs},
-           familyi={L\bibinitperiod},
-           given={Google},
-           giveni={G\bibinitperiod}}}%
-      }
-      \strng{namehash}{983c52640a12a623a7c768d318b27633}
-      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
-      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
-      \field{extraname}{6}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Google Labs Blog}
-      \field{title}{NotebookLM Introduces Podcast-Style Audio Overviews}
-      \field{year}{2024}
-      \verb{urlraw}
-      \verb https://blog.google/technology/ai/notebooklm-audio-overviews/
-      \endverb
-      \verb{url}
-      \verb https://blog.google/technology/ai/notebooklm-audio-overviews/
-      \endverb
-    \endentry
-    \entry{notebooklm-video}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=983c52640a12a623a7c768d318b27633}{%
-           family={Labs},
-           familyi={L\bibinitperiod},
-           given={Google},
-           giveni={G\bibinitperiod}}}%
-      }
-      \strng{namehash}{983c52640a12a623a7c768d318b27633}
-      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
-      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
-      \field{extraname}{7}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Google AI Blog}
-      \field{title}{NotebookLM Adds Visual Overview and Video Summaries}
-      \field{year}{2025}
-      \verb{urlraw}
-      \verb https://blog.google/technology/ai/notebooklm-video-overviews/
-      \endverb
-      \verb{url}
-      \verb https://blog.google/technology/ai/notebooklm-video-overviews/
-      \endverb
-    \endentry
-    \entry{notebooklm-privacy}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=983c52640a12a623a7c768d318b27633}{%
-           family={Labs},
-           familyi={L\bibinitperiod},
-           given={Google},
-           giveni={G\bibinitperiod}}}%
-      }
-      \strng{namehash}{983c52640a12a623a7c768d318b27633}
-      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
-      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
-      \field{extraname}{8}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Policy Page}
-      \field{title}{NotebookLM Privacy and Data Use Policy}
-      \field{year}{2024}
-      \verb{urlraw}
-      \verb https://notebooklm.google.com/privacy
-      \endverb
-      \verb{url}
-      \verb https://notebooklm.google.com/privacy
-      \endverb
-    \endentry
-    \entry{notebooklm-mobile}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=983c52640a12a623a7c768d318b27633}{%
-           family={Labs},
-           familyi={L\bibinitperiod},
-           given={Google},
-           giveni={G\bibinitperiod}}}%
-      }
-      \strng{namehash}{983c52640a12a623a7c768d318b27633}
-      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
-      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
-      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
-      \field{extraname}{9}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{howpublished}{Google Blog}
-      \field{title}{NotebookLM Launches on Mobile (Android/iOS)}
-      \field{year}{2025}
-      \verb{urlraw}
-      \verb https://blog.google/technology/apps/notebooklm-mobile/
-      \endverb
-      \verb{url}
-      \verb https://blog.google/technology/apps/notebooklm-mobile/
-      \endverb
-    \endentry
     \entry{lin2021densifying}{article}{}
       \name{author}{2}{}{%
         {{hash=1ae8c30a4d92af32ea933872c6850fac}{%
@@ -6472,8 +6072,8 @@
       \strng{authornamehash}{bfeda2f0e354dfac048362539308c5ef}
       \strng{authorfullhash}{0a23d07919413234da7857f4fdb59ff2}
       \field{extraname}{4}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL)}
@@ -6483,6 +6083,406 @@
       \range{pages}{20}
       \verb{doi}
       \verb 10.18653/v1/2024.acl-long.489
+      \endverb
+    \endentry
+    \entry{notebooklm-google}{misc}{}
+      \name{author}{2}{}{%
+        {{hash=c5f76afce521afbe2458ccddf74f2021}{%
+           family={Martin},
+           familyi={M\bibinitperiod},
+           given={Raiza},
+           giveni={R\bibinitperiod}}}%
+        {{hash=a3023608255f364af91891d8411a7d7e}{%
+           family={Johnson},
+           familyi={J\bibinitperiod},
+           given={Steven},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{c0359adba2088498e7153d0c43db868b}
+      \strng{fullhash}{c0359adba2088498e7153d0c43db868b}
+      \strng{bibnamehash}{c0359adba2088498e7153d0c43db868b}
+      \strng{authorbibnamehash}{c0359adba2088498e7153d0c43db868b}
+      \strng{authornamehash}{c0359adba2088498e7153d0c43db868b}
+      \strng{authorfullhash}{c0359adba2088498e7153d0c43db868b}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Google Labs Blog}
+      \field{month}{7}
+      \field{title}{NotebookLM: How to try Google’s experimental AI-first notebook}
+      \field{year}{2023}
+      \verb{urlraw}
+      \verb https://blog.google/technology/ai/notebooklm-google-ai/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/ai/notebooklm-google-ai/
+      \endverb
+    \endentry
+    \entry{gemini-model}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=daaaa5529255581e955ef8f6b6e334ea}{%
+           family={DeepMind},
+           familyi={D\bibinitperiod},
+           given={Google},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{daaaa5529255581e955ef8f6b6e334ea}
+      \strng{fullhash}{daaaa5529255581e955ef8f6b6e334ea}
+      \strng{bibnamehash}{daaaa5529255581e955ef8f6b6e334ea}
+      \strng{authorbibnamehash}{daaaa5529255581e955ef8f6b6e334ea}
+      \strng{authornamehash}{daaaa5529255581e955ef8f6b6e334ea}
+      \strng{authorfullhash}{daaaa5529255581e955ef8f6b6e334ea}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Google DeepMind Blog}
+      \field{title}{Introducing Gemini: A Multimodal Foundation Model}
+      \field{year}{2024}
+      \verb{urlraw}
+      \verb https://deepmind.google/technologies/gemini/
+      \endverb
+      \verb{url}
+      \verb https://deepmind.google/technologies/gemini/
+      \endverb
+    \endentry
+    \entry{notebooklm-docs}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=983c52640a12a623a7c768d318b27633}{%
+           family={Labs},
+           familyi={L\bibinitperiod},
+           given={Google},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{983c52640a12a623a7c768d318b27633}
+      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
+      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Developer Docs}
+      \field{title}{NotebookLM Documentation}
+      \field{year}{2024}
+      \verb{urlraw}
+      \verb https://notebooklm.google.com/get-started
+      \endverb
+      \verb{url}
+      \verb https://notebooklm.google.com/get-started
+      \endverb
+    \endentry
+    \entry{notebooklm-update-2025}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=983c52640a12a623a7c768d318b27633}{%
+           family={Labs},
+           familyi={L\bibinitperiod},
+           given={Google},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{983c52640a12a623a7c768d318b27633}
+      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
+      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Google Blog}
+      \field{month}{4}
+      \field{title}{NotebookLM Update: Expanded Multimodal Reasoning}
+      \field{year}{2025}
+      \verb{urlraw}
+      \verb https://blog.google/technology/google-labs/notebooklm-updates/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/google-labs/notebooklm-updates/
+      \endverb
+    \endentry
+    \entry{rag-framework}{inproceedings}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{3}{}{%
+        {{hash=ecbe786a5668bf643d74bb24fe1c3cfe}{%
+           family={Lewis},
+           familyi={L\bibinitperiod},
+           given={Patrick},
+           giveni={P\bibinitperiod}}}%
+        {{hash=79978685fd7b37606022b06c0f6419a1}{%
+           family={Perez},
+           familyi={P\bibinitperiod},
+           given={Ethan},
+           giveni={E\bibinitperiod}}}%
+        {{hash=d205faec67355b6e0ec49f82a492324c}{%
+           family={Piktus},
+           familyi={P\bibinitperiod},
+           given={Aleksandra},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{aa6cbfbfada4b209505238d4429dc4a3}
+      \strng{fullhash}{aa6cbfbfada4b209505238d4429dc4a3}
+      \strng{bibnamehash}{aa6cbfbfada4b209505238d4429dc4a3}
+      \strng{authorbibnamehash}{aa6cbfbfada4b209505238d4429dc4a3}
+      \strng{authornamehash}{aa6cbfbfada4b209505238d4429dc4a3}
+      \strng{authorfullhash}{aa6cbfbfada4b209505238d4429dc4a3}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Advances in Neural Information Processing Systems (NeurIPS)}
+      \field{title}{Retrieval-Augmented Generation for Knowledge-Intensive NLP}
+      \field{year}{2020}
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2005.11401
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2005.11401
+      \endverb
+    \endentry
+    \entry{notebooklm-citations}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=983c52640a12a623a7c768d318b27633}{%
+           family={Labs},
+           familyi={L\bibinitperiod},
+           given={Google},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{983c52640a12a623a7c768d318b27633}
+      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
+      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
+      \field{extraname}{3}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Product Update}
+      \field{title}{NotebookLM Adds Automatic Source Citations}
+      \field{year}{2024}
+      \verb{urlraw}
+      \verb https://blog.google/technology/ai/notebooklm-citations/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/ai/notebooklm-citations/
+      \endverb
+    \endentry
+    \entry{notebooklm-google-ai}{misc}{}
+      \name{author}{2}{}{%
+        {{hash=c5f76afce521afbe2458ccddf74f2021}{%
+           family={Martin},
+           familyi={M\bibinitperiod},
+           given={Raiza},
+           giveni={R\bibinitperiod}}}%
+        {{hash=a3023608255f364af91891d8411a7d7e}{%
+           family={Johnson},
+           familyi={J\bibinitperiod},
+           given={Steven},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{c0359adba2088498e7153d0c43db868b}
+      \strng{fullhash}{c0359adba2088498e7153d0c43db868b}
+      \strng{bibnamehash}{c0359adba2088498e7153d0c43db868b}
+      \strng{authorbibnamehash}{c0359adba2088498e7153d0c43db868b}
+      \strng{authornamehash}{c0359adba2088498e7153d0c43db868b}
+      \strng{authorfullhash}{c0359adba2088498e7153d0c43db868b}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Google Labs Blog}
+      \field{month}{7}
+      \field{title}{NotebookLM: How to try Google’s experimental AI-first notebook}
+      \field{year}{2023}
+      \verb{urlraw}
+      \verb https://blog.google/technology/ai/notebooklm-google-ai/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/ai/notebooklm-google-ai/
+      \endverb
+    \endentry
+    \entry{notebooklm-summaries}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=983c52640a12a623a7c768d318b27633}{%
+           family={Labs},
+           familyi={L\bibinitperiod},
+           given={Google},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{983c52640a12a623a7c768d318b27633}
+      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
+      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
+      \field{extraname}{4}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Feature Overview}
+      \field{title}{Generate Structured Summaries with NotebookLM}
+      \field{year}{2024}
+      \verb{urlraw}
+      \verb https://blog.google/technology/ai/notebooklm-summaries/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/ai/notebooklm-summaries/
+      \endverb
+    \endentry
+    \entry{notebooklm-learning}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=983c52640a12a623a7c768d318b27633}{%
+           family={Labs},
+           familyi={L\bibinitperiod},
+           given={Google},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{983c52640a12a623a7c768d318b27633}
+      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
+      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
+      \field{extraname}{5}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Google Labs Blog}
+      \field{title}{Active Learning Features in NotebookLM: Quizzes and Flashcards}
+      \field{year}{2025}
+      \verb{urlraw}
+      \verb https://blog.google/technology/ai/notebooklm-learning-tools/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/ai/notebooklm-learning-tools/
+      \endverb
+    \endentry
+    \entry{notebooklm-audio}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=983c52640a12a623a7c768d318b27633}{%
+           family={Labs},
+           familyi={L\bibinitperiod},
+           given={Google},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{983c52640a12a623a7c768d318b27633}
+      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
+      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
+      \field{extraname}{6}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Google Labs Blog}
+      \field{title}{NotebookLM Introduces Podcast-Style Audio Overviews}
+      \field{year}{2024}
+      \verb{urlraw}
+      \verb https://blog.google/technology/ai/notebooklm-audio-overviews/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/ai/notebooklm-audio-overviews/
+      \endverb
+    \endentry
+    \entry{notebooklm-video}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=983c52640a12a623a7c768d318b27633}{%
+           family={Labs},
+           familyi={L\bibinitperiod},
+           given={Google},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{983c52640a12a623a7c768d318b27633}
+      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
+      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
+      \field{extraname}{7}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Google AI Blog}
+      \field{title}{NotebookLM Adds Visual Overview and Video Summaries}
+      \field{year}{2025}
+      \verb{urlraw}
+      \verb https://blog.google/technology/ai/notebooklm-video-overviews/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/ai/notebooklm-video-overviews/
+      \endverb
+    \endentry
+    \entry{notebooklm-privacy}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=983c52640a12a623a7c768d318b27633}{%
+           family={Labs},
+           familyi={L\bibinitperiod},
+           given={Google},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{983c52640a12a623a7c768d318b27633}
+      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
+      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
+      \field{extraname}{8}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Policy Page}
+      \field{title}{NotebookLM Privacy and Data Use Policy}
+      \field{year}{2024}
+      \verb{urlraw}
+      \verb https://notebooklm.google.com/privacy
+      \endverb
+      \verb{url}
+      \verb https://notebooklm.google.com/privacy
+      \endverb
+    \endentry
+    \entry{notebooklm-mobile}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=983c52640a12a623a7c768d318b27633}{%
+           family={Labs},
+           familyi={L\bibinitperiod},
+           given={Google},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{983c52640a12a623a7c768d318b27633}
+      \strng{fullhash}{983c52640a12a623a7c768d318b27633}
+      \strng{bibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorbibnamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authornamehash}{983c52640a12a623a7c768d318b27633}
+      \strng{authorfullhash}{983c52640a12a623a7c768d318b27633}
+      \field{extraname}{9}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Google Blog}
+      \field{title}{NotebookLM Launches on Mobile (Android/iOS)}
+      \field{year}{2025}
+      \verb{urlraw}
+      \verb https://blog.google/technology/apps/notebooklm-mobile/
+      \endverb
+      \verb{url}
+      \verb https://blog.google/technology/apps/notebooklm-mobile/
       \endverb
     \endentry
   \enddatalist
