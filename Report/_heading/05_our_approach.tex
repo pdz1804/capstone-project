@@ -178,4 +178,297 @@ The following table summarizes the key architectural decisions that led to the a
 \textbf{Conclusion:} 
 RAG is chosen because it offers the optimal balance of accuracy, cost-efficiency, and dynamic adaptability. It leverages the reasoning power of pre-trained LLMs while overcoming their memory limitations through external retrieval, making it the most suitable architecture for a document-based Question Answering system.
 
+
+% \section{Main Architecture}
+
+% The system implements a Multimodal Retrieval-Augmented Generation (RAG) architecture designed to synthesize answers from a diverse set of unstructured data sources. As illustrated in Figure \ref{fig:overall_arch}, the workflow is divided into three primary subsystems: Input Processing, Dual-Stream Indexing, and Generative Synthesis.
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{img/pdz/22-architecture.png}
+%     \caption{Overall System Architecture for Multimodal RAG.}
+%     \label{fig:overall_arch}
+% \end{figure}
+
+% \subsection{High-Level Data Flow}
+% The architecture follows a linear pipeline:
+% \begin{enumerate}
+%     \item \textbf{User Interaction}: Users submit natural language queries via a Chatbot interface.
+%     \item \textbf{Parallel Retrieval}: The query is simultaneously processed by a Text Retrieval Engine (Hybrid Search) and a Visual Retrieval Engine (Image Search).
+%     \item \textbf{Context Aggregation}: Top-$K$ text chunks and Top-$K$ image pages are aggregated. An optional Reranking step refines these results to improve precision.
+%     \item \textbf{Generative Synthesis}: The aggregated context is fed into a Large Language Model (supporting OpenAI, Gemini, Anthropic, or Ollama) to produce a final answer with citations.
+% \end{enumerate}
+
+% \subsection{Input Processing Layer}
+% The system is designed to ingest a wide variety of raw formats. As shown in the Input Processing diagram, the pipeline normalizes these inputs using specific libraries before indexing:
+
+% \begin{itemize}
+%     \item \textbf{Multimedia}: Video and Audio files (MP4, WAV) are processed using \textbf{MoviePy} for track separation and \textbf{Whisper} for automatic speech-to-text transcription.
+%     \item \textbf{Office Documents}: Legacy formats like .XLS, .DOC, and .PPT are converted to standard PDF via \textbf{LibreOffice}.
+%     \item \textbf{Structural Parsing}: Complex documents (HTML, PDF) are analyzed using \textbf{Docling} to preserve table structures and layout hierarchies.
+% \end{itemize}
+% The output of this layer is a standardized set of \textbf{PDFs} (for visual processing) and \textbf{Markdown} files (for textual processing).
+
+% \subsection{Dual-Stream Indexing Architecture}
+% To handle multimodal data effectively, the system splits indexing into two specialized pathways:
+
+% \textbf{1. Text Indexing Stream}
+% Textual data undergoes a semantic vectorization process:
+% \begin{itemize}
+%     \item \textbf{Chunking}: Markdown content is split using a \texttt{RecursiveCharacterTextSplitter} with a chunk size of \textbf{1024} characters and an overlap of \textbf{200} characters.
+%     \item \textbf{Embedding}: Chunks are encoded using the \texttt{sentence-transformers/all-MiniLM-L6-v2} model.
+%     \item \textbf{Storage}: Vectors are stored in a Hybrid Index (BM25 + Dense). Each entry includes metadata: \texttt{doc\_id}, \texttt{chunk\_idx}, \texttt{total\_chunks}, and \texttt{source}.
+% \end{itemize}
+
+% \textbf{2. Visual Indexing Stream}
+% Visual data is processed to retain layout information:
+% \begin{itemize}
+%     \item \textbf{Rasterization}: Source PDFs are converted to JPEG images using a "1 Page = 1 Image" strategy.
+%     \item \textbf{Visual Embedding}: These page images are encoded using the \textbf{ColQwen} architecture (supporting \texttt{vidore/colqwen2-v1.0} or \texttt{v2.5}).
+%     \item \textbf{Storage}: Visual vectors are stored in a ColQwen Index. Metadata includes precise location tracking: \texttt{source}, \texttt{source\_path}, \texttt{page} number, and \texttt{total\_pages}.
+% \end{itemize}
+
+\section{Main Architecture}
+
+\subsection{Advanced Document Parsing: Docling}
+
+To address the challenge of ingesting complex, semi-structured data, the pipeline integrates \textbf{Docling}, a state-of-the-art document parsing framework. Docling serves as the central transformation engine, converting diverse input formats into structured, semantic representations ideal for RAG applications.
+
+% \subsection{Overview}
+Docling represents a paradigm shift from traditional "text extraction" to "document understanding." While standard libraries (e.g., PyPDF2) merely scrape text strings, Docling analyzes the visual and structural hierarchy of a document. It reconstructs the logical flow of information, distinguishing between headers, paragraphs, footnotes, and tabular data, ensuring that the semantic context is preserved during the serialization to Markdown.
+
+% \subsection{Multi-Format Ingestion Strategy}
+One of Docling's primary architectural advantages is its ability to unify heterogenous inputs into a single processing stream. As shown in the system architecture, Docling handles a wide array of formats natively:
+
+\begin{itemize}
+    \item \textbf{PDF Documents}: Handles both native digital PDFs (with text layers) and scanned image-based PDFs.
+    \item \textbf{Office Suites}: Directly parses Microsoft Excel (.XLS/XLSX) spreadsheets to extract tabular data, as well as PowerPoint (.PPTX) and Word (.DOCX) files.
+    \item \textbf{Web \& Code}: Ingests HTML and raw text formats.
+    \item \textbf{Images}: Processes standalone diagrams or document screenshots.
+\end{itemize}
+
+% \subsection{Core Processing Capabilities}
+
+Docling employs a hybrid approach combining computer vision and natural language processing to achieve high-fidelity extraction.
+
+% \textbf{Layout Analysis and Segmentation}
+
+Before text extraction begins, Docling performs a segmentation pass. It identifies physical page elements—such as columns, text blocks, and floating figures. This ensures that multi-column PDFs are read in logical reading order (left-column down, then right-column) rather than strictly left-to-right, which often garbles sentences in standard extractors.
+
+% \textbf{OCR and VLM Integration}
+
+For scanned documents or image-heavy PDFs, Docling integrates specialized vision backends:
+\begin{itemize}
+    \item \textbf{OCR (Optical Character Recognition)}: For standard scanned text, high-performance OCR engines recover the textual layer.
+    \item \textbf{VLM (Vision-Language Models)}: For complex layouts, Docling leverages Vision-Language Models. These models "look" at the page to understand semantic structures that regex or rule-based parsers miss, such as distinguishing a figure caption from the main body text.
+\end{itemize}
+
+% \textbf{Table Structure Recovery}
+
+A critical feature highlighted in the architecture is the explicit extraction of \textbf{Tables}. Docling reconstructs table borders and cell relationships, converting them into structured Markdown tables or HTML representations. This allows the downstream embedding model to interpret row-column relationships correctly, which is essential for answering quantitative queries.
+
+% \subsection{Output Generation}
+The result of the Docling process is a set of clean, normalized artifacts ready for indexing:
+\begin{enumerate}
+    \item \textbf{Structured Markdown}: The primary text payload, with headers marked (`\#`, `\#\#`) to denote hierarchy.
+    \item \textbf{Isolated Images}: Figures and diagrams extracted for the visual indexing stream.
+    \item \textbf{Table Objects}: Structured data specifically preserved for precise retrieval.
+\end{enumerate}
+
+\subsection{Audio Transcription: Whisper}
+
+To extend the system's retrieval capabilities beyond static documents, the pipeline integrates \textbf{OpenAI Whisper}, a robust Automatic Speech Recognition (ASR) system. This component allows the RAG engine to "listen" to multimedia content, converting spoken words into structured, searchable text.
+
+% \subsection{ASR Pipeline Architecture}
+
+The transcription process follows a linear transformation pipeline designed to normalize audio into the system's standard text format:
+
+\begin{enumerate}
+    \item \textbf{Input Ingestion}: The subsystem accepts raw audio inputs, specifically optimized for \textbf{.WAV} formats as depicted in the workflow diagram.
+    \item \textbf{Speech Processing}: The \textbf{Whisper} model processes the audio waveform, performing language identification and timestamped transcription.
+    \item \textbf{Text Serialization}: The raw transcript is first captured as plain text. Crucially, the system immediately serializes this text into \textbf{Markdown} format. This standardization ensures that audio transcripts are treated identically to PDF or DOCX content during the downstream chunking and embedding phases.
+\end{enumerate}
+
+% \subsection{Multimedia Integration}
+
+Whisper acts as a critical bridge for video content within the broader input processing layer. 
+For video inputs (e.g., MP4), the system utilizes \textbf{MoviePy} to strip the audio track from the visual container. 
+This extracted audio is then passed to Whisper, ensuring that lecture recordings or meeting videos are fully indexed and retrievable via text search queries.
+
+
+
+\subsection{Advanced Visual Retrieval: ColQwen Architecture}
+
+To overcome the limitations of traditional OCR-based retrieval—which often discards the semantic value of document layout, charts, and figures—the pipeline integrates \textbf{ColQwen}. This state-of-the-art Visual Language Model (VLM) represents an evolution in retrieval architecture, transitioning from text-only processing to holistic visual understanding.
+
+% \subsection{Theoretical Foundation: From ColBERT to ColPali}
+The system's visual retrieval engine is built upon the "Late Interaction" paradigm, which contrasts sharply with traditional dense retrieval methods.
+
+\textbf{ColBERT (Contextualized Late Interaction over BERT)}
+
+Traditional embedding models (like SBERT) compress an entire document into a single vector. While efficient, this "bottleneck" loses fine-grained details. ColBERT introduced the concept of \textbf{Late Interaction}, where documents are encoded into a \textit{bag of embeddings} (one vector per token). Matching is performed by comparing every query token vector against every document token vector (MaxSim), preserving distinct semantic features.
+
+\textbf{ColPali (ColBERT for Paligemma)}
+
+ColPali extends this mechanism to the visual domain. Instead of tokenizing text, it utilizes a Vision Transformer (ViT) to patchify a document image into visual tokens. Each patch is projected into a multi-vector space, allowing the model to perform "Late Interaction" retrieval on visual features directly, effectively treating an image patch exactly like a textual word.
+
+% \subsection{The ColQwen Implementation}
+The pipeline specifically utilizes \textbf{ColQwen2} (based on Qwen2-VL), which optimizes the ColPali architecture for document-heavy tasks.
+
+\textbf{Visual Encoding Pipeline}
+
+The process follows a strict transformation workflow:
+
+\begin{enumerate}
+    \item \textbf{Rasterization}: The system adheres to a "1 Page = 1 Image" strategy. Input PDFs are rendered into high-fidelity JPEG images, preserving fonts, layout, and diagrams.
+    \item \textbf{Patch Embedding}: The \texttt{vidore/colqwen2-v1.0} (or \texttt{v2.5}) model processes these images. Unlike standard CLIP embeddings which create one vector per image, ColQwen generates a distinct embedding for every $16 \times 16$ pixel patch of the page.
+    \item \textbf{Tensor Storage}: The resulting multi-vector representation is stored in the ColQwen Index. This allows the system to retrieve a specific page because a diagram in the top-right corner semantically matches the user's query, even if no text describes it.
+\end{enumerate}
+
+\textbf{Index Metadata Schema}
+
+To facilitate precise retrieval and citation, every visual embedding is tightly coupled with a metadata object, as defined in the system architecture:
+\begin{verbatim}
+{
+  "source": "filename.pdf",        # Origin document
+  "source_path": "/path/to/file",  # System path for retrieval
+  "page": int,                     # Specific page number (1-indexed)
+  "total_pages": int               # Contextual length of document
+}
+\end{verbatim}
+
+% \subsection{Advantages over OCR}
+
+By adopting ColQwen, the pipeline achieves capabilities that standard text-RAG cannot match:
+\begin{itemize}
+    \item \textbf{Visual Semantics}: It can retrieve a page based on the visual content of a bar chart or the structure of a molecule diagram.
+    \item \textbf{Layout Awareness}: It understands that text in a "Header" is more important than text in a "Footer" based on visual hierarchy.
+    \item \textbf{Multilingual Agnosticism}: It processes visual glyphs rather than relying on language-specific OCR dictionaries.
+\end{itemize}
+
+\subsection{Multimodal Retrieval-Augmented Generation System}
+
+The system implements a Multimodal Retrieval-Augmented Generation (RAG) architecture designed to synthesize answers from a diverse set of unstructured data sources. The workflow is divided into three primary subsystems: Input Processing, Dual-Stream Indexing, and Generative Synthesis.
+
+% \subsection{High-Level Data Flow}
+% The architecture follows a linear pipeline:
+% \begin{enumerate}
+%     \item \textbf{User Interaction}: Users submit natural language queries via a Chatbot interface.
+%     \item \textbf{Parallel Retrieval}: The query is simultaneously processed by a Text Retrieval Engine (Hybrid Search) and a Visual Retrieval Engine (Image Search).
+%     \item \textbf{Context Aggregation}: Top-$K$ text chunks and Top-$K$ image pages are aggregated. An optional Reranking step refines these results to improve precision.
+%     \item \textbf{Generative Synthesis}: The aggregated context is fed into a Large Language Model (supporting OpenAI, Gemini, Anthropic, or Ollama) to produce a final answer with citations.
+% \end{enumerate}
+
+\subsection*{Input Processing Layer}
+
+The first stage of the pipeline is responsible for normalizing diverse raw file formats into a standardized set of artifacts. As detailed in the Processor \& Libraries diagram, this layer utilizes specific open-source tools for each data modality.
+
+\textbf{Multimedia Processing}
+
+To handle temporal media, the system implements a two-step transformation:
+\begin{itemize}
+    \item \textbf{Extraction}: Raw video files (e.g., MP4) are processed using \textbf{MoviePy}. This extractor separates the visual stream from the audio stream, outputting a \texttt{.WAV} file for transcription and an optional image thumbnail.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/pdz/23-movipy.png}
+        \caption{MoviePy Extraction Process.}
+        \label{fig:movipy_process}
+    \end{figure}
+    
+    \item \textbf{Audio Transcription}: The extracted audio or raw \texttt{.WAV} files are passed to the \textbf{OpenAI Whisper} ASR engine. Whisper transcribes the speech to text, which is immediately serialized into \textbf{Markdown} format to preserve semantic structure.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/pdz/24-whisper.png}
+        \caption{OpenAI Whisper Audio Transcription Process.}
+        \label{fig:whisper_process}
+    \end{figure}
+
+\end{itemize}
+
+\textbf{Office Document Normalization}
+
+Legacy office formats require conversion before structural analysis. The system utilizes \textbf{LibreOffice} in a headless server environment.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/pdz/25-libre.png}
+    \caption{LibreOffice Document Conversion Process.}
+    \label{fig:libre_process}
+\end{figure}
+
+Formats such as Microsoft Word (.DOC), PowerPoint (.PPT), and HTML are normalized into standard \textbf{PDF} documents to freeze layout and fonts.
+
+\textbf{Complex Document Parsing (Docling)}
+
+For data-dense documents, the pipeline integrates \textbf{Docling} as the central parsing engine:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/pdz/26-docling.png}
+    \caption{Docling Document Parsing Process.}
+    \label{fig:docling_process}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Inputs}: Handles PDF, Excel (.XLS), CSV, Markdown, Text, and Images.
+    \item \textbf{Outputs}: Docling deconstructs these inputs into three distinct normalized artifacts:
+    \begin{enumerate}
+        \item \textbf{Structured Markdown}: For semantic text analysis.
+        \item \textbf{Table Objects}: For preserving row/column relationships.
+        \item \textbf{Isolated Images}: For downstream visual indexing.
+    \end{enumerate}
+\end{itemize}
+
+The output of this layer is a standardized set of \textbf{PDFs} (for visual processing) and \textbf{Markdown} files (for textual processing).
+
+\subsection*{Dual-Stream Indexing Layer}
+
+Following normalization, the data is split into two specialized indexing streams to handle the unique requirements of text and images.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/pdz/27-chunkemb.png}
+    \caption{Dual-Stream Indexing Layer.}
+    \label{fig:chunkemb}
+\end{figure}
+
+\textbf{Textual Indexing Stream}
+
+The Markdown output undergoes a semantic vectorization process:
+\begin{itemize}
+    \item \textbf{Chunking Strategy}: The system employs a \texttt{RecursiveCharacterTextSplitter} configured with a chunk size of \textbf{1024} characters and an overlap of \textbf{200} characters to maintain context across boundaries.
+    \item \textbf{Embedding Model}: Chunks are encoded using sentence-transformers/all-MiniLM-L6-v2 via the SBERT framework.
+    \item \textbf{Storage}: Vectors are stored in a Hybrid Index supporting both BM25 (sparse) and Dense retrieval.
+    \item \textbf{Metadata}: Each chunk is tagged with \texttt{doc\_id}, \texttt{chunk\_idx}, \texttt{total\_chunks}, and \texttt{source}.
+\end{itemize}
+
+\textbf{Visual Indexing Stream}
+
+The PDF output undergoes a visual encoding process:
+\begin{itemize}
+    \item \textbf{Image Strategy}: The system applies a "1 Page = 1 Image" strategy, converting every PDF page into a high-resolution JPEG.
+    \item \textbf{Vision Model}: These images are processed by \textbf{ColQwen} (specifically vidore/colqwen2-v1.0 or v2.5). This model generates visual embeddings that capture layout and diagrammatic information.
+    \item \textbf{Storage}: Embeddings are stored in a specialized ColQwen Index.
+    \item \textbf{Metadata}: Each entry is tagged with \texttt{source}, \texttt{source\_path}, \texttt{page} number, and \texttt{total\_pages}.
+\end{itemize}
+
+\subsection*{Generative Synthesis Layer}
+
+The final layer orchestrates the user interaction and answer generation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/pdz/22-architecture.png}
+    \caption{Overall System Architecture.}
+    \label{fig:overall_arch}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Hybrid Retrieval}: A user query triggers parallel searches against the Text Index (BM25 + Dense) and the Visual Index (Image Search).
+    \item \textbf{Reranking}: The system supports an optional Reranking step to refine the retrieved Top-K Text Chunks before context injection.
+    \item \textbf{LLM Integration}: The aggregated context (Text Chunks + Image Pages) is sent to a Large Language Model. The system is provider-agnostic, supporting OpenAI, Gemini, Anthropic, and Ollama.
+    \item \textbf{Output}: The final output includes the generated answer with precise citations linking back to the specific source documents.
+\end{itemize}
+
 \newpage
