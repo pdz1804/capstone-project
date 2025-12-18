@@ -92,7 +92,7 @@ This subsystem handles non-textual data. Instead of extracting text from images 
 %     \item \textbf{Metadata Extraction}: Basic file attributes (size, modification time, MIME type) are extracted and normalized into a standard JSON structure for frontend display.
 % \end{itemize}
 
-\section{Data Normalization and Preprocessing}
+\section{Data Normalization}
 
 Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs ranging from multimedia files to office documents and funnels them into a standardized "RAG-ready" format.
 The normalization pipeline is governed by the \texttt{Processor} module and utilizes a suite of open-source libraries to perform format unification.
@@ -198,14 +198,20 @@ Every input file results in a unified set of artifacts in the rag ready director
 
 
 
-% \section{Data Preprocessing}
-% The preprocessing module transforms raw files into machine-understandable formats. The pipeline splits the workflow into two parallel streams to handle multimodal data:
+\section{Data Preprocessing}
+The preprocessing module transforms raw files into machine-understandable formats. The pipeline splits the workflow into two parallel streams to handle multimodal data:
 
-% \textbf{Text Stream}
-% For textual data, the system performs Optical Character Recognition (OCR) or direct text extraction depending on the source file type. The output is standardized into JSON and Markdown formats, stored in the \texttt{output/processing} directory.
+\textbf{Text Stream:}
 
-% \textbf{Visual Stream}
-% A critical component of this pipeline is the handling of visual data within PDFs. The system utilizes \texttt{pdf2image} to render PDF pages into high-resolution images (defaulting to 150 DPI). This rasterization step is essential for the visual retriever (ColQwen), which treats document pages as images to preserve layout and semantic structure that text-only extractors often lose.
+% For textual data, the system performs Optical Character Recognition (OCR) or direct text extraction depending on the source file type. The output is standardized into Markdown formats, stored in the \texttt{output/processing} directory.
+
+The primary input for this stream is the structured \textbf{Markdown} files generated during the normalization phase. The preprocessing logic focuses on preparing this text for semantic vectorization:
+Removal of artifacts introduced during OCR or file conversion.
+The system utilizes the Markdown headers to maintain context, ensuring that section titles remain associated with their respective paragraphs during the splitting process.
+
+\textbf{Visual Stream:}
+
+A critical component of this pipeline is the handling of visual data within \textbf{PDFs}. The system utilizes \textbf{pdf2image} to render PDF pages into high-resolution images (defaulting to 150 DPI). This rasterization step is essential for the visual retriever (ColQwen), which treats document pages as images to preserve layout and semantic structure that text-only extractors often lose.
 
 % \section{Chunking and Embedding Strategies}
 % The system employs a sophisticated "Hybrid + Multimodal" retrieval strategy to maximize recall and precision.
@@ -259,12 +265,23 @@ To process the Markdown inputs, the system utilizes a high-precision splitting s
 
 % \textbf{Chunking Logic}
 
-The system employs the \texttt{RecursiveCharacterTextSplitter} with the following specific configuration:
-\begin{itemize}
-    \item \textbf{Chunk Size}: 1024 characters.
-    \item \textbf{Chunk Overlap}: 200 characters.
-\end{itemize}
-This overlap ensures semantic continuity across chunk boundaries, preventing context loss for sentences that straddle the split point.
+% The system employs the \texttt{RecursiveCharacterTextSplitter} with the following specific configuration:
+% \begin{itemize}
+%     \item \textbf{Chunk Size}: 1024 characters.
+%     \item \textbf{Chunk Overlap}: 200 characters.
+% \end{itemize}
+
+
+Textual data is segmented into chunks to fit within the context window of the embedding models. 
+The system employs the \texttt{RecursiveCharacterTextSplitter} with the configuration using a chunk size of 1024 characters with an overlap of 200 characters. 
+This overlap ensures semantic continuity across chunk boundaries, preventing context loss for sentences that straddle the split point. 
+% The retrieval mechanism is \textit{Hybrid}, combining two distinct algorithms:
+% \begin{enumerate}
+%     \item \textbf{Sparse Retrieval (BM25)}: Utilizes keyword matching to capture exact terms and domain-specific jargon.
+%     \item \textbf{Dense Retrieval}: Utilizes vector embeddings (stored in FAISS indices) to capture semantic meaning and context. The default embedding model is \texttt{all-MiniLM-L6-v2}.
+% \end{enumerate}
+% Scores from both retrievers are combined using Min-Max normalization and a weighted sum (default $\alpha=0.5$).
+
 
 \textbf{Text Vectorization (SBERT)}
 
@@ -285,8 +302,8 @@ Processed chunks are mapped to a high-dimensional vector space using the \textbf
 
 \textbf{Visual Embedding (ColQwen)}
 
-For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes the canonical \textbf{PDF} files.
-The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
+For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes JPEG images derived from the canonical \textbf{PDF} files.
+% The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
 These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model "sees" the document exactly as a human would.
 
 
@@ -321,7 +338,17 @@ The system integrates the \textbf{ColQwen} architecture (specifically \texttt{vi
 
 \textbf{Hybrid Retrieval Integration}
 
-The retrieval layer unifies these two streams. The text index supports \textbf{Hybrid Search} (BM25 + Dense), allowing for keyword precision and semantic recall. Optionally, the Text and Visual indices can be queried simultaneously to return both relevant text snippets and their corresponding visual page contexts.
+The retrieval layer unifies these two streams. The text index supports \textbf{Hybrid Search}, allowing for keyword precision and semantic recall. The Text and Visual indices can be queried simultaneously to return both relevant text snippets and their corresponding visual page contexts.
+
+The retrieval mechanism is \textbf{Hybrid}, combining two distinct algorithms:
+
+\begin{enumerate}
+    \item \textbf{Sparse Retrieval (BM25)}: Utilizes keyword matching to capture exact terms and domain-specific jargon.
+    \item \textbf{Dense Retrieval}: Utilizes vector embeddings (stored in FAISS indices) to capture semantic meaning and context. The default embedding model is \texttt{all-MiniLM-L6-v2}.
+\end{enumerate}
+
+Scores from both retrievers are combined using Min-Max normalization and a weighted sum (default $\alpha=0.5$).
+
 
 
 % \section{Database Storage}
