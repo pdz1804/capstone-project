@@ -118,28 +118,24 @@ The specific normalization strategies per file type are as follows:
 
 \textbf{Office and Document Formats}
 
-Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly.
-\begin{itemize}
-    \item \textbf{Tooling}: The system utilizes \textbf{LibreOffice} in headless mode (server-side).
-    \item \textbf{Transformation}: These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
-\end{itemize}
+Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly. 
+The system utilizes \textbf{LibreOffice} in headless mode (server-side).
+These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
+
 
 \textbf{Multimedia (Audio and Video)}
 
 Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
-\begin{itemize}
-    \item \textbf{Audio Extraction}: \textbf{MoviePy} is employed to separate audio tracks from video containers.
-    \item \textbf{Transcription}: The \textbf{OpenAI Whisper} model (Automatic Speech Recognition) processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
-\end{itemize}
+\textbf{MoviePy} is employed to separate audio tracks from video containers.
+The \textbf{OpenAI Whisper} model (Automatic Speech Recognition) processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
 
 \textbf{Structural Parsing (Docling)}
 
 For complex documents like scientific PDFs, HTML pages, or Table-heavy reports, simple text extraction is insufficient.
-\begin{itemize}
-    \item \textbf{Tooling}: The pipeline integrates \textbf{Docling}, a specialized document parsing library.
-    \item \textbf{Capability}: Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
-    \item \textbf{Output}: It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
-\end{itemize}
+The pipeline integrates \textbf{Docling}, a specialized document parsing library.
+Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
+It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
+
 
 \textbf{Output Artifacts}
 
