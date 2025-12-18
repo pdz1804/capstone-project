@@ -237,10 +237,9 @@ Processed chunks are mapped to a high-dimensional vector space using the \textbf
 \textbf{Visual Embedding (ColQwen)}
 
 For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes the canonical \textbf{PDF} files.
-\begin{itemize}
-    \item \textbf{Rasterization Strategy}: The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
-    \item \textbf{Artifact Management}: These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model "sees" the document exactly as a human would.
-\end{itemize}
+The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
+These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model "sees" the document exactly as a human would.
+
 
 The visual pathway processes the page images generated to enable multimodal retrieval.
 
