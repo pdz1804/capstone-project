@@ -111,7 +111,7 @@ Our data indicates that ColBERTv2 provides the highest retrieval quality, surpas
 \begin{itemize}
     \item \textbf{Superior Metrics:} ColBERTv2 achieved the highest \textbf{nDCG@3 of 0.9638}, outperforming the best reranking pipeline ($0.9248$).
     \item \textbf{Solving the Information Bottleneck:} Standard two-stage pipelines suffer from a bottleneck: if the first-stage retriever (e.g., BGE-Small) fails to find the relevant document in the top 30 candidates, the Reranker never sees it. ColBERT avoids this by using a "Late Interaction" mechanism. It calculates the MaxSim between query tokens and document tokens directly.
-    \item \textbf{Granularity:} As shown in Equation (3.3), ColBERT matches at the token level. This allows it to identify a relevant document even if only a small paragraph within it matches the query—a nuance often lost when compressing a whole document into a single vector (Dense Retrieval).
+    \item \textbf{Granularity:} As shown in Equation (3.3), ColBERT matches at the token level. This allows it to identify a relevant document even if only a small paragraph within it matches the query a nuance often lost when compressing a whole document into a single vector (Dense Retrieval).
     \item \textbf{Operational Note:} It is worth noting that while ColBERT's retrieval time is efficient ($6.5s$ on GPU), the indexing process is resource-intensive. In our environment, indexing required $\approx35$ minutes on CPU\footnote{Due to FAISS-GPU limitations on the Colab instance, indexing fell back to CPU.} compared to mere seconds/minutes for standard dense models. Despite this setup cost, ColBERT represents the state-of-the-art for retrieval accuracy on this dataset.
 \end{itemize}
 
@@ -230,7 +230,7 @@ RAG is chosen because it offers the optimal balance of accuracy, cost-efficiency
 
 \section{Main Architecture}
 
-\subsection{Advanced Document Parsing: Docling}
+\subsection{Advanced Document Parsing}
 
 To address the challenge of ingesting complex, semi-structured data, the pipeline integrates \textbf{Docling}, a state-of-the-art document parsing framework. Docling serves as the central transformation engine, converting diverse input formats into structured, semantic representations ideal for RAG applications.
 
@@ -253,7 +253,7 @@ Docling employs a hybrid approach combining computer vision and natural language
 
 % \textbf{Layout Analysis and Segmentation}
 
-Before text extraction begins, Docling performs a segmentation pass. It identifies physical page elements—such as columns, text blocks, and floating figures. This ensures that multi-column PDFs are read in logical reading order (left-column down, then right-column) rather than strictly left-to-right, which often garbles sentences in standard extractors.
+Before text extraction begins, Docling performs a segmentation pass. It identifies physical page elements such as columns, text blocks, and floating figures. This ensures that multi-column PDFs are read in logical reading order (left-column down, then right-column) rather than strictly left-to-right, which often garbles sentences in standard extractors.
 
 % \textbf{OCR and VLM Integration}
 
@@ -275,7 +275,7 @@ The result of the Docling process is a set of clean, normalized artifacts ready 
     \item \textbf{Table Objects}: Structured data specifically preserved for precise retrieval.
 \end{enumerate}
 
-\subsection{Audio Transcription: Whisper}
+\subsection{Audio Transcription}
 
 To extend the system's retrieval capabilities beyond static documents, the pipeline integrates \textbf{OpenAI Whisper}, a robust Automatic Speech Recognition (ASR) system. This component allows the RAG engine to "listen" to multimedia content, converting spoken words into structured, searchable text.
 
@@ -297,9 +297,9 @@ This extracted audio is then passed to Whisper, ensuring that lecture recordings
 
 
 
-\subsection{Advanced Visual Retrieval: ColQwen Architecture}
+\subsection{Advanced Visual Retrieval}
 
-To overcome the limitations of traditional OCR-based retrieval—which often discards the semantic value of document layout, charts, and figures—the pipeline integrates \textbf{ColQwen}. This state-of-the-art Visual Language Model (VLM) represents an evolution in retrieval architecture, transitioning from text-only processing to holistic visual understanding.
+To overcome the limitations of traditional OCR-based retrieval which often discards the semantic value of document layout, charts, and figures the pipeline integrates \textbf{ColQwen}. This state-of-the-art Visual Language Model (VLM) represents an evolution in retrieval architecture, transitioning from text-only processing to holistic visual understanding.
 
 % \subsection{Theoretical Foundation: From ColBERT to ColPali}
 The system's visual retrieval engine is built upon the "Late Interaction" paradigm, which contrasts sharply with traditional dense retrieval methods.

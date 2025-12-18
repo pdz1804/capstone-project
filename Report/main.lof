@@ -3,29 +3,29 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces ASR pipeline \blx@tocontentsinit {0}\cite {asr_pipeline_rg}}}{12}{figure.caption.8}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces OCR pipeline.}}{16}{figure.caption.9}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces The Transformer - model architecture \blx@tocontentsinit {0}\cite {vaswani2017attention}.}}{19}{figure.caption.10}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Cross-attention \blx@tocontentsinit {0}\cite {raschka2024_multimodal_llms}.}}{21}{figure.caption.11}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Multimodal embedding \blx@tocontentsinit {0}\cite {aiedge_multimodal_rag}.}}{23}{figure.caption.12}%
-\contentsline {figure}{\numberline {4.6}{\ignorespaces Multimodal RAG pipeline \blx@tocontentsinit {0}\cite {aiedge_multimodal_rag}.}}{28}{figure.caption.13}%
-\contentsline {figure}{\numberline {4.7}{\ignorespaces BM25 \blx@tocontentsinit {0}\cite {geeksforgeeks_bm25}.}}{30}{figure.caption.14}%
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Reranker \blx@tocontentsinit {0}\cite {together2024_rerank_llamarank}.}}{32}{figure.caption.15}%
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Augmentation \blx@tocontentsinit {0}\cite {obot_rag_guide}}}{35}{figure.caption.16}%
-\contentsline {figure}{\numberline {4.10}{\ignorespaces Generation \blx@tocontentsinit {0}\cite {wolfe2024_rag_guide}}}{36}{figure.caption.17}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces ASR pipeline \blx@tocontentsinit {0}\cite {asr_pipeline_rg}}}{10}{figure.caption.8}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces OCR pipeline.}}{14}{figure.caption.9}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces The Transformer - model architecture \blx@tocontentsinit {0}\cite {vaswani2017attention}.}}{17}{figure.caption.10}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Cross-attention \blx@tocontentsinit {0}\cite {raschka2024_multimodal_llms}.}}{19}{figure.caption.11}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Multimodal embedding \blx@tocontentsinit {0}\cite {aiedge_multimodal_rag}.}}{21}{figure.caption.12}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Multimodal RAG pipeline \blx@tocontentsinit {0}\cite {aiedge_multimodal_rag}.}}{26}{figure.caption.13}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces BM25 \blx@tocontentsinit {0}\cite {geeksforgeeks_bm25}.}}{28}{figure.caption.14}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Reranker \blx@tocontentsinit {0}\cite {together2024_rerank_llamarank}.}}{30}{figure.caption.15}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Augmentation \blx@tocontentsinit {0}\cite {obot_rag_guide}}}{33}{figure.caption.16}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Generation \blx@tocontentsinit {0}\cite {wolfe2024_rag_guide}}}{34}{figure.caption.17}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces NotebookLM \blx@tocontentsinit {0}\cite {notebooklm-google-ai}.}}{45}{figure.caption.18}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces NotebookLM \blx@tocontentsinit {0}\cite {notebooklm-google-ai}.}}{43}{figure.caption.18}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces MoviePy Extraction Process.}}{56}{figure.caption.22}%
-\contentsline {figure}{\numberline {6.2}{\ignorespaces OpenAI Whisper Audio Transcription Process.}}{57}{figure.caption.23}%
-\contentsline {figure}{\numberline {6.3}{\ignorespaces LibreOffice Document Conversion Process.}}{57}{figure.caption.24}%
-\contentsline {figure}{\numberline {6.4}{\ignorespaces Docling Document Parsing Process.}}{57}{figure.caption.25}%
-\contentsline {figure}{\numberline {6.5}{\ignorespaces Dual-Stream Indexing Layer.}}{58}{figure.caption.26}%
-\contentsline {figure}{\numberline {6.6}{\ignorespaces Overall System Architecture.}}{59}{figure.caption.27}%
+\contentsline {figure}{\numberline {6.1}{\ignorespaces MoviePy Extraction Process.}}{54}{figure.caption.22}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces OpenAI Whisper Audio Transcription Process.}}{55}{figure.caption.23}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces LibreOffice Document Conversion Process.}}{55}{figure.caption.24}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Docling Document Parsing Process.}}{55}{figure.caption.25}%
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Dual-Stream Indexing Layer.}}{56}{figure.caption.26}%
+\contentsline {figure}{\numberline {6.6}{\ignorespaces Overall System Architecture.}}{57}{figure.caption.27}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {7.1}{\ignorespaces Data Normalization Flowchart: From Raw Input to RAG-Ready Artifacts.}}{62}{figure.caption.28}%
-\contentsline {figure}{\numberline {7.2}{\ignorespaces Textual Chunking and Embedding.}}{64}{figure.caption.29}%
-\contentsline {figure}{\numberline {7.3}{\ignorespaces Visual Embedding (ColQwen).}}{65}{figure.caption.30}%
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Data Normalization Flowchart: From Raw Input to RAG-Ready Artifacts.}}{60}{figure.caption.28}%
+\contentsline {figure}{\numberline {7.2}{\ignorespaces Textual Chunking and Embedding.}}{62}{figure.caption.29}%
+\contentsline {figure}{\numberline {7.3}{\ignorespaces Visual Embedding (ColQwen).}}{63}{figure.caption.30}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

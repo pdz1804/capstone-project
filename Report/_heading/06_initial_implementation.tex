@@ -20,7 +20,7 @@
 
 \section{Architecture Design}
 
-The Unified Multimodal RAG Pipeline is architected as a modular, resource-optimized system designed to handle the complete lifecycle of document intelligence—from raw ingestion to semantic generation. The system deviates from traditional monolithic designs by adopting a \textbf{Layered Service Architecture}, decoupling the retrieval logic from the generation logic, and utilizing a file-system-based state management approach for portability.
+The Unified Multimodal RAG Pipeline is architected as a modular, resource-optimized system designed to handle the complete lifecycle of document intelligence from raw ingestion to semantic generation. The system deviates from traditional monolithic designs by adopting a \textbf{Layered Service Architecture}, decoupling the retrieval logic from the generation logic, and utilizing a file-system-based state management approach for portability.
 
 The architecture is composed of four primary layers:
 
@@ -101,7 +101,7 @@ This subsystem handles non-textual data. Instead of extracting text from images 
     \label{fig:normalization}
 \end{figure}
 
-Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs—ranging from multimedia files to office documents—and funnels them into a standardized "RAG-ready" format.
+Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs ranging from multimedia files to office documents and funnels them into a standardized "RAG-ready" format.
 
 The normalization pipeline is governed by the \texttt{Processor} module and utilizes a suite of open-source libraries to perform format unification.
 
