@@ -4,10 +4,10 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Comparison between NotebookLM and our proposed system.}}{46}{table.caption.19}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Comparison between NotebookLM and our proposed system.}}{44}{table.caption.19}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {6.1}{\ignorespaces Comparative performance of Retrieval and Reranking pipelines on the MS MARCO subset (50k docs, 556 queries).}}{49}{table.caption.20}%
-\contentsline {table}{\numberline {6.2}{\ignorespaces Comparison of RAG against alternative LLM enhancement strategies.}}{52}{table.caption.21}%
+\contentsline {table}{\numberline {6.1}{\ignorespaces Comparative performance of Retrieval and Reranking pipelines on the MS MARCO subset (50k docs, 556 queries).}}{47}{table.caption.20}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Comparison of RAG against alternative LLM enhancement strategies.}}{50}{table.caption.21}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
