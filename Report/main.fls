@@ -599,9 +599,6 @@ INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\latex\lm\t5lmr.fd
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\latex\lm\t5lmr.fd
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\latex\lm\t5lmr.fd
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\t5-lmr12.tfm
-INPUT .\main.aux
-INPUT .\main.aux
-INPUT main.aux
 OUTPUT main.aux
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
@@ -684,12 +681,6 @@ INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbo
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\t5-lmbx12.tfm
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\t5-lmbx12.tfm
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\t5-lmr10.tfm
-INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-pdfdoc.def
-INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-pdfdoc.def
-INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-pdfdoc.def
-INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-utf8.def
-INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-utf8.def
-INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-utf8.def
 INPUT C:\Users\nam\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-t5.enc
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\t5-lmr17.tfm
@@ -948,6 +939,12 @@ INPUT .\_heading\09_conclusion.tex
 INPUT .\_heading\09_conclusion.tex
 INPUT _heading\09_conclusion.tex
 INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\t5-lmcsc10.tfm
+INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-pdfdoc.def
+INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-pdfdoc.def
+INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-pdfdoc.def
+INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-utf8.def
+INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-utf8.def
+INPUT C:\Users\nam\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\se-utf8.def
 INPUT main.aux
 INPUT .\_heading\00_declaration.aux
 INPUT .\_heading\00_declaration.aux
