@@ -365,7 +365,7 @@ The first stage of the pipeline is responsible for normalizing diverse raw file 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/19-normalization.png}
+    \includegraphics[width=1\textwidth]{img/pdz/19-normalization.png}
     \caption{Input Processing Layer.}
     \label{fig:normalization}
 \end{figure}
@@ -447,8 +447,16 @@ The pipeline integrates \textbf{Docling}, a specialized document parsing library
 Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
 It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
 
+\textbf{Output Artifacts}
 
-The output of this layer is a standardized set of \textbf{PDFs} (for visual processing) and \textbf{Markdown} files (for textual processing).
+Every input file results in a unified set of artifacts in the rag ready directory:
+\begin{enumerate}
+    \item \textbf{PDF}: Used for visual embedding (ColQwen) and user preview.
+    \item \textbf{Structured Markdown}: Used for text embedding (BM25/Dense) and LLM context injection.
+    \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
+\end{enumerate}
+
+% The output of this layer is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
 
 \subsection*{Dual-Stream Indexing Layer}
 
@@ -456,7 +464,7 @@ Following normalization, the data is split into two specialized indexing streams
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/27-chunkemb.png}
+    \includegraphics[width=1\textwidth]{img/pdz/27-chunkemb.png}
     \caption{Dual-Stream Indexing Layer.}
     \label{fig:chunkemb}
 \end{figure}
@@ -487,7 +495,7 @@ The final layer orchestrates the user interaction and answer generation.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/22-architecture.png}
+    \includegraphics[width=1\textwidth]{img/pdz/22-architecture.png}
     \caption{Overall System Architecture.}
     \label{fig:overall_arch}
 \end{figure}

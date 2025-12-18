@@ -186,14 +186,17 @@ For data-dense documents, the pipeline integrates \textbf{Docling} as the centra
     \end{enumerate}
 \end{itemize}
 
-\textbf{Output Artifacts}
+% \textbf{Output Artifacts}
 
-Every input file results in a unified set of artifacts in the rag ready directory:
-\begin{enumerate}
-    \item \textbf{PDF}: Used for visual embedding (ColQwen) and user preview.
-    \item \textbf{Structured Markdown}: Used for text embedding (BM25/Dense) and LLM context injection.
-    \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
-\end{enumerate}
+% Every input file results in a unified set of artifacts in the rag ready directory:
+% \begin{enumerate}
+%     \item \textbf{PDF}: Used for visual embedding (ColQwen) and user preview.
+%     \item \textbf{Structured Markdown}: Used for text embedding (BM25/Dense) and LLM context injection.
+%     \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
+% \end{enumerate}
+
+
+The output of this step  is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
 
 
 
@@ -258,7 +261,7 @@ To process the Markdown inputs, the system utilizes a high-precision splitting s
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/20-textchunk.png}
+    \includegraphics[width=0.9\textwidth]{img/pdz/20-textchunk.png}
     \caption{Textual Chunking and Embedding.}
     \label{fig:textchunk}
 \end{figure}
@@ -311,7 +314,7 @@ The visual pathway processes the page images generated to enable multimodal retr
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/21-visualemb.png}
+    \includegraphics[width=0.9\textwidth]{img/pdz/21-visualemb.png}
     \caption{Visual Embedding (ColQwen).}
     \label{fig:visualemb}
 \end{figure}
