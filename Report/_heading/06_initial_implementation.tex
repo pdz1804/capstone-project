@@ -94,21 +94,13 @@ This subsystem handles non-textual data. Instead of extracting text from images 
 
 \section{Data Normalization and Preprocessing}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/19-normalization.png}
-    \caption{Data Normalization Flowchart: From Raw Input to RAG-Ready Artifacts.}
-    \label{fig:normalization}
-\end{figure}
-
 Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs ranging from multimedia files to office documents and funnels them into a standardized "RAG-ready" format.
-
 The normalization pipeline is governed by the \texttt{Processor} module and utilizes a suite of open-source libraries to perform format unification.
 
 Upon upload via the API, raw files undergo immediate sanitization:
 \begin{itemize}
-    \item \textbf{Filename Sanitization}: To prevent filesystem collisions and encoding errors, filenames are normalized to ASCII characters, and duplicate uploads are handled via an incremental suffix strategy (e.g., \texttt{lecture\_notes.pdf} $\rightarrow$ \texttt{lecture\_notes\_1.pdf}).
-    \item \textbf{MIME Type Validation}: The system acts as a gatekeeper, filtering files based on magic numbers to ensure only supported formats proceed to the processing stage.
+    \item \textbf{Filename Sanitization}: To prevent filesystem collisions and encoding errors, filenames are normalized to ASCII characters, and duplicate uploads are handled via an incremental suffix strategy.
+    \item \textbf{Type Validation}: The system acts as a gatekeeper, filtering files based on magic numbers to ensure only supported formats proceed to the processing stage.
 \end{itemize}
 
 
@@ -116,26 +108,83 @@ To facilitate both Visual (ColQwen) and Textual (Dense/Sparse) retrieval, all in
 
 The specific normalization strategies per file type are as follows:
 
-\textbf{Office and Document Formats}
+% \textbf{Office and Document Formats}
 
-Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly. 
-The system utilizes \textbf{LibreOffice} in headless mode (server-side).
-These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
+% Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly. 
+% The system utilizes \textbf{LibreOffice} in headless mode (server-side).
+% These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
 
 
-\textbf{Multimedia (Audio and Video)}
+% \textbf{Multimedia (Audio and Video)}
 
-Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
-\textbf{MoviePy} is employed to separate audio tracks from video containers.
-The \textbf{OpenAI Whisper} model (Automatic Speech Recognition) processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
+% Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
+% \textbf{MoviePy} is employed to separate audio tracks from video containers.
+% The \textbf{OpenAI Whisper} model (Automatic Speech Recognition) processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
 
-\textbf{Structural Parsing (Docling)}
+% \textbf{Structural Parsing (Docling)}
 
-For complex documents like scientific PDFs, HTML pages, or Table-heavy reports, simple text extraction is insufficient.
-The pipeline integrates \textbf{Docling}, a specialized document parsing library.
-Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
-It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
+% For complex documents like scientific PDFs, HTML pages, or Table-heavy reports, simple text extraction is insufficient.
+% The pipeline integrates \textbf{Docling}, a specialized document parsing library.
+% Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
+% It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
 
+
+\textbf{Multimedia Processing}
+
+To handle temporal media, the system implements a two-step transformation:
+\begin{itemize}
+    \item \textbf{Video Extraction}: Raw video files (e.g., MP4) are processed using \textbf{MoviePy}. This extractor separates the visual stream from the audio stream, outputting a \texttt{.WAV} file for transcription and an optional image thumbnail.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/pdz/23-movipy.png}
+        \caption{MoviePy Extraction Process.}
+        \label{fig:movipy_process}
+    \end{figure}
+    
+    \item \textbf{Audio Transcription}: The extracted audio or raw \texttt{.WAV} files are passed to the \textbf{OpenAI Whisper} ASR engine. Whisper transcribes the speech to text, which is immediately serialized into \textbf{Markdown} format to preserve semantic structure.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/pdz/24-whisper.png}
+        \caption{OpenAI Whisper Audio Transcription Process.}
+        \label{fig:whisper_process}
+    \end{figure}
+
+\end{itemize}
+
+\textbf{Office Document Normalization}
+
+Legacy office formats require conversion before structural analysis. The system utilizes \textbf{LibreOffice} in a headless server environment.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/pdz/25-libre.png}
+    \caption{LibreOffice Document Conversion Process.}
+    \label{fig:libre_process}
+\end{figure}
+
+Formats such as Microsoft Word (.DOC), PowerPoint (.PPT), and HTML are normalized into standard \textbf{PDF} documents to freeze layout and fonts.
+
+\textbf{Complex Document Parsing}
+
+For data-dense documents, the pipeline integrates \textbf{Docling} as the central parsing engine:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/pdz/26-docling.png}
+    \caption{Docling Document Parsing Process.}
+    \label{fig:docling_process}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Inputs}: Handles PDF, Excel (.XLS), CSV, Markdown, Text, and Images.
+    \item \textbf{Outputs}: Docling deconstructs these inputs into three distinct normalized artifacts:
+    \begin{enumerate}
+        \item \textbf{Structured Markdown}: For semantic text analysis.
+        \item \textbf{Table Objects}: For preserving row/column relationships.
+        \item \textbf{Isolated Images}: For downstream visual indexing.
+    \end{enumerate}
+\end{itemize}
 
 \textbf{Output Artifacts}
 
