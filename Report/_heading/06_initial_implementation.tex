@@ -142,7 +142,7 @@ To handle temporal media, the system implements a two-step transformation:
         \label{fig:movipy_process}
     \end{figure}
     
-    \item \textbf{Audio Transcription}: The extracted audio or raw \texttt{.WAV} files are passed to the \textbf{OpenAI Whisper} ASR engine. Whisper transcribes the speech to text, which is immediately serialized into \textbf{Markdown} format to preserve semantic structure.
+    \item \textbf{Audio Transcription}: The extracted audio or raw \texttt{.WAV} files are passed to \textbf{OpenAI Whisper} ASR engine. Whisper transcribes the speech to text, which is immediately serialized into \textbf{Markdown} format to preserve semantic structure.
     
     \begin{figure}[H]
         \centering
@@ -171,7 +171,7 @@ For data-dense documents, the pipeline integrates \textbf{Docling} as the centra
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/26-docling.png}
+    \includegraphics[width=1\textwidth]{img/pdz/26-docling.png}
     \caption{Docling Document Parsing Process.}
     \label{fig:docling_process}
 \end{figure}
@@ -341,9 +341,10 @@ The system integrates the \textbf{ColQwen} architecture (specifically \texttt{vi
 
 \textbf{Hybrid Retrieval Integration}
 
-The retrieval layer unifies these two streams. The index supports \textbf{Hybrid}, allowing for keyword precision and semantic recall. The Text and Visual indices can be queried simultaneously to return both relevant text snippets and their corresponding visual page contexts.
+The retrieval unifies these two streams. 
+The Text and Visual indices can be queried simultaneously to return both relevant text snippets and their corresponding visual page contexts.
 
-The retrieval mechanism is \textbf{Hybrid}, combining two distinct algorithms:
+The index supports \textbf{Hybrid}, allowing for keyword precision and semantic recall, combining two distinct algorithms:
 
 \begin{enumerate}
     \item \textbf{Sparse Retrieval (BM25)}: Utilizes keyword matching to capture exact terms and domain-specific jargon.
