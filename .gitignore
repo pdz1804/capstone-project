@@ -557,3 +557,37 @@ frontend_2/
 .kiro/steering/byterover-rules.md
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
+
+# -------------------------
+# LaTeX / TeX
+# -------------------------
+# Auxiliary files (generated during compilation)
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdy
+
+# Bibliography
+*.bbl
+*.blg
+
+# Build files
+*.auxlock
+*.figlist
+*.makefile
+*.figlist
+*.fls
+*.synctex.gz
+
+# PDF output (optional - uncomment if you don't want to track PDFs)
+# *.pdf
