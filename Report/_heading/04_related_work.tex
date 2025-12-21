@@ -58,8 +58,6 @@ This multimodal capability aligns with academic materials that combine formulas,
 
 NotebookLM employs Retrieval-Augmented Generation to ensure responses are grounded in uploaded documents rather than solely in parametric model memory \cite{rag-framework}. When answering a query, the system retrieves relevant text segments and conditions generation on them, frequently accompanied by inline citations that reference specific sections of the source material. This reduces hallucinations and supports academic verification \footnote{\url{https://blog.google/technology/ai/notebooklm-citations/}}.
 
-Despite this grounding, complex analytical tasks such as mathematical reasoning, algorithm evaluation, or code execution may still rely on internal model reasoning and can produce incorrect interpretations without external validation layers. The NotebookLM interface is shown in Figure~\ref{fig:NotebookLM}\footnote{\url{https://blog.google/technology/ai/notebooklm-google-ai/}}.
-
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/11-notebooklm.png}
@@ -67,7 +65,7 @@ Despite this grounding, complex analytical tasks such as mathematical reasoning,
     \label{fig:NotebookLM}
 \end{figure}
 
-% Beyond static summarization and Q\&A, NotebookLM introduces several learning-focused features\footnote{Features include structured summaries (\url{https://blog.google/technology/ai/notebooklm-summaries/}), flashcards and quizzes (\url{https://blog.google/technology/ai/notebooklm-learning-tools/}), audio overviews (\url{https://blog.google/technology/ai/notebooklm-audio-overviews/}), and visual summaries (\url{https://blog.google/technology/ai/notebooklm-video-overviews/}).}:
+Despite this grounding, complex analytical tasks such as mathematical reasoning, algorithm evaluation, or code execution may still rely on internal model reasoning and can produce incorrect interpretations without external validation layers. The NotebookLM interface is shown in Figure~\ref{fig:NotebookLM}\footnote{\url{https://blog.google/technology/ai/notebooklm-google-ai/}}.
 
 Beyond static summarization and Q\&A, NotebookLM introduces several learning-focused features:
 

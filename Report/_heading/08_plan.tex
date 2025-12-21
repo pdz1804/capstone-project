@@ -88,29 +88,26 @@ Phase 1 successfully established a comprehensive foundation for the multimodal R
     bar label font=\small,
     title label font=\small\bfseries,
     progress label text={},
-    group right shift=0,
-    group top shift=.6,
-    group height=.2
+    bar/.style={fill=gray!20},
+    title/.style={draw=none, fill=none},
+    title label node/.append style={opacity=0, minimum width=0pt, inner sep=0pt}
 ]{1}{12}
 
 \gantttitle{Phase 1 Implementation (Weeks)}{12} \\
 \gantttitlelist{1,...,12}{1} \\
 
-% Group 1: Research & Setup
-\ganttgroup{Research \& Setup}{1}{4} \\
-\ganttbar{Lit Review \& Setup}{1}{3} \\
+% Research & Setup
+\ganttbar[bar/.style={fill=blue!30}]{Lit Review \& Setup}{1}{3} \\
 \ganttbar[bar/.style={fill=blue!30}]{VLM \& ASR Survey}{2}{4} \\
 
-% Group 2: Pipeline Development
-\ganttgroup{Baseline Development}{3}{9} \\
+% Baseline Development
 \ganttbar[bar/.style={fill=green!40}]{ASR \& OCR Trials}{3}{6} \\
 \ganttbar[bar/.style={fill=green!40}]{Retrieval Exp (BM25/Dense)}{4}{8} \\
 \ganttbar[bar/.style={fill=orange!40}]{Pipeline v1 Integration}{6}{10} \\
 
-% Group 3: Deliverables
-\ganttgroup{Deliverables}{8}{12} \\
-\ganttbar{UI/API Design}{8}{10} \\
-\ganttbar{Report \& Presentation}{10}{12}
+% Deliverables
+\ganttbar[bar/.style={fill=purple!30}]{UI/API Design}{8}{10} \\
+\ganttbar[bar/.style={fill=purple!30}]{Report \& Presentation}{10}{12}
 
 \end{ganttchart}
 \caption{Phase 1 Implementation Timeline: Completed work showing the parallelization of research, processing, and experimental tracks across the 12-week development period.}
@@ -184,7 +181,10 @@ The planned work schedule for Phase 2 is structured across eight weeks, encompas
     y unit chart=0.7cm,
     bar height=0.6,
     bar label font=\small,
-    title label font=\small\bfseries
+    title label font=\small\bfseries,
+    bar/.style={fill=gray!20},
+    title/.style={draw=none, fill=none},
+    title label node/.append style={opacity=0, minimum width=0pt, inner sep=0pt}
 ]{13}{25}
 
 \gantttitle{Phase 2 Scaling \& Defense (Weeks)}{13} \\
@@ -199,7 +199,6 @@ The planned work schedule for Phase 2 is structured across eight weeks, encompas
 \ganttbar[bar/.style={fill=purple!40}]{\textbf{UI/UX:} API \& UI Integration}{18}{20} \\
 
 % Evaluation & Writing
-\ganttgroup{Academic Eval \& Writing}{18}{24} \\
 \ganttbar[bar/.style={fill=yellow!50}]{Benchmark \& RQ Analysis}{19}{22} \\
 \ganttbar[bar/.style={fill=gray!30}]{Thesis: Final Writing}{18}{23} \\
 \ganttbar[bar/.style={fill=red!40}]{Defense Preparation}{24}{25}
