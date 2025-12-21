@@ -20,7 +20,7 @@
 
 \section{Architecture Design}
 
-The Unified Multimodal RAG Pipeline is architected as a modular, resource-optimized system designed to handle the complete lifecycle of document intelligence—from raw ingestion to semantic generation. The system deviates from traditional monolithic designs by adopting a \textbf{Layered Service Architecture}, decoupling the retrieval logic from the generation logic, and utilizing a file-system-based state management approach for portability.
+The Unified Multimodal RAG Pipeline is architected as a modular, resource-optimized system designed to handle the complete lifecycle of document intelligence from raw ingestion to semantic generation. The system deviates from traditional monolithic designs by adopting a \textbf{Layered Service Architecture}, decoupling the retrieval logic from the generation logic, and utilizing a file-system-based state management approach for portability.
 
 The architecture is composed of four primary layers:
 
@@ -92,23 +92,15 @@ This subsystem handles non-textual data. Instead of extracting text from images 
 %     \item \textbf{Metadata Extraction}: Basic file attributes (size, modification time, MIME type) are extracted and normalized into a standard JSON structure for frontend display.
 % \end{itemize}
 
-\section{Data Normalization and Preprocessing}
+\section{Data Normalization}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/19-normalization.png}
-    \caption{Data Normalization Flowchart: From Raw Input to RAG-Ready Artifacts.}
-    \label{fig:normalization}
-\end{figure}
-
-Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs—ranging from multimedia files to office documents—and funnels them into a standardized "RAG-ready" format.
-
+Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs ranging from multimedia files to office documents and funnels them into a standardized "RAG-ready" format.
 The normalization pipeline is governed by the \texttt{Processor} module and utilizes a suite of open-source libraries to perform format unification.
 
 Upon upload via the API, raw files undergo immediate sanitization:
 \begin{itemize}
-    \item \textbf{Filename Sanitization}: To prevent filesystem collisions and encoding errors, filenames are normalized to ASCII characters, and duplicate uploads are handled via an incremental suffix strategy (e.g., \texttt{lecture\_notes.pdf} $\rightarrow$ \texttt{lecture\_notes\_1.pdf}).
-    \item \textbf{MIME Type Validation}: The system acts as a gatekeeper, filtering files based on magic numbers to ensure only supported formats proceed to the processing stage.
+    \item \textbf{Filename Sanitization}: To prevent filesystem collisions and encoding errors, filenames are normalized to ASCII characters, and duplicate uploads are handled via an incremental suffix strategy.
+    \item \textbf{Type Validation}: The system acts as a gatekeeper, filtering files based on magic numbers to ensure only supported formats proceed to the processing stage.
 \end{itemize}
 
 
@@ -116,51 +108,113 @@ To facilitate both Visual (ColQwen) and Textual (Dense/Sparse) retrieval, all in
 
 The specific normalization strategies per file type are as follows:
 
-\textbf{Office and Document Formats}
+% \textbf{Office and Document Formats}
 
-Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly.
+% Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly. 
+% The system utilizes \textbf{LibreOffice} in headless mode (server-side).
+% These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
+
+
+% \textbf{Multimedia (Audio and Video)}
+
+% Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
+% \textbf{MoviePy} is employed to separate audio tracks from video containers.
+% The \textbf{OpenAI Whisper} model (Automatic Speech Recognition) processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
+
+% \textbf{Structural Parsing (Docling)}
+
+% For complex documents like scientific PDFs, HTML pages, or Table-heavy reports, simple text extraction is insufficient.
+% The pipeline integrates \textbf{Docling}, a specialized document parsing library.
+% Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
+% It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
+
+
+\textbf{Multimedia Processing}
+
+To handle temporal media, the system implements a two-step transformation:
 \begin{itemize}
-    \item \textbf{Tooling}: The system utilizes \textbf{LibreOffice} in headless mode (server-side).
-    \item \textbf{Transformation}: These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
+    \item \textbf{Video Extraction}: Raw video files (e.g., MP4) are processed using \textbf{MoviePy}. This extractor separates the visual stream from the audio stream, outputting a \texttt{.WAV} file for transcription and an optional image thumbnail.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{img/pdz/23-movipy.png}
+        \caption{MoviePy Extraction Process.}
+        \label{fig:movipy_process}
+    \end{figure}
+    
+    \item \textbf{Audio Transcription}: The extracted audio or raw \texttt{.WAV} files are passed to \textbf{OpenAI Whisper} ASR engine. Whisper transcribes the speech to text, which is immediately serialized into \textbf{Markdown} format to preserve semantic structure.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{img/pdz/24-whisper.png}
+        \caption{OpenAI Whisper Audio Transcription Process.}
+        \label{fig:whisper_process}
+    \end{figure}
+
 \end{itemize}
 
-\textbf{Multimedia (Audio and Video)}
+\textbf{Office Document Normalization}
 
-Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
+Legacy office formats require conversion before structural analysis. The system utilizes \textbf{LibreOffice} in a headless server environment.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/pdz/25-libre.png}
+    \caption{LibreOffice Document Conversion Process.}
+    \label{fig:libre_process}
+\end{figure}
+
+Formats such as Microsoft Word (.DOC), PowerPoint (.PPT), and HTML are normalized into standard \textbf{PDF} documents to freeze layout and fonts.
+
+\textbf{Complex Document Parsing}
+
+For data-dense documents, the pipeline integrates \textbf{Docling} as the central parsing engine:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/26-docling.png}
+    \caption{Docling Document Parsing Process.}
+    \label{fig:docling_process}
+\end{figure}
+
 \begin{itemize}
-    \item \textbf{Audio Extraction}: \textbf{MoviePy} is employed to separate audio tracks from video containers.
-    \item \textbf{Transcription}: The \textbf{OpenAI Whisper} model (Automatic Speech Recognition) processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
+    \item \textbf{Inputs}: Handles PDF, Excel (.XLS), CSV, Markdown, Text, and Images.
+    \item \textbf{Outputs}: Docling deconstructs these inputs into three distinct normalized artifacts:
+    \begin{enumerate}
+        \item \textbf{Structured Markdown}: For semantic text analysis.
+        \item \textbf{Table Objects}: For preserving row/column relationships.
+        \item \textbf{Isolated Images}: For downstream visual indexing.
+    \end{enumerate}
 \end{itemize}
 
-\textbf{Structural Parsing (Docling)}
+% \textbf{Output Artifacts}
 
-For complex documents like scientific PDFs, HTML pages, or Table-heavy reports, simple text extraction is insufficient.
-\begin{itemize}
-    \item \textbf{Tooling}: The pipeline integrates \textbf{Docling}, a specialized document parsing library.
-    \item \textbf{Capability}: Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
-    \item \textbf{Output}: It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
-\end{itemize}
+% Every input file results in a unified set of artifacts in the rag ready directory:
+% \begin{enumerate}
+%     \item \textbf{PDF}: Used for visual embedding (ColQwen) and user preview.
+%     \item \textbf{Structured Markdown}: Used for text embedding (BM25/Dense) and LLM context injection.
+%     \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
+% \end{enumerate}
 
-\textbf{Output Artifacts}
 
-Every input file results in a unified set of artifacts in the rag ready directory:
-\begin{enumerate}
-    \item \textbf{PDF}: Used for visual embedding (ColQwen) and user preview.
-    \item \textbf{Structured Markdown}: Used for text embedding (BM25/Dense) and LLM context injection.
-    \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
-\end{enumerate}
+The output of this step  is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
 
 
 
 
-% \section{Data Preprocessing}
-% The preprocessing module transforms raw files into machine-understandable formats. The pipeline splits the workflow into two parallel streams to handle multimodal data:
+\section{Data Preprocessing}
+The preprocessing module transforms raw files into machine-understandable formats. The pipeline splits the workflow into two parallel streams to handle multimodal data:
 
-% \textbf{Text Stream}
-% For textual data, the system performs Optical Character Recognition (OCR) or direct text extraction depending on the source file type. The output is standardized into JSON and Markdown formats, stored in the \texttt{output/processing} directory.
+\textbf{Text Stream:}
 
-% \textbf{Visual Stream}
-% A critical component of this pipeline is the handling of visual data within PDFs. The system utilizes \texttt{pdf2image} to render PDF pages into high-resolution images (defaulting to 150 DPI). This rasterization step is essential for the visual retriever (ColQwen), which treats document pages as images to preserve layout and semantic structure that text-only extractors often lose.
+% For textual data, the system performs Optical Character Recognition (OCR) or direct text extraction depending on the source file type. The output is standardized into Markdown formats, stored in the \texttt{output/processing} directory.
+
+The primary input for this stream is the structured \textbf{Markdown} files generated during the normalization phase. The preprocessing logic focuses on preparing this text for semantic vectorization:
+Removal of artifacts introduced during OCR or file conversion.
+The system utilizes the Markdown headers to maintain context, ensuring that section titles remain associated with their respective paragraphs during the splitting process.
+
+\textbf{Visual Stream:}
+
+A critical component of this pipeline is the handling of visual data within \textbf{PDF} files. The system utilizes \textbf{pdf2image} to render PDF pages into high-resolution images (defaulting to 150 DPI). This rasterization step is essential for the visual retriever (ColQwen), which treats document pages as images to preserve layout and semantic structure that text-only extractors often lose.
 
 % \section{Chunking and Embedding Strategies}
 % The system employs a sophisticated "Hybrid + Multimodal" retrieval strategy to maximize recall and precision.
@@ -207,19 +261,30 @@ To process the Markdown inputs, the system utilizes a high-precision splitting s
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/20-textchunk.png}
+    \includegraphics[width=1\textwidth]{img/pdz/20-textchunk.png}
     \caption{Textual Chunking and Embedding.}
     \label{fig:textchunk}
 \end{figure}
 
 % \textbf{Chunking Logic}
 
-The system employs the \texttt{RecursiveCharacterTextSplitter} with the following specific configuration:
-\begin{itemize}
-    \item \textbf{Chunk Size}: 1024 characters.
-    \item \textbf{Chunk Overlap}: 200 characters.
-\end{itemize}
-This overlap ensures semantic continuity across chunk boundaries, preventing context loss for sentences that straddle the split point.
+% The system employs the \texttt{RecursiveCharacterTextSplitter} with the following specific configuration:
+% \begin{itemize}
+%     \item \textbf{Chunk Size}: 1024 characters.
+%     \item \textbf{Chunk Overlap}: 200 characters.
+% \end{itemize}
+
+
+Textual data is segmented into chunks to fit within the context window of the embedding models. 
+The system employs the \texttt{RecursiveCharacterTextSplitter} with the configuration using a chunk size of 1024 characters with an overlap of 200 characters. 
+This overlap ensures semantic continuity across chunk boundaries, preventing context loss for sentences that straddle the split point. 
+% The retrieval mechanism is \textit{Hybrid}, combining two distinct algorithms:
+% \begin{enumerate}
+%     \item \textbf{Sparse Retrieval (BM25)}: Utilizes keyword matching to capture exact terms and domain-specific jargon.
+%     \item \textbf{Dense Retrieval}: Utilizes vector embeddings (stored in FAISS indices) to capture semantic meaning and context. The default embedding model is \texttt{all-MiniLM-L6-v2}.
+% \end{enumerate}
+% Scores from both retrievers are combined using Min-Max normalization and a weighted sum (default $\alpha=0.5$).
+
 
 \textbf{Text Vectorization (SBERT)}
 
@@ -240,17 +305,16 @@ Processed chunks are mapped to a high-dimensional vector space using the \textbf
 
 \textbf{Visual Embedding (ColQwen)}
 
-For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes the canonical \textbf{PDF} files.
-\begin{itemize}
-    \item \textbf{Rasterization Strategy}: The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
-    \item \textbf{Artifact Management}: These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model "sees" the document exactly as a human would.
-\end{itemize}
+For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes JPG images derived from the canonical PDF files.
+% The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
+These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model "sees" the document exactly as a human would.
+
 
 The visual pathway processes the page images generated to enable multimodal retrieval.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/21-visualemb.png}
+    \includegraphics[width=1\textwidth]{img/pdz/21-visualemb.png}
     \caption{Visual Embedding (ColQwen).}
     \label{fig:visualemb}
 \end{figure}
@@ -277,7 +341,18 @@ The system integrates the \textbf{ColQwen} architecture (specifically \texttt{vi
 
 \textbf{Hybrid Retrieval Integration}
 
-The retrieval layer unifies these two streams. The text index supports \textbf{Hybrid Search} (BM25 + Dense), allowing for keyword precision and semantic recall. Optionally, the Text and Visual indices can be queried simultaneously to return both relevant text snippets and their corresponding visual page contexts.
+The retrieval unifies these two streams. 
+The Text and Visual indices can be queried simultaneously to return both relevant text snippets and their corresponding visual page contexts.
+
+The index supports \textbf{Hybrid}, allowing for keyword precision and semantic recall, combining two distinct algorithms:
+
+\begin{enumerate}
+    \item \textbf{Sparse Retrieval (BM25)}: Utilizes keyword matching to capture exact terms and domain-specific jargon.
+    \item \textbf{Dense Retrieval}: Utilizes vector embeddings (stored in FAISS indices) to capture semantic meaning and context. The default embedding model is \texttt{all-MiniLM-L6-v2}.
+\end{enumerate}
+
+Scores from both retrievers are combined using Min-Max normalization and a weighted sum.
+
 
 
 % \section{Database Storage}
