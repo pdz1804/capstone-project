@@ -582,6 +582,7 @@ Report/main.pdf
 # Bibliography
 *.bbl
 *.blg
+*-SAVE-ERROR
 
 # Build files
 *.auxlock
