@@ -181,7 +181,7 @@ RAG is chosen because it offers the optimal balance of accuracy, cost-efficiency
 
 % The system implements a Multimodal Retrieval-Augmented Generation (RAG) architecture designed to synthesize answers from a diverse set of unstructured data sources. As illustrated in Figure \ref{fig:overall_arch}, the workflow is divided into three primary subsystems: Input Processing, Dual-Stream Indexing, and Generative Synthesis.
 
-% \begin{figure}[H]
+% \begin{figure}[h!]
 %     \centering
 %     \includegraphics[width=0.8\textwidth]{img/pdz/22-architecture.png}
 %     \caption{Overall System Architecture for MRAG.}
@@ -278,6 +278,13 @@ The system implements a sophisticated dual-pipeline architecture designed to han
 
 \subsubsection{Data Processing Pipeline}
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/pdz/19-normalization.png}
+    \caption{Data Processing Pipeline Normalization Stage.}
+    \label{fig:normalization}
+\end{figure}
+
 The Data Processing Pipeline transforms raw input files through three sequential stages, each optimized for specific document types and processing requirements. As illustrated in Figure \ref{fig:normalization}, this pipeline ensures that diverse formats are normalized into standardized representations suitable for downstream retrieval tasks.
 
 \textbf{Stage 1: Normalization}
@@ -350,6 +357,13 @@ HTML & DOM parsing & Yes & Yes (embedded) & Yes \\ \bottomrule
 Docling integrates multiple vision backends (OCR engines: RapidOCR, Tesseract, EasyOCR; Vision-Language Models for semantic understanding) to ensure high-fidelity content extraction from both born-digital and scanned documents.
 
 \subsubsection{Embedding-Indexing Pipeline}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/pdz/27-chunkemb.png}
+    \caption{Dual-Pathway Embedding and Indexing Architecture.}
+    \label{fig:chunk_emb}
+\end{figure}
 
 Following data processing, the system employs a dual-pathway embedding architecture to enable multimodal retrieval. As illustrated in Figure \ref{fig:chunk_emb}, this architecture allows simultaneous retrieval of granular text segments and holistic document pages.
 
@@ -519,6 +533,13 @@ The first stage of the pipeline is responsible for normalizing diverse raw file 
 
 \textbf{Document Parsing with Docling}
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/pdz/26-docling.png}
+    \caption{Docling Document Processing Flow.}
+    \label{fig:docling}
+\end{figure}
+
 To address the challenge of ingesting complex, semi-structured data, the pipeline integrates \textbf{Docling}, a state-of-the-art document parsing framework. Docling serves as the central transformation engine, converting diverse input formats into structured, semantic representations ideal for RAG applications.
 
 % \subsection{Overview}
@@ -564,6 +585,13 @@ The result of the Docling process is a set of clean, normalized artifacts ready 
 
 \textbf{Audio Transcription with Whisper}
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/pdz/24-whisper.png}
+    \caption{Whisper Audio Transcription Flow.}
+    \label{fig:whisper}
+\end{figure}
+
 To extend the system's retrieval capabilities beyond static documents, the pipeline integrates \textbf{OpenAI Whisper}, a robust ASR system. This component allows the RAG engine to \textit{listen} to multimedia content, converting spoken words into structured, searchable text.
 
 % \subsection{ASR Pipeline Architecture}
@@ -584,6 +612,13 @@ This extracted audio is then passed to Whisper, ensuring that lecture recordings
 
 \textbf{Office Document Normalization}
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/pdz/25-libre.png}
+    \caption{LibreOffice (Office Docs) Conversion Flow.}
+    \label{fig:LibreOffice}
+\end{figure}
+
 Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are converted using \textbf{LibreOffice} in headless mode. These documents are normalized into standard PDF format to preserve layout, fonts, and slide structures for the visual retrieval engine.
 
 \textbf{Output Artifacts}
@@ -601,6 +636,13 @@ Following normalization, the data is split into two specialized indexing streams
 
 \textbf{Textual Indexing Stream}
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/pdz/20-textchunk.png}
+    \caption{Text Embedding Flow.}
+    \label{fig:textembflow}
+\end{figure}
+
 The Markdown output undergoes a semantic vectorization process:
 \begin{itemize}
     \item \textbf{Chunking Strategy}: The system employs a \texttt{RecursiveCharacterTextSplitter} configured with a chunk size of \textbf{1024} characters and an overlap of \textbf{200} characters to maintain context across boundaries.
@@ -610,6 +652,13 @@ The Markdown output undergoes a semantic vectorization process:
 \end{itemize}
 
 \textbf{Visual Indexing Stream}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/pdz/21-visualemb.png}
+    \caption{Visual Embedding Flow.}
+    \label{fig:visualembflow}
+\end{figure}
 
 The PDF output undergoes a visual encoding process:
 \begin{itemize}
@@ -732,7 +781,7 @@ Every input file results in a unified set of artifacts in the rag ready director
 
 Following normalization, the data is split into two specialized indexing streams to handle the unique requirements of text and images.
 
-\begin{figure}[H]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/27-chunkemb.png}
     \caption{Dual-Stream Indexing Layer.}
@@ -763,7 +812,7 @@ The PDF output undergoes a visual encoding process:
 
 The final layer orchestrates the user interaction and answer generation.
 
-\begin{figure}[H]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/22-architecture.png}
     \caption{Overall System Architecture.}
