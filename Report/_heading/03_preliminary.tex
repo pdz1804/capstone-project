@@ -1,20 +1,20 @@
-\chapter{Preliminary Study}
+\chapter{Preliminaries}
 
 \section{Automatic Speech Recognition}
 
-Automatic Speech Recognition (ASR) is the process of converting spoken language into text and has undergone significant evolution, progressing from traditional statistical pipelines to modern end-to-end neural architectures~\cite{graves2006ctc, chan2015las}. Its applications span a wide range of domains, including voice assistants, captioning, transcription, and accessibility technologies. Recent research has increasingly focused on enhancing robustness, supporting low-resource languages, and leveraging large-scale pretraining to improve generalization and reduce reliance on labeled data~\cite{baevski2020wav2vec2, radford2022whisper}.
+Automatic Speech Recognition (ASR) is the process of converting spoken language into text and has undergone significant evolution, progressing from traditional statistical pipelines to modern end-to-end neural architectures~\cite{graves2006ctc, chan2015las}. Its applications span a wide range of domains, including voice assistants, captioning, transcription, and accessibility technologies. Recent research has increasingly focused on enhancing robustness, supporting low-resource languages, and leveraging large-scale pretraining to improve generalization and reduce reliance on labeled data~\cite{baevski2020wav2vec2, radford2022whisper}. A typical ASR pipeline is illustrated in Figure~\ref{fig:ASR_Pipeline}\footnote{\url{https://www.researchgate.net/figure/ASR-application-pipeline_fig1_355070202}}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/09-asr-pipeline.png}
-    \caption{ASR pipeline \cite{asr_pipeline_rg}}
+    \caption[ASR pipeline]{ASR pipeline}
     \label{fig:ASR_Pipeline}
 \end{figure}
 
 ASR is the task of converting an acoustic signal into a sequence of words. Formally, the goal of an ASR system is to determine the most probable word sequence $\hat{W}$ given an input acoustic observation $X$
 
 \begin{equation*}
-    \hat{W} = \arg\max_{W} P(W|X)
+    \hat{W} = \arg\max_{W} P(W|X).
 \end{equation*}
 
 Using Bayes' theorem, this can be rewritten as
@@ -33,7 +33,7 @@ where:
 The decoder combines both models to search for the optimal word sequence.
 
 
-The earliest generation of ASR systems was based on Gaussian Mixture Models (GMMs) combined with Hidden Markov Models (HMMs), which provided temporal alignment and probabilistic modeling of speech signals~\cite{hinton2012dnn, rabiner1989hmm}. These systems relied on n-gram language models and lexicons to capture linguistic structure. Around 2010–2015, the hybrid Deep Neural Network–HMM (DNN–HMM) approach emerged, where deep neural networks replaced GMMs to improve acoustic modeling~\cite{hinton2012dnn}. This hybrid paradigm dominated production ASR systems for several years, supported by widely used toolkits such as Kaldi~\cite{povey2011kaldi} and benchmark datasets like Switchboard and WSJ~\cite{switchboard1992, wsj1993}, until end-to-end models began demonstrating superior performance.
+The earliest generation of ASR systems was based on Gaussian Mixture Models (GMMs) combined with Hidden Markov Models (HMMs), which provided temporal alignment and probabilistic modeling of speech signals~\cite{hinton2012dnn, rabiner1989hmm}. These systems relied on n-gram language models and lexicons to capture linguistic structure. Around 2010–2015, the hybrid Deep Neural Network–HMM (DNN–HMM) approach emerged, where deep neural networks replaced GMMs to improve acoustic modeling. This hybrid paradigm dominated production ASR systems for several years, supported by widely used toolkits such as Kaldi~\cite{povey2011kaldi} and benchmark datasets like Switchboard and WSJ~\cite{switchboard1992, wsj1993}, until end-to-end models began demonstrating superior performance.
 
 End-to-end ASR methods simplify traditional pipelines by directly mapping audio signals to text with a single neural model, allowing joint optimization of components. Three major paradigms have shaped this shift. Connectionist Temporal Classification (CTC) enables training without frame-level alignment by marginalizing over possible alignments, making it effective for character or phoneme-based outputs~\cite{graves2006ctc}. Attention-based encoder–decoder models, exemplified by Listen, Attend and Spell (LAS), rely on an encoder to produce representations and an attention mechanism to guide token-level predictions, effectively modeling dependencies between outputs~\cite{chan2015las}. Transducer models, such as the Recurrent Neural Network Transducer (RNN-T) and Transformer Transducer, combine alignment and prediction into a unified probabilistic framework that supports streaming and low-latency applications~\cite{graves2012rnnt, he2019transformertransducer}. Each paradigm has its own trade-offs: CTC models are simple but constrained by conditional independence assumptions, attention-based models excel in accuracy but are less suitable for streaming, while transducer models balance accuracy and real-time usability.
 
@@ -66,7 +66,7 @@ where:
 
 The decoder uses an attention mechanism to dynamically focus on relevant parts of the encoded speech representation at each timestep, enabling the model to learn soft alignments between acoustic frames and output tokens without explicit alignment labels.
 
-Another major milestone is the rise of self-supervised learning and large-scale pretraining. Models such as wav2vec 2.0 learn powerful audio representations from unlabeled data using contrastive objectives and can be fine-tuned with limited labeled samples to achieve competitive Word Error Rates (WER)~\cite{baevski2020wav2vec2}. Large-scale efforts, including Whisper, demonstrate that scaling both data and model size improves robustness, generalization, and zero-shot transfer across languages and domains~\cite{radford2022whisper}. This trend highlights the growing importance of pretraining as a foundation for ASR development.
+Another major milestone is the rise of self-supervised learning and large-scale pretraining. Models such as wav2vec 2.0 learn powerful audio representations from unlabeled data using contrastive objectives and can be fine-tuned with limited labeled samples to achieve competitive Word Error Rates (WER). Large-scale efforts, including Whisper, demonstrate that scaling both data and model size improves robustness, generalization, and zero-shot transfer across languages and domains. This trend highlights the growing importance of pretraining as a foundation for ASR development.
 
 Datasets and benchmarks play a central role in evaluating ASR progress. LibriSpeech has become the primary benchmark for reporting performance~\cite{panayotov2015librispeech}, while datasets such as Switchboard~\cite{switchboard1992}, TED-LIUM~\cite{rousseau2012tedlium}, and Mozilla’s Common Voice provide additional testbeds across different domains and languages~\cite{ardila2020commonvoice}. Evaluation typically relies on Word Error Rate (WER) and Character Error Rate (CER), with WER remaining the most widely used metric for system comparison.
 
@@ -86,11 +86,11 @@ where:
 
 A lower WER indicates better recognition performance, with $\text{WER} = 0$ representing a perfect transcription.
 
-Despite advances, practical deployment of ASR introduces further challenges. Many systems still integrate external language models or employ shallow fusion during decoding to improve accuracy~\cite{gulati2020conformer}. Streaming requirements necessitate architectures tailored for low-latency inference, such as transducer models or streaming variants of attention mechanisms~\cite{he2019transformertransducer}. On-device ASR applications also demand model compression, quantization, and lightweight designs to meet computational and memory constraints~\cite{han2016deepcompression}.
+Despite advances, practical deployment of ASR introduces further challenges. Many systems still integrate external language models or employ shallow fusion during decoding to improve accuracy. Streaming requirements necessitate architectures tailored for low-latency inference, such as transducer models or streaming variants of attention mechanisms. On-device ASR applications also demand model compression, quantization, and lightweight designs to meet computational and memory constraints.
 
-Robustness, fairness, and safety remain open challenges in the field. ASR systems continue to struggle with noise, accents, microphone variability, and domain shifts~\cite{radford2022whisper}. Although large-scale pretraining and data augmentation mitigate some issues, performance disparities persist for underrepresented languages and accents~\cite{ardila2020commonvoice}. Furthermore, large ASR models can generate hallucinated transcriptions that appear plausible but are incorrect, necessitating confidence estimation and caution in safety-critical applications.
+Robustness, fairness, and safety remain open challenges in the field. ASR systems continue to struggle with noise, accents, microphone variability, and domain shifts. Although large-scale pretraining and data augmentation mitigate some issues, performance disparities persist for underrepresented languages and accents. Furthermore, large ASR models can generate hallucinated transcriptions that appear plausible but are incorrect, necessitating confidence estimation and caution in safety-critical applications.
 
-Emerging directions in ASR research include the development of multilingual and code-switching systems~\cite{radford2022whisper}, efficient streaming attention mechanisms for real-time transcription~\cite{he2019transformertransducer}, privacy-preserving and on-device solutions~\cite{han2016deepcompression}, and the integration of diarization and alignment for richer transcription outputs. These efforts align with the broader trend toward building general-purpose, reliable, and accessible speech recognition technologies.
+Emerging directions in ASR research include the development of multilingual and code-switching systems, efficient streaming attention mechanisms for real-time transcription, privacy-preserving and on-device solutions, and the integration of diarization and alignment for richer transcription outputs. These efforts align with the broader trend toward building general-purpose, reliable, and accessible speech recognition technologies.
 
 ASR has advanced from early GMM–HMM systems to end-to-end neural architectures that leverage transformers, conformers, and self-supervised pretraining. While remarkable improvements have been achieved in accuracy and efficiency, challenges in robustness, fairness, and real-time deployment remain pressing. Future progress will likely depend on scaling laws, architectural innovations, and greater diversity in datasets and evaluation methodologies, ensuring that ASR systems become more equitable, reliable, and widely applicable.
 
@@ -102,7 +102,7 @@ Optical Character Recognition (OCR) has long been regarded as a cornerstone tech
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/10-ocr-pipeline.jpg}
-    \caption{OCR pipeline.}
+    \caption[OCR Pipeline]{OCR pipeline.}
     \label{fig:OCR pipeline}
 \end{figure}
 
@@ -151,7 +151,7 @@ The Transformer architecture, introduced by Vaswani et al. in 2017, revolutioniz
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\textwidth]{img/pdz/06-transformers-architecture.png}
-    \caption{The Transformer - model architecture.}
+    \caption[Transformer Architecture]{Transformer Architecture.}
     \label{fig:Transformer architecture}
 \end{figure}
 
@@ -208,14 +208,14 @@ This mechanism allows the model to capture multiple types of relationships simul
 
 \section{Multimodal Fusion and Cross-Attentional Models}
 
-For specific data types and stages within retrieval pipelines, more specialized architectures are necessary. In the context of video, which inherently combine visual frames, audio signals, motion dynamics, and transcripts generated through automatic speech recognition, reliance on purely visual encoders such as CLIP fails to exploit the full range of available modalities. To address this limitation, the Multi-level Multi-modal Hybrid Fusion (M2HF) model has been proposed. This model integrates three complementary mechanisms. It first applies multi-stream feature extraction in order to capture representations from visual, audio, motion, and ASR-text channels. It then employs attentional fusion, where attention blocks are used to generate enriched cross-modal features, such as audio-guided visual representations, rather than relying on naive concatenation. Finally, it implements multi-level fusion strategies, combining modalities at both the feature level and the decision level, thereby producing richer and more informative retrieval signals~\cite{liu2022m2hf}.
+For specific data types and stages within retrieval pipelines, more specialized architectures are necessary. In the context of video, which inherently combine visual frames, audio signals, motion dynamics, and transcripts generated through ASR, reliance on purely visual encoders such as CLIP fails to exploit the full range of available modalities. To address this limitation, the Multi-level Multi-modal Hybrid Fusion (M2HF) model has been proposed. This model integrates three complementary mechanisms. It first applies multi-stream feature extraction in order to capture representations from visual, audio, motion, and ASR-text channels. It then employs attentional fusion, where attention blocks are used to generate enriched cross-modal features, such as audio-guided visual representations, rather than relying on naive concatenation. Finally, it implements multi-level fusion strategies, combining modalities at both the feature level and the decision level, thereby producing richer and more informative retrieval signals~\cite{liu2022m2hf}.
 
-Cross-attentional models constitute another important development, particularly in the reranking stage of retrieval pipelines. Unlike dual-encoder architectures, which encode queries and documents independently, cross-attentional models such as BERT-based cross-encoders compute deep, token-level interactions between queries and documents. This capacity allows them to capture fine-grained semantic distinctions, such as differentiating between “a slide explaining photosynthesis” and “a slide merely mentioning photosynthesis.” Their ability to model these nuanced relationships has consistently led to state-of-the-art performance in reranking tasks. However, these gains come at the cost of high computational complexity, which renders such models impractical for large-scale, first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}. Instead, their most effective application lies in second-stage reranking, where they refine a smaller set of candidate results returned by a more efficient retrieval mechanism~\cite{pinecone2025rerankers}.
+Cross-attentional models constitute another important development, particularly in the reranking stage of retrieval pipelines. Unlike dual-encoder architectures, which encode queries and documents independently, cross-attentional models such as BERT-based cross-encoders compute deep, token-level interactions between queries and documents. This capacity allows them to capture fine-grained semantic distinctions, such as differentiating between "a slide explaining photosynthesis" and "a slide merely mentioning photosynthesis." Their ability to model these nuanced relationships has consistently led to state-of-the-art performance in reranking tasks. However, these gains come at the cost of high computational complexity, which renders such models impractical for large-scale, first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}. Instead, their most effective application lies in second-stage reranking, where they refine a smaller set of candidate results returned by a more efficient retrieval mechanism\footnote{\url{https://www.pinecone.io/learn/series/rag/rerankers/}}. The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}\footnote{\url{https://magazine.sebastianraschka.com/p/understanding-multimodal-llms}}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.85\textwidth]{img/pdz/17-cross-attention.jpg}
-    \caption{Cross-attention \cite{raschka2024_multimodal_llms}.}
+    \caption[Cross-attention]{Cross-attention}
     \label{fig:Cross-attention}
 \end{figure}
 
@@ -262,13 +262,12 @@ Each input modality $m \in \{\text{text}, \text{audio}, \text{vision}\}$ is enco
 \begin{equation*}
     z_m = f_m(x_m; \theta_m)
 \end{equation*}
-where $x_m$ is the raw input of modality $m$, $f_m(\cdot)$ is the corresponding encoder (e.g., Transformer encoder for text, Conformer for audio, ViT for vision), and $\theta_m$ denotes its learnable parameters.
-
+where $x_m$ is the raw input of modality $m$, $f_m(\cdot)$ is the corresponding encoder (e.g., Transformer encoder for text, Conformer for audio, ViT for vision), and $\theta_m$ denotes its learnable parameters. An example of multimodal embedding is shown in Figure~\ref{fig:Multimodal embedding}\footnote{\url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/05-multimodal-embedding.png}
-    \caption{Multimodal embedding \cite{aiedge_multimodal_rag}.}
+    \caption[Multimodal embedding]{Multimodal embedding}
     \label{fig:Multimodal embedding}
 \end{figure}
 
@@ -288,15 +287,15 @@ To align representations across modalities, we apply a contrastive loss
 where $z_i^{(a)}$ and $z_i^{(t)}$ are the audio and text embeddings of paired sample $i$, $\mathrm{sim}(z_i^{(a)}, z_j^{(t)})$ is a similarity function (e.g., cosine similarity), $\tau$ is the temperature scaling factor, and $N$ is the batch size.
 
 
-One line of progress has centered on multimodal large language models (MLLMs). These models, exemplified by LLaVA and LLaMA-2 Vision, can process both visual and textual input and have increasingly been repurposed for retrieval tasks. Lin et al. introduced MM-Embed, a multimodal LLM fine-tuned as a bi-encoder to support queries that combine images and text~\cite{lin2024mmembed}. While naïve multimodal LLM retrievers displayed modality biases, such as a tendency to over-prioritize text results, MM-Embed reduced these issues by incorporating modality-aware hard negatives during training. This adjustment enabled the model to achieve state-of-the-art performance on the M-BEIR benchmark, a multi-domain multimodal retrieval suite, and it even outperformed leading text-only retrievers on standard text-focused benchmarks~\cite{lin2024mmembed}. These findings demonstrate that, with careful fine-tuning, large multimodal models can function as powerful and general-purpose retrievers across different modalities.
+One line of progress has centered on multimodal large language models (MLLMs). These models, exemplified by LLaVA and LLaMA-2 Vision, can process both visual and textual input and have increasingly been repurposed for retrieval tasks. Lin et al. introduced MM-Embed, a multimodal LLM fine-tuned as a bi-encoder to support queries that combine images and text~\cite{lin2024mmembed}. While naïve multimodal LLM retrievers displayed modality biases, such as a tendency to over-prioritize text results, MM-Embed reduced these issues by incorporating modality-aware hard negatives during training. This adjustment enabled the model to achieve state-of-the-art performance on the M-BEIR benchmark, a multi-domain multimodal retrieval suite, and it even outperformed leading text-only retrievers on standard text-focused benchmarks. These findings demonstrate that, with careful fine-tuning, large multimodal models can function as powerful and general-purpose retrievers across different modalities.
 
 Another noteworthy development is the emergence of unified multimodal embedding architectures. Meta AI’s ImageBind (2023) represents a landmark contribution by integrating six distinct modalities: images, video, text, audio, depth, thermal data, and IMU motion signals into a single shared embedding space~\cite{girdhar2023imagebind}. Crucially, ImageBind does not require explicit pairing for every modality. Instead, it learns a joint representation that enables flexible cross-modal retrieval; for instance, an audio recording of a lecture can retrieve a relevant diagram, or a video clip can be matched with its spoken description. This holistic framework signals the potential for future educational systems in which any form of input, whether speech, text, or image, can be used to locate semantically related content across heterogeneous media.
 
-Beyond general-purpose models, domain-specific designs have also gained traction. Educational content frequently blends textual explanations with complex visual structures such as diagrams, charts, and mathematical formulas. To address this, models such as jina-embeddings-v4 (2025) have been proposed. With 3.8 billion parameters, this model integrates text and image data and supports both single-vector embeddings and multi-vector late-interaction embeddings~\cite{guenther2025jinaembeddingsv4}. It further incorporates task-specific adapters, trained via low-rank adaptation (LoRA), for applications including code search and question answering. The model achieves state-of-the-art results on text and multimodal retrieval benchmarks, particularly excelling in tasks involving visually dense content such as tables and lecture slides. To evaluate these capabilities, the authors introduced Jina-VDR, a benchmark for visually rich document retrieval, which underscores the critical importance of handling diagrams and mixed-media content in educational settings~\cite{guenther2025jinaembeddingsv4}.
+Beyond general-purpose models, domain-specific designs have also gained traction. Educational content frequently blends textual explanations with complex visual structures such as diagrams, charts, and mathematical formulas. To address this, models such as jina-embeddings-v4 (2025) have been proposed~\cite{guenther2025jinaembeddingsv4}. With 3.8 billion parameters, this model integrates text and image data and supports both single-vector embeddings and multi-vector late-interaction embeddings. It further incorporates task-specific adapters, trained via low-rank adaptation (LoRA), for applications including code search and question answering. The model achieves state-of-the-art results on text and multimodal retrieval benchmarks, particularly excelling in tasks involving visually dense content such as tables and lecture slides. To evaluate these capabilities, the authors introduced Jina-VDR, a benchmark for visually rich document retrieval, which underscores the critical importance of handling diagrams and mixed-media content in educational settings.
 
-Parallel efforts in industry have emphasized retrieval over multimodal documents such as PDFs and slides, which combine text layout with images. Nomic’s Embed Multimodal 7B (2025) exemplifies this trend by embedding interleaved text and images for retrieval-augmented generation over documents. While a formal paper for this model is not yet publicly available, industry documentation and benchmark reports indicate that this model achieved a new state-of-the-art on the ViDoRe–v2 visual document retrieval benchmark, recording an NDCG@5 of 62.7 and surpassing prior models by 2.8 points~\cite{nomic2025embedmultimodal}.
+Parallel efforts in industry have emphasized retrieval over multimodal documents such as PDFs and slides, which combine text layout with images. Nomic's Embed Multimodal 7B (2025) exemplifies this trend by embedding interleaved text and images for retrieval-augmented generation over documents\footnote{\url{https://www.nomic.ai/blog/posts/nomic-embed-multimodal}}. While a formal paper for this model is not yet publicly available, industry documentation and benchmark reports indicate that this model achieved a new state-of-the-art on the ViDoRe–v2 visual document retrieval benchmark, recording an NDCG@5 of 62.7 and surpassing prior models by 2.8 points.
 
-Finally, an important trend is the narrowing performance gap between multimodal and single-modal models. For example, the MM-Embed retriever, initialized from the NV-Embed text model, not only excelled at cross-modal retrieval but also outperformed strong text-only retrievers on the text-focused MTEB benchmark~\cite{lin2024mmembed}. This convergence suggests that training with multimodal data enhances the semantic richness of representations even for unimodal text tasks. Such results are particularly encouraging for educational contexts, where queries often combine textual and visual references, for example, a request to locate “the graph of X” alongside a written description.
+Finally, an important trend is the narrowing performance gap between multimodal and single-modal models. For example, the MM-Embed retriever, initialized from the NV-Embed text model, not only excelled at cross-modal retrieval but also outperformed strong text-only retrievers on the text-focused MTEB benchmark. This convergence suggests that training with multimodal data enhances the semantic richness of representations even for unimodal text tasks. Such results are particularly encouraging for educational contexts, where queries often combine textual and visual references, for example, a request to locate “the graph of X” alongside a written description.
 
 
 \section{Retrieval-Augmented Generation}
@@ -353,11 +352,13 @@ Evaluation and instruction‑tuning keep pace. A recent survey consolidates comp
 
 \subsection{Pipeline}
 
+A multimodal RAG pipeline is illustrated in Figure~\ref{fig:Multimodal RAG pipeline}\footnote{\url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
+
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/02-multimodal-rag-pipeline.jpg}
-    \caption{mRAG pipeline \cite{aiedge_multimodal_rag}.}
-    \label{fig:mRAG pipeline}
+    \caption[Multimodal RAG pipeline]{Multimodal RAG pipeline}
+    \label{fig:Multimodal RAG pipeline}
 \end{figure}
 
 The RAG pipeline integrates retrieval mechanisms with generative language models to produce accurate and contextually grounded outputs. The process begins with query vectorization, where the user input is encoded into a high-dimensional vector representation using models such as BERT or Sentence Transformers. This query vector is then matched against a pre-indexed vector database to identify semantically similar entries, allowing the system to retrieve the most relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}.
@@ -375,13 +376,12 @@ Moreover, recent advances in mRAG further expand its capabilities. For example, 
 
 \subsection{Retrieval}
 
-Sparse retrieval models represent the classical approach to information retrieval, mapping texts into high-dimensional, sparse vectors based on lexical features~\cite{robertson2009probabilistic, formal2021splade}. These methods, such as TF-IDF and BM25, rely on keyword frequency statistics to determine relevance. The resulting vectors excel at exact keyword matching, making them highly effective and interpretable for queries where specific terms are crucial~\cite{robertson2009probabilistic}. More advanced models like SPLADE are also based on this sparse representation paradigm~\cite{formal2021splade}. The underlying scoring function for these models can typically be expressed as an inner product between the sparse vector representations of the query and the document. Retrieval is traditionally performed efficiently using an inverted index~\cite{formal2021splade}. However, they can struggle with keyword mismatches, which means they cannot effectively handle semantic similarity where the exact keywords are not present in the document~\cite{formal2021splade}.
-
+Sparse retrieval models represent the classical approach to information retrieval, mapping texts into high-dimensional, sparse vectors based on lexical features~\cite{robertson2009probabilistic, formal2021splade}. These methods, such as TF-IDF and BM25, rely on keyword frequency statistics to determine relevance. The resulting vectors excel at exact keyword matching, making them highly effective and interpretable for queries where specific terms are crucial~\cite{robertson2009probabilistic}. More advanced models like SPLADE are also based on this sparse representation paradigm~\cite{formal2021splade}. The underlying scoring function for these models can typically be expressed as an inner product between the sparse vector representations of the query and the document. Retrieval is traditionally performed efficiently using an inverted index~\cite{formal2021splade}. However, they can struggle with keyword mismatches, which means they cannot effectively handle semantic similarity where the exact keywords are not present in the document~\cite{formal2021splade}. The BM25 algorithm is illustrated in Figure~\ref{fig:BM25}\footnote{\url{https://www.geeksforgeeks.org/what-is-bm25-best-matching-25-algorithm/}}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.6\textwidth]{img/pdz/16-bm25.png}
-    \caption{BM25 \cite{geeksforgeeks_bm25}.}
+    \caption[BM25]{BM25}
     \label{fig:BM25}
 \end{figure}
 
@@ -445,13 +445,12 @@ and the normalization function is applied column-wise.
 
 \subsection{Rerankers}
 
-Rerankers, commonly implemented as cross-encoders, refine search results by jointly encoding a query--document pair to compute a relevance score. Unlike bi-encoders, which independently embed queries and documents into fixed-length vectors, rerankers leverage full token-level interactions, enabling more precise semantic matching. They are typically integrated into two-stage retrieval pipelines, where the first-stage retriever generates candidate documents and the reranker refines their ordering to achieve higher accuracy.
-
+Rerankers, commonly implemented as cross-encoders, refine search results by jointly encoding a query--document pair to compute a relevance score. Unlike bi-encoders, which independently embed queries and documents into fixed-length vectors, rerankers leverage full token-level interactions, enabling more precise semantic matching. They are typically integrated into two-stage retrieval pipelines, where the first-stage retriever generates candidate documents and the reranker refines their ordering to achieve higher accuracy. The reranking process is illustrated in Figure~\ref{fig:Reranker}\footnote{\url{https://www.together.ai/blog/together-rerank-api-and-salesforce-llamarank}}.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/16-reranker.png}
-    \caption{Reranker \cite{together2024_rerank_llamarank}.}
+    \includegraphics[width=1\textwidth]{img/pdz/18-reranker.png}
+    \caption[Reranker]{Reranker}
     \label{fig:Reranker}
 \end{figure}
 
@@ -518,10 +517,12 @@ These methods collectively highlight two major trends in reranking research: (1)
 
 \subsection{Augmentation}
 
+The augmentation process in RAG is illustrated in Figure~\ref{fig:Augmentation}\footnote{\url{https://obot.ai/resources/learning-center/retrieval-augmented-generation/}}.
+
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/07-augmentation.png}
-    \caption{Augmentation \cite{obot_rag_guide}}
+    \caption[Augmentation]{Augmentation}
     \label{fig:Augmentation}
 \end{figure}
 
@@ -575,7 +576,7 @@ The generator in Retrieval-Augmented Generation serves as the synthesis module t
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/13-generation.png}
-    \caption{Generation \cite{wolfe2024_rag_guide}}
+    \caption[Generation]{Generation}
     \label{fig:Generation}
 \end{figure}
 
@@ -633,7 +634,7 @@ Prompt engineering refers to the design and optimization of input prompts used t
 A foundational line of work explores how different prompting formats affect task performance. \textbf{Zero-shot prompting} relies solely on natural language instructions, enabling the model to generalize based on pretrained knowledge without additional examples \cite{reynolds2021prompt}. \textbf{One-shot} and \textbf{few-shot prompting} extend this by including one or multiple demonstration pairs, allowing models to infer task structure through in-context examples rather than fine-tuning \cite{brown2020language}. This form of in-context learning has proven effective across classification, extraction, and reasoning tasks.
 More advanced prompting strategies target reasoning quality. \textbf{Chain-of-Thought (CoT) prompting} encourages models to generate intermediate reasoning steps before producing a final answer, improving performance on multi-step logical and mathematical tasks \cite{wei2022cot}. Subsequent techniques such as self-consistency aggregate multiple sampled reasoning paths to enhance stability and accuracy \cite{wang2023selfconsistency}.
 
-Prompt engineering also underpins efforts to produce \textbf{structured and reliable outputs}. Schema-based prompts can enforce formats such as JSON, bullet lists, and domain-specific templates, enabling seamless integration with downstream systems \cite{gpt4techreport}. These constraints reduce hallucinations and parsing failures in production settings. Modern APIs further extend this idea via function calling interfaces, where models output well-defined data structures rather than free-form text, improving determinism and safety in tool-augmented pipelines.
+Prompt engineering also underpins efforts to produce \textbf{structured and reliable outputs}. Schema-based prompts can enforce formats such as JSON, bullet lists, and domain-specific templates, enabling seamless integration with downstream systems\footnote{OpenAI GPT-4 Technical Report, \url{https://openai.com/research/gpt-4}}. These constraints reduce hallucinations and parsing failures in production settings. Modern APIs further extend this idea via function calling interfaces, where models output well-defined data structures rather than free-form text, improving determinism and safety in tool-augmented pipelines.
 Early prompt engineering relied heavily on manual experimentation, making it labor-intensive and heuristic-driven. Recent research has shifted toward automated strategies that systematically search, optimize, or learn prompts using algorithmic techniques.
 A direct approach to \textbf{automated prompt optimization} is searching over a space of candidate prompts and selecting the best-performing one based on validation metrics. This includes searching over instruction phrasing, ordering of few-shot examples, or choice of examples. Since exhaustive search is infeasible due to a large combinatorial space, recent work frames prompt selection as a multi-armed bandit or best-arm identification problem, where each prompt is an ``arm’’ with an unknown reward. For example, TRIPLE \cite{shi2024triple} uses bandit algorithms to balance exploration and exploitation under a limited query budget, yielding better prompts with fewer evaluations. Other approaches employ evolutionary search or Monte Carlo tree search, demonstrating that automated discovery can outperform manually engineered prompts.
 Beyond discrete text search, another line of work treats prompts as continuous parameters. Prefix-Tuning \cite{li2021prefix} learns soft prompt vectors that steer model behavior without modifying model weights. AutoPrompt \cite{shin2020autoprompt} performs gradient-guided search over discrete tokens, iteratively updating trigger tokens based on gradient signals. AutoPrompt showed that masked language models can perform tasks such as sentiment classification and natural language inference near state-of-the-art accuracy without fine-tuning, and also demonstrated improved factual recall on probing benchmarks. These approaches bridge classic training with prompt design, though continuous prompts may sacrifice interpretability.
