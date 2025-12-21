@@ -234,7 +234,7 @@ RAG is chosen because it offers the optimal balance of accuracy, cost-efficiency
     \item \textbf{GPU}: NVIDIA GPU with at least 4GB of VRAM, but when using 8GB VRAM, we recommend (RTX 4060, RTX 4070, or equivalent) for efficient embedding generation and inference. For larger models or batch processing, 16GB+ VRAM is recommended.
     \item \textbf{CPU}: Multi-core processor (8+ cores) to support parallel processing of documents and concurrent API requests.
     \item \textbf{Memory (RAM)}: Minimum 16GB of system RAM for running the entire pipeline, including model caching and document processing.
-    \item \textbf{Storage}: At least 100GB of available disk space for storing document artifacts, indices, and model weights.
+    % \item \textbf{Storage}: At least 100GB of available disk space for storing document artifacts, indices, and model weights.
 \end{itemize}
 
 \subsection{Software Dependencies}
@@ -261,11 +261,23 @@ RAG is chosen because it offers the optimal balance of accuracy, cost-efficiency
 
 \subsection{System Architecture Constraints}
 
+\textbf{Advantages:}
 \begin{itemize}
     \item \textbf{Data Privacy}: All document artifacts are stored locally on the file system. No external cloud services are required for document storage, ensuring complete data privacy and compliance with institutional policies.
     \item \textbf{Concurrency}: The system is designed to handle multiple concurrent API requests using FastAPI's asynchronous architecture, supporting up to $N$ simultaneous users (where $N$ is bounded by available memory and GPU scheduling).
     \item \textbf{Scalability}: The modular pipeline design allows for independent scaling of retrieval and generation components. Additional indexing nodes can be added for large document corpora without modifying the core system.
     \item \textbf{Portability}: The entire system can be containerized using Docker, enabling seamless deployment across different environments (development, staging, production).
+\end{itemize}
+
+\textbf{Limitations:}
+\begin{itemize}
+    \item \textbf{Single-GPU Dependency}: The current architecture does not support distributed GPU processing. Visual embedding generation (ColQwen) and inference are constrained to a single GPU, creating a bottleneck for large-scale batch processing.
+    \item \textbf{Index Rebuilding Overhead}: Document updates require full index regeneration. The system does not support incremental indexing, meaning that adding or modifying a single document necessitates reprocessing the entire corpus for that index type.
+    \item \textbf{Memory Scalability}: Both BM25 and FAISS indices are loaded entirely into RAM during retrieval. For corpora exceeding 1 million documents, memory consumption can surpass 32GB, limiting deployment on consumer-grade hardware.
+    \item \textbf{Storage Redundancy}: The dual-pathway architecture stores multiple representations of the same document (original PDF, rasterized images, Markdown, embeddings), resulting in storage overhead of approximately $5\times$ the original document size.
+    \item \textbf{Processing Latency}: Document ingestion is synchronous and blocking. A single complex PDF (e.g., 100 pages with tables and images) can take 2-5 minutes to process through the full pipeline, during which no other documents can be processed concurrently.
+    \item \textbf{Model Size Constraints}: The system's embedding and reranking models are fixed at deployment time. Switching to larger models (e.g., upgrading from MiniLM to BGE-Large for embedding) requires reindexing the entire corpus.
+    \item \textbf{Limited Multi-Tenancy}: The file-system-based storage architecture lacks built-in isolation mechanisms. Deploying the system for multiple independent clients requires separate instances or manual namespace management.
 \end{itemize}
 
 \section{Main Architecture}
@@ -276,7 +288,7 @@ This section presents the comprehensive architecture of the MRAG system. We stru
 
 The system implements a sophisticated dual-pipeline architecture designed to handle heterogeneous document formats and produce RAG-ready outputs for both text-based and image-based retrieval. The architecture is divided into two primary pipelines: the Data Processing Pipeline and the Embedding-Indexing Pipeline.
 
-\subsubsection{Data Processing Pipeline}
+\textbf{Data Processing Pipeline}
 
 \begin{figure}[h!]
     \centering
@@ -293,6 +305,8 @@ The normalization stage converts heterogeneous input formats into two canonical 
 
 \begin{table}[H]
 \centering
+\caption{Stage 1 normalization mapping for different input formats.}
+\label{tab:normalization}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -306,8 +320,6 @@ PDF & Copy as-is & Yes (original) & --- (processed in Stage 3) \\
 Markdown & Copy as-is & --- & Yes (original) \\ \bottomrule
 \end{tabular}%
 }
-\caption{Stage 1 normalization mapping for different input formats.}
-\label{tab:normalization}
 \end{table}
 
 \textbf{Stage 2: Media Processing}
@@ -316,6 +328,8 @@ For multimedia inputs (video and audio), Stage 2 extracts temporal information a
 
 \begin{table}[H]
 \centering
+\caption{Stage 2 media processing transformation mapping.}
+\label{tab:media_processing}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -326,8 +340,6 @@ Audio (WAV, MP3) & OpenAI Whisper & — & Markdown transcript \\
  & & & Timestamped subtitles (SRT/VTT) \\ \bottomrule
 \end{tabular}%
 }
-\caption{Stage 2 media processing transformation mapping.}
-\label{tab:media_processing}
 \end{table}
 
 The transcription process utilizes \textbf{OpenAI Whisper}, a state-of-the-art ASR system. Whisper processes audio waveforms and generates timestamped transcripts, which are immediately serialized to Markdown format for consistency with other document types.
@@ -338,6 +350,8 @@ The final stage employs \textbf{Docling}, a specialized document understanding f
 
 \begin{table}[H]
 \centering
+\caption{Stage 3 document processing with Docling outputs.}
+\label{tab:docling_processing}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lllll@{}}
 \toprule
@@ -350,13 +364,11 @@ Images & OCR + VLM description & Yes (captions) & Yes (original) & --- \\
 HTML & DOM parsing & Yes & Yes (embedded) & Yes \\ \bottomrule
 \end{tabular}%
 }
-\caption{Stage 3 document processing with Docling outputs.}
-\label{tab:docling_processing}
 \end{table}
 
 Docling integrates multiple vision backends (OCR engines: RapidOCR, Tesseract, EasyOCR; Vision-Language Models for semantic understanding) to ensure high-fidelity content extraction from both born-digital and scanned documents.
 
-\subsubsection{Embedding-Indexing Pipeline}
+\textbf{Embedding-Indexing Pipeline}
 
 \begin{figure}[h!]
     \centering
@@ -388,6 +400,8 @@ The text pathway processes structured Markdown files generated from Stage 3. The
 
 \begin{table}[H]
 \centering
+\caption{Text embedding and indexing pipeline stages.}
+\label{tab:text_indexing}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}llllll@{}}
 \toprule
@@ -399,8 +413,6 @@ Dense Index & Vector embeddings & FAISS IndexFlatIP & Vector store & .bin file &
 Hybrid Index & BM25 + Dense & RRF fusion & Unified scores & JSON & Hybrid \\ \bottomrule
 \end{tabular}%
 }
-\caption{Text embedding and indexing pipeline stages.}
-\label{tab:text_indexing}
 \end{table}
 
 \textbf{Visual Embedding Pathway}
@@ -527,7 +539,7 @@ Several design choices distinguish this architecture from traditional RAG system
 
 Having established the pipeline workflows and high-level system design, this subsection provides comprehensive descriptions of all components that constitute the MRAG system. We organize the discussion across three operational layers: Input Processing, Dual-Stream Indexing, and Generative Synthesis.
 
-\subsubsection{Input Processing Layer}
+\textbf{Input Processing Layer}
 
 The first stage of the pipeline is responsible for normalizing diverse raw file formats into a standardized set of artifacts. This layer utilizes specific open-source tools for each data modality, as illustrated in Figure \ref{fig:normalization}.
 
@@ -630,7 +642,7 @@ The Input Processing Layer produces a unified set of artifacts stored in the \te
     \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
 \end{enumerate}
 
-\subsubsection{Dual-Stream Indexing Layer}
+\textbf{Dual-Stream Indexing Layer}
 
 Following normalization, the data is split into two specialized indexing streams to handle the unique requirements of text and images, as illustrated in Figure \ref{fig:chunkemb}.
 
@@ -668,7 +680,7 @@ The PDF output undergoes a visual encoding process:
     \item \textbf{Metadata}: Each entry is tagged with \texttt{source}, \texttt{source\_path}, \texttt{page} number, and \texttt{total\_pages}.
 \end{itemize}
 
-\subsubsection{Advanced Visual Retrieval with ColQwen}
+\textbf{Advanced Visual Retrieval with ColQwen}
 
 The visual indexing stream deserves special attention due to its innovative approach to document retrieval. To overcome the limitations of traditional OCR-based retrieval which often discards the semantic value of document layout, charts, and figures the pipeline integrates \textbf{ColQwen}. This state-of-the-art VLM represents an evolution in retrieval architecture, transitioning from text-only processing to holistic visual understanding.
 
@@ -718,7 +730,7 @@ By adopting ColQwen, the pipeline achieves capabilities that standard text-RAG c
     \item \textbf{Multilingual Agnosticism}: It processes visual glyphs rather than relying on language-specific OCR dictionaries.
 \end{itemize}
 
-\subsubsection{Generative Synthesis Layer}
+\textbf{Generative Synthesis Layer}
 
 The final operational layer orchestrates user interaction and answer generation, as illustrated in Figure \ref{fig:overall_arch}. This layer implements the retrieve-then-generate paradigm central to RAG architectures.
 
