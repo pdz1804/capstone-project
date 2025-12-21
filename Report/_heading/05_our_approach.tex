@@ -580,7 +580,7 @@ Before text extraction begins, Docling performs a segmentation pass. It identifi
 For scanned documents or image-heavy PDFs, Docling integrates specialized vision backends:
 \begin{itemize}
     \item \textbf{OCR}: For standard scanned text, high-performance OCR engines recover the textual layer.
-    \item \textbf{VLM}: For complex layouts, Docling leverages Vision-Language Models. These models "look" at the page to understand semantic structures that regex or rule-based parsers miss, such as distinguishing a figure caption from the main body text.
+    \item \textbf{VLM}: For complex layouts, Docling leverages Vision-Language Models. These models look at the page to understand semantic structures that regex or rule-based parsers miss, such as distinguishing a figure caption from the main body text.
 \end{itemize}
 
 % \textbf{Table Structure Recovery}
@@ -590,7 +590,7 @@ A critical feature highlighted in the architecture is the explicit extraction of
 % \subsection{Output Generation}
 The result of the Docling process is a set of clean, normalized artifacts ready for indexing:
 \begin{enumerate}
-    \item \textbf{Structured Markdown}: The primary text payload, with headers marked (`\#`, `\#\#`) to denote hierarchy.
+    \item \textbf{Structured Markdown}: The primary text payload, with headers marked (``\#'', ``\#\#'') to denote hierarchy.
     \item \textbf{Isolated Images}: Figures and diagrams extracted for the visual indexing stream.
     \item \textbf{Table Objects}: Structured data specifically preserved for precise retrieval.
 \end{enumerate}
@@ -714,10 +714,10 @@ The process follows a strict transformation workflow:
 To facilitate precise retrieval and citation, every visual embedding is tightly coupled with a metadata object, as defined in the system architecture:
 \begin{verbatim}
 {
-  "source": "filename.pdf",        # Origin document
-  "source_path": "/path/to/file",  # System path for retrieval
-  "page": int,                     # Specific page number (1-indexed)
-  "total_pages": int               # Contextual length of document
+  ``source'': ``filename.pdf'',        # Origin document
+  ``source_path'': ``/path/to/file'',  # System path for retrieval
+  ``page'': int,                     # Specific page number (1-indexed)
+  ``total_pages'': int               # Contextual length of document
 }
 \end{verbatim}
 
@@ -814,7 +814,7 @@ The Markdown output undergoes a semantic vectorization process:
 
 The PDF output undergoes a visual encoding process:
 \begin{itemize}
-    \item \textbf{Image Strategy}: The system applies a "1 Page = 1 Image" strategy, converting every PDF page into a high-resolution JPEG.
+    \item \textbf{Image Strategy}: The system applies a ``1 Page = 1 Image'' strategy, converting every PDF page into a high-resolution JPEG.
     \item \textbf{Vision Model}: These images are processed by \textbf{ColQwen} (specifically vidore/colqwen2-v1.0 or v2.5). This model generates visual embeddings that capture layout and diagrammatic information.
     \item \textbf{Storage}: Embeddings are stored in a specialized ColQwen Index.
     \item \textbf{Metadata}: Each entry is tagged with \texttt{source}, \texttt{source\_path}, \texttt{page} number, and \texttt{total\_pages}.
