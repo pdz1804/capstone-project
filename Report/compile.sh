@@ -10,9 +10,22 @@ echo "=========================================="
 echo "Compiling LaTeX document..."
 echo "=========================================="
 
+# Step 0: Clean up auxiliary files
+echo ""
+echo "[1/5] Cleaning up auxiliary files..."
+if [ -f main.aux ]; then
+    rm main.aux
+    echo "✓ Removed main.aux"
+fi
+if [ -d _heading ]; then
+    rm -f _heading/*.aux
+    echo "✓ Removed .aux files from _heading/"
+fi
+echo "✓ Cleanup complete"
+
 # Step 1: First pdflatex pass
 echo ""
-echo "[1/4] Running pdflatex (first pass)..."
+echo "[2/5] Running pdflatex (first pass)..."
 if ! pdflatex -interaction=nonstopmode main.tex > /tmp/pdflatex1.log 2>&1; then
     echo "❌ Error: pdflatex failed"
     if [ -f main.log ]; then
@@ -28,7 +41,7 @@ echo "✓ First pass complete"
 
 # Step 2: Run biber for bibliography
 echo ""
-echo "[2/4] Running biber for bibliography..."
+echo "[3/5] Running biber for bibliography..."
 if ! biber main > /tmp/biber.log 2>&1; then
     echo "⚠ Warning: biber had issues (this might be okay if no citations changed)"
     echo "Check /tmp/biber.log for details"
@@ -38,7 +51,7 @@ fi
 
 # Step 3: Second pdflatex pass
 echo ""
-echo "[3/4] Running pdflatex (second pass)..."
+echo "[4/5] Running pdflatex (second pass)..."
 if ! pdflatex -interaction=nonstopmode main.tex > /tmp/pdflatex2.log 2>&1; then
     echo "❌ Error: pdflatex failed"
     if [ -f main.log ]; then
@@ -54,7 +67,7 @@ echo "✓ Second pass complete"
 
 # Step 4: Third pdflatex pass (to resolve all references)
 echo ""
-echo "[4/4] Running pdflatex (final pass)..."
+echo "[5/5] Running pdflatex (final pass)..."
 if ! pdflatex -interaction=nonstopmode main.tex > /tmp/pdflatex3.log 2>&1; then
     echo "❌ Error: pdflatex failed"
     if [ -f main.log ]; then
