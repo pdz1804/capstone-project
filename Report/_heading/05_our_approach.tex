@@ -714,10 +714,10 @@ The process follows a strict transformation workflow:
 To facilitate precise retrieval and citation, every visual embedding is tightly coupled with a metadata object, as defined in the system architecture:
 \begin{verbatim}
 {
-  ``source'': ``filename.pdf'',        # Origin document
-  ``source_path'': ``/path/to/file'',  # System path for retrieval
-  ``page'': int,                     # Specific page number (1-indexed)
-  ``total_pages'': int               # Contextual length of document
+  "source": "filename.pdf",        # Origin document
+  "source_path": "/path/to/file",  # System path for retrieval
+  "page": int,                     # Specific page number (1-indexed)
+  "total_pages": int               # Contextual length of document
 }
 \end{verbatim}
 

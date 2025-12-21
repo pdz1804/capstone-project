@@ -281,10 +281,10 @@ Processed chunks are mapped to a high-dimensional vector space using the \textbf
     \item \textbf{Index Structure}: The embedding is stored alongside a composite metadata object containing:
     \begin{verbatim}
     {
-      ``doc_id'': ``unique_document_identifier'',
-      ``chunk_idx'': ``integer_sequence_number'',
-      ``total_chunks'': ``total_count_for_document'',
-      ``source'': ``original_filename''
+      "doc_id": "unique_document_identifier",
+      "chunk_idx": "integer_sequence_number",
+      "total_chunks": "total_count_for_document",
+      "source": "original_filename"
     }
     \end{verbatim}
 \end{itemize}
@@ -317,10 +317,10 @@ The system integrates the \textbf{ColQwen} architecture (specifically \texttt{vi
     \item \textbf{Metadata Schema}: Visual embeddings are tagged with precise location data:
     \begin{verbatim}
     {
-      ``source'': ``original_filename'',
-      ``source_path'': ``file_system_path_to_pdf'',
-      ``page'': ``page_number'',
-      ``total_pages'': ``document_length''
+      "source": "original_filename",
+      "source_path": "file_system_path_to_pdf",
+      "page": "page_number",
+      "total_pages": "document_length"
     }
     \end{verbatim}
 \end{itemize}
