@@ -1,22 +1,8 @@
 \chapter{Initial Implementation}
 
-% \section{Architecture Design}
-% The system is architected as a modular, API-first application designed to facilitate Multimodal Retrieval-Augmented Generation (RAG). The core architecture is built upon the \textbf{FastAPI} framework, which serves as the interface layer between client applications and the underlying processing pipeline.
+\textbf{Phase 1 Scope and Objectives:} This chapter presents the initial implementation phase of the Multimodal Retrieval-Augmented Generation (mRAG) system. In Phase 1, the primary focus is on \textbf{establishing and validating the core system architecture}, including the data processing pipeline, embedding strategies, and retrieval mechanisms. The implementation prioritizes architectural feasibility and functional correctness. Advanced considerations such as production-grade application development, optimized database storage solutions, and comprehensive system optimization are deliberately deferred to Phase 2. This phased approach allows for iterative refinement based on empirical evaluation of the foundational architecture before committing to infrastructure-level optimizations.
 
-% The architecture follows a \textit{Microservices-oriented} design pattern, consisting of three distinct layers:
-% \begin{enumerate}
-%     \item \textbf{Input Layer}: Handles data ingestion via RESTful endpoints (\texttt{/api/upload}), managing file I/O operations and initial validation.
-%     \item \textbf{Processing \& Indexing Layer}: A Unified RAG Pipeline that orchestrates the transformation of raw documents into retrieval-ready artifacts. This layer supports asynchronous background tasks to prevent blocking the main API thread during heavy processing.
-%     \item \textbf{Retrieval \& Generation Layer}: Implements a hybrid search mechanism that queries both text and image indices simultaneously before synthesizing an answer using a Generative model (LLM).
-% \end{enumerate}
-
-% \begin{figure}[H]
-%     \centering
-%     % Placeholder for architecture diagram
-%     % \includegraphics[width=0.8\textwidth]{architecture_diagram.png}
-%     \caption{High-level Architecture of the Multimodal RAG Pipeline.}
-%     \label{fig:architecture}
-% \end{figure}
+This chapter details the practical implementation of the core system architecture. We describe the system design, data processing pipeline, and key implementation components that enable efficient document processing and retrieval.
 
 \section{Architecture Design}
 
@@ -36,7 +22,7 @@ The entry point to the system is a high-performance RESTful API built on \textbf
 
 At the core of the system lies the \texttt{UnifiedRAGPipeline} class. This component acts as the central controller, implementing the \textbf{Facade Pattern} to abstract the complexities of the underlying subsystems.
 \begin{itemize}
-    \item \textbf{Pipeline Configuration}: The behavior of the orchestrator is dictated by a dynamic YAML configuration (e.g., \texttt{config/default.yaml}). This allows the system to switch between "Text-Only," "Image-Only," or "Multimodal" modes without code changes.
+    \item \textbf{Pipeline Configuration}: The behavior of the orchestrator is dictated by a dynamic YAML configuration (e.g., \texttt{config/default.yaml}). This allows the system to switch between ``Text-Only,'' ``Image-Only,'' or ``Multimodal'' modes without code changes.
     \item \textbf{Dependency Injection}: The orchestrator initializes and injects dependencies into the sub-modules, ensuring that the \textit{RetrieverManager} and \textit{Generator} share the same configuration context (e.g., chunk sizes and overlaps).
 \end{itemize}
 
@@ -65,7 +51,7 @@ The system logic is divided into two specialized engines that operate in paralle
 
 \textbf{Text Retrieval Engine}
 
-This subsystem implements a "Retrieve-then-Rerank" pipeline:
+This subsystem implements a ``Retrieve-then-Rerank'' pipeline:
 \begin{enumerate}
     \item \textbf{Sparse Retrieval}: Uses BM25Okapi to capture keyword-specific relevance.
     \item \textbf{Dense Retrieval}: Uses \texttt{all-MiniLM-L6-v2} to generate 384-dimensional embeddings for semantic search via FAISS (IndexFlatIP).
@@ -79,7 +65,7 @@ This subsystem handles non-textual data. Instead of extracting text from images 
 \begin{enumerate}
     \item \textbf{Rasterization}: PDFs are converted to high-resolution images (150 DPI).
     \item \textbf{Visual Embedding}: The model generates a tensor representation of the visual layout.
-    \item \textbf{Just-in-Time Rendering}: During generation, the specific retrieved page is rendered on-the-fly and passed to the Multimodal LLM, allowing the AI to "see" charts and diagrams directly.
+    \item \textbf{Just-in-Time Rendering}: During generation, the specific retrieved page is rendered on-the-fly and passed to the Multimodal LLM, allowing the AI to ``see'' charts and diagrams directly.
 \end{enumerate}
 
 % \section{Data Normalization}
@@ -94,7 +80,7 @@ This subsystem handles non-textual data. Instead of extracting text from images 
 
 \section{Data Normalization}
 
-Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs ranging from multimedia files to office documents and funnels them into a standardized "RAG-ready" format.
+Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs ranging from multimedia files to office documents and funnels them into a standardized ``RAG-ready'' format.
 The normalization pipeline is governed by the \texttt{Processor} module and utilizes a suite of open-source libraries to perform format unification.
 
 Upon upload via the API, raw files undergo immediate sanitization:
@@ -217,7 +203,7 @@ The system utilizes the Markdown headers to maintain context, ensuring that sect
 A critical component of this pipeline is the handling of visual data within \textbf{PDF} files. The system utilizes \textbf{pdf2image} to render PDF pages into high-resolution images (defaulting to 150 DPI). This rasterization step is essential for the visual retriever (ColQwen), which treats document pages as images to preserve layout and semantic structure that text-only extractors often lose.
 
 % \section{Chunking and Embedding Strategies}
-% The system employs a sophisticated "Hybrid + Multimodal" retrieval strategy to maximize recall and precision.
+% The system employs a sophisticated ``Hybrid + Multimodal'' retrieval strategy to maximize recall and precision.
 
 % \textbf{Textual Chunking and Embedding}
 % Textual data is segmented into chunks to fit within the context window of the embedding models. The default configuration uses a chunk size of 1000 characters with an overlap of 200 characters. The retrieval mechanism is \textit{Hybrid}, combining two distinct algorithms:
@@ -247,8 +233,8 @@ A critical component of this pipeline is the handling of visual data within \tex
 
 % For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes the canonical \textbf{PDF} files.
 % \begin{itemize}
-%     \item \textbf{Rasterization Strategy}: The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
-%     \item \textbf{Artifact Management}: These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model "sees" the document exactly as a human would.
+%     \item \textbf{Rasterization Strategy}: The system implements a ``1 Page = 1 Image'' conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
+%     \item \textbf{Artifact Management}: These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model ``sees'' the document exactly as a human would.
 % \end{itemize}
 
 \section{Chunking and Embedding Strategies}
@@ -307,7 +293,7 @@ Processed chunks are mapped to a high-dimensional vector space using the \textbf
 
 For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes JPG images derived from the canonical PDF files.
 % The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
-These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model "sees" the document exactly as a human would.
+These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model ``sees'' the document exactly as a human would.
 
 
 The visual pathway processes the page images generated to enable multimodal retrieval.

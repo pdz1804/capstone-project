@@ -118,12 +118,17 @@
 
 \usepackage{forest}
 
+% Hyphenation and spacing control
+\hyphenpenalty=10000               % Prevent hyphenation
+\exhyphenpenalty=10000             % Prevent hyphenation at explicit hyphens
+\sloppy                             % Allow more flexible spacing
+
 %%%%%%%%%%% Bibliography %%%%%%%%%%%%
 \usepackage[style=ext-numeric-comp,giveninits=true,maxbibnames=10,sorting=none]{biblatex}
 \addbibresource{references.bib}
 
 \setlength{\parskip}{0.5em}       % Paragraph spacing
-\setlength{\parindent}{0pt}       % Disable paragraph indentation
+\setlength{\parindent}{1.5em}     % Enable paragraph indentation (thụt đầu dòng)
 
 \begin{document}
 
@@ -140,22 +145,20 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 
 \begin{figure}[h!]
 \begin{center}
-\includegraphics[width=6cm]{hcmut.png}
+\includegraphics[width=4cm]{hcmut.png}
 \end{center}
 \end{figure}
 
 \begin{center}
 \begin{tabular}{c}
-\multicolumn{1}{c}{\textbf{{\Large SPECIALIZED PROJECT (CO4029)}}}\\
-~~\\
+\textbf{{\Large SPECIALIZED PROJECT (CO4029)}}\\
 \hline
 \\
-\multicolumn{1}{l}{\textbf{{\Large Report:}}}\\
 \\
-\vspace{4pt}
-\textbf{{\Large BK-MInD: A Multimodal}}\\[4pt]
-\textbf{{\Large Data Understanding System for HCMUT Lectures}}\\
-\vspace{4pt}
+\vspace{6pt}
+\textbf{{\LARGE BK-MInD: A Multimodal}}\\[4pt]
+\textbf{{\LARGE Data Understanding System for HCMUT Lectures}}\\
+\vspace{6pt}
 \\
 \hline
 \end{tabular}
@@ -166,12 +169,26 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \begin{table}[h]
 \begin{tabular}{rrll}
 \hspace{5 cm} & Supervisors: & Nguyen An Khuong, PhD & \\
-& & Nguyen Trang Sy Lam &- Senior Student \\
+& & Nguyen Trang Sy Lam & Motohashi's Research Assistant\\
 & Students: & Nguyen Quang Phu &- 2252621 \\
 & & Nguyen Ngoc Khoi &- 2252378 \\
 & & Nguyen Minh Khoi &- 2252377 \\
 \end{tabular}
 \end{table}
+
+\vspace{0.5cm}
+
+\begin{center}
+\textbf{COUNCIL INFORMATION} \\
+\vspace{0.5cm}
+\begin{tabular}{ll}
+Chair: & Assoc. Prof. Dr. Lê Hồng Trang \\
+Member 1: & Dr. Trần Tuấn Anh \\
+Member 2: & Dr. Nguyễn Đức Dũng \\
+\end{tabular}
+\end{center}
+
+\vspace{0.5cm}
 
 \begin{center}
 {\footnotesize HO CHI MINH CITY, DECEMBER 2025}
@@ -196,7 +213,6 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \include{_heading/06_initial_implementation}
 \include{_heading/07_evaluation_methods}
 \include{_heading/08_plan}
-% \include{_heading/09_conclusion}
 
 % Bibliography
 \printbibliography[title=References]
