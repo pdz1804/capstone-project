@@ -7,3 +7,34 @@
 .kiro/steering/byterover-rules.md
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
+
+# LaTeX generated files - DO NOT COMMIT
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.lof
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdy
+*.bbl-SAVE-ERROR
+
+# LaTeX intermediate files
+*.auxlock
+*.synctex(busy)
+
+# PDF output (optional - uncomment if you don't want to track PDFs)
+# *.pdf
+
+# Editor backup files
+*~
+*.swp
+*.swo
+*#
+.#*
