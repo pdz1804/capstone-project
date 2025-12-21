@@ -60,8 +60,8 @@ To ensure your team can execute these fixes efficiently, I have organized the fe
 * Check for consistent Bold/CamelCase usage across all terms.
 
 * [X] **Reference Cleanup:** * Page 18: Remove redundant [40] citations; mention once per context.
-* [ ] Web links: Move URL references to **Footnotes**.
-* [ ] Bibliography: Only **Research Papers** and **Textbooks** should remain in the formal References section.
+* [X] Web links: Move URL references to **Footnotes**.
+* [] Bibliography: Only **Research Papers** and **Textbooks** should remain in the formal References section.
 
 ### 6. Plan File Conversion (08_plan.tex -> Conclusion)
 
