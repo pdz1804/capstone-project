@@ -30,7 +30,7 @@ where:
     \item $\hat{W}$ is the final predicted transcription.
 \end{itemize}
 
-The decoder combines both models to search for the optimal word sequence.
+The decoder combines the acoustic and language models to search for the optimal word sequence that maximizes this probability.
 
 
 The earliest generation of ASR systems was based on Gaussian Mixture Models (GMMs) combined with Hidden Markov Models (HMMs), which provided temporal alignment and probabilistic modeling of speech signals~\cite{hinton2012dnn, rabiner1989hmm}. These systems relied on n-gram language models and lexicons to capture linguistic structure. Around 2010–2015, the hybrid Deep Neural Network–HMM (DNN–HMM) approach emerged, where deep neural networks replaced GMMs to improve acoustic modeling. This hybrid paradigm dominated production ASR systems for several years, supported by widely used toolkits such as Kaldi~\cite{povey2011kaldi} and benchmark datasets like Switchboard and WSJ~\cite{switchboard1992, wsj1993}, until end-to-end models began demonstrating superior performance.
@@ -162,7 +162,7 @@ Each Encoder layer contains two sub-layers:
     \item Multi-head self-attention.
     \item Position-wise fully connected feed-forward network.
 \end{enumerate}
-Each sub-layer is wrapped with a residual connection. Formally, the output of each sub-layer is
+Each sub-layer is wrapped with a residual connection. The output of each sub-layer is
 \[
 \mathrm{LayerNorm}(x + \mathrm{Sublayer}(x)).
 \]
@@ -235,13 +235,10 @@ where:
 
 Multimodal fusion via dual attention for two modalities $A$ and $B$, cross-attention is computed independently:
 
-\begin{equation*}
+\[
     H_{A} = \text{Attention}(Q, K_{A}, V_{A});
-\end{equation*}
-
-\begin{equation*}
     H_{B} = \text{Attention}(Q, K_{B}, V_{B}).
-\end{equation*}
+\]
 
 The fused representation is then computed as
 
@@ -453,11 +450,7 @@ Bi-encoders compute representations independently:
 \]
 Similarity is computed via vector metrics (e.g., dot product), which is efficient but compresses document semantics into a single vector without query-context information.
 
-Rerankers instead compute relevance jointly:
-\[
-\text{Reranker}(q, d) \rightarrow \text{score} \in \mathbb{R}
-\]
-This allows the model to consider local alignments and contextual dependencies, improving performance on tasks requiring fine-grained semantic reasoning. However, the computation happens online for each query-document pair and cannot be precomputed.
+Rerankers instead compute relevance jointly. This allows the model to consider local alignments and contextual dependencies, improving performance on tasks requiring fine-grained semantic reasoning. However, the computation happens online for each query-document pair and cannot be precomputed.
 
 
 Bi-encoder indexing is performed offline, and inference requires only a single query encoding followed by approximate nearest neighbor search. This enables millisecond-scale retrieval over large corpora.
@@ -617,12 +610,17 @@ A foundational line of work explores how different prompting formats affect task
 More advanced prompting strategies target reasoning quality. \textbf{Chain-of-Thought (CoT) prompting} encourages models to generate intermediate reasoning steps before producing a final answer, improving performance on multi-step logical and mathematical tasks \cite{wei2022cot}. Subsequent techniques such as self-consistency aggregate multiple sampled reasoning paths to enhance stability and accuracy \cite{wang2023selfconsistency}.
 
 Prompt engineering also underpins efforts to produce \textbf{structured and reliable outputs}. Schema-based prompts can enforce formats such as JSON, bullet lists, and domain-specific templates, enabling seamless integration with downstream systems\footnote{OpenAI GPT-4 Technical Report, \url{https://openai.com/research/gpt-4}}. These constraints reduce hallucinations and parsing failures in production settings. Modern APIs further extend this idea via function calling interfaces, where models output well-defined data structures rather than free-form text, improving determinism and safety in tool-augmented pipelines.
-Early prompt engineering relied heavily on manual experimentation, making it labor-intensive and heuristic-driven. Recent research has shifted toward automated strategies that systematically search, optimize, or learn prompts using algorithmic techniques.
-A direct approach to \textbf{automated prompt optimization} is searching over a space of candidate prompts and selecting the best-performing one based on validation metrics. This includes searching over instruction phrasing, ordering of few-shot examples, or choice of examples. Since exhaustive search is infeasible due to a large combinatorial space, recent work frames prompt selection as a multi-armed bandit or best-arm identification problem, where each prompt is an ``arm’’ with an unknown reward. For example, TRIPLE \cite{shi2024triple} uses bandit algorithms to balance exploration and exploitation under a limited query budget, yielding better prompts with fewer evaluations. Other approaches employ evolutionary search or Monte Carlo tree search, demonstrating that automated discovery can outperform manually engineered prompts.
+
+Early prompt engineering relied heavily on manual experimentation, making it labor-intensive and heuristic-driven. Recent research has shifted toward automated strategies that systematically search, optimize, or learn prompts using algorithmic techniques. A direct approach to \textbf{automated prompt optimization} is searching over a space of candidate prompts and selecting the best-performing one based on validation metrics. This includes searching over instruction phrasing, ordering of few-shot examples, or choice of examples. Since exhaustive search is infeasible due to a large combinatorial space, recent work frames prompt selection as a multi-armed bandit or best-arm identification problem, where each prompt is an ``arm’’ with an unknown reward. For example, TRIPLE \cite{shi2024triple} uses bandit algorithms to balance exploration and exploitation under a limited query budget, yielding better prompts with fewer evaluations. Other approaches employ evolutionary search or Monte Carlo tree search, demonstrating that automated discovery can outperform manually engineered prompts.
+
 Beyond discrete text search, another line of work treats prompts as continuous parameters. Prefix-Tuning \cite{li2021prefix} learns soft prompt vectors that steer model behavior without modifying model weights. AutoPrompt \cite{shin2020autoprompt} performs gradient-guided search over discrete tokens, iteratively updating trigger tokens based on gradient signals. AutoPrompt showed that masked language models can perform tasks such as sentiment classification and natural language inference near state-of-the-art accuracy without fine-tuning, and also demonstrated improved factual recall on probing benchmarks. These approaches bridge classic training with prompt design, though continuous prompts may sacrifice interpretability.
+
 Other methods refine an initial human-written prompt through iterative edits. GrIPS \cite{prasad2023grips} applies gradient-free heuristic edits adding, removing, or reordering phrases and retains only modifications that improve performance, making it suitable for closed-source models. Notably, optimized prompts sometimes appear nonsensical to humans yet perform better, revealing model-specific quirks. Instruction Induction and Automatic Prompt Engineer (APE) \cite{zhou2022ape} generate candidate instructions using an LLM itself, then score and select the best. APE notably discovered a more effective variant of chain-of-thought prompting (``Let’s work this out in a step-by-step way to be sure we have the right answer.'') that exceeded human-designed prompts on tasks.
+
 Recent work such as OPRO \cite{yao2023opro} frames prompt optimization as a task performed by the LLM itself. A meta-prompt maintains a history of candidate prompts and their performance, and the model proposes new candidates iteratively. This closes the optimization loop and enables the model to generate self-improving prompts. While promising, meta-prompting must avoid trivial variations and overfitting to validation data.
+
 Reinforcement learning (RL) offers another avenue by treating prompts as actions optimized for a reward function, such as validation accuracy or human preference. RLPrompt \cite{deng2022rlprompt} applies policy gradients to optimize discrete prompt tokens, achieving improvements over manual baselines. Although less widely adopted due to large search spaces and sparse rewards, RL-based approaches align naturally with interactive and user-feedback-driven prompting scenarios.
+
 These developments illustrate a shift from heuristic prompt crafting toward principled optimization pipelines, leveraging search, gradients, RL, and LLM-driven meta-optimization to discover high-performing prompts beyond human intuition.
 
 Overall, prompt engineering has matured from ad-hoc phrasing tricks into a systematic methodology spanning demonstrations, reasoning scaffolds, structural constraints, and automated optimization. As LLMs scale and deploy into real-world applications, prompt engineering remains central to achieving reliable, controllable, and domain-aligned model behavior.
