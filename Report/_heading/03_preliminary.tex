@@ -340,13 +340,13 @@ Domain‑specific MRAG shows substantial gains when retrieval and verification a
 
 \subsection{Pipeline}
 
-A MRAG pipeline is illustrated in Figure~\ref{fig:Multimodal RAG pipeline}\footnote{\url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
+A RAG pipeline is illustrated in Figure~\ref{fig:MRAG pipeline}\footnote{\url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/02-multimodal-rag-pipeline.jpg}
     \caption[MRAG pipeline]{MRAG pipeline}
-    \label{fig:Multimodal RAG pipeline}
+    \label{fig:MRAG pipeline}
 \end{figure}
 
 The RAG pipeline integrates retrieval mechanisms with generative language models to produce accurate and contextually grounded outputs. The process begins with query vectorization, where the user input is encoded into a high-dimensional vector representation using models such as BERT or Sentence Transformers. This query vector is then matched against a pre-indexed vector database to identify semantically similar entries, allowing the system to retrieve the most relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}.
