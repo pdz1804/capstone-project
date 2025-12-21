@@ -337,16 +337,16 @@ Domain‑specific MRAG shows substantial gains when retrieval and verification a
 
 \subsection{Pipeline}
 
-A MRAG pipeline is illustrated in Figure~\ref{fig:Multimodal RAG pipeline}\footnote{\url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
+A MRAG pipeline is illustrated in Figure~\ref{fig:MRAG pipeline}\footnote{\url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/02-multimodal-rag-pipeline.jpg}
     \caption[MRAG pipeline]{MRAG pipeline}
-    \label{fig:Multimodal RAG pipeline}
+    \label{fig:MRAG pipeline}
 \end{figure}
 
-The RAG pipeline integrates retrieval mechanisms with generative language models to produce accurate and contextually grounded outputs. The process begins with query vectorization, where the user input is encoded into a high-dimensional vector representation using models such as BERT or Sentence Transformers. This query vector is then matched against a pre-indexed vector database to identify semantically similar entries, allowing the system to retrieve the most relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}.
+The pipeline integrates retrieval mechanisms with generative language models to produce accurate and contextually grounded outputs. The process begins with query vectorization, where the user input is encoded into a high-dimensional vector representation using models such as BERT or Sentence Transformers. This query vector is then matched against a pre-indexed vector database to identify semantically similar entries, allowing the system to retrieve the most relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}.
 After retrieval, the selected data may undergo preprocessing steps for example, summarization, filtering, or restructuring to ensure compatibility with the downstream language model. The processed information is then incorporated into the input context of an LLM, enabling it to generate responses that combine the retrieved evidence with its own pre-trained knowledge~\cite{izacard2021leveraging}.
 
 The RAG architecture consists of two primary modules: the retriever and the generator. The retriever is responsible for identifying relevant documents or passages from an external knowledge source. It typically operates using methods such as sparse retrieval (e.g., BM25), dense vector retrieval based on embedding similarity, or hybrid/neural retrieval models~\cite{lewis2020rag, luan2021sparse_dense}. These techniques allow the system to efficiently search large-scale corpora and return the most semantically relevant information. The generator then consumes both the user query and the retrieved context to produce the final output. Modern RAG systems usually rely on transformer-based language models, which condition their decoding process on the retrieved evidence to ensure that the generated response is grounded in factual information and remains aligned with the input query~\cite{izacard2022rag_sequence}. By combining retrieval with generation, RAG reduces hallucination rates, improves factual accuracy, and enables the model to access up-to-date or domain-specific knowledge without needing to retrain the entire language model. This makes RAG a practical and scalable solution for knowledge-intensive tasks in machine learning and natural language processing~\cite{izacard2021leveraging, gao2023rag_survey}.
