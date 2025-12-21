@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bcf:controlfile version="3.10" bltxversion="3.19" xmlns:bcf="https://sourceforge.net/projects/biblatex">
+<bcf:controlfile version="3.11" bltxversion="3.21" xmlns:bcf="https://sourceforge.net/projects/biblatex">
   <!-- BIBER OPTIONS -->
   <bcf:options component="biber" type="global">
     <bcf:option type="singlevalued">
@@ -502,6 +502,7 @@
     <bcf:option datatype="xml">inheritance</bcf:option>
     <bcf:option datatype="xml">translit</bcf:option>
     <bcf:option datatype="xml">uniquenametemplate</bcf:option>
+    <bcf:option datatype="xml">namehashtemplate</bcf:option>
     <bcf:option datatype="xml">sortingnamekeytemplate</bcf:option>
     <bcf:option datatype="xml">sortingtemplate</bcf:option>
     <bcf:option datatype="xml">extradatespec</bcf:option>
@@ -513,6 +514,7 @@
     <bcf:option datatype="string">alphaothers</bcf:option>
     <bcf:option datatype="string">sortalphaothers</bcf:option>
     <bcf:option datatype="string">presort</bcf:option>
+    <bcf:option datatype="string">citepagerange</bcf:option>
     <bcf:option datatype="string">texencoding</bcf:option>
     <bcf:option datatype="string">bibencoding</bcf:option>
     <bcf:option datatype="string">sortingtemplatename</bcf:option>
@@ -764,9 +766,10 @@
   </bcf:optionscope>
   <bcf:optionscope type="ENTRY">
     <bcf:option datatype="string">noinherit</bcf:option>
-    <bcf:option datatype="string" backendin="sortingnamekeytemplatename,uniquenametemplatename,labelalphanametemplatename">nametemplates</bcf:option>
+    <bcf:option datatype="string" backendin="sortingnamekeytemplatename,uniquenametemplatename,labelalphanametemplatename,namehashtemplatename">nametemplates</bcf:option>
     <bcf:option datatype="string" backendout="1">labelalphanametemplatename</bcf:option>
     <bcf:option datatype="string" backendout="1">uniquenametemplatename</bcf:option>
+    <bcf:option datatype="string" backendout="1">namehashtemplatename</bcf:option>
     <bcf:option datatype="string" backendout="1">sortingnamekeytemplatename</bcf:option>
     <bcf:option datatype="string">presort</bcf:option>
     <bcf:option datatype="string" backendout="1">indexing</bcf:option>
@@ -851,9 +854,10 @@
     <bcf:option datatype="integer" backendout="1">minalphanames</bcf:option>
   </bcf:optionscope>
   <bcf:optionscope type="NAMELIST">
-    <bcf:option datatype="string" backendin="sortingnamekeytemplatename,uniquenametemplatename,labelalphanametemplatename">nametemplates</bcf:option>
+    <bcf:option datatype="string" backendin="sortingnamekeytemplatename,uniquenametemplatename,labelalphanametemplatename,namehashtemplatename">nametemplates</bcf:option>
     <bcf:option datatype="string" backendout="1">labelalphanametemplatename</bcf:option>
     <bcf:option datatype="string" backendout="1">uniquenametemplatename</bcf:option>
+    <bcf:option datatype="string" backendout="1">namehashtemplatename</bcf:option>
     <bcf:option datatype="string" backendout="1">sortingnamekeytemplatename</bcf:option>
     <bcf:option datatype="string">uniquelist</bcf:option>
     <bcf:option datatype="string">uniquename</bcf:option>
@@ -867,9 +871,10 @@
     <bcf:option datatype="boolean" backendout="1">useprefix</bcf:option>
   </bcf:optionscope>
   <bcf:optionscope type="NAME">
-    <bcf:option datatype="string" backendin="sortingnamekeytemplatename,uniquenametemplatename,labelalphanametemplatename">nametemplates</bcf:option>
+    <bcf:option datatype="string" backendin="sortingnamekeytemplatename,uniquenametemplatename,labelalphanametemplatename,namehashtemplatename">nametemplates</bcf:option>
     <bcf:option datatype="string" backendout="1">labelalphanametemplatename</bcf:option>
     <bcf:option datatype="string" backendout="1">uniquenametemplatename</bcf:option>
+    <bcf:option datatype="string" backendout="1">namehashtemplatename</bcf:option>
     <bcf:option datatype="string" backendout="1">sortingnamekeytemplatename</bcf:option>
     <bcf:option datatype="string">uniquename</bcf:option>
     <bcf:option datatype="boolean" backendout="1">familyinits</bcf:option>
@@ -1083,6 +1088,13 @@
     <bcf:namepart order="2" base="1">family</bcf:namepart>
     <bcf:namepart order="3">given</bcf:namepart>
   </bcf:uniquenametemplate>
+  <!-- NAME HASH TEMPLATES -->
+  <bcf:namehashtemplate name="global">
+    <bcf:namepart order="1" hashscope="full">family</bcf:namepart>
+    <bcf:namepart order="2" hashscope="full">given</bcf:namepart>
+    <bcf:namepart order="3" hashscope="full">prefix</bcf:namepart>
+    <bcf:namepart order="4" hashscope="full">suffix</bcf:namepart>
+  </bcf:namehashtemplate>
   <!-- SORTING NAME KEY TEMPLATES -->
   <bcf:sortingnamekeytemplate name="global" visibility="sort">
     <bcf:keypart order="1">
@@ -2385,266 +2397,243 @@
     <bcf:datasource type="file" datatype="bibtex" glob="false">references.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
-    <bcf:citekey order="1" intorder="1">bib01</bcf:citekey>
-    <bcf:citekey order="1" intorder="2">bib02</bcf:citekey>
-    <bcf:citekey order="2" intorder="1">bib03</bcf:citekey>
-    <bcf:citekey order="2" intorder="2">bib04</bcf:citekey>
-    <bcf:citekey order="3" intorder="1">graves2006ctc</bcf:citekey>
-    <bcf:citekey order="3" intorder="2">chan2015las</bcf:citekey>
-    <bcf:citekey order="4" intorder="1">baevski2020wav2vec2</bcf:citekey>
-    <bcf:citekey order="4" intorder="2">radford2022whisper</bcf:citekey>
-    <bcf:citekey order="5" intorder="1">asr_pipeline_rg</bcf:citekey>
-    <bcf:citekey order="6" intorder="1">asr_pipeline_rg</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">hinton2012dnn</bcf:citekey>
-    <bcf:citekey order="7" intorder="2">rabiner1989hmm</bcf:citekey>
-    <bcf:citekey order="8" intorder="1">hinton2012dnn</bcf:citekey>
-    <bcf:citekey order="9" intorder="1">povey2011kaldi</bcf:citekey>
-    <bcf:citekey order="10" intorder="1">switchboard1992</bcf:citekey>
-    <bcf:citekey order="10" intorder="2">wsj1993</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">bib01</bcf:citekey>
+    <bcf:citekey order="9" intorder="2">bib02</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">bib03</bcf:citekey>
+    <bcf:citekey order="10" intorder="2">bib04</bcf:citekey>
     <bcf:citekey order="11" intorder="1">graves2006ctc</bcf:citekey>
-    <bcf:citekey order="12" intorder="1">chan2015las</bcf:citekey>
-    <bcf:citekey order="13" intorder="1">graves2012rnnt</bcf:citekey>
-    <bcf:citekey order="13" intorder="2">he2019transformertransducer</bcf:citekey>
-    <bcf:citekey order="14" intorder="1">gulati2020conformer</bcf:citekey>
-    <bcf:citekey order="14" intorder="2">panayotov2015librispeech</bcf:citekey>
-    <bcf:citekey order="15" intorder="1">baevski2020wav2vec2</bcf:citekey>
-    <bcf:citekey order="16" intorder="1">radford2022whisper</bcf:citekey>
-    <bcf:citekey order="17" intorder="1">panayotov2015librispeech</bcf:citekey>
+    <bcf:citekey order="11" intorder="2">chan2015las</bcf:citekey>
+    <bcf:citekey order="12" intorder="1">baevski2020wav2vec2</bcf:citekey>
+    <bcf:citekey order="12" intorder="2">radford2022whisper</bcf:citekey>
+    <bcf:citekey order="13" intorder="1">asr_pipeline_rg</bcf:citekey>
+    <bcf:citekey order="14" intorder="1">asr_pipeline_rg</bcf:citekey>
+    <bcf:citekey order="15" intorder="1">hinton2012dnn</bcf:citekey>
+    <bcf:citekey order="15" intorder="2">rabiner1989hmm</bcf:citekey>
+    <bcf:citekey order="16" intorder="1">hinton2012dnn</bcf:citekey>
+    <bcf:citekey order="17" intorder="1">povey2011kaldi</bcf:citekey>
     <bcf:citekey order="18" intorder="1">switchboard1992</bcf:citekey>
-    <bcf:citekey order="19" intorder="1">rousseau2012tedlium</bcf:citekey>
-    <bcf:citekey order="20" intorder="1">ardila2020commonvoice</bcf:citekey>
-    <bcf:citekey order="21" intorder="1">gulati2020conformer</bcf:citekey>
-    <bcf:citekey order="22" intorder="1">he2019transformertransducer</bcf:citekey>
-    <bcf:citekey order="23" intorder="1">han2016deepcompression</bcf:citekey>
+    <bcf:citekey order="18" intorder="2">wsj1993</bcf:citekey>
+    <bcf:citekey order="19" intorder="1">graves2006ctc</bcf:citekey>
+    <bcf:citekey order="20" intorder="1">chan2015las</bcf:citekey>
+    <bcf:citekey order="21" intorder="1">graves2012rnnt</bcf:citekey>
+    <bcf:citekey order="21" intorder="2">he2019transformertransducer</bcf:citekey>
+    <bcf:citekey order="22" intorder="1">gulati2020conformer</bcf:citekey>
+    <bcf:citekey order="22" intorder="2">panayotov2015librispeech</bcf:citekey>
+    <bcf:citekey order="23" intorder="1">baevski2020wav2vec2</bcf:citekey>
     <bcf:citekey order="24" intorder="1">radford2022whisper</bcf:citekey>
-    <bcf:citekey order="25" intorder="1">ardila2020commonvoice</bcf:citekey>
-    <bcf:citekey order="26" intorder="1">radford2022whisper</bcf:citekey>
-    <bcf:citekey order="27" intorder="1">he2019transformertransducer</bcf:citekey>
-    <bcf:citekey order="28" intorder="1">han2016deepcompression</bcf:citekey>
-    <bcf:citekey order="29" intorder="1">smith2007tesseract</bcf:citekey>
-    <bcf:citekey order="29" intorder="2">chen2021textrecognition</bcf:citekey>
-    <bcf:citekey order="30" intorder="1">govindaraju1993handwritten</bcf:citekey>
-    <bcf:citekey order="31" intorder="1">mori1992historical</bcf:citekey>
-    <bcf:citekey order="32" intorder="1">casey1996survey</bcf:citekey>
-    <bcf:citekey order="33" intorder="1">plamondon2000handwriting</bcf:citekey>
-    <bcf:citekey order="34" intorder="1">lecun1998gradient</bcf:citekey>
-    <bcf:citekey order="35" intorder="1">graves2009novel</bcf:citekey>
-    <bcf:citekey order="36" intorder="1">graves2006ctc</bcf:citekey>
-    <bcf:citekey order="37" intorder="1">li2023trocr</bcf:citekey>
-    <bcf:citekey order="38" intorder="1">shi2016crnn</bcf:citekey>
-    <bcf:citekey order="38" intorder="2">baek2019deep</bcf:citekey>
-    <bcf:citekey order="38" intorder="3">li2021trocr</bcf:citekey>
-    <bcf:citekey order="39" intorder="1">baek2019whatiswrong</bcf:citekey>
-    <bcf:citekey order="40" intorder="1">holley2009howgood</bcf:citekey>
-    <bcf:citekey order="41" intorder="1">govindaraju1994handwritten</bcf:citekey>
-    <bcf:citekey order="42" intorder="1">zhou2022automatic</bcf:citekey>
-    <bcf:citekey order="43" intorder="1">anagnostopoulos2006license</bcf:citekey>
-    <bcf:citekey order="44" intorder="1">du2013automatic</bcf:citekey>
-    <bcf:citekey order="45" intorder="1">smith2007tesseract</bcf:citekey>
-    <bcf:citekey order="46" intorder="1">chen2021textrecognition</bcf:citekey>
-    <bcf:citekey order="47" intorder="1">plamondon2000handwriting</bcf:citekey>
-    <bcf:citekey order="48" intorder="1">li2023trocr</bcf:citekey>
-    <bcf:citekey order="49" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="50" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="51" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="52" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="53" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="54" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="55" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="56" intorder="1">vaswani2017attention</bcf:citekey>
+    <bcf:citekey order="25" intorder="1">panayotov2015librispeech</bcf:citekey>
+    <bcf:citekey order="26" intorder="1">switchboard1992</bcf:citekey>
+    <bcf:citekey order="27" intorder="1">rousseau2012tedlium</bcf:citekey>
+    <bcf:citekey order="28" intorder="1">ardila2020commonvoice</bcf:citekey>
+    <bcf:citekey order="29" intorder="1">gulati2020conformer</bcf:citekey>
+    <bcf:citekey order="30" intorder="1">he2019transformertransducer</bcf:citekey>
+    <bcf:citekey order="31" intorder="1">han2016deepcompression</bcf:citekey>
+    <bcf:citekey order="32" intorder="1">radford2022whisper</bcf:citekey>
+    <bcf:citekey order="33" intorder="1">ardila2020commonvoice</bcf:citekey>
+    <bcf:citekey order="34" intorder="1">radford2022whisper</bcf:citekey>
+    <bcf:citekey order="35" intorder="1">he2019transformertransducer</bcf:citekey>
+    <bcf:citekey order="36" intorder="1">han2016deepcompression</bcf:citekey>
+    <bcf:citekey order="37" intorder="1">smith2007tesseract</bcf:citekey>
+    <bcf:citekey order="37" intorder="2">chen2021textrecognition</bcf:citekey>
+    <bcf:citekey order="38" intorder="1">govindaraju1993handwritten</bcf:citekey>
+    <bcf:citekey order="39" intorder="1">mori1992historical</bcf:citekey>
+    <bcf:citekey order="40" intorder="1">casey1996survey</bcf:citekey>
+    <bcf:citekey order="41" intorder="1">plamondon2000handwriting</bcf:citekey>
+    <bcf:citekey order="42" intorder="1">lecun1998gradient</bcf:citekey>
+    <bcf:citekey order="43" intorder="1">graves2009novel</bcf:citekey>
+    <bcf:citekey order="44" intorder="1">graves2006ctc</bcf:citekey>
+    <bcf:citekey order="45" intorder="1">li2023trocr</bcf:citekey>
+    <bcf:citekey order="46" intorder="1">shi2016crnn</bcf:citekey>
+    <bcf:citekey order="46" intorder="2">baek2019deep</bcf:citekey>
+    <bcf:citekey order="46" intorder="3">li2021trocr</bcf:citekey>
+    <bcf:citekey order="47" intorder="1">baek2019whatiswrong</bcf:citekey>
+    <bcf:citekey order="48" intorder="1">holley2009howgood</bcf:citekey>
+    <bcf:citekey order="49" intorder="1">govindaraju1994handwritten</bcf:citekey>
+    <bcf:citekey order="50" intorder="1">zhou2022automatic</bcf:citekey>
+    <bcf:citekey order="51" intorder="1">anagnostopoulos2006license</bcf:citekey>
+    <bcf:citekey order="52" intorder="1">du2013automatic</bcf:citekey>
+    <bcf:citekey order="53" intorder="1">smith2007tesseract</bcf:citekey>
+    <bcf:citekey order="54" intorder="1">chen2021textrecognition</bcf:citekey>
+    <bcf:citekey order="55" intorder="1">plamondon2000handwriting</bcf:citekey>
+    <bcf:citekey order="56" intorder="1">li2023trocr</bcf:citekey>
     <bcf:citekey order="57" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="58" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="59" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="60" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="61" intorder="1">liu2022m2hf</bcf:citekey>
-    <bcf:citekey order="62" intorder="1">zhu2024reranking</bcf:citekey>
-    <bcf:citekey order="62" intorder="2">yoo2021cooperative</bcf:citekey>
-    <bcf:citekey order="63" intorder="1">pinecone2025rerankers</bcf:citekey>
-    <bcf:citekey order="64" intorder="1">raschka2024_multimodal_llms</bcf:citekey>
-    <bcf:citekey order="65" intorder="1">raschka2024_multimodal_llms</bcf:citekey>
-    <bcf:citekey order="66" intorder="1">radford2021clip</bcf:citekey>
-    <bcf:citekey order="67" intorder="1">aiedge_multimodal_rag</bcf:citekey>
-    <bcf:citekey order="68" intorder="1">aiedge_multimodal_rag</bcf:citekey>
-    <bcf:citekey order="69" intorder="1">lin2024mmembed</bcf:citekey>
-    <bcf:citekey order="70" intorder="1">lin2024mmembed</bcf:citekey>
-    <bcf:citekey order="71" intorder="1">girdhar2023imagebind</bcf:citekey>
-    <bcf:citekey order="72" intorder="1">guenther2025jinaembeddingsv4</bcf:citekey>
-    <bcf:citekey order="73" intorder="1">guenther2025jinaembeddingsv4</bcf:citekey>
-    <bcf:citekey order="74" intorder="1">nomic2025embedmultimodal</bcf:citekey>
-    <bcf:citekey order="75" intorder="1">lin2024mmembed</bcf:citekey>
-    <bcf:citekey order="76" intorder="1">chen2017drqa</bcf:citekey>
-    <bcf:citekey order="77" intorder="1">orqa2019</bcf:citekey>
-    <bcf:citekey order="78" intorder="1">khandelwal2020knnlm</bcf:citekey>
-    <bcf:citekey order="79" intorder="1">realm2020</bcf:citekey>
-    <bcf:citekey order="80" intorder="1">lewis2020rag</bcf:citekey>
-    <bcf:citekey order="81" intorder="1">rocketqa2021</bcf:citekey>
-    <bcf:citekey order="82" intorder="1">rocketqa2_2021</bcf:citekey>
-    <bcf:citekey order="83" intorder="1">condenser2021</bcf:citekey>
-    <bcf:citekey order="84" intorder="1">contriever2021</bcf:citekey>
-    <bcf:citekey order="85" intorder="1">gtr2021</bcf:citekey>
-    <bcf:citekey order="86" intorder="1">colbertv2_2021</bcf:citekey>
-    <bcf:citekey order="87" intorder="1">splade2021</bcf:citekey>
-    <bcf:citekey order="87" intorder="2">spladev2_2021</bcf:citekey>
-    <bcf:citekey order="88" intorder="1">emdr2021</bcf:citekey>
-    <bcf:citekey order="89" intorder="1">mdr2020</bcf:citekey>
-    <bcf:citekey order="90" intorder="1">fid2020</bcf:citekey>
-    <bcf:citekey order="90" intorder="2">kgfid2021</bcf:citekey>
-    <bcf:citekey order="91" intorder="1">fidlight2022</bcf:citekey>
-    <bcf:citekey order="92" intorder="1">retro2021</bcf:citekey>
-    <bcf:citekey order="93" intorder="1">reatt2022</bcf:citekey>
-    <bcf:citekey order="94" intorder="1">re2g2022</bcf:citekey>
-    <bcf:citekey order="95" intorder="1">gar2021</bcf:citekey>
-    <bcf:citekey order="95" intorder="2">selfask2022</bcf:citekey>
-    <bcf:citekey order="95" intorder="3">react2022</bcf:citekey>
-    <bcf:citekey order="95" intorder="4">webgpt2021</bcf:citekey>
-    <bcf:citekey order="95" intorder="5">hyde2022</bcf:citekey>
-    <bcf:citekey order="96" intorder="1">flare2023</bcf:citekey>
-    <bcf:citekey order="96" intorder="2">adaptive_rag2024</bcf:citekey>
-    <bcf:citekey order="96" intorder="3">seakr2024</bcf:citekey>
-    <bcf:citekey order="96" intorder="4">dragin2024</bcf:citekey>
-    <bcf:citekey order="97" intorder="1">selfrag2023</bcf:citekey>
-    <bcf:citekey order="97" intorder="2">crag2024</bcf:citekey>
-    <bcf:citekey order="97" intorder="3">covrag2024</bcf:citekey>
-    <bcf:citekey order="97" intorder="4">lmpriors2024</bcf:citekey>
-    <bcf:citekey order="98" intorder="1">rankrag2024</bcf:citekey>
-    <bcf:citekey order="98" intorder="2">llmlingua2023</bcf:citekey>
-    <bcf:citekey order="98" intorder="3">compression2024</bcf:citekey>
-    <bcf:citekey order="99" intorder="1">au_rag2024</bcf:citekey>
-    <bcf:citekey order="99" intorder="2">mspr2024</bcf:citekey>
-    <bcf:citekey order="100" intorder="1">graphrag2024</bcf:citekey>
-    <bcf:citekey order="100" intorder="2">grag2024</bcf:citekey>
-    <bcf:citekey order="101" intorder="1">longrag2024</bcf:citekey>
-    <bcf:citekey order="101" intorder="2">selfroute2024</bcf:citekey>
-    <bcf:citekey order="102" intorder="1">survey_agentic2025</bcf:citekey>
-    <bcf:citekey order="102" intorder="2">survey_reasoning_agentic2025</bcf:citekey>
-    <bcf:citekey order="102" intorder="3">hoprag2025</bcf:citekey>
-    <bcf:citekey order="103" intorder="1">knowledge_oriented_survey2025</bcf:citekey>
-    <bcf:citekey order="103" intorder="2">architectures_survey2025</bcf:citekey>
-    <bcf:citekey order="104" intorder="1">faithfulrag2025</bcf:citekey>
-    <bcf:citekey order="104" intorder="2">reclaim2024</bcf:citekey>
-    <bcf:citekey order="104" intorder="3">citefix2025</bcf:citekey>
-    <bcf:citekey order="104" intorder="4">source_attribution2025</bcf:citekey>
-    <bcf:citekey order="104" intorder="5">citeeval2025</bcf:citekey>
-    <bcf:citekey order="105" intorder="1">ares2024</bcf:citekey>
-    <bcf:citekey order="105" intorder="2">survey_eval2025</bcf:citekey>
-    <bcf:citekey order="105" intorder="3">ragtifier2025</bcf:citekey>
-    <bcf:citekey order="106" intorder="1">hipporag2_2025</bcf:citekey>
-    <bcf:citekey order="106" intorder="2">memorag2024</bcf:citekey>
-    <bcf:citekey order="106" intorder="3">mem0_2025</bcf:citekey>
-    <bcf:citekey order="106" intorder="4">mirix2025</bcf:citekey>
-    <bcf:citekey order="106" intorder="5">memos2025</bcf:citekey>
-    <bcf:citekey order="107" intorder="1">marino2019okvqa</bcf:citekey>
-    <bcf:citekey order="108" intorder="1">gao2022trig</bcf:citekey>
-    <bcf:citekey order="109" intorder="1">wu2022entityvqa</bcf:citekey>
-    <bcf:citekey order="110" intorder="1">hu2023reveal</bcf:citekey>
-    <bcf:citekey order="111" intorder="1">yu2024visrag</bcf:citekey>
-    <bcf:citekey order="112" intorder="1">rao2024raven</bcf:citekey>
-    <bcf:citekey order="113" intorder="1">girdhar2023imagebind</bcf:citekey>
-    <bcf:citekey order="114" intorder="1">wen2025rsrag</bcf:citekey>
-    <bcf:citekey order="115" intorder="1">drushchak2025unified</bcf:citekey>
-    <bcf:citekey order="116" intorder="1">mei2025survey</bcf:citekey>
-    <bcf:citekey order="117" intorder="1">aiedge_multimodal_rag</bcf:citekey>
-    <bcf:citekey order="118" intorder="1">aiedge_multimodal_rag</bcf:citekey>
-    <bcf:citekey order="119" intorder="1">karpukhin2020dense</bcf:citekey>
-    <bcf:citekey order="119" intorder="2">lewis2020rag</bcf:citekey>
-    <bcf:citekey order="120" intorder="1">izacard2021leveraging</bcf:citekey>
-    <bcf:citekey order="121" intorder="1">lewis2020rag</bcf:citekey>
-    <bcf:citekey order="121" intorder="2">luan2021sparse_dense</bcf:citekey>
-    <bcf:citekey order="122" intorder="1">lewis2020rag</bcf:citekey>
-    <bcf:citekey order="122" intorder="2">izacard2022rag_sequence</bcf:citekey>
-    <bcf:citekey order="123" intorder="1">lewis2020rag</bcf:citekey>
-    <bcf:citekey order="123" intorder="2">izacard2021leveraging</bcf:citekey>
-    <bcf:citekey order="123" intorder="3">gao2023rag_survey</bcf:citekey>
-    <bcf:citekey order="124" intorder="1">hu2025mrag</bcf:citekey>
-    <bcf:citekey order="125" intorder="1">liu2025hmrag</bcf:citekey>
-    <bcf:citekey order="126" intorder="1">zhang2024mr2ag</bcf:citekey>
-    <bcf:citekey order="127" intorder="1">robertson2009probabilistic</bcf:citekey>
-    <bcf:citekey order="127" intorder="2">formal2021splade</bcf:citekey>
-    <bcf:citekey order="128" intorder="1">robertson2009probabilistic</bcf:citekey>
-    <bcf:citekey order="129" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="130" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="131" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="132" intorder="1">geeksforgeeks_bm25</bcf:citekey>
-    <bcf:citekey order="133" intorder="1">geeksforgeeks_bm25</bcf:citekey>
-    <bcf:citekey order="134" intorder="1">karpukhin2020dense</bcf:citekey>
-    <bcf:citekey order="135" intorder="1">karpukhin2020dense</bcf:citekey>
-    <bcf:citekey order="136" intorder="1">karpukhin2020dense</bcf:citekey>
-    <bcf:citekey order="136" intorder="2">singh2022scirepeval</bcf:citekey>
-    <bcf:citekey order="137" intorder="1">malkov2016efficient</bcf:citekey>
+    <bcf:citekey order="58" intorder="1">liu2022m2hf</bcf:citekey>
+    <bcf:citekey order="59" intorder="1">zhu2024reranking</bcf:citekey>
+    <bcf:citekey order="59" intorder="2">yoo2021cooperative</bcf:citekey>
+    <bcf:citekey order="60" intorder="1">pinecone2025rerankers</bcf:citekey>
+    <bcf:citekey order="61" intorder="1">raschka2024_multimodal_llms</bcf:citekey>
+    <bcf:citekey order="62" intorder="1">raschka2024_multimodal_llms</bcf:citekey>
+    <bcf:citekey order="63" intorder="1">radford2021clip</bcf:citekey>
+    <bcf:citekey order="64" intorder="1">aiedge_multimodal_rag</bcf:citekey>
+    <bcf:citekey order="65" intorder="1">aiedge_multimodal_rag</bcf:citekey>
+    <bcf:citekey order="66" intorder="1">lin2024mmembed</bcf:citekey>
+    <bcf:citekey order="67" intorder="1">lin2024mmembed</bcf:citekey>
+    <bcf:citekey order="68" intorder="1">girdhar2023imagebind</bcf:citekey>
+    <bcf:citekey order="69" intorder="1">guenther2025jinaembeddingsv4</bcf:citekey>
+    <bcf:citekey order="70" intorder="1">guenther2025jinaembeddingsv4</bcf:citekey>
+    <bcf:citekey order="71" intorder="1">nomic2025embedmultimodal</bcf:citekey>
+    <bcf:citekey order="72" intorder="1">lin2024mmembed</bcf:citekey>
+    <bcf:citekey order="73" intorder="1">chen2017drqa</bcf:citekey>
+    <bcf:citekey order="74" intorder="1">orqa2019</bcf:citekey>
+    <bcf:citekey order="75" intorder="1">khandelwal2020knnlm</bcf:citekey>
+    <bcf:citekey order="76" intorder="1">realm2020</bcf:citekey>
+    <bcf:citekey order="77" intorder="1">lewis2020rag</bcf:citekey>
+    <bcf:citekey order="78" intorder="1">rocketqa2021</bcf:citekey>
+    <bcf:citekey order="79" intorder="1">rocketqa2_2021</bcf:citekey>
+    <bcf:citekey order="80" intorder="1">condenser2021</bcf:citekey>
+    <bcf:citekey order="81" intorder="1">contriever2021</bcf:citekey>
+    <bcf:citekey order="82" intorder="1">gtr2021</bcf:citekey>
+    <bcf:citekey order="83" intorder="1">colbertv2_2021</bcf:citekey>
+    <bcf:citekey order="84" intorder="1">splade2021</bcf:citekey>
+    <bcf:citekey order="84" intorder="2">spladev2_2021</bcf:citekey>
+    <bcf:citekey order="85" intorder="1">emdr2021</bcf:citekey>
+    <bcf:citekey order="86" intorder="1">mdr2020</bcf:citekey>
+    <bcf:citekey order="87" intorder="1">fid2020</bcf:citekey>
+    <bcf:citekey order="87" intorder="2">kgfid2021</bcf:citekey>
+    <bcf:citekey order="88" intorder="1">fidlight2022</bcf:citekey>
+    <bcf:citekey order="89" intorder="1">retro2021</bcf:citekey>
+    <bcf:citekey order="90" intorder="1">reatt2022</bcf:citekey>
+    <bcf:citekey order="91" intorder="1">re2g2022</bcf:citekey>
+    <bcf:citekey order="92" intorder="1">gar2021</bcf:citekey>
+    <bcf:citekey order="92" intorder="2">selfask2022</bcf:citekey>
+    <bcf:citekey order="92" intorder="3">react2022</bcf:citekey>
+    <bcf:citekey order="92" intorder="4">webgpt2021</bcf:citekey>
+    <bcf:citekey order="92" intorder="5">hyde2022</bcf:citekey>
+    <bcf:citekey order="93" intorder="1">flare2023</bcf:citekey>
+    <bcf:citekey order="93" intorder="2">adaptive_rag2024</bcf:citekey>
+    <bcf:citekey order="93" intorder="3">seakr2024</bcf:citekey>
+    <bcf:citekey order="93" intorder="4">dragin2024</bcf:citekey>
+    <bcf:citekey order="94" intorder="1">selfrag2023</bcf:citekey>
+    <bcf:citekey order="94" intorder="2">crag2024</bcf:citekey>
+    <bcf:citekey order="94" intorder="3">covrag2024</bcf:citekey>
+    <bcf:citekey order="94" intorder="4">lmpriors2024</bcf:citekey>
+    <bcf:citekey order="95" intorder="1">rankrag2024</bcf:citekey>
+    <bcf:citekey order="95" intorder="2">llmlingua2023</bcf:citekey>
+    <bcf:citekey order="95" intorder="3">compression2024</bcf:citekey>
+    <bcf:citekey order="96" intorder="1">au_rag2024</bcf:citekey>
+    <bcf:citekey order="96" intorder="2">mspr2024</bcf:citekey>
+    <bcf:citekey order="97" intorder="1">graphrag2024</bcf:citekey>
+    <bcf:citekey order="97" intorder="2">grag2024</bcf:citekey>
+    <bcf:citekey order="98" intorder="1">longrag2024</bcf:citekey>
+    <bcf:citekey order="98" intorder="2">selfroute2024</bcf:citekey>
+    <bcf:citekey order="99" intorder="1">survey_agentic2025</bcf:citekey>
+    <bcf:citekey order="99" intorder="2">survey_reasoning_agentic2025</bcf:citekey>
+    <bcf:citekey order="99" intorder="3">hoprag2025</bcf:citekey>
+    <bcf:citekey order="100" intorder="1">knowledge_oriented_survey2025</bcf:citekey>
+    <bcf:citekey order="100" intorder="2">architectures_survey2025</bcf:citekey>
+    <bcf:citekey order="101" intorder="1">faithfulrag2025</bcf:citekey>
+    <bcf:citekey order="101" intorder="2">reclaim2024</bcf:citekey>
+    <bcf:citekey order="101" intorder="3">citefix2025</bcf:citekey>
+    <bcf:citekey order="101" intorder="4">source_attribution2025</bcf:citekey>
+    <bcf:citekey order="101" intorder="5">citeeval2025</bcf:citekey>
+    <bcf:citekey order="102" intorder="1">ares2024</bcf:citekey>
+    <bcf:citekey order="102" intorder="2">survey_eval2025</bcf:citekey>
+    <bcf:citekey order="102" intorder="3">ragtifier2025</bcf:citekey>
+    <bcf:citekey order="103" intorder="1">hipporag2_2025</bcf:citekey>
+    <bcf:citekey order="103" intorder="2">memorag2024</bcf:citekey>
+    <bcf:citekey order="103" intorder="3">mem0_2025</bcf:citekey>
+    <bcf:citekey order="103" intorder="4">mirix2025</bcf:citekey>
+    <bcf:citekey order="103" intorder="5">memos2025</bcf:citekey>
+    <bcf:citekey order="104" intorder="1">marino2019okvqa</bcf:citekey>
+    <bcf:citekey order="105" intorder="1">gao2022trig</bcf:citekey>
+    <bcf:citekey order="106" intorder="1">wu2022entityvqa</bcf:citekey>
+    <bcf:citekey order="107" intorder="1">hu2023reveal</bcf:citekey>
+    <bcf:citekey order="108" intorder="1">yu2024visrag</bcf:citekey>
+    <bcf:citekey order="109" intorder="1">rao2024raven</bcf:citekey>
+    <bcf:citekey order="110" intorder="1">girdhar2023imagebind</bcf:citekey>
+    <bcf:citekey order="111" intorder="1">wen2025rsrag</bcf:citekey>
+    <bcf:citekey order="112" intorder="1">drushchak2025unified</bcf:citekey>
+    <bcf:citekey order="113" intorder="1">mei2025survey</bcf:citekey>
+    <bcf:citekey order="114" intorder="1">aiedge_multimodal_rag</bcf:citekey>
+    <bcf:citekey order="115" intorder="1">aiedge_multimodal_rag</bcf:citekey>
+    <bcf:citekey order="116" intorder="1">karpukhin2020dense</bcf:citekey>
+    <bcf:citekey order="116" intorder="2">lewis2020rag</bcf:citekey>
+    <bcf:citekey order="117" intorder="1">izacard2021leveraging</bcf:citekey>
+    <bcf:citekey order="118" intorder="1">lewis2020rag</bcf:citekey>
+    <bcf:citekey order="118" intorder="2">luan2021sparse_dense</bcf:citekey>
+    <bcf:citekey order="119" intorder="1">lewis2020rag</bcf:citekey>
+    <bcf:citekey order="119" intorder="2">izacard2022rag_sequence</bcf:citekey>
+    <bcf:citekey order="120" intorder="1">lewis2020rag</bcf:citekey>
+    <bcf:citekey order="120" intorder="2">izacard2021leveraging</bcf:citekey>
+    <bcf:citekey order="120" intorder="3">gao2023rag_survey</bcf:citekey>
+    <bcf:citekey order="121" intorder="1">hu2025mrag</bcf:citekey>
+    <bcf:citekey order="122" intorder="1">liu2025hmrag</bcf:citekey>
+    <bcf:citekey order="123" intorder="1">zhang2024mr2ag</bcf:citekey>
+    <bcf:citekey order="124" intorder="1">robertson2009probabilistic</bcf:citekey>
+    <bcf:citekey order="124" intorder="2">formal2021splade</bcf:citekey>
+    <bcf:citekey order="125" intorder="1">robertson2009probabilistic</bcf:citekey>
+    <bcf:citekey order="126" intorder="1">formal2021splade</bcf:citekey>
+    <bcf:citekey order="127" intorder="1">formal2021splade</bcf:citekey>
+    <bcf:citekey order="128" intorder="1">formal2021splade</bcf:citekey>
+    <bcf:citekey order="129" intorder="1">geeksforgeeks_bm25</bcf:citekey>
+    <bcf:citekey order="130" intorder="1">geeksforgeeks_bm25</bcf:citekey>
+    <bcf:citekey order="131" intorder="1">karpukhin2020dense</bcf:citekey>
+    <bcf:citekey order="132" intorder="1">karpukhin2020dense</bcf:citekey>
+    <bcf:citekey order="133" intorder="1">karpukhin2020dense</bcf:citekey>
+    <bcf:citekey order="133" intorder="2">singh2022scirepeval</bcf:citekey>
+    <bcf:citekey order="134" intorder="1">malkov2016efficient</bcf:citekey>
+    <bcf:citekey order="135" intorder="1">formal2021splade</bcf:citekey>
+    <bcf:citekey order="136" intorder="1">li2020rag</bcf:citekey>
+    <bcf:citekey order="137" intorder="1">formal2021splade</bcf:citekey>
+    <bcf:citekey order="137" intorder="2">karpukhin2020dense</bcf:citekey>
     <bcf:citekey order="138" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="139" intorder="1">li2020rag</bcf:citekey>
+    <bcf:citekey order="138" intorder="2">karpukhin2020dense</bcf:citekey>
+    <bcf:citekey order="139" intorder="1">formal2021splade</bcf:citekey>
     <bcf:citekey order="140" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="140" intorder="2">karpukhin2020dense</bcf:citekey>
     <bcf:citekey order="141" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="141" intorder="2">karpukhin2020dense</bcf:citekey>
-    <bcf:citekey order="142" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="143" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="144" intorder="1">formal2021splade</bcf:citekey>
-    <bcf:citekey order="144" intorder="2">iida2022unsupervised</bcf:citekey>
-    <bcf:citekey order="145" intorder="1">chen2024bge</bcf:citekey>
-    <bcf:citekey order="146" intorder="1">together2024_rerank_llamarank</bcf:citekey>
-    <bcf:citekey order="147" intorder="1">together2024_rerank_llamarank</bcf:citekey>
-    <bcf:citekey order="148" intorder="1">colbertv2</bcf:citekey>
-    <bcf:citekey order="149" intorder="1">monot5</bcf:citekey>
-    <bcf:citekey order="150" intorder="1">tart</bcf:citekey>
-    <bcf:citekey order="151" intorder="1">rankgpt</bcf:citekey>
-    <bcf:citekey order="152" intorder="1">obot_rag_guide</bcf:citekey>
-    <bcf:citekey order="153" intorder="1">obot_rag_guide</bcf:citekey>
-    <bcf:citekey order="154" intorder="1">yoon2024compact</bcf:citekey>
-    <bcf:citekey order="154" intorder="2">asai2023selfrag</bcf:citekey>
-    <bcf:citekey order="155" intorder="1">yoon2024compact</bcf:citekey>
-    <bcf:citekey order="156" intorder="1">asai2023selfrag</bcf:citekey>
-    <bcf:citekey order="157" intorder="1">he2024retrieval_coding</bcf:citekey>
-    <bcf:citekey order="158" intorder="1">gao2023rag_survey</bcf:citekey>
-    <bcf:citekey order="159" intorder="1">gao2023rag_survey</bcf:citekey>
-    <bcf:citekey order="160" intorder="1">wolfe2024_rag_guide</bcf:citekey>
-    <bcf:citekey order="161" intorder="1">wolfe2024_rag_guide</bcf:citekey>
+    <bcf:citekey order="141" intorder="2">iida2022unsupervised</bcf:citekey>
+    <bcf:citekey order="142" intorder="1">chen2024bge</bcf:citekey>
+    <bcf:citekey order="143" intorder="1">together2024_rerank_llamarank</bcf:citekey>
+    <bcf:citekey order="144" intorder="1">together2024_rerank_llamarank</bcf:citekey>
+    <bcf:citekey order="145" intorder="1">colbertv2</bcf:citekey>
+    <bcf:citekey order="146" intorder="1">monot5</bcf:citekey>
+    <bcf:citekey order="147" intorder="1">tart</bcf:citekey>
+    <bcf:citekey order="148" intorder="1">rankgpt</bcf:citekey>
+    <bcf:citekey order="149" intorder="1">obot_rag_guide</bcf:citekey>
+    <bcf:citekey order="150" intorder="1">obot_rag_guide</bcf:citekey>
+    <bcf:citekey order="151" intorder="1">yoon2024compact</bcf:citekey>
+    <bcf:citekey order="151" intorder="2">asai2023selfrag</bcf:citekey>
+    <bcf:citekey order="152" intorder="1">yoon2024compact</bcf:citekey>
+    <bcf:citekey order="153" intorder="1">asai2023selfrag</bcf:citekey>
+    <bcf:citekey order="154" intorder="1">he2024retrieval_coding</bcf:citekey>
+    <bcf:citekey order="155" intorder="1">gao2023rag_survey</bcf:citekey>
+    <bcf:citekey order="156" intorder="1">gao2023rag_survey</bcf:citekey>
+    <bcf:citekey order="157" intorder="1">wolfe2024_rag_guide</bcf:citekey>
+    <bcf:citekey order="158" intorder="1">wolfe2024_rag_guide</bcf:citekey>
+    <bcf:citekey order="159" intorder="1">asai2023selfrag</bcf:citekey>
+    <bcf:citekey order="159" intorder="2">yoon2024compact</bcf:citekey>
+    <bcf:citekey order="160" intorder="1">he2024retrieval_coding</bcf:citekey>
+    <bcf:citekey order="161" intorder="1">zhang2024llm_hallucination_code</bcf:citekey>
     <bcf:citekey order="162" intorder="1">asai2023selfrag</bcf:citekey>
-    <bcf:citekey order="162" intorder="2">yoon2024compact</bcf:citekey>
-    <bcf:citekey order="163" intorder="1">he2024retrieval_coding</bcf:citekey>
-    <bcf:citekey order="164" intorder="1">zhang2024llm_hallucination_code</bcf:citekey>
-    <bcf:citekey order="165" intorder="1">asai2023selfrag</bcf:citekey>
-    <bcf:citekey order="166" intorder="1">brown2020language</bcf:citekey>
-    <bcf:citekey order="167" intorder="1">reynolds2021prompt</bcf:citekey>
-    <bcf:citekey order="168" intorder="1">brown2020language</bcf:citekey>
-    <bcf:citekey order="169" intorder="1">wei2022cot</bcf:citekey>
-    <bcf:citekey order="170" intorder="1">wang2023selfconsistency</bcf:citekey>
-    <bcf:citekey order="171" intorder="1">gpt4techreport</bcf:citekey>
-    <bcf:citekey order="172" intorder="1">shi2024triple</bcf:citekey>
-    <bcf:citekey order="173" intorder="1">li2021prefix</bcf:citekey>
-    <bcf:citekey order="174" intorder="1">shin2020autoprompt</bcf:citekey>
-    <bcf:citekey order="175" intorder="1">prasad2023grips</bcf:citekey>
-    <bcf:citekey order="176" intorder="1">zhou2022ape</bcf:citekey>
-    <bcf:citekey order="177" intorder="1">yao2023opro</bcf:citekey>
-    <bcf:citekey order="178" intorder="1">deng2022rlprompt</bcf:citekey>
-    <bcf:citekey order="179" intorder="1">luan2021sparse_dense</bcf:citekey>
-    <bcf:citekey order="180" intorder="1">lin2021densifying</bcf:citekey>
-    <bcf:citekey order="181" intorder="1">liu2022m2hf</bcf:citekey>
-    <bcf:citekey order="182" intorder="1">sun2025dynamicrag</bcf:citekey>
-    <bcf:citekey order="183" intorder="1">mortaheb2025reranking</bcf:citekey>
-    <bcf:citekey order="184" intorder="1">lee2023lpm</bcf:citekey>
-    <bcf:citekey order="185" intorder="1">lee2023lpm</bcf:citekey>
-    <bcf:citekey order="186" intorder="1">alawwad2025jetrtqa</bcf:citekey>
-    <bcf:citekey order="187" intorder="1">chen2024m3av</bcf:citekey>
-    <bcf:citekey order="188" intorder="1">guenther2025jinaembeddingsv4</bcf:citekey>
+    <bcf:citekey order="163" intorder="1">brown2020language</bcf:citekey>
+    <bcf:citekey order="164" intorder="1">reynolds2021prompt</bcf:citekey>
+    <bcf:citekey order="165" intorder="1">brown2020language</bcf:citekey>
+    <bcf:citekey order="166" intorder="1">wei2022cot</bcf:citekey>
+    <bcf:citekey order="167" intorder="1">wang2023selfconsistency</bcf:citekey>
+    <bcf:citekey order="168" intorder="1">gpt4techreport</bcf:citekey>
+    <bcf:citekey order="169" intorder="1">shi2024triple</bcf:citekey>
+    <bcf:citekey order="170" intorder="1">li2021prefix</bcf:citekey>
+    <bcf:citekey order="171" intorder="1">shin2020autoprompt</bcf:citekey>
+    <bcf:citekey order="172" intorder="1">prasad2023grips</bcf:citekey>
+    <bcf:citekey order="173" intorder="1">zhou2022ape</bcf:citekey>
+    <bcf:citekey order="174" intorder="1">yao2023opro</bcf:citekey>
+    <bcf:citekey order="175" intorder="1">deng2022rlprompt</bcf:citekey>
+    <bcf:citekey order="176" intorder="1">luan2021sparse_dense</bcf:citekey>
+    <bcf:citekey order="177" intorder="1">lin2021densifying</bcf:citekey>
+    <bcf:citekey order="178" intorder="1">liu2022m2hf</bcf:citekey>
+    <bcf:citekey order="179" intorder="1">sun2025dynamicrag</bcf:citekey>
+    <bcf:citekey order="180" intorder="1">mortaheb2025reranking</bcf:citekey>
+    <bcf:citekey order="181" intorder="1">lee2023lpm</bcf:citekey>
+    <bcf:citekey order="182" intorder="1">lee2023lpm</bcf:citekey>
+    <bcf:citekey order="183" intorder="1">alawwad2025jetrtqa</bcf:citekey>
+    <bcf:citekey order="184" intorder="1">chen2024m3av</bcf:citekey>
+    <bcf:citekey order="185" intorder="1">guenther2025jinaembeddingsv4</bcf:citekey>
+    <bcf:citekey order="186" intorder="1">liu2022m2hf</bcf:citekey>
+    <bcf:citekey order="187" intorder="1">liu2022m2hf</bcf:citekey>
+    <bcf:citekey order="188" intorder="1">lee2023lpm</bcf:citekey>
     <bcf:citekey order="189" intorder="1">liu2022m2hf</bcf:citekey>
-    <bcf:citekey order="190" intorder="1">liu2022m2hf</bcf:citekey>
-    <bcf:citekey order="191" intorder="1">lee2023lpm</bcf:citekey>
-    <bcf:citekey order="192" intorder="1">liu2022m2hf</bcf:citekey>
-    <bcf:citekey order="193" intorder="1">notebooklm-google</bcf:citekey>
-    <bcf:citekey order="193" intorder="2">gemini-model</bcf:citekey>
-    <bcf:citekey order="194" intorder="1">notebooklm-docs</bcf:citekey>
-    <bcf:citekey order="195" intorder="1">notebooklm-update-2025</bcf:citekey>
-    <bcf:citekey order="196" intorder="1">rag-framework</bcf:citekey>
-    <bcf:citekey order="197" intorder="1">notebooklm-citations</bcf:citekey>
-    <bcf:citekey order="198" intorder="1">notebooklm-google-ai</bcf:citekey>
-    <bcf:citekey order="199" intorder="1">notebooklm-google-ai</bcf:citekey>
-    <bcf:citekey order="200" intorder="1">notebooklm-summaries</bcf:citekey>
-    <bcf:citekey order="201" intorder="1">notebooklm-learning</bcf:citekey>
-    <bcf:citekey order="202" intorder="1">notebooklm-audio</bcf:citekey>
-    <bcf:citekey order="203" intorder="1">notebooklm-video</bcf:citekey>
-    <bcf:citekey order="204" intorder="1">notebooklm-privacy</bcf:citekey>
-    <bcf:citekey order="205" intorder="1">notebooklm-mobile</bcf:citekey>
+    <bcf:citekey order="190" intorder="1">rag-framework</bcf:citekey>
+    <bcf:citekey order="191" intorder="1">notebooklm-mobile</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">
@@ -2657,12 +2646,13 @@
   </bcf:sortingtemplate>
   <!-- DATALISTS -->
   <bcf:datalist section="0"
-                name="none/global//global/global"
+                name="none/global//global/global/global"
                 type="entry"
                 sortingtemplatename="none"
                 sortingnamekeytemplatename="global"
                 labelprefix=""
                 uniquenametemplatename="global"
-                labelalphanametemplatename="global">
+                labelalphanametemplatename="global"
+                namehashtemplatename="global">
   </bcf:datalist>
 </bcf:controlfile>
