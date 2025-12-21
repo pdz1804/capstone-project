@@ -33,13 +33,13 @@ To ensure your team can execute these fixes efficiently, I have organized the fe
 
 ### 3. Visuals (Figures & Tables)
 
-* [ ] **Captions:** * Figures: Caption **below** the image.
-
+* [X] **Captions:** * Figures: Caption **below** the image (already done).
 * Tables: Caption **above** the table.
 * LaTeX Syntax: Use `\caption[short title]{full description}`.
 
-* [ ] **Figure Citations:** Remove citations from inside the image itself. Put the source/citation in the caption.
-* [ ] **Table Consistency:** Reformat **Table 5.1** to match the style of all other tables in the report.
+
+* [X] **Figure Citations:** Remove citations from inside the image itself. Put the source/citation in the caption.
+* [X] **Table Consistency:** Reformat **Table 5.1** to match the style of all other tables in the report.
 * [ ] **Diagram Updates:**
 
 * Redraw/update the **Reranker** figure.
@@ -56,6 +56,7 @@ To ensure your team can execute these fixes efficiently, I have organized the fe
 
 * [X] **Terminology Consistency:** * Define abbreviations only at the first occurrence: *Multimodal Retrieval-Augmented Generation (mRAG)*. Use "mRAG" thereafter.
 
+* [X] **Terminology Consistency:** * Define abbreviations only at the first occurrence: *Multimodal Retrieval-Augmented Generation (mRAG)*. Use "mRAG" thereafter.
 * Fix OCR: Use "Optical Character Recognition (OCR)" at first mention only.
 * Check for consistent Bold/CamelCase usage across all terms.
 
@@ -65,7 +66,9 @@ To ensure your team can execute these fixes efficiently, I have organized the fe
 
 ### 6. Plan File Conversion (08_plan.tex -> Conclusion)
 
-**NOTE:** The file `08_plan.tex` is now successfully restructured as Chapter 7: Conclusion.
+* [X] **Reference Cleanup:** * Page 18: Remove redundant [40] citations; mention once per context.
+* Web links: Move URL references to **Footnotes**.
+* Bibliography: Only **Research Papers** and **Textbooks** should remain in the formal References section.
 
 **Actions completed:**
 

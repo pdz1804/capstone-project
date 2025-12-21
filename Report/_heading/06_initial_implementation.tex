@@ -6,7 +6,7 @@ This chapter details the practical implementation of the core system architectur
 
 \section{Architecture Design}
 
-The Unified Multimodal RAG Pipeline is architected as a modular, resource-optimized system designed to handle the complete lifecycle of document intelligence from raw ingestion to semantic generation. The system deviates from traditional monolithic designs by adopting a \textbf{Layered Service Architecture}, decoupling the retrieval logic from the generation logic, and utilizing a file-system-based state management approach for portability.
+The Unified mRAG Pipeline is architected as a modular, resource-optimized system designed to handle the complete lifecycle of document intelligence from raw ingestion to semantic generation. The system deviates from traditional monolithic designs by adopting a \textbf{Layered Service Architecture}, decoupling the retrieval logic from the generation logic, and utilizing a file-system-based state management approach for portability.
 
 The architecture is composed of four primary layers:
 
@@ -124,7 +124,7 @@ To handle temporal media, the system implements a two-step transformation:
     \begin{figure}[H]
         \centering
         \includegraphics[width=1\textwidth]{img/pdz/23-movipy.png}
-        \caption{MoviePy Extraction Process.}
+        \caption[MoviePy Extraction Process]{MoviePy Extraction Process.}
         \label{fig:movipy_process}
     \end{figure}
     
@@ -133,7 +133,7 @@ To handle temporal media, the system implements a two-step transformation:
     \begin{figure}[H]
         \centering
         \includegraphics[width=1\textwidth]{img/pdz/24-whisper.png}
-        \caption{OpenAI Whisper Audio Transcription Process.}
+        \caption[OpenAI Whisper Audio Transcription Process]{OpenAI Whisper Audio Transcription Process.}
         \label{fig:whisper_process}
     \end{figure}
 
@@ -145,7 +145,7 @@ Legacy office formats require conversion before structural analysis. The system 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{img/pdz/25-libre.png}
-    \caption{LibreOffice Document Conversion Process.}
+    \caption[LibreOffice Document Conversion Process]{LibreOffice Document Conversion Process.}
     \label{fig:libre_process}
 \end{figure}
 
@@ -158,7 +158,7 @@ For data-dense documents, the pipeline integrates \textbf{Docling} as the centra
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/26-docling.png}
-    \caption{Docling Document Parsing Process.}
+    \caption[Docling Document Parsing Process]{Docling Document Parsing Process.}
     \label{fig:docling_process}
 \end{figure}
 
@@ -248,7 +248,7 @@ To process the Markdown inputs, the system utilizes a high-precision splitting s
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/20-textchunk.png}
-    \caption{Textual Chunking and Embedding.}
+    \caption[Textual Chunking and Embedding]{Textual Chunking and Embedding.}
     \label{fig:textchunk}
 \end{figure}
 
@@ -301,7 +301,7 @@ The visual pathway processes the page images generated to enable multimodal retr
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/21-visualemb.png}
-    \caption{Visual Embedding (ColQwen).}
+    \caption[Visual Embedding (ColQwen)]{Visual Embedding (ColQwen).}
     \label{fig:visualemb}
 \end{figure}
 
