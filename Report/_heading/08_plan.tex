@@ -1,6 +1,6 @@
 \chapter{Conclusion}
 
-This chapter summarizes the achievements and learning outcomes from Phase 1 of the project, and outlines the strategic execution plan for Phase 2. The project is divided into two distinct phases: Phase 1 focused on foundational research, feasibility studies, and the development of a baseline Retrieval-Augmented Generation (RAG) system with emphasis on establishing the core architecture. Phase 2 will shift toward multimodal integration, system scaling, production-grade application development, and rigorous performance evaluation. 
+This chapter summarizes the achievements and learning outcomes from Phase 1 of the project, and outlines the strategic execution plan for Phase 2. The project is divided into two distinct phases: Phase 1 focused on foundational research, feasibility studies, and the development of a baseline RAG system with emphasis on establishing the core architecture. Phase 2 will shift toward multimodal integration, system scaling, production-grade application development, and rigorous performance evaluation. 
 
 The project follows an iterative development methodology, allowing for parallel progress in data engineering and algorithmic refinement to ensure a cohesive final system.
 
@@ -11,7 +11,7 @@ The project follows an iterative development methodology, allowing for parallel 
 
 Phase 1 was characterized by the transition from theoretical research to a functional baseline. The primary goal was to establish a robust data pipeline capable of processing heterogeneous lecture materials, including video, audio, and slides.
 
-During the initial weeks, the focus was on concurrent research and infrastructure setup. While the literature review identified state-of-the-art Vision Language Models (VLMs) and RAG frameworks like LangChain and LlamaIndex, the repository and environment were simultaneously configured. This parallel approach allowed for immediate experimentation with ASR (Automatic Speech Recognition) systems like PhoWhisper and OCR (Optical Character Recognition) tools such as Tesseract and Mistral OCR.
+During the initial weeks, the focus was on concurrent research and infrastructure setup. While the literature review identified state-of-the-art VLMs and RAG frameworks like LangChain and LlamaIndex, the repository and environment were simultaneously configured. This parallel approach allowed for immediate experimentation with ASR systems like PhoWhisper and OCR tools such as Tesseract and Mistral OCR.
 
 A key milestone was reached in the mid-phase with the deployment of **Pipeline v1**. This version integrated basic $BM25$ and dense retrieval methods (utilizing $all-MiniLM-L6-v2$ and $BGE-M3$), providing a benchmark for all subsequent optimizations. The team also conducted comparative analysis between frameworks to select the most efficient one for the project’s specific needs. The latter half of the phase focused on stabilizing these components into a unified code repository, transitioning from experimental notebooks to a structured backend API architecture. Additionally, user feedback was solicited through surveys to refine the system design and focus.
 \subsection{Phase 1 Learning Milestones and Key Achievements}
@@ -33,7 +33,7 @@ Throughout Phase 1, the team achieved several critical learning milestones that 
 \end{itemize}
 \subsection{Phase 1 Implementation Journey and Accomplishments}
 
-Phase 1 successfully established a comprehensive foundation for the multimodal RAG system through systematic development across four key stages:
+Phase 1 successfully established a comprehensive foundation for the MRAG system through systematic development across four key stages:
 
 \begin{itemize}
     \item \textbf{Foundation and Research Infrastructure:}
@@ -42,7 +42,7 @@ Phase 1 successfully established a comprehensive foundation for the multimodal R
         \item Curated an initial dataset of 10 lectures encompassing diverse formats (videos, audio, slides) to serve as the foundation for pipeline development and testing.
         \item Conducted comprehensive literature review covering RAG architectures, sparse/dense/hybrid retrieval methodologies, and multimodal embedding techniques, establishing the theoretical foundation for system design.
         \item Performed comparative analysis of RAG frameworks (LangChain vs. LlamaIndex) and evaluated prompt engineering strategies, ultimately selecting LlamaIndex for its superior modularity.
-        \item Surveyed state-of-the-art Vision Language Models (VLMs), OCR technologies (Tesseract, Mistral OCR), and ASR systems (PhoWhisper, Whisper), informing technology selection decisions.
+        \item Surveyed state-of-the-art VLMs, OCR technologies (Tesseract, Mistral OCR), and ASR systems (PhoWhisper, Whisper), informing technology selection decisions.
     \end{itemize}
     
     \item \textbf{Multimodal Processing Pipeline Development:}
@@ -110,7 +110,7 @@ Phase 1 successfully established a comprehensive foundation for the multimodal R
 \ganttbar[bar/.style={fill=purple!30}]{Report \& Presentation}{10}{12}
 
 \end{ganttchart}
-\caption{Phase 1 Implementation Timeline: Completed work showing the parallelization of research, processing, and experimental tracks across the 12-week development period.}
+\caption{Phase 1 Implementation Timeline}
 \end{figure}
 
 % =========================
@@ -204,5 +204,5 @@ The planned work schedule for Phase 2 is structured across eight weeks, encompas
 \ganttbar[bar/.style={fill=red!40}]{Defense Preparation}{24}{25}
 
 \end{ganttchart}
-\caption{Phase 2 Planned Timeline: Proposed schedule highlighting the strategic overlap between multimodal backend development, frontend integration, and academic evaluation across the 13-week implementation period.}
+\caption{Phase 2 Planned Timeline}
 \end{figure}
