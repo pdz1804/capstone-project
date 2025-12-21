@@ -11,22 +11,22 @@ Automatic Speech Recognition (ASR) is the process of converting spoken language 
     \label{fig:ASR_Pipeline}
 \end{figure}
 
-Automatic Speech Recognition (ASR) is the task of converting an acoustic signal into a sequence of words. Formally, the goal of an ASR system is to determine the most probable word sequence $\hat{W}$ given an input acoustic observation $X$:
+ASR is the task of converting an acoustic signal into a sequence of words. Formally, the goal of an ASR system is to determine the most probable word sequence $\hat{W}$ given an input acoustic observation $X$
 
-\begin{equation}
+\begin{equation*}
     \hat{W} = \arg\max_{W} P(W|X)
-\end{equation}
+\end{equation*}
 
-Using Bayes' theorem, this can be rewritten as:
+Using Bayes' theorem, this can be rewritten as
 
-\begin{equation}
+\begin{equation*}
     \hat{W} = \arg\max_{W} P(X|W)P(W)
-\end{equation}
+\end{equation*}
 
 where:
 \begin{itemize}
-    \item $P(X|W)$ is the \textbf{acoustic model}, representing the probability of observing the audio features given a word sequence.
-    \item $P(W)$ is the \textbf{language model}, representing the prior probability of a word sequence in the target language.
+    \item $P(X|W)$ is the \textbf{acoustic model}, representing the probability of observing the audio features given a word sequence;
+    \item $P(W)$ is the \textbf{language model}, representing the prior probability of a word sequence in the target language;
     \item $\hat{W}$ is the final predicted transcription.
 \end{itemize}
 
@@ -37,30 +37,30 @@ The earliest generation of ASR systems was based on Gaussian Mixture Models (GMM
 
 End-to-end ASR methods simplify traditional pipelines by directly mapping audio signals to text with a single neural model, allowing joint optimization of components. Three major paradigms have shaped this shift. Connectionist Temporal Classification (CTC) enables training without frame-level alignment by marginalizing over possible alignments, making it effective for character or phoneme-based outputs~\cite{graves2006ctc}. Attention-based encoder–decoder models, exemplified by Listen, Attend and Spell (LAS), rely on an encoder to produce representations and an attention mechanism to guide token-level predictions, effectively modeling dependencies between outputs~\cite{chan2015las}. Transducer models, such as the Recurrent Neural Network Transducer (RNN-T) and Transformer Transducer, combine alignment and prediction into a unified probabilistic framework that supports streaming and low-latency applications~\cite{graves2012rnnt, he2019transformertransducer}. Each paradigm has its own trade-offs: CTC models are simple but constrained by conditional independence assumptions, attention-based models excel in accuracy but are less suitable for streaming, while transducer models balance accuracy and real-time usability.
 
-End-to-End ASR using Connectionist Temporal Classification (CTC) models the probability of a label sequence $Y$ by summing over all possible alignments $\pi$ that collapse to $Y$:
+End-to-End ASR using Connectionist Temporal Classification (CTC) models the probability of a label sequence $Y$ by summing over all possible alignments $\pi$ that collapse to $Y$
 
-\begin{equation}
+\begin{equation*}
     P(Y|X) = \sum_{\pi \in \mathcal{B}^{-1}(Y)} P(\pi|X)
-\end{equation}
+\end{equation*}
 
 where $\mathcal{B}$ is the mapping that removes blanks and repeated labels from the alignment path.
 
 
 The introduction of transformer architectures has further advanced ASR by enabling global context modeling through attention mechanisms. Conformer, a convolution-augmented Transformer, improves upon the pure transformer design by integrating convolutional modules that capture local acoustic patterns while preserving global attention, achieving state-of-the-art performance on standard benchmarks such as LibriSpeech~\cite{gulati2020conformer, panayotov2015librispeech}. These innovations have established transformers and conformers as the backbone of modern ASR systems.
 
-In attention-based Automatic Speech Recognition (ASR) models, the system generates the output transcription autoregressively, producing one token at a time conditioned on previous outputs and the encoded acoustic features. The probability of generating a transcription sequence $Y$ given the input speech features $X$ is formulated as:
+In attention-based ASR models, the system generates the output transcription autoregressively, producing one token at a time conditioned on previous outputs and the encoded acoustic features. The probability of generating a transcription sequence $Y$ given the input speech features $X$ is formulated as
 
-\begin{equation}
+\begin{equation*}
     P(Y|X) = \prod_{t=1}^{T} P(y_t \mid y_{1:t-1}, X)
-\end{equation}
+\end{equation*}
 
 where:
 \begin{itemize}
-    \item $X$ is the input acoustic feature sequence extracted from the speech signal.
-    \item $Y = (y_1, y_2, \dots, y_T)$ is the output sequence of tokens (e.g., characters, subwords, or words).
-    \item $y_t$ is the token predicted at timestep $t$.
-    \item $y_{1:t-1}$ denotes all previously generated tokens before timestep $t$.
-    \item $T$ is the length of the output sequence.
+    \item $X$ is the input acoustic feature sequence extracted from the speech signal;
+    \item $Y = (y_1, y_2, \dots, y_T)$ is the output sequence of tokens (e.g., characters, subwords, or words);
+    \item $y_t$ is the token predicted at timestep $t$;
+    \item $y_{1:t-1}$ denotes all previously generated tokens before timestep $t$;
+    \item $T$ is the length of the output sequence;
     \item $P(y_t \mid y_{1:t-1}, X)$ is the conditional probability of generating token $y_t$ given the input features and prior predictions.
 \end{itemize}
 
@@ -70,17 +70,17 @@ Another major milestone is the rise of self-supervised learning and large-scale 
 
 Datasets and benchmarks play a central role in evaluating ASR progress. LibriSpeech has become the primary benchmark for reporting performance~\cite{panayotov2015librispeech}, while datasets such as Switchboard~\cite{switchboard1992}, TED-LIUM~\cite{rousseau2012tedlium}, and Mozilla’s Common Voice provide additional testbeds across different domains and languages~\cite{ardila2020commonvoice}. Evaluation typically relies on Word Error Rate (WER) and Character Error Rate (CER), with WER remaining the most widely used metric for system comparison.
 
-It measures the difference between the reference transcription and the hypothesis transcription produced by the system. WER is computed as:
+It measures the difference between the reference transcription and the hypothesis transcription produced by the system. WER is computed as
 
-\begin{equation}
+\begin{equation*}
     \text{WER} = \frac{S + D + I}{N}
-\end{equation}
+\end{equation*}
 
 where:
 \begin{itemize}
-    \item $S$ is the number of word substitutions,
-    \item $D$ is the number of word deletions,
-    \item $I$ is the number of word insertions,
+    \item $S$ is the number of word substitutions;
+    \item $D$ is the number of word deletions;
+    \item $I$ is the number of word insertions;
     \item $N$ is the total number of words in the reference transcript.
 \end{itemize}
 
@@ -112,27 +112,27 @@ Conventional OCR pipelines were typically divided into sequential stages: segmen
 
 The introduction of deep learning fundamentally transformed OCR research and practice. Convolutional Neural Networks (CNNs) proved especially effective for character recognition by learning spatial features directly from image data, eliminating the reliance on hand-crafted feature engineering \cite{lecun1998gradient}. Recurrent Neural Networks (RNNs) and their variants, particularly Long Short-Term Memory (LSTM) networks, enabled sequence modeling that supported recognition without explicit segmentation, addressing a key limitation of traditional systems \cite{graves2009novel}. Furthermore, the development of Connectionist Temporal Classification (CTC) provided alignment-free recognition of sequential text, significantly improving end-to-end performance \cite{graves2006ctc}. More recently, transformer-based architectures such as TrOCR have established the state of the art, offering robust recognition across a wide range of scripts and environmental conditions \cite{li2023trocr}.
 
-With advances in deep learning, end-to-end models such as CRNN and Transformer-based architectures directly learn visual-to-text mappings from raw images \cite{shi2016crnn, baek2019deep, li2021trocr}. These models estimate the output text sequence by maximizing the conditional probability given the input image:
+With advances in deep learning, end-to-end models such as CRNN and Transformer-based architectures directly learn visual-to-text mappings from raw images \cite{shi2016crnn, baek2019deep, li2021trocr}. These models estimate the output text sequence by maximizing the conditional probability given the input image
 
-\begin{equation}
+\begin{equation*}
     \hat{Y} = \arg\max_{Y} P(Y|X)
-\end{equation}
+\end{equation*}
 
 where $X$ denotes the input image and $Y$ is the predicted text sequence.
 
 Although OCR has significantly improved, challenges remain, including handwritten documents, low resolution images, domain-specific noise, multilingual text, and complex page layouts. These challenges motivate continued research toward more robust recognition models.
 
-To evaluate OCR performance, character-level edit distance is widely used. The Character Error Rate (CER) is defined as:
+To evaluate OCR performance, character-level edit distance is widely used. The Character Error Rate (CER) is defined as
 
-\begin{equation}
+\begin{equation*}
     \text{CER} = \frac{S + D + I}{N}
-\end{equation}
+\end{equation*}
 
-where $S$, $D$, and $I$ are the number of substitutions, deletions, and insertions, respectively, and $N$ is the total number of reference characters. Word Error Rate (WER) applies the same formulation at the word level:
+where $S$, $D$, and $I$ are the number of substitutions, deletions, and insertions, respectively, and $N$ is the total number of reference characters. Word Error Rate (WER) applies the same formulation at the word level
 
-\begin{equation}
+\begin{equation*}
     \text{WER} = \frac{S + D + I}{N}
-\end{equation}
+\end{equation*}
 
 Lower CER and WER values indicate better recognition performance, thus motivating improvements in model architecture, data augmentation, and domain adaptation.
 
@@ -145,12 +145,13 @@ Despite remarkable progress, OCR continues to face several challenges that limit
 OCR has undergone a profound transformation, evolving from rigid template-based recognition to flexible, data-driven deep learning and transformer-based systems. These advancements have enabled robust performance across a wide range of domains, from structured documents to complex natural scenes. As OCR continues to underpin automation, accessibility, and large-scale digitization efforts, ongoing research is likely to focus on improving its robustness, adaptability, and inclusivity. Future developments will ensure that OCR remains an indispensable technology in bridging the gap between visual and textual information.
 
 \section{Transformer}
-The Transformer architecture, introduced by Vaswani et al. in 2017, revolutionized sequence modeling by relying entirely on self-attention mechanisms, dispensing with recurrent and convolutional structures~\cite{vaswani2017attention}. This design enabled efficient parallelization during training and excelled at capturing long-range dependencies, leading to state-of-the-art performance in natural language processing tasks such as machine translation, text generation, and language understanding.
+The Transformer model described in this section is based on the architecture proposed in \emph{Attention Is All You Need} by Vaswani et al.~\cite{vaswani2017attention}
+The Transformer architecture, introduced by Vaswani et al. in 2017, revolutionized sequence modeling by relying entirely on self-attention mechanisms, dispensing with recurrent and convolutional structures. This design enabled efficient parallelization during training and excelled at capturing long-range dependencies, leading to state-of-the-art performance in natural language processing tasks such as machine translation, text generation, and language understanding.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\textwidth]{img/pdz/06-transformers-architecture.png}
-    \caption{The Transformer - model architecture \cite{vaswani2017attention}.}
+    \caption{The Transformer - model architecture.}
     \label{fig:Transformer architecture}
 \end{figure}
 
@@ -161,7 +162,7 @@ Each Encoder layer contains two sub-layers:
     \item Multi-head self-attention.
     \item Position-wise fully connected feed-forward network.
 \end{enumerate}
-Each sub-layer is wrapped with a residual connection~\cite{vaswani2017attention}. Formally, the output of each sub-layer is:
+Each sub-layer is wrapped with a residual connection. Formally, the output of each sub-layer is
 \[
 \mathrm{LayerNorm}(x + \mathrm{Sublayer}(x)).
 \]
@@ -172,42 +173,42 @@ Each Decoder layer contains three sub-layers:
     \item Multi-head attention over the Encoder outputs.
     \item Position-wise feed-forward network.
 \end{enumerate}
-As in the Encoder, residual connections and layer normalization are applied to each sub-layer~\cite{vaswani2017attention}.
+As in the Encoder, residual connections and layer normalization are applied to each sub-layer.
 
-Because the Transformer contains no recurrence or convolution, positional information must be injected explicitly. The model adds Positional Encodings to input embeddings at the bottoms of both the Encoder and Decoder stacks~\cite{vaswani2017attention}. The original Transformer uses sinusoidal encodings defined as:
+Because the Transformer contains no recurrence or convolution, positional information must be injected explicitly. The model adds Positional Encodings to input embeddings at the bottoms of both the Encoder and Decoder stacks. The original Transformer uses sinusoidal encodings defined as
 \[
 \mathrm{PE}(pos, 2i) = \sin\left(\frac{pos}{10000^{2i / d_{\text{model}}}}\right),
 \]
 \[
 \mathrm{PE}(pos, 2i+1) = \cos\left(\frac{pos}{10000^{2i / d_{\text{model}}}}\right),
 \]
-where $pos$ is the token position and $i$ is the dimension index~\cite{vaswani2017attention}. Each dimension corresponds to a sinusoid at a different frequency, enabling the model to encode both absolute and relative positional patterns.
+where $pos$ is the token position and $i$ is the dimension index. Each dimension corresponds to a sinusoid at a different frequency, enabling the model to encode both absolute and relative positional patterns.
 
-Self-attention computes an output for each position by mapping a query vector to a set of key-value pairs~\cite{vaswani2017attention}.
+Self-attention computes an output for each position by mapping a query vector to a set of key-value pairs.
 
 
-Similarity between queries and keys is computed via the dot product $QK^{T}$, followed by a softmax to obtain attention weights. Because large values can destabilize gradients when the dimensionality $d_{K}$ is high, the dot products are scaled by $\sqrt{d_{K}}$~\cite{vaswani2017attention}:
+Similarity between queries and keys is computed via the dot product $QK^{T}$, followed by a softmax to obtain attention weights. Because large values can destabilize gradients when the dimensionality $d_{K}$ is high, the dot products are scaled by $\sqrt{d_{K}}$
 \[
 \mathrm{Attention}(Q, K, V)
 = \mathrm{softmax}\left( \frac{QK^{T}}{\sqrt{d_{K}}} \right) V.
 \]
 
-Instead of performing a single attention operation, the Transformer projects queries, keys, and values into $h$ subspaces using learned linear transformations~\cite{vaswani2017attention}. Attention is computed independently in each head:
+Instead of performing a single attention operation, the Transformer projects queries, keys, and values into $h$ subspaces using learned linear transformations. Attention is computed independently in each head
 \[
 \text{head}_{i} = \mathrm{Attention}(QW_i^{Q},\, KW_i^{K},\, VW_i^{V}).
 \]
-The outputs of all $h$ heads are concatenated and linearly transformed~\cite{vaswani2017attention}:
+The outputs of all $h$ heads are concatenated and linearly transformed
 \[
 \mathrm{MultiHead}(Q,K,V) = 
 \mathrm{Concat}(\text{head}_1, \ldots, \text{head}_h) W^{O}.
 \]
 
-This mechanism allows the model to capture multiple types of relationships simultaneously by attending to diverse representation subspaces~\cite{vaswani2017attention}.
+This mechanism allows the model to capture multiple types of relationships simultaneously by attending to diverse representation subspaces.
 
 
 \section{Multimodal Fusion and Cross-Attentional Models}
 
-For specific data types and stages within retrieval pipelines, more specialized architectures are necessary. In the context of video, which inherently combine visual frames, audio signals, motion dynamics, and transcripts generated through automatic speech recognition (ASR), reliance on purely visual encoders such as CLIP fails to exploit the full range of available modalities. To address this limitation, the Multi-level Multi-modal Hybrid Fusion (M2HF) model has been proposed. This model integrates three complementary mechanisms. It first applies multi-stream feature extraction in order to capture representations from visual, audio, motion, and ASR-text channels. It then employs attentional fusion, where attention blocks are used to generate enriched cross-modal features, such as audio-guided visual representations, rather than relying on naive concatenation. Finally, it implements multi-level fusion strategies, combining modalities at both the feature level and the decision level, thereby producing richer and more informative retrieval signals~\cite{liu2022m2hf}.
+For specific data types and stages within retrieval pipelines, more specialized architectures are necessary. In the context of video, which inherently combine visual frames, audio signals, motion dynamics, and transcripts generated through automatic speech recognition, reliance on purely visual encoders such as CLIP fails to exploit the full range of available modalities. To address this limitation, the Multi-level Multi-modal Hybrid Fusion (M2HF) model has been proposed. This model integrates three complementary mechanisms. It first applies multi-stream feature extraction in order to capture representations from visual, audio, motion, and ASR-text channels. It then employs attentional fusion, where attention blocks are used to generate enriched cross-modal features, such as audio-guided visual representations, rather than relying on naive concatenation. Finally, it implements multi-level fusion strategies, combining modalities at both the feature level and the decision level, thereby producing richer and more informative retrieval signals~\cite{liu2022m2hf}.
 
 Cross-attentional models constitute another important development, particularly in the reranking stage of retrieval pipelines. Unlike dual-encoder architectures, which encode queries and documents independently, cross-attentional models such as BERT-based cross-encoders compute deep, token-level interactions between queries and documents. This capacity allows them to capture fine-grained semantic distinctions, such as differentiating between “a slide explaining photosynthesis” and “a slide merely mentioning photosynthesis.” Their ability to model these nuanced relationships has consistently led to state-of-the-art performance in reranking tasks. However, these gains come at the cost of high computational complexity, which renders such models impractical for large-scale, first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}. Instead, their most effective application lies in second-stage reranking, where they refine a smaller set of candidate results returned by a more efficient retrieval mechanism~\cite{pinecone2025rerankers}.
 
@@ -218,35 +219,35 @@ Cross-attentional models constitute another important development, particularly 
     \label{fig:Cross-attention}
 \end{figure}
 
-Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$:
+Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$
 
-\begin{equation}
+\begin{equation*}
     \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^{T}}{\sqrt{d_k}}\right)V
-\end{equation}
+\end{equation*}
 
 where:
 \begin{itemize}
-    \item $Q \in \mathbb{R}^{T_q \times d}$ are queries from the target modality (e.g., decoder text embeddings),
-    \item $K, V \in \mathbb{R}^{T_k \times d}$ are keys and values from the source modality (e.g., encoder speech/image features),
-    \item $d_k$ is the dimension of the key vectors,
+    \item $Q \in \mathbb{R}^{T_q \times d}$ are queries from the target modality (e.g., decoder text embeddings);
+    \item $K, V \in \mathbb{R}^{T_k \times d}$ are keys and values from the source modality (e.g., encoder speech/image features);
+    \item $d_k$ is the dimension of the key vectors;
     \item $T_q, T_k$ are token lengths for target and source sequences.
 \end{itemize}
 
 Multimodal fusion via dual attention for two modalities $A$ and $B$, cross-attention is computed independently:
 
-\begin{equation}
-    H_{A} = \text{Attention}(Q, K_{A}, V_{A})
-\end{equation}
+\begin{equation*}
+    H_{A} = \text{Attention}(Q, K_{A}, V_{A});
+\end{equation*}
 
-\begin{equation}
-    H_{B} = \text{Attention}(Q, K_{B}, V_{B})
-\end{equation}
+\begin{equation*}
+    H_{B} = \text{Attention}(Q, K_{B}, V_{B}).
+\end{equation*}
 
-The fused representation is then computed as:
+The fused representation is then computed as
 
-\begin{equation}
+\begin{equation*}
     H = \alpha H_{A} + (1 - \alpha)H_{B}
-\end{equation}
+\end{equation*}
 
 where $0 \leq \alpha \leq 1$ is a learnable fusion coefficient.
 
@@ -257,10 +258,10 @@ The rapid development of multimodal embedding architectures has significantly br
 
 
 
-Each input modality $m \in \{\text{text}, \text{audio}, \text{vision}\}$ is encoded into a latent vector using a modality-specific encoder:
-\begin{equation}
+Each input modality $m \in \{\text{text}, \text{audio}, \text{vision}\}$ is encoded into a latent vector using a modality-specific encoder
+\begin{equation*}
     z_m = f_m(x_m; \theta_m)
-\end{equation}
+\end{equation*}
 where $x_m$ is the raw input of modality $m$, $f_m(\cdot)$ is the corresponding encoder (e.g., Transformer encoder for text, Conformer for audio, ViT for vision), and $\theta_m$ denotes its learnable parameters.
 
 
@@ -272,18 +273,18 @@ where $x_m$ is the raw input of modality $m$, $f_m(\cdot)$ is the corresponding 
 \end{figure}
 
 
-We fuse modality embeddings into a shared representation:
-\begin{equation}
+We fuse modality embeddings into a shared representation
+\begin{equation*}
     z = g([z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}]; \phi)
-\end{equation}
+\end{equation*}
 where $[z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}]$ is the concatenation operator, $g([z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}])$ is a fusion network (e.g., MLP or cross-attention module), and $\phi$ denotes fusion parameters.
 
-To align representations across modalities, we apply a contrastive loss:
-\begin{equation}
+To align representations across modalities, we apply a contrastive loss
+\begin{equation*}
     \mathcal{L}_{\text{contrast}} = -\sum_{i=1}^{N} \log
     \frac{\exp(\mathrm{sim}(z_i^{(a)}, z_i^{(t)}) / \tau)}
     {\sum_{j=1}^{N} \exp(\mathrm{sim}(z_i^{(a)}, z_j^{(t)}) / \tau)}
-\end{equation}
+\end{equation*}
 where $z_i^{(a)}$ and $z_i^{(t)}$ are the audio and text embeddings of paired sample $i$, $\mathrm{sim}(z_i^{(a)}, z_j^{(t)})$ is a similarity function (e.g., cosine similarity), $\tau$ is the temperature scaling factor, and $N$ is the batch size.
 
 
@@ -327,11 +328,11 @@ By 2025, “Agentic RAG” is crystallized in surveys that codify reflection, pl
 
 Finally, RAG is reframed as memory and continual learning: HippoRAG-2 strengthens associative, graph-traversal memory; MemoRAG proposes a dual-system (light long-range LM for global memory + expressive LM for final answers); and agent-memory systems (Mem0, MIRIX, MemOS) treat persistent, structured memories as read/write stores that RAG can consult blurring retrieval, memory, and learning with provenance and versioning \cite{hipporag2_2025, memorag2024, mem0_2025, mirix2025, memos2025}.
 
-\subsection{Multimodal RAG: The Convergence}
+\subsection{mRAG: The Convergence}
 \textbf{Pre-RAG signals for vision–language tasks.}  
-Before multimodal RAG (mRAG) was named, factual VQA exposed the limits of image-only reasoning. “Straight to the Facts” explicitly learned KB retrieval for VQA, and OK-VQA required outside knowledge, catalyzing retrieval-style VQA where images must be grounded in world facts \cite{marino2019okvqa}.
+Before mRAG (mRAG) was named, factual VQA exposed the limits of image-only reasoning. “Straight to the Facts” explicitly learned KB retrieval for VQA, and OK-VQA required outside knowledge, catalyzing retrieval-style VQA where images must be grounded in world facts \cite{marino2019okvqa}.
 
-\textbf{2022–2023: Early multimodal RAG patterns.}  
+\textbf{2022–2023: Early mRAG patterns.}  
 Two threads converged. First, VQA pipelines adopted RAG-style structures: TRiG translated images to text, retrieved passages, and answered purely in NL space pragmatically reusing text-RAG infrastructure \cite{gao2022trig}; and differentiable retrieval models, such as entity-focused dense passage retrieval, improved retrieval for OK-VQA \cite{wu2022entityvqa}. Second, cross-modal embeddings provided the retrieval substrate: CLIP and ALIGN learned shared image–text spaces enabling text-image nearest-neighbor search at scale. REVEAL then pushed end-to-end retrieval-augmented visual-language pre-training with a multi-source multimodal memory, tying a retriever and generator together during pretraining \cite{hu2023reveal}.  
 
 In generation, retrieval-augmented captioning appeared: Ramos et al. retrieved captions for stronger descriptions, and EVCap added an external “visual-name” memory to keep captions up-to-date in open-world settings. FLMR aligned vision encoders to text retrievers and used multi-dimensional embeddings to capture finer-grained query–document relevance, improving cross-modal matching. Across these systems, the unit of retrieval was predominantly textual (captions/Wikipedia/OCR), even when the queries were visual; the fusion mechanism typically concatenated retrieved text as extra tokens to a VL encoder/decoder.
@@ -341,12 +342,12 @@ VisRAG explicitly treats visually rich documents as first-class evidence by comb
 
 In parallel, ImageBind shows a single embedding space for six modalities (image, text, audio, depth, thermal, IMU), widely cited to justify one-index, cross-modal retrieval for mRAG systems that must unify heterogeneous educational assets (slides, lab audio, sensor feeds) \cite{girdhar2023imagebind}.
 
-\textbf{2025: Advanced multimodal RAG – domains, video, documents, and built-in retrieval.}  
+\textbf{2025: Advanced mRAG – domains, video, documents, and built-in retrieval.}  
 Domain‑specific mRAG shows substantial gains when retrieval and verification are tuned to the domain. In remote sensing, RS‑RAG integrates satellite imagery with world knowledge through a multimodal index and reports large improvements on captioning/classification/VQA \cite{wen2025rsrag}.  
 
 Video becomes a first‑class citizen: Multimodal Retrieval‑Augmented Generation systems unify information across text, image, table, and video modalities in a single pipeline \cite{drushchak2025unified}.  
 
-Evaluation and instruction‑tuning keep pace. A recent survey consolidates components, tasks, and datasets for multimodal RAG and argues empirically that mRAG reduces hallucinations on visually grounded queries compared to text‑only RAG \cite{mei2025survey}.
+Evaluation and instruction‑tuning keep pace. A recent survey consolidates components, tasks, and datasets for mRAG and argues empirically that mRAG reduces hallucinations on visually grounded queries compared to text‑only RAG \cite{mei2025survey}.
 
 
 
@@ -355,14 +356,14 @@ Evaluation and instruction‑tuning keep pace. A recent survey consolidates comp
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/02-multimodal-rag-pipeline.jpg}
-    \caption{Multimodal RAG pipeline \cite{aiedge_multimodal_rag}.}
-    \label{fig:Multimodal RAG pipeline}
+    \caption{mRAG pipeline \cite{aiedge_multimodal_rag}.}
+    \label{fig:mRAG pipeline}
 \end{figure}
 
 The RAG pipeline integrates retrieval mechanisms with generative language models to produce accurate and contextually grounded outputs. The process begins with query vectorization, where the user input is encoded into a high-dimensional vector representation using models such as BERT or Sentence Transformers. This query vector is then matched against a pre-indexed vector database to identify semantically similar entries, allowing the system to retrieve the most relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}.
 After retrieval, the selected data may undergo preprocessing steps for example, summarization, filtering, or restructuring to ensure compatibility with the downstream language model. The processed information is then incorporated into the input context of a large language model (LLM), enabling it to generate responses that combine the retrieved evidence with its own pre-trained knowledge~\cite{izacard2021leveraging}.
 
-The Retrieval-Augmented Generation (RAG) architecture consists of two primary modules: the retriever and the generator. The retriever is responsible for identifying relevant documents or passages from an external knowledge source. It typically operates using methods such as sparse retrieval (e.g., BM25), dense vector retrieval based on embedding similarity, or hybrid/neural retrieval models~\cite{lewis2020rag, luan2021sparse_dense}. These techniques allow the system to efficiently search large-scale corpora and return the most semantically relevant information.
+The Retrieval-Augmented Generation architecture consists of two primary modules: the retriever and the generator. The retriever is responsible for identifying relevant documents or passages from an external knowledge source. It typically operates using methods such as sparse retrieval (e.g., BM25), dense vector retrieval based on embedding similarity, or hybrid/neural retrieval models~\cite{lewis2020rag, luan2021sparse_dense}. These techniques allow the system to efficiently search large-scale corpora and return the most semantically relevant information.
 
 The generator then consumes both the user query and the retrieved context to produce the final output. Modern RAG systems usually rely on transformer-based language models, which condition their decoding process on the retrieved evidence to ensure that the generated response is grounded in factual information and remains aligned with the input query~\cite{lewis2020rag, izacard2022rag_sequence}.
 
@@ -370,7 +371,7 @@ By combining retrieval with generation, RAG reduces hallucination rates, improve
 
 
 
-Moreover, recent advances in multimodal RAG further expand its capabilities. For example, mRAG systematically explores different modality configurations (text, image, video, table), retrieval strategies, reranking, and how to integrate retrieved evidence into generation, achieving significant improvements without fine-tuning~\cite{hu2025mrag}. Another variant, HM-RAG, proposes a hierarchical multi-agent architecture where multiple retrieval agents (text, graph, web) work collaboratively and feed into a decision agent, improving answer accuracy on multimodal benchmarks~\cite{liu2025hmrag}. In visually rich QA settings, models like mR²AG adapt retrieval dynamically and reflect on the relevance of retrieved multimodal evidence to guide generation~\cite{zhang2024mr2ag}. These innovations illustrate that RAG combined with multimodal retrieval and generation is becoming increasingly powerful   especially for complex, knowledge-intensive, multimodal educational applications.
+Moreover, recent advances in mRAG further expand its capabilities. For example, mRAG systematically explores different modality configurations (text, image, video, table), retrieval strategies, reranking, and how to integrate retrieved evidence into generation, achieving significant improvements without fine-tuning~\cite{hu2025mrag}. Another variant, HM-RAG, proposes a hierarchical multi-agent architecture where multiple retrieval agents (text, graph, web) work collaboratively and feed into a decision agent, improving answer accuracy on multimodal benchmarks~\cite{liu2025hmrag}. In visually rich QA settings, models like mR²AG adapt retrieval dynamically and reflect on the relevance of retrieved multimodal evidence to guide generation~\cite{zhang2024mr2ag}. These innovations illustrate that RAG combined with multimodal retrieval and generation is becoming increasingly powerful   especially for complex, knowledge-intensive, multimodal educational applications.
 
 \subsection{Retrieval}
 
@@ -387,43 +388,43 @@ Sparse retrieval models represent the classical approach to information retrieva
 
 Dense retrieval emerged with the advent of deep learning, employing models to learn low-dimensional, dense vector representations that capture semantic meaning~\cite{karpukhin2020dense}. This approach, often implemented as a dual encoder, maps queries and documents into a shared embedding space where semantic similarity corresponds to vector proximity, typically measured by inner product~\cite{karpukhin2020dense}. Models like BERT-based DPR and SPECTER2 (for scientific documents) are trained to encode contextual information, allowing them to excel at semantic matching even when keywords differ~\cite{karpukhin2020dense, singh2022scirepeval}. These dense vectors can be indexed for efficient large-scale retrieval using Approximate Nearest Neighbor Search (ANNS) algorithms, with graph-based methods like Hierarchical Navigable Small World (HNSW) being particularly effective~\cite{malkov2016efficient}. While powerful for semantic understanding, dense models can lack the precision needed for exact term matching. Furthermore, theoretical and empirical analyses show that the capacity of fixed-length dense encoders can be limited, with performance potentially degrading as document length increases. This is because longer documents introduce smaller normalized margins between relevant and non-relevant items, requiring a larger encoding dimension to maintain fidelity with sparse models~\cite{formal2021splade}.
 
-To leverage the complementary strengths of both paradigms, hybrid retrieval has become a widespread and effective practice, particularly in systems like Retrieval-Augmented Generation (RAG)~\cite{li2020rag}. The core idea is to fuse sparse and dense signals to enhance both effectiveness and robustness~\cite{formal2021splade, karpukhin2020dense}. A simple yet effective approach is to linearly combine the scores from separate sparse and dense retrievers~\cite{formal2021splade, karpukhin2020dense}. Another common strategy is the two-route method, where sparse and dense searches are conducted separately and the results are merged~\cite{formal2021splade}. However, this increases system complexity and can compromise accuracy, as the top hybrid results may not be in the top-k results of either individual system~\cite{formal2021splade}. A more advanced approach is to build a unified index for concatenated dense-sparse hybrid vectors. This presents two key challenges: (1) the significant difference in data distribution between dense and sparse vectors makes it difficult to combine them optimally, potentially hurting accuracy; and (2) the high dimensionality and computational cost of sparse vectors can degrade retrieval efficiency. To address this, recent work proposes methods like distribution alignment (using pre-sampling to determine optimal fusion weights) and an adaptive two-stage computation strategy (initially using only dense distances for coarse search and later refining with hybrid distances) to improve both accuracy and speed~\cite{formal2021splade, iida2022unsupervised}.
+To leverage the complementary strengths of both paradigms, hybrid retrieval has become a widespread and effective practice, particularly in systems like Retrieval-Augmented Generation~\cite{li2020rag}. The core idea is to fuse sparse and dense signals to enhance both effectiveness and robustness~\cite{formal2021splade, karpukhin2020dense}. A simple yet effective approach is to linearly combine the scores from separate sparse and dense retrievers~\cite{formal2021splade, karpukhin2020dense}. Another common strategy is the two-route method, where sparse and dense searches are conducted separately and the results are merged~\cite{formal2021splade}. However, this increases system complexity and can compromise accuracy, as the top hybrid results may not be in the top-k results of either individual system~\cite{formal2021splade}. A more advanced approach is to build a unified index for concatenated dense-sparse hybrid vectors. This presents two key challenges: (1) the significant difference in data distribution between dense and sparse vectors makes it difficult to combine them optimally, potentially hurting accuracy; and (2) the high dimensionality and computational cost of sparse vectors can degrade retrieval efficiency. To address this, recent work proposes methods like distribution alignment (using pre-sampling to determine optimal fusion weights) and an adaptive two-stage computation strategy (initially using only dense distances for coarse search and later refining with hybrid distances) to improve both accuracy and speed~\cite{formal2021splade, iida2022unsupervised}.
 
 Once embeddings have been generated, the retrieval module identifies and returns the most relevant
 documents for a given query. In a RAG pipeline, this step is essential because it supplies the language
 model with context that guides accurate response generation. Formally, given a query $q$ in language $x$,
 the retriever returns a document $d$ in language $y$ (which may or may not match $x$) from a corpus
 $D_y$. The retrieval function $f_n^\ast$ may be implemented using dense, lexical, or multi-vector retrieval
-methods~\cite{chen2024bge}:
+methods~\cite{chen2024bge}
 \[
     d_y \leftarrow f_n^\ast(q_x, D_y).
 \]
 
 \textbf{Dense Retrieval:} A query $q$ is encoded into hidden states $H_q$ using a text encoder. The representation of the query
-is the normalized hidden state of the special token \texttt{[CLS]}:
+is the normalized hidden state of the special token \texttt{[CLS]}
 \[
     e_q = \mathrm{norm}(H_q[0]).
 \]
-Similarly, for a passage $p$:
+Similarly, for a passage $p$
 \[
     e_p = \mathrm{norm}(H_p[0]).
 \]
-Relevance is computed as the inner product:
+Relevance is computed as the inner product
 \[
     s_{\mathrm{dense}} = \langle e_p, e_q \rangle.
 \]
 
-\textbf{Lexical Retrieval:} For each term $t$ in the query:
+\textbf{Lexical Retrieval:} For each term $t$ in the query
 \[
     w_{q t} = \mathrm{ReLU}(W_{\mathrm{lex}}^\top H_q[i]),
 \]
-and similarly for a passage:
+and similarly for a passage
 \[
     w_{p t} = \mathrm{ReLU}(W_{\mathrm{lex}}^\top H_p[i]).
 \]
 Where:
 \[
-    W_{\mathrm{lex}} \in \mathbb{R}^{d \times 1},
+    W_{\mathrm{lex}} \in \mathbb{R}^{d \times 1};
 \qquad
 \mathrm{ReLU}(x) = \max(0, x).
 \]
@@ -524,7 +525,7 @@ These methods collectively highlight two major trends in reranking research: (1)
     \label{fig:Augmentation}
 \end{figure}
 
-Augmentation in Retrieval-Augmented Generation (RAG) refers to the process of expanding or transforming retrieved knowledge prior to generation, enabling the model to leverage richer, more structured evidence. Unlike raw retrieval pipelines, augmentation enhances retrieved data through summarization, compression, restructuring, or synthetic expansion, improving relevance and reducing noise \cite{yoon2024compact, asai2023selfrag}.
+Augmentation in Retrieval-Augmented Generation refers to the process of expanding or transforming retrieved knowledge prior to generation, enabling the model to leverage richer, more structured evidence. Unlike raw retrieval pipelines, augmentation enhances retrieved data through summarization, compression, restructuring, or synthetic expansion, improving relevance and reducing noise \cite{yoon2024compact, asai2023selfrag}.
 
 Given a retrieved document set $D = \{d_1, \dots, d_k\}$, augmentation produces a transformed set $D' = \mathcal{A}(D)$ where $\mathcal{A}$ is an augmentation operator such as summarization, chunk merging, entity extraction, or reasoning-based synthesis. Formally:
 \[
@@ -569,7 +570,7 @@ Augmentation thus serves as a knowledge refinement stage that restructures retri
 
 \subsection{Generation}
 
-The generator in Retrieval-Augmented Generation (RAG) serves as the synthesis module that produces the final output by conditioning on both the user query and retrieved evidence. Unlike standalone parametric language models that rely solely on internal representations, RAG generators incorporate retrieved documents to enhance factual grounding and reduce hallucinations \cite{gao2023rag_survey}. Retrieved knowledge is integrated directly into the decoding process, ensuring that outputs are grounded in external sources rather than purely statistical predictions.
+The generator in Retrieval-Augmented Generation serves as the synthesis module that produces the final output by conditioning on both the user query and retrieved evidence. Unlike standalone parametric language models that rely solely on internal representations, RAG generators incorporate retrieved documents to enhance factual grounding and reduce hallucinations \cite{gao2023rag_survey}. Retrieved knowledge is integrated directly into the decoding process, ensuring that outputs are grounded in external sources rather than purely statistical predictions.
 
 \begin{figure}[h!]
     \centering

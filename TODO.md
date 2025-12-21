@@ -50,16 +50,14 @@ To ensure your team can execute these fixes efficiently, I have organized the fe
 * [ ] **Missing Sections:** Complete **Section 6.3** which is currently missing.
 
 ### 5. Citations & Terminology (Pending)
+* [X] **Terminology Consistency:** * Define abbreviations only at the first occurrence: *Multimodal Retrieval-Augmented Generation (mRAG)*. Use "mRAG" thereafter.
 
-* [ ] **Terminology Consistency:**
-  * Define abbreviations only at the first occurrence: *Multimodal Retrieval-Augmented Generation (mRAG)*. Use "mRAG" thereafter.
-  * Fix OCR: Use "Optical Character Recognition (OCR)" at first mention only.
-  * Check for consistent Bold/CamelCase usage across all terms.
+* Fix OCR: Use "Optical Character Recognition (OCR)" at first mention only.
+* Check for consistent Bold/CamelCase usage across all terms.
 
-* [ ] **Reference Cleanup:**
-  * Remove redundant citations; mention once per context.
-  * Web links: Move URL references to **Footnotes**.
-  * Bibliography: Only **Research Papers** and **Textbooks** should remain in the formal References section.
+* [X] **Reference Cleanup:** * Page 18: Remove redundant [40] citations; mention once per context.
+* [ ] Web links: Move URL references to **Footnotes**.
+* [ ] Bibliography: Only **Research Papers** and **Textbooks** should remain in the formal References section.
 
 ### 6. Plan File Conversion (08_plan.tex -> Conclusion)
 

@@ -1,6 +1,6 @@
 \chapter{Our Approach}
 
-This chapter presents the methodological framework and empirical evaluation of the Retrieval-Augmented Generation (RAG) pipelines developed for this project. We investigate the efficacy of various retrieval strategies, ranging from lexical matching to advanced late-interaction neural architectures.
+This chapter presents the methodological framework and empirical evaluation of the Retrieval-Augmented Generation pipelines developed for this project. We investigate the efficacy of various retrieval strategies, ranging from lexical matching to advanced late-interaction neural architectures.
 
 \section{Experiments on Embeddings and Retrieval Methods}
 
@@ -21,26 +21,26 @@ Different pipelines utilize distinct mathematical formulations to calculate the 
 
 \textbf{1. Lexical Scoring (BM25)}
 
-For the sparse retrieval baseline, we employed the BM25 algorithm. This probabilistic model estimates relevance based on term frequency (TF) and inverse document frequency (IDF), normalizing for document length:
-\begin{equation}
+For the sparse retrieval baseline, we employed the BM25 algorithm. This probabilistic model estimates relevance based on term frequency (TF) and inverse document frequency (IDF), normalizing for document length
+\begin{equation*}
     \text{Score}_{\text{BM25}}(Q, D) = \sum_{t \in Q} \text{IDF}(t) \cdot \frac{\text{TF}(t, D) \cdot (k_1 + 1)}{\text{TF}(t, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}
-\end{equation}
+\end{equation*}
 This method focuses on exact keyword matching and is highly effective for queries containing specific identifiers (e.g., proper nouns), though it lacks semantic understanding.
 
 \textbf{2. Semantic Scoring (Dense Retrieval)}
 
-For dense retrieval (e.g., MiniLM, BGE), we encode both query and document into fixed-size vectors ($\vec{V}_Q, \vec{V}_D$) and calculate the Cosine Similarity. This captures semantic meaning beyond exact keyword overlap:
-\begin{equation}
+For dense retrieval (e.g., MiniLM, BGE), we encode both query and document into fixed-size vectors ($\vec{V}_Q, \vec{V}_D$) and calculate the Cosine Similarity. This captures semantic meaning beyond exact keyword overlap
+\begin{equation*}
     \text{Score}_{\text{Dense}}(Q, D) = \frac{\vec{V}_{Q} \cdot \vec{V}_{D}}{|\vec{V}_{Q}| \cdot |\vec{V}_{D}|}
-\end{equation}
+\end{equation*}
 The score range is $[-1, 1]$, representing the semantic proximity in the vector space.
 
 \textbf{3. Late Interaction Scoring (ColBERT/ColQwen)}
 
-Unlike dense retrievers that compress a document into a single vector, the Late Interaction architecture (used in ColBERTv2) encodes queries and documents into bags of embedding vectors. The relevance score is the sum of the maximum similarity (MaxSim) for each query token against all document tokens:
-\begin{equation}
+Unlike dense retrievers that compress a document into a single vector, the Late Interaction architecture (used in ColBERTv2) encodes queries and documents into bags of embedding vectors. The relevance score is the sum of the maximum similarity (MaxSim) for each query token against all document tokens
+\begin{equation*}
     \text{Score}_{\text{MaxSim}}(Q, D) = \sum_{q \in \vec{Q}} \max_{d \in \vec{D}} (\vec{q} \cdot \vec{d})
-\end{equation}
+\end{equation*}
 This allows for fine-grained matching, ensuring that specific details in a document are not lost during vector compression.
 
 \textbf{Evaluation Metrics}
@@ -115,7 +115,7 @@ Our data indicates that ColBERTv2 provides the highest retrieval quality, surpas
     \item \textbf{Operational Note:} It is worth noting that while ColBERT's retrieval time is efficient ($6.5s$ on GPU), the indexing process is resource-intensive. In our environment, indexing required $\approx35$ minutes on CPU\footnote{Due to FAISS-GPU limitations on the Colab instance, indexing fell back to CPU.} compared to mere seconds/minutes for standard dense models. Despite this setup cost, ColBERT represents the state-of-the-art for retrieval accuracy on this dataset.
 \end{itemize}
 
-\section{Justification for Retrieval-Augmented Generation (RAG)}
+\section{Justification for Retrieval-Augmented Generation}
 
 While Large Language Models (LLMs) possess remarkable generative capabilities, they suffer from inherent limitations such as knowledge cutoffs, hallucinations, and a lack of access to proprietary data. To address these issues, several methodologies exist. This section analyzes alternative approaches - Fine-Tuning, Semantic Search, Prompt Engineering, and Domain-Specific Pre-training - and justifies the selection of RAG as the superior architectural choice for this project.
 
@@ -186,7 +186,7 @@ RAG is chosen because it offers the optimal balance of accuracy, cost-efficiency
 % \begin{figure}[H]
 %     \centering
 %     \includegraphics[width=0.8\textwidth]{img/pdz/22-architecture.png}
-%     \caption{Overall System Architecture for Multimodal RAG.}
+%     \caption{Overall System Architecture for mRAG.}
 %     \label{fig:overall_arch}
 % \end{figure}
 
@@ -548,8 +548,8 @@ Before text extraction begins, Docling performs a segmentation pass. It identifi
 
 For scanned documents or image-heavy PDFs, Docling integrates specialized vision backends:
 \begin{itemize}
-    \item \textbf{OCR (Optical Character Recognition)}: For standard scanned text, high-performance OCR engines recover the textual layer.
-    \item \textbf{VLM (Vision-Language Models)}: For complex layouts, Docling leverages Vision-Language Models. These models ``look'' at the page to understand semantic structures that regex or rule-based parsers miss, such as distinguishing a figure caption from the main body text.
+    \item \textbf{Optical Character Recognition}: For standard scanned text, high-performance OCR engines recover the textual layer.
+    \item \textbf{Vision-Language Models}: For complex layouts, Docling leverages Vision-Language Models. These models "look" at the page to understand semantic structures that regex or rule-based parsers miss, such as distinguishing a figure caption from the main body text.
 \end{itemize}
 
 % \textbf{Table Structure Recovery}
