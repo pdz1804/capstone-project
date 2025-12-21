@@ -577,6 +577,7 @@ Report/main.pdf
 *.synctex.gz
 *.toc
 *.xdy
+Report/main.pdf
 
 # Bibliography
 *.bbl
