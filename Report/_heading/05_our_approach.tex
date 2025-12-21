@@ -644,7 +644,7 @@ The Input Processing Layer produces a unified set of artifacts stored in the \te
 
 \textbf{Dual-Stream Indexing Layer}
 
-Following normalization, the data is split into two specialized indexing streams to handle the unique requirements of text and images, as illustrated in Figure \ref{fig:chunkemb}.
+Following normalization, the data is split into two specialized indexing streams to handle the unique requirements of text and images, as illustrated in Figure \ref{fig:chunk_emb}.
 
 \textbf{Textual Indexing Stream}
 
@@ -756,73 +756,73 @@ The complete MRAG architecture integrates all three layers seamlessly. The syste
 
 % OLD DUPLICATE CONTENT REMOVED - NOW INTEGRATED ABOVE
 
-\newpage
+% \newpage
 
-\textbf{Office Document Formats}
+% \textbf{Office Document Formats}
 
-Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly. 
-The system utilizes \textbf{LibreOffice} in headless mode (server-side).
-These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
+% Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly. 
+% The system utilizes \textbf{LibreOffice} in headless mode (server-side).
+% These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
 
 
-\textbf{Multimedia (Audio and Video)}
+% \textbf{Multimedia (Audio and Video)}
 
-Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
-\textbf{MoviePy} is employed to separate audio tracks from video containers.
-The \textbf{OpenAI Whisper} ASR model processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
+% Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
+% \textbf{MoviePy} is employed to separate audio tracks from video containers.
+% The \textbf{OpenAI Whisper} ASR model processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
 
-\textbf{Structural Parsing}
+% \textbf{Structural Parsing}
 
-For complex documents like scientific PDFs, HTML pages, or Table-heavy reports, simple text extraction is insufficient.
-The pipeline integrates \textbf{Docling}, a specialized document parsing library.
-Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
-It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
+% For complex documents like scientific PDFs, HTML pages, or Table-heavy reports, simple text extraction is insufficient.
+% The pipeline integrates \textbf{Docling}, a specialized document parsing library.
+% Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
+% It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
 
-\textbf{Output Artifacts}
+% \textbf{Output Artifacts}
 
-Every input file results in a unified set of artifacts in the rag ready directory:
-\begin{enumerate}
-    \item \textbf{PDF}: Used for visual embedding (ColQwen) and user preview.
-    \item \textbf{Structured Markdown}: Used for text embedding (BM25/Dense) and LLM context injection.
-    \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
-\end{enumerate}
+% Every input file results in a unified set of artifacts in the rag ready directory:
+% \begin{enumerate}
+%     \item \textbf{PDF}: Used for visual embedding (ColQwen) and user preview.
+%     \item \textbf{Structured Markdown}: Used for text embedding (BM25/Dense) and LLM context injection.
+%     \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
+% \end{enumerate}
 
-% The output of this layer is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
+% % The output of this layer is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
 
-\subsection*{Dual-Stream Indexing Layer}
+% \subsection*{Dual-Stream Indexing Layer}
 
-Following normalization, the data is split into two specialized indexing streams to handle the unique requirements of text and images.
+% Following normalization, the data is split into two specialized indexing streams to handle the unique requirements of text and images.
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/27-chunkemb.png}
-    \caption{Dual-Stream Indexing Layer.}
-    \label{fig:chunkemb}
-\end{figure}
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=1\textwidth]{img/pdz/27-chunkemb.png}
+%     \caption{Dual-Stream Indexing Layer.}
+%     \label{fig:chunkemb}
+% \end{figure}
 
-\textbf{Textual Indexing Stream}
+% \textbf{Textual Indexing Stream}
 
-The Markdown output undergoes a semantic vectorization process:
-\begin{itemize}
-    \item \textbf{Chunking Strategy}: The system employs a \texttt{RecursiveCharacterTextSplitter} configured with a chunk size of \textbf{1024} characters and an overlap of \textbf{200} characters to maintain context across boundaries.
-    \item \textbf{Embedding Model}: Chunks are encoded using sentence-transformers/all-MiniLM-L6-v2 via the SBERT framework.
-    \item \textbf{Storage}: Vectors are stored in a Hybrid Index supporting both BM25 (sparse) and Dense retrieval.
-    \item \textbf{Metadata}: Each chunk is tagged with \texttt{doc\_id}, \texttt{chunk\_idx}, \texttt{total\_chunks}, and \texttt{source}.
-\end{itemize}
+% The Markdown output undergoes a semantic vectorization process:
+% \begin{itemize}
+%     \item \textbf{Chunking Strategy}: The system employs a \texttt{RecursiveCharacterTextSplitter} configured with a chunk size of \textbf{1024} characters and an overlap of \textbf{200} characters to maintain context across boundaries.
+%     \item \textbf{Embedding Model}: Chunks are encoded using sentence-transformers/all-MiniLM-L6-v2 via the SBERT framework.
+%     \item \textbf{Storage}: Vectors are stored in a Hybrid Index supporting both BM25 (sparse) and Dense retrieval.
+%     \item \textbf{Metadata}: Each chunk is tagged with \texttt{doc\_id}, \texttt{chunk\_idx}, \texttt{total\_chunks}, and \texttt{source}.
+% \end{itemize}
 
-\textbf{Visual Indexing Stream}
+% \textbf{Visual Indexing Stream}
 
-The PDF output undergoes a visual encoding process:
-\begin{itemize}
-    \item \textbf{Image Strategy}: The system applies a ``1 Page = 1 Image'' strategy, converting every PDF page into a high-resolution JPEG.
-    \item \textbf{Vision Model}: These images are processed by \textbf{ColQwen} (specifically vidore/colqwen2-v1.0 or v2.5). This model generates visual embeddings that capture layout and diagrammatic information.
-    \item \textbf{Storage}: Embeddings are stored in a specialized ColQwen Index.
-    \item \textbf{Metadata}: Each entry is tagged with \texttt{source}, \texttt{source\_path}, \texttt{page} number, and \texttt{total\_pages}.
-\end{itemize}
+% The PDF output undergoes a visual encoding process:
+% \begin{itemize}
+%     \item \textbf{Image Strategy}: The system applies a ``1 Page = 1 Image'' strategy, converting every PDF page into a high-resolution JPEG.
+%     \item \textbf{Vision Model}: These images are processed by \textbf{ColQwen} (specifically vidore/colqwen2-v1.0 or v2.5). This model generates visual embeddings that capture layout and diagrammatic information.
+%     \item \textbf{Storage}: Embeddings are stored in a specialized ColQwen Index.
+%     \item \textbf{Metadata}: Each entry is tagged with \texttt{source}, \texttt{source\_path}, \texttt{page} number, and \texttt{total\_pages}.
+% \end{itemize}
 
-\subsection*{Generative Synthesis Layer}
+% \subsection*{Generative Synthesis Layer}
 
-The final layer orchestrates the user interaction and answer generation.
+% The final layer orchestrates the user interaction and answer generation.
 
 \begin{figure}[h!]
     \centering
@@ -831,11 +831,11 @@ The final layer orchestrates the user interaction and answer generation.
     \label{fig:overall_arch}
 \end{figure}
 
-\begin{itemize}
-    \item \textbf{Hybrid Retrieval}: A user query triggers parallel searches against the Text Index (BM25 + Dense) and the Visual Index (Image Search).
-    \item \textbf{Reranking}: The system supports an optional Reranking step to refine the retrieved Top-K Text Chunks before context injection.
-    \item \textbf{LLM Integration}: The aggregated context (Text Chunks + Image Pages) is sent to a LLM. The system is provider-agnostic, supporting OpenAI, Gemini, Anthropic, and Ollama.
-    \item \textbf{Output}: The final output includes the generated answer with precise citations linking back to the specific source documents.
-\end{itemize}
+% \begin{itemize}
+%     \item \textbf{Hybrid Retrieval}: A user query triggers parallel searches against the Text Index (BM25 + Dense) and the Visual Index (Image Search).
+%     \item \textbf{Reranking}: The system supports an optional Reranking step to refine the retrieved Top-K Text Chunks before context injection.
+%     \item \textbf{LLM Integration}: The aggregated context (Text Chunks + Image Pages) is sent to a LLM. The system is provider-agnostic, supporting OpenAI, Gemini, Anthropic, and Ollama.
+%     \item \textbf{Output}: The final output includes the generated answer with precise citations linking back to the specific source documents.
+% \end{itemize}
 
 \newpage
