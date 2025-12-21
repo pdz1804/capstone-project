@@ -1,6 +1,6 @@
 \chapter{Our Approach}
 
-This chapter presents the methodological framework and empirical evaluation of the Retrieval-Augmented Generation pipelines developed for this project. We investigate the efficacy of various retrieval strategies, ranging from lexical matching to advanced late-interaction neural architectures.
+This chapter presents the methodological framework and empirical evaluation of the RAG pipelines developed for this project. We investigate the efficacy of various retrieval strategies, ranging from lexical matching to advanced late-interaction neural architectures.
 
 \section{Experiments on Embeddings and Retrieval Methods}
 
@@ -113,9 +113,9 @@ Our data indicates that ColBERTv2 provides the highest retrieval quality, surpas
     \item \textbf{Operational Note:} It is worth noting that while ColBERT's retrieval time is efficient ($6.5s$ on GPU), the indexing process is resource-intensive. In our environment, indexing required $\approx35$ minutes on CPU\footnote{Due to FAISS-GPU limitations on the Colab instance, indexing fell back to CPU.} compared to mere seconds/minutes for standard dense models. Despite this setup cost, ColBERT represents the state-of-the-art for retrieval accuracy on this dataset.
 \end{itemize}
 
-\section{Justification for Retrieval-Augmented Generation}
+\section{Justification for RAG}
 
-While Large Language Models (LLMs) possess remarkable generative capabilities, they suffer from inherent limitations such as knowledge cutoffs, hallucinations, and a lack of access to proprietary data. To address these issues, several methodologies exist. This section analyzes alternative approaches - Fine-Tuning, Semantic Search, Prompt Engineering, and Domain-Specific Pre-training - and justifies the selection of RAG as the superior architectural choice for this project.
+While LLMs possess remarkable generative capabilities, they suffer from inherent limitations such as knowledge cutoffs, hallucinations, and a lack of access to proprietary data. To address these issues, several methodologies exist. This section analyzes alternative approaches - Fine-Tuning, Semantic Search, Prompt Engineering, and Domain-Specific Pre-training - and justifies the selection of RAG as the superior architectural choice for this project.
 
 \subsection{Comparative Analysis of Alternatives}
 
@@ -184,7 +184,7 @@ RAG is chosen because it offers the optimal balance of accuracy, cost-efficiency
 % \begin{figure}[H]
 %     \centering
 %     \includegraphics[width=0.8\textwidth]{img/pdz/22-architecture.png}
-%     \caption{Overall System Architecture for mRAG.}
+%     \caption{Overall System Architecture for MRAG.}
 %     \label{fig:overall_arch}
 % \end{figure}
 
@@ -270,7 +270,7 @@ RAG is chosen because it offers the optimal balance of accuracy, cost-efficiency
 
 \section{Main Architecture}
 
-This section presents the comprehensive architecture of the Multimodal Retrieval-Augmented Generation (mRAG) system. We structure the discussion in three layers: first, the pipeline architecture defining data transformation workflows; second, the high-level system architecture illustrating component interactions; and third, the detailed implementation of individual components.
+This section presents the comprehensive architecture of the MRAG system. We structure the discussion in three layers: first, the pipeline architecture defining data transformation workflows; second, the high-level system architecture illustrating component interactions; and third, the detailed implementation of individual components.
 
 \subsection{Pipeline Architecture}
 
@@ -436,7 +436,7 @@ The overall system architecture follows a modular design with clear separation o
 
 \textbf{System Overview}
 
-As illustrated in Figure \ref{fig:overall_arch}, the system implements a Multimodal Retrieval-Augmented Generation (RAG) architecture designed to synthesize answers from diverse unstructured data sources. The workflow integrates three distinct processing layers that operate sequentially during indexing and in parallel during query execution.
+As illustrated in Figure \ref{fig:overall_arch}, the system implements a MRAG architecture designed to synthesize answers from diverse unstructured data sources. The workflow integrates three distinct processing layers that operate sequentially during indexing and in parallel during query execution.
 
 \textbf{Data Flow Architecture}
 
@@ -473,7 +473,7 @@ During query execution, the system operates in a retrieve-then-generate paradigm
     
     \item \textbf{Context Aggregation}: The top-$K$ text chunks and top-$K$ visual pages are aggregated into a unified context window. For visual results, the system performs just-in-time rendering of the retrieved PDF pages.
     
-    \item \textbf{Answer Generation}: The aggregated context (text + rendered images) is passed to a Multimodal Large Language Model (supporting OpenAI GPT-4o, Gemini, Anthropic Claude, or locally hosted models via Ollama). The LLM synthesizes a natural language answer with citations referencing the source documents and page numbers.
+    \item \textbf{Answer Generation}: The aggregated context (text + rendered images) is passed to an MLLM (supporting OpenAI GPT-4o, Gemini, Anthropic Claude, or locally hosted models via Ollama). The LLM synthesizes a natural language answer with citations referencing the source documents and page numbers.
 \end{enumerate}
 
 \textbf{Architectural Components}
@@ -509,9 +509,9 @@ Several design choices distinguish this architecture from traditional RAG system
     \item \textbf{Hybrid Retrieval with Reranking}: The text pathway combines sparse (BM25) and dense (MiniLM) retrieval via RRF, then applies cross-encoder reranking. This two-stage architecture balances recall (via broad retrieval) and precision (via deep interaction modeling).
 \end{itemize}
 
-\subsection{Detailed Component Architecture of Multimodal RAG System}
+\subsection{Detailed Component Architecture of MRAG System}
 
-Having established the pipeline workflows and high-level system design, this subsection provides comprehensive descriptions of all components that constitute the Multimodal Retrieval-Augmented Generation system. We organize the discussion across three operational layers: Input Processing, Dual-Stream Indexing, and Generative Synthesis.
+Having established the pipeline workflows and high-level system design, this subsection provides comprehensive descriptions of all components that constitute the MRAG system. We organize the discussion across three operational layers: Input Processing, Dual-Stream Indexing, and Generative Synthesis.
 
 \subsubsection{Input Processing Layer}
 
@@ -621,7 +621,7 @@ The PDF output undergoes a visual encoding process:
 
 \subsubsection{Advanced Visual Retrieval with ColQwen}
 
-The visual indexing stream deserves special attention due to its innovative approach to document retrieval. To overcome the limitations of traditional OCR-based retrieval which often discards the semantic value of document layout, charts, and figures the pipeline integrates \textbf{ColQwen}. This state-of-the-art Visual Language Model (VLM) represents an evolution in retrieval architecture, transitioning from text-only processing to holistic visual understanding.
+The visual indexing stream deserves special attention due to its innovative approach to document retrieval. To overcome the limitations of traditional OCR-based retrieval which often discards the semantic value of document layout, charts, and figures the pipeline integrates \textbf{ColQwen}. This state-of-the-art VLM represents an evolution in retrieval architecture, transitioning from text-only processing to holistic visual understanding.
 
 \textbf{Theoretical Foundation: From ColBERT to ColPali}
 
@@ -684,14 +684,14 @@ When a user submits a natural language query via the chatbot interface, the syst
     
     \item \textbf{Just-in-Time Rendering}: Retrieved PDF pages are rendered on-demand into high-resolution images, preserving charts, diagrams, and layout information for visual understanding.
     
-    \item \textbf{LLM Generation}: The aggregated context (text chunks + rendered page images) is passed to a Multimodal Large Language Model. The system is provider-agnostic, supporting OpenAI GPT-4o, Google Gemini, Anthropic Claude, and local models via Ollama (Llama, Mistral, Qwen).
+    \item \textbf{LLM Generation}: The aggregated context (text chunks + rendered page images) is passed to an MLLM. The system is provider-agnostic, supporting OpenAI GPT-4o, Google Gemini, Anthropic Claude, and local models via Ollama (Llama, Mistral, Qwen).
     
     \item \textbf{Answer Synthesis with Citations}: The LLM generates a natural language answer grounded in the retrieved context. The response includes precise citations referencing source documents and page numbers, enabling full traceability.
 \end{enumerate}
 
 \textbf{System Integration}
 
-The complete Multimodal RAG architecture integrates all three layers seamlessly. The system provides a FastAPI-based REST interface with asynchronous I/O support, exposing endpoints for document upload (\texttt{/api/upload}), processing (\texttt{/api/process}), querying (\texttt{/api/query}), and status monitoring (\texttt{/api/status}).
+The complete MRAG architecture integrates all three layers seamlessly. The system provides a FastAPI-based REST interface with asynchronous I/O support, exposing endpoints for document upload (\texttt{/api/upload}), processing (\texttt{/api/process}), querying (\texttt{/api/query}), and status monitoring (\texttt{/api/status}).
 
 % OLD DUPLICATE CONTENT REMOVED - NOW INTEGRATED ABOVE
 
@@ -773,7 +773,7 @@ The final layer orchestrates the user interaction and answer generation.
 \begin{itemize}
     \item \textbf{Hybrid Retrieval}: A user query triggers parallel searches against the Text Index (BM25 + Dense) and the Visual Index (Image Search).
     \item \textbf{Reranking}: The system supports an optional Reranking step to refine the retrieved Top-K Text Chunks before context injection.
-    \item \textbf{LLM Integration}: The aggregated context (Text Chunks + Image Pages) is sent to a Large Language Model. The system is provider-agnostic, supporting OpenAI, Gemini, Anthropic, and Ollama.
+    \item \textbf{LLM Integration}: The aggregated context (Text Chunks + Image Pages) is sent to a LLM. The system is provider-agnostic, supporting OpenAI, Gemini, Anthropic, and Ollama.
     \item \textbf{Output}: The final output includes the generated answer with precise citations linking back to the specific source documents.
 \end{itemize}
 
