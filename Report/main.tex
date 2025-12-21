@@ -137,9 +137,18 @@
 \begin{titlepage}
 % Temporarily adjust margins for this page only
 \newgeometry{top=2cm, bottom=4cm, left=2cm, right=2.5cm} % Adjust as needed
+
+% Add border using TikZ
+\begin{tikzpicture}[remember picture, overlay]
+  \draw[line width=2pt] 
+    ([xshift=1cm,yshift=-1cm]current page.north west) 
+    rectangle 
+    ([xshift=-1cm,yshift=1cm]current page.south east);
+\end{tikzpicture}
+
 \begin{center}
-VIETNAM NATIONAL UNIVERSITY, HO CHI MINH CITY \\
-UNIVERSITY OF TECHNOLOGY \\
+VIETNAM NATIONAL UNIVERSITY \\
+HO CHI MINH CITY UNIVERSITY OF TECHNOLOGY \\
 FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \end{center}
 
@@ -149,44 +158,36 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \end{center}
 \end{figure}
 
-\begin{center}
+\noindent\hspace*{-0.65cm}
+\begin{minipage}{\dimexpr\textwidth+1cm\relax}
+\centering
 \begin{tabular}{c}
-\textbf{{\Large SPECIALIZED PROJECT (CO4029)}}\\
+\hspace*{-0.3cm}\textbf{{\Large REPORT}}\\[6pt]
+\textbf{{\Large SPECIALIZED PROJECT (CO4029)}}\\[1cm]
 \hline
-\\
-\\
-\vspace{6pt}
+\\[0.5cm]
 \textbf{{\LARGE BK-MInD: A Multimodal}}\\[4pt]
-\textbf{{\LARGE Data Understanding System for HCMUT Lectures}}\\
-\vspace{6pt}
-\\
+\textbf{{\LARGE Data Understanding System for HCMUT Lectures}}\\[0.5cm]
 \hline
 \end{tabular}
-\end{center}
+\end{minipage}
 
 \vspace{1cm}
 
 \begin{table}[h]
-\begin{tabular}{rrll}
-\hspace{5 cm} & Supervisors: & Nguyen An Khuong, PhD & \\
-& & Nguyen Trang Sy Lam & Motohashi's Research Assistant\\
-& Students: & Nguyen Quang Phu &- 2252621 \\
-& & Nguyen Ngoc Khoi &- 2252378 \\
-& & Nguyen Minh Khoi &- 2252377 \\
+\begin{tabular}{rrl}
+  
+\hspace{4 cm} & Committee: & Committee 8 CC Specialized Project \\
+& & Assoc. Prof. Dr. Lê Hồng Trang \\
+& & Dr. Trần Tuấn Anh \\
+& & Dr. Nguyễn Đức Dũng \\
+& Supervisors: & Nguyen An Khuong, PhD \\
+& & Nguyen Trang Sy Lam - Motohashi's Research Assistant\\
+& Students: & Nguyen Quang Phu - 2252621 \\
+& & Nguyen Ngoc Khoi - 2252378 \\
+& & Nguyen Minh Khoi - 2252377 \\
 \end{tabular}
 \end{table}
-
-\vspace{0.5cm}
-
-\begin{center}
-\textbf{COUNCIL INFORMATION} \\
-\vspace{0.5cm}
-\begin{tabular}{ll}
-Chair: & Assoc. Prof. Dr. Lê Hồng Trang \\
-Member 1: & Dr. Trần Tuấn Anh \\
-Member 2: & Dr. Nguyễn Đức Dũng \\
-\end{tabular}
-\end{center}
 
 \vspace{0.5cm}
 
