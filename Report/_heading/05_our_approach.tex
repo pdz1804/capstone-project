@@ -640,7 +640,7 @@ This extracted audio is then passed to Whisper, ensuring that lecture recordings
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\textwidth]{img/pdz/25-libre.png}
+    \includegraphics[width=1\textwidth]{img/pdz/25-libre.png}
     \caption{LibreOffice (Office Docs) Conversion Flow.}
     \label{fig:LibreOffice}
 \end{figure}
@@ -734,9 +734,18 @@ By adopting ColQwen, the pipeline achieves capabilities that standard text-RAG c
     \item \textbf{Multilingual Agnosticism}: It processes visual glyphs rather than relying on language-specific OCR dictionaries.
 \end{itemize}
 
+\newpage
+
 \textbf{Generative Synthesis Layer}
 
 The final operational layer orchestrates user interaction and answer generation, as illustrated in Figure \ref{fig:overall_arch}. This layer implements the retrieve-then-generate paradigm central to RAG architectures.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/22-architecture.png}
+    \caption{Overall System Architecture.}
+    \label{fig:overall_arch}
+\end{figure}
 
 \textbf{Query Execution Workflow}
 
