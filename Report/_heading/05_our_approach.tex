@@ -330,7 +330,7 @@ Audio (WAV, MP3) & OpenAI Whisper & — & Markdown transcript \\
 \label{tab:media_processing}
 \end{table}
 
-The transcription process utilizes \textbf{OpenAI Whisper}, a state-of-the-art Automatic Speech Recognition (ASR) system. Whisper processes audio waveforms and generates timestamped transcripts, which are immediately serialized to Markdown format for consistency with other document types.
+The transcription process utilizes \textbf{OpenAI Whisper}, a state-of-the-art ASR system. Whisper processes audio waveforms and generates timestamped transcripts, which are immediately serialized to Markdown format for consistency with other document types.
 
 \textbf{Stage 3: Document Processing}
 
@@ -419,6 +419,8 @@ The visual pathway processes PDF files to enable image-based retrieval. Instead 
 
 \begin{table}[H]
 \centering
+\caption{Visual embedding and indexing pipeline stages.}
+\label{tab:visual_indexing}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}llllll@{}}
 \toprule
@@ -429,8 +431,6 @@ Visual Index & Visual vectors & ColQwen indexing & Searchable vectors & .bin fil
 Metadata & Per-page info & JSON serialization & Page metadata & .json file & Lookup table \\ \bottomrule
 \end{tabular}%
 }
-\caption{Visual embedding and indexing pipeline stages.}
-\label{tab:visual_indexing}
 \end{table}
 
 \textbf{Pipeline Output Summary}
@@ -757,7 +757,7 @@ These documents are converted into standard PDF format. This ensures that layout
 
 Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
 \textbf{MoviePy} is employed to separate audio tracks from video containers.
-The \textbf{OpenAI Whisper} model ASR processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
+The \textbf{OpenAI Whisper} ASR model processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
 
 \textbf{Structural Parsing}
 
