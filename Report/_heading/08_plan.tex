@@ -96,16 +96,16 @@ Phase 1 successfully established a comprehensive foundation for the MRAG system 
 \gantttitlelist{1,...,12}{1} \\
 
 % Research & Setup
-\ganttbar[bar/.style={fill=blue!30}]{Lit Review \& Setup}{1}{3} \\
+\ganttbar[bar/.style={fill=blue!30}]{Literature Review \& Setup}{1}{3} \\
 \ganttbar[bar/.style={fill=blue!30}]{VLM \& ASR Survey}{2}{4} \\
 
 % Baseline Development
 \ganttbar[bar/.style={fill=green!40}]{ASR \& OCR Trials}{3}{6} \\
-\ganttbar[bar/.style={fill=green!40}]{Retrieval Exp (BM25/Dense)}{4}{8} \\
+\ganttbar[bar/.style={fill=green!40}]{Retrieval Exp. (Sparse/Dense)}{4}{8} \\
 \ganttbar[bar/.style={fill=orange!40}]{Pipeline v1 Integration}{6}{10} \\
 
 % Deliverables
-\ganttbar[bar/.style={fill=purple!30}]{UI/API Design}{8}{10} \\
+\ganttbar[bar/.style={fill=purple!30}]{Application Prototype}{8}{10} \\
 \ganttbar[bar/.style={fill=purple!30}]{Report \& Presentation}{10}{12}
 
 \end{ganttchart}
@@ -123,7 +123,7 @@ The primary technical challenge for Phase 2 is implementing temporal synchroniza
 
 The concluding weeks of Phase 2 will be dedicated to rigorous system evaluation through comprehensive stress testing and systematically answering the core Research Questions (RQs) regarding retrieval accuracy, generation faithfulness, and overall system quality. Phase 2 will culminate in the final thesis defense.
 
-The planned work schedule for Phase 2 is structured across eight weeks, encompassing system integration, large-scale dataset construction, hybrid retrieval implementation, and comprehensive evaluation activities.
+The planned work schedule for Phase 2 is structured across twelve weeks, encompassing system integration, large-scale dataset construction, hybrid retrieval implementation, and comprehensive evaluation activities.
 
 \begin{itemize}
     \item \textbf{Phase 2 Kick-off and Integration Planning (Week 13):}
@@ -171,8 +171,43 @@ The planned work schedule for Phase 2 is structured across eight weeks, encompas
 % =========================
 % PHASE 2 – PARALLEL GANTT
 % =========================
+% \begin{figure}[H]
+% \centering
+% \begin{ganttchart}[
+%     hgrid,
+%     vgrid,
+%     x unit=0.85cm,
+%     y unit chart=0.6cm,
+%     bar height=0.5,
+%     bar label font=\small,
+%     title label font=\small\bfseries,
+%     title height=1,
+%     bar/.style={fill=gray!20}
+% ]{13}{25}
+
+% \gantttitle{Phase 2 Scaling \& Defense (Weeks)}{13} \\
+% \gantttitlelist{13,...,25}{1} \\
+
+% % Backend Track
+% \ganttbar[bar/.style={fill=blue!40}]{\textbf{Backend:} Video-Slide Sync}{13}{16} \\
+% \ganttbar[bar/.style={fill=blue!40}]{\textbf{Backend:} Hybrid RRF Integration}{16}{19} \\
+
+% % UI Track
+% \ganttbar[bar/.style={fill=purple!40}]{\textbf{UI/UX:} Frontend Development}{15}{18} \\
+% \ganttbar[bar/.style={fill=purple!40}]{\textbf{UI/UX:} API \& UI Integration}{18}{20} \\
+
+% % Evaluation & Writing
+% \ganttbar[bar/.style={fill=yellow!50}]{Benchmark \& RQ Analysis}{19}{22} \\
+% \ganttbar[bar/.style={fill=teal!40}]{Thesis: Final Writing}{18}{23} \\
+% \ganttbar[bar/.style={fill=red!40}]{Defense Preparation}{24}{25}
+
+% \end{ganttchart}
+% \caption{Phase 2 Planned Timeline}
+% \end{figure}
+
 \begin{figure}[H]
 \centering
+\footnotesize
 \begin{ganttchart}[
     hgrid,
     vgrid,
@@ -182,25 +217,43 @@ The planned work schedule for Phase 2 is structured across eight weeks, encompas
     bar label font=\small,
     title label font=\small\bfseries,
     title height=1,
-    bar/.style={fill=gray!20}
+    bar/.style={fill=gray!20},
+    milestone/.style={fill=black}
 ]{13}{25}
 
 \gantttitle{Phase 2 Scaling \& Defense (Weeks)}{13} \\
 \gantttitlelist{13,...,25}{1} \\
 
-% Backend Track
-\ganttbar[bar/.style={fill=blue!40}]{\textbf{Backend:} Video-Slide Sync}{13}{16} \\
-\ganttbar[bar/.style={fill=blue!40}]{\textbf{Backend:} Hybrid RRF Integration}{16}{19} \\
+% Optimization Track
+\ganttbar[bar/.style={fill=blue!40}]{\textbf{Optimization:} Retrieval Image-based Exp.}{13}{16} \\
+\ganttbar[bar/.style={fill=blue!40}]{\textbf{Optimization:} ColBERT/ColPali Indexing}{14}{17} \\
+\ganttbar[bar/.style={fill=blue!40}]{\textbf{Optimization:} Response Quality Tuning}{16}{20} \\
 
-% UI Track
-\ganttbar[bar/.style={fill=purple!40}]{\textbf{UI/UX:} Frontend Development}{15}{18} \\
-\ganttbar[bar/.style={fill=purple!40}]{\textbf{UI/UX:} API \& UI Integration}{18}{20} \\
+% Document Processor Track
+\ganttbar[bar/.style={fill=purple!40}]{\textbf{Doc Processor:} Spreadsheets Support}{13}{16} \\
+\ganttbar[bar/.style={fill=purple!40}]{\textbf{Doc Processor:} Video Handling}{16}{19} \\
 
-% Evaluation & Writing
-\ganttbar[bar/.style={fill=yellow!50}]{Benchmark \& RQ Analysis}{19}{22} \\
-\ganttbar[bar/.style={fill=teal!40}]{Thesis: Final Writing}{18}{23} \\
-\ganttbar[bar/.style={fill=red!40}]{Defense Preparation}{24}{25}
+% Multi-Agent Track
+\ganttbar[bar/.style={fill=teal!40}]{\textbf{Multi-Agent:} Rerouting}{16}{19} \\
+\ganttbar[bar/.style={fill=teal!40}]{\textbf{Multi-Agent:} Hallucination Reduction}{18}{22} \\
+
+% User Features Track
+\ganttbar[bar/.style={fill=yellow!50}]{\textbf{User Features:} Lecture Summarization}{17}{20} \\
+\ganttbar[bar/.style={fill=yellow!50}]{\textbf{User Features:} Personalized Preference}{19}{22} \\
+
+% Deployment Track
+\ganttbar[bar/.style={fill=red!40}]{\textbf{Deployment (optional)}}{21}{24} \\
+
+% Defense Track
+\ganttbar[bar/.style={fill=orange!50}]{\textbf{Defense:} Thesis Finalization}{22}{24} \\
+\ganttbar[bar/.style={fill=orange!70}]{\textbf{Defense:} Defense Preparation}{24}{25} \\
+
+% % Milestones
+% \ganttmilestone{M1: Core Optimization Ready}{17} \\
+% \ganttmilestone{M2: Feature \& Agent Freeze}{22} \\
+% \ganttmilestone{M3: System Deployed (Cloud)}{24} \\
+% \ganttmilestone{M4: Defense Submission}{25}
 
 \end{ganttchart}
-\caption{Phase 2 Planned Timeline}
+\caption{Phase 2 Planned Timeline with Parallel Tracks and Milestone Checkpoints}
 \end{figure}

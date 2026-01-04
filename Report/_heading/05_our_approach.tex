@@ -61,28 +61,76 @@ This allows for fine-grained matching, ensuring that specific details in a docum
 
 We conducted a comprehensive evaluation of Lexical, Dense, Hybrid, and Reranking pipelines. The aggregate results are presented in Table \ref{tab:results}.
 
+% \begin{table}[H]
+% \centering
+% \caption[Retrieval Pipeline Performance]{Comparative performance of Retrieval and Reranking pipelines on the MS MARCO subset (50k docs, 556 queries). Latency represents retrieval time for a single query batch. Indexing times: BM25 $\approx$1 min, Dense $\approx$20 min (embedding generation).}
+% \label{tab:results}
+% \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}l l c c r@{}}
+% \toprule
+% \textbf{Pipeline Strategy} & \textbf{Model / Configuration} & \textbf{Latency} & \textbf{nDCG@3} & \textbf{Recall@3} \\ \midrule
+% \multicolumn{5}{l}{\textbf{Baseline Retrievers (No Rerank)}} \\
+% Sparse & BM25 (rank-bm25) & 3m & 0.2821 & 0.3085 \\
+% Dense & MiniLM-L6 (Raw) & $\sim$1s & 0.8658 & 0.9125 \\
+% Dense & \textbf{BGE-Small-en-v1.5} & $\sim$1s & \textbf{0.8855} & \textbf{0.9257} \\ \midrule
+% \multicolumn{5}{l}{\textbf{Hybrid Retrievers (Reciprocal Rank Fusion)}} \\
+% Hybrid & BM25 + MiniLM ($k=60$) & $\sim$1s & 0.5786 & 0.6885 \\
+% Hybrid & BM25 + BGE ($k=60$) & $\sim$1s & 0.5830 & 0.6787 \\ \midrule
+% \multicolumn{5}{l}{\textbf{Reranking Pipelines (Retrieve + Cross-Encoder)}} \\
+% Retrieve + Rerank & BM25 + BGE-Large & 1m 43s & 0.4469 & 0.4592 \\
+% Retrieve + Rerank & MiniLM + BGE-Large & 1m 43s & 0.9196 & 0.9526 \\
+% Retrieve + Rerank & \textbf{BGE-Small + BGE-Large} & 1m 43s & \textbf{0.9248} & \textbf{0.9598} \\ \midrule
+% \multicolumn{5}{l}{\textbf{Late Interaction}} \\
+% Late Interaction & \textbf{ColBERTv2 (RAGatouille)} & 6.5s & \textbf{0.9638} & \textbf{0.9412} \\ \bottomrule
+% \end{tabular*}
+% \end{table}
+
+% preamble (nếu chưa có)
+% \usepackage{booktabs}
+% \usepackage{tabularx}
+% \usepackage{array}
+
 \begin{table}[H]
 \centering
-\caption[Retrieval Pipeline Performance]{Comparative performance of Retrieval and Reranking pipelines on the MS MARCO subset (50k docs, 556 queries). Latency represents retrieval time for a single query batch. Indexing times: BM25 $\approx$1 min, Dense $\approx$20 min (embedding generation).}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.1}
+\caption[Retrieval Pipeline Performance]{Comparative performance of Retrieval and Reranking pipelines on the MS MARCO subset (50k docs, 556 queries). Index/Embed Time denotes one-off preprocessing cost; Retrieve/Rerank Time is batch latency.}
 \label{tab:results}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}l l c c r@{}}
+
+\begin{tabularx}{\textwidth}{@{} l >{\raggedright\arraybackslash}X c c c r r @{}}
 \toprule
-\textbf{Pipeline Strategy} & \textbf{Model / Configuration} & \textbf{Latency} & \textbf{nDCG@3} & \textbf{Recall@3} \\ \midrule
-\multicolumn{5}{l}{\textbf{Baseline Retrievers (No Rerank)}} \\
-Sparse & BM25 (rank-bm25) & 3m & 0.2821 & 0.3085 \\
-Dense & MiniLM-L6 (Raw) & $\sim$1s & 0.8658 & 0.9125 \\
-Dense & \textbf{BGE-Small-en-v1.5} & $\sim$1s & \textbf{0.8855} & \textbf{0.9257} \\ \midrule
-\multicolumn{5}{l}{\textbf{Hybrid Retrievers (Reciprocal Rank Fusion)}} \\
-Hybrid & BM25 + MiniLM ($k=60$) & $\sim$1s & 0.5786 & 0.6885 \\
-Hybrid & BM25 + BGE ($k=60$) & $\sim$1s & 0.5830 & 0.6787 \\ \midrule
-\multicolumn{5}{l}{\textbf{Reranking Pipelines (Retrieve + Cross-Encoder)}} \\
-Retrieve + Rerank & BM25 + BGE-Large & 1m 43s & 0.4469 & 0.4592 \\
-Retrieve + Rerank & MiniLM + BGE-Large & 1m 43s & 0.9196 & 0.9526 \\
-Retrieve + Rerank & \textbf{BGE-Small + BGE-Large} & 1m 43s & \textbf{0.9248} & \textbf{0.9598} \\ \midrule
-\multicolumn{5}{l}{\textbf{Late Interaction}} \\
-Late Interaction & \textbf{ColBERTv2 (RAGatouille)} & 6.5s & \textbf{0.9638} & \textbf{0.9412} \\ \bottomrule
-\end{tabular*}
+\textbf{Strategy} &
+\textbf{Model/Config} &
+\textbf{Index/Embed} &
+\textbf{Retrieve/Rerank} &
+\textbf{Total} &
+\textbf{nDCG@3} &
+\textbf{Recall@3} \\
+\midrule
+
+\multicolumn{7}{@{}l}{\textbf{Baseline Retrievers (No Rerank)}} \\
+Sparse & BM25 & $\sim$1s & 3m & 3m & 0.2821 & 0.3085 \\
+Dense & MiniLM-L6 & 1m & $\sim$1s & 1m & 0.8658 & 0.9125 \\
+Dense & \textbf{BGE-S} & 2.5m & $\sim$1s & 2.5m & \textbf{0.8855} & \textbf{0.9257} \\
+\midrule
+
+\multicolumn{7}{@{}l}{\textbf{Hybrid Retrievers (Reciprocal Rank Fusion)}} \\
+Hybrid & BM25+MiniLM (RRF) & N/A & $\sim$1s & $\sim$1s & 0.5786 & 0.6885 \\
+Hybrid & BM25+BGE-L(RRF) & N/A & $\sim$1s & $\sim$1s & 0.5830 & 0.6787 \\
+\midrule
+
+\multicolumn{7}{@{}l}{\textbf{Reranking Pipelines (Retrieve + Cross-Encoder)}} \\
+Retrieve + Rerank & BM25+BGE-L & N/A & 1m 43s & 1m 43s & 0.4469 & 0.4592 \\
+Retrieve + Rerank & MiniLM+BGE-L & N/A & 1m 43s & 1m 43s & 0.9196 & 0.9526 \\
+Retrieve + Rerank & \textbf{BGE-S+BGE-L} & N/A & 1m 43s & 1m 43s & \textbf{0.9248} & \textbf{0.9598} \\
+\midrule
+
+\multicolumn{7}{@{}l}{\textbf{Late Interaction}} \\
+Late Interaction & \textbf{ColBERTv2 (RAGatouille)} & 34m 47s & 6.5s & 34m 53s & \textbf{0.9638} & \textbf{0.9412} \\
+\bottomrule
+\end{tabularx}
 \end{table}
+
 
 \textbf{Question 1: Is Hybrid Retrieval superior to single-mode retrieval?}
 Our experiments demonstrate that Hybrid Retrieval (combining BM25 and Dense vectors via fusion methods) offers a significant improvement over purely lexical methods, providing a balanced approach to robustness.
