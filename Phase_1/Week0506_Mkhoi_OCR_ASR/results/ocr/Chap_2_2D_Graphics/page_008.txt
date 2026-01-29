@@ -1,0 +1,21 @@
+Animating Sprite
+
+functicn AnimatedSprite.UpdateAnim(float deltaTime)
+
+// Update how long the current frame has been displayed
+frameTime += deltaTime
+
+// This check determines if it's time to change to the next frame.
+1£ frameTime > (1 / animFPS)
+// The number of frames to increment is the integral result of
+// frameTime / (1 / animFPS), which is frameTime * animFPS
+frameNum += frameTime * animFPS
+
+// Check if we've advanced past the last frame, and must wrap.
+1E frameNum >= animData.frameInfo[animNunm] .numFrames
+// The modulus (%) makes sure we wrap correctly.
+// (Eg. If numFrames == 10 and frameNum == 11, frameNum would
+// wrap to 11 $ 10 = 1).
+
+frameNum = frameNum % animData.frameInfo[animNum] .numFrames
+end

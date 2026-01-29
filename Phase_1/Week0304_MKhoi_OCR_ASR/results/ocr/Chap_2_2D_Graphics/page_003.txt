@@ -1,0 +1,18 @@
+Sprite
+
+* Sprite: A sprite is a 2D visual object within the game world
+that can be drawn using a single image on any given.
+
+° Framework: SDL, XNA, Cocos2d
+¢ Format:
+
+class Sprite
+PNG: less space ImageFile image
+. int drawOrder
+» TGA: native
+int xX, y
+PVR: iOS function Draw()
+
+// Draw the image at the correct (x,y)
+
+end

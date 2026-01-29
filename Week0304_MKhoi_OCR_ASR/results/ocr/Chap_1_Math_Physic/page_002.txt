@@ -1,8 +1,0 @@
-Outline
-
-° Math — Linear Algebra for Game
-« Vector
-« Matrix
-¢ Physics
-* Collision Detection
-» Movement

@@ -1,0 +1,15 @@
+{
+  "doc_count": 89,
+  "raw_doc_count": 2,
+  "retrievers": [
+    "bm25",
+    "dense",
+    "hybrid"
+  ],
+  "doc_dir": "output\\processing\\stage4_rag_ready",
+  "chunking": {
+    "enabled": true,
+    "chunk_size": 1000,
+    "chunk_overlap": 200
+  }
+}

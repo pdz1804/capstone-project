@@ -1,0 +1,6 @@
+{
+  "retrievers": [
+    "colqwen"
+  ],
+  "pdf_dir": "output\\processing\\stage4_rag_ready"
+}

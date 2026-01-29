@@ -3,24 +3,29 @@ downloads/
 data/
 AGENTS.md
 *.hf_cache/
-Week0506_QPhu_Processor/output/
-Week0506_QPhu_Processor/final_input/
-Week0506_QPhu_Processor/final_output/
-Week0506_QPhu_Processor/test_single_pdf.py
-Week070809_QPhu_Processor/output/
-Week070809_QPhu_Processor/output-1/
-Week070809_QPhu_Processor/final_input/
-Week070809_QPhu_Processor/final_output/
-Week070809_QPhu_Processor/test_single_pdf.py
-Week070809_QPhu_Processor/input-simple-1/
-Week070809_QPhu_Processor/output-simple-1/
-Week070809_QPhu_Processor/input-simple-2/
-Week070809_QPhu_Processor/output-simple-2/
-Week070809_QPhu_Processor/input-simple-3/
-Week070809_QPhu_Processor/output-simple-3/
-Week091011-Merge/input/
-Week091011-Merge/output/
-Week091011-Merge/ms_marco_val/
+Phase_1/Week0506_QPhu_Processor/output/
+Phase_1/Week0506_QPhu_Processor/final_input/
+Phase_1/Week0506_QPhu_Processor/final_output/
+Phase_1/Week0506_QPhu_Processor/test_single_pdf.py
+Phase_1/Week070809_QPhu_Processor/output/
+Phase_1/Week070809_QPhu_Processor/output-1/
+Phase_1/Week070809_QPhu_Processor/final_input/
+Phase_1/Week070809_QPhu_Processor/final_output/
+Phase_1/Week070809_QPhu_Processor/test_single_pdf.py
+Phase_1/Week070809_QPhu_Processor/input-simple-1/
+Phase_1/Week070809_QPhu_Processor/output-simple-1/
+Phase_1/Week070809_QPhu_Processor/input-simple-2/
+Phase_1/Week070809_QPhu_Processor/output-simple-2/
+Phase_1/Week070809_QPhu_Processor/input-simple-3/
+Phase_1/Week070809_QPhu_Processor/output-simple-3/
+Phase_1/Week091011-Merge/input/
+Phase_1/Week091011-Merge/output/
+Phase_1/Week091011-Merge/ms_marco_val/
+
+# Phase 2 - Ignore large datasets and outputs
+Phase_2/backend/ms_marco_val/
+Phase_2/backend/input/
+Phase_2/backend/output/
 
 # -------------------------
 # Python

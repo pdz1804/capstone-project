@@ -1,0 +1,4 @@
+Network Topology
+
+° Server/Client
+* Peer to peer

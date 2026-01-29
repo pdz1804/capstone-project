@@ -1,0 +1,2527 @@
+{
+  "file_info": {
+    "name": "Chapter03_Regression.pdf",
+    "path": "output\\processing\\stage1_normalized\\normalized_pdfs\\Chapter03_Regression.pdf",
+    "size": 4109888,
+    "type": "pdf",
+    "modified": 1767522481.5547717
+  },
+  "document_info": {
+    "title": "Faculty of Computer Science and Engineering Ho Chi Minh City University of Technology",
+    "docling_version": "1.7.0",
+    "filename": "Chapter03_Regression.pdf",
+    "mimetype": "application/pdf",
+    "binary_hash": 6563016556232815739
+  },
+  "content_stats": {
+    "total_pages": 67,
+    "total_images": 44,
+    "total_tables": 8,
+    "total_texts": 1539,
+    "total_text_length": 44944
+  },
+  "processing_info": {
+    "processor_version": "MultimodalDocumentProcessor-v1.0",
+    "docling_version": "1.7.0",
+    "processing_timestamp": "2026-01-04T17:44:25.115742",
+    "gpu_used": true,
+    "ocr_enabled": true,
+    "vlm_enabled": true,
+    "asr_enabled": true,
+    "image_filtering": {
+      "min_width": 100,
+      "min_height": 100,
+      "min_area": 10000
+    }
+  },
+  "pages": [
+    {
+      "page_number": 2,
+      "page_key": 1,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 9,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 3,
+      "page_key": 2,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 12,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 12
+      }
+    },
+    {
+      "page_number": 4,
+      "page_key": 3,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 29,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 28
+      }
+    },
+    {
+      "page_number": 5,
+      "page_key": 4,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 141,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 140
+      }
+    },
+    {
+      "page_number": 6,
+      "page_key": 5,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 24,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 23
+      }
+    },
+    {
+      "page_number": 7,
+      "page_key": 6,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 10,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 10
+      }
+    },
+    {
+      "page_number": 8,
+      "page_key": 7,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 9,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 9,
+      "page_key": 8,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 9,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 10,
+      "page_key": 9,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 12,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 12
+      }
+    },
+    {
+      "page_number": 11,
+      "page_key": 10,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 8,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 7
+      }
+    },
+    {
+      "page_number": 12,
+      "page_key": 11,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 5,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 5
+      }
+    },
+    {
+      "page_number": 13,
+      "page_key": 12,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 11,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 10
+      }
+    },
+    {
+      "page_number": 14,
+      "page_key": 13,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 38,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 37
+      }
+    },
+    {
+      "page_number": 15,
+      "page_key": 14,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 49,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 48
+      }
+    },
+    {
+      "page_number": 16,
+      "page_key": 15,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 10,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 10
+      }
+    },
+    {
+      "page_number": 17,
+      "page_key": 16,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 37,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 35
+      }
+    },
+    {
+      "page_number": 18,
+      "page_key": 17,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 42,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 40
+      }
+    },
+    {
+      "page_number": 19,
+      "page_key": 18,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 53,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 53
+      }
+    },
+    {
+      "page_number": 20,
+      "page_key": 19,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 45,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 44
+      }
+    },
+    {
+      "page_number": 21,
+      "page_key": 20,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 45,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 43
+      }
+    },
+    {
+      "page_number": 22,
+      "page_key": 21,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 42,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 40
+      }
+    },
+    {
+      "page_number": 23,
+      "page_key": 22,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 8,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 8
+      }
+    },
+    {
+      "page_number": 24,
+      "page_key": 23,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 23,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 22
+      }
+    },
+    {
+      "page_number": 25,
+      "page_key": 24,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 23,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 22
+      }
+    },
+    {
+      "page_number": 26,
+      "page_key": 25,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 10,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 10
+      }
+    },
+    {
+      "page_number": 27,
+      "page_key": 26,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 5,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 5
+      }
+    },
+    {
+      "page_number": 28,
+      "page_key": 27,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 23,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 22
+      }
+    },
+    {
+      "page_number": 29,
+      "page_key": 28,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 49,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 48
+      }
+    },
+    {
+      "page_number": 30,
+      "page_key": 29,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 47,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 45
+      }
+    },
+    {
+      "page_number": 31,
+      "page_key": 30,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 44,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 43
+      }
+    },
+    {
+      "page_number": 32,
+      "page_key": 31,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 44,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 42
+      }
+    },
+    {
+      "page_number": 33,
+      "page_key": 32,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 46,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 44
+      }
+    },
+    {
+      "page_number": 34,
+      "page_key": 33,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 44,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 42
+      }
+    },
+    {
+      "page_number": 35,
+      "page_key": 34,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 45,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 43
+      }
+    },
+    {
+      "page_number": 36,
+      "page_key": 35,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 46,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 44
+      }
+    },
+    {
+      "page_number": 37,
+      "page_key": 36,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 50,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 49
+      }
+    },
+    {
+      "page_number": 38,
+      "page_key": 37,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 12,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 11
+      }
+    },
+    {
+      "page_number": 39,
+      "page_key": 38,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 9,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 40,
+      "page_key": 39,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 26,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 25
+      }
+    },
+    {
+      "page_number": 41,
+      "page_key": 40,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 35,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 1,
+        "texts": 33
+      }
+    },
+    {
+      "page_number": 42,
+      "page_key": 41,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 18,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 17
+      }
+    },
+    {
+      "page_number": 43,
+      "page_key": 42,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 13,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 12
+      }
+    },
+    {
+      "page_number": 44,
+      "page_key": 43,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 10,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 45,
+      "page_key": 44,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 9,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 46,
+      "page_key": 45,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 13,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 13
+      }
+    },
+    {
+      "page_number": 47,
+      "page_key": 46,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 7,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 7
+      }
+    },
+    {
+      "page_number": 48,
+      "page_key": 47,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 8,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 8
+      }
+    },
+    {
+      "page_number": 49,
+      "page_key": 48,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 18,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 2,
+        "tables": 0,
+        "texts": 16
+      }
+    },
+    {
+      "page_number": 50,
+      "page_key": 49,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 10,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 10
+      }
+    },
+    {
+      "page_number": 51,
+      "page_key": 50,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 16,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 15
+      }
+    },
+    {
+      "page_number": 52,
+      "page_key": 51,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 32,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 31
+      }
+    },
+    {
+      "page_number": 53,
+      "page_key": 52,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 7,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 6
+      }
+    },
+    {
+      "page_number": 54,
+      "page_key": 53,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 7,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 6
+      }
+    },
+    {
+      "page_number": 55,
+      "page_key": 54,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 13,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 13
+      }
+    },
+    {
+      "page_number": 56,
+      "page_key": 55,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 7,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 7
+      }
+    },
+    {
+      "page_number": 57,
+      "page_key": 56,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 5,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 4
+      }
+    },
+    {
+      "page_number": 58,
+      "page_key": 57,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 77,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 2,
+        "texts": 74
+      }
+    },
+    {
+      "page_number": 59,
+      "page_key": 58,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 10,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 10
+      }
+    },
+    {
+      "page_number": 60,
+      "page_key": 59,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 7,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 7
+      }
+    },
+    {
+      "page_number": 61,
+      "page_key": 60,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 13,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 13
+      }
+    },
+    {
+      "page_number": 62,
+      "page_key": 61,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 14,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 14
+      }
+    },
+    {
+      "page_number": 63,
+      "page_key": 62,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 11,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 11
+      }
+    },
+    {
+      "page_number": 64,
+      "page_key": 63,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 9,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 65,
+      "page_key": 64,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 9,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 66,
+      "page_key": 65,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 8,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 8
+      }
+    },
+    {
+      "page_number": 67,
+      "page_key": 66,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 6,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 5
+      }
+    },
+    {
+      "page_number": 68,
+      "page_key": 67,
+      "dimensions": {
+        "width": 720.0,
+        "height": 540.0
+      },
+      "elements_count": 0,
+      "has_content": false,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 0
+      }
+    }
+  ],
+  "images_details": [
+    {
+      "index": 0,
+      "id": "image_000",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a scatter plot with a linear scale of range 0 to 3000 on the x-axis, labeled \"Size (feet2)\" on the y-axis. The plot is titled \"Price ($1k)\" and has a scale of range 0 to 4000 along the y-axis. The x-axis is labeled \"Size (feet2)\" and has a scale of range 0 to 3000.\n\nThe plot is a scatter plot with a linear scale of range 0 to 4000 along the y-axis, labeled \"Price ($1k)\". The plot is titled \"Price ($1k)\" and has a scale of range 0 to 4000 along the y-axis, labeled \"Price ($1k)\". The x-axis is labeled \"Size (feet2)\" and has a scale of range 0 to 3000.",
+      "vlm_description": "The image is a scatter plot with a linear scale of range 0 to 3000 on the x-axis, labeled \"Size (feet2)\" on the y-axis. The plot is titled \"Price ($1k)\" and has a scale of range 0 to 4000 along the y-axis. The x-axis is labeled \"Size (feet2)\" and has a scale of range 0 to 3000.\n\nThe plot is a scatter plot with a linear scale of range 0 to 4000 along the y-axis, labeled \"Price ($1k)\". The plot is titled \"Price ($1k)\" and has a scale of range 0 to 4000 along the y-axis, labeled \"Price ($1k)\". The x-axis is labeled \"Size (feet2)\" and has a scale of range 0 to 3000.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9940377473831177,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 4,
+      "bbox": {
+        "x1": 70.62908935546875,
+        "y1": 393.48675537109375,
+        "x2": 578.4337158203125,
+        "y2": 158.78485107421875
+      },
+      "dimensions": {
+        "width": 507.8,
+        "height": 234.7
+      },
+      "area": 119182.71,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 1,
+      "id": "image_001",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image we can see a graph with few data points.",
+      "vlm_description": "In this image we can see a graph with few data points.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "bar_chart",
+        "confidence": 0.9112891554832458,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 5,
+      "bbox": {
+        "x1": 24.23191261291504,
+        "y1": 433.45410919189453,
+        "x2": 704.8208618164062,
+        "y2": 3.8232421875
+      },
+      "dimensions": {
+        "width": 680.59,
+        "height": 429.63
+      },
+      "area": 292402.02,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 2,
+      "id": "image_002",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image there is a diagram. There are few names on the graph.",
+      "vlm_description": "In this image there is a diagram. There are few names on the graph.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "other",
+        "confidence": 0.995008111000061,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 6,
+      "bbox": {
+        "x1": 146.51927185058594,
+        "y1": 351.44390869140625,
+        "x2": 689.8148193359375,
+        "y2": 0.2100830078125
+      },
+      "dimensions": {
+        "width": 543.3,
+        "height": 351.23
+      },
+      "area": 190823.77,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 3,
+      "id": "image_003",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image, we can see a graph. There is a text at the top of the image.",
+      "vlm_description": "In this image, we can see a graph. There is a text at the top of the image.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "flow_chart",
+        "confidence": 0.36634355783462524,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 14,
+      "bbox": {
+        "x1": 11.54742431640625,
+        "y1": 435.15248107910156,
+        "x2": 688.962158203125,
+        "y2": 1.2652587890625
+      },
+      "dimensions": {
+        "width": 677.41,
+        "height": 433.89
+      },
+      "area": 293921.6,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 4,
+      "id": "image_004",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image, we can see a graph. There is a number on the graph.",
+      "vlm_description": "In this image, we can see a graph. There is a number on the graph.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "other",
+        "confidence": 0.8318024277687073,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 15,
+      "bbox": {
+        "x1": 488.2786865234375,
+        "y1": 264.7042236328125,
+        "x2": 695.1900634765625,
+        "y2": 31.784820556640625
+      },
+      "dimensions": {
+        "width": 206.91,
+        "height": 232.92
+      },
+      "area": 48193.67,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 5,
+      "id": "image_005",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image depicts a graph with two axes. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The graph has a linear scale of range 0 to 3 on the x-axis, and a linear scale of range 0 to 1 on the y-axis. The graph has two lines plotted on the graph, one of which is a straight line with a positive slope. The other line is a dashed line with a negative slope. The dashed line is positioned at the bottom of the graph, while the straight line is positioned at the top.\n\nThe graph has a title at the top of the graph, which reads \"x=0.5\". This indicates that the x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The title is written in a clear and readable font.\n\nThe graph also has a scale labeled \"0 to 3\" on the y-axis",
+      "vlm_description": "The image depicts a graph with two axes. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The graph has a linear scale of range 0 to 3 on the x-axis, and a linear scale of range 0 to 1 on the y-axis. The graph has two lines plotted on the graph, one of which is a straight line with a positive slope. The other line is a dashed line with a negative slope. The dashed line is positioned at the bottom of the graph, while the straight line is positioned at the top.\n\nThe graph has a title at the top of the graph, which reads \"x=0.5\". This indicates that the x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The title is written in a clear and readable font.\n\nThe graph also has a scale labeled \"0 to 3\" on the y-axis",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9806204438209534,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 17,
+      "bbox": {
+        "x1": 82.43559265136719,
+        "y1": 369.8268127441406,
+        "x2": 381.3095397949219,
+        "y2": 176.06121826171875
+      },
+      "dimensions": {
+        "width": 298.87,
+        "height": 193.77
+      },
+      "area": 57911.49,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 6,
+      "id": "image_006",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a graph that shows the relationship between two variables, specifically the value of a variable called \"J\" and the value of another variable called \"J_1\" over time. The graph is labeled as \"J_1\" and has a scale of range 0 to 3 on the x-axis, labeled as \"θ1\" and has a scale of range 0 to 2 on the y-axis, labeled as \"θ\".\n\nThe graph shows a negative correlation between the two variables, with the value of \"J\" decreasing as the value of \"J_1\" increases. This means that as the value of \"J\" increases, the value of \"J_1\" decreases.\n\nThe graph also shows a positive correlation between the two variables, with the value of \"J\" increasing as the value of \"J_1\" decreases. This means that as the value of \"J\" increases, the value of \"J_1\"",
+      "vlm_description": "The image is a graph that shows the relationship between two variables, specifically the value of a variable called \"J\" and the value of another variable called \"J_1\" over time. The graph is labeled as \"J_1\" and has a scale of range 0 to 3 on the x-axis, labeled as \"θ1\" and has a scale of range 0 to 2 on the y-axis, labeled as \"θ\".\n\nThe graph shows a negative correlation between the two variables, with the value of \"J\" decreasing as the value of \"J_1\" increases. This means that as the value of \"J\" increases, the value of \"J_1\" decreases.\n\nThe graph also shows a positive correlation between the two variables, with the value of \"J\" increasing as the value of \"J_1\" decreases. This means that as the value of \"J\" increases, the value of \"J_1\"",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.8972031474113464,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 17,
+      "bbox": {
+        "x1": 418.4240417480469,
+        "y1": 397.52867126464844,
+        "x2": 690.51318359375,
+        "y2": 148.72479248046875
+      },
+      "dimensions": {
+        "width": 272.09,
+        "height": 248.8
+      },
+      "area": 67696.83,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 7,
+      "id": "image_007",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image presents a line graph that illustrates the relationship between two variables: price and size. The x-axis represents the size in square feet, ranging from 0 to 1000 square feet. The y-axis represents the price of the item, ranging from $0 to $500.\n\nThe graph shows a clear upward trend in the relationship between the two variables. The price of the item increases as the size increases. This indicates that as the size of the item increases, the price of the item also increases.\n\nHere is a detailed description of the graph:\n\n- **Title**: The title of the graph is \"Price ($1K) x $1000\".\n- **X-Axis**: The x-axis represents the size in square feet, ranging from 0 to 1000 square feet.\n- **Y-Axis**: The y-axis represents the price of the item, ranging from $0",
+      "vlm_description": "The image presents a line graph that illustrates the relationship between two variables: price and size. The x-axis represents the size in square feet, ranging from 0 to 1000 square feet. The y-axis represents the price of the item, ranging from $0 to $500.\n\nThe graph shows a clear upward trend in the relationship between the two variables. The price of the item increases as the size increases. This indicates that as the size of the item increases, the price of the item also increases.\n\nHere is a detailed description of the graph:\n\n- **Title**: The title of the graph is \"Price ($1K) x $1000\".\n- **X-Axis**: The x-axis represents the size in square feet, ranging from 0 to 1000 square feet.\n- **Y-Axis**: The y-axis represents the price of the item, ranging from $0",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.8890448212623596,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 18,
+      "bbox": {
+        "x1": 9.650320053100586,
+        "y1": 351.9445495605469,
+        "x2": 301.88739013671875,
+        "y2": 117.21160888671875
+      },
+      "dimensions": {
+        "width": 292.24,
+        "height": 234.73
+      },
+      "area": 68597.67,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 8,
+      "id": "image_008",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a diagrammatic representation of a light-up wire, which is a type of light-up wire used in various applications such as display screens, displays, and displays for display. The wire is depicted as a light-up wire, which is a type of wire that is used to create a light effect. The wire is shown in a wire-like manner, with a blue and yellow color scheme. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect.",
+      "vlm_description": "The image is a diagrammatic representation of a light-up wire, which is a type of light-up wire used in various applications such as display screens, displays, and displays for display. The wire is depicted as a light-up wire, which is a type of wire that is used to create a light effect. The wire is shown in a wire-like manner, with a blue and yellow color scheme. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "bar_chart",
+        "confidence": 0.7358145117759705,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 18,
+      "bbox": {
+        "x1": 334.5316467285156,
+        "y1": 370.3625183105469,
+        "x2": 704.800048828125,
+        "y2": 100.58087158203125
+      },
+      "dimensions": {
+        "width": 370.27,
+        "height": 269.78
+      },
+      "area": 99891.62,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 9,
+      "id": "image_009",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a graph with several lines and points. The graph is titled \"Training Data\" and has a legend at the bottom. The graph is titled \"Size (feet²)\" and has a scale labeled \"0-1000\" on the x-axis. The y-axis is labeled \"Price ($/$ (inches2))\".\n\nThe graph has a linear scale of range 0 to 1000 on the x-axis, labeled \"Size (feet²)\". There are five different lines plotted on the graph, each with a different color and a different value on the y-axis. The lines are labeled as follows:\n- The first line is red and has a value of 0.500.\n- The second line is blue and has a value of 0.200.\n- The third line is green and has a value of 0.100.\n- The fourth line is orange and",
+      "vlm_description": "The image is a graph with several lines and points. The graph is titled \"Training Data\" and has a legend at the bottom. The graph is titled \"Size (feet²)\" and has a scale labeled \"0-1000\" on the x-axis. The y-axis is labeled \"Price ($/$ (inches2))\".\n\nThe graph has a linear scale of range 0 to 1000 on the x-axis, labeled \"Size (feet²)\". There are five different lines plotted on the graph, each with a different color and a different value on the y-axis. The lines are labeled as follows:\n- The first line is red and has a value of 0.500.\n- The second line is blue and has a value of 0.200.\n- The third line is green and has a value of 0.100.\n- The fourth line is orange and",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9874926805496216,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 20,
+      "bbox": {
+        "x1": 25.829822540283203,
+        "y1": 431.0100631713867,
+        "x2": 698.1993408203125,
+        "y2": 22.58770751953125
+      },
+      "dimensions": {
+        "width": 672.37,
+        "height": 408.42
+      },
+      "area": 274610.74,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 10,
+      "id": "image_010",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph titled \"Price $ (in 1000s).\" The x-axis represents \"Size (feet²)\" while the y-axis represents \"Price $ (in 1000s).\" The graph shows a downward trend in the price of a product over time. The graph is labeled as \"Training Data\" and \"h(x).\" The graph is labeled as \"h(x) = 500.\"\n\nThe graph has a linear scale from 0 to 7000 on the y-axis, labeled \"Price $ (in 1000s).\" The x-axis is labeled \"Size (feet²)\" and has a scale from 0 to 1000.\n\nThe graph shows a downward trend in the price of a product over time. The price of the product decreases from 400 to 200. The price of the product decreases from 50",
+      "vlm_description": "The image is a line graph titled \"Price $ (in 1000s).\" The x-axis represents \"Size (feet²)\" while the y-axis represents \"Price $ (in 1000s).\" The graph shows a downward trend in the price of a product over time. The graph is labeled as \"Training Data\" and \"h(x).\" The graph is labeled as \"h(x) = 500.\"\n\nThe graph has a linear scale from 0 to 7000 on the y-axis, labeled \"Price $ (in 1000s).\" The x-axis is labeled \"Size (feet²)\" and has a scale from 0 to 1000.\n\nThe graph shows a downward trend in the price of a product over time. The price of the product decreases from 400 to 200. The price of the product decreases from 50",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9430319666862488,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 21,
+      "bbox": {
+        "x1": 24.479095458984375,
+        "y1": 427.095458984375,
+        "x2": 332.48486328125,
+        "y2": 102.21707153320312
+      },
+      "dimensions": {
+        "width": 308.01,
+        "height": 324.88
+      },
+      "area": 100064.42,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 11,
+      "id": "image_011",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image, we can see a graph with different colors and the x-axis is labeled as \"2000\" and the y-axis is labeled as \"0.5\".",
+      "vlm_description": "In this image, we can see a graph with different colors and the x-axis is labeled as \"2000\" and the y-axis is labeled as \"0.5\".",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9993066787719727,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 21,
+      "bbox": {
+        "x1": 364.3096923828125,
+        "y1": 429.65433502197266,
+        "x2": 687.8751831054688,
+        "y2": 102.0257568359375
+      },
+      "dimensions": {
+        "width": 323.57,
+        "height": 327.63
+      },
+      "area": 106009.3,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 12,
+      "id": "image_012",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph that shows the relationship between two variables, specifically the price of a product and the number of x-axis values. The x-axis is labeled \"Size (feet²)\" and the y-axis is labeled \"Price (in (1000s).\" The graph is titled \"Price of a Product.\" The graph shows a linear trend with a positive correlation between the two variables.\n\nThe graph has a linear scale from 0 to 7000 on the y-axis, labeled \"Price (in (1000s).\" The graph also has a linear scale from 0 to 7000 on the x-axis, labeled \"Size (feet²).\"\n\nThe graph has a blue line that starts at a point labeled \"0\" and ends at a point labeled \"7000.\" The line starts at the point labeled \"0\" and ends at the point labeled \"7000.\"",
+      "vlm_description": "The image is a line graph that shows the relationship between two variables, specifically the price of a product and the number of x-axis values. The x-axis is labeled \"Size (feet²)\" and the y-axis is labeled \"Price (in (1000s).\" The graph is titled \"Price of a Product.\" The graph shows a linear trend with a positive correlation between the two variables.\n\nThe graph has a linear scale from 0 to 7000 on the y-axis, labeled \"Price (in (1000s).\" The graph also has a linear scale from 0 to 7000 on the x-axis, labeled \"Size (feet²).\"\n\nThe graph has a blue line that starts at a point labeled \"0\" and ends at a point labeled \"7000.\" The line starts at the point labeled \"0\" and ends at the point labeled \"7000.\"",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "bar_chart",
+        "confidence": 0.9952422380447388,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 22,
+      "bbox": {
+        "x1": 24.38905906677246,
+        "y1": 427.1778564453125,
+        "x2": 332.853515625,
+        "y2": 102.03811645507812
+      },
+      "dimensions": {
+        "width": 308.46,
+        "height": 325.14
+      },
+      "area": 100294.05,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 13,
+      "id": "image_013",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a graph that shows the trend of different lines over time. The lines are labeled as follows:\n\n- **X-axis**: The x-axis represents the time in years.\n- **Y-axis**: The y-axis represents the values of the lines.\n\nThe graph shows the following trends:\n1. **Line 1**: The line starts at a value of 0.5 and increases to 0.55.\n2. **Line 2**: The line starts at a value of 0.5 and increases to 0.56.\n3. **Line 3**: The line starts at a value of 0.5 and increases to 0.57.\n4. **Line 4**: The line starts at a value of 0.5 and increases to 0.58.\n5. **Line 5**: The line starts at a value of 0.5 and increases",
+      "vlm_description": "The image is a graph that shows the trend of different lines over time. The lines are labeled as follows:\n\n- **X-axis**: The x-axis represents the time in years.\n- **Y-axis**: The y-axis represents the values of the lines.\n\nThe graph shows the following trends:\n1. **Line 1**: The line starts at a value of 0.5 and increases to 0.55.\n2. **Line 2**: The line starts at a value of 0.5 and increases to 0.56.\n3. **Line 3**: The line starts at a value of 0.5 and increases to 0.57.\n4. **Line 4**: The line starts at a value of 0.5 and increases to 0.58.\n5. **Line 5**: The line starts at a value of 0.5 and increases",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9997132420539856,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 22,
+      "bbox": {
+        "x1": 365.30389404296875,
+        "y1": 430.48793029785156,
+        "x2": 688.2662353515625,
+        "y2": 102.60382080078125
+      },
+      "dimensions": {
+        "width": 322.96,
+        "height": 327.88
+      },
+      "area": 105894.22,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 14,
+      "id": "image_014",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a graph that shows the temperature distribution of a cloud of particles. The x-axis represents the temperature in Kelvin, while the y-axis represents the temperature in Kelvin. The graph is titled \"J (0,0,0) 1,\" which means it shows the temperature at 0 Kelvin, 0.0 Kelvin, and 0.0 Kelvin.\n\nThe graph shows a pattern of temperature distribution. The temperature at the top of the graph is the highest temperature, which is 3 Kelvin. The temperature at the bottom of the graph is the lowest temperature, which is 0 Kelvin. The temperature at the middle of the graph is the lowest temperature, which is 0.0 Kelvin. The temperature at the bottom of the graph is the highest temperature, which is 3.\n\nThe graph also shows a pattern of lines that are connected. These lines are connected to each other, and they are all pointing in the same direction. The lines are",
+      "vlm_description": "The image is a graph that shows the temperature distribution of a cloud of particles. The x-axis represents the temperature in Kelvin, while the y-axis represents the temperature in Kelvin. The graph is titled \"J (0,0,0) 1,\" which means it shows the temperature at 0 Kelvin, 0.0 Kelvin, and 0.0 Kelvin.\n\nThe graph shows a pattern of temperature distribution. The temperature at the top of the graph is the highest temperature, which is 3 Kelvin. The temperature at the bottom of the graph is the lowest temperature, which is 0 Kelvin. The temperature at the middle of the graph is the lowest temperature, which is 0.0 Kelvin. The temperature at the bottom of the graph is the highest temperature, which is 3.\n\nThe graph also shows a pattern of lines that are connected. These lines are connected to each other, and they are all pointing in the same direction. The lines are",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "map",
+        "confidence": 0.9785874485969543,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 24,
+      "bbox": {
+        "x1": 46.509849548339844,
+        "y1": 455.4526901245117,
+        "x2": 612.5092163085938,
+        "y2": 92.60263061523438
+      },
+      "dimensions": {
+        "width": 566.0,
+        "height": 362.85
+      },
+      "area": 205372.9,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 15,
+      "id": "image_015",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a graph that shows the temperature distribution of a surface. The x-axis represents the temperature, ranging from 0 to 1, while the y-axis represents the temperature, ranging from 0 to 1. The graph shows a trend of increasing temperature as the x-axis increases, with a sharp peak at 0.2 and a gradual decrease towards the right. The graph also shows a horizontal line at 0.1, which indicates that the temperature is at its lowest point.\n\nThe graph is labeled \"J(0,0,1)\", which means that the temperature is measured at 0, 0.1, and 1 degrees Celsius. The x-axis is labeled \"θ\", which represents the temperature in degrees Celsius. The y-axis is labeled \"J(0,0,1)\", which represents the temperature in Joules per square meter per second.\n\nThe graph shows a clear trend of increasing temperature as the x",
+      "vlm_description": "The image is a graph that shows the temperature distribution of a surface. The x-axis represents the temperature, ranging from 0 to 1, while the y-axis represents the temperature, ranging from 0 to 1. The graph shows a trend of increasing temperature as the x-axis increases, with a sharp peak at 0.2 and a gradual decrease towards the right. The graph also shows a horizontal line at 0.1, which indicates that the temperature is at its lowest point.\n\nThe graph is labeled \"J(0,0,1)\", which means that the temperature is measured at 0, 0.1, and 1 degrees Celsius. The x-axis is labeled \"θ\", which represents the temperature in degrees Celsius. The y-axis is labeled \"J(0,0,1)\", which represents the temperature in Joules per square meter per second.\n\nThe graph shows a clear trend of increasing temperature as the x",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "map",
+        "confidence": 0.9921649694442749,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 25,
+      "bbox": {
+        "x1": 46.84385681152344,
+        "y1": 455.3806381225586,
+        "x2": 612.29833984375,
+        "y2": 92.59759521484375
+      },
+      "dimensions": {
+        "width": 565.45,
+        "height": 362.78
+      },
+      "area": 205137.3,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 16,
+      "id": "image_016",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a graph that shows the temperature distribution of a certain object over a range of temperatures. The x-axis represents the temperature, ranging from 0 to 1, while the y-axis represents the temperature, ranging from 0 to 1. The graph shows a pattern of peaks and troughs, with the peaks being higher than the troughs.\n\nThe graph has a title at the top, which reads \"J(0,0,1)\", indicating that the x-axis is labeled with the temperature in J (Joules) and the y-axis is labeled with the temperature in J (Joules). The graph also has a scale from 0 to 1 on the x-axis, with a minimum of 0 and a maximum of 1 on the y-axis.\n\nThe graph shows a pattern of peaks and troughs, with the peaks being higher than the troughs. The peaks are more prominent in the middle of the",
+      "vlm_description": "The image is a graph that shows the temperature distribution of a certain object over a range of temperatures. The x-axis represents the temperature, ranging from 0 to 1, while the y-axis represents the temperature, ranging from 0 to 1. The graph shows a pattern of peaks and troughs, with the peaks being higher than the troughs.\n\nThe graph has a title at the top, which reads \"J(0,0,1)\", indicating that the x-axis is labeled with the temperature in J (Joules) and the y-axis is labeled with the temperature in J (Joules). The graph also has a scale from 0 to 1 on the x-axis, with a minimum of 0 and a maximum of 1 on the y-axis.\n\nThe graph shows a pattern of peaks and troughs, with the peaks being higher than the troughs. The peaks are more prominent in the middle of the",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "map",
+        "confidence": 0.9831265807151794,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 28,
+      "bbox": {
+        "x1": 46.461524963378906,
+        "y1": 454.7797164916992,
+        "x2": 612.4024658203125,
+        "y2": 91.76702880859375
+      },
+      "dimensions": {
+        "width": 565.94,
+        "height": 363.01
+      },
+      "area": 205443.74,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 17,
+      "id": "image_017",
+      "type": "picture",
+      "label": "picture",
+      "caption": "There is a graph with different lines and there are numbers on the x-axis and the y-axis.",
+      "vlm_description": "There is a graph with different lines and there are numbers on the x-axis and the y-axis.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.5077701807022095,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 29,
+      "bbox": {
+        "x1": 26.14014434814453,
+        "y1": 429.5242233276367,
+        "x2": 676.1021728515625,
+        "y2": 101.72515869140625
+      },
+      "dimensions": {
+        "width": 649.96,
+        "height": 327.8
+      },
+      "area": 213056.94,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 18,
+      "id": "image_018",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph that shows the price of a product over time. The x-axis represents the size of the product in feet, while the y-axis represents the price in dollars. The graph has a linear scale of range 0 to 700, with a minimum of 0 and a maximum of 700. The graph is titled \"Price of a product (in 1000s).\"\n\nThe graph shows a clear trend of decreasing price over time. The price starts at a low point around 0 and gradually increases to a high point around 700. The price then decreases to a low point around 400 and then increases again to a high point around 200.\n\nThere are two lines on the graph:\n1. A blue line that is labeled \"Current Hypothesis\" and starts at a low point around 0 and gradually increases to a high point around 700.\n2",
+      "vlm_description": "The image is a line graph that shows the price of a product over time. The x-axis represents the size of the product in feet, while the y-axis represents the price in dollars. The graph has a linear scale of range 0 to 700, with a minimum of 0 and a maximum of 700. The graph is titled \"Price of a product (in 1000s).\"\n\nThe graph shows a clear trend of decreasing price over time. The price starts at a low point around 0 and gradually increases to a high point around 700. The price then decreases to a low point around 400 and then increases again to a high point around 200.\n\nThere are two lines on the graph:\n1. A blue line that is labeled \"Current Hypothesis\" and starts at a low point around 0 and gradually increases to a high point around 700.\n2",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9911155700683594,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 30,
+      "bbox": {
+        "x1": 25.004024505615234,
+        "y1": 427.8674850463867,
+        "x2": 332.732177734375,
+        "y2": 102.41604614257812
+      },
+      "dimensions": {
+        "width": 307.73,
+        "height": 325.45
+      },
+      "area": 100150.57,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 19,
+      "id": "image_019",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a scatter plot with four colors and a legend. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\". The legend is located at the top right of the plot. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is filled with a scale from -0.5 to 0.5. The plot has a dashed line that is colored in blue. The plot has a dashed line that is colored in green. The plot has a dashed line that is colored in red. The plot has a dashed line that is colored in orange. The plot has a dashed line that is colored in yellow. The plot has a dashed line that is colored in purple. The plot has a dashed line that is colored in white.",
+      "vlm_description": "The image is a scatter plot with four colors and a legend. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\". The legend is located at the top right of the plot. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is filled with a scale from -0.5 to 0.5. The plot has a dashed line that is colored in blue. The plot has a dashed line that is colored in green. The plot has a dashed line that is colored in red. The plot has a dashed line that is colored in orange. The plot has a dashed line that is colored in yellow. The plot has a dashed line that is colored in purple. The plot has a dashed line that is colored in white.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9997406601905823,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 30,
+      "bbox": {
+        "x1": 363.4483642578125,
+        "y1": 428.5367202758789,
+        "x2": 682.755859375,
+        "y2": 102.04669189453125
+      },
+      "dimensions": {
+        "width": 319.31,
+        "height": 326.49
+      },
+      "area": 104250.71,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 20,
+      "id": "image_020",
+      "type": "picture",
+      "label": "picture",
+      "caption": "This is a graph, which is titled \"Training data\".",
+      "vlm_description": "This is a graph, which is titled \"Training data\".",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9950684309005737,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 31,
+      "bbox": {
+        "x1": 24.20395278930664,
+        "y1": 429.5150146484375,
+        "x2": 675.953125,
+        "y2": 101.5518798828125
+      },
+      "dimensions": {
+        "width": 651.75,
+        "height": 327.96
+      },
+      "area": 213749.7,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 21,
+      "id": "image_021",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph that shows the price of a product over time. The x-axis represents the size of the product in feet, ranging from 0 to 4000. The y-axis represents the price in dollars, ranging from 0 to 700. The graph shows a downward trend in the price of the product over time.\n\nThe line on the graph starts at a low point and then gradually decreases over time. The price starts at 500 and decreases to 200. The price then increases to 4000 and then decreases to 1000. The price then decreases to 1000 and then increases to 2000. The price then decreases to 1000 and then decreases to 1000.\n\nThere are two lines on the graph:\n1. A blue line that starts at 500 and decreases to 200",
+      "vlm_description": "The image is a line graph that shows the price of a product over time. The x-axis represents the size of the product in feet, ranging from 0 to 4000. The y-axis represents the price in dollars, ranging from 0 to 700. The graph shows a downward trend in the price of the product over time.\n\nThe line on the graph starts at a low point and then gradually decreases over time. The price starts at 500 and decreases to 200. The price then increases to 4000 and then decreases to 1000. The price then decreases to 1000 and then increases to 2000. The price then decreases to 1000 and then decreases to 1000.\n\nThere are two lines on the graph:\n1. A blue line that starts at 500 and decreases to 200",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.987923800945282,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 32,
+      "bbox": {
+        "x1": 24.60216522216797,
+        "y1": 427.63433837890625,
+        "x2": 332.90753173828125,
+        "y2": 102.44952392578125
+      },
+      "dimensions": {
+        "width": 308.31,
+        "height": 325.18
+      },
+      "area": 100256.22,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 22,
+      "id": "image_022",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\".\n\nThe scatter plot has a scale of range from -0.5 to 0.5 on the x-axis, and the y-axis ranges from -0.5 to 1000. The plot is labeled as \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis.\n\nThe plot has a legend on the right side of the plot that is labeled \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis. The legend is colored blue and red.\n\nThe plot has a title at the",
+      "vlm_description": "The image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\".\n\nThe scatter plot has a scale of range from -0.5 to 0.5 on the x-axis, and the y-axis ranges from -0.5 to 1000. The plot is labeled as \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis.\n\nThe plot has a legend on the right side of the plot that is labeled \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis. The legend is colored blue and red.\n\nThe plot has a title at the",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9991323351860046,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 32,
+      "bbox": {
+        "x1": 363.7245788574219,
+        "y1": 428.77874755859375,
+        "x2": 684.3391723632812,
+        "y2": 102.74063110351562
+      },
+      "dimensions": {
+        "width": 320.61,
+        "height": 326.04
+      },
+      "area": 104532.58,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 23,
+      "id": "image_023",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph that shows the relationship between two variables, specifically the price of a product and the number of training data points. The x-axis represents the size of the product, ranging from 0 to 4000, while the y-axis represents the price in dollars. The graph is titled \"Price $ (in 1000s)\" and has a legend at the bottom right corner that indicates the number of training data points.\n\nThe graph shows a downward trend in the price of the product over time. The price starts at 4000 dollars and decreases to 2000 dollars, then increases to 5000 dollars, and finally to 3000 dollars. This indicates that the price of the product decreases as the number of training data points increases.\n\nThe graph also shows a positive correlation between the two variables. This means that as the number of training data points increases, the price of the",
+      "vlm_description": "The image is a line graph that shows the relationship between two variables, specifically the price of a product and the number of training data points. The x-axis represents the size of the product, ranging from 0 to 4000, while the y-axis represents the price in dollars. The graph is titled \"Price $ (in 1000s)\" and has a legend at the bottom right corner that indicates the number of training data points.\n\nThe graph shows a downward trend in the price of the product over time. The price starts at 4000 dollars and decreases to 2000 dollars, then increases to 5000 dollars, and finally to 3000 dollars. This indicates that the price of the product decreases as the number of training data points increases.\n\nThe graph also shows a positive correlation between the two variables. This means that as the number of training data points increases, the price of the",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.981351375579834,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 33,
+      "bbox": {
+        "x1": 24.905576705932617,
+        "y1": 427.5156021118164,
+        "x2": 332.8135986328125,
+        "y2": 102.33056640625
+      },
+      "dimensions": {
+        "width": 307.91,
+        "height": 325.19
+      },
+      "area": 100127.08,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 24,
+      "id": "image_024",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. Each color represents a different range of values. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\".\n\nThe plot has a scale of range from -0.5 to 0.5 on the x-axis, and the y-axis ranges from -0.5 to 1000. The plot is labeled as \"Skewed Data\" and has a legend at the bottom right corner. The legend indicates that the x-axis is labeled as \"x\" and the y-axis is labeled as \"y\".\n\nThe plot is visually represented with a few different colored lines. The lines are colored in blue, green, red, orange, and black. The blue line is the most prominent, followed by the",
+      "vlm_description": "The image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. Each color represents a different range of values. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\".\n\nThe plot has a scale of range from -0.5 to 0.5 on the x-axis, and the y-axis ranges from -0.5 to 1000. The plot is labeled as \"Skewed Data\" and has a legend at the bottom right corner. The legend indicates that the x-axis is labeled as \"x\" and the y-axis is labeled as \"y\".\n\nThe plot is visually represented with a few different colored lines. The lines are colored in blue, green, red, orange, and black. The blue line is the most prominent, followed by the",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9988744854927063,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 33,
+      "bbox": {
+        "x1": 363.6369934082031,
+        "y1": 428.8452606201172,
+        "x2": 684.7066040039062,
+        "y2": 102.50418090820312
+      },
+      "dimensions": {
+        "width": 321.07,
+        "height": 326.34
+      },
+      "area": 104778.2,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 25,
+      "id": "image_025",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph titled \"Price (in (1000s))\" with a categorical scale starting from 0 and ending at 700 on the y-axis, labeled as \"Price (in (1000s)). The x-axis is labeled \"Size (feet²)\". The graph has a linear scale of range 0 to 700 along the y-axis, labeled as \"Price (in (1000s)). The x-axis is labeled \"Size (feet²)\". There are two lines on the graph, one is labeled \"Training data\" and the other is labeled \"Current hypothesis\". The \"Training data\" line is on the left side of the graph, while the \"Current hypothesis\" line is on the right side. The graph shows a downward trend in the \"Training data\" line, reaching a value of 0 at the bottom of the graph and a value of 700 at the top",
+      "vlm_description": "The image is a line graph titled \"Price (in (1000s))\" with a categorical scale starting from 0 and ending at 700 on the y-axis, labeled as \"Price (in (1000s)). The x-axis is labeled \"Size (feet²)\". The graph has a linear scale of range 0 to 700 along the y-axis, labeled as \"Price (in (1000s)). The x-axis is labeled \"Size (feet²)\". There are two lines on the graph, one is labeled \"Training data\" and the other is labeled \"Current hypothesis\". The \"Training data\" line is on the left side of the graph, while the \"Current hypothesis\" line is on the right side. The graph shows a downward trend in the \"Training data\" line, reaching a value of 0 at the bottom of the graph and a value of 700 at the top",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.4531305432319641,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 34,
+      "bbox": {
+        "x1": 24.885116577148438,
+        "y1": 427.89031982421875,
+        "x2": 332.8340759277344,
+        "y2": 102.23953247070312
+      },
+      "dimensions": {
+        "width": 307.95,
+        "height": 325.65
+      },
+      "area": 100283.82,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 26,
+      "id": "image_026",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a scatter plot with a white background. The plot has five different colors: blue, green, red, orange, and black. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"x - y\". The plot is labeled as \"x - y\" and has a scale of range 0 to 0.5 on the x-axis, and 0 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range 0 to 0.5 on the x-axis, and 0 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range 0 to 0.5 on the x-axis, and 0 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has",
+      "vlm_description": "The image is a scatter plot with a white background. The plot has five different colors: blue, green, red, orange, and black. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"x - y\". The plot is labeled as \"x - y\" and has a scale of range 0 to 0.5 on the x-axis, and 0 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range 0 to 0.5 on the x-axis, and 0 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range 0 to 0.5 on the x-axis, and 0 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9988757967948914,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 34,
+      "bbox": {
+        "x1": 366.2773132324219,
+        "y1": 428.5409851074219,
+        "x2": 682.5015258789062,
+        "y2": 101.83795166015625
+      },
+      "dimensions": {
+        "width": 316.22,
+        "height": 326.7
+      },
+      "area": 103311.41,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 27,
+      "id": "image_027",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph that shows the relationship between two variables, specifically the price of a product and the number of training data points. The x-axis represents the size of the product, ranging from 0 to 4000, while the y-axis represents the price in dollars. The graph is titled \"Price (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000",
+      "vlm_description": "The image is a line graph that shows the relationship between two variables, specifically the price of a product and the number of training data points. The x-axis represents the size of the product, ranging from 0 to 4000, while the y-axis represents the price in dollars. The graph is titled \"Price (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9609834551811218,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 35,
+      "bbox": {
+        "x1": 24.954328536987305,
+        "y1": 427.69398498535156,
+        "x2": 332.7059020996094,
+        "y2": 102.28787231445312
+      },
+      "dimensions": {
+        "width": 307.75,
+        "height": 325.41
+      },
+      "area": 100144.24,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 28,
+      "id": "image_028",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. Each color represents a different range of values. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\".\n\nThe plot has a scale of range from -0.5 to 0.5 on the x-axis, and the y-axis ranges from -0.5 to 0.5. The plot is labeled as \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis.\n\nThe plot is labeled as \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis. The plot is labeled as \"Skewed Data\" and has a scale of range from -0",
+      "vlm_description": "The image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. Each color represents a different range of values. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\".\n\nThe plot has a scale of range from -0.5 to 0.5 on the x-axis, and the y-axis ranges from -0.5 to 0.5. The plot is labeled as \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis.\n\nThe plot is labeled as \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis. The plot is labeled as \"Skewed Data\" and has a scale of range from -0",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9994667172431946,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 35,
+      "bbox": {
+        "x1": 365.87841796875,
+        "y1": 428.28975677490234,
+        "x2": 683.2017822265625,
+        "y2": 101.68536376953125
+      },
+      "dimensions": {
+        "width": 317.32,
+        "height": 326.6
+      },
+      "area": 103639.2,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 29,
+      "id": "image_029",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph titled \"Price $ (in 1000s)\" with a linear scale from 0 to 700 along the y-axis, labeled as \"Price $ (in 1000s)\". The x-axis is labeled \"Size (feet²)\" and is measured from 0 to 1000. The graph shows a linear scale from 0 to 700 on the y-axis, labeled as \"Price $ (in 1000s)\". The graph has a blue line that is drawn from the bottom to the top of the graph. The line is labeled \"Training data\" and is colored red. The graph also has a legend on the right side of the graph, which is labeled \"Size (feet²)\" and is colored in red. The graph has a scale from 0 to 700 on the x-axis, labeled \"Size (feet²)\" and is measured",
+      "vlm_description": "The image is a line graph titled \"Price $ (in 1000s)\" with a linear scale from 0 to 700 along the y-axis, labeled as \"Price $ (in 1000s)\". The x-axis is labeled \"Size (feet²)\" and is measured from 0 to 1000. The graph shows a linear scale from 0 to 700 on the y-axis, labeled as \"Price $ (in 1000s)\". The graph has a blue line that is drawn from the bottom to the top of the graph. The line is labeled \"Training data\" and is colored red. The graph also has a legend on the right side of the graph, which is labeled \"Size (feet²)\" and is colored in red. The graph has a scale from 0 to 700 on the x-axis, labeled \"Size (feet²)\" and is measured",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9207451343536377,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 36,
+      "bbox": {
+        "x1": 24.973812103271484,
+        "y1": 427.31038665771484,
+        "x2": 332.7062072753906,
+        "y2": 102.1492919921875
+      },
+      "dimensions": {
+        "width": 307.73,
+        "height": 325.16
+      },
+      "area": 100062.6,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 30,
+      "id": "image_030",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"x - y\". The plot is plotted with a scale of range -0.5 to 0.5 on the x-axis, and a scale of range -0.5 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range -0.5 to 0.5 on the x-axis, and a scale of range -0.5 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range -0.5 to 0.5 on the x-axis, and a scale of range -0.5 to 0.5",
+      "vlm_description": "The image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"x - y\". The plot is plotted with a scale of range -0.5 to 0.5 on the x-axis, and a scale of range -0.5 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range -0.5 to 0.5 on the x-axis, and a scale of range -0.5 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range -0.5 to 0.5 on the x-axis, and a scale of range -0.5 to 0.5",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9995235204696655,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 36,
+      "bbox": {
+        "x1": 364.65533447265625,
+        "y1": 428.85604095458984,
+        "x2": 684.4080200195312,
+        "y2": 102.10543823242188
+      },
+      "dimensions": {
+        "width": 319.75,
+        "height": 326.75
+      },
+      "area": 104479.38,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 31,
+      "id": "image_031",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image, we can see a graph. On the graph, we can see the numbers. On the right, we can see the numbers. On the left, we can see the numbers. On the right, we can see the numbers. On the left, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers.",
+      "vlm_description": "In this image, we can see a graph. On the graph, we can see the numbers. On the right, we can see the numbers. On the left, we can see the numbers. On the right, we can see the numbers. On the left, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "bar_chart",
+        "confidence": 0.5798836350440979,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 37,
+      "bbox": {
+        "x1": 24.500991821289062,
+        "y1": 429.0986785888672,
+        "x2": 682.6812744140625,
+        "y2": 99.748046875
+      },
+      "dimensions": {
+        "width": 658.18,
+        "height": 329.35
+      },
+      "area": 216772.09,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 32,
+      "id": "image_032",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image, we can see a diagram with some text and numbers.",
+      "vlm_description": "In this image, we can see a diagram with some text and numbers.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "other",
+        "confidence": 0.9622205495834351,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 38,
+      "bbox": {
+        "x1": 28.32745361328125,
+        "y1": 436.21270751953125,
+        "x2": 688.701416015625,
+        "y2": 45.18389892578125
+      },
+      "dimensions": {
+        "width": 660.37,
+        "height": 391.03
+      },
+      "area": 258225.24,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 33,
+      "id": "image_033",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph titled \"Income Per Year (in thousands dollars).\" The x-axis represents the average number of working hours per day, while the y-axis represents the slope of the line. The graph shows a linear relationship between the average number of working hours and the amount of money earned.\n\nThe graph has a scale of range 0 to 25,000 on the x-axis, labeled \"Average Number of Working Hours Per Day.\" The y-axis is labeled \"Income Per Year (in thousands dollars).\" The graph shows a linear relationship between the average number of working hours and the amount of money earned.\n\nThere are two lines on the graph:\n1. A straight line that starts at a value of 0 and goes up to a value of 25,000.\n2. A curve that starts at a value of 0 and goes up to a value of 25,000",
+      "vlm_description": "The image is a line graph titled \"Income Per Year (in thousands dollars).\" The x-axis represents the average number of working hours per day, while the y-axis represents the slope of the line. The graph shows a linear relationship between the average number of working hours and the amount of money earned.\n\nThe graph has a scale of range 0 to 25,000 on the x-axis, labeled \"Average Number of Working Hours Per Day.\" The y-axis is labeled \"Income Per Year (in thousands dollars).\" The graph shows a linear relationship between the average number of working hours and the amount of money earned.\n\nThere are two lines on the graph:\n1. A straight line that starts at a value of 0 and goes up to a value of 25,000.\n2. A curve that starts at a value of 0 and goes up to a value of 25,000",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9986165761947632,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 40,
+      "bbox": {
+        "x1": 93.37689971923828,
+        "y1": 386.9099578857422,
+        "x2": 548.2442016601562,
+        "y2": 118.2449951171875
+      },
+      "dimensions": {
+        "width": 454.87,
+        "height": 268.66
+      },
+      "area": 122206.91,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 34,
+      "id": "image_034",
+      "type": "picture",
+      "label": "picture",
+      "caption": "**Image Description:**\n\nThe image is a line graph titled \"Quantity Sold\" with a linear scale of range 0 to 0.65 on the y-axis, labeled \"Quantity.\" The x-axis is labeled \"Price ($)\" and is marked with a linear scale of range 0 to 6000.\n\nThe graph shows a downward trend in the quantity sold over the given range. The quantity sold decreases from 5000 to 3000, then from 3000 to 2000, and finally from 2000 to 1000.\n\nThe graph is drawn with a simple, clear line, and the data points are clearly marked. The graph is not overly complex, and the data points are easy to read and understand.\n\n**Analysis:**\n\nThe graph shows a downward trend in the quantity sold over the range of 0 to 0",
+      "vlm_description": "**Image Description:**\n\nThe image is a line graph titled \"Quantity Sold\" with a linear scale of range 0 to 0.65 on the y-axis, labeled \"Quantity.\" The x-axis is labeled \"Price ($)\" and is marked with a linear scale of range 0 to 6000.\n\nThe graph shows a downward trend in the quantity sold over the given range. The quantity sold decreases from 5000 to 3000, then from 3000 to 2000, and finally from 2000 to 1000.\n\nThe graph is drawn with a simple, clear line, and the data points are clearly marked. The graph is not overly complex, and the data points are easy to read and understand.\n\n**Analysis:**\n\nThe graph shows a downward trend in the quantity sold over the range of 0 to 0",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9795331358909607,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 41,
+      "bbox": {
+        "x1": 274.96435546875,
+        "y1": 397.4530029296875,
+        "x2": 613.1173706054688,
+        "y2": 179.51220703125
+      },
+      "dimensions": {
+        "width": 338.15,
+        "height": 217.94
+      },
+      "area": 73697.34,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 35,
+      "id": "image_035",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph that shows the expired ventilation (VOC) levels over time. The x-axis represents the time in hours, while the y-axis shows the VOC levels in parts per million (ppm). The graph is labeled \"Expired ventilation (VOC) levels\" and is labeled as \"expired ventilation (VOC) levels.\"\n\nThe graph shows a trend of decreasing VOC levels over time. The VOC levels are shown as a linear scale from 0 to 150 ppm, with a minimum of 0 and a maximum of 150 ppm. The graph shows a significant drop in VOC levels over time, with the lowest VOC levels being around 100 ppm and the highest VOC levels being around 150 ppm.\n\nThere are two main trends in the graph:\n\n1. **Initial Decrease**: The graph shows a gradual decrease in VOC levels over time. This is indicated by the decline in the VOC levels",
+      "vlm_description": "The image is a line graph that shows the expired ventilation (VOC) levels over time. The x-axis represents the time in hours, while the y-axis shows the VOC levels in parts per million (ppm). The graph is labeled \"Expired ventilation (VOC) levels\" and is labeled as \"expired ventilation (VOC) levels.\"\n\nThe graph shows a trend of decreasing VOC levels over time. The VOC levels are shown as a linear scale from 0 to 150 ppm, with a minimum of 0 and a maximum of 150 ppm. The graph shows a significant drop in VOC levels over time, with the lowest VOC levels being around 100 ppm and the highest VOC levels being around 150 ppm.\n\nThere are two main trends in the graph:\n\n1. **Initial Decrease**: The graph shows a gradual decrease in VOC levels over time. This is indicated by the decline in the VOC levels",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9943201541900635,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 42,
+      "bbox": {
+        "x1": 65.06270599365234,
+        "y1": 426.7210998535156,
+        "x2": 558.893798828125,
+        "y2": 74.44125366210938
+      },
+      "dimensions": {
+        "width": 493.83,
+        "height": 352.28
+      },
+      "area": 173966.74,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 36,
+      "id": "image_036",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph that depicts the expired ventilation (ETV) over time. The x-axis represents the time in hours, ranging from 0 to 4000, while the y-axis represents the Expired Ventilation (ETV) in units of liters per minute (L/min). The graph shows a continuous upward trend in the ETV over the years, with a significant increase in the years 2000 to 2005.\n\nThe graph shows a clear upward trend in the ETV over the years, with a noticeable increase from 2000 to 2005. The ETV in 2005 is significantly higher than the ETV in 2000, indicating a significant increase in the number of ventilators used.\n\nThe graph also shows a significant increase in the ETV over the years 2005 to 2007. This increase is not",
+      "vlm_description": "The image is a line graph that depicts the expired ventilation (ETV) over time. The x-axis represents the time in hours, ranging from 0 to 4000, while the y-axis represents the Expired Ventilation (ETV) in units of liters per minute (L/min). The graph shows a continuous upward trend in the ETV over the years, with a significant increase in the years 2000 to 2005.\n\nThe graph shows a clear upward trend in the ETV over the years, with a noticeable increase from 2000 to 2005. The ETV in 2005 is significantly higher than the ETV in 2000, indicating a significant increase in the number of ventilators used.\n\nThe graph also shows a significant increase in the ETV over the years 2005 to 2007. This increase is not",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9627720713615417,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 43,
+      "bbox": {
+        "x1": 92.49762725830078,
+        "y1": 422.06851959228516,
+        "x2": 558.7650146484375,
+        "y2": 86.3397216796875
+      },
+      "dimensions": {
+        "width": 466.27,
+        "height": 335.73
+      },
+      "area": 156539.39,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 37,
+      "id": "image_037",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image consists of a diagram with a circle labeled as \\(\\theta_{2}\\) and a point labeled as \\(\\omega\\). The circle is divided into three sections, each with a different radius. The points are connected by lines, and the lines are drawn with blue lines. The diagram is labeled as \\(\\theta_{2}\\) and \\(\\omega\\).",
+      "vlm_description": "The image consists of a diagram with a circle labeled as \\(\\theta_{2}\\) and a point labeled as \\(\\omega\\). The circle is divided into three sections, each with a different radius. The points are connected by lines, and the lines are drawn with blue lines. The diagram is labeled as \\(\\theta_{2}\\) and \\(\\omega\\).",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "other",
+        "confidence": 0.7897434830665588,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 49,
+      "bbox": {
+        "x1": 71.10938262939453,
+        "y1": 278.2420959472656,
+        "x2": 324.17376708984375,
+        "y2": 32.20831298828125
+      },
+      "dimensions": {
+        "width": 253.06,
+        "height": 246.03
+      },
+      "area": 62262.39,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 38,
+      "id": "image_038",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image consists of a diagram with a circle labeled as \\theta_{2}. There is a small circle labeled as \\theta_{1} located at the bottom of the circle. The diagram shows a spiral pattern with a diameter of 2. The diagram also includes a line labeled as \\theta_{1} which is perpendicular to the diameter of the circle.",
+      "vlm_description": "The image consists of a diagram with a circle labeled as \\theta_{2}. There is a small circle labeled as \\theta_{1} located at the bottom of the circle. The diagram shows a spiral pattern with a diameter of 2. The diagram also includes a line labeled as \\theta_{1} which is perpendicular to the diameter of the circle.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "other",
+        "confidence": 0.9522366523742676,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 49,
+      "bbox": {
+        "x1": 369.5254821777344,
+        "y1": 285.5865173339844,
+        "x2": 686.8787231445312,
+        "y2": 39.534637451171875
+      },
+      "dimensions": {
+        "width": 317.35,
+        "height": 246.05
+      },
+      "area": 78085.36,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 39,
+      "id": "image_039",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a line graph titled \"min J(θ)\". The graph is titled \"min J(θ)\" and has a horizontal axis labeled \"No. of iterations\" and a vertical axis labeled \"θ\". The graph has a linear scale from 0 to 400 on the x-axis, and a linear scale of range 0 to 400 on the y-axis. The graph has a single line that starts at the point (0, 0) and extends upwards to the right, indicating that the graph is a linear plot.\n\nThe graph has two axes: the horizontal axis labeled \"No. of iterations\" and the vertical axis labeled \"θ\". The x-axis is labeled \"θ\" and the y-axis is labeled \"θ\". The graph has a linear scale of range 0 to 400 on the x-axis, and a linear scale of range 0 to 400 on the y-axis",
+      "vlm_description": "The image is a line graph titled \"min J(θ)\". The graph is titled \"min J(θ)\" and has a horizontal axis labeled \"No. of iterations\" and a vertical axis labeled \"θ\". The graph has a linear scale from 0 to 400 on the x-axis, and a linear scale of range 0 to 400 on the y-axis. The graph has a single line that starts at the point (0, 0) and extends upwards to the right, indicating that the graph is a linear plot.\n\nThe graph has two axes: the horizontal axis labeled \"No. of iterations\" and the vertical axis labeled \"θ\". The x-axis is labeled \"θ\" and the y-axis is labeled \"θ\". The graph has a linear scale of range 0 to 400 on the x-axis, and a linear scale of range 0 to 400 on the y-axis",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9980112314224243,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 51,
+      "bbox": {
+        "x1": 269.1052551269531,
+        "y1": 265.8630676269531,
+        "x2": 550.795166015625,
+        "y2": 24.690185546875
+      },
+      "dimensions": {
+        "width": 281.69,
+        "height": 241.17
+      },
+      "area": 67935.97,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 40,
+      "id": "image_040",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image, we can see a graph. There are two graphs, one is a blue graph and the other is a red graph. There are some numbers on the graph. There is a title at the top of the image. There is a line on the graph. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title.",
+      "vlm_description": "In this image, we can see a graph. There are two graphs, one is a blue graph and the other is a red graph. There are some numbers on the graph. There is a title at the top of the image. There is a line on the graph. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "line_chart",
+        "confidence": 0.9933934807777405,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 52,
+      "bbox": {
+        "x1": 30.208667755126953,
+        "y1": 374.88458251953125,
+        "x2": 692.2139892578125,
+        "y2": 21.12530517578125
+      },
+      "dimensions": {
+        "width": 662.01,
+        "height": 353.76
+      },
+      "area": 234190.52,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 41,
+      "id": "image_041",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a graph depicting the distribution of a particular variable over time. The graph consists of two main components: a horizontal axis labeled \"θ\" and a vertical axis labeled \"θ\", which is the range of the variable. The graph shows a general upward trend in the distribution of the variable, with a significant peak in the middle of the graph. The graph also includes a red line that appears to be a linear or curved line, indicating a linear or curved trend.\n\nThe graph is labeled as \"θ\" and \"θ\", and the x-axis is labeled \"θ\" and the y-axis is labeled \"θ\". The graph is not explicitly labeled, but it is clear that the graph is a graphical representation of the distribution of a variable over time.\n\nThe graph is not explicitly labeled, but it is clear that the graph is a graphical representation of the distribution of a variable over time. The graph is not explicitly labeled, but it is clear that the graph is",
+      "vlm_description": "The image is a graph depicting the distribution of a particular variable over time. The graph consists of two main components: a horizontal axis labeled \"θ\" and a vertical axis labeled \"θ\", which is the range of the variable. The graph shows a general upward trend in the distribution of the variable, with a significant peak in the middle of the graph. The graph also includes a red line that appears to be a linear or curved line, indicating a linear or curved trend.\n\nThe graph is labeled as \"θ\" and \"θ\", and the x-axis is labeled \"θ\" and the y-axis is labeled \"θ\". The graph is not explicitly labeled, but it is clear that the graph is a graphical representation of the distribution of a variable over time.\n\nThe graph is not explicitly labeled, but it is clear that the graph is a graphical representation of the distribution of a variable over time. The graph is not explicitly labeled, but it is clear that the graph is",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "other",
+        "confidence": 0.5158709287643433,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 53,
+      "bbox": {
+        "x1": 439.0531005859375,
+        "y1": 344.12347412109375,
+        "x2": 675.307861328125,
+        "y2": 200.03204345703125
+      },
+      "dimensions": {
+        "width": 236.25,
+        "height": 144.09
+      },
+      "area": 34042.29,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 42,
+      "id": "image_042",
+      "type": "picture",
+      "label": "picture",
+      "caption": "In this image, there is a table with some numbers and text.",
+      "vlm_description": "In this image, there is a table with some numbers and text.",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "other",
+        "confidence": 0.6455399394035339,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 58,
+      "bbox": {
+        "x1": 13.236400604248047,
+        "y1": 430.27308654785156,
+        "x2": 688.15380859375,
+        "y2": 3.05999755859375
+      },
+      "dimensions": {
+        "width": 674.92,
+        "height": 427.21
+      },
+      "area": 288333.55,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    },
+    {
+      "index": 43,
+      "id": "image_043",
+      "type": "picture",
+      "label": "picture",
+      "caption": "Q&A",
+      "vlm_description": "Q&A",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "logo",
+        "confidence": 0.9927686452865601,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 67,
+      "bbox": {
+        "x1": 251.63059997558594,
+        "y1": 339.7153625488281,
+        "x2": 446.9438171386719,
+        "y2": 262.9730529785156
+      },
+      "dimensions": {
+        "width": 195.31,
+        "height": 76.74
+      },
+      "area": 14988.79,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    }
+  ],
+  "tables_details": [
+    {
+      "index": 0,
+      "id": "table_000",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 11,
+      "bbox": {
+        "x1": 28.228897094726562,
+        "y1": 216.9578857421875,
+        "x2": 662.1270141601562,
+        "y2": 71.11007690429688
+      },
+      "dimensions": {
+        "width": 633.9,
+        "height": 145.85
+      },
+      "area": 92452.65,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 3,
+        "columns": 2,
+        "column_names": [
+          "Regression model �",
+          "Description �"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 1,
+      "id": "table_001",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 13,
+      "bbox": {
+        "x1": 373.81890869140625,
+        "y1": 423.52186584472656,
+        "x2": 688.85986328125,
+        "y2": 215.78573608398438
+      },
+      "dimensions": {
+        "width": 315.04,
+        "height": 207.74
+      },
+      "area": 65445.39,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 4,
+        "columns": 2,
+        "column_names": [
+          "Size feet 2 ( x )",
+          "Price ($1k) ( y )"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 2,
+      "id": "table_002",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 41,
+      "bbox": {
+        "x1": 40.99082565307617,
+        "y1": 415.5823974609375,
+        "x2": 211.3745880126953,
+        "y2": 243.46762084960938
+      },
+      "dimensions": {
+        "width": 170.38,
+        "height": 172.11
+      },
+      "area": 29325.56,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 7,
+        "columns": 2,
+        "column_names": [
+          "Quantity Sold",
+          "Price($)"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 3,
+      "id": "table_003",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 44,
+      "bbox": {
+        "x1": 52.291168212890625,
+        "y1": 397.8925018310547,
+        "x2": 630.0403442382812,
+        "y2": 223.8516845703125
+      },
+      "dimensions": {
+        "width": 577.75,
+        "height": 174.04
+      },
+      "area": 100551.94,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 5,
+        "columns": 5,
+        "column_names": [
+          "Size (feet 2 )",
+          "Number of rooms",
+          "Floors",
+          "Age",
+          "Price($1K)"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 4,
+      "id": "table_004",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 54,
+      "bbox": {
+        "x1": 52.79833984375,
+        "y1": 363.36473083496094,
+        "x2": 648.5205688476562,
+        "y2": 210.611572265625
+      },
+      "dimensions": {
+        "width": 595.72,
+        "height": 152.75
+      },
+      "area": 90998.45,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 4,
+        "columns": 6,
+        "column_names": [
+          "",
+          "size (feet 2 )",
+          "No. of rooms",
+          "Floors",
+          "Years",
+          "Price ($1K)"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 5,
+      "id": "table_005",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 57,
+      "bbox": {
+        "x1": 88.85443878173828,
+        "y1": 349.4095916748047,
+        "x2": 594.9418334960938,
+        "y2": 71.36907958984375
+      },
+      "dimensions": {
+        "width": 506.09,
+        "height": 278.04
+      },
+      "area": 140712.8,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 7,
+        "columns": 3,
+        "column_names": [
+          "Quantity Sold",
+          "Price($)",
+          "Advertising ($)"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 6,
+      "id": "table_006",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 58,
+      "bbox": {
+        "x1": 15.994425773620605,
+        "y1": 392.4413604736328,
+        "x2": 169.2721710205078,
+        "y2": 248.72125244140625
+      },
+      "dimensions": {
+        "width": 153.28,
+        "height": 143.72
+      },
+      "area": 22029.09,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 4,
+        "columns": 2,
+        "column_names": [
+          "Regression Statistics.Multiple R",
+          "Regression Statistics.0.980681"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 7,
+      "id": "table_007",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 58,
+      "bbox": {
+        "x1": 15.631420135498047,
+        "y1": 109.76397705078125,
+        "x2": 682.218505859375,
+        "y2": 9.0718994140625
+      },
+      "dimensions": {
+        "width": 666.59,
+        "height": 100.69
+      },
+      "area": 67120.04,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 3,
+        "columns": 9,
+        "column_names": [
+          "�",
+          "Coefficie nts",
+          "Standard Error",
+          "t Stat",
+          "P-value",
+          "Lower 95%",
+          "Upper 95%",
+          "Lower 95.0%",
+          "Upper 95.0%"
+        ],
+        "has_data": true
+      }
+    }
+  ]
+}

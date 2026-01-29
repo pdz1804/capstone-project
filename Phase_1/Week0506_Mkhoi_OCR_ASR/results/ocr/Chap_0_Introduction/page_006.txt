@@ -1,0 +1,6 @@
+Game Objects
+
+° What is Game Object?
+* Types of Game Objects
+* Draw-only
+» Update-only
