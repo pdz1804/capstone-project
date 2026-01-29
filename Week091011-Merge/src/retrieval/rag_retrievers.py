@@ -434,8 +434,10 @@ class CrossEncoderReranker:
             Reranked list of documents with 'rerank_score' field added
         """
         if not documents:
+            logger.warning("Reranker called with empty document list")
             return []
         
+        logger.info(f"🤖 CrossEncoderReranker.rerank() called: query='{query[:50]}...', docs={len(documents)}, top_k={top_k}")
         self._load_model()
         
         # Prepare input pairs
@@ -449,10 +451,12 @@ class CrossEncoderReranker:
                 valid_indices.append(idx)
         
         if not input_pairs:
+            logger.warning("No valid input pairs for reranking, returning documents as-is")
             return documents[:top_k]
         
         # Score in batches
         all_scores = []
+        logger.info(f"📈 Scoring {len(input_pairs)} documents in batches of {self.batch_size}...")
         
         for i in range(0, len(input_pairs), self.batch_size):
             batch = input_pairs[i:i + self.batch_size]
@@ -484,6 +488,8 @@ class CrossEncoderReranker:
                 torch.cuda.empty_cache()
             gc.collect()
         
+        logger.info(f"✔️  Scoring complete: {len(all_scores)} documents scored")
+        
         # Assign scores to documents
         scored_docs = []
         for idx, score in zip(valid_indices, all_scores):
@@ -494,13 +500,16 @@ class CrossEncoderReranker:
         
         # Sort by rerank score and return top_k
         reranked = sorted(scored_docs, key=lambda x: x.get('rerank_score', 0.0), reverse=True)
+        logger.info(f"🔄 Sorted {len(reranked)} documents by rerank score")
         
         # Update rank field
         for i, doc in enumerate(reranked, 1):
             doc['rank'] = i
             doc['score'] = doc['rerank_score']  # Use rerank score as main score
         
-        return reranked[:top_k]
+        top_results = reranked[:top_k]
+        logger.info(f"📍 Reranking complete: Top result score={top_results[0]['rerank_score']:.4f}, Bottom result score={top_results[-1]['rerank_score']:.4f}")
+        return top_results
     
     def unload(self):
         """Unload model to free memory."""
@@ -548,7 +557,10 @@ class RAGRetrieverManager:
         self.reranker = None
         self.reranker_model = reranker_model
         if reranker_model:
+            logger.info(f"🎯 RERANKER ENABLED: Initializing {reranker_model}")
             self.setup_reranker(reranker_model)
+        else:
+            logger.info("⏭️  Reranker disabled (no model specified)")
     
     def load_documents(self) -> None:
         """Load and chunk documents from the RAG-ready directory."""
@@ -601,9 +613,10 @@ class RAGRetrieverManager:
             model_name: 'bge-large', 'minilm-l12', 'bge-base', or full HuggingFace path
             batch_size: Batch size for reranking
         """
+        logger.info(f"⚙️  Setting up CrossEncoderReranker: model={model_name}, batch_size={batch_size}")
         self.reranker = CrossEncoderReranker(model_name, batch_size)
         self.reranker_model = model_name
-        logger.info(f"Setup reranker: {model_name}")
+        logger.info(f"✅ Reranker setup complete: {model_name}")
     
     def search(
         self, 
@@ -636,7 +649,9 @@ class RAGRetrieverManager:
         if should_rerank and self.reranker:
             # Get more candidates for reranking
             candidates_k = rerank_top_k or max(top_k * 3, 30)
+            logger.info(f"🔍 RERANKING IN PROGRESS: Fetching {candidates_k} candidates from {retriever_type} retriever for reranking")
             candidates = self.retrievers[retriever_type].search(query, candidates_k)
+            logger.info(f"📊 Got {len(candidates)} candidates, reranking with {self.reranker_model}...")
             
             # Rerank and return top_k
             results = self.reranker.rerank(query, candidates, top_k)
@@ -646,8 +661,10 @@ class RAGRetrieverManager:
                 r['reranked'] = True
                 r['reranker_model'] = self.reranker_model
             
+            logger.info(f"✨ RERANKING COMPLETE: Returned top-{len(results)} reranked results")
             return results
         else:
+            logger.info(f"⏭️  Skipping reranking - using {retriever_type} retriever directly")
             return self.retrievers[retriever_type].search(query, top_k)
     
     def get_available_retrievers(self) -> List[str]:
@@ -930,11 +947,12 @@ def create_rag_retriever(
     return manager
 
 
-def load_rag_retriever(index_dir: Path) -> Optional[RAGRetrieverManager]:
+def load_rag_retriever(index_dir: Path, reranker_model: str = None) -> Optional[RAGRetrieverManager]:
     """Load a previously saved RAG retriever from disk.
     
     Args:
         index_dir: Directory containing saved indexes
+        reranker_model: Optional reranker model name to apply to loaded retriever
     
     Returns:
         RAGRetrieverManager with loaded retrievers, or None if loading failed
@@ -950,7 +968,7 @@ def load_rag_retriever(index_dir: Path) -> Optional[RAGRetrieverManager]:
     else:
         doc_dir = index_dir.parent / "stage4_rag_ready"
     
-    manager = RAGRetrieverManager(doc_dir, index_dir)
+    manager = RAGRetrieverManager(doc_dir, index_dir, reranker_model=reranker_model)
     
     if manager.load_index():
         return manager

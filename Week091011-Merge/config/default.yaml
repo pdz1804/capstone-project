@@ -104,13 +104,13 @@ text_retrieval:
 
   # Reranker configuration
   reranker:
-    enabled: false
+    enabled: true
     # Model options:
     # - "bge-large": BAAI/bge-reranker-large (best quality, slower)
     # - "bge-base": BAAI/bge-reranker-base (balanced)
     # - "minilm-l12": cross-encoder/ms-marco-MiniLM-L-12-v2 (faster)
-    model: null                     # null=disabled, or model name
-    top_k_multiplier: 2             # Retrieve top_k * multiplier before reranking
+    model: "bge-base"                     # null=disabled, or model name
+    top_k_multiplier: 5                   # Retrieve top_k * multiplier before reranking
 
 # ============================================================================
 # IMAGE RETRIEVAL CONFIGURATION (ColQwen/ColPali)

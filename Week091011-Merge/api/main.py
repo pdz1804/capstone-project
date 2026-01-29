@@ -133,8 +133,14 @@ def build_runtime_config(yaml_config: Dict[str, Any], enable_generation: bool = 
     """
     yaml_colqwen = yaml_config.get('image_retrieval', {}).get('colqwen', {})
     yaml_image_retrieval_enabled = yaml_config.get('image_retrieval', {}).get('enabled', False)
+    yaml_reranker = yaml_config.get('text_retrieval', {}).get('reranker', {})
+    
     rag_mode = yaml_config.get('pipeline', {}).get('rag_mode', 'text')
     enable_image_retrieval = rag_mode in ["image", "both"] or yaml_image_retrieval_enabled
+    
+    # Get reranker config from YAML
+    reranker_enabled = yaml_reranker.get('enabled', False)
+    reranker_model = yaml_reranker.get('model') if reranker_enabled else None
 
     return UnifiedRAGConfig(
         enable_processing=False,
@@ -144,6 +150,9 @@ def build_runtime_config(yaml_config: Dict[str, Any], enable_generation: bool = 
         processing_config=PipelineConfig(),
         rag_mode=rag_mode,
         retrieval_methods=yaml_config.get('pipeline', {}).get('retrievers', ['bm25', 'dense', 'hybrid']),
+        # Reranker config from YAML
+        enable_reranker=reranker_enabled,
+        reranker_model=reranker_model,
         enable_image_retrieval=enable_image_retrieval,
         image_retrieval_methods=yaml_config.get('image_retrieval', {}).get('methods', ['colqwen']),
         colqwen_model=yaml_colqwen.get('model', 'vidore/colqwen2-v1.0'),

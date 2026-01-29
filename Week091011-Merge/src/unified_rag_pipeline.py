@@ -300,7 +300,11 @@ class UnifiedRAGPipeline:
             if index_meta.exists():
                 try:
                     logging.info(f"Loading existing index from: {self.retrieval_output_dir}")
-                    self.retriever_manager = load_rag_retriever(self.retrieval_output_dir)
+                    # Pass reranker_model when loading existing index
+                    self.retriever_manager = load_rag_retriever(
+                        self.retrieval_output_dir,
+                        reranker_model=self.config.reranker_model if self.config.enable_reranker else None
+                    )
                     
                     if self.retriever_manager:
                         setup_stats["retrievers_initialized"] = self.retriever_manager.get_available_retrievers()
@@ -1170,8 +1174,19 @@ def main():
         enable_citations=True
     )
     
-    # Determine reranker model
-    reranker_model = None if args.reranker == "none" else args.reranker
+    # Determine reranker model - prefer CLI arg, fall back to YAML config
+    yaml_reranker_model = yaml_config.get('text_retrieval', {}).get('reranker', {}).get('model')
+    yaml_reranker_enabled = yaml_config.get('text_retrieval', {}).get('reranker', {}).get('enabled', False)
+    
+    # CLI arg takes precedence, then YAML config
+    if args.reranker and args.reranker != "none":
+        reranker_model = args.reranker
+        logging.info(f"🎯 Using reranker from CLI: {reranker_model}")
+    elif yaml_reranker_enabled and yaml_reranker_model:
+        reranker_model = yaml_reranker_model
+        logging.info(f"🎯 Using reranker from YAML config: {reranker_model}")
+    else:
+        reranker_model = None
     
     # Get image_retrieval from YAML if not specified in CLI
     # image_retrieval is enabled by --image-retrieval flag OR if rag_mode is image/both
