@@ -22,6 +22,11 @@ Phase_1/Week091011-Merge/input/
 Phase_1/Week091011-Merge/output/
 Phase_1/Week091011-Merge/ms_marco_val/
 
+# Phase 2 - Ignore large datasets and outputs
+Phase_2/backend/ms_marco_val/
+Phase_2/backend/input/
+Phase_2/backend/output/
+
 # -------------------------
 # Python
 # -------------------------
