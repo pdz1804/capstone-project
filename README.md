@@ -227,11 +227,68 @@ stage4_rag_ready/
 
 ---
 
+### 📅 **Phase 2: Production RAG System with Web Interface**
+
+Complete end-to-end RAG system with unified processing pipeline, multimodal retrieval, and interactive web interface.
+
+#### **Backend: FastAPI + Unified RAG Pipeline** (`Phase_2/backend/`)
+
+Production-ready REST API combining document processing and retrieval into a complete RAG system.
+
+**Key Components**:
+
+- **Unified RAG Pipeline**: Combines document processing (Week 07-09) + retrieval systems
+- **FastAPI Server**: REST API with auto-reload for development
+- **Multimodal Retrieval**: Text (BM25/Dense/Hybrid) + Image (ColQwen)
+- **Answer Generation**: LLM-based responses with citations
+- **Evaluation Framework**: Built-in benchmarking with nDCG, Recall, MRR metrics
+
+**API Features**:
+
+- File upload and management
+- Document processing pipeline
+- Index building (text + image)
+- Search and query with retrievers
+- Generated answers from LLM
+- Health monitoring
+
+**Retrieval Options**:
+
+- **Text Retrievers**: BM25 (sparse), Dense (semantic), Hybrid (RRF)
+- **Image Retriever**: ColQwen 2.5 (vision-language)
+- **Rerankers**: BGE-Large, MiniLM, BGE-Base (optional)
+- **Chunking**: Configurable text splitting (1000 chars, 200 overlap)
+
+#### **Frontend: React + Vite + Tailwind CSS** (`Phase_2/frontend/`)
+
+Modern web interface for the RAG pipeline with real-time interaction.
+
+**Features**:
+
+- Drag-and-drop file upload
+- View uploaded, processed, and indexed files
+- Natural language search with multimodal results
+- Text chunk results with scores and metadata
+- Image page results from ColQwen
+- LLM-generated answers with citations
+- Responsive design with Tailwind CSS
+
+**Tech Stack**:
+
+- React 18 + Vite (fast dev server)
+- Axios for API communication
+- Lucide React for icons
+- React Markdown with math support (KaTeX)
+- TailwindCSS for styling
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - **Python**: 3.9+ (tested on 3.9, 3.10, 3.11)
+- **Node.js**: 16+ (for frontend)
 - **GPU**: CUDA-compatible (recommended for ASR/Dense retrieval)
 - **System Tools**:
   - FFmpeg (audio/video processing)
@@ -256,6 +313,8 @@ pip install -r requirements.txt
 
 ### Running Components
 
+#### **Phase 1: Individual Components**
+
 ```bash
 # ASR/OCR Processing
 cd Week0506_Mkhoi_OCR_ASR/src
@@ -274,6 +333,55 @@ cd Week070809_QPhu_Processor
 python src/pipeline.py input/ output/              # Full quality (VLM enabled)
 python src/pipeline.py input/ output/ --fast-mode  # Fast mode (3-5x faster)
 ```
+
+#### **Phase 2: Production RAG System with Web UI**
+
+**Backend Setup:**
+
+```bash
+# Navigate to backend
+cd Phase_2/backend
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up environment
+cp .env.example .env
+# Edit .env and add: OPENAI_API_KEY="your-key-here"
+
+# Run FastAPI server
+cd api
+python main.py
+# Server runs at http://localhost:8000
+# API docs at http://localhost:8000/docs
+```
+
+**Frontend Setup:**
+
+```bash
+# Navigate to frontend (in a new terminal)
+cd Phase_2/frontend
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+# Frontend runs at http://localhost:5173
+```
+
+**Access the Application:**
+
+- Web UI: http://localhost:5173
+- API Documentation: http://localhost:8000/docs
+- API Endpoint: http://localhost:8000/api
+
+**Usage:**
+
+1. Upload documents via drag-and-drop or file picker
+2. Click "Process Documents" to run the pipeline
+3. Click "Build Index" to create retrieval indexes
+4. Enter queries in the search box for multimodal RAG responses
 
 ---
 

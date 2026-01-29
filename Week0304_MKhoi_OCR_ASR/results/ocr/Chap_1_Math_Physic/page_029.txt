@@ -1,9 +1,0 @@
-BOUNDING SPHERE
-
-Ds
-
-class BoundingSphere
-Vector3 center
-float radius
-
-end

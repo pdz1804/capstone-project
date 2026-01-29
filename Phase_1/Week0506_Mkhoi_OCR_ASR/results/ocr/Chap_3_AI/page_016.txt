@@ -1,0 +1,19 @@
+Implementation
+
+enum ATState
+Patrol,
+Death,
+Attack
+
+end
+
+function AIController.Update (float deltaTime)
+if state == Patrol
+// Perform Patrol actions
+else if state == Death
+// Perform Death actions
+else if state == Attack
+// Perform Attack actions
+end
+
+end

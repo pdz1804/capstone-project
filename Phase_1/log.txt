@@ -1,0 +1,423 @@
+(myenv) PS C:\PDZ\BKU\Learning\LVTN\GD1\Code\Week091011-Merge> python .\run_pipeline.py --input input/ --output output/ --mode full --retrievers hybrid     
+2025-11-29 23:34:38,083 - INFO - Loading faiss with AVX2 support.
+2025-11-29 23:34:38,116 - INFO - Successfully loaded faiss with AVX2 support.
+2025-11-29 23:34:39,291 - INFO - OpenAI client initialized with model: gpt-4o-mini
+2025-11-29 23:34:39,291 - INFO - Generator initialized with openai/gpt-4o-mini
+2025-11-29 23:34:39,292 - INFO - Unified RAG Pipeline initialized
+2025-11-29 23:34:39,292 - INFO - Input directory: input
+2025-11-29 23:34:39,292 - INFO - Output directory: output
+2025-11-29 23:34:39,293 - INFO - Starting Unified RAG Pipeline...
+2025-11-29 23:34:39,293 - INFO - Starting document processing pipeline...
+
+================================================================================
+Document Processing Pipeline Initialized
+================================================================================
+
+Starting pipeline processing
+Input: input
+Output: output\processing
+Total input files: 1
+
+================================================================================
+STAGE 1: DOCUMENT NORMALIZATION
+================================================================================
+Normalizing documents to PDF and Markdown formats...
+Starting batch normalization from: input
+Output directory: output\processing\stage1_normalized
+Found 1 files to normalize
+Normalizing documents:   0%|                                                                                                                                                               | 0/1 [00:00<?, ?it/s]Normalizing pdf: 2025-videorag-retrieval-augmented-generation-with-extreme-long-context-videos-arxiv-2502-01549.pdf
+  → Saved original for Docling: 2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf
+Copied PDF: 2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf
+Normalizing documents: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 50.52it/s] 
+Saved statistics to: output\processing\stage1_normalized\normalization_metadata\normalization_stats.json
+Normalization complete. 1/1 files processed successfully
+✓ Normalization complete: 1/1 files
+
+================================================================================
+STAGE 2: MEDIA PROCESSING (Video/Audio)
+================================================================================
+Processing video and audio files...
+Loading Whisper model 'base' on cuda
+✓ Model loaded successfully on cuda
+Starting batch media processing from: input
+Found 0 media files to process
+Processing media: 0it [00:00, ?it/s]
+Saved statistics to: output\processing\stage2_media_processed\media_metadata\media_processing_stats.json
+Processing complete. 0/0 files processed
+✓ Media processing complete: 0/0 files
+  - Audio extracted: 0
+  - Transcribed: 0
+  - Frames extracted: 0
+
+================================================================================
+STAGE 3: DOCUMENT PROCESSING (Docling)
+================================================================================
+Processing documents with Docling...
+Note: Smart deduplication to avoid processing same file twice
+Docling supports: .adoc, .asc, .asciidoc, .bmp, .csv, .doc, .docx, .htm, .html, .jpeg, .jpg, .md, .pdf, .png, .ppt, .pptx, .tif, .tiff, .vtt, .webp, .xhtml, .xls, .xlsx
+  → Adding 1 normalized PDFs from: output\processing\stage1_normalized\normalized_pdfs
+    (Converted DOCX/PPTX/HTML - best quality)
+  ✓ Skipping original_files - all already processed as normalized PDFs/MD or unsupported formats
+  ℹ No .md transcripts found in media processing
+
+Processing all files from: output\processing\stage1_normalized\normalized_pdfs
+2025-11-29 23:34:42.350 | INFO     | processor.document_processor:_setup_logging:250 - Logging initialized
+2025-11-29 23:34:42.350 | INFO     | processor.document_processor:_initialize_converters:286 - 🔍 VLM Debug - enable_vlm: True
+2025-11-29 23:34:42.351 | INFO     | processor.document_processor:_initialize_converters:287 - 🔍 VLM Debug - vlm_options: batch_size=8 scale=2.0 picture_area_threshold=0.0 repo_id='HuggingFaceTB/SmolVLM-256M-Instruct' prompt='Describe this image in a few concise sentences.' generation_config={'max_new_tokens': 200, 'do_sample': False}
+2025-11-29 23:34:42.352 | INFO     | processor.document_processor:_initialize_converters:289 - 🔍 VLM Debug - repo_id: HuggingFaceTB/SmolVLM-256M-Instruct
+2025-11-29 23:34:42.353 | INFO     | processor.document_processor:_initialize_converters:290 - 🔍 VLM Debug - picture_area_threshold: 0.0
+2025-11-29 23:34:42.353 | INFO     | processor.document_processor:_initialize_converters:291 - 🔍 VLM Debug - batch_size: 8
+2025-11-29 23:34:42.354 | INFO     | processor.document_processor:_initialize_converters:299 - 🔥 FORCING VLM: True (config: True)
+2025-11-29 23:34:42.354 | INFO     | processor.document_processor:_initialize_converters:315 - 🔍 Pipeline Debug - do_picture_description: True
+2025-11-29 23:34:42.355 | INFO     | processor.document_processor:_initialize_converters:316 - 🔍 Pipeline Debug - picture_description_options set: True
+2025-11-29 23:34:42.355 | INFO     | processor.document_processor:_initialize_converters:338 - Configured enhanced processing for: PDF, IMAGE formats
+2025-11-29 23:34:42.356 | INFO     | processor.document_processor:_initialize_converters:339 - Other formats (DOCX, PPTX, XLSX, HTML, MD, AUDIO) will use Docling defaults
+2025-11-29 23:34:42.362 | INFO     | processor.document_processor:_initialize_converters:364 - MultimodalDocumentProcessor converters initialized successfully:
+2025-11-29 23:34:42.363 | INFO     | processor.document_processor:_initialize_converters:365 -   ✅ Enhanced formats: [<InputFormat.PDF: 'pdf'>, <InputFormat.IMAGE: 'image'>]
+2025-11-29 23:34:42.364 | INFO     | processor.document_processor:_initialize_converters:366 -   📄 PDF: OCR-optimized pipeline (text extraction only)
+2025-11-29 23:34:42.364 | INFO     | processor.document_processor:_initialize_converters:367 -   🖼️  Images: Same OCR pipeline as PDF
+2025-11-29 23:34:42.365 | INFO     | processor.document_processor:_initialize_converters:368 -   📊 Office docs: Default Docling processing (DOCX, PPTX, XLSX)
+2025-11-29 23:34:42.365 | INFO     | processor.document_processor:_initialize_converters:369 -   🌐 Web docs: Default Docling processing (HTML)
+2025-11-29 23:34:42.366 | INFO     | processor.document_processor:_initialize_converters:370 -   📝 Text docs: Default Docling processing (MD)
+2025-11-29 23:34:42.366 | INFO     | processor.document_processor:_initialize_converters:371 -   ⚡ Full processing mode: VLM=True, image processing=True, scale=2.0
+2025-11-29 23:34:42.367 | INFO     | processor.document_processor:_initialize_converters:374 -   🎵 Audio: ASR pipeline available
+2025-11-29 23:34:42.367 | INFO     | processor.document_processor:_initialize_converters:389 - OCR engine config: rapidocr
+2025-11-29 23:34:42.368 | INFO     | processor.document_processor:_initialize_converters:390 - VLM enabled: True
+2025-11-29 23:34:42.368 | INFO     | processor.document_processor:_initialize_converters:391 - ASR enabled: True
+2025-11-29 23:34:42.369 | INFO     | processor.document_processor:__init__:227 - DocumentProcessor initialized
+2025-11-29 23:34:42.369 | INFO     | processor.document_processor:__init__:228 - Input directory: output\processing\stage1_normalized\normalized_pdfs
+2025-11-29 23:34:42.369 | INFO     | processor.document_processor:__init__:229 - Output directory: output\processing\stage3_document_processed
+2025-11-29 23:34:42.369 | INFO     | processor.document_processor:__init__:230 - GPU support: True
+2025-11-29 23:34:42.371 | INFO     | processor.document_processor:scan_input_directory:544 - Found 1 supported files
+2025-11-29 23:34:42.371 | INFO     | processor.document_processor:scan_input_directory:545 - File types distribution: {'pdf': 1}
+2025-11-29 23:34:42.372 | INFO     | processor.document_processor:process_batch:1577 - Starting batch processing of 1 files
+Processing 2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf:   0%|                                                                                                                 | 0/1 [00:00<?, ?file/s]2025-11-29 23:34:42.374 | INFO     | processor.document_processor:process_batch:1585 - Processing file 1/1: 2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf
+2025-11-29 23:34:42.374 | INFO     | processor.document_processor:process_single_file:596 - Processing file: output\processing\stage1_normalized\normalized_pdfs\2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf
+2025-11-29 23:34:42,424 - INFO - detected formats: [<InputFormat.PDF: 'pdf'>]
+2025-11-29 23:34:47,657 - INFO - Going to convert document batch...
+2025-11-29 23:34:47,658 - INFO - Initializing pipeline for StandardPdfPipeline with options hash aa7eb99695a4fa8ce42ad0876fa3c2e0
+2025-11-29 23:34:47,717 - INFO - Loading plugin 'docling_defaults'
+2025-11-29 23:34:47,720 - INFO - Registered picture descriptions: ['vlm', 'api']
+2025-11-29 23:34:48,584 - INFO - Accelerator device: 'cuda:0'
+2025-11-29 23:34:51,728 - INFO - Accelerator device: 'cuda:0'
+2025-11-29 23:34:52,825 - INFO - Loading plugin 'docling_defaults'
+2025-11-29 23:34:52,833 - INFO - Registered ocr engines: ['auto', 'easyocr', 'ocrmac', 'rapidocr', 'tesserocr', 'tesseract']
+2025-11-29 23:34:53,971 - INFO - Accelerator device: 'cuda:0'
+[INFO] 2025-11-29 23:34:54,072 [RapidOCR] base.py:22: Using engine_name: onnxruntime
+[INFO] 2025-11-29 23:34:55,390 [RapidOCR] download_file.py:60: File exists and is valid: C:\PDZ\BKU\Learning\LVTN\GD1\Code\myenv\Lib\site-packages\rapidocr\models\ch_PP-OCRv4_det_infer.onnx
+[INFO] 2025-11-29 23:34:55,392 [RapidOCR] main.py:53: Using C:\PDZ\BKU\Learning\LVTN\GD1\Code\myenv\Lib\site-packages\rapidocr\models\ch_PP-OCRv4_det_infer.onnx
+[INFO] 2025-11-29 23:34:56,038 [RapidOCR] base.py:22: Using engine_name: onnxruntime
+[INFO] 2025-11-29 23:34:56,085 [RapidOCR] download_file.py:60: File exists and is valid: C:\PDZ\BKU\Learning\LVTN\GD1\Code\myenv\Lib\site-packages\rapidocr\models\ch_ppocr_mobile_v2.0_cls_infer.onnx
+[INFO] 2025-11-29 23:34:56,087 [RapidOCR] main.py:53: Using C:\PDZ\BKU\Learning\LVTN\GD1\Code\myenv\Lib\site-packages\rapidocr\models\ch_ppocr_mobile_v2.0_cls_infer.onnx
+[INFO] 2025-11-29 23:34:56,521 [RapidOCR] base.py:22: Using engine_name: onnxruntime
+[INFO] 2025-11-29 23:34:56,605 [RapidOCR] download_file.py:60: File exists and is valid: C:\PDZ\BKU\Learning\LVTN\GD1\Code\myenv\Lib\site-packages\rapidocr\models\ch_PP-OCRv4_rec_infer.onnx
+[INFO] 2025-11-29 23:34:56,606 [RapidOCR] main.py:53: Using C:\PDZ\BKU\Learning\LVTN\GD1\Code\myenv\Lib\site-packages\rapidocr\models\ch_PP-OCRv4_rec_infer.onnx
+2025-11-29 23:34:57,460 - INFO - Accelerator device: 'cuda:0'
+2025-11-29 23:35:02,592 - INFO - Accelerator device: 'cuda:0'
+2025-11-29 23:35:05,348 - INFO - Processing document 2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf
+2025-11-29 23:36:24,818 - INFO - Finished converting document 2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf in 102.44 sec.
+✓ Document converted successfully
+2025-11-29 23:36:24.819 | INFO     | processor.document_processor:process_single_file:634 - Successfully processed output\processing\stage1_normalized\normalized_pdfs\2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf in 102.45s
+2025-11-29 23:36:24.899 | DEBUG    | processor.document_processor:export_processed_document:1513 - Exported markdown to output\processing\stage3_document_processed\2025-videorag-retrieval-augmented-generat_ce6c70c7\2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+2025-11-29 23:36:24.901 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 1 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.901 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 2 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.901 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 3 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.901 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 4 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.903 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 5 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.903 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 6 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.903 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 7 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.903 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 8 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.903 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 9 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.905 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 10 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.905 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 11 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.905 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 12 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.906 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 13 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.906 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 14 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.907 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 15 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.907 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 16 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.907 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 17 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.907 | WARNING  | processor.document_processor:extract_images_from_document:706 - Failed to extract page 18 image: 'ImageRef' object has no attribute 'save'
+2025-11-29 23:36:24.909 | DEBUG    | processor.document_processor:extract_images_from_document:712 - Found 5 pictures in doc.pictures
+                                                                                                                                                                                                                 2025-11-29 23:36:24.911 | DEBUG    | processor.document_processor:extract_images_from_document:765 - Got image using get_image(): <class 'PIL.PngImagePlugin.PngImageFile'>              | 0/5 [00:00<?, ?image/s] 
+                                                                                                                                                                                                                 2025-11-29 23:36:24.922 | DEBUG    | processor.document_processor:extract_images_from_document:832 - Saved image 0 (784x254) to output\processing\stage3_document_processed\2025-videorag-retrieval-augmented-generat_ce6c70c7\image_000.png
+                                                                                                                                                                                                                 2025-11-29 23:36:24.922 | DEBUG    | processor.document_processor:extract_images_from_document:765 - Got image using get_image(): <class 'PIL.PngImagePlugin.PngImageFile'>, ?image/s, Saved=784x254, Area=199136] 
+                                                                                                                                                                                                                 2025-11-29 23:36:24.928 | DEBUG    | processor.document_processor:extract_images_from_document:832 - Saved image 1 (765x172) to output\processing\stage3_document_processed\2025-videorag-retrieval-augmented-generat_ce6c70c7\image_001.png
+                                                                                                                                                                                                                 2025-11-29 23:36:24.930 | DEBUG    | processor.document_processor:extract_images_from_document:765 - Got image using get_image(): <class 'PIL.PngImagePlugin.PngImageFile'>, ?image/s, Saved=765x172, Area=131580] 
+                                                                                                                                                                                                                 2025-11-29 23:36:24.935 | DEBUG    | processor.document_processor:extract_images_from_document:832 - Saved image 2 (243x137) to output\processing\stage3_document_processed\2025-videorag-retrieval-augmented-generat_ce6c70c7\image_002.png
+                                                                                                                                                                                                                 2025-11-29 23:36:24.938 | DEBUG    | processor.document_processor:extract_images_from_document:765 - Got image using get_image(): <class 'PIL.PngImagePlugin.PngImageFile'>?, ?image/s, Saved=243x137, Area=33291] 
+                                                                                                                                                                                                                 2025-11-29 23:36:24.942 | DEBUG    | processor.document_processor:extract_images_from_document:832 - Saved image 3 (240x136) to output\processing\stage3_document_processed\2025-videorag-retrieval-augmented-generat_ce6c70c7\image_003.png
+                                                                                                                                                                                                                 2025-11-29 23:36:24.944 | DEBUG    | processor.document_processor:extract_images_from_document:765 - Got image using get_image(): <class 'PIL.PngImagePlugin.PngImageFile'>?, ?image/s, Saved=240x136, Area=32640] 
+                                                                                                                                                                                                                 2025-11-29 23:36:24.947 | DEBUG    | processor.document_processor:extract_images_from_document:832 - Saved image 4 (239x135) to output\processing\stage3_document_processed\2025-videorag-retrieval-augmented-generat_ce6c70c7\image_004.png
+                                                                                                                                                                                                                 2025-11-29 23:36:24.948 | DEBUG    | processor.document_processor:export_processed_document:1522 - Extracted 5 images
+2025-11-29 23:36:24.948 | DEBUG    | processor.document_processor:extract_tables_from_document:889 - Found 4 tables to extract
+                                                                                                                                                                                                                 2025-11-29 23:36:24,951 - WARNING - Usage of TableItem.export_to_dataframe() without `doc` argument is deprecated.                                                                       | 0/4 [00:00<?, ?table/s] 
+2025-11-29 23:36:24,957 - WARNING - Usage of TableItem.export_to_markdown() without `doc` argument is deprecated.
+                                                                                                                                                                                                                 2025-11-29 23:36:24.960 | DEBUG    | processor.document_processor:extract_tables_from_document:950 - Saved table 0 data                            | 0/4 [00:00<?, ?table/s, Formats=CSV+MD, Rows=None, Cols=None] 
+                                                                                                                                                                                                                 2025-11-29 23:36:24,962 - WARNING - Usage of TableItem.export_to_dataframe() without `doc` argument is deprecated.                                 | 0/4 [00:00<?, ?table/s, Formats=CSV+MD, Rows=None, Cols=None] 
+2025-11-29 23:36:24,971 - WARNING - Usage of TableItem.export_to_markdown() without `doc` argument is deprecated.
+                                                                                                                                                                                                                 2025-11-29 23:36:24.977 | DEBUG    | processor.document_processor:extract_tables_from_document:950 - Saved table 1 data                            | 0/4 [00:00<?, ?table/s, Formats=CSV+MD, Rows=None, Cols=None] 
+                                                                                                                                                                                                                 2025-11-29 23:36:24,978 - WARNING - Usage of TableItem.export_to_dataframe() without `doc` argument is deprecated.                                 | 0/4 [00:00<?, ?table/s, Formats=CSV+MD, Rows=None, Cols=None] 
+2025-11-29 23:36:24,983 - WARNING - Usage of TableItem.export_to_markdown() without `doc` argument is deprecated.
+                                                                                                                                                                                                                 2025-11-29 23:36:24.988 | DEBUG    | processor.document_processor:extract_tables_from_document:950 - Saved table 2 data                            | 0/4 [00:00<?, ?table/s, Formats=CSV+MD, Rows=None, Cols=None] 
+                                                                                                                                                                                                                 2025-11-29 23:36:24,989 - WARNING - Usage of TableItem.export_to_dataframe() without `doc` argument is deprecated.                                 | 0/4 [00:00<?, ?table/s, Formats=CSV+MD, Rows=None, Cols=None] 
+2025-11-29 23:36:24,993 - WARNING - Usage of TableItem.export_to_markdown() without `doc` argument is deprecated.
+                                                                                                                                                                                                                 2025-11-29 23:36:24.998 | DEBUG    | processor.document_processor:extract_tables_from_document:950 - Saved table 3 data                            | 0/4 [00:00<?, ?table/s, Formats=CSV+MD, Rows=None, Cols=None] 
+                                                                                                                                                                                                                 2025-11-29 23:36:24.999 | DEBUG    | processor.document_processor:export_processed_document:1529 - Extracted 4 tables
+2025-11-29 23:36:24.999 | DEBUG    | processor.document_processor:extract_metadata_from_document:1393 - Extracting metadata from document type: <class 'docling_core.types.doc.document.DoclingDocument'>
+                                                                                                                                                                                                                 2025-11-29 23:36:25,081 - WARNING - Usage of TableItem.export_to_dataframe() without `doc` argument is deprecated.
+2025-11-29 23:36:25,082 - WARNING - Usage of TableItem.export_to_dataframe() without `doc` argument is deprecated.
+2025-11-29 23:36:25,090 - WARNING - Usage of TableItem.export_to_dataframe() without `doc` argument is deprecated.
+2025-11-29 23:36:25,095 - WARNING - Usage of TableItem.export_to_dataframe() without `doc` argument is deprecated.
+2025-11-29 23:36:25.097 | DEBUG    | processor.document_processor:extract_metadata_from_document:1440 - Extracted metadata with 18 pages, 5 images, 4 tables
+2025-11-29 23:36:25.100 | DEBUG    | processor.document_processor:export_processed_document:1540 - Saved metadata to output\processing\stage3_document_processed\2025-videorag-retrieval-augmented-generat_ce6c70c7\2025-videorag-retrieval-augmented-generat_ce6c70c7_metadata.json
+2025-11-29 23:36:25.101 | INFO     | processor.document_processor:export_processed_document:1542 - Successfully exported 2025-videorag-retrieval-augmented-generat_ce6c70c7 to 4 formats
+Processing 2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf: 100%|███████████████████████████████████████████████████████████████████| 1/1 [01:42<00:00, 102.73s/file, Success=1, Failed=0, Current=102.4s] 
+2025-11-29 23:36:25.103 | INFO     | processor.document_processor:process_batch:1637 - Batch processing completed in 102.73s
+2025-11-29 23:36:25.104 | INFO     | processor.document_processor:process_batch:1638 - Successfully processed: 1 files
+2025-11-29 23:36:25.104 | INFO     | processor.document_processor:process_batch:1639 - Failed to process: 0 files
+2025-11-29 23:36:25.106 | INFO     | processor.document_processor:_save_batch_summary:1682 - Batch summary saved to output\processing\stage3_document_processed\logs\batch_summary_20251129_233625.json
+
+✓ Document processing complete: 1/1 files
+  → Successfully processed: 1
+  → Failed: 0
+
+================================================================================
+STAGE 4: CONSOLIDATION (RAG-Ready)
+================================================================================
+Consolidating outputs into RAG-ready format...
+================================================================================
+STAGE 4: RAG-READY CONSOLIDATION
+================================================================================
+Found 1 documents to consolidate
+Consolidating documents:   0%|                                                                                                                                                             | 0/1 [00:00<?, ?it/s]2025-11-29 23:36:25.182 | INFO     | processor.consolidator:_consolidate_document:113 - ✓ Copied markdown: 2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+2025-11-29 23:36:25.191 | INFO     | processor.consolidator:_consolidate_document:126 - ✓ Copied normalized PDF: 2025-videorag-retrieval-augmented-generat_ce6c70c7.pdf
+2025-11-29 23:36:25.193 | DEBUG    | processor.consolidator:_consolidate_document:144 -   ✓ Copied metadata
+2025-11-29 23:36:25.195 | DEBUG    | processor.consolidator:_consolidate_document:151 -   ✓ Copied table: table_000.csv
+2025-11-29 23:36:25.198 | DEBUG    | processor.consolidator:_consolidate_document:151 -   ✓ Copied table: table_000.md
+2025-11-29 23:36:25.200 | DEBUG    | processor.consolidator:_consolidate_document:151 -   ✓ Copied table: table_001.csv
+2025-11-29 23:36:25.202 | DEBUG    | processor.consolidator:_consolidate_document:151 -   ✓ Copied table: table_001.md
+2025-11-29 23:36:25.204 | DEBUG    | processor.consolidator:_consolidate_document:151 -   ✓ Copied table: table_002.csv
+2025-11-29 23:36:25.206 | DEBUG    | processor.consolidator:_consolidate_document:151 -   ✓ Copied table: table_002.md
+2025-11-29 23:36:25.208 | DEBUG    | processor.consolidator:_consolidate_document:151 -   ✓ Copied table: table_003.csv
+2025-11-29 23:36:25.210 | DEBUG    | processor.consolidator:_consolidate_document:151 -   ✓ Copied table: table_003.md
+2025-11-29 23:36:25.212 | DEBUG    | processor.consolidator:_consolidate_document:158 -   ✓ Copied image: image_000.png
+2025-11-29 23:36:25.215 | DEBUG    | processor.consolidator:_consolidate_document:158 -   ✓ Copied image: image_001.png
+2025-11-29 23:36:25.216 | DEBUG    | processor.consolidator:_consolidate_document:158 -   ✓ Copied image: image_002.png
+2025-11-29 23:36:25.218 | DEBUG    | processor.consolidator:_consolidate_document:158 -   ✓ Copied image: image_003.png
+2025-11-29 23:36:25.219 | DEBUG    | processor.consolidator:_consolidate_document:158 -   ✓ Copied image: image_004.png
+Consolidating documents: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 23.19it/s] 
+Statistics saved to: output\processing\stage4_rag_ready\consolidation_stats.json
+
+================================================================================
+CONSOLIDATION SUMMARY
+================================================================================
+Total documents: 1
+  With Markdown: 1
+  With PDF: 1
+  Without PDF: 0
+================================================================================
+✓ Consolidation complete: 1 documents prepared
+  → 1 documents with PDF
+  → 1 documents with Markdown
+  → 1 documents with additional files
+  → Updated processing cache for 1 files
+Pipeline statistics saved to: output\processing\pipeline_stats.json
+
+================================================================================
+PIPELINE EXECUTION SUMMARY
+================================================================================
+Input files: 1
+Output files: 17
+
+NORMALIZATION:
+  total_files: 1
+  normalized_files: 1
+  failed_files: 0
+
+MEDIA_PROCESSING:
+  total_files: 0
+  processed_files: 0
+  failed_files: 0
+  audio_extracted: 0
+  transcribed: 0
+  frames_extracted: 0
+
+DOCUMENT_PROCESSING:
+  processed_files: 1
+  failed_files: 0
+  total_files: 1
+
+CONSOLIDATION:
+  total_documents: 1
+  with_pdf: 1
+  without_pdf: 0
+  with_markdown: 1
+  with_additional: 1
+
+================================================================================
+Pipeline complete! Results in: output\processing
+================================================================================
+2025-11-29 23:36:25,257 - INFO - Document processing completed
+2025-11-29 23:36:25,258 - INFO - Processing stats: {'start_time': '2025-11-29T23:34:39.298300', 'stages': {'normalization': {'total_files': 1, 'normalized_files': 1, 'failed_files': 0, 'by_type': {'pdf': 1}, 'errors': []}, 'media_processing': {'total_files': 0, 'processed_files': 0, 'failed_files': 0, 'audio_extracted': 0, 'transcribed': 0, 'frames_extracted': 0, 'errors': []}, 'document_processing': {'processed_files': 1, 'failed_files': 0, 'total_files': 1}, 'consolidation': {'total_documents': 1, 'with_pdf': 1, 'without_pdf': 0, 'with_markdown': 1, 'with_additional': 1, 'errors': []}}, 'total_input_files': 1, 'total_output_files': 17, 'errors': [], 'end_time': '2025-11-29T23:36:25.248935'}
+2025-11-29 23:36:25,259 - INFO - Setting up retrieval systems...
+2025-11-29 23:36:25,260 - INFO - Using processed documents from: output\processing\stage4_rag_ready
+2025-11-29 23:36:25,260 - INFO - Building index with chunking: size=1000, overlap=200, enabled=True
+2025-11-29 23:36:25,711 - INFO - Using LangChain RecursiveCharacterTextSplitter
+2025-11-29 23:36:25,712 - INFO - Loading documents from: output\processing\stage4_rag_ready
+2025-11-29 23:36:25,742 - INFO - Loaded document: 2025-videorag-retrieval-augmented-generat_ce6c70c7
+2025-11-29 23:36:25,743 - INFO - Loaded 1 documents from output\processing\stage4_rag_ready
+2025-11-29 23:36:25,743 - INFO - Loaded 1 raw documents
+2025-11-29 23:36:25,744 - INFO - Chunking documents (size=1000, overlap=200)...
+2025-11-29 23:36:25,745 - INFO - Chunking 1 documents...
+2025-11-29 23:36:25,745 - INFO -   Chunk size: 1000
+2025-11-29 23:36:25,746 - INFO -   Chunk overlap: 200
+2025-11-29 23:36:25,749 - INFO - Document '2025-videorag-retrieval-augmented-generat_ce6c70c7' split into 111 chunks
+2025-11-29 23:36:25,749 - INFO - Created 111 total chunks from 1 documents
+2025-11-29 23:36:25,750 - INFO - Created 111 chunks from 1 documents
+2025-11-29 23:36:25,750 - INFO - Indexing 111 documents with hybrid retrieval...
+2025-11-29 23:36:25,750 - INFO - Indexing 111 documents with BM25...
+2025-11-29 23:36:25,759 - INFO - BM25 indexing completed
+2025-11-29 23:36:25,759 - INFO - Indexing 111 documents with dense embeddings...
+2025-11-29 23:36:25,759 - INFO - Loading model: all-MiniLM-L6-v2
+2025-11-29 23:36:25,764 - INFO - Use pytorch device_name: cuda:0
+2025-11-29 23:36:25,764 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-11-29 23:36:30,361 - INFO - Generating embeddings...
+Batches: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:00<00:00,  5.82it/s]
+2025-11-29 23:36:31,060 - INFO - Dense indexing completed
+2025-11-29 23:36:31,060 - INFO - Hybrid indexing completed
+2025-11-29 23:36:31,061 - INFO - Setup hybrid retriever
+2025-11-29 23:36:31,067 - INFO - Saved 111 documents to output\retrieval\documents.json
+2025-11-29 23:36:31,077 - INFO - Saved Hybrid index to output\retrieval\hybrid
+2025-11-29 23:36:31,080 - INFO - Also saved standalone BM25 index to output\retrieval\bm25
+2025-11-29 23:36:31,083 - INFO - Also saved standalone Dense index to output\retrieval\dense
+2025-11-29 23:36:31,085 - INFO - ✅ Index saved to: output\retrieval
+2025-11-29 23:36:31,085 - INFO -    1 documents → 111 chunks
+2025-11-29 23:36:31,085 - INFO - Retrieval setup completed: {'retrievers_initialized': ['hybrid'], 'document_count': 111, 'chunk_count': 111, 'raw_doc_count': 1, 'index_dir': 'output\\retrieval', 'index_loaded': False, 'index_built': True, 'chunking': {'enabled': True, 'chunk_size': 1000, 'chunk_overlap': 200}}
+2025-11-29 23:36:31,087 - INFO - Unified RAG Pipeline completed successfully!
+2025-11-29 23:36:31,087 - INFO - Total duration: 0:01:51.791455
+2025-11-29 23:36:31,087 - INFO - Stats saved to: output\unified_rag_pipeline_stats.json
+Unified RAG Pipeline completed successfully!
+Results saved to: output/
+(myenv) PS C:\PDZ\BKU\Learning\LVTN\GD1\Code\Week091011-Merge> python .\run_pipeline.py --input input/ --output output/ --mode test --test-query "tell me the detailed of VideoRAG architecture " 
+2025-11-29 23:37:00,435 - INFO - Loading faiss with AVX2 support.
+2025-11-29 23:37:00,463 - INFO - Successfully loaded faiss with AVX2 support.
+2025-11-29 23:37:01,648 - INFO - OpenAI client initialized with model: gpt-4o-mini
+2025-11-29 23:37:01,648 - INFO - Generator initialized with openai/gpt-4o-mini
+2025-11-29 23:37:01,648 - INFO - Unified RAG Pipeline initialized
+2025-11-29 23:37:01,650 - INFO - Input directory: input
+2025-11-29 23:37:01,650 - INFO - Output directory: output
+2025-11-29 23:37:01,651 - INFO - Starting Test Mode...
+2025-11-29 23:37:01,651 - INFO - Setting up retrieval systems...
+2025-11-29 23:37:01,651 - INFO - Loading existing index from: output\retrieval
+2025-11-29 23:37:02,111 - INFO - Using LangChain RecursiveCharacterTextSplitter
+2025-11-29 23:37:02,157 - INFO - Loaded 111 chunks from index
+2025-11-29 23:37:02,157 - INFO - Index info: 1 docs → 111 chunks (size=1000, overlap=200)
+2025-11-29 23:37:02,187 - INFO - Loaded BM25 index from output\retrieval\bm25\bm25_index.pkl
+2025-11-29 23:37:02,239 - INFO - Loading model: all-MiniLM-L6-v2
+2025-11-29 23:37:03,084 - INFO - Use pytorch device_name: cuda:0
+2025-11-29 23:37:03,084 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-11-29 23:37:10,707 - INFO - Loaded Dense index from output\retrieval\dense
+2025-11-29 23:37:10,752 - INFO - Loading model: all-MiniLM-L6-v2
+2025-11-29 23:37:10,757 - INFO - Use pytorch device_name: cuda:0
+2025-11-29 23:37:10,759 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-11-29 23:37:16,108 - INFO - Loaded Hybrid index from output\retrieval\hybrid
+2025-11-29 23:37:16,108 - INFO - ✅ Loaded indexes: ['bm25', 'dense', 'hybrid']
+2025-11-29 23:37:16,110 - INFO - ✅ Loaded existing index: {'retrievers_initialized': ['bm25', 'dense', 'hybrid'], 'document_count': 111, 'index_dir': 'output\\retrieval', 'index_loaded': True}
+
+============================================================
+🧪 RAG PIPELINE TEST MODE
+============================================================
+✅ Loaded existing index from: output\retrieval
+📚 Loaded N/A documents → 111 chunks
+📏 Chunk config: size=1000, overlap=200
+🔍 Available retrievers: bm25, dense, hybrid
+📊 Top-K: 10 chunks per query
+🤖 Generator: openai/gpt-4o-mini
+============================================================
+
+🔍 Testing query: 'tell me the detailed of VideoRAG architecture '
+
+  📊 Retrieving with HYBRID (top 10)...
+Batches: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.90it/s]
+  ✅ Found 10 relevant documents
+    1. 2025-videorag-retrieval-augmented-generat_ce6c70c7_chunk_45 (score: 0.0156)
+    2. 2025-videorag-retrieval-augmented-generat_ce6c70c7_chunk_9 (score: 0.0155)
+    3. 2025-videorag-retrieval-augmented-generat_ce6c70c7_chunk_69 (score: 0.0150)
+    4. 2025-videorag-retrieval-augmented-generat_ce6c70c7_chunk_68 (score: 0.0141)
+    5. 2025-videorag-retrieval-augmented-generat_ce6c70c7_chunk_8 (score: 0.0082)
+    6. 2025-videorag-retrieval-augmented-generat_ce6c70c7_chunk_2 (score: 0.0082)
+    7. 2025-videorag-retrieval-augmented-generat_ce6c70c7_chunk_40 (score: 0.0081)
+    8. 2025-videorag-retrieval-augmented-generat_ce6c70c7_chunk_55 (score: 0.0079)
+    9. 2025-videorag-retrieval-augmented-generat_ce6c70c7_chunk_72 (score: 0.0078)
+    10. 2025-videorag-retrieval-augmented-generat_ce6c70c7_chunk_12 (score: 0.0077)
+
+  🤖 Generating answer...
+2025-11-29 23:37:16,384 - INFO - Generating answer for query: tell me the detailed of VideoRAG architecture ...
+2025-11-29 23:37:31,164 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-11-29 23:37:31,199 - INFO - Answer generated successfully with 1 source files
+
+============================================================
+📝 ANSWER
+============================================================
+The VideoRAG architecture is designed to effectively manage and retrieve information from long-context videos through a dual-channel framework. This architecture includes two main components: the Multi-Modal Video Knowledge Indexing framework and the Knowledge-Grounded Multi-Modal Retrieval paradigm.
+
+1. **Multi-Modal Video Knowledge Indexing Framework**: This component transforms video content into structured textual and visual representations. It utilizes a graph-based textual indexing mechanism that captures complex inter-video relationships and establishes cross-video knowledge dependencies, which are crucial for effective retrieval and understanding of video content [1.5], [1.4].
+
+2. **Knowledge-Grounded Multi-Modal Retrieval Paradigm**: This aspect integrates both textual semantic and visual content matching. It leverages an indexed knowledge graph and embeddings to identify the most relevant video content. The retrieval process is enhanced by a two-stage content extraction method that combines keyword extraction powered by large language models (LLMs) and vision-language models [1.2], [1.5].
+
+The architecture's effectiveness is validated through empirical evaluations, demonstrating substantial performance improvements over existing RAG alternatives and long video understanding methods. The evaluations focus on how well VideoRAG handles long-form video content and its advantages over large vision models [1.6], [1.7].
+
+Overall, the synergistic integration of graph-based architecture and visual modality processing is a cornerstone of VideoRAG, enabling superior performance in multimodal indexing and retrieval tasks [1.3].     
+
+Files:
+[1] 2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+
+Contents:
+[1.1] We strategically apply these protocols for different evaluation purposes... - 2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+[1.2] This dual-channel architecture enables VideoRAG to effectively organize and index long-context videos... - 2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+[1.3] These comprehensive findings underscore that the synergistic integration of graph-based architecture... - 2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+[1.4] The ablation study results in Figure 2 reveal the crucial contribution of each component... - 2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+[1.5] By addressing these key challenges, the VideoRAG aims to unlock the full potential of RAG... - 2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+[1.6] Through comprehensive empirical evaluation on our proposed LongerVideos benchmark... - 2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+[1.7] We conduct comprehensive empirical evaluations of our VideoRAG framework... - 2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+
+------------------------------------------------------------
+📁 FILES
+------------------------------------------------------------
+[1] 2025-videorag-retrieval-augmented-generat_ce6c70c7.md
+
+------------------------------------------------------------
+📄 CONTENTS
+------------------------------------------------------------
+[1.10] ## 2 Preliminary
+
+Retrieval-Augmented Generation (RAG) represents a significant advancement in addre...
+    └─ 2025-videorag-retrieval-augmented-generat_ce6c70c7.md (score: 0.0077)
+[1.1] We strategically apply these protocols for different evaluation purposes. The Win-Rate Comparison pr...
+    └─ 2025-videorag-retrieval-augmented-generat_ce6c70c7.md (score: 0.0156)
+[1.2] . This dual-channel architecture enables VideoRAG to effectively organize and index long-context vid...
+    └─ 2025-videorag-retrieval-augmented-generat_ce6c70c7.md (score: 0.0155)
+[1.3] These comprehensive findings underscore that the synergistic integration of graph-based architecture...
+    └─ 2025-videorag-retrieval-augmented-generat_ce6c70c7.md (score: 0.0150)
+[1.4] The ablation study results in Figure 2 reveal the crucial contribution of each component to the mode...
+    └─ 2025-videorag-retrieval-augmented-generat_ce6c70c7.md (score: 0.0141)
+[1.5] By addressing these key challenges, the VideoRAG aims to unlock the full potential of RAG in the dom...
+    └─ 2025-videorag-retrieval-augmented-generat_ce6c70c7.md (score: 0.0082)
+[1.6] . Through comprehensive empirical evaluation on our proposed LongerVideos benchmark-comprising over ...
+    └─ 2025-videorag-retrieval-augmented-generat_ce6c70c7.md (score: 0.0082)
+[1.7] ## 4 Evaluation
+
+We conduct comprehensive empirical evaluations of our VideoRAG framework on establi...
+    └─ 2025-videorag-retrieval-augmented-generat_ce6c70c7.md (score: 0.0081)
+[1.8] |                   | LLaMA-VID   | LLaMA-VID   | LLaMA-VID   | LLaMA-VID   | VideoAgent   | VideoAg...
+    └─ 2025-videorag-retrieval-augmented-generat_ce6c70c7.md (score: 0.0079)
+[1.9] Key Findings . This case study provides compelling evidence of VideoRAG's effectiveness in three cri...
+    └─ 2025-videorag-retrieval-augmented-generat_ce6c70c7.md (score: 0.0078)
+============================================================
+
+============================================================
+✅ Test mode completed!
+============================================================
+
+📊 Test results saved to: output/
+(myenv) PS C:\PDZ\BKU\Learning\LVTN\GD1\Code\Week091011-Merge> 

@@ -1,0 +1,17 @@
+Python Tutorial
+
+* print
+
+* Data Type
+
+° If statement
+
+* Loop statement
+* For loop
+* While loop
+
+* Function
+
+* List
+
+* Class

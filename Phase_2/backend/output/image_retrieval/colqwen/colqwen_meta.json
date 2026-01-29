@@ -1,0 +1,5 @@
+{
+  "model_name": "vidore/colqwen2-v1.0",
+  "num_pages": 121,
+  "pdf_dir": "output\\processing\\stage4_rag_ready"
+}

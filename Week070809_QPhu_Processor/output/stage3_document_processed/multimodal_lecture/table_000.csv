@@ -1,6 +1,0 @@
-Stage,Input,Output,Tools Required
-Data Collection,Raw files,Structured data,"Docling, OCR"
-Preprocessing,"Text, Images",Clean data,"NLP tools, CV"
-Feature Extraction,Clean data,Feature vectors,Transformers
-Model Training,Features,Trained model,"PyTorch, TF"
-Evaluation,Test data,Metrics,Custom eval

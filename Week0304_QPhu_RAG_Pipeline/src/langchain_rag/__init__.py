@@ -1,1 +1,0 @@
-# LangChain RAG implementation

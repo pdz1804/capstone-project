@@ -1,3 +1,0 @@
-LINEAR INTERPOLATION
-
-Lerp(a,b,f)=(1—f)-a+f-b

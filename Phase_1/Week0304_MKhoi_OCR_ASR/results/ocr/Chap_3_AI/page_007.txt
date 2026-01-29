@@ -1,0 +1,9 @@
+Representing the Search Space
+
+° Navigation Mesh
+- Advantages:
+???
+???
+
+Navigation Mesh
+(9 nodes, 12 edges)

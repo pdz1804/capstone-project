@@ -1,0 +1,1515 @@
+[
+  {
+    "id": "Chapter01_Overview_chunk_0",
+    "text": "1\n\n## Faculty of Computer Science and Engineering Ho Chi Minh City University of Technology\n\n## Data Mining\n\nCourse ID: CO3029\n\n## Chapter 1: Overview\n\nAssoc. Prof. TRAN MINH QUANG quangtran@hcmut.edu.vn http://researchmap.jp/quang\n\n2025/8/25\n\nother\n\nIn this image we can see a diagram and some text.\n\n<!-- image -->\n\n## CONTENT\n\n1. Practical situations with Data mining\n2. Knowledge discovery\n3. Main concepts\n4. Roles of data mining\n5. Applications\n6. Summary\n\n## 1. SITUATION 1\n\nother\n\nIn this image I can see a person's face and a laptop. I can see the text on the image.\n\n<!-- image -->\n\nlogo\n\nIn this image we can see a machine with a card machine and a card slot. We can also see a wall and a plant.\n\n<!-- image -->\n\nlogo\n\nIn this image we can see a card, a paper, a coin and some other objects.\n\n<!-- image -->\n\nscreenshot\n\nIn this image there is a green color arrow.\n\n<!-- image -->\n\nEstimating whether the guy who using a credit card with ID = 123456 is its owner of not\n\n## 1. SITUATION 2",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 0,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 0,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 0,
+      "char_length": 999,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_1",
+    "text": "<!-- image -->\n\nscreenshot\n\nIn this image there is a green color arrow.\n\n<!-- image -->\n\nEstimating whether the guy who using a credit card with ID = 123456 is its owner of not\n\n## 1. SITUATION 2\n\nbar chart\n\nThe image is a screenshot of a spreadsheet. The cells in the spreadsheet are labeled with numbers and text. The cells contain data that appears to be related to a stock price. The data is presented in a table format, with the following columns:\n\n1. **Date**: This column lists the date ranges.\n2. **Price**: This column lists the price values for each date range.\n3. **Date**: This column lists the dates.\n4. **Price**: This column lists the price values for each date range.\n\nThe data is presented in a table format, with the following headers:\n- **Date**: This column lists the dates.\n- **Price**: This column lists the price values for each date range.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 1,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 1,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 999,
+      "char_length": 863,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_2",
+    "text": "The data is presented in a table format, with the following headers:\n- **Date**: This column lists the dates.\n- **Price**: This column lists the price values for each date range.\n\nThe data is presented in a table format with the following columns:\n- **Date**: This column lists the dates.\n- **Price**: This column lists the price values for each date range.\n\nThe data is presented in\n\n<!-- image -->\n\n## 1. SITUATION 3\n\nline chart\n\nThe image is a line graph that shows the number of packets of a product over a period of time. The x-axis represents the flow of the product, while the y-axis shows the number of packets. The graph has a clear trend of increasing from 1 to 200 packets, with a significant spike in the number of packets around 200. The graph also shows a small spike around 200, which is followed by a gradual decrease.\n\nThe graph is labeled with the following labels:\n- **BG_MaxUpNoPkts**\n- **FG_MaxUpNoPkts**",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 2,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 2,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 1862,
+      "char_length": 925,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_3",
+    "text": "The graph is labeled with the following labels:\n- **BG_MaxUpNoPkts**\n- **FG_MaxUpNoPkts**\n\nThe x-axis is labeled \"Flow Instance,\" and the y-axis is labeled \"Packets.\"\n\nThe graph shows the following:\n- The number of packets increases from 1 to 200.\n- The number of packets decreases from 1 to 200.\n-\n\n<!-- image -->\n\nNetwork attacking detection based on traffic analysis\n\n## 1. THE FACT…\n\nflow chart\n\nIn this image we can see a person standing and holding a cylinder.\n\n<!-- image -->\n\nWe are data rich, but information poor 'Necessity is the mother of invention' - Plato\n\n## 2. KNOWLEDGE DISCOVERY FROM DATABASE (KDD)",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 3,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 3,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 2787,
+      "char_length": 616,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_4",
+    "text": "<!-- image -->\n\nWe are data rich, but information poor 'Necessity is the mother of invention' - Plato\n\n## 2. KNOWLEDGE DISCOVERY FROM DATABASE (KDD)\n\n-  'Knowledge discovery in databases is the nontrivial process of identifying valid, novel, potentially useful, and ultimately understandable patterns '\n-  Frawley, W. J et al. (1991). Knowledge discovery in databases: an overview.\n-  'Knowledge discovery from databases is the process of using the database along with any required selection, preprocessing, sub-sampling, and transformations of it; to apply data mining methods (algorithms) to enumerate patterns from it; and to evaluate the products of data mining to identify the subset of the enumerated patterns deemed knowledge .'\n- 8  Fayyad, U.M et al. (1996). Advances in Knowledge Discovery and Data Mining. MIT Press.\n\n## 2. KDD…\n\nbar chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 4,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 4,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 3403,
+      "char_length": 854,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_5",
+    "text": "## 2. KDD…\n\nbar chart\n\nThe image is a flowchart titled \"Pattern Evaluation/Presentation.\" The flowchart is divided into several sections, each representing a different aspect of the process. Here is a detailed description of each section:",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 5,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 5,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 4257,
+      "char_length": 238,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_6",
+    "text": "### Task-Relevant Data\n- **Task**: Data Mining\n- **Data Warehouse**: Data Integration\n- **Data Sources**: Data Integration\n- **Data Integration**: Data Sources\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n- **Data Integration**: Data Integration\n\n<!-- image -->\n\n## 2. KDD…\n\n…is an iterative process with following main steps:\n\n1. Data cleaning\n2. Data integration\n3. Data selection\n4. Data transformation\n5. Data mining\n6. Pattern evaluation\n7. Knowledge presentation",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 6,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 6,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 4495,
+      "char_length": 997,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_7",
+    "text": "…is an iterative process with following main steps:\n\n1. Data cleaning\n2. Data integration\n3. Data selection\n4. Data transformation\n5. Data mining\n6. Pattern evaluation\n7. Knowledge presentation\n\n## 2. KDD…\n\n## … each step in KDD process may work with\n\n-  Data sources (many types)\n-  Data warehouse\n-  Task-relevant data\n-  Patterns\n-  Knowledge\n\n## 2. KDD IN THE DATA MANAGEMENT PYRAMID\n\nother\n\nIn this image, we can see a diagram. In the diagram, we can see a pyramid, a line, a line, a circle, a box, a table, a graph, a box, a box, a person, a table, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person, a box, a person,",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 7,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 7,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 5492,
+      "char_length": 984,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_8",
+    "text": "<!-- image -->\n\n13\n\n## Faculty of Computer Science and Engineering Ho Chi Minh City University of Technology\n\n## Data Mining\n\nCourse ID: CO3029\n\n## Chapter 1: Overview\n\n## Part 2\n\nAssoc. Prof. TRAN MINH QUANG quangtran@hcmut.edu.vn http://researchmap.jp/quang\n\n2025/8/25\n\n## CONTENT\n\n1. Practical situations with Data mining\n2. Knowledge discovery\n\n## 3. Main concepts\n\n4. Roles of data mining\n5. Applications\n6. Summary\n\n## 3. MAIN CONCEPTS IN KDD\n\n-  Data mining\n-  Data mining tasks/functions\n-  Data mining processes\n-  Data mining systems\n\n## 3.1. DATA MINING (DM)\n\n## DM is a process of …\n\n-  'extracting or mining knowledge from large amounts of data'\n-  'knowledge mining from data'\n-  'nontrivial extraction of implicit, previously unknown, and potentially useful information from data'\n\n## 3.1. DATA MINING\n\n## Similar/common terms",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 8,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 8,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 6476,
+      "char_length": 848,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_9",
+    "text": "## 3.1. DATA MINING\n\n## Similar/common terms\n\n-  knowledge discovery/mining in data/databases (KDD)\n-  knowledge extraction\n-  data/pattern analysis\n-  data archaeology, data dredging\n-  information harvesting\n-  business intelligence\n\n## 3.1. DATA MINING: DATA SOURCES\n\n-  DM from large amounts of data…\n-  Any types:  structure, non-structure, semi-structure from various data sources\n-  Data sources\n-  Flat files\n-  Databases: relational databases, object-relational databases, NoSQL,…\n-  Transactional databases, data warehouses\n-  From various domains: spatial databases, temporal databases, spatio-temporal databases, time series databases, text/docuement databases, multimedia databases, …\n-  Data from the web: WWW, Social networks…\n- 18  Batch or streaming data sources: Data warehouse for BI, real-time IoT systems,….\n\n## 3.1. DATA MINING: KNOWLEDGE",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 9,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 9,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 7324,
+      "char_length": 875,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_10",
+    "text": "## 3.1. DATA MINING: KNOWLEDGE\n\n-  The mined/analyzed knowledge can be:\n-  Description of data classes\n-  Frequent patterns, Association patterns\n-  Classification and Prediction\n-  Clustering Model\n-  Outliers\n-  Trends of behaviors, data,…\n\n\n\n…\n\n## 3.1. DATA MINING: KNOWLEDGE\n\n##  Categories of mined/analyzed knowledge :\n\n-  Descriptive: Describe common characteristics of objects in the dataset (situation 1)\n-  Predictive:  Capability to infer/predict new information based on current data (situations 2, 3)\n\nother\n\nThe image is a graph titled \"Data Mining.\" The graph is a linear combination of two main categories: \"Predicitive\" and \"Descriptive.\" \n\nThe graph has two main categories: \"Predicative\" and \"Descriptive.\" \n\n- \"Predicative\" is represented by a horizontal line.\n- \"Descriptive\" is represented by a horizontal line.\n\nThe graph has two main axes: the x-axis and the y-axis. The x-axis is labeled \"Predicative\" and the y-axis is labeled \"Descriptive.\"",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 10,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 10,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 8199,
+      "char_length": 978,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_11",
+    "text": "The graph has two main axes: the x-axis and the y-axis. The x-axis is labeled \"Predicative\" and the y-axis is labeled \"Descriptive.\"\n\nThe graph has two main lines: the horizontal line labeled \"Predicative\" and the horizontal line labeled \"Descriptive.\"\n\n- The horizontal line labeled \"Predicative\" is a horizontal line that starts at the top of the graph and extends downward.\n- The horizontal line labeled \"Descriptive\" is a horizontal line that starts at the bottom of the graph and extends upward.\n\n<!-- image -->\n\n## 3.1. DATA MINING\n\nflow chart\n\nThe image is a diagram that represents data mining. The diagram is structured with four main components: Statistics, Database Technology, Other Disciplines, and Visualization.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 11,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 11,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 9177,
+      "char_length": 726,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_12",
+    "text": "flow chart\n\nThe image is a diagram that represents data mining. The diagram is structured with four main components: Statistics, Database Technology, Other Disciplines, and Visualization.\n\n- Statistics: This component is connected to Data Mining. It is represented by a box with the text \"Statistics\" written inside.\n- Database Technology: This component is connected to Data Mining. It is represented by a box with the text \"Database Technology\" written inside.\n- Other Disciplines: This component is connected to Data Mining. It is represented by a box with the text \"Other Disciplines\" written inside.\n- Visualization: This component is connected to Data Mining. It is represented by a box with the text \"Visualization\" written inside.\n\nThe diagram is structured with a horizontal line representing the \"Data Mining\" component. The line is connected to the \"Statistics\" component, which is connected to the \"Database Technology\" component, and the \"Other Disciplines\" component,\n\n<!-- image -->",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 12,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 12,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 9903,
+      "char_length": 997,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_13",
+    "text": "<!-- image -->\n\n'Data mining as a confluence of multiple disciplines'\n\n## 3.1. DATA MINING: DB TECHNOLOGIES\n\n-  Database technologies help efficiently manage data for mining\n-  Big data: paging, swapping from disk to memory, distributed data managements, support for data streaming,…\n-  Integrated, categorized in based on different dimensions (e.g., data warehouse)\n-  Support various data types: spatial, temporal, spatiotemporal, multimedia, text, Web, …\n-  Concurrency control, security, query optimization,…\n-  Provide data mining functions:\n- Oracle Data Mining (Oracle 9i, 10g, 11g)\n- SQL Server analyzers, Azure machine learning,…\n- Intelligent Miner (IBM)\n- Standard SWL/MM 6: Data Mining by ISO/IEC 132496:2006\n\n22\n\n## 3.1. DATA MINING: STATISTICS\n\nother\n\nIn this image we can see a screenshot of a web page.\n\n<!-- image -->\n\n## 3.1. DATA MINING: MACHINE LEARNING\n\nbar chart\n\nIn this image, we can see a screenshot of a computer screen. There are some text boxes and images.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 13,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 13,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 10900,
+      "char_length": 990,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_14",
+    "text": "<!-- image -->\n\n## 3.1. DATA MINING: MACHINE LEARNING\n\nbar chart\n\nIn this image, we can see a screenshot of a computer screen. There are some text boxes and images.\n\n<!-- image -->\n\n24\n\n## 3.1. DATA MINING: VISUALIZATION\n\n-  Improve the meaning of knowledge to users\n-  Data: 3D cubes, distribution charts, curves, surfaces, link graphs, image frames and movies, parallel coordinates\n-  Knowledge (mining results): pie charts, scatter plots, box plots, association rules, parallel coordinates,\n\npie chart\n\nIn this image there is a table with some data in it.\n\n<!-- image -->\n\nPie chart\n\nParallel coordinates\n\nline chart\n\nIn this image there is a graph.\n\n<!-- image -->\n\nTemporal evolution\n\nother\n\nIn this image we can see a graph. On the graph we can see the title and the numbers.\n\n<!-- image -->\n\n## 3.1. DATA MINING: VISUALIZATION\n\n-  Labeling mined classes/clusters\n\nIsodata (K-means)\n\nClustering\n\nLabel Image\n\nother\n\nIn this image we can see a screenshot of a webpage.\n\n<!-- image -->",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 14,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 14,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 11890,
+      "char_length": 993,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_15",
+    "text": "## 3.1. DATA MINING: VISUALIZATION\n\n-  Labeling mined classes/clusters\n\nIsodata (K-means)\n\nClustering\n\nLabel Image\n\nother\n\nIn this image we can see a screenshot of a webpage.\n\n<!-- image -->\n\nMean Feature Image\n\nscreenshot\n\nIn this image I can see a screenshot of a web page.\n\n<!-- image -->\n\nscreenshot\n\nIn this image, we can see a picture with some text and a picture of a yellow color.\n\n<!-- image -->\n\n27\n\n## Faculty of Computer Science and Engineering Ho Chi Minh City University of Technology\n\n## Data Mining\n\nCourse ID: CO3029\n\n## Chapter 1: Overview\n\n## Part 3\n\nAssoc. Prof. TRAN MINH QUANG quangtran@hcmut.edu.vn http://researchmap.jp/quang\n\n2025/8/25\n\n## 3.2. DATA MINING TASKS\n\n-  Data description\n-  Classification\n-  Prediction\n-  Clustering\n-  Association rule mining\n-  Trend analysis\n-  Outlier\n-  Similarity analysis\n-  …\n\n## 3.2. DATA MINING TASKS\n\nother",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 15,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 15,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 12883,
+      "char_length": 882,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_16",
+    "text": "-  Data description\n-  Classification\n-  Prediction\n-  Clustering\n-  Association rule mining\n-  Trend analysis\n-  Outlier\n-  Similarity analysis\n-  …\n\n## 3.2. DATA MINING TASKS\n\nother\n\nThe image is a food product image, which is a food product called \"Pampers\" which is a soft drink. The image is divided into several sections, each representing different aspects of the product. Here is a detailed description of each section:\n\n1. **Top Section**:\n   - **Clustered**: This section contains the main product image, which is a milk bottle. The milk bottle is placed on the left side of the image.\n   - **Classified**: This section contains the milk bottle's classification, which is \"Classified\" in the top right corner.\n   - **Detection**: This section shows the milk bottle being detected by a device, which is located on the bottom right of the milk bottle.\n   - **Orange**: This section shows the milk bottle being orange, which is a common color for milk bottles.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 16,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 16,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 13765,
+      "char_length": 976,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_17",
+    "text": "2. **Middle Section**:\n   - **Association**: This section contains the milk bottle's association, which is represented by a circle\n\n<!-- image -->\n\n## 3.2. DATA MINING TASKS: MAIN FACTORS\n\n-  5 main factors describe a data mining task\n1. Task-relevant data\n2. Expected knowledge\n3. Background knowledge\n4. Interestingness measures\n5. Pattern evaluations and knowledge presentation\n\n## 3.2. DATA MINING TASKS: MAIN FACTORS\n\n-  Task-relevant data: data sources, data types, selected features/dimensions, name of DBs, data warehouse, data tables or objects or documents, criteria for selection data,…\n-  Expected knowledge: corresponds to a specific mining task which will be executed: classification, clustering, association rules, prediction,….\n\n## 3.2. DATA MINING TASKS: MAIN FACTORS\n\n##  Background knowledge:",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 17,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 17,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 14741,
+      "char_length": 815,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_18",
+    "text": "## 3.2. DATA MINING TASKS: MAIN FACTORS\n\n##  Background knowledge:\n\n-  Domain knowledge: finance, education, healthcare,…\n-  Supports DM processes: training, evaluating models\n-  Interestingness measures:\n-  With a score/measure, and has a threshold\n-  Use for train the model and evaluate the results\n-  Different tasks use different measure\n-  Needs to be simple, certain, useful and novel\n\npie chart\n\nIn this image we can see a circle.\n\n<!-- image -->\n\n## 3.2. DATA MINING TASKS: MAIN FACTORS\n\n-  Pattern evaluation and knowledge presentation (ref. slide 25, 26 in Sect. 3.1): Rules, tables, reports, charts, graphs, trees, cubes,…\n\n## 3.2. DATA MINING TASK\n\nother\n\nIn the image, we can see a diagram with a few lines and text. The diagram is labeled as \"Data mining tasks\".\n\n<!-- image -->\n\n## 3.2. DATA MINING ALGORITHM: MAIN ELEMENTS",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 18,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 18,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 15556,
+      "char_length": 848,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_19",
+    "text": "other\n\nIn the image, we can see a diagram with a few lines and text. The diagram is labeled as \"Data mining tasks\".\n\n<!-- image -->\n\n## 3.2. DATA MINING ALGORITHM: MAIN ELEMENTS\n\n-  4 main elements constitute a data mining algorithm\n-  Model or pattern structures\n-  Score function\n-  Optimization and search method\n-  Data management strategy\n\n## 3.2. DATA MINING ALGORITHM: MAIN ELEMENTS\n\n##  Model or pattern structures",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 19,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 19,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 16404,
+      "char_length": 428,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_20",
+    "text": "## 3.2. DATA MINING ALGORITHM: MAIN ELEMENTS\n\n##  Model or pattern structures\n\n-  Model: Presents the dataset in a global view\n-  Pattern: Presents characteristics of a subset of the dataset (local view), e.g., for some records /objects that satisfy with some variables\n-  Structure: a general function where parameters' values are not defined to describe a model or a pattern\n- ⇒ Model structure: a global summary of the dataset\n- Ex. Y = aX + b is a model structure  and Y = 3X + 2 is a specific model defined from the above model structure\n- =&gt; Pattern structure: a summary of a sub-dataset Ex. p(Y&gt;y1|X&gt;x1) = p1 is a pattern structure and p(Y&gt;5|X&gt;10) = 0.5 is a particular pattern\n\n36\n\n## 3.2. DATA MINING ALGORITHM: MAIN ELEMENTS\n\n##  Score function",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 20,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 20,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 16832,
+      "char_length": 774,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_21",
+    "text": "36\n\n## 3.2. DATA MINING ALGORITHM: MAIN ELEMENTS\n\n##  Score function\n\n-  used to examine how effective/good/relevant a model/pattern present a dataset (by score)\n-  used to compare different data mining models, methods,…\n-  should not be depended on the dataset and it is easy to be computed. Ex. likelihood, sum of squared errors, misclassification rate,…\n\n## 3.2. DATA MINING ALGORITHM: MAIN ELEMENTS\n\n-  Optimization and search methods\n-  Objective : To identify the structures and models , patterns (with specific parameters' values) from the datasets that fit with the expected score function .\n-  State space: A set of discrete states\n-  Searching: begin at a particular state (e.g., at a node in the space), searches in the state space until finding a specific state that is 'best' fit with the score function\n-  Methods: Various approaches: greedy strategy , heuristics, revolution algorithms,…\n\n## 3.2. DATA MINING ALGORITHM: MAIN ELEMENTS",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 21,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 21,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 17606,
+      "char_length": 957,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_22",
+    "text": "## 3.2. DATA MINING ALGORITHM: MAIN ELEMENTS\n\n-  Data management strategy\n-  Depending on data size, types,…\n-  Small to medium: Load all to the main memory to process\n-  Large/big: Stored in disks/distributed systems. Parts are concurrently processed in memory\n-  Support for storage, indexing, retrieving\n-  Improve the efficiency, scalability,… of the data mining approaches\n-  Database technologies can help\n\n40\n\n## Faculty of Computer Science and Engineering Ho Chi Minh City University of Technology\n\n## Data Mining Course ID: CO3029\n\n## Chapter 1: Overview\n\n## Part 4\n\nAssoc. Prof. TRAN MINH QUANG quangtran@hcmut.edu.vn http://researchmap.jp/quang\n\n2025/8/25\n\n## 3.3. DATA MINING PROCESSES (DMP)\n\n-  DMP is iterative and interactive steps starting with raw data and completing with knowledge of interest. It presents…\n-  A systematically way to conduct (plan and manage) a KDD project\n-  Assure that the KDD project is optimized\n\n## Some standard processes:",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 22,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 22,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 18563,
+      "char_length": 975,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_23",
+    "text": "## Some standard processes:\n\n-  Cross Industry Standard Process for Data Mining (CRISP-DM at www.crisp-dm.org)\n-  SEMMA ( S ample, E xplore, M odify, M odel, A ssess) at the SAS Institute\n\n## 3.3. DATA MINING PROCESSES (DMP)\n\n##  CRISP-DM\n\n-  Initiated since 09/1996 with more than 200 members\n-  Open standard\n-  Support industry, applications and tools for KDD\n-  Focus on business requirement and technical analysis\n-  Provide framework for data mining processes\n-  Rich experiences from various application domains and industries\n\n## 3.3. DATA MINING PROCESSES (DMP)\n\nother\n\nThe image depicts a flowchart or diagram that illustrates a process involving data management and data preparation. The process is structured into four main steps:\n\n1. **Business Understanding**:\n   - This step involves identifying the business context and understanding the business's needs.\n   - In this step, the business is identified as the primary entity in the process.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 23,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 23,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 19538,
+      "char_length": 964,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_24",
+    "text": "2. **Data Preparation**:\n   - This step involves preparing the data for analysis or processing.\n   - The data preparation step is crucial as it ensures that the data is ready for analysis or processing.\n\n3. **Data Analysis**:\n   - This step involves analyzing the data to identify patterns, trends, or anomalies.\n   - The data analysis step is critical as it helps to understand the data's quality, completeness, and accuracy.\n\n4. **Evaluation**:\n   - This step involves evaluating the data's performance or accuracy.\n   - The evaluation step is critical as it helps to determine if the data is reliable, complete, and accurate.\n\n<!-- image -->\n\n## 3.4. DATA MINING SYSTEMS\n\n-  A common structure of a DM system\n\nflow chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 24,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 24,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 20502,
+      "char_length": 724,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_25",
+    "text": "<!-- image -->\n\n## 3.4. DATA MINING SYSTEMS\n\n-  A common structure of a DM system\n\nflow chart\n\nThe image is an image of a web page that is structured in a table format. The table is titled \"User Interface\" and is connected to the \"Pattern Evaluation\" and \"Knowledge Base\" functions. The \"Pattern Evaluation\" function is connected to the \"Data Mining Engine\" function. Both the \"Data Mining Engine\" and \"Knowledge Base\" functions are connected to the \"Database\" function.\n\nThe table is structured with the following columns:\n- User Interface\n- Pattern Evaluation\n- Knowledge Base\n- Data Mining Engine\n- Database or Data Warehouse Server\n- Data Cleaning, integration and selection\n- Data Warehouse\n- World Wide Web\n- Other Info Repositories\n\nThe table is structured with the following headers:\n- User Interface\n- Pattern Evaluation\n- Knowledge Base\n- Data Mining Engine\n- Database or Data Warehouse Server\n- Data Cleaning, integration and selection\n- Data Warehouse\n- World Wide Web\n- Other Info Rep",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 25,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 25,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 21226,
+      "char_length": 998,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_26",
+    "text": "<!-- image -->\n\n## 3.4. DATA MINING SYSTEMS\n\n-  Database, data warehouse , World Wide Web, and information repositories: Data/information sources used for DM\n-  Database /data warehouse server : Physical data sources that prepare integrated and relevant data for DM\n-  Knowledge base : Domain/background knowledge\n-  Data mining engine : Conducts DM tasks\n-  Pattern evaluation module : Use interestingness measure (score functions), threshold which can be integrated in the Data mining engine\n\n## 3.4. DATA MINING SYSTEMS\n\n-  User interface: Support user interaction with the system:\n-  To specify data mining tasks, query,…\n-  Search for and conduct sophisticated data mining tasks using temporary mining results\n-  Verify input data from databases, data warehouse\n-  Evaluate mining results\n-  Visualize the mined knowledge\n\n## 3.4. DATA MINING SYSTEMS",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 26,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 26,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 22224,
+      "char_length": 866,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_27",
+    "text": "## 3.4. DATA MINING SYSTEMS\n\n-  Features used to examine a DM system\n-  Data types\n-  Data sources\n-  Tasks/Functions and Methods\n-  Connecting with data sources: DBs, Data warehouse, WWW, spreadsheets,…\n-  Scalabilities, robustness,…\n-  Visualization capability\n\n## 3.4. DATA MINING SYSTEMS\n\n-  Related systems to DM ones\n-  Statistical data analysis systems\n-  Machine learning systems\n-  Information retrieval systems\n-  Deductive database systems\n-  Database systems\n-  Data warehouses\n\n\n\n…\n\n## 4. ROLE OF DM\n\nflow chart\n\nThe image is a diagram titled \"Revolution of DB\" which is part of a larger database collection and database creation process. The diagram is divided into two main sections: \"Data Collection and Database Creation\" and \"Database Management Systems (1970s-early 1980s).\"\n\n### Data Collection and Database Creation\n\n#### Data Collection and Database Creation",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 27,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 27,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 23090,
+      "char_length": 895,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_28",
+    "text": "### Data Collection and Database Creation\n\n#### Data Collection and Database Creation\n\n- **Data Collection**: This section is connected to both \"Data Collection and Database Creation\" and \"Database Management Systems (1970s-early 1980s).\"\n\n- **Data Collection**: This section is connected to both \"Data Collection and Database Creation\" and \"Web-based Database Systems (1990s-present).\"\n\n#### Data Analysis:\n\n- **Advanced Data Analysis**: This section is connected to both \"Advanced Data Analysis: Data Warehousing and Data Mining (late 1980s-present)\" and \"New Generation of\n\n<!-- image -->\n\n## 4. ROLES OF DM\n\n-  A modern technology in CS, ICT and information management\n-  Available everywhere (ubiquitous) and invisible in our life\n-  Vast application domains : sales, commerce, bank, finance, insurance, entertainments, healthcares, educations, economics, supply chain management, production, science, tele-comunications, controls,…\n\n## 5. SUMMARY",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 28,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 28,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 23985,
+      "char_length": 955,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_29",
+    "text": "## 5. SUMMARY\n\n-  DM/KDD: Extract interest patterns from large DB\n-  Discovered knowledge must be understandable, useful, nontrivial, valid and evaluable\n-  Data sources: Various\n-  DM Tasks: Description, prediction, classification, clustering, association rule mining, co-relation, outlier, trends,…\n-  5 factors: Relevant data, expected knowledge, background KN, measures, KN visualization\n- 51  4 elements: model/pattern structure, score function, optimization methods, data management\n\n## 5. SUMMARY\n\n-  7 steps in KDD: Data cleansing, integration, data selection, data transformation, DM, pattern evaluation, and KN presentation\n-  DM is the main component in KDD (some time interchangably used)\n-  Related fieds: DB technologies, statistics, machine learning, computer science, visualization,…\n\n## REFERENCES",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 29,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 29,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 24940,
+      "char_length": 823,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter01_Overview_chunk_30",
+    "text": "## REFERENCES\n\n- [1] Jiawei Han, Micheline Kamber, and Jian Pei, 'Data Mining: Concepts and Techniques', 3rd Edition, Morgan Kaufmann Publishers, 2012.\n- [2] Tr ầ n Minh Quang, \"Khai Phá D ữ Li ệ u và K ỹ Thu ậ t Phân L ớ p\", NXB Đ ạ i H ọ c Qu ố c Gia TP. HCM, 2020.\n- [3] Charu C. Aggarwal, \"Data Classification: Algorithms and Applications\" (Chapman &amp; Hall/CRC Data Mining and Knowledge Discovery Series) 1 st Edition, 2014.\n- [4] Jure Leskovec, Anand Rajaraman, Jeffrey D. Ullman, \"Mining of Massive Datasets\", 2 nd  Edition, Cambridge University Press 2014.\n- [5] Ian Goodfellow, Yoshua Bengio, and Aaron Courville, 'Deep Learning', The MIT Press, 2016.\n\nlogo\n\nQ&A\n\n<!-- image -->\n\nquangtran@hcmut.edu.vn\n\n2025/8/25",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+    "doc_id": "Chapter01_Overview",
+    "chunk_index": 30,
+    "total_chunks": 31,
+    "metadata": {
+      "doc_id": "Chapter01_Overview",
+      "chunk_index": 30,
+      "total_chunks": 31,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter01_Overview\\Chapter01_Overview.md",
+      "char_start": 25763,
+      "char_length": 724,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_0",
+    "text": "1\n\n## Faculty of Computer Science and Engineering Ho Chi Minh City University of Technology\n\n## Chapter 3 Data Regression\n\nAssoc. Prof. TRAN MINH QUANG quangtran@hcmut.edu.vn http://researchmap.jp/quang\n\n2025/9/9\n\n## CONTENT\n\n1. Introduction\n2. Linear regression\n3. Non-Linear regression\n4. Applications\n5. Problems with regression\n6. Summary\n\n## REFERENCES",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 0,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 0,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 0,
+      "char_length": 357,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_1",
+    "text": "- [1a] Jiawei Han, Micheline Kamber, and Jian Pei, 'Data Mining: Concepts and Techniques', 3rd Edition, Morgan Kaufmann Publishers, 2012.\n- [1b] Tr ầ n Minh Quang, \"Khai Phá D ữ Li ệ u và K ỹ Thu ậ t Phân L ớ p\", NXB Đ ạ i H ọ c Qu ố c Gia TP. HCM, 2020.\n- [2] David Hand, Heikki Mannila, Padhraic Smyth, 'Principles of Data Mining', MIT Press, 2001.\n- [3] David L. Olson, Dursun Delen, 'Advanced Data Mining Techniques', Springer-Verlag, 2008.\n- [4] Graham J. Williams, Simeon J. Simoff, 'Data Mining: Theory, Methodology, Techniques, and Applications', Springer-Verlag, 2006.\n- [5] ZhaoHui Tang, Jamie MacLennan, 'Data Mining with SQL Server 2005', Wiley Publishing, 2005.\n- [6] Oracle, 'Data Mining Concepts', B28129-01, 2008.\n- [7] Oracle, 'Data Mining Application Developer's Guide', B28131-01, 2008.\n- [8] Ian H.Witten, Eibe Frank, 'Data mining : practical machine learning tools and techniques', 2nd Edition, Elsevier Inc, 2005.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 1,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 1,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 357,
+      "char_length": 935,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_2",
+    "text": "- [8] Ian H.Witten, Eibe Frank, 'Data mining : practical machine learning tools and techniques', 2nd Edition, Elsevier Inc, 2005.\n- Dr. Tran Minh Quang - quangtran@hcmut.edu.vn [9] Florent Messeglia, Pascal Poncelet &amp; Maguelonne Teisseire, 'Successes and new directions in data mining', IGI Global, 2008.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 2,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 2,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 1292,
+      "char_length": 308,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_3",
+    "text": "## 1. INTRODUCTION\n\nline chart\n\nThe image is a scatter plot with a linear scale of range 0 to 3000 on the x-axis, labeled \"Size (feet2)\" on the y-axis. The plot is titled \"Price ($1k)\" and has a scale of range 0 to 4000 along the y-axis. The x-axis is labeled \"Size (feet2)\" and has a scale of range 0 to 3000.\n\nThe plot is a scatter plot with a linear scale of range 0 to 4000 along the y-axis, labeled \"Price ($1k)\". The plot is titled \"Price ($1k)\" and has a scale of range 0 to 4000 along the y-axis, labeled \"Price ($1k)\". The x-axis is labeled \"Size (feet2)\" and has a scale of range 0 to 3000.\n\n<!-- image -->\n\n+ Can we model the house price distribution based on their sizes ?\n+ Can we predict a house price based on its size?\n\n## 1. INTRODUCTION\n\nbar chart\n\nIn this image we can see a graph with few data points.\n\n<!-- image -->\n\n## 1. INTRODUCTION\n\nThe market basket analysis problem\n\n-  Can we find out association rules between products in transactions? tinned meat\n\nother",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 3,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 3,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 1600,
+      "char_length": 985,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_4",
+    "text": "<!-- image -->\n\n## 1. INTRODUCTION\n\nThe market basket analysis problem\n\n-  Can we find out association rules between products in transactions? tinned meat\n\nother\n\nIn this image there is a diagram. There are few names on the graph.\n\n<!-- image -->\n\n## 1. INTRODUCTION\n\n-  Analyzing the factors that impact on the quality of e-banking services (based on surveys from users)\n-  Easy to use (+0.209)\n-  Fast response (+0.261)\n-  The ability to link with other billing services (+0.199)\n-  Feelings of individuality (+0.15)\n-  Privacy and security issues (-0.25)\n-  …\n\n## 1. INTRODUCTION\n\n##  Regression",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 4,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 4,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 2585,
+      "char_length": 607,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_5",
+    "text": "## 1. INTRODUCTION\n\n##  Regression\n\n-  J. Han et al (2001, 2006): Regression is a statistic mechanism that allows predicting real/numeric and continuous values\n-  Wiki (2009): Regression analysis is a statistic mechanism that allows estimating the correlation between independent variables\n-  R. D. Snee (1977): Regression is a statistic mechanism in data analytics and building models from experiments, it allows prediction, control, and learning the rules to which data is generated.\n-  Regression: Numeric data prediction (real-valued output)\n-  Classification: 'prediction' for discrete values\n\n## 1. INTRODUCTION\n\n-  Regression model: Describe the relationship between a set of predictors/independent variables and one or some responses/dependent variables\n-  Regression equation\n\n<!-- formula-not-decoded -->\n\nX : a set of predictors/independent variables; describes the changes of responses/dependent variables Y",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 5,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 5,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 3192,
+      "char_length": 927,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_6",
+    "text": "<!-- formula-not-decoded -->\n\nX : a set of predictors/independent variables; describes the changes of responses/dependent variables Y\n\nY : responses/dependent variables; Describes the interesting facts/events\n\nθ : Regression coefficients; Describes the relative effects of X on Y\n\n## 1. INTRODUCTION\n\n##  Categories:\n\n-  Linear v.s nonlinear\n-  Linear in parameters: Linear association between parameters that affect Y\n-  Nonlinear in parameters: Non-linear association between parameters that affect Y\n-  Single variable v.s multiple variables\n-  Single: X = (X 1 )  v.s. Multiple: X = (X 1 , X 2 , …, X k )\n-  Parametric v.s nonparametric and semiparametric\n-  Symmetric v.s asymmetric\n-  Symmetric: descriptive regression models (e.g., log-linear models)\n\n10\n\n- Dr. Tran Minh Quang - quangtran@hcmut.edu.vn  Asymmetric: predictive regression models (e.g., generalized linear models)\n\n## 1. INTRODUCTION",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 6,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 6,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 4119,
+      "char_length": 915,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_7",
+    "text": "10\n\n- Dr. Tran Minh Quang - quangtran@hcmut.edu.vn  Asymmetric: predictive regression models (e.g., generalized linear models)\n\n## 1. INTRODUCTION\n\n-  Parametric, nonparametric, and semiparametric\n-  Parametric: regression models with finite parameters\n-  Nonparametric: regression models with infinite parameters\n-  Semiparametric: regression models with finite interesting parameters\n\n| Regression model �   | Description �                 |\n|----------------------|-------------------------------|\n| Parametric �         | Y = θ 0 + θ 1 *X              |\n| Nonparametric �      | Y = θ 0 + f (X)               |\n| Semiparametric �     | Y = θ 0 + θ 1 *X 1 + f (X 2 ) |\n\n## 2. LINEAR REGRESSION\n\n-  Single variable (Univariate)\n-  Multiple variables (Multivariate)\n\n## 2.1. UNIVARIATE LINEAR REGRESSION",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 7,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 7,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 5034,
+      "char_length": 811,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_8",
+    "text": "## 2. LINEAR REGRESSION\n\n-  Single variable (Univariate)\n-  Multiple variables (Multivariate)\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  Notations\n-  N: size of training examples\n- x: input\n-  variable/feature\n-  y: output/target variable\n-  ( x (i) , y (i) ): i th learning sample\n-  (x (1) ,y (1) ) = (2100, 450)\n\n|   Size feet 2 ( x ) |   Price ($1k) ( y ) |\n|---------------------|---------------------|\n|                2100 |                 450 |\n|                1416 |                 232 |\n|                1534 |                 315 |\n|                 852 |                 178 |\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\nflow chart\n\nIn this image, we can see a graph. There is a text at the top of the image.\n\n<!-- image -->\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  Hypothesis (h): h θ (x)= θ 0 + θ 1 x =&gt; identify θ i ?\n-  Method: 'try\\_and\\_error',  evaluate the ability of the regression line in describing sample data.\n\n<!-- formula-not-decoded -->\n\n1\n\n2\n\nθ\n\n0\n\nθ\n\n=2\n\n=0",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 8,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 8,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 5845,
+      "char_length": 998,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_9",
+    "text": "<!-- formula-not-decoded -->\n\n1\n\n2\n\nθ\n\n0\n\nθ\n\n=2\n\n=0\n\n1\n\n3\n\n2\n\n1\n\n0\n\n0\n\n3\n\n3\n\n2\n\n1\n\n0\n\n0\n\nθ\n\n1\n\n=0\n\n0\n\nθ\n\n1\n\n=0.5\n\n2\n\n3\n\n3\n\nother\n\nIn this image, we can see a graph. There is a number on the graph.\n\n<!-- image -->\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  Chose ( θ 0 , θ 1 ) so that h θ (x (i) ) ≃ y (i) ;    i=1…N\n-  residual/prediction error\n-  MSE\n\n<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n-  Cost function J( θ 0 , θ 1 ) =&gt; minimize\n\n<!-- formula-not-decoded -->\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  Examine a simple case: θ =0, h (x) = θ x\n\n<!-- formula-not-decoded -->\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 9,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 9,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 6843,
+      "char_length": 618,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_10",
+    "text": "<!-- formula-not-decoded -->\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  Examine a simple case: θ =0, h (x) = θ x\n\n<!-- formula-not-decoded -->\n\nline chart\n\nThe image depicts a graph with two axes. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The graph has a linear scale of range 0 to 3 on the x-axis, and a linear scale of range 0 to 1 on the y-axis. The graph has two lines plotted on the graph, one of which is a straight line with a positive slope. The other line is a dashed line with a negative slope. The dashed line is positioned at the bottom of the graph, while the straight line is positioned at the top.\n\nThe graph has a title at the top of the graph, which reads \"x=0.5\". This indicates that the x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The title is written in a clear and readable font.\n\nThe graph also has a scale labeled \"0 to 3\" on the y-axis\n\n<!-- image -->\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 10,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 10,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 7461,
+      "char_length": 923,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_11",
+    "text": "The graph also has a scale labeled \"0 to 3\" on the y-axis\n\n<!-- image -->\n\nline chart\n\nThe image is a graph that shows the relationship between two variables, specifically the value of a variable called \"J\" and the value of another variable called \"J_1\" over time. The graph is labeled as \"J_1\" and has a scale of range 0 to 3 on the x-axis, labeled as \"θ1\" and has a scale of range 0 to 2 on the y-axis, labeled as \"θ\".\n\nThe graph shows a negative correlation between the two variables, with the value of \"J\" decreasing as the value of \"J_1\" increases. This means that as the value of \"J\" increases, the value of \"J_1\" decreases.\n\nThe graph also shows a positive correlation between the two variables, with the value of \"J\" increasing as the value of \"J_1\" decreases. This means that as the value of \"J\" increases, the value of \"J_1\"\n\n<!-- image -->\n\n<!-- formula-not-decoded -->\n\n17\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  An example with h θ (x) = θ 0 +θ1 x\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 11,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 11,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 8384,
+      "char_length": 975,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_12",
+    "text": "<!-- image -->\n\n<!-- formula-not-decoded -->\n\n17\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  An example with h θ (x) = θ 0 +θ1 x\n\nline chart\n\nThe image presents a line graph that illustrates the relationship between two variables: price and size. The x-axis represents the size in square feet, ranging from 0 to 1000 square feet. The y-axis represents the price of the item, ranging from $0 to $500.\n\nThe graph shows a clear upward trend in the relationship between the two variables. The price of the item increases as the size increases. This indicates that as the size of the item increases, the price of the item also increases.\n\nHere is a detailed description of the graph:\n\n- **Title**: The title of the graph is \"Price ($1K) x $1000\".\n- **X-Axis**: The x-axis represents the size in square feet, ranging from 0 to 1000 square feet.\n- **Y-Axis**: The y-axis represents the price of the item, ranging from $0\n\n<!-- image -->\n\nbar chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 12,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 12,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 9359,
+      "char_length": 939,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_13",
+    "text": "<!-- image -->\n\nbar chart\n\nThe image is a diagrammatic representation of a light-up wire, which is a type of light-up wire used in various applications such as display screens, displays, and displays for display. The wire is depicted as a light-up wire, which is a type of wire that is used to create a light effect. The wire is shown in a wire-like manner, with a blue and yellow color scheme. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect. The wire is shown to be suspended from a wire-like structure, which is a type of wire that is used to create a light effect.\n\n<!-- image -->\n\n18\n\n## Contour plots/figures\n\nSource: Andrew Ng\n\n1000s)\n\nhel\n\n(c",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 13,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 13,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 10298,
+      "char_length": 976,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_14",
+    "text": "<!-- image -->\n\n18\n\n## Contour plots/figures\n\nSource: Andrew Ng\n\n1000s)\n\nhel\n\n(c\n\n(for fixed           , this is a function of x)\n\n700\n\n600-\n\n500\n\n400\n\n(in\n\n300\n\n200\n\n100-\n\nPrice\n\nXX\n\nXX\n\n1000\n\nX\n\nX\n\nX\n\nX\n\nTraining data\n\nCurrent hypothesis\n\n2000\n\n3000\n\n4000\n\nSize (fetr)\n\n0.5\n\n0.4\n\n0.3\n\n0.2\n\n0.1\n\n0\n\n-0.11\n\n.S\n\n-0.2\n\n-0.3\n\n-0.4\n\n-0.5\n\n-1000\n\n-500\n\n0\n\nJ(00, 01)\n\nJ(00, 0\n\n.011\n\n(function of the parameters            )\n\nJ(e。,61]\n\n1000\n\n1500\n\n2000\n\n80U\n\nSource: Andrew Ng\n\n500\n\n00\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\n(function of the parameters            )\n\nline chart\n\nThe image is a graph with several lines and points. The graph is titled \"Training Data\" and has a legend at the bottom. The graph is titled \"Size (feet²)\" and has a scale labeled \"0-1000\" on the x-axis. The y-axis is labeled \"Price ($/$ (inches2))\".",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 14,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 14,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 11274,
+      "char_length": 862,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_15",
+    "text": "The graph has a linear scale of range 0 to 1000 on the x-axis, labeled \"Size (feet²)\". There are five different lines plotted on the graph, each with a different color and a different value on the y-axis. The lines are labeled as follows:\n- The first line is red and has a value of 0.500.\n- The second line is blue and has a value of 0.200.\n- The third line is green and has a value of 0.100.\n- The fourth line is orange and\n\n<!-- image -->\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart\n\nThe image is a line graph titled \"Price $ (in 1000s).\" The x-axis represents \"Size (feet²)\" while the y-axis represents \"Price $ (in 1000s).\" The graph shows a downward trend in the price of a product over time. The graph is labeled as \"Training Data\" and \"h(x).\" The graph is labeled as \"h(x) = 500.\"\n\nThe graph has a linear scale from 0 to 7000 on the y-axis, labeled \"Price $ (in 1000s).\" The x-axis is labeled \"Size (feet²)\" and has a scale from 0 to 1000.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 15,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 15,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 12136,
+      "char_length": 993,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_16",
+    "text": "The graph has a linear scale from 0 to 7000 on the y-axis, labeled \"Price $ (in 1000s).\" The x-axis is labeled \"Size (feet²)\" and has a scale from 0 to 1000.\n\nThe graph shows a downward trend in the price of a product over time. The price of the product decreases from 400 to 200. The price of the product decreases from 50\n\n<!-- image -->\n\n(function of the parameters            )\n\nline chart\n\nIn this image, we can see a graph with different colors and the x-axis is labeled as \"2000\" and the y-axis is labeled as \"0.5\".\n\n<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nbar chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 16,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 16,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 13129,
+      "char_length": 647,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_17",
+    "text": "<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nbar chart\n\nThe image is a line graph that shows the relationship between two variables, specifically the price of a product and the number of x-axis values. The x-axis is labeled \"Size (feet²)\" and the y-axis is labeled \"Price (in (1000s).\" The graph is titled \"Price of a Product.\" The graph shows a linear trend with a positive correlation between the two variables.\n\nThe graph has a linear scale from 0 to 7000 on the y-axis, labeled \"Price (in (1000s).\" The graph also has a linear scale from 0 to 7000 on the x-axis, labeled \"Size (feet²).\"\n\nThe graph has a blue line that starts at a point labeled \"0\" and ends at a point labeled \"7000.\" The line starts at the point labeled \"0\" and ends at the point labeled \"7000.\"\n\n<!-- image -->\n\n(function of the parameters            )\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 17,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 17,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 13776,
+      "char_length": 906,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_18",
+    "text": "<!-- image -->\n\n(function of the parameters            )\n\nline chart\n\nThe image is a graph that shows the trend of different lines over time. The lines are labeled as follows:\n\n- **X-axis**: The x-axis represents the time in years.\n- **Y-axis**: The y-axis represents the values of the lines.\n\nThe graph shows the following trends:\n1. **Line 1**: The line starts at a value of 0.5 and increases to 0.55.\n2. **Line 2**: The line starts at a value of 0.5 and increases to 0.56.\n3. **Line 3**: The line starts at a value of 0.5 and increases to 0.57.\n4. **Line 4**: The line starts at a value of 0.5 and increases to 0.58.\n5. **Line 5**: The line starts at a value of 0.5 and increases\n\n<!-- image -->\n\nSource: Andrew Ng\n\n## 2.1. UNIVARIATE LINEAR REGRESSION",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 18,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 18,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 14682,
+      "char_length": 755,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_19",
+    "text": "<!-- image -->\n\nSource: Andrew Ng\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  Gradient descent method =&gt; find our the point that minimize J( θ 0 , θ 1 )\n-  Method:\n- i. Initiate with a random parameter ( θ 0 , θ 1 ), ex. ( θ 0 =0, θ 1 =0)\n- ii. Change ( θ 0 , θ 1 ) to reduce J( θ 0 , θ 1 )\n- iii. Iterate step ii until J( θ 0 , θ 1 ) is (or we believe/accept that it is) minimum\n\nmap\n\nThe image is a graph that shows the temperature distribution of a cloud of particles. The x-axis represents the temperature in Kelvin, while the y-axis represents the temperature in Kelvin. The graph is titled \"J (0,0,0) 1,\" which means it shows the temperature at 0 Kelvin, 0.0 Kelvin, and 0.0 Kelvin.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 19,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 19,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 15437,
+      "char_length": 691,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_20",
+    "text": "The graph shows a pattern of temperature distribution. The temperature at the top of the graph is the highest temperature, which is 3 Kelvin. The temperature at the bottom of the graph is the lowest temperature, which is 0 Kelvin. The temperature at the middle of the graph is the lowest temperature, which is 0.0 Kelvin. The temperature at the bottom of the graph is the highest temperature, which is 3.\n\nThe graph also shows a pattern of lines that are connected. These lines are connected to each other, and they are all pointing in the same direction. The lines are\n\n<!-- image -->\n\nSource: Andrew Ng\n\nmap",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 20,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 20,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 16128,
+      "char_length": 609,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_21",
+    "text": "<!-- image -->\n\nSource: Andrew Ng\n\nmap\n\nThe image is a graph that shows the temperature distribution of a surface. The x-axis represents the temperature, ranging from 0 to 1, while the y-axis represents the temperature, ranging from 0 to 1. The graph shows a trend of increasing temperature as the x-axis increases, with a sharp peak at 0.2 and a gradual decrease towards the right. The graph also shows a horizontal line at 0.1, which indicates that the temperature is at its lowest point.\n\nThe graph is labeled \"J(0,0,1)\", which means that the temperature is measured at 0, 0.1, and 1 degrees Celsius. The x-axis is labeled \"θ\", which represents the temperature in degrees Celsius. The y-axis is labeled \"J(0,0,1)\", which represents the temperature in Joules per square meter per second.\n\nThe graph shows a clear trend of increasing temperature as the x\n\n<!-- image -->\n\nSource: Andrew Ng\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  Gradient descent algorithm\n\n## Repeat until convergence{",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 21,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 21,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 16737,
+      "char_length": 990,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_22",
+    "text": "<!-- image -->\n\nSource: Andrew Ng\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  Gradient descent algorithm\n\n## Repeat until convergence{\n\n<!-- formula-not-decoded -->\n\nCorrect : Simultaneously update\n\n<!-- formula-not-decoded -->\n\n## Wrong:\n\n<!-- formula-not-decoded -->\n\n26\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  Gradient descent algorithm: minimize J( θ 0 , θ 1 )\n\n<!-- formula-not-decoded -->\n\nmap\n\nThe image is a graph that shows the temperature distribution of a certain object over a range of temperatures. The x-axis represents the temperature, ranging from 0 to 1, while the y-axis represents the temperature, ranging from 0 to 1. The graph shows a pattern of peaks and troughs, with the peaks being higher than the troughs.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 22,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 22,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 17727,
+      "char_length": 733,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_23",
+    "text": "The graph has a title at the top, which reads \"J(0,0,1)\", indicating that the x-axis is labeled with the temperature in J (Joules) and the y-axis is labeled with the temperature in J (Joules). The graph also has a scale from 0 to 1 on the x-axis, with a minimum of 0 and a maximum of 1 on the y-axis.\n\nThe graph shows a pattern of peaks and troughs, with the peaks being higher than the troughs. The peaks are more prominent in the middle of the\n\n<!-- image -->\n\nSource: Andrew Ng\n\n2A\n\n(for fixed           , this is a function of x)\n\nJ(00, 01)\n\nJ(00,0\n\n.01\n\n(function of the parameters            )\n\n2000\n\nline chart\n\nThere is a graph with different lines and there are numbers on the x-axis and the y-axis.\n\n<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 23,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 23,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 18460,
+      "char_length": 834,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_24",
+    "text": "<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart\n\nThe image is a line graph that shows the price of a product over time. The x-axis represents the size of the product in feet, while the y-axis represents the price in dollars. The graph has a linear scale of range 0 to 700, with a minimum of 0 and a maximum of 700. The graph is titled \"Price of a product (in 1000s).\"\n\nThe graph shows a clear trend of decreasing price over time. The price starts at a low point around 0 and gradually increases to a high point around 700. The price then decreases to a low point around 400 and then increases again to a high point around 200.\n\nThere are two lines on the graph:\n1. A blue line that is labeled \"Current Hypothesis\" and starts at a low point around 0 and gradually increases to a high point around 700.\n2\n\n<!-- image -->\n\n(function of the parameters            )\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 24,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 24,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 19294,
+      "char_length": 949,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_25",
+    "text": "<!-- image -->\n\n(function of the parameters            )\n\nline chart\n\nThe image is a scatter plot with four colors and a legend. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\". The legend is located at the top right of the plot. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is filled with a scale from -0.5 to 0.5. The plot has a dashed line that is colored in blue. The plot has a dashed line that is colored in green. The plot has a dashed line that is colored in red. The plot has a dashed line that is colored in orange. The plot has a dashed line that is colored in yellow. The plot has a dashed line that is colored in purple. The plot has a dashed line that is colored in white.\n\n<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\n(function of the parameters            )\n\n2000\n\nline chart\n\nThis is a graph, which is titled \"Training data\".",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 25,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 25,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 20243,
+      "char_length": 986,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_26",
+    "text": "<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\n(function of the parameters            )\n\n2000\n\nline chart\n\nThis is a graph, which is titled \"Training data\".\n\n<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart\n\nThe image is a line graph that shows the price of a product over time. The x-axis represents the size of the product in feet, ranging from 0 to 4000. The y-axis represents the price in dollars, ranging from 0 to 700. The graph shows a downward trend in the price of the product over time.\n\nThe line on the graph starts at a low point and then gradually decreases over time. The price starts at 500 and decreases to 200. The price then increases to 4000 and then decreases to 1000. The price then decreases to 1000 and then increases to 2000. The price then decreases to 1000 and then decreases to 1000.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 26,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 26,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 21229,
+      "char_length": 918,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_27",
+    "text": "There are two lines on the graph:\n1. A blue line that starts at 500 and decreases to 200\n\n<!-- image -->\n\n(function of the parameters            )\n\nline chart\n\nThe image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\".\n\nThe scatter plot has a scale of range from -0.5 to 0.5 on the x-axis, and the y-axis ranges from -0.5 to 1000. The plot is labeled as \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis.\n\nThe plot has a legend on the right side of the plot that is labeled \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis. The legend is colored blue and red.\n\nThe plot has a title at the\n\n<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 27,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 27,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 22147,
+      "char_length": 927,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_28",
+    "text": "The plot has a title at the\n\n<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart\n\nThe image is a line graph that shows the relationship between two variables, specifically the price of a product and the number of training data points. The x-axis represents the size of the product, ranging from 0 to 4000, while the y-axis represents the price in dollars. The graph is titled \"Price $ (in 1000s)\" and has a legend at the bottom right corner that indicates the number of training data points.\n\nThe graph shows a downward trend in the price of the product over time. The price starts at 4000 dollars and decreases to 2000 dollars, then increases to 5000 dollars, and finally to 3000 dollars. This indicates that the price of the product decreases as the number of training data points increases.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 28,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 28,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 23074,
+      "char_length": 866,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_29",
+    "text": "The graph also shows a positive correlation between the two variables. This means that as the number of training data points increases, the price of the\n\n<!-- image -->\n\n(function of the parameters            )\n\nline chart\n\nThe image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. Each color represents a different range of values. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\".\n\nThe plot has a scale of range from -0.5 to 0.5 on the x-axis, and the y-axis ranges from -0.5 to 1000. The plot is labeled as \"Skewed Data\" and has a legend at the bottom right corner. The legend indicates that the x-axis is labeled as \"x\" and the y-axis is labeled as \"y\".\n\nThe plot is visually represented with a few different colored lines. The lines are colored in blue, green, red, orange, and black. The blue line is the most prominent, followed by the\n\n<!-- image -->",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 29,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 29,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 23940,
+      "char_length": 981,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_30",
+    "text": "<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart\n\nThe image is a line graph titled \"Price (in (1000s))\" with a categorical scale starting from 0 and ending at 700 on the y-axis, labeled as \"Price (in (1000s)). The x-axis is labeled \"Size (feet²)\". The graph has a linear scale of range 0 to 700 along the y-axis, labeled as \"Price (in (1000s)). The x-axis is labeled \"Size (feet²)\". There are two lines on the graph, one is labeled \"Training data\" and the other is labeled \"Current hypothesis\". The \"Training data\" line is on the left side of the graph, while the \"Current hypothesis\" line is on the right side. The graph shows a downward trend in the \"Training data\" line, reaching a value of 0 at the bottom of the graph and a value of 700 at the top\n\n<!-- image -->\n\n(function of the parameters            )\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 30,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 30,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 24921,
+      "char_length": 898,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_31",
+    "text": "<!-- image -->\n\n(function of the parameters            )\n\nline chart\n\nThe image is a scatter plot with a white background. The plot has five different colors: blue, green, red, orange, and black. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"x - y\". The plot is labeled as \"x - y\" and has a scale of range 0 to 0.5 on the x-axis, and 0 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range 0 to 0.5 on the x-axis, and 0 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range 0 to 0.5 on the x-axis, and 0 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has\n\n<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 31,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 31,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 25819,
+      "char_length": 775,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_32",
+    "text": "<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart\n\nThe image is a line graph that shows the relationship between two variables, specifically the price of a product and the number of training data points. The x-axis represents the size of the product, ranging from 0 to 4000, while the y-axis represents the price in dollars. The graph is titled \"Price (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000s)) (in (1000\n\n<!-- image -->\n\n(function of the parameters            )\n\nline chart\n\nThe image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. Each color represents a different range of values. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"Skewed Data\".",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 32,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 32,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 26594,
+      "char_length": 971,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_33",
+    "text": "The plot has a scale of range from -0.5 to 0.5 on the x-axis, and the y-axis ranges from -0.5 to 0.5. The plot is labeled as \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis.\n\nThe plot is labeled as \"Skewed Data\" and has a scale of range from -0.5 to 0.5 on the x-axis. The plot is labeled as \"Skewed Data\" and has a scale of range from -0\n\n<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 33,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 33,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 27565,
+      "char_length": 486,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_34",
+    "text": "<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\nline chart\n\nThe image is a line graph titled \"Price $ (in 1000s)\" with a linear scale from 0 to 700 along the y-axis, labeled as \"Price $ (in 1000s)\". The x-axis is labeled \"Size (feet²)\" and is measured from 0 to 1000. The graph shows a linear scale from 0 to 700 on the y-axis, labeled as \"Price $ (in 1000s)\". The graph has a blue line that is drawn from the bottom to the top of the graph. The line is labeled \"Training data\" and is colored red. The graph also has a legend on the right side of the graph, which is labeled \"Size (feet²)\" and is colored in red. The graph has a scale from 0 to 700 on the x-axis, labeled \"Size (feet²)\" and is measured\n\n<!-- image -->\n\n(function of the parameters            )\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 34,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 34,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 28051,
+      "char_length": 838,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_35",
+    "text": "<!-- image -->\n\n(function of the parameters            )\n\nline chart\n\nThe image is a scatter plot with a white background. The plot consists of five different colors: blue, green, red, orange, and black. The x-axis is labeled as \"x\" and the y-axis is labeled as \"y\". The plot is titled \"x - y\". The plot is plotted with a scale of range -0.5 to 0.5 on the x-axis, and a scale of range -0.5 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range -0.5 to 0.5 on the x-axis, and a scale of range -0.5 to 0.5 on the y-axis. The plot is labeled as \"x - y\" and has a scale of range -0.5 to 0.5 on the x-axis, and a scale of range -0.5 to 0.5\n\n<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\n(function of the parameters            )\n\nbar chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 35,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 35,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 28889,
+      "char_length": 825,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_36",
+    "text": "<!-- image -->\n\nSource: Andrew Ng\n\n<!-- formula-not-decoded -->\n\n(for fixed           , this is a function of x)\n\n(function of the parameters            )\n\nbar chart\n\nIn this image, we can see a graph. On the graph, we can see the numbers. On the right, we can see the numbers. On the left, we can see the numbers. On the right, we can see the numbers. On the left, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers. On the right, we can see the numbers.\n\n<!-- image -->\n\nSource: Andrew Ng\n\n## 2.1. UNIVARIATE LINEAR REGRESSION",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 36,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 36,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 29714,
+      "char_length": 994,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_37",
+    "text": "<!-- image -->\n\nSource: Andrew Ng\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\nother\n\nIn this image, we can see a diagram with some text and numbers.\n\n<!-- image -->\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n-  Summary: Given N samples, a univariate regression model is described as follow (e i describes the change of Y which is not explainable from X)\n-  Straight line form\n\n<!-- formula-not-decoded -->\n\n-  Parabol form\n\n<!-- formula-not-decoded -->\n\n-  Estimating ( θ 0 , θ 1 ) by gradient descent method or can be quickly estimated by:\n\n<!-- formula-not-decoded -->\n\n39\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n## Income vs Average Working Hours\n\nline chart\n\nThe image is a line graph titled \"Income Per Year (in thousands dollars).\" The x-axis represents the average number of working hours per day, while the y-axis represents the slope of the line. The graph shows a linear relationship between the average number of working hours and the amount of money earned.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 37,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 37,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 30708,
+      "char_length": 963,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_38",
+    "text": "The graph has a scale of range 0 to 25,000 on the x-axis, labeled \"Average Number of Working Hours Per Day.\" The y-axis is labeled \"Income Per Year (in thousands dollars).\" The graph shows a linear relationship between the average number of working hours and the amount of money earned.\n\nThere are two lines on the graph:\n1. A straight line that starts at a value of 0 and goes up to a value of 25,000.\n2. A curve that starts at a value of 0 and goes up to a value of 25,000\n\n<!-- image -->\n\n- Y= θ 0 + θ 1 *X1 → Y = 0.636 + 2.018*X\n- Dr. Tran Minh Quang - quangtran@hcmut.edu.vn · The sign of θ 1 describes the effect direction (positive/negative) of X on Y.\n\n40\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n2\n\n5\n\n3\n\n2\n\n5\n\n3\n\n4",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 38,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 38,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 31671,
+      "char_length": 722,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_39",
+    "text": "40\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\n2\n\n5\n\n3\n\n2\n\n5\n\n3\n\n4\n\n|   Quantity Sold |   Price($) |\n|-----------------|------------|\n|            8500 |          2 |\n|            4700 |          5 |\n|            5800 |          3 |\n|            7400 |          2 |\n|            6200 |          5 |\n|            7300 |          3 |\n|            5600 |          4 |\n\nline chart\n\n**Image Description:**\n\nThe image is a line graph titled \"Quantity Sold\" with a linear scale of range 0 to 0.65 on the y-axis, labeled \"Quantity.\" The x-axis is labeled \"Price ($)\" and is marked with a linear scale of range 0 to 6000.\n\nThe graph shows a downward trend in the quantity sold over the given range. The quantity sold decreases from 5000 to 3000, then from 3000 to 2000, and finally from 2000 to 1000.\n\nThe graph is drawn with a simple, clear line, and the data points are clearly marked. The graph is not overly complex, and the data points are easy to read and understand.\n\n**Analysis:**",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 39,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 39,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 32393,
+      "char_length": 974,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_40",
+    "text": "The graph is drawn with a simple, clear line, and the data points are clearly marked. The graph is not overly complex, and the data points are easy to read and understand.\n\n**Analysis:**\n\nThe graph shows a downward trend in the quantity sold over the range of 0 to 0\n\n<!-- image -->\n\n6\n\ny=quantySold=9323-823*price\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\nFigure 11.1, [2], pp. 372. Expired ventilation plotted against oxygen uptake in a series of trials, with fitted straight line: y = θ 0 + θ 1 x.\n\nline chart\n\nThe image is a line graph that shows the expired ventilation (VOC) levels over time. The x-axis represents the time in hours, while the y-axis shows the VOC levels in parts per million (ppm). The graph is labeled \"Expired ventilation (VOC) levels\" and is labeled as \"expired ventilation (VOC) levels.\"",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 40,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 40,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 33367,
+      "char_length": 812,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_41",
+    "text": "The graph shows a trend of decreasing VOC levels over time. The VOC levels are shown as a linear scale from 0 to 150 ppm, with a minimum of 0 and a maximum of 150 ppm. The graph shows a significant drop in VOC levels over time, with the lowest VOC levels being around 100 ppm and the highest VOC levels being around 150 ppm.\n\nThere are two main trends in the graph:\n\n1. **Initial Decrease**: The graph shows a gradual decrease in VOC levels over time. This is indicated by the decline in the VOC levels\n\n<!-- image -->\n\n42\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\nFigure 11.2, [2], pp. 373. The data from Figure 11.1 with a model that includes a term in x 2 : y = θ 0 + θ 1 x + θ 2 x 2 .\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 41,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 41,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 34179,
+      "char_length": 697,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_42",
+    "text": "<!-- image -->\n\n42\n\n## 2.1. UNIVARIATE LINEAR REGRESSION\n\nFigure 11.2, [2], pp. 373. The data from Figure 11.1 with a model that includes a term in x 2 : y = θ 0 + θ 1 x + θ 2 x 2 .\n\nline chart\n\nThe image is a line graph that depicts the expired ventilation (ETV) over time. The x-axis represents the time in hours, ranging from 0 to 4000, while the y-axis represents the Expired Ventilation (ETV) in units of liters per minute (L/min). The graph shows a continuous upward trend in the ETV over the years, with a significant increase in the years 2000 to 2005.\n\nThe graph shows a clear upward trend in the ETV over the years, with a noticeable increase from 2000 to 2005. The ETV in 2005 is significantly higher than the ETV in 2000, indicating a significant increase in the number of ventilators used.\n\nThe graph also shows a significant increase in the ETV over the years 2005 to 2007. This increase is not\n\n<!-- image -->\n\n43\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 42,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 42,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 34876,
+      "char_length": 968,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_43",
+    "text": "The graph also shows a significant increase in the ETV over the years 2005 to 2007. This increase is not\n\n<!-- image -->\n\n43\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  The house prices is affected by several variables/factors\n\n| Size (feet 2 )   | Number of rooms   | Floors   | Age       | Price($1K)   |\n|------------------|-------------------|----------|-----------|--------------|\n| 2104             | 5                 | 1        | 45        | 460          |\n| 1416             | 3                 | 2        | 40        | 232          |\n| y i = 1534       | + b + 3           | x i2 2   | +…+b x 30 | 315          |\n| 852              | 0 1 x i1 2        | 2 1      | k ik 36   | 178          |\n| …                | …                 | …        | …         | …            |\n\nn:     number of input attributes (e.g., n = 4)\n\nx (i) :   input (features) of the i th   training sample x j (i) :   value of attribute j in the training sample i th\n\ny (i) :    i th  output in the training dataset",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 43,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 43,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 35844,
+      "char_length": 998,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_44",
+    "text": "x (i) :   input (features) of the i th   training sample x j (i) :   value of attribute j in the training sample i th\n\ny (i) :    i th  output in the training dataset\n\nE.x.,\n\n<!-- formula-not-decoded -->\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Hypothesis:\n\n<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n-  Presenting in a matrix form ( x 0=1 )\n\n<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Gradient descent:\n\n<!-- formula-not-decoded -->\n\n-  Coefficients θ ( θ ,…, θ ):  an n+1 vector\n- 0 n\n-  Minimize:  J( θ ) = J( θ ,…, θ )\n\n<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n## Repeat until convergence{\n\n<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n46\n\n## 2.2. H ỒI QUI T UYẾN TÍNH Đ A B IẾN\n\n## Repeat until convergence{\n\n<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n….\n\n47\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 44,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 44,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 36842,
+      "char_length": 969,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_45",
+    "text": "46\n\n## 2.2. H ỒI QUI T UYẾN TÍNH Đ A B IẾN\n\n## Repeat until convergence{\n\n<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n….\n\n47\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Feature scaling:  to assure that all input features are in the same scale\n-  E.g.,   x 1 = size (0 - 2000 feet 2 )\n\nx\n\n<!-- formula-not-decoded -->\n\n- =&gt; They are not in the same scale. The convergence speed is affected because of this imbalance scaling.\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Assure that features are in the same scale\n\n```\nE.g.  x 1 = size (0-2000 feet 2 ) x\n```\n\n2 = number of bedrooms (1-5)\n\nother\n\nThe image consists of a diagram with a circle labeled as \\(\\theta_{2}\\) and a point labeled as \\(\\omega\\). The circle is divided into three sections, each with a different radius. The points are connected by lines, and the lines are drawn with blue lines. The diagram is labeled as \\(\\theta_{2}\\) and \\(\\omega\\).\n\n<!-- image -->\n\nScaled:  x\n\n1 = size/2000\n\nx",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 45,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 45,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 37811,
+      "char_length": 974,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_46",
+    "text": "<!-- image -->\n\nScaled:  x\n\n1 = size/2000\n\nx\n\n2 = number of bedrooms /5\n\nother\n\nThe image consists of a diagram with a circle labeled as \\theta_{2}. There is a small circle labeled as \\theta_{1} located at the bottom of the circle. The diagram shows a spiral pattern with a diameter of 2. The diagram also includes a line labeled as \\theta_{1} which is perpendicular to the diameter of the circle.\n\n<!-- image -->\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Feature scaling\n- Normalize all feature to a range of [-1, 1]\n\n<!-- formula-not-decoded -->\n\n- Ex., x 0 = 1 ;  0 ≤ x 1 ≤ 3; -2 ≤ x 2 ≤ 0.5      =&gt; OK -3 4\n-  Apply normalization methods in chapter  2\n- Ex.\n\n<!-- formula-not-decoded -->\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Validate the Gradient descent algorithm\n- J( θ ) must decrease after each iteration\n- We can plot J( θ ) by θ for intuitively check the convergence ability of the algorithm\n\nline chart",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 46,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 46,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 38785,
+      "char_length": 928,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_47",
+    "text": "-  Validate the Gradient descent algorithm\n- J( θ ) must decrease after each iteration\n- We can plot J( θ ) by θ for intuitively check the convergence ability of the algorithm\n\nline chart\n\nThe image is a line graph titled \"min J(θ)\". The graph is titled \"min J(θ)\" and has a horizontal axis labeled \"No. of iterations\" and a vertical axis labeled \"θ\". The graph has a linear scale from 0 to 400 on the x-axis, and a linear scale of range 0 to 400 on the y-axis. The graph has a single line that starts at the point (0, 0) and extends upwards to the right, indicating that the graph is a linear plot.\n\nThe graph has two axes: the horizontal axis labeled \"No. of iterations\" and the vertical axis labeled \"θ\". The x-axis is labeled \"θ\" and the y-axis is labeled \"θ\". The graph has a linear scale of range 0 to 400 on the x-axis, and a linear scale of range 0 to 400 on the y-axis\n\n<!-- image -->\n\nNo. of iterations\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n##  Un-converged gradient descent\n\n52",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 47,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 47,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 39713,
+      "char_length": 993,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_48",
+    "text": "<!-- image -->\n\nNo. of iterations\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n##  Un-converged gradient descent\n\n52\n\n- α too small:\n\nslow convergence\n\n- α too large:\n\nJ( θ ) may not reduce at each\n\niteration\n\n=&gt; the algorithm may no converge\n\n- try α : 0.001, 0.003, 0.01, 0.03, 0.1, 0.3,…\n\nline chart\n\nIn this image, we can see a graph. There are two graphs, one is a blue graph and the other is a red graph. There are some numbers on the graph. There is a title at the top of the image. There is a line on the graph. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title. There is a graph with a title.\n\n<!-- image -->\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Use normal equation to identify θ",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 48,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 48,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 40706,
+      "char_length": 986,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_49",
+    "text": "<!-- image -->\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Use normal equation to identify θ\n\nGradient Descent\n\nother\n\nThe image is a graph depicting the distribution of a particular variable over time. The graph consists of two main components: a horizontal axis labeled \"θ\" and a vertical axis labeled \"θ\", which is the range of the variable. The graph shows a general upward trend in the distribution of the variable, with a significant peak in the middle of the graph. The graph also includes a red line that appears to be a linear or curved line, indicating a linear or curved trend.\n\nThe graph is labeled as \"θ\" and \"θ\", and the x-axis is labeled \"θ\" and the y-axis is labeled \"θ\". The graph is not explicitly labeled, but it is clear that the graph is a graphical representation of the distribution of a variable over time.",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 49,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 49,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 41692,
+      "char_length": 831,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_50",
+    "text": "The graph is not explicitly labeled, but it is clear that the graph is a graphical representation of the distribution of a variable over time. The graph is not explicitly labeled, but it is clear that the graph is\n\n<!-- image -->\n\n<!-- formula-not-decoded -->\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\nExamples:  N = 4, X: an Nx(n+1) matrix; y: an Nx1 matrix\n\n|    |   size (feet 2 ) |   No. of rooms |   Floors |   Years |   Price ($1K) |\n|----|------------------|----------------|----------|---------|---------------|\n|  1 |             2104 |              5 |        1 |      45 |           460 |\n|  1 |             1416 |              3 |        2 |      40 |           232 |\n|  1 |             1534 |              3 |        2 |      30 |           315 |\n|  1 |              852 |              2 |        1 |      36 |           178 |\n\n<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Given a training dataset: N examples, n features",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 50,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 50,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 42523,
+      "char_length": 992,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_51",
+    "text": "<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Given a training dataset: N examples, n features\n\n## Gradient descent\n\n-  must select α\n-  needs a large number of iterations\n-  workable event with a large n (e.g., n = 10 6 )\n\n## Normal equation\n\n-  don't need to select α\n-  don't need iterations\n-  Must compute (X T X) -1\n-  May not work when n is large (when n = 10 4  then gradient descent  should be used)\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n-  Note: the non-invertible issue in the normal equation method, i.e., (X T X) is not invertible\n-  Resolve:\n- Check the linear dependence of variables. Ex., the size in meter (x 1 ) and the size in feet (x 2 ) =&gt; remove dependent variables\n- Too much features (n &gt; N). Ex., n = 20, N = 10 =&gt; reduce the number of features; find surrogate features; correct more data samples,…\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n##  Another example:",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 51,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 51,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 43515,
+      "char_length": 965,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_52",
+    "text": "## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n##  Another example:\n\n|   Quantity Sold |   Price($) |   Advertising ($) |\n|-----------------|------------|-------------------|\n|            8500 |          2 |              2800 |\n|            4700 |          5 |               200 |\n|            5800 |          3 |               400 |\n|            7400 |          2 |               500 |\n|            6200 |          5 |              3200 |\n|            7300 |          3 |              1800 |\n|            5600 |          4 |               900 |\n\n## 2.2. MULTIVARIATE LINEAR REGRESSION\n\n| Regression Statistics   |   Regression Statistics |\n|-------------------------|-------------------------|\n| Multiple R              |                0.980681 |\n| R Square                |                0.96174  |\n| Adjusted R Square       |                0.942604 |\n| Standard Error          |              310.524    |\n| Observations            |                7        |",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 52,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 52,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 44480,
+      "char_length": 958,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_53",
+    "text": "| �               |   Coefficie nts |   Standard Error |     t Stat | P-value           |    Lower 95% |   Upper 95% |   Lower 95.0% | Upper 95.0%   |\n|-----------------|-----------------|------------------|------------|-------------------|--------------|-------------|---------------|---------------|\n| Intercept       |      8536.21    |       8536.21    | 386.912    | 22.06243 2.5E-05  |  7461.97     | 9610.45     |   7461.98     | 58 9610.453   |\n| Price($)        |      -835.72    |       -835.72    |  99.653    | -8.38632 0.001106 | -1112.4      | -559.041    |  -1112.4      | -559.041      |\n| Advertising ($) |         0.59223 |          0.59223 |   0.104347 | 5.675579 0.004755 |     0.302515 |    0.881942 |      0.302515 | 0.881942      |\n\nother\n\nIn this image, there is a table with some numbers and text.\n\n<!-- image -->\n\n## 3. NON-LINEAR REGRESSION",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 53,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 53,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 45438,
+      "char_length": 867,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_54",
+    "text": "other\n\nIn this image, there is a table with some numbers and text.\n\n<!-- image -->\n\n## 3. NON-LINEAR REGRESSION\n\n-  Y = f(X, θ )\n-  Y is a non-linear function in terms of relationship between parameters θ .\n-  Ex: Exponential, logarithmic function, Gauss, …\n\n<!-- formula-not-decoded -->\n\n-  Identify optimal θ : Optimization algorithms\n-  Local optimization\n-  Global optimization (using sum of squared residuals/errors)\n\n## 4. APPLICATIONS\n\n-  Data mining\n-  Data preprocessing: Smoothing, noise removal,…\n-  Mining tasks: numerical-values prediction, descriptive analysis\n-  Apply in many domains: biology, agriculture, social issues, economy, business, finances, insurance, e-commerce, marketing, security, science, robotics, control systems, automation,…\n\n## 5. ISSUES IN REGRESSION\n\n##  Assumptions",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 54,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 54,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 46305,
+      "char_length": 815,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_55",
+    "text": "## 5. ISSUES IN REGRESSION\n\n##  Assumptions\n\n-  Data distribution: the relationship between predictors and dependent variables\n-  Independence of  predictors\n-  Continuous values of variables (both predictor &amp; responses)\n-  Errors: How to identify them?\n-  The amount of data processed is not large\n-  How to identify the regression model\n-  Advanced techniques for regression:\n-  Artificial Neural Network (ANN)\n-  Support Vector Machine (SVM)\n\n## 5. ISSUES IN REGRESSION\n\n-  Evaluation of a regression model:\n-  Collect new data to evaluate the prediction results\n-  Use the existing data (as testing dataset) for evaluation\n-  Data splitting\n-  Training data: To build the model\n-  Testing data  validate/evaluate the model\n-  K-fold cross-validation\n-  Iterate k times:\n-  Training data: (k-1) portions of data\n-  Test data: the k th  portion of data  accuracy\n-  Average(accuracy) of k times\n\n## 5. ISSUES IN REGRESSION",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 55,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 55,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 47120,
+      "char_length": 951,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_56",
+    "text": "## 5. ISSUES IN REGRESSION\n\n-  Evaluation of the regression model:\n-  Accuracy\n-  Sum of squared errors (SSE)\n- -&gt; Overall measure of errors: smaller is better\n\n<!-- formula-not-decoded -->\n\n-  Mean squared error (MSE): measure of the variability in the response variable left unexplained by the regression: smaller is better\n\n<!-- formula-not-decoded -->\n\n(n: sample size, m: number of regression coefficients)\n\n## 5. ISSUES IN REGRESSION\n\n##  Accuracy (Con't)\n\n-  The standard error of the estimate (S)\n-  Đánh giá sai s ố thông th ườ ng trong quá trình d ự đoán , s ự sai l ệ ch gi ữ a giá tr ị d ự đoán và giá tr ị th ự c c ủ a bi ế n đáp ứ ng\n-  Measure the common error in the prediction process. It is the mean difference between the predicted and the actual values.\n-  Presents the precision of the prediction generated by the regression model\n\n<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n## 5. ISSUES IN REGRESSION",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 56,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 56,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 48071,
+      "char_length": 951,
+      "type": "markdown"
+    }
+  },
+  {
+    "id": "Chapter03_Regression_chunk_57",
+    "text": "<!-- formula-not-decoded -->\n\n<!-- formula-not-decoded -->\n\n## 5. ISSUES IN REGRESSION\n\n-  Factors affect the success of building regression models\n-  Proper problem formulation\n-  Selection of important variables and model form\n-  Good dataset (both in volume and quality)\n-  The use of good coefficient estimation procedures (e.g., gradient descent)\n-  Model validation techniques\n\n## 6. SUMMARY\n\n-  Regression\n-  A statistical technique, applied to continuous attributes/features\n-  Simple yet useful, applicable in various domains\n-  One of example showing the contribution of statistics in data mining\n-  Types: Linear/non-linear, Univariate/Multivariate, Parametric/Non-parametric/Semi-parametric, Symmetric/Assymetric\n\nlogo\n\nQ&A\n\n<!-- image -->\n\nquangtran@hcmut.edu.vn\n\n2025/9/9",
+    "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+    "doc_id": "Chapter03_Regression",
+    "chunk_index": 57,
+    "total_chunks": 58,
+    "metadata": {
+      "doc_id": "Chapter03_Regression",
+      "chunk_index": 57,
+      "total_chunks": 58,
+      "source": "output\\processing\\stage4_rag_ready\\Chapter03_Regression\\Chapter03_Regression.md",
+      "char_start": 49022,
+      "char_length": 796,
+      "type": "markdown"
+    }
+  }
+]
