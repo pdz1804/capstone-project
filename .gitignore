@@ -27,6 +27,10 @@ Phase_2/backend/ms_marco_val/
 Phase_2/backend/input/
 Phase_2/backend/output/
 
+# Libraries and environments
+.env/
+capstone/
+
 # -------------------------
 # Python
 # -------------------------
@@ -51,11 +55,10 @@ venv/
 ENV/
 env/
 *.env
-*.env.*
-.env.local
-.env.development
-.env.test
-.env.production
+*.env.local
+*.env.development
+*.env.test
+*.env.production
 
 # Python testing & coverage
 .coverage
