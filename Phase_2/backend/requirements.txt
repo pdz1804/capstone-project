@@ -13,7 +13,7 @@ colpali-engine==0.3.13
 # ColBERT / Ragotouille
 ragatouille>=0.0.8
 
-nvidia-nccl-cu12-2.27.3
+# nvidia-nccl-cu12-2.27.3 # Khoi said cannot use this 
 
 # ======================== Core Processing ========================
 # Docling - Advanced document understanding framework
@@ -76,7 +76,7 @@ rapidocr-onnxruntime  # Rapid OCR
 # ======================== Information Retrieval ========================
 # Dense retrieval
 # faiss-cpu             # Vector similarity search (CPU version)
-faiss-gpu-cu12           # Use this for GPU version instead
+faiss-gpu-cu12           # Use this for GPU version instead - Khoi said cannot use this
 
 # Sparse retrieval
 rank-bm25             # BM25 implementation

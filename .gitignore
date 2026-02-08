@@ -26,6 +26,15 @@ Phase_1/Week091011-Merge/ms_marco_val/
 Phase_2/backend/ms_marco_val/
 Phase_2/backend/input/
 Phase_2/backend/output/
+Phase_2/backend/output copy/
+
+Phase_2_PDZ_001/input/
+Phase_2_PDZ_001/output/
+Phase_2_PDZ_001/uploads/
+
+# Ignore BMAD
+_bmad/
+_bmad-output/
 
 # -------------------------
 # Python
@@ -304,7 +313,7 @@ temp/
 *.temp
 
 # Backup files
-*.bak
+# *.bak
 *.backup
 *.old
 
@@ -352,7 +361,8 @@ env/
 myenv/
 logs/
 .roo/
-.github/
+# .github/
+.github/agents/
 .windsurf/
 
 # Byte-compiled / optimized / DLL files

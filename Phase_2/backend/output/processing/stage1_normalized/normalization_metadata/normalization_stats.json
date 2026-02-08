@@ -1,9 +1,7 @@
 {
-  "total_files": 2,
-  "normalized_files": 2,
+  "total_files": 0,
+  "normalized_files": 0,
   "failed_files": 0,
-  "by_type": {
-    "pdf": 2
-  },
+  "by_type": {},
   "errors": []
 }

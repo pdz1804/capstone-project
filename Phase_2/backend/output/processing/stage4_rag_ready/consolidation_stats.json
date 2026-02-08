@@ -1,8 +1,8 @@
 {
-  "total_documents": 2,
-  "with_pdf": 2,
-  "without_pdf": 0,
-  "with_markdown": 2,
-  "with_additional": 2,
+  "total_documents": 1,
+  "with_pdf": 0,
+  "without_pdf": 1,
+  "with_markdown": 1,
+  "with_additional": 1,
   "errors": []
 }

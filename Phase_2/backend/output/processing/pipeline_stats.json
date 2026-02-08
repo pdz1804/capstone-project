@@ -1,40 +1,38 @@
 {
-  "start_time": "2026-01-04T17:28:01.539409",
+  "start_time": "2026-02-07T20:52:14.128910",
   "stages": {
     "normalization": {
-      "total_files": 2,
-      "normalized_files": 2,
+      "total_files": 0,
+      "normalized_files": 0,
       "failed_files": 0,
-      "by_type": {
-        "pdf": 2
-      },
+      "by_type": {},
       "errors": []
     },
     "media_processing": {
-      "total_files": 0,
-      "processed_files": 0,
+      "total_files": 1,
+      "processed_files": 1,
       "failed_files": 0,
-      "audio_extracted": 0,
-      "transcribed": 0,
-      "frames_extracted": 0,
+      "audio_extracted": 1,
+      "transcribed": 1,
+      "frames_extracted": 48,
       "errors": []
     },
     "document_processing": {
-      "processed_files": 2,
+      "processed_files": 1,
       "failed_files": 0,
-      "total_files": 2
+      "total_files": 1
     },
     "consolidation": {
-      "total_documents": 2,
-      "with_pdf": 2,
-      "without_pdf": 0,
-      "with_markdown": 2,
-      "with_additional": 2,
+      "total_documents": 1,
+      "with_pdf": 0,
+      "without_pdf": 1,
+      "with_markdown": 1,
+      "with_additional": 1,
       "errors": []
     }
   },
-  "total_input_files": 2,
-  "total_output_files": 92,
+  "total_input_files": 1,
+  "total_output_files": 3,
   "errors": [],
-  "end_time": "2026-01-04T17:44:25.501281"
+  "end_time": "2026-02-07T20:52:37.680528"
 }

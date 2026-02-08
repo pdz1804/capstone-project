@@ -1,55 +1,16 @@
 {
-  "start_time": "2026-01-04T17:28:01.537692",
-  "processing": {
-    "start_time": "2026-01-04T17:28:01.539409",
-    "stages": {
-      "normalization": {
-        "total_files": 2,
-        "normalized_files": 2,
-        "failed_files": 0,
-        "by_type": {
-          "pdf": 2
-        },
-        "errors": []
-      },
-      "media_processing": {
-        "total_files": 0,
-        "processed_files": 0,
-        "failed_files": 0,
-        "audio_extracted": 0,
-        "transcribed": 0,
-        "frames_extracted": 0,
-        "errors": []
-      },
-      "document_processing": {
-        "processed_files": 2,
-        "failed_files": 0,
-        "total_files": 2
-      },
-      "consolidation": {
-        "total_documents": 2,
-        "with_pdf": 2,
-        "without_pdf": 0,
-        "with_markdown": 2,
-        "with_additional": 2,
-        "errors": []
-      }
-    },
-    "total_input_files": 2,
-    "total_output_files": 92,
-    "errors": [],
-    "end_time": "2026-01-04T17:44:25.501281"
-  },
+  "start_time": "2026-02-07T20:53:36.690719",
+  "processing": {},
   "retrieval_setup": {
     "retrievers_initialized": [
       "bm25",
       "dense",
       "hybrid"
     ],
-    "document_count": 89,
-    "chunk_count": 89,
-    "raw_doc_count": 2,
-    "index_dir": "output\\retrieval",
+    "document_count": 5,
+    "chunk_count": 5,
+    "raw_doc_count": 1,
+    "index_dir": "D:\\PDZ\\BKU\\Learning\\LVTN\\GD1\\Code\\Phase_2\\backend\\output\\retrieval",
     "index_loaded": false,
     "index_built": true,
     "chunking": {
@@ -62,11 +23,11 @@
     "retrievers_initialized": [
       "colqwen"
     ],
-    "page_count": 121,
-    "index_dir": "output\\image_retrieval",
+    "page_count": 0,
+    "index_dir": "D:\\PDZ\\BKU\\Learning\\LVTN\\GD1\\Code\\Phase_2\\backend\\output\\image_retrieval",
     "index_built": true
   },
   "evaluation": {},
-  "end_time": "2026-01-04T18:00:47.274264",
-  "total_duration": "0:32:45.736572"
+  "end_time": "2026-02-07T20:54:27.057827",
+  "total_duration": "0:00:50.367108"
 }

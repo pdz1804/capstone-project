@@ -1,5 +1,5 @@
 {
   "model_name": "vidore/colqwen2-v1.0",
-  "num_pages": 121,
-  "pdf_dir": "output\\processing\\stage4_rag_ready"
+  "num_pages": 0,
+  "pdf_dir": "D:\\PDZ\\BKU\\Learning\\LVTN\\GD1\\Code\\Phase_2\\backend\\output\\processing\\stage4_rag_ready"
 }

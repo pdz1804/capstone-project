@@ -2,5 +2,5 @@
   "retrievers": [
     "colqwen"
   ],
-  "pdf_dir": "output\\processing\\stage4_rag_ready"
+  "pdf_dir": "D:\\PDZ\\BKU\\Learning\\LVTN\\GD1\\Code\\Phase_2\\backend\\output\\processing\\stage4_rag_ready"
 }
