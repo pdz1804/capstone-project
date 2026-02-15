@@ -8,30 +8,30 @@ variable "cluster_name" {
 variable "backend_config" {
   description = "Backend service configuration"
   type = object({
-    name                   = string
-    image_uri              = string
-    port                   = number
-    cpu                    = number
-    memory                 = number
-    desired_count          = number
-    min_capacity           = number
-    max_capacity           = number
-    container_name         = string
+    name           = string
+    image_uri      = string
+    port           = number
+    cpu            = number
+    memory         = number
+    desired_count  = number
+    min_capacity   = number
+    max_capacity   = number
+    container_name = string
   })
 }
 
 variable "frontend_config" {
   description = "Frontend service configuration"
   type = object({
-    name                   = string
-    image_uri              = string
-    port                   = number
-    cpu                    = number
-    memory                 = number
-    desired_count          = number
-    min_capacity           = number
-    max_capacity           = number
-    container_name         = string
+    name           = string
+    image_uri      = string
+    port           = number
+    cpu            = number
+    memory         = number
+    desired_count  = number
+    min_capacity   = number
+    max_capacity   = number
+    container_name = string
   })
 }
 
@@ -111,10 +111,10 @@ resource "aws_security_group" "ecs_tasks" {
 
   # Inter-task communication
   ingress {
-    from_port = 0
-    to_port   = 65535
-    protocol  = "tcp"
-    self      = true
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    self        = true
     description = "Allow inter-task communication"
   }
 

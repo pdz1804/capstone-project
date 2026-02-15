@@ -1,4 +1,4 @@
-name: Backend CI/CD Pipeline
+name: Frontend CI/CD Pipeline
 
 on:
   push:
@@ -6,27 +6,27 @@ on:
       - main
       - develop
     paths:
-      - 'Phase_2/backend/**'
-      - '.github/workflows/backend-cicd.yml'
+      - 'Phase_2/frontend/**'
+      - '.github/workflows/frontend-cicd.yml'
   pull_request:
     branches:
       - main
       - develop
     paths:
-      - 'Phase_2/backend/**'
+      - 'Phase_2/frontend/**'
 
 env:
   AWS_REGION: us-west-2
-  ECR_REPOSITORY: rag-pipeline-backend
+  ECR_REPOSITORY: rag-pipeline-frontend
   IMAGE_TAG: ${{ github.sha }}
-  SERVICE_NAME: rag-pipeline-cluster-backend-service
+  SERVICE_NAME: rag-pipeline-cluster-frontend-service
   CLUSTER_NAME: rag-pipeline-cluster
-  TASK_DEFINITION_FAMILY: rag-pipeline-backend
+  TASK_DEFINITION_FAMILY: rag-pipeline-cluster-frontend
 
 jobs:
   # ==================== Build & Push ====================
   build-and-push:
-    name: Build & Push Backend Image
+    name: Build & Push Frontend Image
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-        
+
       - name: Log Step 1 - Checkout
         run: |
           echo "========================================"
@@ -47,9 +47,9 @@ jobs:
           echo "Repository: ${{ github.repository }}"
           echo "Branch: ${{ github.ref }}"
           echo "Commit SHA: ${{ github.sha }}"
-          echo "Commit Message: ${{ github.event.head_commit.message }}"
-          echo "Repository Contents:"
-          ls -la Phase_2/backend/
+          echo "Build triggered by: ${{ github.event_name }}"
+          echo "Repository Contents (frontend):"
+          ls -la Phase_2/frontend/ | head -20
 
       # Step 2: Configure AWS credentials
       - name: Configure AWS credentials
@@ -78,22 +78,78 @@ jobs:
           echo "STEP 3: ECR LOGIN SUCCESSFUL"
           echo "========================================"
           echo "ECR Registry: ${{ steps.login-ecr.outputs.registry }}"
-          echo "Repository: ${{ env.ECR_REPOSITORY }}"
+          echo "ECR Repository: ${{ env.ECR_REPOSITORY }}"
           aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} || echo "Repository will be created by Terraform"
 
-      # Step 4: Set up Docker Buildx
+      # Step 4: Node.js setup
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Log Step 4 - Node.js Setup
+        run: |
+          echo "========================================"
+          echo "STEP 4: NODE.JS SETUP"
+          echo "========================================"
+          echo "Node Version: $(node --version)"
+          echo "npm Version: $(npm --version)"
+          echo "npm Cache Location: $(npm config get cache)"
+
+      # Step 5: Install dependencies
+      - name: Install dependencies
+        working-directory: Phase_2/frontend
+        run: |
+          echo "========================================"
+          echo "STEP 5: INSTALLING DEPENDENCIES"
+          echo "========================================"
+          npm install --verbose
+          echo "Dependency installation complete"
+          npm list --depth=0
+
+      # Step 6: Run linting
+      - name: Run ESLint
+        working-directory: Phase_2/frontend
+        continue-on-error: true
+        run: |
+          echo "========================================"
+          echo "STEP 6: RUNNING ESLINT"
+          echo "========================================"
+          npx eslint src/ --max-warnings 0 || echo "No ESLint config found, skipping"
+          echo "ESLint check complete"
+
+      # Step 7: Build application
+      - name: Build application
+        working-directory: Phase_2/frontend
+        run: |
+          echo "========================================"
+          echo "STEP 7: BUILDING APPLICATION"
+          echo "========================================"
+          npm run build
+          echo "Build complete"
+          echo "Build artifacts:"
+          du -sh dist/ 2>/dev/null || echo "No dist directory found"
+          ls -la dist/ | head -20
+
+      - name: Log Step 7 - Build Complete
+        run: |
+          echo "========================================"
+          echo "Build artifacts size:"
+          du -sh Phase_2/frontend/dist/
+
+      # Step 8: Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log Step 4 - Docker Buildx
+      - name: Log Step 8 - Docker Setup
         run: |
           echo "========================================"
-          echo "STEP 4: DOCKER BUILDX SETUP"
+          echo "STEP 8: DOCKER BUILDX SETUP"
           echo "========================================"
           docker --version
           docker buildx version
 
-      # Step 5: Prepare image tags (only tag :latest on main)
+      # Step 9: Prepare image tags (only tag :latest on main)
       - name: Prepare image tags
         id: image-tags
         run: |
@@ -103,21 +159,23 @@ jobs:
           fi
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
-      # Step 6: Build and push Docker image
+      # Step 10: Build and push Docker image
       - name: Build and push Docker image
         id: docker_build
         uses: docker/build-push-action@v5
         with:
-          context: ./Phase_2/backend
+          context: ./Phase_2/frontend
           push: true
           tags: ${{ steps.image-tags.outputs.tags }}
           cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache
           cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache,mode=max
+          build-args: |
+            VITE_API_URL=/api
 
-      - name: Log Step 5 - Docker Build
+      - name: Log Step 9 - Docker Build
         run: |
           echo "========================================"
-          echo "STEP 5: DOCKER IMAGE BUILD COMPLETE"
+          echo "STEP 9: DOCKER IMAGE BUILD COMPLETE"
           echo "========================================"
           echo "Image SHA: ${{ steps.docker_build.outputs.digest }}"
           echo "Image Pushed:"
@@ -211,8 +269,8 @@ jobs:
         id: task-def-template
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ./Phase_2/backend/task-definition.json
-          container-name: backend-container
+          task-definition: ./Phase_2/frontend/task-definition.json
+          container-name: frontend-container
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
       - name: Use updated task definition
@@ -273,17 +331,37 @@ jobs:
             --region ${{ env.AWS_REGION }} \
             --query 'taskArns[:5]' | jq '.'
 
-      # Step 7: Health check
+      # Step 8: Get load balancer URL
+      - name: Get load balancer URL
+        run: |
+          echo "========================================"
+          echo "STEP 8: GET APPLICATION URL"
+          echo "========================================"
+          
+          ALB_DNS=$(aws elbv2 describe-load-balancers \
+            --region ${{ env.AWS_REGION }} \
+            --query "LoadBalancers[?LoadBalancerName=='rag-pipeline-alb'].DNSName" \
+            --output text)
+          
+          if [ -n "$ALB_DNS" ]; then
+            echo "Application URL: http://$ALB_DNS"
+            echo "Frontend is accessible at: http://$ALB_DNS"
+            echo "Backend API is accessible at: http://$ALB_DNS/api"
+          else
+            echo "Could not retrieve load balancer URL"
+          fi
+
+      # Step 9: Health check
       - name: Health check
         run: |
           echo "========================================"
-          echo "STEP 8: HEALTH CHECK"
+          echo "STEP 9: HEALTH CHECK"
           echo "========================================"
           
           # Get service endpoint from target group
           TARGET_GROUP_ARN=$(aws elbv2 describe-target-groups \
             --region ${{ env.AWS_REGION }} \
-            --query "TargetGroups[?TargetGroupName=='rag-pipeline-alb-backend-tg'].TargetGroupArn" \
+            --query "TargetGroups[?TargetGroupName=='rag-pipeline-alb-frontend-tg'].TargetGroupArn" \
             --output text)
           
           echo "Target Group: $TARGET_GROUP_ARN"
