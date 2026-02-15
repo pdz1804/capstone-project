@@ -87,7 +87,6 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'Phase_2/frontend/package-lock.json'
 
       - name: Log Step 4 - Node.js Setup
         run: |
@@ -105,7 +104,7 @@ jobs:
           echo "========================================"
           echo "STEP 5: INSTALLING DEPENDENCIES"
           echo "========================================"
-          npm ci --verbose
+          npm install --verbose
           echo "Dependency installation complete"
           npm list --depth=0
 
