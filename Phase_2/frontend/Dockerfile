@@ -18,7 +18,6 @@ COPY package*.json ./
 COPY vite.config.js ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
-COPY tsconfig.json* ./
 
 # Install dependencies
 RUN npm ci --frozen-lockfile && \
@@ -28,7 +27,10 @@ RUN npm ci --frozen-lockfile && \
 # Copy source code
 COPY src ./src
 COPY index.html ./
-COPY public ./public
+
+# Accept build-time env vars for Vite
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 
 # Build the application with detailed output
 RUN echo "===== FRONTEND BUILD LOG =====" && \

@@ -271,7 +271,7 @@ AWS_ROLE_TO_ASSUME
 # Optional:
 
 AWS_REGION
-  Value: us-east-1
+  Value: us-west-2
   Purpose: Explicit region specification
 
 ECR_REGISTRY_ALIAS
@@ -472,7 +472,7 @@ aws ecr describe-repositories --repository-names rag-pipeline-backend
 # Role needs: ecr:GetDownloadUrlForLayer, ecr:BatchGetImage, etc
 
 # 3. Verify ECR login
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <ID>.dkr.ecr.us-east-1.amazonaws.com
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin <ID>.dkr.ecr.us-west-2.amazonaws.com
 ```
 
 #### Issue 4: ECS Deployment Failure

@@ -145,11 +145,24 @@ class MediaProcessorConfig:
     export_json: bool = True
     export_srt: bool = True
     export_vtt: bool = True
+    export_md: bool = True   # Markdown export for Stage 3 Docling compatibility
     export_metadata: bool = True
+    
+    # Backward-compatible fields (used by pipeline.py CLI)
+    use_gpu: bool = True
+    audio_channels: int = 1  # Mono (hardcoded in librosa.load)
+    chunk_duration: int = 30  # Legacy chunked processing duration
+    chunk_overlap: float = 1.0  # Legacy chunked overlap
     
     # Device
     device: str = "cuda" if TORCH_AVAILABLE and torch.cuda.is_available() else "cpu"
     compute_dtype: str = "float16" if device == "cuda" else "float32"
+    
+    def __post_init__(self):
+        """Sync device with use_gpu flag for backward compatibility."""
+        if not self.use_gpu:
+            self.device = "cpu"
+            self.compute_dtype = "float32"
 
 
 # ======================== Audio Noise Reduction ========================
@@ -463,6 +476,43 @@ class TranscriptChunker:
             "chunk_metadata": chunk_metadata,
             "total_chunks": len(chunks)
         }
+    
+    def chunk_transcript_with_uniform_metadata(
+        self, transcript: Dict, original_file: str, original_file_format: str
+    ) -> Dict[str, Any]:
+        """
+        Chunk transcript and add uniform metadata to each chunk.
+        
+        Args:
+            transcript: Whisper output dictionary with segments
+            original_file: Path to the original media file
+            original_file_format: Format of the original file (e.g., 'mp4')
+        
+        Returns:
+            Dictionary with uniformly-metadata'd chunks
+        """
+        base_result = self.chunk_transcript(transcript)
+        
+        if not base_result.get('chunk_metadata'):
+            return base_result
+        
+        now_iso = datetime.now().isoformat()
+        stem = Path(original_file).stem
+        
+        for chunk in base_result['chunk_metadata']:
+            idx = chunk.get('chunk_index', 0)
+            chunk.update({
+                'chunk_name': f"{stem}_transcript_chunk_{idx}",
+                'original_file': original_file,
+                'original_file_format': original_file_format,
+                'current_format': 'json',
+                'uploaded_timestamp': now_iso,
+                'content_type': 'transcript_text',
+                'duration': chunk.get('end_time', 0) - chunk.get('start_time', 0),
+                'associated_frames': [],  # Populated later by frame-chunk association
+            })
+        
+        return base_result
 
 
 # ======================== Audio Extraction ========================
@@ -793,6 +843,22 @@ class FrameExtractor:
                     for fp in extracted_frames
                 ]
             
+            # Enrich frame metadata with uniform fields
+            now_iso = datetime.now().isoformat()
+            for fm in frame_metadata:
+                frame_idx = fm.get("frame_index", 0)
+                video_ts = (frame_idx / fps) if fps > 0 else 0.0
+                fm.update({
+                    "frame_name": f"{video_name}_frame_{frame_idx:06d}",
+                    "original_file": str(video_path),
+                    "original_file_format": video_path.suffix.lstrip('.').lower(),
+                    "current_format": self.config.frame_format,
+                    "uploaded_timestamp": now_iso,
+                    "video_timestamp": video_ts,
+                    "content_type": "extracted_frame",
+                    "associated_chunk_index": None,  # Populated later
+                })
+            
             return {
                 "extracted_frames": extracted_frames,
                 "frame_metadata": frame_metadata,
@@ -935,6 +1001,7 @@ class MediaProcessor:
             "current_type": None,
             "audio_path": None,
             "transcript_path": None,
+            "transcript_text": None,
             "chunks_path": None,
             "frame_paths": [],
             "metadata_path": None,
@@ -972,16 +1039,23 @@ class MediaProcessor:
             transcript = self.transcriber.transcribe(audio_path)
             
             if transcript:
-                # Save full transcript
+                # Save full transcript (JSON, TXT, SRT, VTT, MD)
                 transcript_paths = self._save_transcripts(file_path.stem, transcript)
-                results["transcript_path"] = transcript_paths.get('json')
+                _tp = transcript_paths.get('md') or transcript_paths.get('json')
+                results["transcript_path"] = str(_tp) if _tp else None
+                results["transcript_text"] = transcript.get('text')
                 self.stats["transcribed"] += 1
                 
-                # Step 3: Chunk transcript
+                # Step 3: Chunk transcript with uniform metadata
                 if self.transcript_chunker:
-                    chunked = self.transcript_chunker.chunk_transcript(transcript)
+                    chunked = self.transcript_chunker.chunk_transcript_with_uniform_metadata(
+                        transcript,
+                        original_file=str(file_path),
+                        original_file_format=file_path.suffix.lstrip('.').lower()
+                    )
                     chunks_path = self._save_chunks(file_path.stem, chunked, transcript)
                     results["chunks_path"] = str(chunks_path)
+                    results["_chunk_metadata"] = chunked.get("chunk_metadata", [])
                     self.stats["chunks_created"] += len(chunked.get('chunks', []))
         
         # Step 4: Extract frames from video
@@ -994,18 +1068,45 @@ class MediaProcessor:
             results["fps"] = frame_result.get("fps", 29.97)
             results["duration"] = frame_result.get("duration", 0.0)
             
+            # Associate frames with transcript chunks (bidirectional)
+            frame_metadata_list = frame_result.get("frame_metadata", [])
+            chunk_metadata_list = results.get("_chunk_metadata", [])
+            
+            if frame_metadata_list and chunk_metadata_list:
+                frame_metadata_list, chunk_metadata_list = self._associate_frames_with_chunks(
+                    frame_metadata_list, chunk_metadata_list
+                )
+                results["_chunk_metadata"] = chunk_metadata_list
+                
+                # Re-save chunks with updated associated_frames
+                if results.get("chunks_path"):
+                    self._resave_chunks_with_frames(
+                        results["chunks_path"], chunk_metadata_list
+                    )
+            
             # Save frame metadata
-            if frame_result.get("frame_metadata"):
+            if frame_metadata_list:
                 frame_metadata_path = self.metadata_dir / f"{file_path.stem}_frame_metadata.json"
                 with open(frame_metadata_path, 'w', encoding='utf-8') as f:
-                    json.dump(frame_result["frame_metadata"], f, indent=2)
+                    json.dump({
+                        "metadata": {
+                            "original_file": str(file_path),
+                            "total_frames": len(frame_metadata_list),
+                            "fps": results.get("fps", 29.97),
+                            "duration": results.get("duration", 0.0),
+                            "created_at": datetime.now().isoformat()
+                        },
+                        "frames": frame_metadata_list
+                    }, f, indent=2)
                 logger.info(f"Saved frame metadata to: {frame_metadata_path}")
         
+        # Clean up internal metadata from results
+        results.pop("_chunk_metadata", None)
+        
         # Step 5: Save comprehensive metadata
+        results["timestamps"]["end"] = datetime.now().isoformat()
         metadata_path = self._save_media_metadata(file_path, results)
         results["metadata_path"] = str(metadata_path)
-        
-        results["timestamps"]["end"] = datetime.now().isoformat()
         
         return results
     
@@ -1042,6 +1143,15 @@ class MediaProcessor:
             paths['txt'] = txt_path
             logger.info(f"Saved TXT transcript to: {txt_path}")
         
+        # Markdown format for Stage 3 Docling processing
+        if self.config.export_md:
+            md_path = self.transcript_dir / f"{stem}.md"
+            markdown_content = self._transcript_to_markdown(stem, transcript)
+            with open(md_path, 'w', encoding='utf-8') as f:
+                f.write(markdown_content)
+            paths['md'] = md_path
+            logger.info(f"Saved MD transcript to: {md_path}")
+        
         # SRT subtitle
         if self.config.export_srt and 'segments' in transcript:
             srt_path = self.transcript_dir / f"{stem}.srt"
@@ -1066,9 +1176,110 @@ class MediaProcessor:
         
         return paths
     
+    def _transcript_to_markdown(self, stem: str, transcript: Dict) -> str:
+        """
+        Convert transcript to structured markdown format for Stage 3 Docling processing.
+        
+        Format:
+        # Transcript: {filename}
+        
+        **Duration**: {duration}
+        **Language**: {language}
+        
+        ## Transcript Content
+        
+        **[HH:MM:SS]** Text segment ...
+        """
+        lines = []
+        
+        lines.append(f"# Transcript: {stem}\n")
+        lines.append(f"**Duration**: {transcript.get('duration', 'N/A')}")
+        lines.append(f"**Language**: {transcript.get('language', 'auto')}\n")
+        lines.append("## Transcript Content\n")
+        
+        if 'segments' in transcript:
+            for segment in transcript['segments']:
+                timestamp = self._format_timestamp_readable(segment['start'])
+                text = segment['text'].strip()
+                lines.append(f"**[{timestamp}]** {text}\n")
+        else:
+            lines.append(transcript.get('text', ''))
+        
+        return '\n'.join(lines)
+    
+    def _format_timestamp_readable(self, seconds: float) -> str:
+        """Format seconds as readable timestamp [HH:MM:SS]."""
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+    
+    def _associate_frames_with_chunks(
+        self,
+        frame_metadata: List[Dict],
+        chunk_metadata: List[Dict]
+    ) -> tuple:
+        """
+        Associate frames with transcript chunks bidirectionally by timestamp.
+        
+        Each frame gets associated_chunk_index; each chunk gets associated_frames list.
+        
+        Args:
+            frame_metadata: List of frame metadata dicts with video_timestamp
+            chunk_metadata: List of chunk metadata dicts with start_time/end_time
+        
+        Returns:
+            Tuple of (updated_frame_metadata, updated_chunk_metadata)
+        """
+        logger.info("Associating frames with transcript chunks by timestamp...")
+        
+        # Initialize associated_frames for chunks that don't have it
+        for chunk in chunk_metadata:
+            if 'associated_frames' not in chunk:
+                chunk['associated_frames'] = []
+        
+        for frame in frame_metadata:
+            frame_ts = frame.get("video_timestamp", 0)
+            frame["associated_chunk_index"] = None
+            
+            for chunk in chunk_metadata:
+                start = chunk.get("start_time", 0)
+                end = chunk.get("end_time", 0)
+                
+                if start <= frame_ts <= end:
+                    frame["associated_chunk_index"] = chunk.get("chunk_index")
+                    chunk["associated_frames"].append({
+                        "frame_path": frame.get("frame_path"),
+                        "frame_index": frame.get("frame_index"),
+                        "frame_name": frame.get("frame_name"),
+                        "video_timestamp": frame_ts
+                    })
+                    break
+        
+        frames_with_chunks = sum(1 for f in frame_metadata if f.get("associated_chunk_index") is not None)
+        chunks_with_frames = sum(1 for c in chunk_metadata if len(c.get("associated_frames", [])) > 0)
+        logger.info(f"Frame-chunk association: {frames_with_chunks}/{len(frame_metadata)} frames mapped, "
+                     f"{chunks_with_frames}/{len(chunk_metadata)} chunks have frames")
+        
+        return frame_metadata, chunk_metadata
+    
+    def _resave_chunks_with_frames(self, chunks_path: str, chunk_metadata: List[Dict]):
+        """Re-save chunk JSON with updated associated_frames after frame association."""
+        try:
+            chunks_file = Path(chunks_path)
+            if chunks_file.exists():
+                with open(chunks_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                data["chunks"] = chunk_metadata
+                with open(chunks_file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                logger.info(f"Re-saved chunks with frame associations: {chunks_path}")
+        except Exception as e:
+            logger.error(f"Error re-saving chunks: {str(e)}")
+    
     def _save_chunks(self, stem: str, chunked: Dict, original_transcript: Dict) -> Path:
         """
-        Save transcript chunks with metadata.
+        Save transcript chunks with uniform metadata.
         
         Args:
             stem: Base filename
@@ -1087,7 +1298,9 @@ class MediaProcessor:
                 "max_chunk_tokens": self.config.max_chunk_tokens,
                 "original_segments": len(original_transcript.get('segments', [])),
                 "language": original_transcript.get('language', 'unknown'),
-                "created_at": datetime.now().isoformat()
+                "created_at": datetime.now().isoformat(),
+                "chunk_type": "transcript",
+                "uniform_metadata_version": "1.0"
             },
             "chunks": chunked.get("chunk_metadata", [])
         }
@@ -1177,6 +1390,16 @@ class MediaProcessor:
             json.dump(stats_output, f, indent=2)
         
         logger.info(f"Saved statistics to: {stats_path}")
+    
+    def __enter__(self):
+        """Context manager entry."""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit."""
+        if exc_type is not None:
+            logger.error(f"Error during processing: {exc_val}")
+        return False
 
 
 # ======================== Utility Functions ========================

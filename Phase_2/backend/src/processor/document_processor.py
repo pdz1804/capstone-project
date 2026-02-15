@@ -115,6 +115,22 @@ except ImportError:
 from PIL import Image
 from io import BytesIO
 import torch
+
+# ── PyTorch optimisations for low-SM GPUs (e.g. RTX A1000 with 16 SMs) ──
+# 1. Enable TensorFloat32 for faster float32 matmul with minimal precision loss
+torch.set_float32_matmul_precision('high')
+
+# 2. Disable torch.compile / inductor backend.
+#    PyTorch ≥ 2.6 uses torch.compile by default in many code paths (Transformers,
+#    Docling models). The inductor backend's max_autotune_gemm mode requires more
+#    SMs than a 16-SM laptop GPU has, causing "Not enough SMs" warnings and pipeline
+#    failures. Suppressing it forces eager-mode execution (same as PyTorch ≤ 2.5).
+import torch._dynamo
+torch._dynamo.config.suppress_errors = True   # Don't crash on compile failures
+torch._inductor.config.triton.autotune_pointwise = False  # type: ignore[attr-defined]
+import os
+os.environ.setdefault("TORCHDYNAMO_DISABLE", "1")         # Fully disable dynamo/compile
+
 from loguru import logger
 
 
@@ -465,10 +481,10 @@ class MultimodalDocumentProcessor:
         # Configure VLM options for enhanced visual understanding
         # Use SmolVLM model which is the default and was working in our tests
         # Force a low area threshold so small images (logos/screenshots) are not skipped
-        # Keep batch_size moderate to avoid OOM on GPU
+        # Keep batch_size low to avoid GPU memory exhaustion during Docling processing
         return PictureDescriptionVlmOptions(
             repo_id="HuggingFaceTB/SmolVLM-256M-Instruct",
-            batch_size=8,
+            batch_size=4,
             scale=2,
             picture_area_threshold=0.0,
             prompt="Describe this image in a few concise sentences.",
@@ -567,9 +583,59 @@ class MultimodalDocumentProcessor:
         
         return temp_md_path
     
+    def _create_fallback_converter(self):
+        """Create a lightweight fallback converter without VLM for retry on failure."""
+        try:
+            from docling.datamodel.pipeline_options import PdfPipelineOptions, PipelineOptions
+            from docling.document_converter import FormatOption
+            from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
+            from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
+
+            # Simple OCR-only pipeline — no VLM, no picture description, lower scale
+            pdf_options = PdfPipelineOptions(
+                do_ocr=self.config.enable_ocr,
+                do_table_structure=True,
+                generate_picture_images=True,
+                generate_page_images=False,          # Skip full page images
+                generate_table_images=True,
+                do_picture_classification=False,      # Skip picture classification
+                do_picture_description=False,         # NO VLM
+                images_scale=1.0,                     # Lower scale to save memory
+                ocr_options=self._get_ocr_options(),
+            )
+
+            format_options = {
+                InputFormat.PDF: FormatOption(
+                    pipeline_cls=StandardPdfPipeline,
+                    backend=PyPdfiumDocumentBackend,
+                    pipeline_options=pdf_options
+                ),
+                InputFormat.IMAGE: FormatOption(
+                    pipeline_cls=StandardPdfPipeline,
+                    backend=PyPdfiumDocumentBackend,
+                    pipeline_options=pdf_options
+                ),
+            }
+
+            allowed_formats = [
+                InputFormat.PDF, InputFormat.DOCX, InputFormat.PPTX, InputFormat.XLSX,
+                InputFormat.HTML, InputFormat.IMAGE, InputFormat.MD, InputFormat.CSV,
+                InputFormat.ASCIIDOC, InputFormat.VTT
+            ]
+
+            return DocumentConverter(
+                allowed_formats=allowed_formats,
+                format_options=format_options
+            )
+        except Exception as e:
+            logger.warning(f"Could not create fallback converter: {e}")
+            return None
+
     def process_single_file(self, file_path: Path) -> Dict[str, Any]:
         """
         Process a single file using Docling's capabilities.
+        If the primary (VLM-enabled) pipeline fails, retries with a
+        lightweight OCR-only fallback pipeline.
         
         Args:
             file_path: Path to the file to process
@@ -608,15 +674,37 @@ class MultimodalDocumentProcessor:
                 actual_file_path = self._convert_txt_to_md(file_path)
                 temp_file_created = True
             
-            # Convert the document
-            result = self.converter.convert(str(actual_file_path))
+            # --- Primary attempt with full pipeline ---
+            result = None
+            used_fallback = False
+            try:
+                result = self.converter.convert(str(actual_file_path))
+            except Exception as primary_err:
+                logger.warning(
+                    f"Primary pipeline failed for {file_path.name}: {primary_err}. "
+                    "Retrying with lightweight OCR-only fallback..."
+                )
+                # --- Fallback attempt without VLM ---
+                fallback = self._create_fallback_converter()
+                if fallback is not None:
+                    try:
+                        result = fallback.convert(str(actual_file_path))
+                        used_fallback = True
+                        logger.info(f"✅ Fallback pipeline succeeded for {file_path.name}")
+                    except Exception as fallback_err:
+                        raise Exception(
+                            f"Both pipelines failed. "
+                            f"Primary: {primary_err} | Fallback: {fallback_err}"
+                        ) from fallback_err
+                else:
+                    raise primary_err
             
             if not result:
                 raise Exception("Conversion returned no result")
             
             # Get the DoclingDocument
-            print("✓ Document converted successfully")
-            # print(f"Raw result: {result}")
+            pipeline_label = " (fallback OCR-only)" if used_fallback else ""
+            print(f"✓ Document converted successfully{pipeline_label}")
             doc = result.document
             
             # Extract processing information
@@ -628,10 +716,11 @@ class MultimodalDocumentProcessor:
                 'pages': getattr(doc, 'page_count', None),
                 'success': True,
                 'doc_object': doc,
-                'result_object': result
+                'result_object': result,
+                'used_fallback': used_fallback
             }
             
-            logger.info(f"Successfully processed {file_path} in {processing_info['processing_time']:.2f}s")
+            logger.info(f"Successfully processed {file_path} in {processing_info['processing_time']:.2f}s{pipeline_label}")
             
             # Cleanup temporary file if created
             if temp_file_created and actual_file_path.exists():

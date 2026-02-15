@@ -463,16 +463,16 @@ class DocumentProcessingPipeline:
                 else:
                     print(f"  ✓ Skipping original_files - all already processed as normalized PDFs/MD or unsupported formats")
             
-            # STEP 4: Add ONLY .md transcripts from media processing
+            # STEP 4: SKIP media transcripts — they already have pre-built chunks from Stage 2.
+            # Transcript chunks (with uniform metadata, timing, frame associations) are in
+            # stage2_media_processed/transcript_chunks/. These will be handled directly by
+            # the consolidator and retrieval pipeline without Docling re-processing.
             transcript_dir = self.stage_dirs["media_processed"] / "transcripts"
             if transcript_dir.exists():
                 md_transcripts = list(transcript_dir.glob("*.md"))
                 if md_transcripts:
-                    print(f"  → Adding {len(md_transcripts)} transcript.md files from: {transcript_dir}")
-                    print(f"    (Video/Audio transcripts)")
-                    inputs_to_process.append(("filtered", transcript_dir, md_transcripts))
-                else:
-                    print(f"  ℹ No .md transcripts found in media processing")
+                    print(f"  ⏭ Skipping {len(md_transcripts)} media transcripts (pre-built chunks exist in Stage 2)")
+                    print(f"    (Will be consolidated directly from stage2_media_processed/)")
             
             if not inputs_to_process:
                 print("WARNING: No inputs found for document processing")
@@ -552,6 +552,7 @@ class DocumentProcessingPipeline:
         try:
             consolidator = Stage4Consolidator(
                 stage1_dir=self.stage_dirs["normalized"],
+                stage2_dir=self.stage_dirs["media_processed"],
                 stage3_dir=self.stage_dirs["final_processed"],
                 output_dir=self.stage_dirs["rag_ready"],
                 config=ConsolidatorConfig()

@@ -1,6 +1,6 @@
 {
-  "doc_count": 5,
-  "raw_doc_count": 1,
+  "doc_count": 123,
+  "raw_doc_count": 3,
   "retrievers": [
     "bm25",
     "dense",

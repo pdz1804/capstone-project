@@ -16,7 +16,7 @@ on:
       - 'Phase_2/backend/**'
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: us-west-2
   ECR_REPOSITORY: rag-pipeline-backend
   IMAGE_TAG: ${{ github.sha }}
   SERVICE_NAME: rag-pipeline-cluster-backend-service
@@ -93,16 +93,24 @@ jobs:
           docker --version
           docker buildx version
 
-      # Step 5: Build and push Docker image
+      # Step 5: Prepare image tags (only tag :latest on main)
+      - name: Prepare image tags
+        id: image-tags
+        run: |
+          TAGS="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            TAGS="${TAGS},${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest"
+          fi
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+
+      # Step 6: Build and push Docker image
       - name: Build and push Docker image
         id: docker_build
         uses: docker/build-push-action@v5
         with:
           context: ./Phase_2/backend
           push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          tags: ${{ steps.image-tags.outputs.tags }}
           cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache
           cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache,mode=max
 
@@ -265,41 +273,7 @@ jobs:
             --region ${{ env.AWS_REGION }} \
             --query 'taskArns[:5]' | jq '.'
 
-      # Step 7: Wait for service to stabilize
-      - name: Wait for service stability
-        run: |
-          echo "========================================"
-          echo "STEP 7: WAIT FOR SERVICE STABILITY"
-          echo "========================================"
-          
-          for i in {1..30}; do
-            echo "Check $i/30..."
-            SERVICE_STATUS=$(aws ecs describe-services \
-              --cluster ${{ env.CLUSTER_NAME }} \
-              --services ${{ env.SERVICE_NAME }} \
-              --region ${{ env.AWS_REGION }} \
-              --query 'services[0].{running: runningCount, desired: desiredCount}' \
-              --output text)
-            
-            echo "Service Status: $SERVICE_STATUS"
-            
-            RUNNING=$(echo $SERVICE_STATUS | awk '{print $1}')
-            DESIRED=$(echo $SERVICE_STATUS | awk '{print $2}')
-            
-            if [ "$RUNNING" == "$DESIRED" ] && [ "$DESIRED" -gt "0" ]; then
-              echo "Service is stable with $RUNNING/$DESIRED tasks running"
-              break
-            fi
-            
-            if [ $i -eq 30 ]; then
-              echo "Service did not stabilize within 5 minutes"
-              exit 1
-            fi
-            
-            sleep 10
-          done
-
-      # Step 8: Health check
+      # Step 7: Health check
       - name: Health check
         run: |
           echo "========================================"

@@ -177,3 +177,23 @@ output "alb_security_group_id" {
   description = "Security group ID of the ALB"
   value       = aws_security_group.alb.id
 }
+
+output "alb_zone_id" {
+  description = "Zone ID of the load balancer"
+  value       = aws_lb.main.zone_id
+}
+
+output "alb_arn_suffix" {
+  description = "ARN suffix of the ALB (for autoscaling resource_label)"
+  value       = aws_lb.main.arn_suffix
+}
+
+output "backend_target_group_arn_suffix" {
+  description = "ARN suffix of the backend target group"
+  value       = aws_lb_target_group.backend.arn_suffix
+}
+
+output "frontend_target_group_arn_suffix" {
+  description = "ARN suffix of the frontend target group"
+  value       = aws_lb_target_group.frontend.arn_suffix
+}

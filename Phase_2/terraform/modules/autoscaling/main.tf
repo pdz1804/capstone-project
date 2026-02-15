@@ -1,10 +1,5 @@
 # Auto-scaling Module - ECS Service auto-scaling
 
-variable "service_arn" {
-  description = "ARN of the ECS service"
-  type        = string
-}
-
 variable "cluster_name" {
   description = "Name of the ECS cluster"
   type        = string
@@ -57,6 +52,12 @@ variable "tags" {
   default     = {}
 }
 
+variable "alb_resource_label" {
+  description = "ALB resource label for ALBRequestCountPerTarget scaling (format: alb-arn-suffix/tg-arn-suffix)"
+  type        = string
+  default     = ""
+}
+
 # Auto-scaling target
 resource "aws_appautoscaling_target" "ecs_target" {
   max_capacity       = var.max_capacity
@@ -106,8 +107,10 @@ resource "aws_appautoscaling_policy" "ecs_policy_memory" {
   depends_on = [aws_appautoscaling_target.ecs_target]
 }
 
-# ALB request count-based scaling (optional)
+# ALB request count-based scaling (only created when alb_resource_label is provided)
 resource "aws_appautoscaling_policy" "ecs_policy_alb_request_count" {
+  count = var.alb_resource_label != "" ? 1 : 0
+
   name               = "${var.service_name}-alb-request-count-autoscaling"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.ecs_target.resource_id
@@ -117,6 +120,7 @@ resource "aws_appautoscaling_policy" "ecs_policy_alb_request_count" {
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
       predefined_metric_type = "ALBRequestCountPerTarget"
+      resource_label         = var.alb_resource_label
     }
     target_value = 1000
   }

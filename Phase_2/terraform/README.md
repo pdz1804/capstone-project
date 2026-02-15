@@ -120,15 +120,15 @@ echo "✅ Infrastructure deployed successfully"
 # Build and push backend image
 cd ../backend
 docker build -t rag-pipeline-backend:latest .
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
-docker tag rag-pipeline-backend:latest <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/rag-pipeline-backend:latest
-docker push <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/rag-pipeline-backend:latest
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.us-west-2.amazonaws.com
+docker tag rag-pipeline-backend:latest <ACCOUNT_ID>.dkr.ecr.us-west-2.amazonaws.com/rag-pipeline-backend:latest
+docker push <ACCOUNT_ID>.dkr.ecr.us-west-2.amazonaws.com/rag-pipeline-backend:latest
 
 # Build and push frontend image
 cd ../frontend
 docker build -t rag-pipeline-frontend:latest .
-docker tag rag-pipeline-frontend:latest <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/rag-pipeline-frontend:latest
-docker push <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/rag-pipeline-frontend:latest
+docker tag rag-pipeline-frontend:latest <ACCOUNT_ID>.dkr.ecr.us-west-2.amazonaws.com/rag-pipeline-frontend:latest
+docker push <ACCOUNT_ID>.dkr.ecr.us-west-2.amazonaws.com/rag-pipeline-frontend:latest
 
 echo "✅ Docker images deployed to ECR"
 ```
@@ -160,12 +160,12 @@ echo "✅ Docker images deployed to ECR"
 After applying Terraform, you'll get:
 
 ```
-alb_dns_name          = "rag-pipeline-alb-1234567.us-east-1.elb.amazonaws.com"
-application_url       = "http://rag-pipeline-alb-1234567.us-east-1.elb.amazonaws.com"
-backend_ecr_repository_url = "123456789.dkr.ecr.us-east-1.amazonaws.com/rag-pipeline-backend"
+alb_dns_name          = "rag-pipeline-alb-1234567.us-west-2.elb.amazonaws.com"
+application_url       = "http://rag-pipeline-alb-1234567.us-west-2.elb.amazonaws.com"
+backend_ecr_repository_url = "123456789.dkr.ecr.us-west-2.amazonaws.com/rag-pipeline-backend"
 backend_service_name  = "rag-pipeline-cluster-backend-service"
 ecs_cluster_name      = "rag-pipeline-cluster"
-frontend_ecr_repository_url = "123456789.dkr.ecr.us-east-1.amazonaws.com/rag-pipeline-frontend"
+frontend_ecr_repository_url = "123456789.dkr.ecr.us-west-2.amazonaws.com/rag-pipeline-frontend"
 frontend_service_name = "rag-pipeline-cluster-frontend-service"
 ```
 

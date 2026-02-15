@@ -1,5 +1,5 @@
 {
-  "start_time": "2026-02-07T20:53:36.690719",
+  "start_time": "2026-02-15T14:56:12.873345",
   "processing": {},
   "retrieval_setup": {
     "retrievers_initialized": [
@@ -7,9 +7,9 @@
       "dense",
       "hybrid"
     ],
-    "document_count": 5,
-    "chunk_count": 5,
-    "raw_doc_count": 1,
+    "document_count": 123,
+    "chunk_count": 123,
+    "raw_doc_count": 3,
     "index_dir": "D:\\PDZ\\BKU\\Learning\\LVTN\\GD1\\Code\\Phase_2\\backend\\output\\retrieval",
     "index_loaded": false,
     "index_built": true,
@@ -23,11 +23,11 @@
     "retrievers_initialized": [
       "colqwen"
     ],
-    "page_count": 0,
+    "page_count": 26,
     "index_dir": "D:\\PDZ\\BKU\\Learning\\LVTN\\GD1\\Code\\Phase_2\\backend\\output\\image_retrieval",
     "index_built": true
   },
   "evaluation": {},
-  "end_time": "2026-02-07T20:54:27.057827",
-  "total_duration": "0:00:50.367108"
+  "end_time": "2026-02-15T15:00:25.859535",
+  "total_duration": "0:04:12.986190"
 }

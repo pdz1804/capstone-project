@@ -33,7 +33,7 @@ from .image_retrievers import (
     BaseImageRetriever
 )
 
-from .chunking_utils import (
+from ..chunking.chunker import (
     TextChunker,
     ChunkingConfig
 )

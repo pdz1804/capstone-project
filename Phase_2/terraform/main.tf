@@ -12,7 +12,7 @@ terraform {
   # backend "s3" {
   #   bucket         = "your-terraform-state-bucket"
   #   key            = "phase2-rag/terraform.tfstate"
-  #   region         = "us-east-1"
+  #   region         = "us-west-2"
   #   encrypt        = true
   #   dynamodb_table = "terraform-locks"
   # }
@@ -26,7 +26,6 @@ provider "aws" {
       Environment = var.environment
       Project     = var.project_name
       ManagedBy   = "Terraform"
-      CreatedAt   = timestamp()
     }
   }
 }
@@ -127,6 +126,9 @@ module "ecs" {
   ecs_task_execution_role_arn = module.backend_iam.ecs_task_execution_role_arn
   ecs_task_role_arn           = module.backend_iam.ecs_task_role_arn
 
+  frontend_task_execution_role_arn = module.frontend_iam.ecs_task_execution_role_arn
+  frontend_task_role_arn           = module.frontend_iam.ecs_task_role_arn
+
   backend_config = {
     name            = "backend"
     image_uri       = "${module.backend_ecr.repository_url}:latest"
@@ -168,9 +170,10 @@ module "ecs" {
 module "backend_autoscaling" {
   source = "./modules/autoscaling"
 
-  service_arn  = module.ecs.backend_service_name
   cluster_name = module.ecs.cluster_name
   service_name = module.ecs.backend_service_name
+
+  alb_resource_label = "${module.alb.alb_arn_suffix}/${module.alb.backend_target_group_arn_suffix}"
 
   min_capacity = var.backend_min_capacity
   max_capacity = var.backend_max_capacity
@@ -191,9 +194,10 @@ module "backend_autoscaling" {
 module "frontend_autoscaling" {
   source = "./modules/autoscaling"
 
-  service_arn  = module.ecs.frontend_service_name
   cluster_name = module.ecs.cluster_name
   service_name = module.ecs.frontend_service_name
+
+  alb_resource_label = "${module.alb.alb_arn_suffix}/${module.alb.frontend_target_group_arn_suffix}"
 
   min_capacity = var.frontend_min_capacity
   max_capacity = var.frontend_max_capacity

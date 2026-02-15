@@ -82,6 +82,18 @@ variable "tags" {
   default     = {}
 }
 
+variable "frontend_task_execution_role_arn" {
+  description = "Frontend ECS task execution role ARN"
+  type        = string
+  default     = ""
+}
+
+variable "frontend_task_role_arn" {
+  description = "Frontend ECS task role ARN"
+  type        = string
+  default     = ""
+}
+
 # Security group for ECS tasks
 resource "aws_security_group" "ecs_tasks" {
   name        = "${var.cluster_name}-ecs-tasks-sg"
@@ -196,7 +208,7 @@ resource "aws_ecs_task_definition" "backend" {
       ]
       # Health check
       healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:${var.backend_config.port}/health || exit 1"]
+        command     = ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${var.backend_config.port}/health')\" || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3
@@ -210,8 +222,7 @@ resource "aws_ecs_task_definition" "backend" {
   })
 
   depends_on = [
-    aws_cloudwatch_log_group.backend,
-    aws_iam_role.backend
+    aws_cloudwatch_log_group.backend
   ]
 }
 
@@ -223,8 +234,8 @@ resource "aws_ecs_task_definition" "frontend" {
   cpu                      = var.frontend_config.cpu
   memory                   = var.frontend_config.memory
 
-  execution_role_arn = var.ecs_task_execution_role_arn
-  task_role_arn      = var.ecs_task_role_arn
+  execution_role_arn = var.frontend_task_execution_role_arn != "" ? var.frontend_task_execution_role_arn : var.ecs_task_execution_role_arn
+  task_role_arn      = var.frontend_task_role_arn != "" ? var.frontend_task_role_arn : var.ecs_task_role_arn
 
   container_definitions = jsonencode([
     {
@@ -280,10 +291,12 @@ resource "aws_ecs_service" "backend" {
   desired_count   = var.backend_config.desired_count
   launch_type     = "FARGATE"
 
+  force_new_deployment = true
+
   network_configuration {
     subnets          = var.subnet_ids
     security_groups  = [aws_security_group.ecs_tasks.id]
-    assign_public_ip = false
+    assign_public_ip = true
   }
 
   load_balancer {
@@ -309,10 +322,12 @@ resource "aws_ecs_service" "frontend" {
   desired_count   = var.frontend_config.desired_count
   launch_type     = "FARGATE"
 
+  force_new_deployment = true
+
   network_configuration {
     subnets          = var.subnet_ids
     security_groups  = [aws_security_group.ecs_tasks.id]
-    assign_public_ip = false
+    assign_public_ip = true
   }
 
   load_balancer {
@@ -368,19 +383,4 @@ output "ecs_tasks_security_group_id" {
   value       = aws_security_group.ecs_tasks.id
 }
 
-# Placeholder for IAM roles (to be imported or created elsewhere)
-resource "aws_iam_role" "backend" {
-  name               = "${var.cluster_name}-backend-task-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
+

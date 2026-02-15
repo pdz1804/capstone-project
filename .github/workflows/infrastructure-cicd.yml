@@ -14,9 +14,9 @@ on:
       - 'Phase_2/terraform/**'
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: us-west-2
   TERRAFORM_VERSION: 1.6.0
-  TF_VAR_aws_region: us-east-1
+  TF_VAR_aws_region: us-west-2
   TF_VAR_environment: production
   TF_VAR_project_name: rag-pipeline
 
