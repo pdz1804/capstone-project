@@ -184,6 +184,12 @@ async def health_check():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 
+@app.get("/health")
+async def health_check_simple():
+    """Simple health check endpoint (alias for /api/health)."""
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
+
 if __name__ == "__main__":
     import uvicorn
     from pathlib import Path
