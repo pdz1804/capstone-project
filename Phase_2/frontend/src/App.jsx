@@ -33,9 +33,8 @@ import ImageCitation from './components/ImageCitation'
 import SettingsPanel from './components/SettingsPanel'
 
 // API base URL - configurable via environment variable for deployment
-const API_BASE = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api` 
-  : 'https://distributed-hitachi-connect-regardless.trycloudflare.com/api'
+// VITE_API_URL should be the full API base path (e.g. "/api" or "http://host/api")
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 // File type icon helper
 const getFileIcon = (type) => {
