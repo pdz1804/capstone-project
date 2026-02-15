@@ -9,7 +9,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/Phase_2/frontend"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     allow:
       - dependency-type: "all"
     open-pull-requests-limit: 5
@@ -18,7 +18,7 @@ updates:
   - package-ecosystem: "pip"
     directory: "/Phase_2/backend"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     allow:
       - dependency-type: "all"
     open-pull-requests-limit: 5
@@ -27,7 +27,7 @@ updates:
   - package-ecosystem: "pip"
     directory: "/Phase_2_PDZ_001_Test_Media_RAG"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     allow:
       - dependency-type: "all"
     open-pull-requests-limit: 5
@@ -36,6 +36,6 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     open-pull-requests-limit: 5
     
