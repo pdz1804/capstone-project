@@ -75,7 +75,8 @@ CMD ["sh", "-c", "\
     echo '===== FRONTEND STARTUP LOG =====' && \
     echo 'Timestamp:' $(date) && \
     echo 'Nginx Version:' $(nginx -v 2>&1) && \
-    echo 'Available Assets:' && ls -lh /usr/share/nginx/html/ && \
+    echo 'HTML root contents:' && ls -lhR /usr/share/nginx/html/ && \
+    echo 'Nginx config test:' && nginx -t 2>&1 && \
     echo 'Starting nginx...' && \
     nginx -g 'daemon off;' \
     || (echo 'ERROR: Failed to start nginx' && exit 1)"]
