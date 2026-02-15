@@ -1,5 +1,5 @@
 {
-  "family": "rag-pipeline-frontend",
+  "family": "rag-pipeline-cluster-frontend",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
@@ -42,8 +42,8 @@
       }
     }
   ],
-  "executionRoleArn": "EXECUTION_ROLE_ARN_PLACEHOLDER",
-  "taskRoleArn": "TASK_ROLE_ARN_PLACEHOLDER",
+  "executionRoleArn": "arn:aws:iam::381492273521:role/rag-pipeline-frontend-ecs-task-execution-role",
+  "taskRoleArn": "arn:aws:iam::381492273521:role/rag-pipeline-frontend-ecs-task-role",
   "tags": [
     {
       "key": "Service",

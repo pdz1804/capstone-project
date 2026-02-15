@@ -58,6 +58,12 @@ variable "alb_resource_label" {
   default     = ""
 }
 
+variable "enable_alb_request_scaling" {
+  description = "Whether to create ALBRequestCountPerTarget scaling policy"
+  type        = bool
+  default     = true
+}
+
 # Auto-scaling target
 resource "aws_appautoscaling_target" "ecs_target" {
   max_capacity       = var.max_capacity
@@ -109,7 +115,7 @@ resource "aws_appautoscaling_policy" "ecs_policy_memory" {
 
 # ALB request count-based scaling (only created when alb_resource_label is provided)
 resource "aws_appautoscaling_policy" "ecs_policy_alb_request_count" {
-  count = var.alb_resource_label != "" ? 1 : 0
+  count = var.enable_alb_request_scaling ? 1 : 0
 
   name               = "${var.service_name}-alb-request-count-autoscaling"
   policy_type        = "TargetTrackingScaling"

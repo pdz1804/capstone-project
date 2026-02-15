@@ -46,9 +46,37 @@ Complete Infrastructure as Code for deploying RAG Pipeline to AWS ECS.
 
 1. **AWS Account** with appropriate permissions
 2. **Terraform** >= 1.0 installed
-3. **AWS CLI** configured with credentials
+3. **AWS CLI v2** configured with credentials
 4. **Docker** for building images
 5. **Docker images** pushed to ECR repositories
+
+### Install prerequisites (Windows)
+
+Use `winget` (recommended):
+
+```powershell
+winget install --id Hashicorp.Terraform -e
+winget install --id Amazon.AWSCLI -e
+```
+
+If `winget` is unavailable, install manually:
+
+- Terraform: https://developer.hashicorp.com/terraform/downloads
+- AWS CLI v2 (Windows x86_64): https://awscli.amazonaws.com/AWSCLIV2.msi
+
+Verify installation:
+
+```powershell
+terraform version
+aws --version
+```
+
+Configure AWS credentials (interactive):
+
+```powershell
+aws configure
+aws sts get-caller-identity
+```
 
 ## Project Structure
 
@@ -90,7 +118,11 @@ echo "✅ Terraform initialized"
 
 ```bash
 # Copy example variables to terraform.tfvars
+# Linux/macOS
 cp terraform.tfvars.example terraform.tfvars
+
+# Windows PowerShell
+Copy-Item terraform.tfvars.example terraform.tfvars
 
 # Edit terraform.tfvars with your configuration
 # vim terraform.tfvars

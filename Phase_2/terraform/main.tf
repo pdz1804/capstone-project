@@ -47,9 +47,9 @@ data "aws_subnets" "default" {
 module "backend_ecr" {
   source = "./modules/ecr"
 
-  repository_name      = "${var.project_name}-backend"
-  image_tag_mutability = "MUTABLE"
-  scan_on_push         = true
+  repository_name       = "${var.project_name}-backend"
+  image_tag_mutability  = "MUTABLE"
+  scan_on_push          = true
   image_retention_count = 10
 
   tags = {
@@ -60,9 +60,9 @@ module "backend_ecr" {
 module "frontend_ecr" {
   source = "./modules/ecr"
 
-  repository_name      = "${var.project_name}-frontend"
-  image_tag_mutability = "MUTABLE"
-  scan_on_push         = true
+  repository_name       = "${var.project_name}-frontend"
+  image_tag_mutability  = "MUTABLE"
+  scan_on_push          = true
   image_retention_count = 10
 
   tags = {
@@ -74,9 +74,9 @@ module "frontend_ecr" {
 module "backend_iam" {
   source = "./modules/iam"
 
-  task_name             = "${var.project_name}-backend"
-  ecr_repository_arns   = [module.backend_ecr.repository_arn]
-  s3_bucket_arns        = []
+  task_name           = "${var.project_name}-backend"
+  ecr_repository_arns = [module.backend_ecr.repository_arn]
+  s3_bucket_arns      = []
 
   tags = {
     Service = "backend"
@@ -86,9 +86,9 @@ module "backend_iam" {
 module "frontend_iam" {
   source = "./modules/iam"
 
-  task_name             = "${var.project_name}-frontend"
-  ecr_repository_arns   = [module.frontend_ecr.repository_arn]
-  s3_bucket_arns        = []
+  task_name           = "${var.project_name}-frontend"
+  ecr_repository_arns = [module.frontend_ecr.repository_arn]
+  s3_bucket_arns      = []
 
   tags = {
     Service = "frontend"
@@ -99,9 +99,9 @@ module "frontend_iam" {
 module "alb" {
   source = "./modules/alb"
 
-  alb_name    = "${var.project_name}-alb"
-  vpc_id      = data.aws_vpc.default.id
-  subnet_ids  = data.aws_subnets.default.ids
+  alb_name   = "${var.project_name}-alb"
+  vpc_id     = data.aws_vpc.default.id
+  subnet_ids = data.aws_subnets.default.ids
 
   enable_deletion_protection = var.enable_alb_deletion_protection
 
@@ -116,9 +116,9 @@ module "ecs" {
 
   cluster_name = "${var.project_name}-cluster"
 
-  vpc_id                  = data.aws_vpc.default.id
-  subnet_ids              = data.aws_subnets.default.ids
-  alb_security_group_id   = module.alb.alb_security_group_id
+  vpc_id                = data.aws_vpc.default.id
+  subnet_ids            = data.aws_subnets.default.ids
+  alb_security_group_id = module.alb.alb_security_group_id
 
   backend_target_group_arn  = module.alb.backend_target_group_arn
   frontend_target_group_arn = module.alb.frontend_target_group_arn
@@ -130,27 +130,27 @@ module "ecs" {
   frontend_task_role_arn           = module.frontend_iam.ecs_task_role_arn
 
   backend_config = {
-    name            = "backend"
-    image_uri       = "${module.backend_ecr.repository_url}:latest"
-    port            = 5000
-    cpu             = 512
-    memory          = 1024
-    desired_count   = var.backend_desired_count
-    min_capacity    = var.backend_min_capacity
-    max_capacity    = var.backend_max_capacity
-    container_name  = "backend-container"
+    name           = "backend"
+    image_uri      = "${module.backend_ecr.repository_url}:latest"
+    port           = 5000
+    cpu            = 512
+    memory         = 1024
+    desired_count  = var.backend_desired_count
+    min_capacity   = var.backend_min_capacity
+    max_capacity   = var.backend_max_capacity
+    container_name = "backend-container"
   }
 
   frontend_config = {
-    name            = "frontend"
-    image_uri       = "${module.frontend_ecr.repository_url}:latest"
-    port            = 3000
-    cpu             = 256
-    memory          = 512
-    desired_count   = var.frontend_desired_count
-    min_capacity    = var.frontend_min_capacity
-    max_capacity    = var.frontend_max_capacity
-    container_name  = "frontend-container"
+    name           = "frontend"
+    image_uri      = "${module.frontend_ecr.repository_url}:latest"
+    port           = 3000
+    cpu            = 256
+    memory         = 512
+    desired_count  = var.frontend_desired_count
+    min_capacity   = var.frontend_min_capacity
+    max_capacity   = var.frontend_max_capacity
+    container_name = "frontend-container"
   }
 
   log_retention_days = var.log_retention_days
