@@ -19,8 +19,8 @@ COPY vite.config.js ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
 
-# Install dependencies
-RUN npm ci --frozen-lockfile && \
+# Install dependencies (use npm install, not ci, since package-lock.json may not exist)
+RUN npm install && \
     echo "Build stage: npm dependencies installed ($(npm list --depth=0 | wc -l) total packages)" && \
     npm list --depth=0
 
