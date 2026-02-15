@@ -37,6 +37,10 @@ Phase_2_PDZ_001/uploads/
 _bmad/
 _bmad-output/
 
+# Libraries and environments
+.env/
+capstone/
+
 # -------------------------
 # Python
 # -------------------------
@@ -61,11 +65,10 @@ venv/
 ENV/
 env/
 *.env
-*.env.*
-.env.local
-.env.development
-.env.test
-.env.production
+*.env.local
+*.env.development
+*.env.test
+*.env.production
 
 # Python testing & coverage
 .coverage
