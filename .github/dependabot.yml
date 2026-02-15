@@ -1,0 +1,41 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Frontend (Node.js/npm) - Phase 2
+  - package-ecosystem: "npm"
+    directory: "/Phase_2/frontend"
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-type: "all"
+    open-pull-requests-limit: 5
+
+  # Backend (Python/pip) - Phase 2
+  - package-ecosystem: "pip"
+    directory: "/Phase_2/backend"
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-type: "all"
+    open-pull-requests-limit: 5
+
+  # Python ML/RAG Pipeline - Phase 2 Test
+  - package-ecosystem: "pip"
+    directory: "/Phase_2_PDZ_001_Test_Media_RAG"
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-type: "all"
+    open-pull-requests-limit: 5
+
+  # GitHub Actions workflows (keeps CI/CD up-to-date)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    
