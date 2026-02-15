@@ -9,6 +9,7 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -188,8 +189,16 @@ class TextChunker:
         
         text_chunks = self.split_text(text)
         
+        # Derive uniform metadata fields from document
+        original_file = source or document.get('original_file', '')
+        original_file_format = ''
+        if original_file:
+            original_file_format = Path(original_file).suffix.lstrip('.').lower()
+        uploaded_timestamp = document.get('uploaded_timestamp', datetime.now().isoformat())
+
         chunks = []
         for i, chunk_text in enumerate(text_chunks):
+            chunk_name = f"{doc_id}_chunk_{i}"
             chunk = {
                 'id': f"{doc_id}_chunk_{i}",
                 'text': chunk_text,
@@ -200,10 +209,19 @@ class TextChunker:
                 'metadata': {
                     'doc_id': doc_id,
                     'chunk_index': i,
+                    'chunk_name': chunk_name,
                     'total_chunks': len(text_chunks),
                     'source': source,
                     'char_start': sum(len(text_chunks[j]) for j in range(i)),
-                    'char_length': len(chunk_text)
+                    'char_length': len(chunk_text),
+                    # --- Uniform metadata fields ---
+                    'document_type': 'document',
+                    'original_file': original_file,
+                    'original_file_format': original_file_format,
+                    'current_format': 'text',
+                    'uploaded_timestamp': uploaded_timestamp,
+                    'content_type': 'document_text',
+                    'uniform_metadata_version': '1.0'
                 }
             }
             # Copy any additional metadata from original document

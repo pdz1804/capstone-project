@@ -1,0 +1,24 @@
+# AWS Configuration
+aws_region  = "us-west-2"
+environment = "production"
+project_name = "rag-pipeline"
+
+# ALB Configuration
+enable_alb_deletion_protection = false
+
+# Backend Service Configuration
+backend_desired_count  = 2
+backend_min_capacity   = 1
+backend_max_capacity   = 10
+backend_cpu_target     = 70
+backend_memory_target  = 80
+
+# Frontend Service Configuration
+frontend_desired_count = 2
+frontend_min_capacity  = 1
+frontend_max_capacity  = 5
+frontend_cpu_target    = 70
+frontend_memory_target = 80
+
+# Logging Configuration
+log_retention_days = 7

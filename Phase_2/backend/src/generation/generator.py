@@ -255,7 +255,8 @@ class RAGGenerator:
                     'text': chunk.get('text', ''),
                     'score': chunk.get('score', 0),
                     'id': chunk.get('id', ''),
-                    'retrieval_info': chunk.get('retrieval_info', {})  # Include raw scores
+                    'retrieval_info': chunk.get('retrieval_info', {}),  # Include raw scores
+                    'metadata': chunk.get('metadata', {})  # Include uniform metadata
                 }
                 
                 # Format chunk with citation marker
@@ -539,7 +540,8 @@ CRITICAL FORMATTING RULES:
                         "filename": v['filename'],
                         "score": v['score'],
                         "id": f"chunk-{k[0]}-{k[1]}",
-                        "retrieval_info": v.get('retrieval_info', {})  # Include raw scores
+                        "retrieval_info": v.get('retrieval_info', {}),  # Include raw scores
+                        "metadata": v.get('metadata', {})  # Include uniform metadata
                     }
                     for k, v in chunk_map.items()
                 },

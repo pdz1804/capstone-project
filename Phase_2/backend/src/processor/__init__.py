@@ -10,6 +10,13 @@ from .normalizer import DocumentNormalizer, NormalizerConfig
 from .media_processor import MediaProcessor, MediaProcessorConfig
 from .document_processor import MultimodalDocumentProcessor, ProcessingConfig
 from .consolidator import Stage4Consolidator, ConsolidatorConfig
+from .chunk_enhancer import (
+    ChunkEnhancement,
+    FrameMetadata,
+    ChunkDescriptionGenerator,
+    FrameMetadataBuilder,
+    EnhancedChunkProcessor
+)
 
 __all__ = [
     "DocumentProcessingPipeline",
@@ -21,5 +28,10 @@ __all__ = [
     "MultimodalDocumentProcessor",
     "ProcessingConfig",
     "Stage4Consolidator",
-    "ConsolidatorConfig"
+    "ConsolidatorConfig",
+    "ChunkEnhancement",
+    "FrameMetadata",
+    "ChunkDescriptionGenerator",
+    "FrameMetadataBuilder",
+    "EnhancedChunkProcessor"
 ]

@@ -1,12 +1,12 @@
 {
-  "doc_count": 89,
-  "raw_doc_count": 2,
+  "doc_count": 123,
+  "raw_doc_count": 3,
   "retrievers": [
     "bm25",
     "dense",
     "hybrid"
   ],
-  "doc_dir": "output\\processing\\stage4_rag_ready",
+  "doc_dir": "D:\\PDZ\\BKU\\Learning\\LVTN\\GD1\\Code\\Phase_2\\backend\\output\\processing\\stage4_rag_ready",
   "chunking": {
     "enabled": true,
     "chunk_size": 1000,

@@ -1,0 +1,180 @@
+# Unified RAG Pipeline Requirements
+# Combines Document Processing + Information Retrieval
+
+transformers==4.57.3
+peft==0.14.0
+sentence-transformers==3.0.1
+accelerate>=0.30.0
+huggingface-hub>=0.23.0
+
+# ColPali / ColQwen
+colpali-engine==0.3.13
+
+# ColBERT / Ragotouille
+ragatouille>=0.0.8
+
+# Video/Audio RAG Pipeline - Streamlit Application Requirements
+streamlit>=1.28.0
+imagehash>=4.3.1
+
+# nvidia-nccl-cu12-2.27.3 # Khoi said cannot use this 
+
+# ======================== Core Processing ========================
+# Docling - Advanced document understanding framework
+docling[all]>=2.0.0
+docling-core>=2.0.0
+docling-parse>=2.0.0
+
+# quantization for colpali/colqwen if necessary
+bitsandbytes
+
+# ======================== Document Normalization ========================
+# Office document processing
+python-docx        # DOCX processing
+python-pptx       # PPTX processing
+openpyxl          # Excel processing
+
+# Data processing
+pandas            # CSV, Excel to markdown
+tabulate          # Table formatting
+
+# HTML processing
+beautifulsoup4   # HTML parsing
+lxml              # XML/HTML parser
+html5lib            # HTML5 parser
+
+# Image processing
+Pillow           # Image manipulation
+img2pdf           # Image to PDF conversion
+pdf2image         # PDF to image conversion
+
+# PDF generation
+reportlab         # PDF creation from scratch
+
+# ======================== Media Processing ========================
+# Video/Audio extraction
+moviepy           # Video processing
+pydub            # Audio manipulation
+
+# Audio processing
+librosa          # Audio analysis
+soundfile        # Audio I/O
+audioread         # Audio file reading
+
+# Speech recognition
+openai-whisper  # Whisper ASR
+transformers     # For additional models
+torch             # PyTorch for ML models
+torchaudio        # Audio processing with PyTorch
+# torch-2.8.0 torchaudio-2.8.0 torchvision-0.23.0 triton-3.4.0
+
+# Video frame extraction
+opencv-python     # Computer vision
+
+# ======================== OCR & Vision ========================
+# OCR engines
+pytesseract      # Tesseract OCR wrapper
+easyocr           # Easy OCR
+rapidocr-onnxruntime  # Rapid OCR
+
+# ======================== Information Retrieval ========================
+# Dense retrieval
+faiss-cpu             # Vector similarity search (CPU version)
+# faiss-gpu-cu12           # Use this for GPU version instead - Khoi said cannot use this
+
+# Sparse retrieval
+rank-bm25             # BM25 implementation
+
+# Reranking
+# transformers         # Cross-encoders for reranking (already listed above)
+
+# Dataset handling
+datasets            # HuggingFace datasets
+
+# ======================== API Integration ========================
+# OpenAI API
+openai               # OpenAI API client
+python-dotenv        # Environment variable management
+
+# ======================== Utilities ========================
+# Logging and progress
+loguru            # Better logging
+tqdm             # Progress bars
+
+# File handling
+python-magic     # File type detection (optional)
+filetype          # Alternative file type detection
+
+# Data serialization
+pyyaml              # YAML support
+toml             # TOML support
+
+# ======================== Scientific Computing ========================
+numpy            # Numerical computing
+scipy            # Scientific computing
+
+# ======================== System Info ========================
+psutil            # System monitoring
+
+# ======================== Development Tools (Optional) ========================
+# Testing
+pytest
+pytest-cov
+
+# Code quality
+black            # Code formatter
+flake8            # Linter
+mypy              # Type checker
+
+# Hugging Face hub for model downloads
+huggingface-hub
+
+
+# ------ API ------
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+
+# ======================== System Dependencies Required ========================
+# - FFmpeg: Required for video/audio processing
+#   Windows: Download from https://ffmpeg.org/download.html
+#   Linux: sudo apt-get install ffmpeg
+#   Mac: brew install ffmpeg
+#
+# - Tesseract OCR: Required for text extraction
+#   Windows: https://github.com/UB-Mannheim/tesseract/wiki
+#   Linux: sudo apt-get install tesseract-ocr
+#   Mac: brew install tesseract
+#
+# - Poppler (for PDF to image): Required for multi-modal retrieval
+#   Windows: Download from http://blog.alivate.com.au/poppler-windows/
+#   Linux: sudo apt-get install poppler-utils
+#   Mac: brew install poppler
+#
+# - LibreOffice: Required for DOCX/PPTX → PDF conversion
+#   Windows: Download from https://www.libreoffice.org/download/
+#   Linux: sudo apt-get install libreoffice
+#   Mac: brew install libreoffice
+
+# ======================== Installation Instructions ========================
+# 1. Create virtual environment:
+#    python -m venv venv
+#
+# 2. Activate virtual environment:
+#    Windows: venv\Scripts\activate
+#    Linux/Mac: source venv/bin/activate
+#
+# 3. Install requirements:
+#    pip install -r requirements.txt
+#
+# 4. For GPU support, install PyTorch with CUDA (here it is 11.8):
+#    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+#
+# 5. For GPU FAISS support (optional):
+#    pip uninstall faiss-cpu
+#    pip install faiss-gpu
+#
+# 6. Download models (first run will auto-download):
+#    python -c "import whisper; whisper.load_model('base')"
+#    python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"

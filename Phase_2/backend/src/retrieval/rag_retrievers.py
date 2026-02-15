@@ -26,11 +26,14 @@ from sentence_transformers import SentenceTransformer
 from rank_bm25 import BM25Okapi
 import faiss
 
-# Import chunking module
+# Import chunking module (canonical location: src/chunking/chunker.py)
 try:
-    from chunking import TextChunker, ChunkingConfig
+    from chunking.chunker import TextChunker, ChunkingConfig
 except ImportError:
-    from .chunking_utils import TextChunker, ChunkingConfig
+    try:
+        from src.chunking.chunker import TextChunker, ChunkingConfig
+    except ImportError:
+        from chunking import TextChunker, ChunkingConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -54,26 +57,87 @@ class BaseRetriever(ABC):
         pass
     
     @staticmethod
-    def load_documents_from_directory(doc_dir: Path) -> List[Dict[str, Any]]:
-        """Load documents from the RAG-ready directory structure."""
-        documents = []
+    def load_documents_from_directory(doc_dir: Path) -> tuple:
+        """
+        Load documents from the RAG-ready directory structure.
+        
+        Returns:
+            tuple: (regular_documents, prebuilt_chunks)
+            - regular_documents: List of docs that need chunking (text from markdown)
+            - prebuilt_chunks: List of pre-built chunks from media files (ready for indexing)
+        """
+        regular_documents = []
+        prebuilt_chunks = []
         doc_dir = Path(doc_dir)
         
         if not doc_dir.exists():
             logger.error(f"Document directory not found: {doc_dir}")
-            return documents
+            return regular_documents, prebuilt_chunks
         
-        # Look for markdown files in the RAG-ready structure
+        # Look for documents in the RAG-ready structure
         for doc_folder in doc_dir.iterdir():
-            if doc_folder.is_dir():
-                # Look for the main markdown file
+            if not doc_folder.is_dir():
+                continue
+            
+            # Check if this is a media document (has media_manifest.json)
+            media_manifest = doc_folder / "media_manifest.json"
+            chunks_file = doc_folder / "transcript_chunks.json"
+            
+            if media_manifest.exists() and chunks_file.exists():
+                # MEDIA DOCUMENT: Load pre-built transcript chunks directly
+                try:
+                    with open(chunks_file, 'r', encoding='utf-8') as f:
+                        chunks_data = json.load(f)
+                    
+                    chunks = chunks_data.get("chunks", [])
+                    chunk_metadata_info = chunks_data.get("metadata", {})
+                    
+                    for i, chunk in enumerate(chunks):
+                        chunk_text = chunk.get("text", "")
+                        if not chunk_text.strip():
+                            continue
+                        
+                        # Build document entry with uniform metadata preserved
+                        prebuilt_chunks.append({
+                            'id': chunk.get("chunk_name", f"{doc_folder.name}_chunk_{i}"),
+                            'text': chunk_text,
+                            'source': str(doc_folder / f"{doc_folder.name}.md"),
+                            'doc_id': doc_folder.name,
+                            'chunk_index': i,
+                            'total_chunks': len(chunks),
+                            'metadata': {
+                                'doc_id': doc_folder.name,
+                                'chunk_index': i,
+                                'total_chunks': len(chunks),
+                                'source': str(doc_folder / f"{doc_folder.name}.md"),
+                                'type': 'transcript',
+                                'document_type': 'media',
+                                # Uniform metadata fields
+                                'content_type': chunk.get('content_type', 'transcript_text'),
+                                'original_file': chunk.get('original_file', ''),
+                                'original_file_format': chunk.get('original_file_format', ''),
+                                'current_format': chunk.get('current_format', ''),
+                                'start_time': chunk.get('start_time'),
+                                'end_time': chunk.get('end_time'),
+                                'duration': chunk.get('duration'),
+                                'associated_frames': chunk.get('associated_frames', []),
+                                'num_associated_frames': len(chunk.get('associated_frames', [])),
+                            }
+                        })
+                    
+                    logger.info(f"Loaded {len(chunks)} pre-built chunks for media doc: {doc_folder.name}")
+                    
+                except Exception as e:
+                    logger.error(f"Error loading pre-built chunks from {chunks_file}: {e}")
+            else:
+                # REGULAR DOCUMENT: Load markdown for chunking
                 md_file = doc_folder / f"{doc_folder.name}.md"
                 if md_file.exists():
                     try:
                         with open(md_file, 'r', encoding='utf-8') as f:
                             content = f.read()
                         
-                        documents.append({
+                        regular_documents.append({
                             'id': doc_folder.name,
                             'text': content,
                             'source': str(md_file),
@@ -83,8 +147,8 @@ class BaseRetriever(ABC):
                     except Exception as e:
                         logger.error(f"Error loading {md_file}: {e}")
         
-        logger.info(f"Loaded {len(documents)} documents from {doc_dir}")
-        return documents
+        logger.info(f"Loaded {len(regular_documents)} regular docs + {len(prebuilt_chunks)} pre-built media chunks from {doc_dir}")
+        return regular_documents, prebuilt_chunks
 
 
 class SimpleBM25Retriever(BaseRetriever):
@@ -134,13 +198,17 @@ class SimpleBM25Retriever(BaseRetriever):
         results = []
         for i, idx in enumerate(top_indices):
             if scores[idx] > 0:  # Only return documents with positive scores
-                results.append({
+                result = {
                     'id': self.documents[idx]['id'],
                     'text': self.documents[idx]['text'][:500] + "..." if len(self.documents[idx]['text']) > 500 else self.documents[idx]['text'],
                     'source': self.documents[idx]['source'],
                     'score': float(scores[idx]),
                     'rank': i + 1
-                })
+                }
+                # Pass through uniform metadata if present
+                if 'metadata' in self.documents[idx]:
+                    result['metadata'] = self.documents[idx]['metadata']
+                results.append(result)
         
         return results
 
@@ -211,13 +279,17 @@ class SimpleDenseRetriever(BaseRetriever):
         results = []
         for i, (idx, score) in enumerate(zip(indices[0], scores[0])):
             if idx != -1:  # Valid result
-                results.append({
+                result = {
                     'id': self.documents[idx]['id'],
                     'text': self.documents[idx]['text'][:500] + "..." if len(self.documents[idx]['text']) > 500 else self.documents[idx]['text'],
                     'source': self.documents[idx]['source'],
                     'score': float(score),
                     'rank': i + 1
-                })
+                }
+                # Pass through uniform metadata if present
+                if 'metadata' in self.documents[idx]:
+                    result['metadata'] = self.documents[idx]['metadata']
+                results.append(result)
         
         return results
 
@@ -338,6 +410,8 @@ class SimpleHybridRetriever(BaseRetriever):
                     'source': doc['source'],
                     'score': float(score),
                     'rank': i + 1,
+                    # Pass through uniform metadata if present
+                    'metadata': doc.get('metadata', {}),
                     # Hybrid fusion details with raw scores
                     'retrieval_info': {
                         'bm25_rank': bm25_rank,
@@ -566,24 +640,32 @@ class RAGRetrieverManager:
         """Load and chunk documents from the RAG-ready directory."""
         logger.info(f"Loading documents from: {self.doc_dir}")
         
-        # Load raw documents
-        self.raw_documents = BaseRetriever.load_documents_from_directory(self.doc_dir)
+        # Load raw documents and pre-built chunks separately
+        regular_docs, prebuilt_chunks = BaseRetriever.load_documents_from_directory(self.doc_dir)
+        self.raw_documents = regular_docs
         
-        if not self.raw_documents:
+        if not regular_docs and not prebuilt_chunks:
             logger.warning("No documents found!")
             self.documents = []
             return
         
-        logger.info(f"Loaded {len(self.raw_documents)} raw documents")
+        logger.info(f"Loaded {len(regular_docs)} regular documents + {len(prebuilt_chunks)} pre-built media chunks")
         
-        # Chunk documents if enabled
-        if self.enable_chunking:
-            logger.info(f"Chunking documents (size={self.chunk_size}, overlap={self.chunk_overlap})...")
-            self.documents = self.chunker.chunk_documents(self.raw_documents)
-            logger.info(f"Created {len(self.documents)} chunks from {len(self.raw_documents)} documents")
-        else:
-            self.documents = self.raw_documents
-            logger.info(f"Chunking disabled, using {len(self.documents)} full documents")
+        # Chunk regular documents if enabled
+        chunked_docs = []
+        if regular_docs and self.enable_chunking:
+            logger.info(f"Chunking {len(regular_docs)} regular documents (size={self.chunk_size}, overlap={self.chunk_overlap})...")
+            chunked_docs = self.chunker.chunk_documents(regular_docs)
+            logger.info(f"Created {len(chunked_docs)} chunks from {len(regular_docs)} regular documents")
+        elif regular_docs:
+            chunked_docs = regular_docs
+            logger.info(f"Chunking disabled, using {len(chunked_docs)} full documents")
+        
+        # Combine chunked regular docs with pre-built media chunks
+        self.documents = chunked_docs + prebuilt_chunks
+        
+        logger.info(f"Total documents for indexing: {len(self.documents)} "
+                     f"({len(chunked_docs)} from regular docs + {len(prebuilt_chunks)} pre-built media chunks)")
     
     def setup_retriever(self, retriever_type: str, **kwargs) -> None:
         """Setup a specific retriever type."""
