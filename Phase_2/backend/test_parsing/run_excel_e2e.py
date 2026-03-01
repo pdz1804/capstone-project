@@ -74,17 +74,6 @@ DEFAULT_QUERIES = [
     "List any courses, items, or key data entries mentioned.",
 ]
 
-
-# ──────────────────────────────────────────────────────────────────
-# Helpers
-# ──────────────────────────────────────────────────────────────────
-
-def print_separator(title: str, char: str = "═", width: int = 80):
-    print(f"\n{char * width}")
-    print(f"  {title}")
-    print(f"{char * width}")
-
-
 def load_json(json_path: Path) -> list:
     with open(json_path, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -186,46 +175,6 @@ def generate_with_src_generator(query: str, retrieved_docs: list,
     return generator.generate(query, retrieved_docs)
 
 
-async def generate_with_local_llm(query: str, retrieved_docs: list) -> str:
-    """Use test_parsing's LLM providers (OpenAI / Bedrock via .env)."""
-    from llm_provider import LLMProvider
-    from llm_utils import call_llm
-
-    llm = LLMProvider.create()
-    provider_name = os.getenv("PREFER_PROVIDER", "openai")
-    model = os.getenv("OPENAI_LLM_MODEL", "gpt-4.1-mini") if provider_name == "openai" \
-        else os.getenv("AWS_LLM_MODEL", "mistral.mistral-large-2407-v1:0")
-
-    # Build context from retrieved chunks
-    context_parts = []
-    for i, doc in enumerate(retrieved_docs):
-        meta = doc.get("metadata", {})
-        sheet = meta.get("sheet_name", "")
-        is_table = meta.get("is_table", False)
-        label = f"[{i+1}] Sheet: {sheet} ({'TABLE' if is_table else 'TEXT'})"
-        context_parts.append(f"{label}\n{doc['text']}")
-
-    context = "\n\n---\n\n".join(context_parts)
-
-    system_prompt = (
-        "You are a helpful assistant. Answer the question using ONLY the provided context. "
-        "Cite which chunk numbers you used. If the context is insufficient, say so."
-    )
-    user_prompt = f"Context:\n{context}\n\nQuestion: {query}"
-
-    def llm_params(m):
-        return {"model": m}
-
-    result = await call_llm(
-        llm, llm_params,
-        model=model,
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        temperature=0.0,
-    )
-    return result
-
-
 # ──────────────────────────────────────────────────────────────────
 # Pipeline runner
 # ──────────────────────────────────────────────────────────────────
@@ -235,10 +184,10 @@ def run_e2e(json_path: Path, query: str, chunk_size: int, chunk_overlap: int,
             use_local_llm: bool, verbose: bool):
     """Run the full end-to-end pipeline on one file."""
 
-    print_separator(f"E2E PIPELINE: {json_path.name}")
+    print(f"E2E PIPELINE: {json_path.name}")
 
     # ── Step 1-2: Chunk ──
-    print_separator("STEP 1-2: PARSE + CHUNK", "─")
+    print("STEP 1-2: PARSE + CHUNK")
     chunks = step_parse_and_chunk(json_path, chunk_size, chunk_overlap, max_table_chunk)
 
     if not chunks:
@@ -246,7 +195,7 @@ def run_e2e(json_path: Path, query: str, chunk_size: int, chunk_overlap: int,
         return
 
     # ── Step 3: Retrieve ──
-    print_separator("STEP 3: RETRIEVE", "─")
+    print("STEP 3: RETRIEVE")
     print(f"  Query: {query}")
     bm25 = build_bm25_retriever(chunks)
     retrieved = retrieve_bm25(bm25, chunks, query, top_k=top_k)
@@ -257,26 +206,24 @@ def run_e2e(json_path: Path, query: str, chunk_size: int, chunk_overlap: int,
         score = doc.get("score", 0)
         sheet = meta.get("sheet_name", "?")
         is_table = meta.get("is_table", False)
-        preview = doc["text"][:80].replace("\n", " ")
+        preview = doc["text"].replace("\n", " ")
         print(f"    [{i+1}] score={score:.3f} sheet='{sheet}' {'TABLE' if is_table else 'TEXT'}")
         if verbose:
-            print(f"        {preview}...")
-
+            print(f"Preview: {preview}")
+r
     # ── Step 4: What is fed to LLM ──
-    print_separator("STEP 4: CONTEXT FED TO LLM", "─")
+    print("STEP 4: CONTEXT FED TO LLM")
     for i, doc in enumerate(retrieved):
         meta = doc.get("metadata", {})
         sheet = meta.get("sheet_name", "")
         is_table = meta.get("is_table", False)
         print(f"\n  ── Chunk [{i+1}] Sheet: {sheet} ({'TABLE' if is_table else 'TEXT'}) ──")
-        text_preview = doc["text"][:500]
+        text_preview = doc["text"]
         for line in text_preview.split("\n"):
             print(f"  │ {line}")
-        if len(doc["text"]) > 500:
-            print(f"  │ ... ({len(doc['text']) - 500} more chars)")
 
     # ── Step 5: Generate ──
-    print_separator("STEP 5: LLM GENERATION", "─")
+    print("STEP 5: LLM GENERATION")
 
     if use_local_llm:
         print(f"  Using local LLM provider: {os.getenv('PREFER_PROVIDER', 'openai')}")
@@ -338,10 +285,10 @@ def main():
     group.add_argument("--raw", type=str, help="Path to raw .xlsx file")
 
     parser.add_argument("--query", type=str, default=None, help="Question to ask (default: auto)")
-    parser.add_argument("--top-k", type=int, default=5, help="Number of chunks to retrieve (default: 5)")
+    parser.add_argument("--top-k", type=int, default=5, help="Number of chunks to retrieve (default: 10)")
 
     # Chunking
-    parser.add_argument("--chunk-size", type=int, default=1000)
+    parser.add_argument("--chunk-size", type=int, default=500)
     parser.add_argument("--chunk-overlap", type=int, default=200)
     parser.add_argument("--max-table-chunk", type=int, default=2000)
 
@@ -356,7 +303,7 @@ def main():
     args = parser.parse_args()
     query = args.query or DEFAULT_QUERIES[0]
 
-    print_separator("EXCEL END-TO-END RAG PIPELINE", "▓")
+    print("EXCEL END-TO-END RAG PIPELINE")
     print(f"  Query   : {query}")
     print(f"  LLM     : {'local (.env)' if args.use_local_llm else f'{args.provider}/{args.model}'}")
     print(f"  Chunking: size={args.chunk_size} overlap={args.chunk_overlap} table_max={args.max_table_chunk}")
@@ -370,7 +317,7 @@ def main():
         json_path = OUTPUT_DIR / f"{raw_path.stem}.json"
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-        print_separator("PARSING RAW EXCEL", "─")
+        print("PARSING RAW EXCEL")
         result = process_workbook(raw_path)
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
@@ -404,7 +351,7 @@ def main():
             except Exception as e:
                 log.error(f"Failed on {jf.name}: {e}")
 
-    print_separator("PIPELINE COMPLETE", "▓")
+    print("PIPELINE COMPLETE")
 
 
 if __name__ == "__main__":
