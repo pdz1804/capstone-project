@@ -103,3 +103,8 @@ curl -X POST http://localhost:8000/api/search \
   -H "Content-Type: application/json" \
   -d '{"query": "Giải tích 1 do ai dạy?", "top_k": 5}'
 ```
+
+
+# Next-step
+- For XLS/XLSM files, maybe LibreOffice has some bugs, will try to find other substitutes to convert easier
+- Perhaps continue to improve chunking strategies + retrieving accuracy
