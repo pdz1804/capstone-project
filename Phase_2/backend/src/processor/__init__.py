@@ -10,6 +10,7 @@ from .normalizer import DocumentNormalizer, NormalizerConfig
 from .media_processor import MediaProcessor, MediaProcessorConfig
 from .document_processor import MultimodalDocumentProcessor, ProcessingConfig
 from .consolidator import Stage4Consolidator, ConsolidatorConfig
+from .xlsx_reader_v2 import process_excel_file
 from .chunk_enhancer import (
     ChunkEnhancement,
     FrameMetadata,

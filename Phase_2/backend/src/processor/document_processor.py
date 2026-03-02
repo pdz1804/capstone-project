@@ -14,6 +14,8 @@ Features:
 - Comprehensive metadata extraction
 """
 
+from __future__ import annotations
+
 import os
 import json
 import shutil
@@ -58,7 +60,7 @@ try:
     
     DOCLING_AVAILABLE = True
 except ImportError as e:
-    logger.warning(f"Docling not fully available: {e}")
+    logging.warning(f"Docling not fully available: {e}")
     DOCLING_AVAILABLE = False
     
     # Create dummy classes for development/testing without Docling
