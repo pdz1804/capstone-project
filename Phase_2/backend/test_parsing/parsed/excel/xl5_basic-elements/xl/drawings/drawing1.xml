@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
+    xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+    xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <xdr:twoCellAnchor editAs="absolute">
+        <xdr:from>
+            <xdr:col>2</xdr:col>
+            <xdr:colOff>757080</xdr:colOff>
+            <xdr:row>2</xdr:row>
+            <xdr:rowOff>56160</xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>9</xdr:col>
+            <xdr:colOff>750600</xdr:colOff>
+            <xdr:row>13</xdr:row>
+            <xdr:rowOff>62280</xdr:rowOff>
+        </xdr:to>
+        <xdr:sp>
+            <xdr:nvSpPr>
+                <xdr:cNvPr id="0" name="Shape 4"></xdr:cNvPr>
+                <xdr:cNvSpPr/>
+            </xdr:nvSpPr>
+            <xdr:spPr>
+                <a:xfrm>
+                    <a:off x="2387880" y="381240"/>
+                    <a:ext cx="5700960" cy="1794240"/>
+                </a:xfrm>
+                <a:custGeom>
+                    <a:avLst/>
+                    <a:gdLst/>
+                    <a:ahLst/>
+                    <a:rect l="l" t="t" r="r" b="b"/>
+                    <a:pathLst>
+                        <a:path w="68504" h="21600">
+                            <a:moveTo>
+                                <a:pt x="3600" y="0"/>
+                            </a:moveTo>
+                            <a:arcTo wR="3600" hR="3600" stAng="16200000" swAng="-5400000"/>
+                            <a:lnTo>
+                                <a:pt x="0" y="18000"/>
+                            </a:lnTo>
+                            <a:arcTo wR="3600" hR="3600" stAng="10800000" swAng="-5400000"/>
+                            <a:lnTo>
+                                <a:pt x="64904" y="21600"/>
+                            </a:lnTo>
+                            <a:arcTo wR="43304" hR="3600" stAng="5400000" swAng="5400000"/>
+                            <a:lnTo>
+                                <a:pt x="21600" y="3600"/>
+                            </a:lnTo>
+                            <a:arcTo wR="43304" hR="3600" stAng="10800000" swAng="5400000"/>
+                            <a:close/>
+                        </a:path>
+                    </a:pathLst>
+                </a:custGeom>
+                <a:solidFill>
+                    <a:srgbClr val="dddddd"/>
+                </a:solidFill>
+                <a:ln w="0">
+                    <a:solidFill>
+                        <a:srgbClr val="3465a4"/>
+                    </a:solidFill>
+                </a:ln>
+            </xdr:spPr>
+            <xdr:style>
+                <a:lnRef idx="0"></a:lnRef>
+                <a:fillRef idx="0"/>
+                <a:effectRef idx="0"></a:effectRef>
+                <a:fontRef idx="minor"/>
+            </xdr:style>
+        </xdr:sp>
+        <xdr:clientData/>
+    </xdr:twoCellAnchor>
+    <xdr:twoCellAnchor editAs="absolute">
+        <xdr:from>
+            <xdr:col>3</xdr:col>
+            <xdr:colOff>201600</xdr:colOff>
+            <xdr:row>5</xdr:row>
+            <xdr:rowOff>62640</xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>5</xdr:col>
+            <xdr:colOff>604080</xdr:colOff>
+            <xdr:row>10</xdr:row>
+            <xdr:rowOff>99360</xdr:rowOff>
+        </xdr:to>
+        <xdr:sp>
+            <xdr:nvSpPr>
+                <xdr:cNvPr id="1" name="Shape 1"></xdr:cNvPr>
+                <xdr:cNvSpPr/>
+            </xdr:nvSpPr>
+            <xdr:spPr>
+                <a:xfrm>
+                    <a:off x="2647800" y="875520"/>
+                    <a:ext cx="2032920" cy="849600"/>
+                </a:xfrm>
+                <a:prstGeom prst="rect">
+                    <a:avLst></a:avLst>
+                </a:prstGeom>
+                <a:solidFill>
+                    <a:srgbClr val="729fcf"/>
+                </a:solidFill>
+                <a:ln w="0">
+                    <a:solidFill>
+                        <a:srgbClr val="3465a4"/>
+                    </a:solidFill>
+                </a:ln>
+            </xdr:spPr>
+            <xdr:style>
+                <a:lnRef idx="0"></a:lnRef>
+                <a:fillRef idx="0"/>
+                <a:effectRef idx="0"></a:effectRef>
+                <a:fontRef idx="minor"/>
+            </xdr:style>
+        </xdr:sp>
+        <xdr:clientData/>
+    </xdr:twoCellAnchor>
+    <xdr:twoCellAnchor editAs="absolute">
+        <xdr:from>
+            <xdr:col>6</xdr:col>
+            <xdr:colOff>37440</xdr:colOff>
+            <xdr:row>6</xdr:row>
+            <xdr:rowOff>93600</xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>7</xdr:col>
+            <xdr:colOff>686160</xdr:colOff>
+            <xdr:row>9</xdr:row>
+            <xdr:rowOff>130320</xdr:rowOff>
+        </xdr:to>
+        <xdr:sp>
+            <xdr:nvSpPr>
+                <xdr:cNvPr id="2" name="Shape 2"></xdr:cNvPr>
+                <xdr:cNvSpPr/>
+            </xdr:nvSpPr>
+            <xdr:spPr>
+                <a:xfrm>
+                    <a:off x="4929480" y="1068840"/>
+                    <a:ext cx="1464120" cy="524520"/>
+                </a:xfrm>
+                <a:custGeom>
+                    <a:avLst/>
+                    <a:gdLst/>
+                    <a:ahLst/>
+                    <a:rect l="l" t="t" r="r" b="b"/>
+                    <a:pathLst>
+                        <a:path w="21600" h="21600">
+                            <a:moveTo>
+                                <a:pt x="0" y="5400"/>
+                            </a:moveTo>
+                            <a:lnTo>
+                                <a:pt x="16200" y="5400"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="16200" y="0"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="21600" y="10800"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="16200" y="21600"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="16200" y="16200"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="0" y="16200"/>
+                            </a:lnTo>
+                            <a:close/>
+                        </a:path>
+                    </a:pathLst>
+                </a:custGeom>
+                <a:solidFill>
+                    <a:srgbClr val="729fcf"/>
+                </a:solidFill>
+                <a:ln w="0">
+                    <a:solidFill>
+                        <a:srgbClr val="3465a4"/>
+                    </a:solidFill>
+                </a:ln>
+            </xdr:spPr>
+            <xdr:style>
+                <a:lnRef idx="0"></a:lnRef>
+                <a:fillRef idx="0"/>
+                <a:effectRef idx="0"></a:effectRef>
+                <a:fontRef idx="minor"/>
+            </xdr:style>
+        </xdr:sp>
+        <xdr:clientData/>
+    </xdr:twoCellAnchor>
+    <xdr:twoCellAnchor editAs="absolute">
+        <xdr:from>
+            <xdr:col>8</xdr:col>
+            <xdr:colOff>315360</xdr:colOff>
+            <xdr:row>4</xdr:row>
+            <xdr:rowOff>150480</xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>9</xdr:col>
+            <xdr:colOff>509760</xdr:colOff>
+            <xdr:row>11</xdr:row>
+            <xdr:rowOff>61920</xdr:rowOff>
+        </xdr:to>
+        <xdr:sp>
+            <xdr:nvSpPr>
+                <xdr:cNvPr id="3" name="Shape 3"></xdr:cNvPr>
+                <xdr:cNvSpPr/>
+            </xdr:nvSpPr>
+            <xdr:spPr>
+                <a:xfrm>
+                    <a:off x="6838200" y="800640"/>
+                    <a:ext cx="1009800" cy="1049400"/>
+                </a:xfrm>
+                <a:custGeom>
+                    <a:avLst/>
+                    <a:gdLst/>
+                    <a:ahLst/>
+                    <a:rect l="l" t="t" r="r" b="b"/>
+                    <a:pathLst>
+                        <a:path w="21600" h="21600">
+                            <a:moveTo>
+                                <a:pt x="0" y="10800"/>
+                            </a:moveTo>
+                            <a:lnTo>
+                                <a:pt x="8900" y="8900"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="10800" y="0"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="12700" y="8900"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="21600" y="10800"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="12700" y="12700"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="10800" y="21600"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="8900" y="12700"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="0" y="10800"/>
+                            </a:lnTo>
+                            <a:close/>
+                        </a:path>
+                    </a:pathLst>
+                </a:custGeom>
+                <a:solidFill>
+                    <a:srgbClr val="729fcf"/>
+                </a:solidFill>
+                <a:ln w="0">
+                    <a:solidFill>
+                        <a:srgbClr val="3465a4"/>
+                    </a:solidFill>
+                </a:ln>
+            </xdr:spPr>
+            <xdr:style>
+                <a:lnRef idx="0"></a:lnRef>
+                <a:fillRef idx="0"/>
+                <a:effectRef idx="0"></a:effectRef>
+                <a:fontRef idx="minor"/>
+            </xdr:style>
+        </xdr:sp>
+        <xdr:clientData/>
+    </xdr:twoCellAnchor>
+    <xdr:twoCellAnchor editAs="absolute">
+        <xdr:from>
+            <xdr:col>3</xdr:col>
+            <xdr:colOff>259560</xdr:colOff>
+            <xdr:row>15</xdr:row>
+            <xdr:rowOff>125280</xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>5</xdr:col>
+            <xdr:colOff>662040</xdr:colOff>
+            <xdr:row>20</xdr:row>
+            <xdr:rowOff>162000</xdr:rowOff>
+        </xdr:to>
+        <xdr:sp>
+            <xdr:nvSpPr>
+                <xdr:cNvPr id="4" name="Shape 5"></xdr:cNvPr>
+                <xdr:cNvSpPr/>
+            </xdr:nvSpPr>
+            <xdr:spPr>
+                <a:xfrm>
+                    <a:off x="2705760" y="2563560"/>
+                    <a:ext cx="2032920" cy="849600"/>
+                </a:xfrm>
+                <a:prstGeom prst="rect">
+                    <a:avLst></a:avLst>
+                </a:prstGeom>
+                <a:solidFill>
+                    <a:srgbClr val="729fcf"/>
+                </a:solidFill>
+                <a:ln w="0">
+                    <a:solidFill>
+                        <a:srgbClr val="3465a4"/>
+                    </a:solidFill>
+                </a:ln>
+            </xdr:spPr>
+            <xdr:style>
+                <a:lnRef idx="0"></a:lnRef>
+                <a:fillRef idx="0"/>
+                <a:effectRef idx="0"></a:effectRef>
+                <a:fontRef idx="minor"/>
+            </xdr:style>
+        </xdr:sp>
+        <xdr:clientData/>
+    </xdr:twoCellAnchor>
+    <xdr:twoCellAnchor editAs="absolute">
+        <xdr:from>
+            <xdr:col>6</xdr:col>
+            <xdr:colOff>164880</xdr:colOff>
+            <xdr:row>16</xdr:row>
+            <xdr:rowOff>62640</xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>7</xdr:col>
+            <xdr:colOff>813600</xdr:colOff>
+            <xdr:row>19</xdr:row>
+            <xdr:rowOff>99360</xdr:rowOff>
+        </xdr:to>
+        <xdr:sp>
+            <xdr:nvSpPr>
+                <xdr:cNvPr id="5" name="Shape 6"></xdr:cNvPr>
+                <xdr:cNvSpPr/>
+            </xdr:nvSpPr>
+            <xdr:spPr>
+                <a:xfrm>
+                    <a:off x="5056920" y="2663640"/>
+                    <a:ext cx="1464120" cy="524520"/>
+                </a:xfrm>
+                <a:custGeom>
+                    <a:avLst/>
+                    <a:gdLst/>
+                    <a:ahLst/>
+                    <a:rect l="l" t="t" r="r" b="b"/>
+                    <a:pathLst>
+                        <a:path w="21600" h="21600">
+                            <a:moveTo>
+                                <a:pt x="0" y="5400"/>
+                            </a:moveTo>
+                            <a:lnTo>
+                                <a:pt x="16200" y="5400"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="16200" y="0"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="21600" y="10800"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="16200" y="21600"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="16200" y="16200"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="0" y="16200"/>
+                            </a:lnTo>
+                            <a:close/>
+                        </a:path>
+                    </a:pathLst>
+                </a:custGeom>
+                <a:solidFill>
+                    <a:srgbClr val="729fcf"/>
+                </a:solidFill>
+                <a:ln w="0">
+                    <a:solidFill>
+                        <a:srgbClr val="3465a4"/>
+                    </a:solidFill>
+                </a:ln>
+            </xdr:spPr>
+            <xdr:style>
+                <a:lnRef idx="0"></a:lnRef>
+                <a:fillRef idx="0"/>
+                <a:effectRef idx="0"></a:effectRef>
+                <a:fontRef idx="minor"/>
+            </xdr:style>
+        </xdr:sp>
+        <xdr:clientData/>
+    </xdr:twoCellAnchor>
+    <xdr:twoCellAnchor editAs="absolute">
+        <xdr:from>
+            <xdr:col>8</xdr:col>
+            <xdr:colOff>322920</xdr:colOff>
+            <xdr:row>15</xdr:row>
+            <xdr:rowOff>6480</xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>9</xdr:col>
+            <xdr:colOff>517320</xdr:colOff>
+            <xdr:row>21</xdr:row>
+            <xdr:rowOff>80280</xdr:rowOff>
+        </xdr:to>
+        <xdr:sp>
+            <xdr:nvSpPr>
+                <xdr:cNvPr id="6" name="Shape 7"></xdr:cNvPr>
+                <xdr:cNvSpPr/>
+            </xdr:nvSpPr>
+            <xdr:spPr>
+                <a:xfrm>
+                    <a:off x="6845760" y="2444760"/>
+                    <a:ext cx="1009800" cy="1049400"/>
+                </a:xfrm>
+                <a:custGeom>
+                    <a:avLst/>
+                    <a:gdLst/>
+                    <a:ahLst/>
+                    <a:rect l="l" t="t" r="r" b="b"/>
+                    <a:pathLst>
+                        <a:path w="21600" h="21600">
+                            <a:moveTo>
+                                <a:pt x="0" y="10800"/>
+                            </a:moveTo>
+                            <a:lnTo>
+                                <a:pt x="8900" y="8900"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="10800" y="0"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="12700" y="8900"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="21600" y="10800"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="12700" y="12700"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="10800" y="21600"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="8900" y="12700"/>
+                            </a:lnTo>
+                            <a:lnTo>
+                                <a:pt x="0" y="10800"/>
+                            </a:lnTo>
+                            <a:close/>
+                        </a:path>
+                    </a:pathLst>
+                </a:custGeom>
+                <a:solidFill>
+                    <a:srgbClr val="729fcf"/>
+                </a:solidFill>
+                <a:ln w="0">
+                    <a:solidFill>
+                        <a:srgbClr val="3465a4"/>
+                    </a:solidFill>
+                </a:ln>
+            </xdr:spPr>
+            <xdr:style>
+                <a:lnRef idx="0"></a:lnRef>
+                <a:fillRef idx="0"/>
+                <a:effectRef idx="0"></a:effectRef>
+                <a:fontRef idx="minor"/>
+            </xdr:style>
+        </xdr:sp>
+        <xdr:clientData/>
+    </xdr:twoCellAnchor>
+</xdr:wsDr>

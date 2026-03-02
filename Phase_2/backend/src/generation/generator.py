@@ -261,7 +261,18 @@ class RAGGenerator:
                 
                 # Format chunk with citation marker
                 text = chunk.get('text', '')
-                context_parts.append(f"{citation_id} Source: {filename}\n{text}\n")
+                metadata = chunk.get('metadata', {})
+
+                # Add context hints for spreadsheet / table chunks
+                context_hint = ""
+                if metadata.get('document_type') == 'spreadsheet':
+                    sheet = metadata.get('sheet_name', '')
+                    if sheet:
+                        context_hint += f" [Sheet: {sheet}]"
+                    if metadata.get('is_table'):
+                        context_hint += " [Table Data]"
+
+                context_parts.append(f"{citation_id} Source: {filename}{context_hint}\n{text}\n")
             
             file_number += 1
         
@@ -411,8 +422,17 @@ class RAGGenerator:
         # Separate text and image documents
         text_docs = [doc for doc in retrieved_docs if doc.get('retrieval_type') != 'colqwen']
         image_docs = [doc for doc in retrieved_docs if doc.get('retrieval_type') == 'colqwen']
+
+        # Collect image paths embedded in spreadsheet chunk metadata
+        embedded_image_paths: List[str] = []
+        for doc in text_docs:
+            meta = doc.get('metadata', {})
+            if meta.get('document_type') == 'spreadsheet' and meta.get('has_images'):
+                for img_p in meta.get('image_paths', []):
+                    if img_p and img_p not in embedded_image_paths:
+                        embedded_image_paths.append(img_p)
         
-        logger.info(f"Retrieved docs: {len(retrieved_docs)} total, {len(text_docs)} text, {len(image_docs)} images")
+        logger.info(f"Retrieved docs: {len(retrieved_docs)} total, {len(text_docs)} text, {len(image_docs)} images, {len(embedded_image_paths)} embedded spreadsheet images")
         
         # Debug: log image doc info (all images)
         for i, img_doc in enumerate(image_docs):
@@ -457,6 +477,16 @@ class RAGGenerator:
             else:
                 logger.warning(f"Source path not found or empty: {source_path}")
         
+        # Add embedded images from spreadsheet chunks
+        for emb_img in embedded_image_paths:
+            emb_path = Path(emb_img)
+            if emb_path.exists():
+                image_paths.append(str(emb_path))
+                image_descriptions.append(
+                    f"[Image {len(image_paths)}] Embedded spreadsheet image: {emb_path.name}"
+                )
+                logger.info(f"Added embedded spreadsheet image: {emb_path.name}")
+
         # Format context from text docs only
         if use_citations:
             formatted_context, file_map, chunk_map = self._format_context_with_citations(text_docs)

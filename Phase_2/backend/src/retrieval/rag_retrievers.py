@@ -83,6 +83,34 @@ class BaseRetriever(ABC):
             media_manifest = doc_folder / "media_manifest.json"
             chunks_file = doc_folder / "transcript_chunks.json"
             
+            # Check if this is an EXCEL document (has excel_manifest.json)
+            excel_manifest = doc_folder / "excel_manifest.json"
+            excel_chunks_file = doc_folder / "excel_chunks.json"
+
+            if excel_manifest.exists() and excel_chunks_file.exists():
+                # EXCEL DOCUMENT: Load pre-built table-aware chunks directly
+                try:
+                    with open(excel_chunks_file, 'r', encoding='utf-8') as f:
+                        excel_data = json.load(f)
+
+                    excel_chunks = excel_data.get("chunks", [])
+
+                    for chunk in excel_chunks:
+                        chunk_text_val = chunk.get("text", "")
+                        if not chunk_text_val.strip():
+                            continue
+                        prebuilt_chunks.append(chunk)
+
+                    logger.info(
+                        f"Loaded {len(excel_chunks)} pre-built Excel chunks "
+                        f"for doc: {doc_folder.name}"
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"Error loading Excel chunks from {excel_chunks_file}: {e}"
+                    )
+                continue  # skip further checks for this folder
+
             if media_manifest.exists() and chunks_file.exists():
                 # MEDIA DOCUMENT: Load pre-built transcript chunks directly
                 try:
