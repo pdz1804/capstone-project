@@ -7,8 +7,12 @@ Extends the base TextChunker to handle structured content from parsed Excel file
 - Detects [START_IMAGE]...[END_IMAGE] markers and extracts image paths for
   multimodal RAG integration.
 - Preserves sheet-level metadata (sheet_name) through the chunking pipeline.
+- **Table-aware parsing**: parses markdown tables into structured TableBlock/Row/Cell
+  objects, then serializes each row as key-value text for better embeddings.
+- **Entity docs**: per-row micro-documents for precise retrieval (course code, lecturer).
 """
 
+import hashlib
 import logging
 import re
 from pathlib import Path
@@ -31,6 +35,246 @@ IMAGE_PATTERN = re.compile(
     r"\[START_IMAGE\](.*?)\[END_IMAGE\]", re.DOTALL
 )
 
+# Regex to extract markdown links: [text](url)
+_LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
+
+
+# ──────────────────────────────────────────────────────────────────
+# Structured data types for table-aware parsing
+# ──────────────────────────────────────────────────────────────────
+
+@dataclass
+class Link:
+    text: str
+    url: str
+
+
+@dataclass
+class Cell:
+    raw: str          # original cell text (may contain markdown links)
+    text: str         # text with markdown links stripped
+    links: List[Link] = field(default_factory=list)
+
+
+@dataclass
+class Row:
+    cells: Dict[str, Cell]  # key = column name
+    row_index: int = 0
+
+
+@dataclass
+class TableBlock:
+    sheet_name: str
+    section_title: Optional[str]
+    columns: List[str]
+    rows: List[Row]
+    table_id: str = ""
+
+    def __post_init__(self):
+        if not self.table_id:
+            # Stable hash from sheet + section + columns + first 3 rows
+            sig = f"{self.sheet_name}|{self.section_title}|{'|'.join(self.columns)}"
+            for r in self.rows[:3]:
+                sig += "|" + "|".join(c.text for c in r.cells.values())
+            self.table_id = hashlib.md5(sig.encode("utf-8")).hexdigest()[:12]
+
+
+# ──────────────────────────────────────────────────────────────────
+# Parsing helpers
+# ──────────────────────────────────────────────────────────────────
+
+def _extract_links(raw: str) -> List[Link]:
+    """Extract all markdown [text](url) links from raw cell text."""
+    return [Link(text=m[0], url=m[1]) for m in _LINK_RE.findall(raw)]
+
+
+def _strip_links(raw: str) -> str:
+    """Replace [text](url) with just text."""
+    return _LINK_RE.sub(r"\1", raw).strip()
+
+
+def _parse_cell(raw: str) -> Cell:
+    return Cell(raw=raw.strip(), text=_strip_links(raw), links=_extract_links(raw))
+
+
+def _parse_md_row(line: str) -> List[str]:
+    """Split a markdown table row ``| a | b | c |`` into cell strings."""
+    line = line.strip()
+    if line.startswith("|"):
+        line = line[1:]
+    if line.endswith("|"):
+        line = line[:-1]
+    return [c.strip() for c in line.split("|")]
+
+
+def _is_separator_line(line: str) -> bool:
+    """Check if a line is a markdown table separator like | --- | --- |."""
+    return bool(re.match(r"^\|[\s\-:|]+\|", line.strip()))
+
+
+def parse_markdown_table(table_md: str) -> Tuple[List[str], List[Row]]:
+    """
+    Parse a markdown table string into (columns, rows).
+
+    Returns:
+        (columns: list[str], rows: list[Row])
+    """
+    lines = [l for l in table_md.split("\n") if l.strip()]
+    if len(lines) < 2:
+        return [], []
+
+    # Header
+    columns = [_strip_links(c) for c in _parse_md_row(lines[0])]
+
+    # Find separator
+    data_start = 1
+    if len(lines) > 1 and _is_separator_line(lines[1]):
+        data_start = 2
+
+    rows: List[Row] = []
+    for idx, line in enumerate(lines[data_start:]):
+        raw_cells = _parse_md_row(line)
+        cells: Dict[str, Cell] = {}
+        for j, col in enumerate(columns):
+            raw_val = raw_cells[j] if j < len(raw_cells) else ""
+            cells[col] = _parse_cell(raw_val)
+        rows.append(Row(cells=cells, row_index=idx))
+
+    return columns, rows
+
+
+def parse_sheet_to_table_blocks(sheet_name: str, content: str) -> List[TableBlock]:
+    """
+    Split sheet content into a list of ``TableBlock`` objects.
+
+    Non-table text between markers is used as ``section_title`` context for
+    the next table block (e.g. "TOÁN VÀ KHOA HỌC TỰ NHIÊN").
+    """
+    blocks: List[TableBlock] = []
+    section_title: Optional[str] = None
+    remaining = content
+
+    while remaining:
+        start_idx = remaining.find(TABLE_START_MARKER)
+        if start_idx == -1:
+            # No more tables — capture trailing text as section context (unused)
+            break
+
+        # Text before this table → section title
+        before = remaining[:start_idx].strip()
+        if before:
+            # Last non-empty line before the table is the section title
+            last_line = [l.strip() for l in before.splitlines() if l.strip()]
+            if last_line:
+                section_title = last_line[-1]
+
+        # Find matching end marker
+        end_idx = remaining.find(TABLE_END_MARKER, start_idx)
+        if end_idx == -1:
+            break  # malformed
+
+        table_md = remaining[start_idx + len(TABLE_START_MARKER): end_idx].strip()
+        remaining = remaining[end_idx + len(TABLE_END_MARKER):]
+
+        columns, rows = parse_markdown_table(table_md)
+        if columns and rows:
+            blocks.append(TableBlock(
+                sheet_name=sheet_name,
+                section_title=section_title,
+                columns=columns,
+                rows=rows,
+            ))
+
+    return blocks
+
+
+# ──────────────────────────────────────────────────────────────────
+# Key-value serialization (much better for embeddings than raw markdown)
+# ──────────────────────────────────────────────────────────────────
+
+# Heuristic column name matchers (Vietnamese + English)
+_CODE_HINTS = {"mã", "code"}
+_NAME_HINTS = {"tên môn học", "tên môn", "name", "tên"}
+_LECTURER_HINTS = {"giảng viên", "lecturer", "giáo viên"}
+_VIDEO_HINTS = {"video"}
+_MATERIAL_HINTS = {"tài liệu", "material"}
+_NOTE_HINTS = {"ghi chú", "note", "notes"}
+
+
+def _match_col(columns: List[str], hints: set) -> Optional[str]:
+    """Find a column whose lower-cased name contains one of the hints."""
+    for col in columns:
+        low = col.lower().strip()
+        if low in hints or any(h in low for h in hints):
+            return col
+    return None
+
+
+def serialize_row_as_kv(table_block: TableBlock, row: Row) -> str:
+    """
+    Serialize a single row as key-value text for embedding.
+
+    Example output::
+
+        Sheet: ĐẠI CƯƠNG. Section: TOÁN VÀ KHOA HỌC TỰ NHIÊN.
+        Course MT1003. Title: Giải tích 1. Lecturer: Võ Trần An.
+        Video: Click here. Material: Tailieubachkhoa.
+        Link(Video): Click here -> https://youtube.com/...
+        Link(Tài liệu): Tailieubachkhoa -> https://drive.google.com/...
+    """
+    parts: List[str] = []
+    if table_block.sheet_name:
+        parts.append(f"Sheet: {table_block.sheet_name}.")
+    if table_block.section_title:
+        parts.append(f"Section: {table_block.section_title}.")
+
+    # Emit each column as key-value
+    for col in table_block.columns:
+        cell = row.cells.get(col)
+        if cell and cell.text:
+            parts.append(f"{col}: {cell.text}.")
+
+    # Emit all links explicitly
+    for col in table_block.columns:
+        cell = row.cells.get(col)
+        if cell:
+            for link in cell.links:
+                parts.append(f"Link({col}): {link.text} -> {link.url}.")
+
+    return " ".join(parts)
+
+
+def serialize_table_chunk_kv(
+    sheet: str,
+    section: Optional[str],
+    columns: List[str],
+    rows: List[Row],
+) -> str:
+    """
+    Serialize a group of rows as structured key-value text.
+
+    Each row is prefixed with ``ROW:`` and each cell is listed as
+    ``- ColName: value``, followed by links.
+    """
+    lines: List[str] = []
+    lines.append(f"SHEET: {sheet}")
+    if section:
+        lines.append(f"SECTION: {section}")
+    lines.append(f"COLUMNS: {' | '.join(columns)}")
+    for r in rows:
+        lines.append("ROW:")
+        for col in columns:
+            cell = r.cells.get(col)
+            if cell and cell.text:
+                lines.append(f"- {col}: {cell.text}")
+                for link in cell.links:
+                    lines.append(f"  LINK: {link.text} -> {link.url}")
+    return "\n".join(lines)
+
+
+# ──────────────────────────────────────────────────────────────────
+# Chunking config & class
+# ──────────────────────────────────────────────────────────────────
 
 @dataclass
 class ExcelChunkingConfig(ChunkingConfig):
@@ -46,21 +290,23 @@ class ExcelChunkingConfig(ChunkingConfig):
     # Whether to extract image paths from [START_IMAGE]...[END_IMAGE] markers
     extract_images: bool = True
 
+    # Maximum rows per table chunk when splitting large tables
+    max_rows_per_chunk: int = 15
+
+    # Whether to generate per-row entity docs for precise retrieval
+    enable_entity_docs: bool = True
+
 
 class ExcelTableChunker(TextChunker):
     """
     Table-aware chunker for Excel-parsed content.
 
-    Processing order:
-    1. Split the content into *segments*: alternating text blocks and table blocks
-       (delimited by [START_TABLE]...[END_TABLE]).
-    2. For each **text segment**, delegate to the parent ``TextChunker.split_text``.
-    3. For each **table segment**:
-       a. If the table fits within ``max_table_chunk_size``, keep it as one chunk.
-       b. Otherwise, split the table by rows, repeating the Markdown header row
-          and separator row in every resulting chunk.
-    4. Extract image paths from ``[START_IMAGE]...[END_IMAGE]`` markers and
-       attach them as metadata.
+    Processing modes:
+    1. **Table-aware (default)**: parses tables into structured TableBlock / Row
+       objects, serializes as key-value text, and optionally generates per-row
+       entity docs for precise retrieval.
+    2. **Legacy**: splits content into text/table segments and delegates to the
+       parent ``TextChunker.split_text`` (used only as fallback).
     """
 
     def __init__(self, config: Optional[ExcelChunkingConfig] = None):
@@ -69,7 +315,7 @@ class ExcelTableChunker(TextChunker):
         super().__init__(self.excel_config)
 
     # ------------------------------------------------------------------
-    # Segment splitting
+    # Segment splitting (legacy helper, still used by split_text)
     # ------------------------------------------------------------------
 
     @staticmethod
@@ -111,7 +357,7 @@ class ExcelTableChunker(TextChunker):
         return segments
 
     # ------------------------------------------------------------------
-    # Table splitting helpers
+    # Table splitting helpers (legacy)
     # ------------------------------------------------------------------
 
     @staticmethod
@@ -184,7 +430,7 @@ class ExcelTableChunker(TextChunker):
         return IMAGE_PATTERN.findall(text)
 
     # ------------------------------------------------------------------
-    # Public API
+    # split_text — kept for backward compat (used by non-Excel paths)
     # ------------------------------------------------------------------
 
     def split_text(self, text: str) -> List[str]:
@@ -222,6 +468,131 @@ class ExcelTableChunker(TextChunker):
             if len(c.strip()) >= self.excel_config.min_chunk_size
         ]
 
+    # ------------------------------------------------------------------
+    # Table-aware chunking (new): structured parsing + kv serialization
+    # ------------------------------------------------------------------
+
+    def _build_table_row_chunks(
+        self,
+        table_block: TableBlock,
+        *,
+        doc_id: str,
+        source: str,
+        uploaded_timestamp: str,
+        original_file_format: str,
+    ) -> List[Dict[str, Any]]:
+        """
+        Build chunks from a single TableBlock.
+
+        Produces two kinds of chunks:
+        - **Row-group chunks** (``type=table_rows``): groups of N rows serialized
+          as key-value text, always include column header context.
+        - **Entity docs** (``type=row_entity``): one per row, for precise retrieval
+          by course code, lecturer, etc.
+        """
+        chunks: List[Dict[str, Any]] = []
+        safe_sheet = re.sub(r"[^\w]+", "_", table_block.sheet_name).strip("_")
+        base_id = f"{doc_id}__{safe_sheet}__{table_block.table_id}"
+
+        cols = table_block.columns
+        code_col = _match_col(cols, _CODE_HINTS)
+        name_col = _match_col(cols, _NAME_HINTS)
+        lecturer_col = _match_col(cols, _LECTURER_HINTS)
+
+        rows = table_block.rows
+        max_rpc = self.excel_config.max_rows_per_chunk
+
+        # ── 1) Row-group chunks ──────────────────────────────────────
+        for start in range(0, len(rows), max_rpc):
+            end = min(start + max_rpc, len(rows))
+            subset = rows[start:end]
+
+            chunk_text = serialize_table_chunk_kv(
+                sheet=table_block.sheet_name,
+                section=table_block.section_title,
+                columns=cols,
+                rows=subset,
+            )
+
+            chunk_id = f"{base_id}_rows_{start}_{end - 1}"
+            chunks.append({
+                "id": chunk_id,
+                "text": chunk_text,
+                "source": source,
+                "doc_id": f"{doc_id}__{safe_sheet}",
+                "chunk_index": len(chunks),
+                "is_table": True,
+                "metadata": {
+                    "doc_id": f"{doc_id}__{safe_sheet}",
+                    "parent_doc_id": doc_id,
+                    "chunk_type": "table_rows",
+                    "sheet_name": table_block.sheet_name,
+                    "section": table_block.section_title,
+                    "table_id": table_block.table_id,
+                    "columns": cols,
+                    "row_start": start,
+                    "row_end": end - 1,
+                    "is_table": True,
+                    "document_type": "spreadsheet",
+                    "original_file": source,
+                    "original_file_format": original_file_format,
+                    "current_format": "key_value_table",
+                    "uploaded_timestamp": uploaded_timestamp,
+                    "content_type": "table_data",
+                    "uniform_metadata_version": "1.0",
+                },
+            })
+
+        # ── 2) Per-row entity docs ───────────────────────────────────
+        if self.excel_config.enable_entity_docs:
+            for row in rows:
+                code = row.cells.get(code_col, Cell("", "")).text if code_col else None
+                name = row.cells.get(name_col, Cell("", "")).text if name_col else None
+                lecturer = row.cells.get(lecturer_col, Cell("", "")).text if lecturer_col else None
+
+                row_text = serialize_row_as_kv(table_block, row)
+                if not row_text.strip():
+                    continue
+
+                entity_key = code if code else f"row_{row.row_index}"
+                entity_id = f"{base_id}_entity_{entity_key}_{row.row_index}"
+
+                chunks.append({
+                    "id": entity_id,
+                    "text": row_text,
+                    "source": source,
+                    "doc_id": f"{doc_id}__{safe_sheet}",
+                    "chunk_index": len(chunks),
+                    "is_table": True,
+                    "metadata": {
+                        "doc_id": f"{doc_id}__{safe_sheet}",
+                        "parent_doc_id": doc_id,
+                        "chunk_type": "row_entity",
+                        "sheet_name": table_block.sheet_name,
+                        "section": table_block.section_title,
+                        "table_id": table_block.table_id,
+                        "row_index": row.row_index,
+                        "entity_key": entity_key,
+                        "course_code": code,
+                        "course_name": name,
+                        "lecturer": lecturer,
+                        "is_table": True,
+                        "document_type": "spreadsheet",
+                        "original_file": source,
+                        "original_file_format": original_file_format,
+                        "current_format": "key_value_row",
+                        "uploaded_timestamp": uploaded_timestamp,
+                        "content_type": "row_entity",
+                        "uniform_metadata_version": "1.0",
+                    },
+                })
+
+        return chunks
+
+    # ------------------------------------------------------------------
+    # Public API — table-aware entry points
+    # ------------------------------------------------------------------
+
     def chunk_excel_document(
         self,
         sheet: Dict[str, Any],
@@ -232,6 +603,10 @@ class ExcelTableChunker(TextChunker):
     ) -> List[Dict[str, Any]]:
         """
         Chunk a single Excel *sheet* dict (as produced by ``xlsx_reader_v2``).
+
+        Uses table-aware parsing: markdown tables are parsed into structured
+        TableBlock/Row objects and serialized as key-value text for better
+        embedding quality.  Non-table text is chunked with the parent splitter.
 
         Args:
             sheet: Dict with ``sheet_name`` and ``content`` keys.
@@ -248,13 +623,11 @@ class ExcelTableChunker(TextChunker):
             return []
 
         # Extract images before chunking
-        image_paths = self._extract_image_paths(content) if self.excel_config.extract_images else []
-
-        # Build a sheet-level ID
-        safe_sheet = re.sub(r"[^\w]+", "_", sheet_name).strip("_")
-        sheet_doc_id = f"{doc_id}__{safe_sheet}"
-
-        text_chunks = self.split_text(content)
+        image_paths = (
+            self._extract_image_paths(content)
+            if self.excel_config.extract_images
+            else []
+        )
 
         original_file_format = ""
         if source:
@@ -262,49 +635,105 @@ class ExcelTableChunker(TextChunker):
         if not uploaded_timestamp:
             uploaded_timestamp = datetime.now().isoformat()
 
+        # Build a sheet-level ID
+        safe_sheet = re.sub(r"[^\w]+", "_", sheet_name).strip("_")
+        sheet_doc_id = f"{doc_id}__{safe_sheet}"
+
+        # ── Parse tables into structured blocks ──────────────────────
+        table_blocks = parse_sheet_to_table_blocks(sheet_name, content)
+
         chunks: List[Dict[str, Any]] = []
-        for i, chunk_text in enumerate(text_chunks):
-            chunk_name = f"{sheet_doc_id}_chunk_{i}"
 
-            # Determine content type
-            is_table = (
-                chunk_text.strip().startswith("|")
-                or TABLE_START_MARKER in chunk_text
-            )
-            # Collect images referenced inside this chunk
-            chunk_images = self._extract_image_paths(chunk_text)
+        if table_blocks:
+            # Use structured table-aware chunking
+            for tb in table_blocks:
+                tb_chunks = self._build_table_row_chunks(
+                    tb,
+                    doc_id=doc_id,
+                    source=source,
+                    uploaded_timestamp=uploaded_timestamp,
+                    original_file_format=original_file_format,
+                )
+                chunks.extend(tb_chunks)
 
-            chunk = {
-                "id": chunk_name,
-                "text": chunk_text,
-                "source": source,
-                "doc_id": sheet_doc_id,
-                "chunk_index": i,
-                "total_chunks": len(text_chunks),
-                "metadata": {
-                    "doc_id": sheet_doc_id,
-                    "parent_doc_id": doc_id,
-                    "chunk_index": i,
-                    "chunk_name": chunk_name,
-                    "total_chunks": len(text_chunks),
+            # Also chunk any non-table text between tables
+            # (e.g. section titles, standalone paragraphs)
+            segments = self._split_into_segments(content)
+            for seg in segments:
+                if seg["type"] == "text":
+                    text_only = seg["content"].strip()
+                    if len(text_only) >= self.excel_config.min_chunk_size:
+                        text_chunks = super().split_text(text_only)
+                        for tc in text_chunks:
+                            chunk_id = f"{sheet_doc_id}_text_{len(chunks)}"
+                            chunks.append({
+                                "id": chunk_id,
+                                "text": tc,
+                                "source": source,
+                                "doc_id": sheet_doc_id,
+                                "chunk_index": len(chunks),
+                                "is_table": False,
+                                "metadata": {
+                                    "doc_id": sheet_doc_id,
+                                    "parent_doc_id": doc_id,
+                                    "chunk_type": "text",
+                                    "sheet_name": sheet_name,
+                                    "is_table": False,
+                                    "document_type": "spreadsheet",
+                                    "original_file": source,
+                                    "original_file_format": original_file_format,
+                                    "current_format": "text",
+                                    "uploaded_timestamp": uploaded_timestamp,
+                                    "content_type": "document_text",
+                                    "uniform_metadata_version": "1.0",
+                                },
+                            })
+        else:
+            # Fallback: no tables detected — use legacy split_text
+            text_chunks = self.split_text(content)
+            for i, chunk_text in enumerate(text_chunks):
+                chunk_name = f"{sheet_doc_id}_chunk_{i}"
+                is_table = (
+                    chunk_text.strip().startswith("|")
+                    or TABLE_START_MARKER in chunk_text
+                )
+                chunk_images = self._extract_image_paths(chunk_text)
+                chunks.append({
+                    "id": chunk_name,
+                    "text": chunk_text,
                     "source": source,
-                    "char_length": len(chunk_text),
-                    # --- Excel-specific metadata ---
-                    "sheet_name": sheet_name,
+                    "doc_id": sheet_doc_id,
+                    "chunk_index": i,
+                    "total_chunks": len(text_chunks),
                     "is_table": is_table,
-                    "has_images": len(chunk_images) > 0,
-                    "image_paths": chunk_images,
-                    # --- Uniform metadata fields ---
-                    "document_type": "spreadsheet",
-                    "original_file": source,
-                    "original_file_format": original_file_format,
-                    "current_format": "markdown_table" if is_table else "text",
-                    "uploaded_timestamp": uploaded_timestamp,
-                    "content_type": "table_data" if is_table else "document_text",
-                    "uniform_metadata_version": "1.0",
-                },
-            }
-            chunks.append(chunk)
+                    "metadata": {
+                        "doc_id": sheet_doc_id,
+                        "parent_doc_id": doc_id,
+                        "chunk_index": i,
+                        "chunk_name": chunk_name,
+                        "total_chunks": len(text_chunks),
+                        "source": source,
+                        "char_length": len(chunk_text),
+                        "sheet_name": sheet_name,
+                        "is_table": is_table,
+                        "has_images": len(chunk_images) > 0,
+                        "image_paths": chunk_images,
+                        "document_type": "spreadsheet",
+                        "original_file": source,
+                        "original_file_format": original_file_format,
+                        "current_format": "markdown_table" if is_table else "text",
+                        "uploaded_timestamp": uploaded_timestamp,
+                        "content_type": "table_data" if is_table else "document_text",
+                        "uniform_metadata_version": "1.0",
+                    },
+                })
+
+        # Re-index chunk_index + total_chunks
+        for i, c in enumerate(chunks):
+            c["chunk_index"] = i
+            c["total_chunks"] = len(chunks)
+            c["metadata"]["chunk_index"] = i
+            c["metadata"]["total_chunks"] = len(chunks)
 
         logger.info(
             f"Sheet '{sheet_name}' → {len(chunks)} chunks "

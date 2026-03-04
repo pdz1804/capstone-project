@@ -152,17 +152,19 @@ def test_excel_preprocessing(json_path: Path, xlsx_path: Path, output_dir: Path)
     chunks = chunks_data.get("chunks", [])
     print_ok(f"Chunks: {len(chunks)} total")
 
-    # Show chunk breakdown
-    table_chunks = sum(1 for c in chunks if c.get("is_table"))
-    text_chunks = len(chunks) - table_chunks
-    print_info(f"  Text chunks: {text_chunks}")
-    print_info(f"  Table chunks: {table_chunks}")
+    # Show chunk breakdown by chunk_type
+    table_row_chunks = sum(1 for c in chunks if c.get("metadata", {}).get("chunk_type") == "table_rows")
+    entity_chunks = sum(1 for c in chunks if c.get("metadata", {}).get("chunk_type") == "row_entity")
+    text_chunks = sum(1 for c in chunks if c.get("metadata", {}).get("chunk_type") == "text" or not c.get("is_table"))
+    print_info(f"  Table-row chunks: {table_row_chunks}")
+    print_info(f"  Entity docs:      {entity_chunks}")
+    print_info(f"  Text chunks:      {text_chunks}")
 
     # Show first few chunks
-    for i, chunk in enumerate(chunks[:3]):
+    for i, chunk in enumerate(chunks[:5]):
         preview = chunk.get("text", "")[:80].replace("\n", " ")
-        chunk_type = "TABLE" if chunk.get("is_table") else "TEXT"
-        print_info(f"  Chunk {i}: [{chunk_type}] {preview}...")
+        ctype = chunk.get("metadata", {}).get("chunk_type", "unknown")
+        print_info(f"  Chunk {i}: [{ctype}] {preview}...")
 
     return doc_folder
 
@@ -193,12 +195,19 @@ def test_retriever_loading(output_dir: Path):
 
     # Verify chunk structure
     sample = prebuilt_chunks[0]
-    required_fields = ["text"]
-    for field in required_fields:
-        assert field in sample, f"Missing field '{field}' in chunk"
+    required_fields = ["text", "id", "source"]
+    for fld in required_fields:
+        assert fld in sample, f"Missing field '{fld}' in chunk"
 
+    # Verify metadata quality
+    meta = sample.get("metadata", {})
     print_ok(f"Chunk structure looks correct")
     print_info(f"  Sample chunk keys: {list(sample.keys())}")
+    print_info(f"  Sample metadata keys: {sorted(meta.keys())[:10]}...")
+    if meta.get("chunk_type"):
+        print_info(f"  chunk_type: {meta['chunk_type']}")
+    if meta.get("course_code"):
+        print_info(f"  course_code: {meta['course_code']}")
     preview = sample.get("text", "")[:100].replace("\n", " ")
     print_info(f"  Sample text: {preview}...")
     return "passed"
