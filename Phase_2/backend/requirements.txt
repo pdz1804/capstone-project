@@ -1,7 +1,7 @@
 # Unified RAG Pipeline Requirements
 # Combines Document Processing + Information Retrieval
 
-transformers==4.57.3
+transformers==5.3.0
 peft==0.14.0
 sentence-transformers==3.0.1
 accelerate>=0.30.0
