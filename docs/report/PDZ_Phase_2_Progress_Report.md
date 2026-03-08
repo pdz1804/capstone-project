@@ -162,7 +162,7 @@ Both diagrams are required for the thesis because the engineering contribution o
 
 ### 3.2 System Architecture Diagram
 
-![System Architecture Diagram](diagrams/Excalidraw-Architecture-Diagram.png)
+![System Architecture Diagram](../diagram/Excalidraw-Architecture-Diagram.png)
 
 The System Architecture Diagram was produced using Excalidraw and shows the full logical component structure of the BK-MInD system. The diagram is divided into four distinct visual areas: the Frontend, the Backend, the Storage Layer, and the GPU Model Server, each drawn as a separate bounded region to clearly communicate the separation of responsibilities.
 
@@ -182,7 +182,7 @@ The third sub-region is the Retrieval Module, containing four retrieval strategi
 
 ### 3.3 Deployment Diagram
 
-![Deployment Diagram v2](diagrams/Deployment%20Diagram_v2.png)
+![Deployment Diagram v2](../diagram/Deployment%20Diagram_v2.png)
 
 The Deployment Diagram maps the logical architecture onto concrete AWS infrastructure. The diagram uses the standard AWS icon set and organizes all components into labeled bounded regions. The overall layout is divided into three zones: the CI/CD Component sitting outside the AWS boundary on the left, the AWS Cloud Region (us-west-2) occupying the center and right, and an External 3rd Party Cloud VectorDB block at the bottom left representing services hosted outside of AWS entirely.
 
