@@ -99,6 +99,18 @@ class Stage4Consolidator:
             if media_count > 0:
                 print(f"Consolidated {media_count} media documents from Stage 2")
         
+        # Part C: Count Excel documents already placed by Excel processing stage
+        # (The Excel pipeline writes directly to stage4_rag_ready, so we just count them)
+        excel_count = 0
+        for doc_folder in self.output_dir.iterdir():
+            if doc_folder.is_dir():
+                manifest = doc_folder / "excel_manifest.json"
+                if manifest.exists():
+                    excel_count += 1
+                    self.stats['total_documents'] += 1
+        if excel_count > 0:
+            print(f"Found {excel_count} Excel documents (pre-processed by custom parser)")
+        
         # Save statistics
         self._save_stats()
         

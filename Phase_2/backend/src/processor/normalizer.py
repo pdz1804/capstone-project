@@ -141,8 +141,9 @@ class DocumentNormalizer:
         self.markdown_dir = self.output_dir / "normalized_markdown"
         self.metadata_dir = self.output_dir / "normalization_metadata"
         self.originals_dir = self.output_dir / "original_files"  # Keep originals for Docling Stage 3
+        self.excel_parsed_dir = self.output_dir / "excel_parsed"  # Custom Excel parser output
         
-        for dir_path in [self.pdf_dir, self.markdown_dir, self.metadata_dir, self.originals_dir]:
+        for dir_path in [self.pdf_dir, self.markdown_dir, self.metadata_dir, self.originals_dir, self.excel_parsed_dir]:
             dir_path.mkdir(parents=True, exist_ok=True)
         
         # Setup logging
@@ -207,7 +208,7 @@ class DocumentNormalizer:
             # Web
             '.html', '.htm', '.mhtml', '.xhtml',  # Added .xhtml
             # Spreadsheets
-            '.xlsx', '.xls', '.csv',
+            '.xlsx', '.xls', '.xlsm', '.csv',
             # Images
             '.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif', '.webp',  # Added .webp
             # Already normalized (just copy)
@@ -257,8 +258,8 @@ class DocumentNormalizer:
             self._normalize_pptx(file_path, safe_stem)
         elif ext in ['.html', '.htm', '.mhtml', '.xhtml']:
             self._normalize_html(file_path, safe_stem)
-        elif ext in ['.xlsx', '.xls']:
-            self._copy_to_originals_only(file_path, safe_stem)  # Excel: only copy to originals
+        elif ext in ['.xlsx', '.xlsm', '.xls']:
+            self._normalize_excel(file_path, safe_stem)
         elif ext == '.csv':
             self._copy_to_originals_only(file_path, safe_stem)  # CSV: only copy to originals
         elif ext in ['.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif', '.webp']:
@@ -280,7 +281,7 @@ class DocumentNormalizer:
             '.docx': 'document', '.doc': 'document', '.odt': 'document', '.rtf': 'document',
             '.pptx': 'presentation', '.ppt': 'presentation', '.odp': 'presentation',
             '.html': 'web', '.htm': 'web', '.mhtml': 'web', '.xhtml': 'web',
-            '.xlsx': 'spreadsheet', '.xls': 'spreadsheet',
+            '.xlsx': 'spreadsheet', '.xls': 'spreadsheet', '.xlsm': 'spreadsheet',
             '.csv': 'csv',
             '.png': 'image', '.jpg': 'image', '.jpeg': 'image', '.bmp': 'image',
             '.tiff': 'image', '.tif': 'image', '.webp': 'image',
@@ -690,11 +691,39 @@ class DocumentNormalizer:
     # ======================== Excel Normalization ========================
     
     def _normalize_excel(self, file_path: Path, stem: str):
-        """Normalize Excel files - no conversion needed, Docling will handle it."""
-        # Excel files are already copied to original_files for Docling processing
-        # No markdown conversion needed here
-        print(f"  → Excel file ready for Docling processing")
-        pass
+        """Parse Excel files using custom XML-based parser (xlsx_reader_v2).
+        
+        Produces structured JSON in excel_parsed/ that preserves:
+        - Table structures with proper headers
+        - Charts with data series
+        - Shapes and embedded images
+        - Merged cells, hyperlinks, styles
+        
+        The JSON is consumed later by _run_excel_processing() in the pipeline
+        to produce RAG-ready chunks via ExcelPreprocessor.
+        """
+        ext = file_path.suffix.lower()
+        
+        # Only our custom parser handles .xlsx and .xlsm natively
+        if ext in ('.xlsx', '.xlsm'):
+            try:
+                from .xlsx_reader_v2 import process_excel_file
+                
+                json_output = process_excel_file(
+                    excel_path=file_path,
+                    output_dir=self.excel_parsed_dir,
+                    parsed_parent=self.excel_parsed_dir / "_parsed",
+                )
+                print(f"  → ✓ Excel parsed to JSON: {json_output.name}")
+                
+            except Exception as e:
+                print(f"  → ✗ Custom Excel parser failed: {e}")
+                print(f"  → Falling back to Docling processing")
+                # Keep the copy in originals_dir so Docling can try
+        
+        elif ext == '.xls':
+            # .xls (legacy binary format) — keep in originals for Docling
+            print(f"  → .xls file — will be processed by Docling")
     
     # ======================== CSV Normalization ========================
     

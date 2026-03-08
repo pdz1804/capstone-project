@@ -210,7 +210,7 @@ def run_e2e(json_path: Path, query: str, chunk_size: int, chunk_overlap: int,
         print(f"    [{i+1}] score={score:.3f} sheet='{sheet}' {'TABLE' if is_table else 'TEXT'}")
         if verbose:
             print(f"Preview: {preview}")
-r
+
     # ── Step 4: What is fed to LLM ──
     print("STEP 4: CONTEXT FED TO LLM")
     for i, doc in enumerate(retrieved):
