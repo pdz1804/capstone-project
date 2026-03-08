@@ -1,0 +1,996 @@
+<html
+        xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<title>Jira</title>
+<style type="text/css">
+table {
+    mso-displayed-decimal-separator:"\.";
+    mso-displayed-thousand-separator:"\,";
+}
+body
+{
+    margin: 0px;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+    color:black;
+}
+
+</style>
+<META HTTP-EQUIV="Content-Type" Content="application/vnd.ms-excel; charset=UTF-8">
+<!-- JRA-7598 - ensure fields (e.g. description) occupy only one cell - even fields containing newlines. -->
+<!--
+Vertical align all cells to the top, in order to align all issue rows of issuetable to the top,
+since Excel does not use or save the css files it is hardcoded here.
+-->
+<style>
+@page
+{
+mso-page-orientation:landscape;
+margin:.25in .25in .5in .25in;
+mso-header-margin:.5in;
+mso-footer-margin:.25in;
+mso-footer-data:"&R&P of &N";
+mso-horizontal-page-align:center;
+mso-vertical-page-align:center;
+}
+
+td.issuekey,
+td.issuetype,
+td.status {
+    mso-style-parent: "";
+    mso-number-format: \@;
+    text-align: left;
+}
+br
+{
+    mso-data-placement:same-cell;
+}
+
+td
+{
+    vertical-align: top;
+}
+</style>
+
+<!--[if gte mso 9]><xml>
+<x:ExcelWorkbook>
+<x:ExcelWorksheets>
+<x:ExcelWorksheet>
+<x:Name>general_report</x:Name>
+<x:WorksheetOptions>
+<x:Print>
+<x:ValidPrinterInfo/>
+</x:Print>
+</x:WorksheetOptions>
+</x:ExcelWorksheet>
+</x:ExcelWorksheets>
+</x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+<body>
+
+<table border="1">
+    <tr bgcolor="#205081" height="30">
+        <td colspan="70">
+            <img src="https://tanaypuranik2002.atlassian.net/images/icon-jira-family-logo.png" width="57" height="30" border="0" alt="Jira">
+        </td>
+    </tr>
+    <tr>
+        <td colspan="70">
+            <a href="https://tanaypuranik2002.atlassian.net/issues/?jql=project+%3D+%22ZM%22+ORDER+BY+created+DESC">Jira</a>
+        </td>
+    </tr>
+    <tr>
+                <td colspan="70">
+            Displaying <strong>6</strong> issues at <strong>24/Jul/25 9:20 PM</strong>.
+        </td>
+    </tr>
+</table>
+
+
+
+
+                                        <table id="issuetable" class="aui " border="1" cellpadding="3" cellspacing="1" width="100%">
+                        <thead>
+        <tr class="rowHeader">
+            
+                                                            <th class="colHeaderLink headerrow-statuscategorychangedate" data-id="statuscategorychangedate">
+                                                        Status Category Changed
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-issuetype" data-id="issuetype">
+                                                        Issue Type
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-timespent" data-id="timespent">
+                                                        Time Spent
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10030" data-id="customfield_10030">
+                                                        Locked forms
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-project" data-id="project">
+                                                        Project
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10031" data-id="customfield_10031">
+                                                        Submitted forms
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-fixVersions" data-id="fixVersions">
+                                                        Fix versions
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-aggregatetimespent" data-id="aggregatetimespent">
+                                                        Σ Time Spent
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10034" data-id="customfield_10034">
+                                                        Project overview key
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-statusCategory" data-id="statusCategory">
+                                                        Status Category
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-parent" data-id="parent">
+                                                        Parent
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10035" data-id="customfield_10035">
+                                                        Project overview status
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-resolution" data-id="resolution">
+                                                        Resolution
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10037" data-id="customfield_10037">
+                                                        Story Points
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10028" data-id="customfield_10028">
+                                                        Total forms
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10029" data-id="customfield_10029">
+                                                        Open forms
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-resolutiondate" data-id="resolutiondate">
+                                                        Resolved
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-workratio" data-id="workratio">
+                                                        Work Ratio
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-watches" data-id="watches">
+                                                        Watchers
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-lastViewed" data-id="lastViewed">
+                                                        Last Viewed
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-thumbnail" data-id="thumbnail">
+                                                        Images
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-created" data-id="created">
+                                                        Created
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10020" data-id="customfield_10020">
+                                                        Sprint
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10021" data-id="customfield_10021">
+                                                        Flagged
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10022" data-id="customfield_10022">
+                                                        Target start
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-priority" data-id="priority">
+                                                        Priority
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10023" data-id="customfield_10023">
+                                                        Target end
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10024" data-id="customfield_10024">
+                                                        Sentiment
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10025" data-id="customfield_10025">
+                                                        [CHART] Date of First Response
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-labels" data-id="labels">
+                                                        Labels
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10016" data-id="customfield_10016">
+                                                        Story point estimate
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10017" data-id="customfield_10017">
+                                                        Issue color
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10019" data-id="customfield_10019">
+                                                        Rank
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-aggregatetimeoriginalestimate" data-id="aggregatetimeoriginalestimate">
+                                                        Σ Original Estimate
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-timeestimate" data-id="timeestimate">
+                                                        Remaining Estimate
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-versions" data-id="versions">
+                                                        Affects versions
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-issuelinks" data-id="issuelinks">
+                                                        Linked Issues
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-assignee" data-id="assignee">
+                                                        Assignee
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-updated" data-id="updated">
+                                                        Updated
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-status" data-id="status">
+                                                        Status
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-components" data-id="components">
+                                                        Components
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-issuekey" data-id="issuekey">
+                                                        Key
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-timeoriginalestimate" data-id="timeoriginalestimate">
+                                                        Original estimate
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-description" data-id="description">
+                                                        Description
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10010" data-id="customfield_10010">
+                                                        Request Type
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10011" data-id="customfield_10011">
+                                                        Epic Name
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10012" data-id="customfield_10012">
+                                                        Epic Status
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10013" data-id="customfield_10013">
+                                                        Epic Color
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10015" data-id="customfield_10015">
+                                                        Start date
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10005" data-id="customfield_10005">
+                                                        Change type
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10006" data-id="customfield_10006">
+                                                        Change risk
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-security" data-id="security">
+                                                        Security Level
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10007" data-id="customfield_10007">
+                                                        Change reason
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10008" data-id="customfield_10008">
+                                                        Actual start
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10009" data-id="customfield_10009">
+                                                        Actual end
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-aggregatetimeestimate" data-id="aggregatetimeestimate">
+                                                        Σ Remaining Estimate
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-summary" data-id="summary">
+                                                        Summary
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-creator" data-id="creator">
+                                                        Creator
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-subtasks" data-id="subtasks">
+                                                        Sub-tasks
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-reporter" data-id="reporter">
+                                                        Reporter
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-aggregateprogress" data-id="aggregateprogress">
+                                                        Σ Progress
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10000" data-id="customfield_10000">
+                                                        Development
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10001" data-id="customfield_10001">
+                                                        Team
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10002" data-id="customfield_10002">
+                                                        Organizations
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10003" data-id="customfield_10003">
+                                                        Approvers
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-customfield_10004" data-id="customfield_10004">
+                                                        Impact
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-environment" data-id="environment">
+                                                        Environment
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-duedate" data-id="duedate">
+                                                        Due date
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-progress" data-id="progress">
+                                                        Progress
+                                                    </th>
+                                                
+                                                            <th class="colHeaderLink headerrow-votes" data-id="votes">
+                                                        Votes
+                                                    </th>
+                                                                    </tr>
+    </thead>
+    <tbody>
+                    
+
+                <tr id="issuerow10066" rel="10066" data-issuekey="ZM-8" class="issuerow">
+                                            <td class="statuscategorychangedate"> 22/Jul/25 8:50 PM </td>
+                                            <td class="issuetype">    Bug
+</td>
+                                            <td class="timespent"></td>
+                                            <td class="customfield_10030"></td>
+                                            <td class="project">    ZeroBank_ManualTesting
+</td>
+                                            <td class="customfield_10031"></td>
+                                            <td class="fixVersions">    &nbsp;
+</td>
+                                            <td class="aggregatetimespent"></td>
+                                            <td class="customfield_10034"></td>
+                                            <td class="statusCategory">
+    <span class="aui-lozenge aui-lozenge-subtle jira-issue-status-lozenge jira-issue-status-lozenge-green
+            jira-issue-status-lozenge-max-width-medium">Done</span>
+</td>
+                                            <td class="parent"></td>
+                                            <td class="customfield_10035"></td>
+                                            <td class="resolution">    Done
+</td>
+                                            <td class="customfield_10037"></td>
+                                            <td class="customfield_10028"></td>
+                                            <td class="customfield_10029"></td>
+                                            <td class="resolutiondate"> 22/Jul/25 8:50 PM </td>
+                                            <td class="workratio">&nbsp;
+</td>
+                                            <td class="watches">1</td>
+                                            <td class="lastViewed"> &nbsp; </td>
+                                            <td class="thumbnail"></td>
+                                            <td class="created"> 21/Jul/25 6:47 PM </td>
+                                            <td class="customfield_10020"></td>
+                                            <td class="customfield_10021"></td>
+                                            <td class="customfield_10022"></td>
+                                            <td class="priority">           Medium
+    </td>
+                                            <td class="customfield_10023"></td>
+                                            <td class="customfield_10024"></td>
+                                            <td class="customfield_10025"></td>
+                                            <td class="labels"></td>
+                                            <td class="customfield_10016"></td>
+                                            <td class="customfield_10017"></td>
+                                            <td class="customfield_10019">      0|i0006j:
+  </td>
+                                            <td class="aggregatetimeoriginalestimate"></td>
+                                            <td class="timeestimate"></td>
+                                            <td class="versions">    &nbsp;
+</td>
+                                            <td class="issuelinks"></td>
+                                            <td class="assignee">            Tanay Puranik
+    </td>
+                                            <td class="updated"> 22/Jul/25 8:50 PM </td>
+                                            <td class="status">
+                <span class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-green jira-issue-status-lozenge-done aui-lozenge-subtle jira-issue-status-lozenge-max-width-medium" data-tooltip="&lt;span class=&quot;jira-issue-status-tooltip-title&quot;&gt;Done&lt;/span&gt;">Done</span>    </td>
+                                            <td class="components">    &nbsp;
+</td>
+                                            <td class="issuekey">
+
+    <a class="issue-link" data-issue-key="ZM-8" href="https://tanaypuranik2002.atlassian.net/browse/ZM-8">ZM-8</a>
+</td>
+                                            <td class="timeoriginalestimate"></td>
+                                            <td class="description"></td>
+                                            <td class="customfield_10010"></td>
+                                            <td class="customfield_10011"></td>
+                                            <td class="customfield_10012"></td>
+                                            <td class="customfield_10013"></td>
+                                            <td class="customfield_10015"></td>
+                                            <td class="customfield_10005"></td>
+                                            <td class="customfield_10006"></td>
+                                            <td class="security"></td>
+                                            <td class="customfield_10007"></td>
+                                            <td class="customfield_10008"></td>
+                                            <td class="customfield_10009"></td>
+                                            <td class="aggregatetimeestimate"></td>
+                                            <td class="summary"><p>
+                My Money Map Module
+    </p>
+</td>
+                                            <td class="creator">            Tanay Puranik
+    </td>
+                                            <td class="subtasks"></td>
+                                            <td class="reporter">            Tanay Puranik
+    </td>
+                                            <td class="aggregateprogress"></td>
+                                            <td class="customfield_10000"></td>
+                                            <td class="customfield_10001">    None
+</td>
+                                            <td class="customfield_10002"><div class="shorten" id="customfield_10002-field">
+    </div>
+</td>
+                                            <td class="customfield_10003"></td>
+                                            <td class="customfield_10004"></td>
+                                            <td class="environment"></td>
+                                            <td class="duedate">    26/Jul/25
+</td>
+                                            <td class="progress"></td>
+                                            <td class="votes">0</td>
+                    </tr>
+
+
+                <tr id="issuerow10039" rel="10039" data-issuekey="ZM-7" class="issuerow">
+                                            <td class="statuscategorychangedate"> 22/Jul/25 9:55 PM </td>
+                                            <td class="issuetype">    Bug
+</td>
+                                            <td class="timespent"></td>
+                                            <td class="customfield_10030"></td>
+                                            <td class="project">    ZeroBank_ManualTesting
+</td>
+                                            <td class="customfield_10031"></td>
+                                            <td class="fixVersions">    &nbsp;
+</td>
+                                            <td class="aggregatetimespent"></td>
+                                            <td class="customfield_10034"></td>
+                                            <td class="statusCategory">
+    <span class="aui-lozenge aui-lozenge-subtle jira-issue-status-lozenge jira-issue-status-lozenge-green
+            jira-issue-status-lozenge-max-width-medium">Done</span>
+</td>
+                                            <td class="parent"></td>
+                                            <td class="customfield_10035"></td>
+                                            <td class="resolution">    Done
+</td>
+                                            <td class="customfield_10037"></td>
+                                            <td class="customfield_10028"></td>
+                                            <td class="customfield_10029"></td>
+                                            <td class="resolutiondate"> 22/Jul/25 9:55 PM </td>
+                                            <td class="workratio">&nbsp;
+</td>
+                                            <td class="watches">1</td>
+                                            <td class="lastViewed"> 19/Jul/25 10:21 PM </td>
+                                            <td class="thumbnail"></td>
+                                            <td class="created"> 19/Jul/25 10:21 PM </td>
+                                            <td class="customfield_10020"></td>
+                                            <td class="customfield_10021"></td>
+                                            <td class="customfield_10022"></td>
+                                            <td class="priority">           Medium
+    </td>
+                                            <td class="customfield_10023"></td>
+                                            <td class="customfield_10024"></td>
+                                            <td class="customfield_10025"></td>
+                                            <td class="labels"></td>
+                                            <td class="customfield_10016"></td>
+                                            <td class="customfield_10017"></td>
+                                            <td class="customfield_10019">      0|i0006b:
+  </td>
+                                            <td class="aggregatetimeoriginalestimate"></td>
+                                            <td class="timeestimate"></td>
+                                            <td class="versions">    &nbsp;
+</td>
+                                            <td class="issuelinks"></td>
+                                            <td class="assignee">            Tanay Puranik
+    </td>
+                                            <td class="updated"> 22/Jul/25 9:55 PM </td>
+                                            <td class="status">
+                <span class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-green jira-issue-status-lozenge-done aui-lozenge-subtle jira-issue-status-lozenge-max-width-medium" data-tooltip="&lt;span class=&quot;jira-issue-status-tooltip-title&quot;&gt;Done&lt;/span&gt;">Done</span>    </td>
+                                            <td class="components">    &nbsp;
+</td>
+                                            <td class="issuekey">
+
+    <a class="issue-link" data-issue-key="ZM-7" href="https://tanaypuranik2002.atlassian.net/browse/ZM-7">ZM-7</a>
+</td>
+                                            <td class="timeoriginalestimate"></td>
+                                            <td class="description">            Verify logout ends session and redirects to login
+    </td>
+                                            <td class="customfield_10010"></td>
+                                            <td class="customfield_10011"></td>
+                                            <td class="customfield_10012"></td>
+                                            <td class="customfield_10013"></td>
+                                            <td class="customfield_10015"></td>
+                                            <td class="customfield_10005"></td>
+                                            <td class="customfield_10006"></td>
+                                            <td class="security"></td>
+                                            <td class="customfield_10007"></td>
+                                            <td class="customfield_10008"></td>
+                                            <td class="customfield_10009"></td>
+                                            <td class="aggregatetimeestimate"></td>
+                                            <td class="summary"><p>
+                Logout and Session Handling
+    </p>
+</td>
+                                            <td class="creator">            Tanay Puranik
+    </td>
+                                            <td class="subtasks"></td>
+                                            <td class="reporter">            Tanay Puranik
+    </td>
+                                            <td class="aggregateprogress"></td>
+                                            <td class="customfield_10000"></td>
+                                            <td class="customfield_10001">    None
+</td>
+                                            <td class="customfield_10002"><div class="shorten" id="customfield_10002-field">
+    </div>
+</td>
+                                            <td class="customfield_10003"></td>
+                                            <td class="customfield_10004"></td>
+                                            <td class="environment"></td>
+                                            <td class="duedate">    25/Jul/25
+</td>
+                                            <td class="progress"></td>
+                                            <td class="votes">0</td>
+                    </tr>
+
+
+                <tr id="issuerow10038" rel="10038" data-issuekey="ZM-6" class="issuerow">
+                                            <td class="statuscategorychangedate"> 22/Jul/25 9:42 PM </td>
+                                            <td class="issuetype">    Bug
+</td>
+                                            <td class="timespent"></td>
+                                            <td class="customfield_10030"></td>
+                                            <td class="project">    ZeroBank_ManualTesting
+</td>
+                                            <td class="customfield_10031"></td>
+                                            <td class="fixVersions">    &nbsp;
+</td>
+                                            <td class="aggregatetimespent"></td>
+                                            <td class="customfield_10034"></td>
+                                            <td class="statusCategory">
+    <span class="aui-lozenge aui-lozenge-subtle jira-issue-status-lozenge jira-issue-status-lozenge-green
+            jira-issue-status-lozenge-max-width-medium">Done</span>
+</td>
+                                            <td class="parent"></td>
+                                            <td class="customfield_10035"></td>
+                                            <td class="resolution">    Done
+</td>
+                                            <td class="customfield_10037"></td>
+                                            <td class="customfield_10028"></td>
+                                            <td class="customfield_10029"></td>
+                                            <td class="resolutiondate"> 22/Jul/25 9:42 PM </td>
+                                            <td class="workratio">&nbsp;
+</td>
+                                            <td class="watches">1</td>
+                                            <td class="lastViewed"> 19/Jul/25 10:20 PM </td>
+                                            <td class="thumbnail"></td>
+                                            <td class="created"> 19/Jul/25 10:20 PM </td>
+                                            <td class="customfield_10020"></td>
+                                            <td class="customfield_10021"></td>
+                                            <td class="customfield_10022"></td>
+                                            <td class="priority">           Medium
+    </td>
+                                            <td class="customfield_10023"></td>
+                                            <td class="customfield_10024"></td>
+                                            <td class="customfield_10025"></td>
+                                            <td class="labels"></td>
+                                            <td class="customfield_10016"></td>
+                                            <td class="customfield_10017"></td>
+                                            <td class="customfield_10019">      0|i00063:
+  </td>
+                                            <td class="aggregatetimeoriginalestimate"></td>
+                                            <td class="timeestimate"></td>
+                                            <td class="versions">    &nbsp;
+</td>
+                                            <td class="issuelinks"></td>
+                                            <td class="assignee">            Tanay Puranik
+    </td>
+                                            <td class="updated"> 22/Jul/25 9:42 PM </td>
+                                            <td class="status">
+                <span class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-green jira-issue-status-lozenge-done aui-lozenge-subtle jira-issue-status-lozenge-max-width-medium" data-tooltip="&lt;span class=&quot;jira-issue-status-tooltip-title&quot;&gt;Done&lt;/span&gt;">Done</span>    </td>
+                                            <td class="components">    &nbsp;
+</td>
+                                            <td class="issuekey">
+
+    <a class="issue-link" data-issue-key="ZM-6" href="https://tanaypuranik2002.atlassian.net/browse/ZM-6">ZM-6</a>
+</td>
+                                            <td class="timeoriginalestimate"></td>
+                                            <td class="description">            Check all fields, error handling, and success message
+    </td>
+                                            <td class="customfield_10010"></td>
+                                            <td class="customfield_10011"></td>
+                                            <td class="customfield_10012"></td>
+                                            <td class="customfield_10013"></td>
+                                            <td class="customfield_10015"></td>
+                                            <td class="customfield_10005"></td>
+                                            <td class="customfield_10006"></td>
+                                            <td class="security"></td>
+                                            <td class="customfield_10007"></td>
+                                            <td class="customfield_10008"></td>
+                                            <td class="customfield_10009"></td>
+                                            <td class="aggregatetimeestimate"></td>
+                                            <td class="summary"><p>
+                Feedback Form Validation
+    </p>
+</td>
+                                            <td class="creator">            Tanay Puranik
+    </td>
+                                            <td class="subtasks"></td>
+                                            <td class="reporter">            Tanay Puranik
+    </td>
+                                            <td class="aggregateprogress"></td>
+                                            <td class="customfield_10000"></td>
+                                            <td class="customfield_10001">    None
+</td>
+                                            <td class="customfield_10002"><div class="shorten" id="customfield_10002-field">
+    </div>
+</td>
+                                            <td class="customfield_10003"></td>
+                                            <td class="customfield_10004"></td>
+                                            <td class="environment"></td>
+                                            <td class="duedate">    24/Jul/25
+</td>
+                                            <td class="progress"></td>
+                                            <td class="votes">0</td>
+                    </tr>
+
+
+                <tr id="issuerow10036" rel="10036" data-issuekey="ZM-4" class="issuerow">
+                                            <td class="statuscategorychangedate"> 22/Jul/25 9:16 PM </td>
+                                            <td class="issuetype">    Bug
+</td>
+                                            <td class="timespent"></td>
+                                            <td class="customfield_10030"></td>
+                                            <td class="project">    ZeroBank_ManualTesting
+</td>
+                                            <td class="customfield_10031"></td>
+                                            <td class="fixVersions">    &nbsp;
+</td>
+                                            <td class="aggregatetimespent"></td>
+                                            <td class="customfield_10034"></td>
+                                            <td class="statusCategory">
+    <span class="aui-lozenge aui-lozenge-subtle jira-issue-status-lozenge jira-issue-status-lozenge-green
+            jira-issue-status-lozenge-max-width-medium">Done</span>
+</td>
+                                            <td class="parent"></td>
+                                            <td class="customfield_10035"></td>
+                                            <td class="resolution">    Done
+</td>
+                                            <td class="customfield_10037"></td>
+                                            <td class="customfield_10028"></td>
+                                            <td class="customfield_10029"></td>
+                                            <td class="resolutiondate"> 22/Jul/25 9:16 PM </td>
+                                            <td class="workratio">&nbsp;
+</td>
+                                            <td class="watches">1</td>
+                                            <td class="lastViewed"> 19/Jul/25 10:19 PM </td>
+                                            <td class="thumbnail"></td>
+                                            <td class="created"> 19/Jul/25 10:19 PM </td>
+                                            <td class="customfield_10020"></td>
+                                            <td class="customfield_10021"></td>
+                                            <td class="customfield_10022"></td>
+                                            <td class="priority">           Medium
+    </td>
+                                            <td class="customfield_10023"></td>
+                                            <td class="customfield_10024"></td>
+                                            <td class="customfield_10025"></td>
+                                            <td class="labels"></td>
+                                            <td class="customfield_10016"></td>
+                                            <td class="customfield_10017"></td>
+                                            <td class="customfield_10019">      0|i0005n:
+  </td>
+                                            <td class="aggregatetimeoriginalestimate"></td>
+                                            <td class="timeestimate"></td>
+                                            <td class="versions">    &nbsp;
+</td>
+                                            <td class="issuelinks"></td>
+                                            <td class="assignee">            Tanay Puranik
+    </td>
+                                            <td class="updated"> 22/Jul/25 9:16 PM </td>
+                                            <td class="status">
+                <span class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-green jira-issue-status-lozenge-done aui-lozenge-subtle jira-issue-status-lozenge-max-width-medium" data-tooltip="&lt;span class=&quot;jira-issue-status-tooltip-title&quot;&gt;Done&lt;/span&gt;">Done</span>    </td>
+                                            <td class="components">    &nbsp;
+</td>
+                                            <td class="issuekey">
+
+    <a class="issue-link" data-issue-key="ZM-4" href="https://tanaypuranik2002.atlassian.net/browse/ZM-4">ZM-4</a>
+</td>
+                                            <td class="timeoriginalestimate"></td>
+                                            <td class="description">            Test funds transfer functionality with validations
+    </td>
+                                            <td class="customfield_10010"></td>
+                                            <td class="customfield_10011"></td>
+                                            <td class="customfield_10012"></td>
+                                            <td class="customfield_10013"></td>
+                                            <td class="customfield_10015"></td>
+                                            <td class="customfield_10005"></td>
+                                            <td class="customfield_10006"></td>
+                                            <td class="security"></td>
+                                            <td class="customfield_10007"></td>
+                                            <td class="customfield_10008"></td>
+                                            <td class="customfield_10009"></td>
+                                            <td class="aggregatetimeestimate"></td>
+                                            <td class="summary"><p>
+                Transfer Funds Module
+    </p>
+</td>
+                                            <td class="creator">            Tanay Puranik
+    </td>
+                                            <td class="subtasks"></td>
+                                            <td class="reporter">            Tanay Puranik
+    </td>
+                                            <td class="aggregateprogress"></td>
+                                            <td class="customfield_10000"></td>
+                                            <td class="customfield_10001">    None
+</td>
+                                            <td class="customfield_10002"><div class="shorten" id="customfield_10002-field">
+    </div>
+</td>
+                                            <td class="customfield_10003"></td>
+                                            <td class="customfield_10004"></td>
+                                            <td class="environment"></td>
+                                            <td class="duedate">    22/Jul/25
+</td>
+                                            <td class="progress"></td>
+                                            <td class="votes">0</td>
+                    </tr>
+
+
+                <tr id="issuerow10035" rel="10035" data-issuekey="ZM-3" class="issuerow">
+                                            <td class="statuscategorychangedate"> 21/Jul/25 6:22 PM </td>
+                                            <td class="issuetype">    Bug
+</td>
+                                            <td class="timespent"></td>
+                                            <td class="customfield_10030"></td>
+                                            <td class="project">    ZeroBank_ManualTesting
+</td>
+                                            <td class="customfield_10031"></td>
+                                            <td class="fixVersions">    &nbsp;
+</td>
+                                            <td class="aggregatetimespent"></td>
+                                            <td class="customfield_10034"></td>
+                                            <td class="statusCategory">
+    <span class="aui-lozenge aui-lozenge-subtle jira-issue-status-lozenge jira-issue-status-lozenge-green
+            jira-issue-status-lozenge-max-width-medium">Done</span>
+</td>
+                                            <td class="parent"></td>
+                                            <td class="customfield_10035"></td>
+                                            <td class="resolution">    Done
+</td>
+                                            <td class="customfield_10037"></td>
+                                            <td class="customfield_10028"></td>
+                                            <td class="customfield_10029"></td>
+                                            <td class="resolutiondate"> 21/Jul/25 6:22 PM </td>
+                                            <td class="workratio">&nbsp;
+</td>
+                                            <td class="watches">1</td>
+                                            <td class="lastViewed"> 21/Jul/25 6:36 PM </td>
+                                            <td class="thumbnail"></td>
+                                            <td class="created"> 19/Jul/25 10:18 PM </td>
+                                            <td class="customfield_10020"></td>
+                                            <td class="customfield_10021"></td>
+                                            <td class="customfield_10022"></td>
+                                            <td class="priority">           Medium
+    </td>
+                                            <td class="customfield_10023"></td>
+                                            <td class="customfield_10024"></td>
+                                            <td class="customfield_10025"></td>
+                                            <td class="labels"></td>
+                                            <td class="customfield_10016"></td>
+                                            <td class="customfield_10017"></td>
+                                            <td class="customfield_10019">      0|i0005f:
+  </td>
+                                            <td class="aggregatetimeoriginalestimate"></td>
+                                            <td class="timeestimate"></td>
+                                            <td class="versions">    &nbsp;
+</td>
+                                            <td class="issuelinks"></td>
+                                            <td class="assignee">            Tanay Puranik
+    </td>
+                                            <td class="updated"> 21/Jul/25 6:38 PM </td>
+                                            <td class="status">
+                <span class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-green jira-issue-status-lozenge-done aui-lozenge-subtle jira-issue-status-lozenge-max-width-medium" data-tooltip="&lt;span class=&quot;jira-issue-status-tooltip-title&quot;&gt;Done&lt;/span&gt;">Done</span>    </td>
+                                            <td class="components">    &nbsp;
+</td>
+                                            <td class="issuekey">
+
+    <a class="issue-link" data-issue-key="ZM-3" href="https://tanaypuranik2002.atlassian.net/browse/ZM-3">ZM-3</a>
+</td>
+                                            <td class="timeoriginalestimate"></td>
+                                            <td class="description">            Ensure account types and balances are correctly displayed
+    </td>
+                                            <td class="customfield_10010"></td>
+                                            <td class="customfield_10011"></td>
+                                            <td class="customfield_10012"></td>
+                                            <td class="customfield_10013"></td>
+                                            <td class="customfield_10015"></td>
+                                            <td class="customfield_10005"></td>
+                                            <td class="customfield_10006"></td>
+                                            <td class="security"></td>
+                                            <td class="customfield_10007"></td>
+                                            <td class="customfield_10008"></td>
+                                            <td class="customfield_10009"></td>
+                                            <td class="aggregatetimeestimate"></td>
+                                            <td class="summary"><p>
+                Account Summary Display
+    </p>
+</td>
+                                            <td class="creator">            Tanay Puranik
+    </td>
+                                            <td class="subtasks"></td>
+                                            <td class="reporter">            Tanay Puranik
+    </td>
+                                            <td class="aggregateprogress"></td>
+                                            <td class="customfield_10000"></td>
+                                            <td class="customfield_10001">    None
+</td>
+                                            <td class="customfield_10002"><div class="shorten" id="customfield_10002-field">
+    </div>
+</td>
+                                            <td class="customfield_10003"></td>
+                                            <td class="customfield_10004"></td>
+                                            <td class="environment"></td>
+                                            <td class="duedate">    21/Jul/25
+</td>
+                                            <td class="progress"></td>
+                                            <td class="votes">0</td>
+                    </tr>
+
+
+                <tr id="issuerow10034" rel="10034" data-issuekey="ZM-2" class="issuerow">
+                                            <td class="statuscategorychangedate"> 20/Jul/25 9:52 PM </td>
+                                            <td class="issuetype">    Bug
+</td>
+                                            <td class="timespent"></td>
+                                            <td class="customfield_10030"></td>
+                                            <td class="project">    ZeroBank_ManualTesting
+</td>
+                                            <td class="customfield_10031"></td>
+                                            <td class="fixVersions">    &nbsp;
+</td>
+                                            <td class="aggregatetimespent"></td>
+                                            <td class="customfield_10034"></td>
+                                            <td class="statusCategory">
+    <span class="aui-lozenge aui-lozenge-subtle jira-issue-status-lozenge jira-issue-status-lozenge-green
+            jira-issue-status-lozenge-max-width-medium">Done</span>
+</td>
+                                            <td class="parent"></td>
+                                            <td class="customfield_10035"></td>
+                                            <td class="resolution">    Done
+</td>
+                                            <td class="customfield_10037"></td>
+                                            <td class="customfield_10028"></td>
+                                            <td class="customfield_10029"></td>
+                                            <td class="resolutiondate"> 20/Jul/25 9:52 PM </td>
+                                            <td class="workratio">&nbsp;
+</td>
+                                            <td class="watches">1</td>
+                                            <td class="lastViewed"> 19/Jul/25 10:17 PM </td>
+                                            <td class="thumbnail"></td>
+                                            <td class="created"> 19/Jul/25 10:15 PM </td>
+                                            <td class="customfield_10020"></td>
+                                            <td class="customfield_10021"></td>
+                                            <td class="customfield_10022"></td>
+                                            <td class="priority">           Medium
+    </td>
+                                            <td class="customfield_10023"></td>
+                                            <td class="customfield_10024"></td>
+                                            <td class="customfield_10025"></td>
+                                            <td class="labels"></td>
+                                            <td class="customfield_10016"></td>
+                                            <td class="customfield_10017"></td>
+                                            <td class="customfield_10019">      0|i00057:
+  </td>
+                                            <td class="aggregatetimeoriginalestimate"></td>
+                                            <td class="timeestimate"></td>
+                                            <td class="versions">    &nbsp;
+</td>
+                                            <td class="issuelinks"></td>
+                                            <td class="assignee">            Tanay Puranik
+    </td>
+                                            <td class="updated"> 20/Jul/25 9:52 PM </td>
+                                            <td class="status">
+                <span class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-green jira-issue-status-lozenge-done aui-lozenge-subtle jira-issue-status-lozenge-max-width-medium" data-tooltip="&lt;span class=&quot;jira-issue-status-tooltip-title&quot;&gt;Done&lt;/span&gt;">Done</span>    </td>
+                                            <td class="components">    &nbsp;
+</td>
+                                            <td class="issuekey">
+
+    <a class="issue-link" data-issue-key="ZM-2" href="https://tanaypuranik2002.atlassian.net/browse/ZM-2">ZM-2</a>
+</td>
+                                            <td class="timeoriginalestimate"></td>
+                                            <td class="description">            Verify login page works with valid and invalid credentials
+    </td>
+                                            <td class="customfield_10010"></td>
+                                            <td class="customfield_10011"></td>
+                                            <td class="customfield_10012"></td>
+                                            <td class="customfield_10013"></td>
+                                            <td class="customfield_10015"></td>
+                                            <td class="customfield_10005"></td>
+                                            <td class="customfield_10006"></td>
+                                            <td class="security"></td>
+                                            <td class="customfield_10007"></td>
+                                            <td class="customfield_10008"></td>
+                                            <td class="customfield_10009"></td>
+                                            <td class="aggregatetimeestimate"></td>
+                                            <td class="summary"><p>
+                User Login Functionality
+    </p>
+</td>
+                                            <td class="creator">            Tanay Puranik
+    </td>
+                                            <td class="subtasks"></td>
+                                            <td class="reporter">            Tanay Puranik
+    </td>
+                                            <td class="aggregateprogress"></td>
+                                            <td class="customfield_10000"></td>
+                                            <td class="customfield_10001">    None
+</td>
+                                            <td class="customfield_10002"><div class="shorten" id="customfield_10002-field">
+    </div>
+</td>
+                                            <td class="customfield_10003"></td>
+                                            <td class="customfield_10004"></td>
+                                            <td class="environment"></td>
+                                            <td class="duedate">    20/Jul/25
+</td>
+                                            <td class="progress"></td>
+                                            <td class="votes">0</td>
+                    </tr>
+        </tbody>
+    </table>
+    <div class="end-of-stable-message"></div>
+            <table border="1" >
+<tr>
+    <td bgcolor="#dddddd" colspan="70"><font size="1">
+        Generated at Thu Jul 24 15:50:58 UTC 2025 by Tanay Puranik using Jira 1001.0.0-SNAPSHOT#100287-rev:41f55e1de4c4cf35ded344d6122e0aad2ff8c8b5.
+    </font></td>
+</tr>
+</table>
+
+</body>
+</html>
