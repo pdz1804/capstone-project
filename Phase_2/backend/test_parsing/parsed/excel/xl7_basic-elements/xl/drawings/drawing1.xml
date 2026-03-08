@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
+    xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+    <xdr:twoCellAnchor>
+        <xdr:from>
+            <xdr:col>5</xdr:col>
+            <xdr:colOff>457200</xdr:colOff>
+            <xdr:row>12</xdr:row>
+            <xdr:rowOff>38100</xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>7</xdr:col>
+            <xdr:colOff>774700</xdr:colOff>
+            <xdr:row>20</xdr:row>
+            <xdr:rowOff>152400</xdr:rowOff>
+        </xdr:to>
+        <xdr:sp macro="" textlink="">
+            <xdr:nvSpPr>
+                <xdr:cNvPr id="2" name="Rectangle 1">
+                    <a:extLst>
+                        <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
+                            <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{35E51B1A-B78E-8AD7-2771-070F111EBC00}"/>
+                        </a:ext>
+                    </a:extLst>
+                </xdr:cNvPr>
+                <xdr:cNvSpPr/>
+            </xdr:nvSpPr>
+            <xdr:spPr>
+                <a:xfrm>
+                    <a:off x="4584700" y="2476500"/>
+                    <a:ext cx="1968500" cy="1739900"/>
+                </a:xfrm>
+                <a:prstGeom prst="rect">
+                    <a:avLst/>
+                </a:prstGeom>
+            </xdr:spPr>
+            <xdr:style>
+                <a:lnRef idx="2">
+                    <a:schemeClr val="accent1">
+                        <a:shade val="15000"/>
+                    </a:schemeClr>
+                </a:lnRef>
+                <a:fillRef idx="1">
+                    <a:schemeClr val="accent1"/>
+                </a:fillRef>
+                <a:effectRef idx="0">
+                    <a:schemeClr val="accent1"/>
+                </a:effectRef>
+                <a:fontRef idx="minor">
+                    <a:schemeClr val="lt1"/>
+                </a:fontRef>
+            </xdr:style>
+            <xdr:txBody>
+                <a:bodyPr vertOverflow="clip" horzOverflow="clip" rtlCol="0" anchor="t"/>
+                <a:lstStyle/>
+                <a:p>
+                    <a:pPr algn="l"/>
+                    <a:endParaRPr lang="en-GB" sz="1100"/>
+                </a:p>
+            </xdr:txBody>
+        </xdr:sp>
+        <xdr:clientData/>
+    </xdr:twoCellAnchor>
+    <xdr:twoCellAnchor>
+        <xdr:from>
+            <xdr:col>10</xdr:col>
+            <xdr:colOff>520700</xdr:colOff>
+            <xdr:row>12</xdr:row>
+            <xdr:rowOff>38100</xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>12</xdr:col>
+            <xdr:colOff>431800</xdr:colOff>
+            <xdr:row>21</xdr:row>
+            <xdr:rowOff>63500</xdr:rowOff>
+        </xdr:to>
+        <xdr:sp macro="" textlink="">
+            <xdr:nvSpPr>
+                <xdr:cNvPr id="3" name="Oval 2">
+                    <a:extLst>
+                        <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
+                            <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{71286117-AA9E-58F4-FE2D-00C47DC355ED}"/>
+                        </a:ext>
+                    </a:extLst>
+                </xdr:cNvPr>
+                <xdr:cNvSpPr/>
+            </xdr:nvSpPr>
+            <xdr:spPr>
+                <a:xfrm>
+                    <a:off x="8775700" y="2476500"/>
+                    <a:ext cx="1562100" cy="1854200"/>
+                </a:xfrm>
+                <a:prstGeom prst="ellipse">
+                    <a:avLst/>
+                </a:prstGeom>
+            </xdr:spPr>
+            <xdr:style>
+                <a:lnRef idx="2">
+                    <a:schemeClr val="accent1">
+                        <a:shade val="15000"/>
+                    </a:schemeClr>
+                </a:lnRef>
+                <a:fillRef idx="1">
+                    <a:schemeClr val="accent1"/>
+                </a:fillRef>
+                <a:effectRef idx="0">
+                    <a:schemeClr val="accent1"/>
+                </a:effectRef>
+                <a:fontRef idx="minor">
+                    <a:schemeClr val="lt1"/>
+                </a:fontRef>
+            </xdr:style>
+            <xdr:txBody>
+                <a:bodyPr vertOverflow="clip" horzOverflow="clip" rtlCol="0" anchor="t"/>
+                <a:lstStyle/>
+                <a:p>
+                    <a:pPr algn="l"/>
+                    <a:endParaRPr lang="en-GB" sz="1100"/>
+                </a:p>
+            </xdr:txBody>
+        </xdr:sp>
+        <xdr:clientData/>
+    </xdr:twoCellAnchor>
+    <xdr:twoCellAnchor>
+        <xdr:from>
+            <xdr:col>8</xdr:col>
+            <xdr:colOff>469900</xdr:colOff>
+            <xdr:row>17</xdr:row>
+            <xdr:rowOff>88900</xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>10</xdr:col>
+            <xdr:colOff>101600</xdr:colOff>
+            <xdr:row>17</xdr:row>
+            <xdr:rowOff>88900</xdr:rowOff>
+        </xdr:to>
+        <xdr:cxnSp macro="">
+            <xdr:nvCxnSpPr>
+                <xdr:cNvPr id="5" name="Straight Arrow Connector 4">
+                    <a:extLst>
+                        <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
+                            <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{BBBD30F1-BED3-E723-4550-880E5AAFFA29}"/>
+                        </a:ext>
+                    </a:extLst>
+                </xdr:cNvPr>
+                <xdr:cNvCxnSpPr/>
+            </xdr:nvCxnSpPr>
+            <xdr:spPr>
+                <a:xfrm>
+                    <a:off x="7073900" y="3543300"/>
+                    <a:ext cx="1282700" cy="0"/>
+                </a:xfrm>
+                <a:prstGeom prst="straightConnector1">
+                    <a:avLst/>
+                </a:prstGeom>
+                <a:ln>
+                    <a:tailEnd type="triangle"/>
+                </a:ln>
+            </xdr:spPr>
+            <xdr:style>
+                <a:lnRef idx="1">
+                    <a:schemeClr val="accent1"/>
+                </a:lnRef>
+                <a:fillRef idx="0">
+                    <a:schemeClr val="accent1"/>
+                </a:fillRef>
+                <a:effectRef idx="0">
+                    <a:schemeClr val="accent1"/>
+                </a:effectRef>
+                <a:fontRef idx="minor">
+                    <a:schemeClr val="tx1"/>
+                </a:fontRef>
+            </xdr:style>
+        </xdr:cxnSp>
+        <xdr:clientData/>
+    </xdr:twoCellAnchor>
+</xdr:wsDr>
