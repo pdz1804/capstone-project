@@ -4,6 +4,27 @@
 
 ---
 
+### Use Case Statistics
+
+**Total Use Cases**: 10
+- **Core RAG System**: 4 (UC-001 through UC-004) 
+- **Extended Learning Features**: 6 (UC-005 through UC-010)
+
+**Priority Distribution**:
+- **Priority 1 (Critical)**: 3 use cases - Core functionality
+- **Priority 2 (Essential)**: 3 use cases - Learning features  
+- **Priority 3 (Enhanced)**: 3 use cases - User experience
+- **Priority 4 (Administrative)**: 1 use case - System management
+
+**Complexity Distribution**:
+- **Low Complexity**: 1 use case
+- **Medium Complexity**: 5 use cases
+- **High Complexity**: 4 use cases
+
+**Most Critical**: UC-001, UC-002, UC-003 (foundation features)
+
+---
+
 ### 1. Use Case Overview
 
 This document describes the primary use cases and detailed scenarios for the Educational Content Processing & RAG System, covering all major user interactions and system workflows.

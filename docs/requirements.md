@@ -1,5 +1,34 @@
 # Software Requirements Specification
 
+## Educational Content Processing & Retrieval-Augmented Generation System
+
+---
+
+### Requirements Statistics
+
+**Total Requirements**: 35
+- **Functional Requirements**: 20 (FR-001 through FR-020)
+- **Non-Functional Requirements**: 8 (NFR-001 through NFR-008)  
+- **Technical Requirements**: 7 (TR-001 through TR-007)
+
+**AI vs Software Distribution**:
+- **AI-Heavy Requirements**: 12 (34%) - Core AI processing components
+- **Software-Heavy Requirements**: 23 (66%) - Infrastructure and core features
+
+**Functional Requirements by Category**:
+- **Content Processing**: 8 requirements
+- **Information Retrieval**: 3 requirements
+- **Question Answering**: 2 requirements
+- **User Interface**: 2 requirements
+- **Lecture Summary**: 2 requirements
+- **Personalization**: 3 requirements
+
+**Most Critical Requirements**: FR-001, FR-002, FR-009, FR-012, NFR-001
+
+**Highest Risk Requirements**: FR-005, FR-010, FR-018, FR-019, NFR-002
+
+---
+
 ### 1. Introduction
 
 #### 1.1 Purpose
