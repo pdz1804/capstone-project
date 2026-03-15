@@ -71,6 +71,10 @@ from qdrant_client.models import (
     #   → Research shows ColPali embeddings tolerate binary quant very well!
     BinaryQuantization,
     BinaryQuantizationConfig,
+
+    # PayloadSchemaType: the data type of the payload field to index
+    # Required on Qdrant Cloud (and best practice everywhere) before filtering.
+    PayloadSchemaType,
 )
 
 # ── Our project files ─────────────────────────────────────────────────────────
@@ -253,7 +257,55 @@ def create_collection(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SECTION 3: INSPECT COLLECTION
+# SECTION 3: CREATE PAYLOAD INDEXES
+# ─────────────────────────────────────────────────────────────────────────────
+
+def create_payload_indexes(client: QdrantClient) -> None:
+    """
+    Create payload indexes on metadata fields you want to filter by.
+
+    WHY THIS IS REQUIRED ON QDRANT CLOUD:
+      Qdrant Cloud enforces that any field used in a Filter() must have a
+      pre-built index.  Local Docker is lenient and does a full scan instead,
+      but Cloud rejects the request with a 400 error.
+
+    This function is IDEMPOTENT — safe to run multiple times and on a
+    collection that already has points in it.  Qdrant builds the index over
+    existing data automatically.
+
+    FIELD TYPES:
+      PayloadSchemaType.INTEGER  → int fields  (image_width, image_height, …)
+      PayloadSchemaType.FLOAT    → float fields
+      PayloadSchemaType.KEYWORD  → string equality / keyword fields
+      PayloadSchemaType.TEXT     → full-text search fields
+    """
+    name = cfg.collection_name
+    logger.info("─" * 55)
+    logger.info(f"Creating payload indexes on '{name}' …")
+
+    # Index every field you plan to use in a Filter().
+    # Add more fields here as your project grows.
+    fields_to_index = [
+        ("image_width",    PayloadSchemaType.INTEGER),
+        ("image_height",   PayloadSchemaType.INTEGER),
+        ("filename",       PayloadSchemaType.KEYWORD),
+        ("original_index", PayloadSchemaType.INTEGER),
+    ]
+
+    for field_name, field_type in fields_to_index:
+        client.create_payload_index(
+            collection_name=name,
+            field_name=field_name,
+            field_schema=field_type,
+        )
+        logger.info(f"  ✓  index created: '{field_name}'  ({field_type.value})")
+
+    logger.info("Payload indexes ready.")
+    logger.info("─" * 55)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECTION 4: INSPECT COLLECTION
 # ─────────────────────────────────────────────────────────────────────────────
 
 def inspect_collection(client: QdrantClient) -> None:
@@ -298,7 +350,7 @@ def inspect_collection(client: QdrantClient) -> None:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SECTION 4: LIST ALL COLLECTIONS
+# SECTION 5: LIST ALL COLLECTIONS
 # ─────────────────────────────────────────────────────────────────────────────
 
 def list_all_collections(client: QdrantClient) -> None:
@@ -351,8 +403,12 @@ if __name__ == "__main__":
         force_recreate=False,
     )
 
-    # ── 4. Inspect what was created ──────────────────────────────────────────
-    logger.info("\n=== SECTION 4: Inspecting collection ===")
+    # ── 4. Create payload indexes (required on Qdrant Cloud for filtering) ───
+    logger.info("\n=== SECTION 4: Creating payload indexes ===")
+    create_payload_indexes(client)
+
+    # ── 5. Inspect what was created ──────────────────────────────────────────
+    logger.info("\n=== SECTION 5: Inspecting collection ===")
     inspect_collection(client)
 
     # ── Summary ──────────────────────────────────────────────────────────────
