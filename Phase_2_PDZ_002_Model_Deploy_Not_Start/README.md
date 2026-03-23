@@ -1,110 +1,149 @@
-# Phase 2 PDZ 002 - GPU Model Deployment on EC2
+# Phase 2 PDZ 002 - SageMaker Inference Deployment
 
-## GPU-Dependent Components in Phase 2
+## Decision Summary
 
-After careful analysis of the Phase 2 codebase, the following components **require GPU** to run:
+This folder is now aligned to a SageMaker-first deployment model.
 
-### 1. ColQwen/ColPali (Image Retrieval) — **HEAVY GPU**
-- **File**: `Phase_2/backend/src/retrieval/image_retrievers.py`
-- **Model**: `vidore/colqwen2-v1.0` (~3B params)
-- **Config**: `image_retrieval.colqwen` in `default.yaml`
-- **Why GPU**: Vision-language model that embeds PDF pages as images into multi-vector representations (1024 patches/page). Uses `bitsandbytes` for 8-bit quantization.
-- **VRAM**: ~3.5GB (8-bit quantized), ~6GB (BF16)
-- **Used for**: Both indexing (embedding PDF pages) and querying (embedding search queries)
+Key decisions:
 
-### 2. Docling with VLM (Document Processing) — **HEAVY GPU**
-- **File**: `Phase_2/backend/src/processor/document_processor.py`
-- **Model**: `granite_docling` (IBM Granite VLM)
-- **Config**: `processing.document.enable_vlm: true` in `default.yaml`
-- **Why GPU**: Runs a Vision Language Model to understand document layout, describe pictures, and extract structured content from PDFs.
-- **VRAM**: ~2-4GB depending on model variant
+- Managed service target: AWS SageMaker Real-Time Inference
+- Target traffic tier for now: 5 to 10 concurrent users
+- No Lambda path for core model inference
+- Primary deployed model in this folder: ColQwen endpoint
+- Docling and Whisper are documented in architecture decisions but are not yet implemented as separate API services in this folder
 
-### 3. Whisper ASR (Media Processing) — **MODERATE GPU**
-- **File**: `Phase_2/backend/src/processor/media_processor_enhanced.py`
-- **Model**: OpenAI Whisper (`base`, `small`, `medium`, `large-v3`)
-- **Config**: `processing.media.asr_model` in `default.yaml`
-- **Why GPU**: Audio transcription model. Runs on CPU too but 5-10x slower.
-- **VRAM**: 0.5GB (base) to 3GB (large-v3)
+## Why SageMaker for this phase
 
-### 4. Sentence Transformers / FAISS-GPU (Text Retrieval) — **LIGHT GPU**
-- **File**: `Phase_2/backend/src/retrieval/rag_retrievers.py`
-- **Models**: `all-MiniLM-L6-v2`, BGE rerankers
-- **Config**: `text_retrieval.embedding_model`, `text_retrieval.reranker`
-- **Why GPU**: Dense embedding + reranking benefit from GPU but work fine on CPU
-- **VRAM**: ~0.5-1GB
+This direction was chosen to match your requirement and to reduce operational risk during early production rollout.
 
-### 5. EasyOCR (OCR) — **LIGHT GPU**
-- **File**: `Phase_2/backend/src/processor/document_processor.py`
-- **Config**: `processing.document.ocr_engine: easyocr`
-- **Why GPU**: Deep-learning based OCR. Uses GPU if available, fallback to CPU.
+Reasons:
 
----
+1. Managed endpoint lifecycle
+- Endpoint creation, update, rollback, and health are managed by SageMaker APIs.
+- Fewer moving pieces than self-managed infrastructure orchestration for this stage.
 
-## This Folder: ColQwen Deployment on EC2
+2. Native autoscaling controls
+- Application Auto Scaling can scale endpoint instance count based on invocations per instance.
+- This is enough for 5 to 10 concurrent users without building custom ASG plus ALB logic first.
 
-This folder contains the code to **deploy the ColQwen model as an inference API** on an AWS EC2 `g4dn.xlarge` instance (NVIDIA T4, 16GB VRAM).
+3. Better operational baseline for team handoff
+- IAM role based access and endpoint metadata are easier to standardize for team operations.
+- This keeps the operational model consistent around SageMaker-managed endpoints.
 
-### Architecture
+4. Lambda is not suitable for this model mix
+- ColQwen and Docling workloads are GPU-centric and large-memory.
+- Lambda does not provide a stable fit for this workload shape at your required throughput.
+
+## Current Implemented Scope in this folder
+
+Implemented now:
+
+- SageMaker-compatible FastAPI server with:
+  - /ping
+  - /invocations
+  - /health
+  - embedding and scoring operations mapped via operation in /invocations
+- Quantization controls for ColQwen: none, 4bit, 8bit
+- Concurrency guard for GPU operations
+- ECR build and push script
+- SageMaker deploy and delete scripts
+- SageMaker endpoint test script
+
+Not implemented yet in this folder:
+
+- Dedicated Docling service API
+- Dedicated Whisper service API
+- Full remote integration wiring in Phase_2 backend to call all services by endpoint name
+
+## 5 to 10 Concurrent Users - Recommended Configuration
+
+This is the baseline profile for now.
+
+Endpoint configuration:
+
+- Instance type: ml.g4dn.xlarge
+- Initial instance count: 1
+- Autoscaling min capacity: 1
+- Autoscaling max capacity: 2
+- Target invocations per instance: 6
+
+Model runtime settings:
+
+- COLQWEN_MODEL: vidore/colqwen2-v1.0
+- COLQWEN_QUANTIZATION: 8bit
+- COLQWEN_MAX_CONCURRENT_INFERENCES: 2
+- Uvicorn workers: 1
+
+Why this profile was chosen:
+
+- Single instance keeps cost low at low steady-state traffic.
+- Max capacity 2 gives headroom when user requests overlap.
+- Concurrency=2 inside one model process prevents uncontrolled VRAM spikes while still allowing overlapping calls.
+- 8bit is the stability and memory balance point on T4-class GPU.
+
+## Folder Map
+
+- server.py
+  - SageMaker-compatible inference server
+- Dockerfile
+  - Container image definition for endpoint deployment
+- sagemaker_entrypoint.sh
+  - Container startup command for SageMaker runtime mode
+- build_push_ecr.ps1
+  - Build and push image to ECR from PowerShell
+- build_push_ecr.sh
+  - Build and push image to ECR
+- deploy_sagemaker_endpoint.py
+  - Create or update endpoint and configure autoscaling
+- delete_sagemaker_endpoint.py
+  - Delete endpoint resources
+- test_sagemaker_endpoint.py
+  - Invoke endpoint and run concurrency test
+- RUNBOOK.md
+  - Step-by-step operational guide
+- FINDINGS_AND_REASONING.md
+  - Deep findings and architecture rationale
+
+## Fast Start
+
+1. Build and push image (PowerShell)
+
+```powershell
+$env:AWS_REGION = "us-west-2"
+$env:REPO_NAME = "phase2-colqwen-sagemaker"
+$env:IMAGE_TAG = "v1"
+.\build_push_ecr.ps1
 ```
-EC2 g4dn.xlarge (T4 GPU, 16GB VRAM)
-├── FastAPI server (port 8000)
-│   ├── POST /embed-images   → Embed PDF page images into multi-vectors
-│   ├── POST /embed-query    → Embed a text query
-│   ├── POST /score           → Score query vs document embeddings
-│   ├── GET  /health          → Health check + GPU status
-│   └── POST /shutdown        → Graceful shutdown to save costs
-└── 8-bit quantized ColQwen model (~3.5GB VRAM)
+
+2. Deploy endpoint
+
+```powershell
+python .\deploy_sagemaker_endpoint.py `
+  --region us-west-2 `
+  --role-arn arn:aws:iam::<account-id>:role/<sagemaker-execution-role> `
+  --image-uri <account-id>.dkr.ecr.us-west-2.amazonaws.com/phase2-colqwen-sagemaker:v1 `
+  --endpoint-name phase2-colqwen-rt `
+  --instance-type ml.g4dn.xlarge `
+  --initial-instance-count 1 `
+  --min-capacity 1 `
+  --max-capacity 2 `
+  --target-invocations-per-instance 6 `
+  --quantization 8bit `
+  --max-concurrent-inferences 2 `
+  --wait
 ```
 
-### Cost Optimization Strategy
-- **Instance**: `g4dn.xlarge` ($0.526/hr On-Demand, ~$0.16/hr Spot)
-- **8-bit quantization**: Fits comfortably on T4 (3.5GB / 16GB), leaving room for batches
-- **Shutdown endpoint**: Call `/shutdown` when not in use → stop instance → $0 compute cost
-- **Spot instances**: Use for ingestion workloads (async, fault-tolerant)
-- **Savings Plan**: For baseline query instance, 1-year commitment = ~30-50% discount
+3. Validate endpoint
 
-### Files
-```
-├── README.md                    # This file
-├── server.py                    # FastAPI inference server
-├── requirements.txt             # Python dependencies
-├── setup_ec2.sh                 # EC2 instance setup script (run once)
-├── start_server.sh              # Start the inference server
-├── stop_server.sh               # Stop the server gracefully
-├── test_server.py               # Test script to validate deployment
-└── test_with_pdf.py             # End-to-end test with a real PDF
+```powershell
+python .\test_sagemaker_endpoint.py --region us-west-2 --endpoint-name phase2-colqwen-rt --concurrent-users 5
 ```
 
-### Quick Start on EC2
+## Cleanup
 
-```bash
-# 1. SSH into your g4dn.xlarge instance
-ssh -i your-key.pem ubuntu@<ec2-public-ip>
-
-# 2. Clone/copy this folder to the instance
-# 3. Run the setup script (one-time)
-chmod +x setup_ec2.sh
-./setup_ec2.sh
-
-# 4. Start the server
-chmod +x start_server.sh
-./start_server.sh
-
-# 5. Test it (from your local machine or the instance)
-python test_server.py --host <ec2-public-ip>
+```powershell
+python .\delete_sagemaker_endpoint.py --region us-west-2 --endpoint-name phase2-colqwen-rt --delete-config-and-models
 ```
 
-### On-Demand EC2 Billing — YES, You Pay Even When Idle
+For full deployment operations, use RUNBOOK.md.
 
-**Yes**, On-Demand EC2 instances charge you **per second** (minimum 60 seconds) from the moment you **start** the instance until you **stop** or **terminate** it. Even if no one is sending requests to the model, the instance is running and you are paying.
-
-- `g4dn.xlarge` costs **$0.526/hour** ($12.62/day, $378.72/month if left running 24/7)
-- **Stopped** instances: $0 compute charges (you still pay for EBS storage, ~$0.10/GB/month)
-- **Terminated** instances: $0 everything
-
-**Cost saving workflow**:
-1. When students are not using the system → **stop the instance** (via AWS Console, CLI, or the `/shutdown` endpoint)
-2. When needed → **start the instance** (takes ~30-60s to boot, then ~60-90s to load model into GPU)
-3. Total cold start: ~2-3 minutes
-
-This is why the `/shutdown` endpoint exists — your backend can call it to auto-stop the GPU instance during off-hours.
