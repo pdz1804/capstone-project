@@ -4,6 +4,10 @@
 
 This folder is now aligned to a SageMaker-first deployment model.
 
+Latest consolidated verification and sizing notes:
+
+- See `SAGEMAKER_DEPLOYMENT_VERIFICATION_AND_CAPACITY.md`
+
 Key decisions:
 
 - Managed service target: AWS SageMaker Real-Time Inference
