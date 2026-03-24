@@ -134,3 +134,145 @@ For your "under 100 users" scenario, do an A/B benchmark before locking instance
 2. Run the same tests (`test_sagemaker_endpoint.py`, `test_real_pipeline.py`) at increasing concurrency.
 3. Compare p50/p95 latency, failure rate, and GPU memory stability.
 4. Keep the cheapest profile that satisfies your latency and reliability target.
+
+## 9) Raw Successful Logs from Chat History
+
+This section appends the successful testing and verification logs captured in our chat.
+
+### 9.1 Endpoint status and config check (success)
+
+```text
+{
+    "UserId": "381492273521",
+    "Account": "381492273521",
+    "Arn": "arn:aws:iam::381492273521:root"
+}
+
+DescribeEndpoint:
+- CreationTime: 2026-03-21T19:26:07.843000+07:00
+- EndpointStatus: InService
+- FailureReason: None
+- LastModifiedTime: 2026-03-21T19:30:34.966000+07:00
+
+DescribeEndpoint ProductionVariants:
+- VariantName: AllTraffic
+- CurrentInstanceCount: 1
+- DesiredInstanceCount: 1
+- CurrentWeight: 1.0
+- ResolvedImage: 381492273521.dkr.ecr.us-west-2.amazonaws.com/phase2-colqwen-sagemaker@sha256:123f00c942328ede932adcd065d6a6dbdefe557b40d46471cb9ab998aed4aa31
+
+EndpointConfigName:
+- phase2-colqwen-rt-cfg-20260321122605
+
+DescribeEndpointConfig ProductionVariants:
+- VariantName: AllTraffic
+- InstanceType: ml.g5.xlarge
+- InitialInstanceCount: 1
+- ModelName: phase2-colqwen-rt-model-20260321122605
+
+ListEndpoints:
+- phase2-colqwen-rt | InService | 2026-03-21T19:30:34.966000+07:00
+```
+
+### 9.2 Basic invoke and concurrency test script (success)
+
+Command:
+
+```powershell
+python Phase_2_PDZ_002_Model_Deploy_Not_Start/test_sagemaker_endpoint.py --region us-west-2 --endpoint-name phase2-colqwen-rt --concurrent-users 3
+```
+
+Output:
+
+```text
+Testing endpoint: phase2-colqwen-rt
+Single invoke latency: 2193.3 ms
+Running concurrent invoke test with 3 users
+Concurrent latency p50: 1667.1 ms
+Concurrent latency p95: 1667.1 ms
+SageMaker endpoint tests passed
+```
+
+### 9.3 Real pipeline end-to-end test script (success)
+
+Command:
+
+```powershell
+python Phase_2_PDZ_002_Model_Deploy_Not_Start/test_real_pipeline.py --region us-west-2 --endpoint-name phase2-colqwen-rt --query "What is the main topic of this document?"
+```
+
+Output:
+
+```text
+============================================================
+Endpoint : phase2-colqwen-rt  (us-west-2)
+Images   : 5 file(s)
+Query    : What is the main topic of this document?
+============================================================
+[Pre-flight] Endpoint health
+  model       : vidore/colqwen2-v1.0
+  quantization: 8bit
+  load_time_s : 68.8
+  GPU         : NVIDIA A10G  (22.2 GB)
+  VRAM used   : 2.45 GB allocated  /  2.57 GB reserved  /  19.62 GB free
+  GPU util    : 0%
+
+[Step 1/3] embed-query — 'What is the main topic of this document?' ...
+  ✓ Query embedded in 425 ms
+    n_tokens  : 19
+    embed_dim : 128
+
+[Step 2/3] embed-images + score — processing 5 image(s) ...
+  [1/5] page_001_full.png  (649 KB) ...  embed=3033 ms  score=865 ms  (patches=755, score=16.886)
+  [2/5] page_002_full.png  (884 KB) ...  embed=936 ms  score=1526 ms  (patches=755, score=16.895)
+  [3/5] page_003_full.png  (823 KB) ...  embed=2382 ms  score=723 ms  (patches=755, score=16.854)
+  [4/5] page_004_full.png  (857 KB) ...  embed=1141 ms  score=924 ms  (patches=755, score=16.891)
+  [5/5] page_005_full.png  (762 KB) ...  embed=1148 ms  score=1041 ms  (patches=755, score=16.892)
+  ✓ 5 images processed
+    embed_dim     : 128
+    patches/image : [755, 755, 755, 755, 755]
+    embed total   : 8640 ms
+    score total   : 5078 ms
+
+Total pipeline time: 27264 ms
+
+[Step 3/3] ranking
+
+Ranked retrieval results (highest relevance first)
+  # 1  score=  16.895  page_002_full.png
+  # 2  score=  16.892  page_005_full.png
+  # 3  score=  16.891  page_004_full.png
+  # 4  score=  16.886  page_001_full.png
+  # 5  score=  16.854  page_003_full.png
+
+Real pipeline test passed ✓
+```
+
+### 9.4 Endpoint stop validation (success)
+
+Command summary:
+
+```powershell
+python .\delete_sagemaker_endpoint.py --region $REGION --endpoint-name $ENDPOINT_NAME
+```
+
+Output:
+
+```text
+Deleting endpoint: phase2-colqwen-rt
+Endpoint deletion requested. Config and model resources were kept.
+```
+
+Follow-up verification output:
+
+```text
+DescribeEndpoint error:
+- ValidationException: Could not find endpoint "phase2-colqwen-rt".
+
+Endpoint configs kept:
+- phase2-colqwen-rt-cfg-20260321115450
+- phase2-colqwen-rt-cfg-20260321122605
+
+Models kept:
+- phase2-colqwen-rt-model-20260321122605
+```
