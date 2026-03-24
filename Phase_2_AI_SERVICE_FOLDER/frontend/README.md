@@ -15,9 +15,9 @@ npm run preview
 
 | Variable | Purpose |
 |----------|---------|
-| `VITE_API_URL` | API prefix for axios (default `/api` — works with Vite proxy in dev) |
+| `VITE_API_URL` | API base for axios. Default `/api` (Vite dev proxy). If you set a full URL like `http://localhost:8000`, `src/apiBase.js` appends `/api` so routes match `POST /api/upload`, etc. |
 
-In production behind nginx or another host, set `VITE_API_URL` to the full public API base if needed.
+Use `http://host:8000/api` explicitly if you already include the path.
 
 ## UX
 

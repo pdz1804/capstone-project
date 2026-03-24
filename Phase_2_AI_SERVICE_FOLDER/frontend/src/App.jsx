@@ -33,10 +33,19 @@ import CitationCard from './components/CitationCard'
 import ImageCitation from './components/ImageCitation'
 import SettingsPanel from './components/SettingsPanel'
 import InsightsPanel from './components/InsightsPanel'
+import { getApiBase } from './apiBase'
 
-// API base URL - configurable via environment variable for deployment
-// VITE_API_URL should be the full API base path (e.g. "/api" or "http://host/api")
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+// API base — see apiBase.js (avoids VITE_API_URL=http://host:8000 missing /api)
+const API_BASE = getApiBase()
+
+/** Merge newly uploaded rows into input list (keyed by path). */
+function mergeInputByPath(existing, incoming) {
+  const map = new Map((existing || []).map((f) => [f.path, f]))
+  for (const f of incoming || []) {
+    map.set(f.path, f)
+  }
+  return Array.from(map.values())
+}
 
 // File type icon helper
 const getFileIcon = (type) => {
@@ -96,9 +105,17 @@ function App() {
   }, [])
 
   // ── API Calls ──────────────────────────────────────────
-  const fetchFiles = async () => {
-    try { const r = await axios.get(`${API_BASE}/files`); setFiles(r.data) }
-    catch (e) { console.error('Failed to fetch files:', e) }
+  const fetchFiles = async (quick = false) => {
+    try {
+      const r = await axios.get(`${API_BASE}/files`, { params: quick ? { quick: 1 } : {} })
+      if (quick) {
+        setFiles((prev) => ({ ...prev, input: r.data.input || [] }))
+      } else {
+        setFiles(r.data)
+      }
+    } catch (e) {
+      console.error('Failed to fetch files:', e)
+    }
   }
 
   const fetchPipelineStatus = async () => {
@@ -123,12 +140,17 @@ function App() {
     for (let file of uploadFiles) formData.append('files', file)
     setUploadProgress({ uploading: true, progress: 0 })
     try {
-      await axios.post(`${API_BASE}/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (p) => setUploadProgress({ uploading: true, progress: Math.round((p.loaded * 100) / p.total) })
+      // Do not set Content-Type manually — axios must add the multipart boundary.
+      const r = await axios.post(`${API_BASE}/upload`, formData, {
+        onUploadProgress: (p) =>
+          setUploadProgress({ uploading: true, progress: Math.round((p.loaded * 100) / p.total) }),
       })
       setUploadProgress({ uploading: false, success: true })
-      fetchFiles()
+      if (r.data?.files?.length) {
+        setFiles((prev) => ({ ...prev, input: mergeInputByPath(prev.input, r.data.files) }))
+      } else {
+        await fetchFiles(true)
+      }
       setTimeout(() => setUploadProgress(null), 2000)
     } catch (error) {
       setUploadProgress({ uploading: false, error: error.message })
@@ -193,7 +215,13 @@ function App() {
     setSearchLoading(true)
     setResults(null)
     try {
-      const r = await axios.post(`${API_BASE}/search`, { query, top_k: 10 })
+      const r = await axios.post(`${API_BASE}/search`, {
+        query,
+        top_k: 10,
+        retriever_type: 'hybrid',
+        include_images: true,
+        images_for_generation: 5,
+      })
       setResults(r.data)
     } catch (error) {
       console.error('Search failed:', error)
@@ -203,7 +231,10 @@ function App() {
   }
 
   const handleDeleteFile = async (filePath) => {
-    try { await axios.delete(`${API_BASE}/files`, { data: { path: filePath } }); fetchFiles() }
+    try {
+      await axios.delete(`${API_BASE}/files`, { data: { path: filePath } })
+      await fetchFiles(true)
+    }
     catch (e) { console.error('Delete failed:', e) }
   }
 

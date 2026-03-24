@@ -17,18 +17,77 @@ config/default.yaml    # Pipeline + Qdrant + inference settings
 - **Hybrid** fuses BM25 + dense (Qdrant) with weight `inference.hybrid_alpha` (default 0.5).
 - **Image retrieval** stores **ColQwen multivectors** in Qdrant (MaxSim), same idea as `Phase_2_PDZ_003_Test_Qdrant_Cloud`.
 
+## Install dependencies into `myenv` (recommended for this repo)
+
+Your project venv is expected at **`Code/myenv`** (same level as `Phase_2_AI_SERVICE_FOLDER`), matching paths like `Code\myenv\Lib\site-packages`.
+
+**PowerShell** (from `Phase_2_AI_SERVICE_FOLDER/backend`):
+
+```powershell
+.\install_requirements.ps1
+```
+
+**CMD**:
+
+```bat
+install_requirements.bat
+```
+
+**Manual one-liner** (adjust drive/path if your `Code` folder differs):
+
+```powershell
+& "D:\PDZ\BKU\Learning\LVTN\GD1\Code\myenv\Scripts\python.exe" -m pip install -r requirements.txt
+```
+
+If `myenv` lives elsewhere, set **`MYENV_PYTHON`** to that `python.exe`, then run `install_requirements.ps1` again.
+
+Always prefer **`python -m pip`** for the venv you intend — avoid a global `pip` that points at another Python.
+
 ## Run locally
 
-```bash
-cd backend
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-pip install -r requirements.txt
-copy .env.example .env            # fill OPENAI_API_KEY, Qdrant, optional SageMaker
+```powershell
+cd Phase_2_AI_SERVICE_FOLDER\backend
+# Activate myenv first (from Code folder):
+..\..\myenv\Scripts\Activate.ps1
 python run_api.py
 ```
 
+Or without activating, run the API with the full interpreter:
+
+```powershell
+& "..\..\myenv\Scripts\python.exe" run_api.py
+```
+
+```bash
+cd backend
+copy .env.example .env            # fill OPENAI_API_KEY, Qdrant, optional SageMaker
+```
+
 Open `http://localhost:8000/docs` for OpenAPI.
+
+## Unit tests
+
+Tests live under `tests/` (`api/` for route smoke tests with mocks, `services/` for core settings, Qdrant factory, ColQwen inference flags). Run from **`backend`** using the same **`myenv`** interpreter as install.
+
+**PowerShell**
+
+```powershell
+.\run_tests.ps1
+```
+
+**CMD**
+
+```bat
+run_tests.bat
+```
+
+**Manual**
+
+```powershell
+& "..\..\myenv\Scripts\python.exe" -m pytest tests\ -v
+```
+
+Optional: `pytest -m unit` (markers in `pytest.ini`). Pass extra pytest args to the scripts, e.g. `.\run_tests.ps1 tests\services -q`.
 
 ## Indexing workflow
 

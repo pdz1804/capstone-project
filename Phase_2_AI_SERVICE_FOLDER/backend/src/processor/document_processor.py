@@ -135,6 +135,8 @@ os.environ.setdefault("TORCHDYNAMO_DISABLE", "1")         # Fully disable dynamo
 
 from loguru import logger
 
+from src.processor.utils import sanitize_filename_stem
+
 
 @dataclass
 class ProcessingConfig:
@@ -1574,6 +1576,7 @@ class MultimodalDocumentProcessor:
         Returns:
             Safe directory name
         """
+        filename = sanitize_filename_stem(filename)
         if len(filename) <= max_length:
             return filename
         

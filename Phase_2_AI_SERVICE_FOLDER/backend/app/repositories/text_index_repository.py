@@ -3,18 +3,26 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Sequence
 
-from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, PointStruct, VectorParams
+if TYPE_CHECKING:
+    from qdrant_client import QdrantClient
+
+from app.repositories.qdrant_point_ids import logical_id_to_qdrant_point_id
 
 logger = logging.getLogger(__name__)
+
+
+def _qdrant_models():
+    from qdrant_client.models import Distance, PointStruct, VectorParams
+
+    return Distance, PointStruct, VectorParams
 
 
 class TextIndexRepository:
     def __init__(
         self,
-        client: QdrantClient,
+        client: "QdrantClient",
         collection_name: str,
         vector_name: str = "text",
         vector_size: int = 384,
@@ -25,6 +33,8 @@ class TextIndexRepository:
         self.vector_size = vector_size
 
     def ensure_collection(self, recreate: bool = False) -> None:
+        Distance, _, VectorParams = _qdrant_models()
+
         existing = [c.name for c in self.client.get_collections().collections]
         if self.collection_name in existing:
             if recreate:
@@ -46,7 +56,7 @@ class TextIndexRepository:
         payloads: List[Dict[str, Any]],
         batch_size: int = 64,
     ) -> None:
-        """embeddings: numpy array or list of lists, aligned with ids."""
+        _, PointStruct, _ = _qdrant_models()
         import numpy as np
 
         emb = np.asarray(embeddings)
@@ -58,12 +68,12 @@ class TextIndexRepository:
 
         for start in range(0, n, batch_size):
             end = min(start + batch_size, n)
-            points: List[PointStruct] = []
+            points: List[Any] = []
             for i in range(start, end):
                 vec = emb[i].tolist() if hasattr(emb[i], "tolist") else list(emb[i])
                 points.append(
                     PointStruct(
-                        id=ids[i],
+                        id=logical_id_to_qdrant_point_id(str(ids[i])),
                         vector={self.vector_name: vec},
                         payload=payloads[i],
                     )

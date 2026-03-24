@@ -27,6 +27,8 @@ from datetime import datetime
 from tqdm import tqdm
 import tempfile
 
+from src.processor.utils import sanitize_filename_stem
+
 # Import conversion libraries
 try:
     from docx import Document
@@ -303,6 +305,7 @@ class DocumentNormalizer:
         Returns:
             Safe filename stem, truncated if needed with MD5 hash appended
         """
+        stem = sanitize_filename_stem(stem)
         if len(stem) <= max_length:
             return stem
         

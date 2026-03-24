@@ -64,6 +64,22 @@ FILE_PROCESSING_HINTS = {
 }
 
 
+def sanitize_filename_stem(stem: str) -> str:
+    """
+    Normalize a filename stem for Windows-safe output folders and files.
+
+    Trailing spaces (and dots) in names are invalid on Windows and cause
+    mkdir/write to fail or disagree with pathlib/consolidator paths — e.g.
+    ``Report .pdf`` -> stem ``Report `` must become ``Report``.
+    """
+    if not stem:
+        return "untitled"
+    s = stem.strip()
+    while s and s[-1] in ". \t":
+        s = s[:-1]
+    return s or "untitled"
+
+
 def get_file_hash(file_path: Path) -> str:
     """
     Generate MD5 hash of a file for duplicate detection.

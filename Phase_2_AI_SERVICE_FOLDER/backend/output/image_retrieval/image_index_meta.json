@@ -1,0 +1,6 @@
+{
+  "retrievers": [
+    "colqwen"
+  ],
+  "vector_store": "qdrant"
+}

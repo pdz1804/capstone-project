@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 
 from app.api.schemas import FileDeleteRequest
 from app.core.paths import (
@@ -38,7 +38,13 @@ def _file_info(file_path: Path) -> Dict:
 
 
 @router.get("/files")
-async def list_files() -> Dict[str, List[Dict]]:
+async def list_files(
+    quick: bool = Query(
+        False,
+        description="If true, only scan input/ (skip processed tree, documents.json, Qdrant). "
+        "Use after upload to refresh the input list quickly.",
+    ),
+) -> Dict[str, List[Dict]]:
     ensure_data_dirs()
     files: Dict[str, List[Dict]] = {"input": [], "processed": [], "indexed": []}
 
@@ -46,6 +52,9 @@ async def list_files() -> Dict[str, List[Dict]]:
         for f in INPUT_DIR.rglob("*"):
             if f.is_file() and not f.name.startswith("."):
                 files["input"].append(_file_info(f))
+
+    if quick:
+        return files
 
     processing_dir = OUTPUT_DIR / "processing"
     if processing_dir.exists():
@@ -103,6 +112,7 @@ async def list_files() -> Dict[str, List[Dict]]:
 async def upload(files: List[UploadFile] = File(...)):
     ensure_data_dirs()
     uploaded = []
+    file_rows: List[Dict] = []
     for file in files:
         try:
             dest = INPUT_DIR / file.filename
@@ -116,9 +126,10 @@ async def upload(files: List[UploadFile] = File(...)):
             with open(dest, "wb") as f:
                 f.write(content)
             uploaded.append({"name": dest.name, "size": len(content)})
+            file_rows.append(_file_info(dest))
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e)) from e
-    return {"uploaded": uploaded, "count": len(uploaded)}
+    return {"uploaded": uploaded, "count": len(uploaded), "files": file_rows}
 
 
 @router.delete("/files")

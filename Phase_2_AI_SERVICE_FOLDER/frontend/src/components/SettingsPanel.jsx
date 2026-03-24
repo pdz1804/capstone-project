@@ -81,32 +81,42 @@ export default function SettingsPanel({ pipelineConfig, showConfig, setShowConfi
                 <div className="text-sm font-medium text-slate-800">{pipelineConfig.key_settings.rag_mode}</div>
               </div>
               <div className="bg-white/60 rounded-lg p-3">
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Processing</div>
-                <div className="text-sm font-medium text-slate-800">{pipelineConfig.key_settings.enable_processing ? '✓ Enabled' : '✗ Disabled'}</div>
-              </div>
-              <div className="bg-white/60 rounded-lg p-3">
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Retrieval</div>
-                <div className="text-sm font-medium text-slate-800">{pipelineConfig.key_settings.enable_retrieval ? '✓ Enabled' : '✗ Disabled'}</div>
-              </div>
-              <div className="bg-white/60 rounded-lg p-3">
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Generation</div>
-                <div className="text-sm font-medium text-slate-800">{pipelineConfig.key_settings.enable_generation ? '✓ Enabled' : '✗ Disabled'}</div>
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Qdrant</div>
+                <div className="text-sm font-medium text-slate-800">{pipelineConfig.key_settings.qdrant_mode ?? '—'}</div>
               </div>
               <div className="bg-white/60 rounded-lg p-3">
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Image Retrieval</div>
                 <div className="text-sm font-medium text-slate-800">{pipelineConfig.key_settings.image_retrieval_enabled ? '✓ Enabled' : '✗ Disabled'}</div>
               </div>
+              <div className="bg-white/60 rounded-lg p-3 md:col-span-2">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Retrieval Methods</div>
+                <div className="text-sm font-medium text-slate-800">
+                  {(pipelineConfig.key_settings.retrieval_methods || []).join(', ') || '—'}
+                </div>
+              </div>
               <div className="bg-white/60 rounded-lg p-3">
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">ColQwen Model</div>
                 <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.colqwen_model?.split('/')?.pop() || 'N/A'}</div>
               </div>
-              <div className="bg-white/60 rounded-lg p-3">
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">ColQwen Quantization</div>
-                <div className="text-sm font-medium text-slate-800">{pipelineConfig.key_settings.colqwen_quantization || 'None'}</div>
-              </div>
               <div className="bg-white/60 rounded-lg p-3 md:col-span-2 lg:col-span-1">
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Text Embedding</div>
-                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.text_embedding_model?.split('-')?.pop() || 'N/A'}</div>
+                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.text_embedding_model || 'N/A'}</div>
+              </div>
+              <div className="bg-white/60 rounded-lg p-3">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Text collection</div>
+                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.text_collection ?? '—'}</div>
+              </div>
+              <div className="bg-white/60 rounded-lg p-3">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Image collection</div>
+                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.image_collection ?? '—'}</div>
+              </div>
+              <div className="bg-white/60 rounded-lg p-3">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">SageMaker inference</div>
+                <div className="text-sm font-medium text-slate-800">{pipelineConfig.key_settings.use_aws_sagemaker_inference ? '✓ Yes' : '✗ No'}</div>
+              </div>
+              <div className="bg-white/60 rounded-lg p-3 md:col-span-2">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">SageMaker endpoint</div>
+                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.sagemaker_endpoint ?? '—'}</div>
               </div>
             </div>
           )}

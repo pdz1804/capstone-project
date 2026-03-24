@@ -3,22 +3,12 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Sequence
 
-from qdrant_client import QdrantClient
-from qdrant_client.models import (
-    BinaryQuantization,
-    BinaryQuantizationConfig,
-    Distance,
-    MultiVectorComparator,
-    MultiVectorConfig,
-    PointStruct,
-    ScalarQuantization,
-    ScalarQuantizationConfig,
-    ScalarType,
-    VectorParams,
-    PayloadSchemaType,
-)
+if TYPE_CHECKING:
+    from qdrant_client import QdrantClient
+
+from app.repositories.qdrant_point_ids import logical_id_to_qdrant_point_id
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +16,7 @@ logger = logging.getLogger(__name__)
 class ImageIndexRepository:
     def __init__(
         self,
-        client: QdrantClient,
+        client: "QdrantClient",
         collection_name: str,
         vector_name: str = "colpali_multivec",
         embedding_dim: int = 128,
@@ -39,6 +29,14 @@ class ImageIndexRepository:
         self.storage_quantization = storage_quantization
 
     def _quant_config(self):
+        from qdrant_client.models import (
+            BinaryQuantization,
+            BinaryQuantizationConfig,
+            ScalarQuantization,
+            ScalarQuantizationConfig,
+            ScalarType,
+        )
+
         sq = self.storage_quantization
         if sq == "scalar":
             return ScalarQuantization(
@@ -53,6 +51,14 @@ class ImageIndexRepository:
         return None
 
     def ensure_collection(self, recreate: bool = False) -> None:
+        from qdrant_client.models import (
+            Distance,
+            MultiVectorComparator,
+            MultiVectorConfig,
+            PayloadSchemaType,
+            VectorParams,
+        )
+
         existing = [c.name for c in self.client.get_collections().collections]
         if self.collection_name in existing:
             if recreate:
@@ -90,16 +96,18 @@ class ImageIndexRepository:
         payloads: List[Dict[str, Any]],
         batch_size: int = 8,
     ) -> None:
+        from qdrant_client.models import PointStruct
+
         n = len(ids)
         if len(multivectors) != n or len(payloads) != n:
             raise ValueError("ids, multivectors, payloads length mismatch")
         for start in range(0, n, batch_size):
             end = min(start + batch_size, n)
-            points: List[PointStruct] = []
+            points: List[Any] = []
             for i in range(start, end):
                 points.append(
                     PointStruct(
-                        id=ids[i],
+                        id=logical_id_to_qdrant_point_id(str(ids[i])),
                         vector={self.vector_name: multivectors[i]},
                         payload=payloads[i],
                     )

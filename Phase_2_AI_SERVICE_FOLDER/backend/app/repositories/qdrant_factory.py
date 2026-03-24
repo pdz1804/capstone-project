@@ -2,12 +2,20 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, TYPE_CHECKING
 
-from qdrant_client import QdrantClient
+if TYPE_CHECKING:
+    from qdrant_client import QdrantClient
 
 
-def build_qdrant_client(cfg: Dict[str, Any]) -> QdrantClient:
+def build_qdrant_client(cfg: Dict[str, Any]) -> "QdrantClient":
+    try:
+        from qdrant_client import QdrantClient
+    except ImportError as e:
+        raise ImportError(
+            "Missing dependency 'qdrant-client'. Install with: pip install \"qdrant-client>=1.9.0\""
+        ) from e
+
     q = cfg.get("qdrant", {}) or {}
     mode = (q.get("mode") or "docker").strip().lower()
     if mode == "cloud":

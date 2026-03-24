@@ -5,6 +5,7 @@ from typing import Any, Dict
 from fastapi import APIRouter, HTTPException
 
 from app.core.paths import OUTPUT_DIR, merged_runtime_settings
+from app.core.qdrant_errors import is_qdrant_unreachable, qdrant_setup_hint
 from app.services.indexing_service import IndexingService
 from app.services.processing_service import run_processing
 
@@ -40,8 +41,8 @@ async def process(force: bool = False) -> Dict[str, Any]:
 
 @router.post("/index")
 async def index_all(force: bool = False) -> Dict[str, Any]:
+    cfg = merged_runtime_settings()
     try:
-        cfg = merged_runtime_settings()
         svc = IndexingService(cfg)
         out = svc.index_all(force=force)
         if out.get("text", {}).get("status") == "failed":
@@ -52,14 +53,23 @@ async def index_all(force: bool = False) -> Dict[str, Any]:
     except HTTPException:
         raise
     except Exception as e:
+        if is_qdrant_unreachable(e):
+            logger.warning("index: Qdrant unreachable: %s", e)
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    f"Cannot connect to Qdrant. {qdrant_setup_hint(cfg)} "
+                    f"Underlying: {type(e).__name__}: {e}"
+                ),
+            ) from e
         logger.exception("index")
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/index/text")
 async def index_text(force: bool = False) -> Dict[str, Any]:
+    cfg = merged_runtime_settings()
     try:
-        cfg = merged_runtime_settings()
         out = IndexingService(cfg).index_text(force=force)
         if out.get("status") == "failed":
             raise HTTPException(status_code=500, detail=out.get("error"))
@@ -67,13 +77,22 @@ async def index_text(force: bool = False) -> Dict[str, Any]:
     except HTTPException:
         raise
     except Exception as e:
+        if is_qdrant_unreachable(e):
+            logger.warning("index/text: Qdrant unreachable: %s", e)
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    f"Cannot connect to Qdrant. {qdrant_setup_hint(cfg)} "
+                    f"Underlying: {type(e).__name__}: {e}"
+                ),
+            ) from e
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/index/image")
 async def index_image(force: bool = False) -> Dict[str, Any]:
+    cfg = merged_runtime_settings()
     try:
-        cfg = merged_runtime_settings()
         out = IndexingService(cfg).index_images(force=force)
         if out.get("status") == "failed":
             raise HTTPException(status_code=500, detail=out.get("error"))
@@ -81,4 +100,13 @@ async def index_image(force: bool = False) -> Dict[str, Any]:
     except HTTPException:
         raise
     except Exception as e:
+        if is_qdrant_unreachable(e):
+            logger.warning("index/image: Qdrant unreachable: %s", e)
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    f"Cannot connect to Qdrant. {qdrant_setup_hint(cfg)} "
+                    f"Underlying: {type(e).__name__}: {e}"
+                ),
+            ) from e
         raise HTTPException(status_code=500, detail=str(e)) from e

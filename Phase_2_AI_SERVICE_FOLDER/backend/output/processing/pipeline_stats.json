@@ -1,0 +1,44 @@
+{
+  "start_time": "2026-03-25T02:49:23.258177",
+  "stages": {
+    "normalization": {
+      "total_files": 1,
+      "normalized_files": 1,
+      "failed_files": 0,
+      "by_type": {
+        "pdf": 1
+      },
+      "errors": []
+    },
+    "media_processing": {
+      "total_files": 0,
+      "processed_files": 0,
+      "failed_files": 0,
+      "audio_extracted": 0,
+      "transcribed": 0,
+      "frames_extracted": 0,
+      "chunks_created": 0,
+      "errors": []
+    },
+    "document_processing": {
+      "processed_files": 1,
+      "failed_files": 0,
+      "total_files": 1
+    },
+    "consolidation": {
+      "total_documents": 1,
+      "with_pdf": 1,
+      "without_pdf": 0,
+      "with_markdown": 1,
+      "with_additional": 1,
+      "media_documents": 0,
+      "media_with_chunks": 0,
+      "media_with_frames": 0,
+      "errors": []
+    }
+  },
+  "total_input_files": 1,
+  "total_output_files": 10,
+  "errors": [],
+  "end_time": "2026-03-25T02:50:30.903857"
+}

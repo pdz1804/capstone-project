@@ -227,7 +227,12 @@ class Stage4Consolidator:
         # 1. Copy main markdown file (REQUIRED)
         stage3_md = doc_folder / f"{doc_name}.md"
         if not stage3_md.exists():
-            raise FileNotFoundError(f"Markdown file not found: {stage3_md}")
+            md_candidates = sorted(doc_folder.glob("*.md"))
+            if len(md_candidates) == 1:
+                stage3_md = md_candidates[0]
+                logger.info(f"Using single markdown in folder: {stage3_md.name}")
+            else:
+                raise FileNotFoundError(f"Markdown file not found: {doc_folder / f'{doc_name}.md'}")
         
         output_md = output_folder / f"{doc_name}.md"
         shutil.copy2(stage3_md, output_md)
