@@ -268,6 +268,11 @@ class DocumentProcessingPipeline:
                 doc_stats = self._run_document_processing()
                 self.pipeline_stats["stages"]["document_processing"] = doc_stats
             
+            # Stage 3b: Excel Processing (custom XML parser + table-aware chunking)
+            excel_stats = self._run_excel_processing()
+            if excel_stats and excel_stats.get("processed_files", 0) > 0:
+                self.pipeline_stats["stages"]["excel_processing"] = excel_stats
+            
             # Stage 4: Consolidation to RAG-ready format
             print("\n" + "="*80)
             print("STAGE 4: CONSOLIDATION (RAG-Ready)")
@@ -455,6 +460,21 @@ class DocumentProcessingPipeline:
                 # Further filter: only keep formats supported by Docling (dynamic check)
                 unique_originals = [f for f in unique_originals if f.suffix.lower() in allowed_extensions]
                 
+                # Skip Excel files that were already parsed by our custom parser
+                excel_parsed_dir = self.stage_dirs["normalized"] / "excel_parsed"
+                if excel_parsed_dir.exists():
+                    custom_excel_stems = {
+                        p.stem for p in excel_parsed_dir.glob("*.json")
+                    }
+                    before_count = len(unique_originals)
+                    unique_originals = [
+                        f for f in unique_originals
+                        if not (f.suffix.lower() in ('.xlsx', '.xlsm') and f.stem in custom_excel_stems)
+                    ]
+                    skipped_excel = before_count - len(unique_originals)
+                    if skipped_excel > 0:
+                        print(f"  ⏭ Skipping {skipped_excel} Excel files (handled by custom parser)")
+                
                 if unique_originals:
                     print(f"  → Adding {len(unique_originals)} unique original files from: {originals_dir}")
                     print(f"    (Files NOT already converted to PDF/MD, Docling-supported formats only)")
@@ -537,6 +557,78 @@ class DocumentProcessingPipeline:
         except Exception as e:
             print(f"ERROR: ✗ Document processing failed: {str(e)}")
             raise
+    
+    def _run_excel_processing(self) -> Dict:
+        """
+        Run Stage 3b: Excel Processing with custom XML parser.
+        
+        Processes parsed Excel JSON files from Stage 1 (excel_parsed/)
+        using the table-aware ExcelPreprocessor to produce RAG-ready output:
+          - {doc_id}/excel_manifest.json
+          - {doc_id}/excel_chunks.json
+          - {doc_id}/{doc_id}.md
+          - {doc_id}/images/ (if any embedded images)
+        
+        Output goes directly to stage4_rag_ready/ since Excel processing
+        produces its own complete RAG-ready structure.
+        """
+        excel_parsed_dir = self.stage_dirs["normalized"] / "excel_parsed"
+        
+        if not excel_parsed_dir.exists():
+            return {"processed_files": 0, "total_files": 0}
+        
+        json_files = [f for f in excel_parsed_dir.glob("*.json") if not f.name.startswith("_")]
+        if not json_files:
+            return {"processed_files": 0, "total_files": 0}
+        
+        print("\n" + "="*80)
+        print("STAGE 3b: EXCEL PROCESSING (Custom Parser + Table-Aware Chunking)")
+        print("="*80)
+        print(f"Found {len(json_files)} parsed Excel JSON file(s)")
+        
+        from ..chunking.excel_preprocessor import ExcelPreprocessor
+        
+        stats = {"processed_files": 0, "failed_files": 0, "total_files": len(json_files), "total_chunks": 0}
+        
+        for json_path in json_files:
+            try:
+                doc_id = json_path.stem
+                
+                # Find the original xlsx file to pass as reference
+                original_xlsx = None
+                for ext in ('.xlsx', '.xlsm'):
+                    candidate = self.stage_dirs["normalized"] / "original_files" / f"{doc_id}{ext}"
+                    if candidate.exists():
+                        original_xlsx = candidate
+                        break
+                
+                print(f"\n  Processing: {doc_id}")
+                
+                preprocessor = ExcelPreprocessor(
+                    output_dir=self.stage_dirs["rag_ready"],
+                    chunk_size=1000,
+                    chunk_overlap=200,
+                    max_table_chunk_size=2000,
+                )
+                
+                result = preprocessor.process_excel_json(
+                    json_path=json_path,
+                    original_xlsx_path=original_xlsx,
+                    doc_id=doc_id,
+                )
+                
+                num_chunks = result.get("num_chunks", 0)
+                stats["processed_files"] += 1
+                stats["total_chunks"] += num_chunks
+                print(f"  → ✓ {doc_id}: {num_chunks} chunks created")
+                
+            except Exception as e:
+                print(f"  → ✗ Failed to process {json_path.name}: {e}")
+                stats["failed_files"] += 1
+        
+        print(f"\n✓ Excel processing complete: {stats['processed_files']}/{stats['total_files']} files")
+        print(f"  → Total chunks: {stats['total_chunks']}")
+        return stats
     
     def _run_consolidation(self) -> Dict:
         """

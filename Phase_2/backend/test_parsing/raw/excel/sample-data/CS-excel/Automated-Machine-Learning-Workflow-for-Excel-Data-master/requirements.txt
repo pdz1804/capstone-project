@@ -1,0 +1,10 @@
+click
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+joblib
+xgboost==2.0.3
+kneed
+openpyxl

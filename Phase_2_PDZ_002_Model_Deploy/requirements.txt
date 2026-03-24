@@ -1,0 +1,31 @@
+# ColQwen Inference Server - Requirements
+# For SageMaker GPU endpoints (ml.g5+) and local GPU smoke tests
+# PyTorch (torch, torchvision) installed via Dockerfile with cu126 index URL
+
+# ===== Core ML =====
+# torch==2.6.0  # ← Installed in Dockerfile via pip w/ cu126 index-url (2.4.1 not available in cu126)
+# torchvision==0.21.0  # ← Installed in Dockerfile via pip w/ cu126 index-url
+transformers>=4.40.0
+accelerate>=0.30.0
+
+# ColPali/ColQwen engine
+colpali-engine==0.3.13
+
+# 8-bit quantization
+bitsandbytes>=0.43.0
+
+# ===== API Server =====
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+pydantic>=2.0.0
+
+# ===== PDF Processing =====
+pdf2image>=1.16.0      # PDF → images (requires poppler)
+Pillow>=10.0.0         # Image handling
+
+# ===== Utilities =====
+numpy>=1.24.0
+psutil>=5.9.0          # System/GPU monitoring
+pynvml>=11.5.0         # NVIDIA GPU metrics
+boto3>=1.34.0          # SageMaker deployment and invocation
