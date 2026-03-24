@@ -1,0 +1,147 @@
+{
+  "file_info": {
+    "name": "Strategic and Financial Analysis of FPT.pdf",
+    "path": "D:\\PDZ\\BKU\\Learning\\LVTN\\GD1\\Code\\Phase_2_AI_SERVICE_FOLDER\\backend\\output\\processing\\stage1_normalized\\normalized_pdfs\\Strategic and Financial Analysis of FPT.pdf",
+    "size": 457122,
+    "type": "pdf",
+    "modified": 1774381763.2984138
+  },
+  "document_info": {
+    "title": "Strategic and Financial Analysis of FPT Corporation: AI-First Transition, Competitive Positioning, and Global Expansion as of Q1 2026",
+    "docling_version": "1.9.0",
+    "filename": "Strategic and Financial Analysis of FPT.pdf",
+    "mimetype": "application/pdf",
+    "binary_hash": 17445232877396962280
+  },
+  "content_stats": {
+    "total_pages": 3,
+    "total_images": 1,
+    "total_tables": 1,
+    "total_texts": 68,
+    "total_text_length": 14896
+  },
+  "processing_info": {
+    "processor_version": "MultimodalDocumentProcessor-v1.0",
+    "docling_version": "1.9.0",
+    "processing_timestamp": "2026-03-25T02:50:30.703986",
+    "gpu_used": true,
+    "ocr_enabled": true,
+    "vlm_enabled": true,
+    "asr_enabled": true,
+    "image_filtering": {
+      "min_width": 100,
+      "min_height": 100,
+      "min_area": 10000
+    }
+  },
+  "pages": [
+    {
+      "page_number": 2,
+      "page_key": 1,
+      "dimensions": {
+        "width": 595.280029296875,
+        "height": 841.8900146484375
+      },
+      "elements_count": 13,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 12
+      }
+    },
+    {
+      "page_number": 3,
+      "page_key": 2,
+      "dimensions": {
+        "width": 595.280029296875,
+        "height": 841.8900146484375
+      },
+      "elements_count": 43,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 1,
+        "tables": 0,
+        "texts": 42
+      }
+    },
+    {
+      "page_number": 4,
+      "page_key": 3,
+      "dimensions": {
+        "width": 595.280029296875,
+        "height": 841.8900146484375
+      },
+      "elements_count": 0,
+      "has_content": false,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 0
+      }
+    }
+  ],
+  "images_details": [
+    {
+      "index": 0,
+      "id": "image_000",
+      "type": "picture",
+      "label": "picture",
+      "caption": "The image is a bar chart titled \"Estimated Revenue (US Dollars Million).\" The x-axis represents the countries, and the y-axis represents the estimated revenue. The chart is color-coded to represent the countries:\n- Japan: Blue\n- Americas: Green\n- Europe: Blue\n- APAC: Green\n- Other: Gray\n\nThe chart shows the estimated revenue for each country, with Japan being the highest with an estimated revenue of approximately 500 million US dollars. The Americas and Europe are the second and third highest, respectively, with an estimated revenue of around 280 million US dollars. The APAC countries have the lowest estimated revenue, with an estimated revenue of around 34 million US dollars.\n\nThe chart also includes a note at the bottom stating that the data is based on available disclosures. The note states that the data is for a limited time and that the company is not responsible for any damages or losses that may occur",
+      "vlm_description": "The image is a bar chart titled \"Estimated Revenue (US Dollars Million).\" The x-axis represents the countries, and the y-axis represents the estimated revenue. The chart is color-coded to represent the countries:\n- Japan: Blue\n- Americas: Green\n- Europe: Blue\n- APAC: Green\n- Other: Gray\n\nThe chart shows the estimated revenue for each country, with Japan being the highest with an estimated revenue of approximately 500 million US dollars. The Americas and Europe are the second and third highest, respectively, with an estimated revenue of around 280 million US dollars. The APAC countries have the lowest estimated revenue, with an estimated revenue of around 34 million US dollars.\n\nThe chart also includes a note at the bottom stating that the data is based on available disclosures. The note states that the data is for a limited time and that the company is not responsible for any damages or losses that may occur",
+      "vlm_model": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "has_vlm_description": true,
+      "classification": {
+        "top_class": "bar_chart",
+        "confidence": 0.9998828172683716,
+        "classifier": "DocumentPictureClassifier"
+      },
+      "page_number": 3,
+      "bbox": {
+        "x1": 38.533050537109375,
+        "y1": 742.1291275024414,
+        "x2": 555.11669921875,
+        "y2": 481.6956787109375
+      },
+      "dimensions": {
+        "width": 516.58,
+        "height": 260.43
+      },
+      "area": 134535.66,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT"
+    }
+  ],
+  "tables_details": [
+    {
+      "index": 0,
+      "id": "table_000",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 2,
+      "bbox": {
+        "x1": 34.91718673706055,
+        "y1": 770.695671081543,
+        "x2": 559.9501953125,
+        "y2": 650.7247314453125
+      },
+      "dimensions": {
+        "width": 525.03,
+        "height": 119.97
+      },
+      "area": 62988.7,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 7,
+        "columns": 4,
+        "column_names": [
+          "Metric",
+          "FY2024",
+          "FY2025",
+          "YoY Change"
+        ],
+        "has_data": true
+      }
+    }
+  ]
+}
