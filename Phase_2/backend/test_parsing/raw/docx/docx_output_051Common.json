@@ -1,0 +1,861 @@
+[
+  {
+    "heading_text": "0－1． Tracked changes",
+    "heading_level": 1,
+    "children": [],
+    "content": "\n[START_TABLE_CONTENT] | Ver | What's changed? | 理由. Reason | author | date | Official publication |\n| --- | --- | --- | --- | --- | --- |\n| 2.00 |  New | - | VC Group LBS | 2021/09/06 | ー |\n| 3.00 |  5-1. Initial Search Service.  5－1－2 【Service Overview】.  Wording correction of the recommended route. Changed \"Narrow road avoidance\" to \"Easy to pass narrow roads\" setting.  Changed the price calculation from Taiwan to the whole for general land use.  【Service Requirements】. o Added search conditions for the nearest destination section. o *21A reflection of Upgrade (Ver.1.8). o Added to the effect that the default route type is replaced by user operation. o List of default 3 routes added. It is stated that you can edit the destination point on the full route screen. o *21A reflection of Upgrade (Ver.1.8). o Added a list of use cases with the same arrival points.  5－1－5 [Exception operation (abnormal system)]. Added a list of display examples when offline and outside the cache area failed to search due to factors.  5-2 Reroute Service. 5－4. Learning Route Search Service.  5－4－2 【Service Overview】. o Added the description that route learning will be carried out locally and data of the learning results will be uploaded to the center. o Added a description on how to manage route training data on the center side. o Added the description that the data of the route learning result will be discarded according to user request. o Added Service Requirements to 5-4 Learning Route Search Service Section.  5-5. Stopover setting (number of settings) service.  5－5－2 【Service Requirements】. Removed wording related to additional position designation when adding a stopover.  5－5－3 [Requirements for HMI specifications]. o Added wording about adding a stopover in the stop editing screen. o Added wording related to position change on the stop editing screen. o Added a description about intuition route operation.  5－7． SALIK Information Service.  5－7－2 【Service Overview】. o Delete the price display (go to 5-1).  5－8． E-toll guidance service.  5－8－2 【Service Overview】. o Delete the price display (go to 5-1).  Added Service Requirements to 5-9 Rodizio Notification Display (Environmental Zone) Service Section.  5－10． ERP Guidance Service.  5－10－2 【Service Overview】. o Delete the price display (go to 5-1). 5－11. Personally adapted route service.  5－11－2 【Service Overview】. o Removed the description of the route that passes well. o Added the description that both \"user feature consideration search\" and \"learning route search\" are applied. o Added Service Requirements for Personally Adapted Route Service.  5－13. CO2 Minimum Route Service.  5－13―2 【Service Requirements】. Removed the wording to provide a route that takes into account the location of gas stations such as charging facilities.  6． QOS (Quality of service).  Revised to the effect that the description of route quality will be continuously improved | - | VC Group LBS | 2021/11/19 | 〇 |\n| 1.00 |  Update Service Content and Service Requirements for Initial Search Service. Move Route Preferences Items under User Settings Items.  Added Service Requirements for Section 5-1-3 Requirements for HMI Specifications.  Added Sections 5-1-1, 5-1-2, and 5-1.3 for Destination Transfer Service, ETA/Location Sharing Service, and Business Hours Display Service.  5-2 Reroute Service. o Update wording in Service Content. o Update Service Requirements.  -Added Section 5-3-2 for Severe Weather Consideration Service.  Added Service Requirements to 5-5 Stopover Setting Service Section.  Added Service Requirements to 5-6 Traffic Jam Consideration Search Service Section | - | TMNA. TMNA. TMNA. TMNA. TMNA. TMNA. TMNA | 3/10/2022. 3/9/2022. 3/9/2022. 3/15/2022. 03/01/2022. 03/11/2022. 3/11/2022 | 〇. 〇. 〇. 〇. 〇. 〇. 〇 |\n| 1.00 |  5－1－2　【Basic operation】. o Delete Kanto ETC 2.0 Route. o Describe the display contents of the blowout for each case. o Add easy to pass narrow roads Japan only.  5－12．Custom Route Service. o Not applicable to Japan and general land.  ５－４．Learning Route Search Service. o Not applicable to Japan.  5－11．Personally adapted route service. o Not applicable to Japan.  5-1-5. o Delete the Failure factors. o 【Map version does not exist】.  5-3. Detour area consideration search service.  5-3-3. o Change from rectangle to handwritten area.  5-13. CO2 Minimum Route Service.  5-13-2. o Delete the description that was limited to the center route.  5-1. Initial discovery service.  5-1-2/5-1-4. o Delete truck/bike tracks setting.  5－1－2． Basic operation (normal system). o Change the notation from \"smart ICs\" to \"ETC Only ICs\" | - | VC LBS | 3/31/2022 | ○ |\n| 1.10 |  5-1-4 Remove Avoid Truck/Bike Tracks from User Settings Items in Initial Discovery Service Section ▲1.10 (WNSDK24-301).  5-1-4 Update Target Region for Avoid Narrow Roads User Settings Item in Initial Discovery Service Section ▲1.10 (WNSDK24-302).  5-2-2 Delete Requirement for Route Deviations being detected within 50m from Reroute Service Section ▲1.10 (WNSDK24-364).  5-12 Remove Custom Route Service ▲1.10 (WNSDK24-317).  5-12 Add HOV/HOT Route Service ▲1.10 (WNSDK24-314), (WNSDK24-316).  5-1-4 Remove Avoid Unsupported EV Charging Stations from User Settings Items in Initial Discovery Service ▲1.10 (WNSDK24-302).  5-1-4 Add Specific Region inside Brackets <> for User Settings items that are Specific to a Region in Initial Discovery Service ▲1.10 (WNSDK24-302).  5-1-2 Add Table for Suggested Route Types in Initial Discovery Service Section ▲1.10 (WNSDK24-301), (WNSDK24-316).  6. Remove System Clock Requirements from QOS Service Section ▲1.10 (WNSDK24-378).  5-1-4 Remove EV/FC Routing On/OFF from User Settings Items in Initial Discovery Service ▲1.10 (WNSDK24-302).  5-1-5 Remove Requirements for Routing to a Destination Outside Pre-Downloaded Map in Initial Discovery Service Section ▲1.10 (WNSDK24-301).  5-9 Remove LEZ Requirements and Target Regions for NA/EU/AU from Rodizio Notification Display Service Section ▲1.10 (WNSDK24-344).  5-1-2 Add LEZ Requirements from Rodizio Notification Display Service Section into Initial Discovery Service Section ▲1.10 (WNSDK24-666).  5-11 Remove Personally Adapted Route Service ▲1.10 (WNSDK24-314), (WNSDK24-316).  5-1-5 Remove all instances of 21MM Backup Data Charts from 24MM Spec ▲1.10 (WNSDK24-248).  5-4 Remove existing NA/EU/AU Requirements from Learning Route Search Service ▲1.10 (WNSDK24-1386).  5-14 Create new Service Section Predictive/Preferred Route Learning Service ▲1.10 (WNSDK24-1386).  All – Remove Target Region Tables ▲1.10 (TMC CR) See “24MM_Navi_Target region for 522 common requirement spec” for official Target Region Mapping.  5-1-1 Updated Specifications for Destination Assist Requirements in Destination Transfer Service Section ▲1.10 (WNSDK24-1408 ) | - | TMNA | 6/14/2022 | ○ |\n| 1.10 | ■whole. Japanese-to-English writing together | - | VC LBS. Umemura | 7/8/2022 | ○ |\n| 1.10 | 5-1-2. Change the behavior. Route learning result is not reflected for the Recommended route | - | VC LBS. Umemura | 7/19/2022 | ○ |\n| 1.20 | ALL. Organize indentation. 対象仕向が分かりやすいようにインデントの整理。. unify the writing for target region. 仕向の書き方を整理. 5-1-2. Fixed the Japanese translation. 日本語翻訳漏れ追記. 5-2. Fixed the Japanese translation. 日本語翻訳漏れ追記. 5-4. Modify the writing errors. 誤記修正. 5－6． Traffic jam consideration search service. Fixed the English translation. 英語翻訳漏れ追記 | - | VC LBS. Sasaki Kenji | 8/12/2022 | 〇 |\n| 1.50 | DC24-7683　誤記訂正. ・ 5-1-2. Added due to omission of description of destination in Japanese. - 細い道を通しやすい：細い道を通しやすくする（日本仕向のみ）　※（日本仕向のみ）を追加したのみ. DC24-7683　誤記訂正. ・ 5-1-2. Delete the following wording. ・トラック/バイク回避：トラックやバイクが多く通る道を回避（一般地仕向けのみ） | 誤記による修正(typo correction). 日本語に仕向け（日本仕向）記載がないため、修正 Corrected because there is no description of destination (Japan destination) in Japanese. 誤記による修正(typo correction). 1.10時に削除必要だったが、削除できておらず、本Verにて削除. It was necessary to delete at V1.10, but it could not be deleted, so it will be deleted in this version. | VC LBS. Tawatari Masataka | 9/30/22 | 〇 |\n| 1.60 |  5-1 Remove User Settings Item – Avoid Restricted Roads in Initial Discovery Service ▲1.60 (WNSDK24-3311).  5-1 Remove User Settings Item – Avoid Low Bridges/Overpasses in Initial Discovery Service ▲1.60 (WNSDK24-3312).  5-1 Remove User Settings Item – Avoid Tunnels in Initial Discovery Service ▲1.60 (WNSDK24-3313).  5-1-2 Remove Requirement for automatic sending of SMS to Contact when ETA changes by +/- 5 mins in ETA/Location Sharing Service ▲1.60 (WNSDK24-3681).  5-5 Remove reference to “All Words Document” used for supported phrases to display during Route Calculation Failure in Stopover Setting Service ▲1.60 (WNSDK24-3680) |  | TMNA | 12/16/2022 | 〇 |\n| 1.60 | 5－2． Reroute Service　リルートサービス. DC24-7572. 誤記訂正. Correct error. 5－6． Traffic jam consideration search service　渋滞考慮探索サービス. DCQA24-977. Fix wrong translation. 翻訳ミス修正. 5－5． Stopover setting service 経由地設定サービス. DCQA24-976. Clarification of target region. 対象仕向の明確化。Kmの探索距離を記載。. 5－11． Personally adapted route service. DCQA24-534. Correct error. 見出しの消去漏れ. 5－1． Initial discovery service 初期探索サービス. DC24-7683. ルート回避設定の記載場所の統一。. 対象仕向の明確化。. 5－4． Learning Route Search Service 学習ルート探索サービス. DCQA24-1107. Correct error. 誤記訂正. 5－3． Detour area consideration search service　迂回エリア考慮探索サービス. WNSDK24-3785. 手書きの迂回エリアドロップ. Drop handwrite are. |  | K.Sasaki | 2022/12/16 | 〇 |\n| 1.60 | 5－1． Initial discovery service 初期探索サービス. WNSDK24-3801. 対象仕向誤記修正. Correct error. 5－6． Traffic jam consideration search service　渋滞考慮探索サービス. WNSDK24-3835. 修正Verの付与漏れ. Correct error. 5－11． Personally adapted route service. WNSDK24-3837. 見出しの消去漏れ. Correct error |  | K.Sasaki | 2022/12/16 | 〇 |\n| 1.70 |  5-1-1 Update Destination Transfer Service to Specify support for adding waypoint via Quick Links/Categories ▲1.70 (WNSDK24-4016) |  | TMNA | 2023/01/09 | 〇 |\n| 1.70 | 5-1-2 Initial discovery service 初期探索サービス. 別ルート削除( DCQA24-2097). 英語表記削除漏れ(DC24-7683). delete another route. Correct error. 5-2.Reroute Service　リルートサービス. 24MMで21MMから変更意図が無かった箇所について21MMの仕様反映(DCQA24-2016, DCQA24-2046). Correct error. 5-3. Detour area consideration search service 迂回エリア考慮探索サービス. 24MMで21MMから変更意図が無かった箇所について21MMの仕様反映(DCQA24-2165). Correct error. 5-4. 1.60の修正漏れ(DCQA24-1107). 英訳の削除漏れ. Correct error for 1.60. 5-6.渋滞考慮探索サービス. ユーザ設定OFFの記載がなかったので追記. (DCQA24-1909). Add user settings “OFF”. 5－7．SALIK 案内サービス. 5－8．e-toll 案内サービス. 5－10．ERP 警告表示サービス. 24MMで21MMから変更意図が無かった箇所について21MMの仕様反映. (DCQA24-1777). Correct error. 5－11． Personally adapted route service. 1.60の際の修正漏れ(DCQA24-534). Correct error for 1.60. 5-13. 1.60の修正漏れ(DCQA24-1214). 一般地仕向はローカルで実施する旨の明記. Correct error for 1.60 |  | K.Sasaki | 2023/3/17 |  |\n| 1.70 | 正式リリース. Official Release |  | VC Group LBS | 2023/3/17 | 〇 |\n| 1.71 | 5-1-2 Initial discovery service 初期探索サービス. 別ルート削除もれ修正( DCQA24-2097). 5-7 SALIK. 5-8 e-toll. 5-9 Rodizio. 5-10 ERP. OnOFFでの表示切替を削除(NVJ24-17315). delete display switching with OnOFF |  | VC Group LBS | 2023/3/29 | 〇 |\n| 3.00 | 6． QOS (Quality of Service).  Update QOS timing requirements for route search (WNSDK24-4574). 5-6． Traffic Jam Consideration Service. Update Target Region Mapping for Avoid Traffic Setting (WNSDK24-4991). 5－12． Custom HOV/HOT. HENREN DC24-17171. e-PF3.0開発見直しに伴う、19ver.３対応に向けた通信仕様の修正. Modification of communication specifications for 19ver.3 correspondence due to e-PF3.0 development review | - | TMNA | 2023/03/20 | 〇 |\n| 3.10 | 5-3-2 Remove Severe Weather Consideration Along Route. 5-14 Remove Predictive Route Learning from Preferred Learning Service. Change items were missed in 3.00 official merge documents. |  | TMNA | 2023/04/25. 2023/06/27 |  |\n| 3.50 | 5-13 Add CAN data message label for CO2 Min Route Service |  | TMNA | 2023/09/28 |  |\n| 3.50 | DC24-27177 ▲4.30. 5-1 Initial discovery service 初期探索サービス. 5-7．SALIK Information Service　SALIK案内サービス. ．e-toll guidance service　e-toll案内サービス. ．ERP warning display service ERP警告表示サービス. DC24-27177 ▲4.30. /DCQA24-4711. 一般地仕向に一般道優先が対象と記載されている箇所を訂正。. ※初期探索サービスの要件に合わせる. Correct errors. Remove General priority from ROW. 5-1 Initial discovery service 初期探索サービス. 拡張ルートを最新化。運転しやすいルートを追加。. Add Easy to Drive. |  | 佐々木 | 2023/12/15 | 〇 |\n| 4.30 | 6 QOS. DCQA24-4354. 日本語訳の誤記を修正. Correct translate errors. 履歴. 誤記訂正. DCQA24-5991. Correct errors. 5－2． Reroute Service　リルートサービス. DCBUG24-10728. 21MMでの仕様変更に追従出来ていなかった箇所を修正。. Fixed parts that could not keep up with specification changes(21MM) |  | LBS 佐々木 | 2024/3/15 | 〇 |\n| 6.30 | DC24-42027（№1246）. 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】. WNSDK24-7156. 5-1-2 Initial Discovery Service. Service Overview. Clarification: Changing destination in alternate route screen requirement is only for JP/ROW. 5-1-3. Updated Requirements to specify JP/ROW only. 5-3-3. Updated Requirements to specify JP/ROW only |  | TMNA-Radhika sharma | 2024/08/30 | 〇 |\n| 6.60 | DC24-55857(変連№1470). 対象. 24MM：1A/SU、CDC：CV. DCBUG24-11866. 5-1　初期探索サービス. 推奨初期ルート(3ルート表示時の一番最初に選択されているルート)の明確化. DCBUG24-24600. DCBUG24-25133. DCBUG24-29077. DCBUG24-32201. DCBUG24-35590. 6.QOS (Quality of service). 現行モデル（21MM）に沿った数値に修正。. 性能測定基準の明確化 | LBS. Shoya. Moriyama | 2024/12/13 | 〇 | 6.60 |\n| 7.20 | 【24SU/CDC(CV)】. DC24-63294（SUCDC-109）. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" |  | LBS. Shoya Moriyama | 2025/3/14 | ○ |\n| 7.20 | DC24-60110（変連№CDC-316）. WNSDK24-7870. 対象　CDC：CV. 5－13．CO2 Minimum Route Service　CO2ミニマムルートサービスにBEV Step3PFに適用した要件を記載. 5-13. CO2 Minimum Route Service: Describe the requirements applied to the BEV Step3PF for the CO2 Minimum Route Service | BEV Step3 PF（Spec150）変更のため Due to BEV Step3 PF (Spec150) change | LBS. Shoya. Moriyama | 2025/3/14 | 〇 |\n| 7.30 | 【24SU TW CONNECTED(CV)】. 変連№DC24-51648（SU-033）. 変更/Change. 5－1． Initial discovery service 初期探索サービス. 台湾HYB化に伴い、一般地のセンタールートの探索種別に関して明記. 【24SU(CV)/CDC(CV)】. 変連№DC24-65503（SUCDC-122）. WNSDK24-8091. 5－1． Initial discovery service 初期探索サービス. 省エネルートをローカル探索の対象に誤記修正。. Correction of miswriting regarding energy conservation as a subject of local exploration. DCBUG24-56627. ユーザ設定項目に対してルートオプションとして設定できる項目としての記載として誤記修正. WNSDK24-8236. 5－5． Stopover setting service 経由地設定サービス. 探索失敗した際の動きに対して修正漏れの誤記修正 | Spec clarification | LBS. Shoya Moriyama | 2025/4/15 | ○ | [END_TABLE_CONTENT]\n\ntable of contents\n0－1． Tracked changes 1\n0－2． Term definition 14\n1． Aim of service 17\n2． Main usage scenes 17\n3． Service Content 18\n4． System configuration diagram 23\n5． Operation Overview/HMI Image 24\n5－1． Initial discovery service 24\n▲1.10 24\n5－1－2． Basic operation (normal system) 24\n5－1－3． Requirements for HMI specifications 48\n5－1－4． User settings items 49\n5－1－5． Exception operation (abnormal system) 52\n5－1－6． other 56\n5－1-1 Destination Transfer Service 57\n▲1.10 57\n5－1-1－2． Basic operation (normal system) 57\n5－1-1－3． Requirements for HMI specifications 57\n5－1-1－4． User settings items 57\n5－1-1－5． Exception operation (abnormal system) 57\n5－1-1－6． other 58\n5－1-2 ETA/Location Sharing Service 58\n▲1.10 58\n5－1-2－2． Basic operation (normal system) 58\n5－1-2－3． Requirements for HMI specifications 59\n5－1-2－4． User settings items 59\n5－1-2－5． Exception operation (abnormal system) 59\n5－1-2－6． other 59\n5－1-3 Business Hours Display Service 59\n▲1.10 59\n5－1-3－2． Basic operation (normal system) 59\n5－1-3－3． Requirements for HMI specifications 60\n5－1-3－4． User settings items 60\n5－1-3－5． Exception operation (abnormal system) 60\n5－1-3－6． other 60\n5－2． Reroute Service 60\n▲1.10 60\n5－2－2． Basic operation (normal system) 60\n5－2－3． Requirements for HMI specifications 62\n5－2－4． User settings items 62\n5－2－5． Exception operation (abnormal system) 62\n5－2－6． other 63\n5－3． Detour area consideration search service 63\n▲1.10 63\n5－3－2． Basic operation (normal system) 63\n5－3－3． Requirements for HMI specifications 63\n5－3－4． User settings items 64\n5－3－5． Exception operation (abnormal system) 64\n5－3－6． other 64\n(▲3.10)\n▲1.10 64\n(▲3.10) 64\n(▲3.10) 65\n(▲3.10) 65\n(▲3.10) 65\n(▲3.10) 65\n5－4． Learning Route Search Service 65\n▲1.10 65\n5－4－2． Basic operation (normal system) 65\n5－4－3． Requirements for HMI specifications 68\n5－4－4． User settings items 68\n5－4－5． Exception operation (abnormal system) 68\n5－4－6． other 68\n5－5． Stopover setting (number of settings) service 69\n▲1.10 69\n5－5－2． Basic operation (normal system) 69\n5－5－3． Requirements for HMI specifications 71\n5－5－4． User settings items 72\n5－5－5． Exception operation (abnormal system) 73\n5－5－6． other 75\n5－6． Traffic jam consideration search service 75\n▲1.10 75\n5－6－2． Basic operation (normal system) 75\n5－6－3． Requirements for HMI specifications 78\n5－6－4． User settings items 78\n5－6－5． Exception operation (abnormal system) 79\n5－6－6． other 79\n5－7． SALIK Information Service 79\n▲1.10 79\n5－7－2． Basic operation (normal system) 79\n5－7－3． Requirements for HMI specifications 80\n5－7－4． User settings items 80\n5－7－5． Exception operation (abnormal system) 80\n5－7－6． other 80\n5－8． E-toll guidance service 80\n▲1.10 80\n5－8－2． Basic operation (normal system) 80\n5－8－3． Requirements for HMI specifications 82\n5－8－4． User settings items 82\n5－8－5． Exception operation (abnormal system) 82\n5－8－6． other 83\n5－9． Rodizio Notification Display (EnvironmentalZone Message) 84\n▲1.10 84\n5－9－2． Basic operation (normal system) 84\n5－9－3． Requirements for HMI specifications 84\n5－9－4． User settings items 84\n5－9－5． Exception operation (abnormal system) 85\n5－9－6． other 85\n5－10． ERP warning display service 85\n▲1.10 85\n5－10－2． Basic operation (normal system) 85\n5－10－3． Requirements for HMI specifications 85\n5－10－4． User settings items 86\n5－10－5． Exception operation (abnormal system) 86\n5－10－6． other 86\n86\n86\n86\n87\n87\n87\n88\n5－12．  HOV/HOT ▲1.10 Route Service 88\n▲1.10 88\n5－12－2． Basic operation (normal system) 88\n5－12－3． Requirements for HMI specifications 89\n5－12－4． User settings items 89\n5－12－5． Exception operation (abnormal system) 89\n5－12－6． other 89\n5－13． CO2 Minimum Route Service 89\n▲1.10 89\n5－13－2． Basic operation (normal system) 89\n5－13－3． Requirements for HMI specifications 90\n5－13－4． User settings items 90\n5－13－5． Exception operation (abnormal system) 90\n5－13－6． Other 90\n5－14． Predictive/Preferred Route Learning Service ▲1.10 90\n▲1.10 90\n5－14－2． Basic operation (normal system) 90\n5－14－3． Requirements for HMI specifications 91\n5－14－4． User settings items 92\n5－14－5． Exception operation (abnormal system) 92\n5－14－6． other 92\n6． QOS (Quality of service) 92\n7． Trends and Comparisons of Other Companies 99\n8． How to operate 100"
+  },
+  {
+    "heading_text": "0－2． Term definition　用語定義",
+    "heading_level": 1,
+    "children": [],
+    "content": "Technical terms and coined words used in this book are listed below.\n本書で使用する専門用語、造語について以下に列挙する。\n[START_TABLE_CONTENT] | Term　用語 | Explanation　説明 |\n| --- | --- |\n| Initial exploration. Initial search. 初期探索 | Initial exploration of the first search after setting up your destination (including transit points). 目的地(通過点を含む)設定後、最初に行う探索を初期探索 |\n| Full-area exploration. Overall-route search. 全域探索 | Search using data from areas including departure and destinations for route calculation. 出発地及び目的地を含む領域のデータを経路算出に用いる探索 |\n| Exploring the surroundings. periphery search. 周辺探索 | After the start of the guide, without changing the transit point and destination,. Search within a certain area from your current location. 案内開始の後、通過点および目的地を変えずに、現在地から一定エリア内で行う探索 |\n| DRGS | Dynamic Route Guidance System (Dynamic Route Guidance System) stands for. Route search that takes into account dynamically changing traffic or time regulation information. 動的に変化する交通情報あるいは時間規制情報を考慮した経路探索 |\n| Traffic information. 交通情報 | Probe information obtained via center, obtained via HD audio. General term for traffic information, etc. センター経由で取得したプローブ情報、HDオーディオ経由で取得した. 交通情報等の総称 |\n| DCM | Data Communication Module stands for. a device that connects to a wireless network to perform wireless communication. 携帯電話の無線ネットワークに接続して無線通信を行う装置 |\n| Full route diagram. Entire Route. 全ルート図 | Screen showing route and route information from your current location to your final destination. (Displayed after initial search). 現在地～最終目的地までのルートやルートの情報が表示される画面. (初期探索後に表示) |\n| Center Route. センタールート | A mechanism that can deliver routes according to the needs of users. ユーザのニーズに応じたルートを配信できる仕組み |\n| Local. ローカル | In-vehicle equipment (ex: local map = in-vehicle machine map). onboard navigation system (ex: local map =onboard map). 車載機(ex：ローカル地図＝車載機地図) |\n| HOV Lane. HOVレーン | High Occupancy Vehicles Lane stands for. More than the specified number of passengers are on board. A lane that can only be driven by a car. Sometimes called Carpool lanes. High Occupancy Vehicles Laneの略。規定人数以上が搭乗している. 車のみ走行可能な車線のこと。Carpoolレーンと呼ばれることもある。 |\n| HOT Lane. HOTレーン | High Occupancy Toll Lane stands for. Many occupants are free of charge. Lanes charged for vehicles that do not meet the minimum occupant requirements for HOV lanes. High Occupancy Toll Laneの略。乗員多数車両は無料。. HOVレーンの最低乗員数の要件を満たさない車両には課金するレーン。 |\n| CLEAN AIR VEHICLE | Depending on the region, eco-friendly models do not meet the specified number of people, but hov lanes. It is likely to be permitted to run. (Permitted vehicles must be affixed with stickers.). 地域によっては環境にやさしい車種は規定人数に満たなくてもHOVレーンの. 走行を認められていることもある。. (許可された車両はステッカーを貼付する必要がある。). [START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_1_92eee102.jpeg|92eee102f8c9276f91862764f8bc0544 [END_IMAGE_PATH] | [END_TABLE_CONTENT]\n\n[START_TABLE_CONTENT] | E-Zpass. FasTrak | Automatic toll collection system for highways. 高速道路の料金自動徴収システム. E-Zpass　　　　　　　　　　　　　FasTrak. [START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_2_7feea7b9.jpeg|7feea7b9a198ef0b693d08df04666259 [END_IMAGE_PATH]. [START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_3_051aed1b.jpeg|051aed1bae00d48e3d5a9761a03a262d [END_IMAGE_PATH] |\n| --- | --- | [END_TABLE_CONTENT]\n"
+  },
+  {
+    "heading_text": "1． Aim of service　サービスの狙い",
+    "heading_level": 1,
+    "children": [],
+    "content": "Provide services to assist in the movement (from the place of departure to the destination), which is the essence of the service of a moving car.\nThe way to the destination varies depending on the user, usage scene, or situation.\nTherefore, provide routes that suit the user's preferences, such as quickly, cheaply, safely, and efficiently.\n移動体である車のサービスの本質である移動(出発地から目的地まで)の支援を行うための\nサービスを提供する。\n目的地までの行き方はユーザ個々、あるいは利用シーンによって様々であり、状況に応じて\n早く、安く、安心に、効率的になど、ユーザの好みに合った経路を提供する。"
+  },
+  {
+    "heading_text": "2． Main usage scenes　主な利用シーン",
+    "heading_level": 1,
+    "children": [],
+    "content": "(1) When the user sets the destination and goes out.\n(2) When you want to choose from routes with each characteristic such as fast, cheap, safe, and efficient.\n(3) When the user does not travel according to the guide route to the destination.\n(4) When a route different from the user's preference and circumstances is searched, such as a high toll for a route traveling on a toll road.\n(5) When you want to avoid dangerous roads that require driving skills due to complex road configurations.\n(6) There are many things to do in one outing, so when you want to set your destination at once.\n(7) When you want to guide the route that is not caught in the traffic jam.\n(8) When you want to draw a route that avoids seasonal regulations.\n(9) When you want to draw a route that has no borders.\n(10) When you want the route to be drawn to the road that the user always passes.\n▲1.10\n①ユーザが目的地を設定して出かける時。\n②早く、安く、安心に、効率的といったそれぞれの特徴を持つルートの中から選びたい時。\n③ユーザが目的地への案内ルート通りに走行しなかった時。\n④有料道路を走行するルートの通行料金が高いなど、ユーザの好み・事情と異なるルートが探索された時。\n⑤道路構成が複雑で運転技術を要する危険な道路は避けて欲しい時。\n⑥１度の外出でいくつもの用事があるので、１度に目的地を設定したい時。\n⑦渋滞に巻き込まれないルートを案内して欲しい時。\n⑧季節規制を避けるルートを引きたい時。\n⑨国境をまたがないルートを引きたい時。\n⑩ユーザがいつも通る道路にルートを引いて欲しい時。"
+  },
+  {
+    "heading_text": "3． Service Content　サービス内容",
+    "heading_level": 1,
+    "children": [],
+    "content": "The service contents of the search function and the main usage scene of each service are shown below.\n以下に探索機能のサービス内容と各サービスの主な利用シーンを示す。\n[START_TABLE_CONTENT] | No | Service type |  |  |  |  |  |  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | Service type | ① | ② | ③ | ④ | ⑤ | ⑥ | ⑦ | ⑧ | ⑨ | ⑩ |  |\n| 1 | Initial discovery service. 初期探索サービス | ○ | ○ |  | ○ |  | ○ | ○ | ○ | ○ | ○ |  |\n| 2 | Reroute Service. リルートサービス |  |  | ○ |  |  |  |  |  | ○ | ○ |  |\n| 3 | Detour area consideration search service. 迂回エリア考慮探索サービス |  |  |  |  | ○ |  |  |  |  |  |  |\n| 4 | Learning route search. 学習ルート探索 | ○ |  |  |  |  |  |  |  |  |  |  |\n| 5 | Stopover setting (number of settings) service. 経由地設定(設定数)サービス | ○ |  |  |  |  |  | ○ | ○ |  |  |  |\n| 6 | Traffic jam consideration search service. 渋滞考慮探索サービス |  |  |  |  |  |  |  | ○ |  |  |  |\n| 7 | SALIK Information Service. SALIK案内サービス | ○ |  |  |  |  |  |  |  |  |  |  |\n| 8 | e-toll guidance service. e-toll案内サービス | ○ |  |  |  |  |  |  |  |  |  |  |\n| 9 | Rodizio Announcement View. Rodizioお知らせ表示 | ○ |  |  |  |  |  |  |  |  |  |  |\n| 10 | ERP Warning Service. ERP警告サービス | ○ |  |  |  |  |  |  |  |  |  |  |\n|  | ▲1.10 |  |  |  |  |  |  |  |  |  |  |  |\n| 12 | HOV/HOT ▲1.10 Route Service. HOV/HOTルートサービス | 〇 | 〇 |  |  |  |  |  |  |  |  |  |\n| 13 | Co2 Minimum Route Service. Co2ミニマムルートサービス | 〇 | 〇 |  |  |  |  |  |  |  |  |  |\n| 14 | Predictive/Preferred Route Learning Service ▲1.10. ルート予測/学習サービス | ○ |  |  |  |  |  |  |  |  | ○ |  | [END_TABLE_CONTENT]\n\n(1) Initial search service\nThe way to the destination varies depending on the user or the usage scene, and depending on the situation\nProvide multiple routes as a general search result, such as fast, cheap, secure, and efficient.\n（１）初期探索サービス\n目的地までの行き方はユーザ個々、あるいは利用シーンによって様々であり、状況に応じて\n早く、安く、安心に、効率的になど、一般的な探索結果として複数の経路を提供する。\n<NA/EU/AU>\nThe way to the destination varies depending on the user, usage scene, or situation.\nProvide 3 optimized routes based on the customer’s current user settings and previous driving history.\nSDK shall contain an API that allows for route server to define route preferences/suggestions on a per user basis.\n(2) Reroute service\nWhen you miss a route in the middle of a guide, such as a difficult intersection, or when the route is intentionally missed,\nProvide an alternate route immediately so that you know which route to go.\n（２）リルートサービス\n難交差点など案内中経路を間違えて外れてしまったときや、経路を意図的に外れたときに、\n進むべき経路が分からなくなる為、代替の経路を即座に提供する。\n(3) Search service considering detour areas\nRoads that do not suit the user's preferences, roads that are complex in the structure of roads and require driving skills, etc.\nProvide a means to avoid.\n（３）迂回エリア考慮探索サービス\nユーザの嗜好に合わない道路や道路構成が複雑で運転技術を要する道路などを\n回避するための手段を提供する。\n(4) Learning route search service\nRoute learning is carried out locally, and by regularly uploading the data of route learning results to the center.\n（４）学習ルート探索サービス\nルート学習結果が反映できる場合、ルート学習経路と入れ替えて提供する。\n(5) Stopover setting (Number of settings) Service\nProvide a way to set multiple destinations at the same time when there are many errands on a single outing.\n<JP/ROW>\nIn addition, if there is a road you want to pass, it will also provide a means that can be specified on a road basis.\n（５）経由地設定(設定数)サービス\n1度の外出でいくつもの用事があるときに、同時に複数の目的地を設定できる手段を提供する。\nまた、通りたい道路がある場合は道路単位での指定ができる手段も提供する。\n(6) Traffic jam consideration search service\nTo help you reach your destination faster and avoid the hassle of navigating traffic areas,\nand provide a path that avoids traffic jams that are expected to occur on the route.\n（６）渋滞考慮探索サービス\nより早く目的地に到着できるよう、また、渋滞区間を通る煩わしさを回避できるよう、現在の渋滞\nおよび経路上に発生することが予測される渋滞を避けた経路を提供する。\n(7) SALIK Guidance Service\nIn Dubai, there is a system called \"SALIK\" that charges when you pass through the gate.\nThe SALIK gate may not be noticed, so it provides a service that notifies the user.\n(７) SALIK案内サービス\nドバイ市内には、ゲートを通過すると料金が課金されるシステム\"SALIK\"がある。\nSALIKゲートは気付かない可能性もあるため、ユーザに通知するサービスを提供する。\n(8) e-toll guidance service\nSouth African highways have an \"E-toll\" system that charges when they pass through gates.\nThe E-toll gating may not be aware, so it provides a service that notifies the user.\n(８) e-toll案内サービス\n南アフリカの高速道路には、ゲートを通過すると料金が課金されるシステム\"e-toll\"がある。\ne-tollゲートは気づかない可能性もあるため、ユーザに通知するサービスを提供する。\n(9) Rodizio Notification Display (EnvironmentalZone Message)\nWhen using a road in the Environmental Zone that is subject to entry restriction (Rodizio) on a route, it is possible to make a decision for the user to change the route in advance as necessary by informing that fact at the full route screen.\n(９) Rodizioお知らせ表示（EnvironmentalZoneメッセージ）\nルート上で進入規制（Rodizio）対象であるEnvironmental Zone内の道路を使用している場合、全ルート画面時にその旨を知らせることにより、必要に応じてユーザが事前にルートを変更するための判断ができる。\n(10) ERP Warning Service\nIf the route is using a road in the ERP warning area, inform the user before the start of the invitation.\n(１０)ERP警告サービス\nルートがERP警告区域内の道路を使用している場合、案内開始前にユーザにその旨を知らせる。\n▲1.10\n(12)   HOV/HOT Route Service\n▲1.10\nRoutes are automatically calculated to allow or avoid HOV/HOT lanes based on the # of passengers in the vehicle. ▲1.10\n(12)  HOV/HOT ルートサービス\n自動車の搭乗者番号をもとに、HOV/HOTレーンの利用可否を自動でルート計算する。\n(13)  Co2 Minimum Route Service\nUsing gradient information and traffic jam information possessed by map data, co2 minimum route considering power consumption per link is provided.\n(1３) Co2ミニマムルートサービス\n地図データが持つ勾配情報、渋滞情報を用いてリンク単位で消費電量を考慮したCo2ミニマムルートを提供する。\n<NA/EU/AU>\n(14)  Predictive/Preferred Route Learning Service\nA route learning service that records both route shape preferences and route interval scheduling in order to predict where a user will drive and provide them with routes tailored to their personal preferences. ▲1.10\n(14)  ルート予測/学習サービス\nルート形式とルートスケジューリングを記録し、個人の好みに合わせたルートを提供する。"
+  },
+  {
+    "heading_text": "4． System configuration diagram　システム構成図",
+    "heading_level": 1,
+    "children": [],
+    "content": "[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_4_4ac16c0e.png|4ac16c0e3a252f0e7019f407353a0042 [END_IMAGE_PATH]"
+  },
+  {
+    "heading_text": "5． Operation Overview/HMI Image　動作概要/HMIイメージ",
+    "heading_level": 1,
+    "children": [
+      {
+        "heading_text": "5－1． Initial discovery service 初期探索サービス",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－1－2． Basic operation (normal system)　 基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview　サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "・　The user sets the destination.\n・　Recommended routes to the set destination are displayed.\n・ (For center route target only) Update to the search result from the center.\n・ユーザが目的地設定する。\n・設定された目的地までの推奨ルートが表示される。\n・（センタールート対象仕向けのみ）センターからの探索結果に更新する。\n<JP/ROW>\n・Display up to 3 routes.\n・ Display the total route distance / toll road distance / toll / time required for each of the \"3 routes\" in a list.\n・最大３ルートを表示すること。\n・「3ルート」それぞれの全行程距離／有料道路距離／通行料金／所要時間を一覧で表示する。\n<NA/EU/AU>\n・SDK shall display up to 3 routes that can be determined by the developer.\nHowever, in the center route target direction, the user preference / route learning result is reflected if applicable.\n・\nWhen provided with CVP and the intended destination, a reasonable route must be calculated to the destination.  In this context, a reasonable route is a route shape that a customer would feasibly use with their goals in mind (shortest time, shortest distance, most familiar, etc.)  This should not contain excessive doubling back, U-turns, or in general routes that would otherwise confuse the user. <NA/EU/AU>\nRecommended: A route that balances speed, cheapness, and ease of driving.\nThe basic route for all route re-exploration is the next unexpired destination from your current location or\nSearch the interval to the passing point without any restrictions on the search logic\nThe route that is calculated as the most commonly recommended route.\n▲1.10\n推奨：  早さ、安さ、運転しやすさのバランスをとったルート。\n全ルート再探索での基本ルートとは、現在地から次の未通過の目的地もしくは\n通過点までの区間を、探索ロジック上何の制約も付けずに探索を行い\n最も一般的に推奨できるように算出したルート。\nEarliest:  The route with the earliest estimated arrival time to your destination.\nA route calculated so that travel time from your current location to your destination or transit point is the shortest.\n最早　： 目的地までの到着予想時刻が最も早くなるルート。\n現在地から目的地もしくは通過点までの旅行時間が最短となるように算出したルート。\n▲1.10\nGeneral priority: Routes on general roads\nA route that uses only ordinary roads so as not to pass on toll roads\n一般優先：　　　　一般道路を利用するルート\n有料道路を通らないように一般道路のみを利用したルート\nDistance priority: Routes with as short distances as possible\na route calculated to shorten the road and distance of a driving road as much as possible\n距離優先： 距離がなるべく短くなるルート\n走行道路の道なり距離を出来るだけ短くなるように算出したルート\n▲1.71\nRoute Preferences\nFor the three basic route types, by specifying  User settings items pass through and\ndo not pass to the user's preference\nprovide a suitable route. ▲1.70\n▲1.70\n基本となる３つのルート種別に対して、5－1－4．ユーザ設定項目の項目を通す・通さないを指定することでユーザの好みに\n合ったルートを提供する。▲1.60\n▲1.60"
+              },
+              {
+                "heading_text": "Service requirements　サービス要件",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ The search function receives the request of initial search, and the search conditions selected by the user should be set as the set value.\n・ The search function is to acquire departure point candidates, arrival point candidates, and [transit point candidates <JP/ROW>].\n・ The search function should be searched throughout the route by the recommended route.\n・ The search function should display the recommended route based on Link travel time-based exploration.\nCalculate the cost by taking into account the travel time for each link. If there is no travel time per link, the characteristics of the region,[ such as historical traffic data <NA/EU/AU>].\nRoute Cost tuning is possible in consideration\nFor example, use data that does not match the local driving situation, such as 80 km / h at high speed and 50 km / h on national highways.\nis NG.\n・ Improve accuracy by using the prediction information and probe information of the traffic information provider.\n・ The route that can arrive at the destination the earliest compared to other companies should be realized by the center route.\n・　[other than Japan/Taiwan] the discovery function is destination If there is one, to explore the remaining two routes. ▲7.30（24SU TW CONNECTED(CV)）\n・ for the route to the most recent destination in Japan, please search for three routes including the recommended route<JP/Taiwan>.] ▲7.30（24SU TW CONNECTED(CV)）\n・ If it is available other than the default 3 routes, it is possible to replace the route type by user operation.\n・ The route type of the three routes to be searched by default and the route that the user can select should be as follows.\n・<JP/ROW>The default selection state of the three routes is the recommended initial route in the table below.▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n・探索機能は初期探索の要求を受け、ユーザが選択している探索条件を設定値とすること。\n・探索機能は出発ポイント候補、到着ポイント候補、[通過ポイント候補<JP/ROW>]を取得すること。 ▲1.20\n・探索機能は推奨ルートで全域探索を行うこと。\n・探索機能は推奨ルートを表示させること。\n・リンク旅行時間ベースの探索とすること。\nリンク毎の旅行時間を考慮したコスト計算をすること。リンク毎の旅行時間がない場合は\n[統計的な交通量といった<NA/EU/AU>]地域の特性を\n考慮したコストチューニングが可能なこと ▲1.20\n例えば、高速は一律80km/h、国道は一律50km/h等、現地の走行状況と合わないデータを利用すること\nはNG。\n・交通情報提供元のもつ予測情報やプローブ情報も利用して精度アップを図ること。\n・他社比較で最も早く目的地に到着できるルートはセンタールートにて実現すること。\n・＜日本/台湾以外＞探索機能は目的地が1つの場合、残りの２本の経路を探索すること。\n▲7.30（24SU TW CONNECTED(CV)）\n・<日本/台湾>直近の目的地までの区間については、推奨ルートを含む3本のルートを探索すること。\n▲7.30（24SU TW CONNECTED(CV)）\n・デフォルト３ルート以外に利用可能な場合、ユーザ操作でルート種別の入れ替えができること。▲3.00\n・デフォルトで探索する3本のルート、およびユーザが選択できるルートのルート種別は以下とすること。\n▲3.00\n・<日本、一般地>3ルートのデフォルト選択状態は下表の推奨初期ルートとする。▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n<JP/ROW>▲7.30（24SU TW CONNECTED(CV)）\n[START_TABLE_CONTENT] | Display location. 表示場所 | Japan. 日本 | Japan. 日本 | General location. 一般地 | General location. 一般地 |\n| --- | --- | --- | --- | --- |\n| Display location. 表示場所 | Center Route. センタールート | Local route. ローカルルート | Center Route. センタールート. ※1 | Local route. ローカルルート |\n| Default 3 routes. デフォルト3ルート | Recommendation. 推奨. (推奨初期ルート)▲6.60【24MM(1A)/SU(CV)/CDC(CV)】 | Recommendation. 推奨. (推奨初期ルート)▲6.60【24MM(1A)/SU(CV)/CDC(CV)】 | Recommendation. 推奨 | Recommendation. 推奨 |\n| Default 3 routes. デフォルト3ルート | Time first. 時間優先 | Distance first. 距離優先 | Time first. 時間優先 | Time first. 時間優先. (推奨初期ルート)▲6.60【24MM(1A)/SU(CV)/CDC(CV)】 |\n| Default 3 routes. デフォルト3ルート | General priority. 一般優先 | General priority. 一般優先 | Distance first. 距離優先 | Distance first. 距離優先 |\n| User selection. ※ As a center route, it can be added by distribution. ユーザー選択. ※センタールートとしては配信により追加できる | Recommendation. 推奨 | Recommendation. 推奨 | Recommendation. 推奨 | Recommendation. 推奨 |\n| User selection. ※ As a center route, it can be added by distribution. ユーザー選択. ※センタールートとしては配信により追加できる | Distance first. 距離優先 | Distance first. 距離優先 | Time first. 時間優先 | Time first. 時間優先 |\n| User selection. ※ As a center route, it can be added by distribution. ユーザー選択. ※センタールートとしては配信により追加できる | Time first. 時間優先 | General priority. 一般優先 | Distance first. 距離優先 | Distance first. 距離優先 |\n| User selection. ※ As a center route, it can be added by distribution. ユーザー選択. ※センタールートとしては配信により追加できる |  | Co2 Minimum Route. Co2ミニマムルート. ▲7.30　24SU(CV)/CDC(CV) | Co2Minimum Route. Co2ミニマムルート | Co2Minimum Route. Co2ミニマムルート |\n| User selection. ※ As a center route, it can be added by distribution. ユーザー選択. ※センタールートとしては配信により追加できる | General priority. 一般優先 | - |  | - |\n| User selection. ※ As a center route, it can be added by distribution. ユーザー選択. ※センタールートとしては配信により追加できる | Co2 Minimum Route. Co2ミニマムルート | - |  | - |\n| User selection. ※ As a center route, it can be added by distribution. ユーザー選択. ※センタールートとしては配信により追加できる | Easy to Drive. 運転しやすい　▲3.50 | - |  | - |\n| User selection. ※ As a center route, it can be added by distribution. ユーザー選択. ※センタールートとしては配信により追加できる | - | - |  | - | [END_TABLE_CONTENT]\n\n※１：台湾HYB化に伴い、一般地のセンタールートは台湾仕向のみ有効\nSuggested Route Types: <NA/EU/AU>\n[START_TABLE_CONTENT] | Route Type | SDK can provide route data for these types of routes. |\n| --- | --- |\n| Fastest | SDK can provide route data for these types of routes. |\n| Shortest | SDK can provide route data for these types of routes. |\n| Balanced | SDK can provide route data for these types of routes. |\n| CO2 | SDK can provide route data for these types of routes. | [END_TABLE_CONTENT]\n\n▲1.10\n・ Alternative Routes: <NA/EU/AU>　▲1.20\nThe alternative routes that the user can select from shall follow the following guidelines:\na. Change the pattern or drive type (interstate vs state highway vs arterial)\nb. Change the roads taken for a significant portion of the route (i35 vs DNT)\nc. Offer similar time to current route (within 10 minutes or 25%, whichever is greater)\nd. Offer improved route based on new information (change in traffic conditions)\n▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】\n・ Real time alternate routes shall be displayed on map screen\n・ User can select alternate route by clicking on it/tapping on word balloon\n・ Selected alternate route becomes the active route. Previously active and alternate routes shall remain as alternate routes for the user to select.\n・ User can steer vehicle towards the desired alternate route to change to that route.\n・ Route that user steered the vehicle shall be the active route.\n・ System shall calculate and show alternate routes to reach a destination and User can see 1 candidate route.\n・ ETA difference from the candidate route is displayed by word balloon.\n・ User can see up to 3 candidate routes and see how long time of ETA is different from the highlighted route via word balloon in the map.\n・ Candidate route is the fastest route unless a preferred route exists for this source and destination at the current time of day in which case the preferred route would become first suggested route.\n・ Route 2 and 3 are the optimal routes through different areas or paths. These routes might be 1 – 7 minutes longer as compared to the first route and might add or reduce couple of miles more to reach the destination\no Route 2 is shortest route (distance wise)\no Route 3 is balanced route as compared to route 1 and 2.\n・ If a route contains a waypoint prior to the final destination, alternate routes shall be shown leading to that waypoint, not the final destination. Once the waypoint is reached, alternate routes to the final destination will be calculated and shown (or to next waypoint if multiple waypoints are added as an option in the future).\n・ “Faster Route” banner shall be displayed only when the alternative route is 5 mins or faster than the current route\n・ Alternate routes shall be calculated using the same route logics as those used to calculate 3 routes when the user sets a destination. Real time alternate routes shall use the logics that are not used by the active route. For example, if the active route is calculated based on the fastest route logic, two real time alternate routes shall be calculated based on short and balanced route logic.\n・ If the calculated real time alternate route is duplicate of the active route or exiting alternate route, the route shall not be displayed to the user.\n・ Existing real time alternate route shall be discarded, and new real time alternate route is created when:\no The CVP moved past the point where the alternate route branch off from the active route\no The user steers vehicle towards the alternate route and the alternate route becomes the active route\no The active route has changed due to:\n The user deviated from the main route\n The user changed the navi settings\n The user added/replaced the waypoint, changed order of destination/waypoint, or removed destination/waypoint\n The navi switched to the new route because of road closure\n The user accepted the new route proposed via “Faster route” banner or “Congestion ahead” banner\n・ On the full route screen, the time required for each route should be linked to each route and  the information is available for display for example in a balloon. ▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】\n・　全ルート画面では、すべてのルートについて各ルートの所要時間を各ルートに紐付けること。例えば、吹き出しによって表示できること。▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】\n・ <JP/ROW> ▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】If the search route passes on a toll road, display the fare in the balloon.\n・　<JP/ROW> ▲6.30【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】探索ルートが有料道路を通る場合は、吹出に料金を表示すること。\n・<JP> If there is a route that passes through the toll road in the three routes,\nthe route that does not pass through the toll road will display the word that understands it,\nin addition to the required time.　▲3.00\n・<日本> 3ルート内に有料道路を通るルートがある場合は、有料道路を通らないルートについては、所要時間に加えて、それが分かるように工夫すること\n[START_TABLE_CONTENT] | Case. ケース | Blowout display of the route passing through the toll road. 有料道路を通るルートの吹出しに表示するもの | Blowout display of routes that do not pass through toll roads. 有料道路を通らないルートの吹出しに表示するもの |\n| --- | --- | --- |\n| When there is a route through the toll road in the three routes. 3ルート内に有料道路を通るルートがある場合 | Price. Required time. 料金. 所要時間 | The word that means not go through the toll road. Required time. 有料道路を通らないと分かる文言 |\n| When there is not a route through the toll road in the three routes. 3ルート内に有料道路を通るルートがない場合 | ― | Required time. 所要時間 | [END_TABLE_CONTENT]\n\n・ Display the blowing position on the entire route screen so that it does not cover the current location, destination, or route.\n・ 全ルート画面での吹出位置は、現在地・目的地・ルートに被らないように表示すること。\n・ Update the callout position by scrolling, zooming in and out of the map.\n(If there is no route in the screen, it does not display a balloon.)\n・　地図スクロール・拡大・縮小にて吹出位置を更新すること。(画面内にルートがなければ吹出表示しない。)\n・　Displaying callouts for intervals that have differences between routes.\n・　ルート間で差異の生じている区間に対して吹出を表示すること。\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_5_1c235699.png|1c235699d6235cd13ebaa637e0947777 [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_6_65287304.png|652873042163200a92aaa6edbcc739f9 [END_IMAGE_PATH]\n・ 2 routes other than the selected route should be displayed in a different route color from the selected route.\n・選択ルート以外の2ルートは選択ルートと異なるルート色で表示すること。\n・On the full route screen, you can switch the selected route by touching the route or callout.\n* Do not scroll the map when switching routes with touch (short press).\n・全ルート画面で、ルートまたは吹出しをタッチして、選択ルートが切り替えられること。\n※タッチ(短押し)でのルート切替では地図スクロールしないこと。\n・ <JP/ROW>▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】 You can edit the point to the destination set on the full route screen.\n・　<JP/ROW>▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】 全ルート画面で設定している目的地に対して地点の編集を行えること。\n・Each route must meet the following conditions.\n・各経路は以下の条件を満たすこと。\n< recommended route>\n*Focus on faster arrival times\n* Make bypass easier to pass\n*Get on and off the IC too far and eliminate too many returns\n* In order not to raise the fee unnecessarily, reduce the number of change of trains\n* Ferry route treats as one lane wide on one side\n＜推奨ルート＞\n＊到着時間が早くなる事を重視する\n＊バイパスを通り易くする\n＊ICの乗降は行きすぎ、戻りすぎをなくす\n＊むやみに料金を上げない為、有料道の乗替えを少なくする\n＊フェリー航路は片側1車線広いとして扱う\n< the fastest route>\n*Focus on faster arrival times\n* Reduce travel time variation to ensure more accurate arrival on time\n＜最早ルート＞\n＊到着時間が早くなる事を重視する\n＊より正確に到着時間通り到着できるように、旅行時間のばらつきを少なくする\n< General Priority >　<JP/ROW>\n* Avoid toll roads and give priority to general roads\n＜一般優先＞　<JP> ▲1.20▲3.50\n* 有料道路の通行を避け、一般道路を優先する\n< distance priority>　<JP>\n* Focus on distance\n* Do not pass as much as possible on narrow roads\n＜距離優先＞　<JP>　▲1.20\n＊距離を重視する\n＊幅員の狭い道路はできるだけ通らない\n▲1.70\n・ Explore routes in consideration of local driving rules and customs.\n・地域特有の走行ルールや慣習を考慮してルートを探索すること。\nVietnam: There are roads where the main line and side roads (for entering facilities facing the road) run side by side. Do not explore the route you go through because there is a local custom of using side roads only when turning right and entering the facility.\nベトナム：本線と側道（道路へ面した施設への進入用）が並走する道路が存在する。右折時と施設進入時のみ側道を使用する現地の慣習がある為、経由するルートを探索しないこと。\nTaiwan: There is a double roundabout consisting of inner/outer rings, a carriageway/ arrogant road, so please guide in accordance with local customs.\n台湾：内輪/外輪、快車道/慢車道で構成される二重のラウンドアバウトが存在する為、現地の慣習に沿った案内をすること。\n* In addition to the above, if there are driving rules and customs that should be considered in regional route search, please search for routes that take into account.\n※上記以外にも地域特有の経路探索で考慮すべき走行ルールや慣習が存在する場合は、考慮したルート探索を行うこと。\n・ General land direction for Taiwan: Content provider (e.g., if toll road information is recorded in the map DB (e.g. Taiwan's E-Tag) is to display the toll of the route you explored. Tolls are displayed in each country's currency.\n・一般地仕向：コンテンツプロバイダ(例：地図DBに有料道路情報が収録されている場合(例：台湾のE-Tag)は、探索したルートの通行料金を表示すること。通行料金は各国の通貨をそれぞれ表示する。▲3.00\n< Common route >\n<各種ルート共通>\n・< Other than Japan >,4 WAY STOP route that takes into account the\nHowever, the above three types of route concepts should be maintained.\n(As a result of bypassing the pause,\nThe time required increases extremely or goes around extremely. There is no such thing.)\nThe search cost for the route should be able to be tuned for each of the three types of routes.\n・＜日本以外＞一時停止線、4 WAY STOPを考慮したルートを提供できること。\nただし、上記3種類のルートコンセプトは維持すること。(一時停止を迂回した結果、\n所要時間が極端に増加したり、極端に遠回りする。などが無きこと。)\n経路にかかる探索コストは3種類のルート各々でチューニング可能とすること。\n・ If you are receiving traffic information, consider it.\n・交通情報を受信している場合は考慮する。\n・ Short- and long-term time-constrained traffic regulations are automatically determined by the system whether or not the restricted section can be passed,\nprovide a route. (User settings are deprecated.)\nEven after the start of the guide, periodically check whether traffic restrictions with short- to long-term and long-term restrictions are acceptable.\nIf it is judged that the traffic restriction which was passable is immutable over time, or it is not possible to pass\nIf it is determined that traffic restrictions are passable, switch to a path that can be passed.\n・短期・長期の時間的制約のある交通規制は規制区間の通行可否をシステムが自動的に判断し、\n経路を提供すること。(ユーザ設定は廃止する。)\n案内開始後も短期・長期の時間的制約のある交通規制が通行可否を定期的にチェックすること。\n時間経過に伴い、通行可能であった交通規制が通行不可と判断した場合、または、通行不可であった\n交通規制が通行可能と判断した場合は、通行可能な経路に切替えること。\n・ Parameters such as the search cost of each route must be able to be tuned for each destination.\n・各ルートの探索コストなどのパラメータは、仕向け毎にチューニング可能とすること。\n▲1.20\n・<EU>　SDK contains an API that allows for Vehicle Emissions information to be shared between the Vehicle’s Powertrain ECU and SDK. This emission information will be used for determining if the vehicle is LEZ (Low Emission Zone) compliant or not.\nWhen vehicle is not compliant to enter LEZ, route shall be drawn to avoid entering the LEZ.\n・< Japan >Be able to provide routes that take into account pause lines and level crossings.\nHowever, the above three types of route concepts should be maintained. (As a result of bypassing the pause, the time required increases extremely or goes around extremely.) There is no such thing.)\nThe search cost for the route should be able to be tuned for each of the three types of routes.\n・＜日本＞一時停止線、踏切を考慮したルートを提供できること。\nただし、上記３種類のルートコンセプトは維持すること。(一時停止を迂回した結果、所要時間が極端に増加したり、極端に遠回りする。などが無きこと。)\n経路にかかる探索コストは３種類のルート各々でチューニング可能とすること。\n・ < Japan >Rates for each rate system (distance fee system, sector fee, uniform rate) and time zone tolls > route that reflects the (Be able to provide a route with a travel time and mileage that is suitable for the actual toll.) For example, calculating the search cost for a sector of the pay-as-you-go fee at the same value uniformly regardless of the actual tolling。 In addition, it is possible to display the fare in consideration of the toll by time zone. ）\nHowever, the above three types of route concepts should be maintained. (For example, the earliest route can provide a route that arrives early regardless of the toll.)\nThe search cost for the route should be able to be tuned for each of the three types of routes.\n・＜日本＞各料金体系（対距離料金制、区間料金、均一料金）の料金および時間帯別通行料金(※)を反映したルートを提供できること。（実際の通行料金に見合った所要時間、走行距離のルートを提供できること。例えば、従量料金の区間に対してかける探索コストを実際の通行料金に依らず一律同じ値で計算するのはNG。また、時間帯別通行料金を考慮した料金表示を行えること。）\nただし、上記３種類のルートコンセプトは維持すること。（例えば、最早ルートでは通行料金に依らず早く着くルートを提供できること。）\n経路にかかる探索コストは3種類のルート各々でチューニング可能とすること。\n【Example of a route that does not meet the toll]\n【通行料金に見合わないルートの例】\nIn the case of the recommended route, if you compare the route (1) and (2), you will pay 1310 yen to arrive 3 minutes early.\n推奨ルートの場合においてルート①と②を比較すると、3分早く着くために1310円を支払うことになる。\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_7_6322d3a9.png|6322d3a97aac3fc0506bdd6f02108d7c [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_8_290858b9.png|290858b93eb78e447911541382af594b [END_IMAGE_PATH]\n・<Common> arrival point generally be on ordinary roads. provided, however, that it provides a means by which the user can choose to arrive on the highway.\n・＜共通＞ 到着地点は原則として一般道上とする。ただし、高速道路に到着することをユーザが選択できる手段を提供すること。\n・<Common> When searching for routes using statistical traffic information, consider not only weekdays, Saturdays, Sundays, and holidays, but also consecutive holidays such as The Third Day of the New Year and Silver Week.\n・＜共通＞ 統計交通情報を使ったルート探索では、平日・土日・祝日だけでなく、正月三が日やシルバーウィークといった連休期間も考慮すること。\n・ <Common> if there are multiple roads adjacent to the destination, give priority to the main road. However, if there is a narrow street between the destination and the main road, please guide it to the narrow street.\n・＜共通＞ 目的地に隣接する道路が複数存在する場合には幹線道路を優先的に案内すること。ただし、目的地と幹線道路の間に細街路が存在する場合は細街路へ案内すること。\n【Example of NG】    【OK example】\n【NGの例】    【OKの例】\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_9_2f5bf9e4.png|2f5bf9e44a8a0c5370d5709b591a82b1 [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_10_a5882214.png|a5882214362f057d06461a9a2bdb7e2e [END_IMAGE_PATH]\n[Routing must only complete at a destination where it could be appropriate to park the vehicle<NA/EU/AU>.]\n・ <Common> If there is no traffic jam on> the main line and it is possible to pass, guide the route through the main line instead of the side road.\n・＜共通＞ 本線に渋滞が無く通行可能な場合、側道ではなく本線を通るルートを案内すること。\n・<Common> Do not guide the route to get on and off toll roads in a short section.\nHowever, unless there are advantages to getting on and off, such as traffic restrictions and avoiding traffic jams, there are users.\n・＜共通＞ 短区間で有料道路を乗り降りするルートを案内しないこと。\nただし、通行規制や交通渋滞の回避といった乗り降りするメリットがユーザにある場合を除く。\n[SDK shall contain an API that allows developer to tune the threshold for when a route segment is avoided by means of getting off/on highways/tolls roads<NA/EU/AU>.]\n【NG Route】     【Expected Route】\n【NGのルート】    【期待ルート】\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_11_e039d778.png|e039d778df173b32e5fcad123ae56aae [END_IMAGE_PATH]\n　　　　　\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_12_70239c02.png|70239c022ce9fd9f06fbcba271430202 [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_13_db2e7a3b.png|db2e7a3bf2355821297735a060f4dfb9 [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_14_7b0d248e.png|7b0d248e9e54603d09676b0dfdbeae62 [END_IMAGE_PATH]\n・<Common> Do not draw a roundabout route that does not have merit or does not convey intention when searching for routes that take into account traffic information.\n・＜共通＞交通情報を考慮したルート探索において、ユーザにメリットが無い、または意図が伝わらない遠回りルートを引かないこと。\n【Example of NG】Considering the traffic jam information on the main line, we guide the route to get off and board the same IC\n【NGの例】本線上の渋滞情報を考慮した結果、同じICを降り乗りするルートを案内している\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_15_46807d54.png|46807d54e3dfb759f1e8e820fb3f0e88 [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_16_901e8ec9.png|901e8ec9c479fd9051dd1617ae73c4b1 [END_IMAGE_PATH]\n・<Common>　Even if  main line is congested Do not guide the route that passes through SAPA and returns to the main line. However, unless it is necessary to pass through the SAPA, such as a main line road closure or a SAPA set a stop.\n・＜共通＞ 本線が渋滞していてもSAPA内を通過して本線へ戻るルートは案内しないこと。ただし、本線の通行止めやSAPAが経由地設定されているなどSAPA内を通過する必要がある場合を除く。\n・< JP/ROW> provide a route that can be sideways and entered destinations.\n・＜日本/一般地＞目的地に対して横付け、進入できるルートを提供すること。\n・ <NA/EU/AU>Route does not end when additional turns to the left/right from main road still need to be taken.　▲1.20\n【Example of NG】 The destination is set on the opposite side across the median, and the guide ends without being able to reach the destination\n【NGの例】中央分離帯を挟んで逆側に目的地が設定されており、目的地まで到着できずに案内が終了\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_17_58b00faf.png|58b00fafadd7f75f9bd38dc12c81c33c [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_18_a8736381.png|a8736381aa8587ecbb589671a46f6113 [END_IMAGE_PATH]\n【OK example】Horizontally to the destination, the guidance ends where you can enter\n【OKの例】目的地に横付け、進入できるところで案内が終了\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_19_d0b67c14.png|d0b67c145311860002be385628ee135b [END_IMAGE_PATH]\n　\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_20_1194ab81.png|1194ab814b80b197aaa88820afdb9fdd [END_IMAGE_PATH]\n・ <Common> route that transfers route (a route that diverge from the main line → join the main line),\nThe difficulty of transferring routes (such as the number of lane changes required for transfer and the distance of sections that can change lanes) is reflected in the search cost and proposes a route that is fast and easy to run.\nHowever, if there are legal or physical regulations, do not propose regardless of ease of running.\n・＜共通＞ 路線を乗り換えるルート（本線への合流→本線から分岐するルート）では、\n路線乗り換えの難しさ（乗り換えに要する車線変更の回数と車線変更できる区間距離など）を探索コストに反映し、早くて走りやすいルートを提案すること。\nただし、法的・物理的な規制が存在している場合には走りやすさに依らず提案しないこと。\nExample) Image of search cost of route transfer\n例）路線乗り換えの探索コストのイメージ\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_21_e9266dbc.png|e9266dbc22499100c9b98cb4e1fbd804 [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_22_86042cf2.png|86042cf2f88639d7c6789102b8743adc [END_IMAGE_PATH]\n【Example of NG】 Even though there is a faster route that can run, the distance between the confluence → branches are below the threshold value, so that it is not guided at all.\n【NGの例】走行可能でより早いルートがあるにも関わらず、合流→分岐間の距離が閾値以下であるために一切案内されない。\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_23_60c8bac1.jpeg|60c8bac1f0122980a981fbf0e64b0ab2 [END_IMAGE_PATH]\n【Expected route】\n【期待ルート】\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_24_23d2f813.jpeg|23d2f813059a005eeed17781304d1ca1 [END_IMAGE_PATH]\n・ <Common> From other navigation functions such as sound recognition and agents Destination settings There was a request foredge\nBe able to provide the same route and guidance as when searching by navigation (consider arrival points)\n・＜共通＞ 音認やエージェントなどナビ機能以外から目的地設定の要求があった際、\nナビで検索したときと同様のルート・案内ができること（到着点を考慮すること）\n・<Common> Arrival points must be the same regardless of the type of search\n* However, cases where the optimal arrival point is selected due to the following use cases are also acceptable ▲3.00\n・＜共通＞ 探索種別によらず到着点は同一となること\n※ただし下記ユースケースの違いにより最適な到着点を選定するケースも許容する ▲3.00\n[START_TABLE_CONTENT] | Use cases (examples) | Behavior of arrival point determination |\n| --- | --- |\n| Destination setting by facility designation. (POI icon designation / facility entrance and exit consideration, etc.). 施設指定による目的地設定. (POIアイコン指定/施設出入口考慮など) | Content (DB/External CP, etc.). Facility coordinate accuracy (such as registered destinations and pinpoints) granted for each facility and. The arrival point is determined taking into account the arrival link/ guide coordinates / display coordinates. In addition, when deciding the arrival point, the following arrival point will be selected. 【When using arrival link]. All arrival points must be the same regardless of the type of initial search. 【When using guide coordinates / display coordinates]. Select the best arrival point according to the concept of the route type. コンテンツ(DB/外部CPなど)に整備されている. 施設ごとに付与された施設座標精度(登録目的地やピンポイントなど)や. 到着リンク／案内座標／表示座標を考慮して到着点を決定する。. なお、到着点決定に際しては、下記の到着点選定となること。. 【到着リンクを使用する場合】. 初期探索の種別によらずすべて同一の到着点となること。. 【案内座標／表示座標を使用する場合】. ルート種別のコンセプトに応じて最適な到着点を選定すること。 |\n| Destination settings from the map. 地図上からの目的地設定 | Use display coordinates and depending on the concept of the route type. Select the best arrival point. 表示座標を使用し、ルート種別のコンセプトに応じて最適な到着点を選定すること。 | [END_TABLE_CONTENT]\n"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－1－3． Requirements for HMI specifications　 HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": "・<JP/ROW> ▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】\nOn the full route screen, the time required for each route is linked to each route and displayed with a balloon for all routes if information is available.\n・<JP/ROW> ▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】\n全ルート画面では、すべてのルートについて各ルートの所要時間を各ルートに紐付けて吹出で表示する。\n・<JP/ROW> ▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】 \nIf the search route passes on a toll road, display the fare in the balloon.\n・<JP/ROW> ▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】\n探索ルートが有料道路を通る場合は、吹出に料金を表示する。\n・Users can select the route type by touching the balloon or route according to their preference.\n・ユーザは好みに応じて吹出しまたはルートをタッチすることでルート種別を選択出来る。\n・Users can select the event they want to bypass during search according to their preference.\n・ユーザは好みに応じて、探索時に迂回したい事象を選択することが出来る。\n・If you cannot search for Freeway Avoid, notify the that the route avoiding Freeway cannot be searched.\n・FreeWay Avoidの探索ができない場合はFreewayを避ける経路が探索できない旨の通知をすること。\n・ Unsealed roads, when searching for a route through 4WD tracks, display it so that the user can understand that (Middle East, South Africa direction, and Australia only)▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】\n・Unsealed roads, 4WD tracksを通る経路を探索した場合、その旨をユーザがわかるように表示すること（中近東、南アフリカ、オーストラリア仕向のみ）▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】\n▲1.10\n・ When the user selects a route type other than the default 3 routes, if it is not possible to search by the route type, Notify them and explore on recommended routes\n・デフォルト3ルート以外のルート種別をユーザが選択した場合において、そのルート種別で探索できない場合は\nその旨を通知し、推奨ルートで探索すること\n・ <NA/EU/AU>On the route details screen, the representative road name is displayed for each suggested route to the destination .▲1.20\n▲1.20\n・ <NA/EU/AU>User can see the following types of road in each route ▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】\n・ HOV\n・ Highway\n・ Tollway\n・ Seasonal Road\n・ Ferry\n・ Border Crossing"
+          },
+          {
+            "heading_text": "5－1－4． User settings items　ユーザ設定項目",
+            "heading_level": 3,
+            "children": [],
+            "content": "Route Preferences: by specifying the following items to pass through and do not pass to the user's preference, provide a suitable route.\nSDK must allow which route settings are shown to user.\nSome settings might not be shown but could be configured programmatically.\nWhen setting a route, the following route configuration options must be available to the developer, and may be made available to end user:\n▲1.60▲7.30（24SU/CDC：CV）\n[START_TABLE_CONTENT] | setting items | JP | US | EU | AU | 東南ア | インド | 中近東 | 南米 | 南ア | 台湾 | 香港・澳門 |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| Avoid freeways/highways. 高速道路回避 | － | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 |\n| Avoid toll roads. 有料道路回避 | － | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 |\n| Avoid seasonal roads. 季節規制回避 | 〇 | － | － | － | － | － | － | － | － | － | － |\n| Avoid ferries. フェリー回避 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 | 〇 |\n| ETC Only Ics. スマートIC回避 | 〇 | - | - | - | - | - | - | - | - | - | - |\n| Avoid border crossings | - | 〇 | 〇 | - | 〇 | - | 〇 | 〇 | 〇 | - | - |\n| Avoid unsealed roads | - | - | - | 〇 | - | - | 〇 | - | 〇 | - | - |\n| Avoid 4WD tracks | - | - | - | 〇 | - | - | 〇 | - | 〇 | - | - |\n| Avoid narrow roads. 細い道を回避 | 〇 | - | - | - | - | - | - | - | - | - | - |\n| (▲3.10) |  |  |  |  |  |  |  |  |  |  |  |\n| Avoid HOV/HOT Lanes | - | 〇 | 〇 | 〇 | - | - | - | - | - | - | - |\n| Avoid LEZ/U-LEZ | - | - | 〇 | - | - | - | - | - | - | - | - | [END_TABLE_CONTENT]\n\n▲1.60\n・ Route settings shall be applied to all the scenarios (Initial routing, re-routing, real time alternate route etc.)\n・ When route setting is set avoid = OFF, the route may include the corresponding road\n・ Route may include the corresponding road. For example, if the user set “avoid highway = OFF”, the route taking highway may be suggested to the user.\n・ When route setting is set avoid = ON, the route shall avoid the corresponding road\n・ Route shall avoid taking the corresponding road as much as possible.\n・ If the only route is to take the corresponding road, the route may take the corresponding road. For example, if the user set “avoid border crossing = ON” and set the destination abroad, the route with border crossing may be suggested to the user.\n・ When the route containing the road that the user set “avoid = ON” is suggested to the user:\n・ Route setting - Toll: “Route has a toll” modal shall be displayed to the user.\n・ Route setting – Otherwise: no ONS is displayed to the user"
+          },
+          {
+            "heading_text": "5－1－5． Exception operation (abnormal system)　 例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ On the full route screen, if the same route is already the target of displaying the full route screen, it is not eligible, and different routes are displayed.\nWhen displaying multiple routes, it is possible to tune which conditions the route of which route is displayed.\nHowever, this does not include the fact that there are only two or fewer routes to explore all route types.\nFor the same route, the display priority should be the order of the recommended route> > the earliest route > general priority. (High priority from left)\n・全ルート画面では、同じルートが既に全ルート画面の表示対象の場合は対象外とし、異なるルートを表示させること。\n複数ルート表示の際に、どの条件のルートを3ルート表示するかについてはチューニング可能とすること。\nただし、全てのルート種別を探索しても2種類以下のルートしかない場合はこの限りではない。\n同じルートの場合の表示優先度は、推奨ルート＞最早ルート＞一般優先の順とすること。(左から優先度高)\n・ If the destination is set at a predetermined distance or more at a straight line distance from the current location, notify the fact that the destination is too far and do not conduct search.\n・現在地から直線距離で所定以上の遠方に目的地を設定した場合、目的地が遠すぎる旨の通知を行い、探索を実施しない。\n・ If a destination is set in a predetermined or less neighborhood at a straight line distance from the current location, notify the fact that the destination is too close and do not conduct search.\n・現在地から直線距離で所定以下の近隣に目的地を設定した場合、目的地が近すぎる旨の通知を行い、探索を実施しない。\n・ If offline or outside the cache area fails to search due to a factor, notify the fact.\nIn addition, when notifying by failure, it is an expression that understands the user action.\n・オフライン、キャッシュエリア外が要因で探索失敗した場合は、その旨を通知すること。\nなお、失敗による通知に際しては、ユーザアクションがわかる表現すること。 ▲3.00\n[START_TABLE_CONTENT] | Failure factors. 失敗要因 | Display example. 表示例 |\n| --- | --- |\n| Offline & Out of Cash Area. (Neither the center nor the local can explore). オフライン&キャッシュエリア外. (センターもローカルも探索できない) | The discovery failed because it was offline. Make sure you have a communication connection. オフラインのため探索に失敗しました。. 通信接続ができているかご確認ください。 |\n| Wrong origin/destination coordinates. 出発地／目的地の座標が異常 | Failed to explore the specified origin/destination. Please set your origin/destination again. 指定された出発地／目的地の探索に失敗しました。. 出発地／目的地を再度設定してください。 |\n| Origin/destination coordinates too close (too far). 出発地／目的地の座標が近すぎる(遠すぎる) | Because the specified departure/destination is close (far). The search failed. Please set your origin/destination again. 指定された出発地／目的地が近い(遠い)のため. 探索に失敗しました。. 出発地／目的地を再度設定してください。 |\n| The specified search type does not exist. #When to explore again on the recommended route. 指定した探索種別が存在しない. ＃推奨ルートで再度探索するとき | Search failed for the specified search type. Explore again. please wait for a while. 指定された探索種別で探索失敗しました。. 再度探索します。しばらくお待ちください。 |\n| The specified search type does not exist. #When you re-explore on the recommended route but fail. 指定した探索種別が存在しない. #推奨ルートで再探索したが失敗したとき | The specified search type is currently unavailable. 指定された探索種別は、現在ご利用いただけません。 |\n| HU receives invalid route data from server <NA/EU/AU> | Route does not match road network |\n| Navigation server fails to service the route request <NA/EU/AU> | Popup notification is given to inform customer |\n| HU times out waiting for Navigation Server Response <NA/EU/AU> | Popup notification is given to inform customer |\n| Navigation on HU fails to service the Route request <NA/EU/AU> | Popup notification is given to inform customer | [END_TABLE_CONTENT]\n\n・ If you need a U-turn, suggest a U-turn point that is easy to make and can arrive early. In addition, in consideration of regulations and road width, we propose a point where U-turn can be made legally and physically. However, it is not to actively provide a U-turn route unless necessary.\n・Uターンが必要な場合はUターンしやすいかつ早く到着できるUターン地点を提案すること。また、規制や道路幅を考慮し法的にも物理的にもUターン可能な地点を提案すること。ただし、Uターンするルートを積極的に提供するということではない。\n・ Consider when U-turn regulation information can be obtained from map vendors\nExample NG) Guide a route to U-turn on roads with few lanes and difficult to make A-turn\n・地図ベンダからUターン規制情報が取得できる場合は考慮すること\nNG例）車線数が少なく、Uターンしづらい道路でUターンするルートを案内\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_25_a232e640.png|a232e6405cfb77ac073d2cc432cd5422 [END_IMAGE_PATH]\n▲1.10\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_26_070b63d2.jpeg|070b63d263bc048ccf3c28d6e1a6a5e0 [END_IMAGE_PATH]\n     \n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_27_e308cee1.jpeg|e308cee14144670c60fb8f0ffce5a560 [END_IMAGE_PATH]\n▲1.10"
+          },
+          {
+            "heading_text": "5－1－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－1-1 Destination Transfer Service",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－1-1－2． Basic operation (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "SDK shall contain an API that allows routing system to handle navigation requests from multiple sources deemed by TMNA."
+              },
+              {
+                "heading_text": "Service requirements",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ Routing system shall handle navigation requests from VA (Voice/Virtual Assistant).\n・ Routing system shall handle navigation requests from DA (Destination Assist).\n Navi system shall calculate the route for the received POI from DA.\n User shall see route options on Head unit.\n If user is already in active navigation, they are given the option to add/replace a waypoint, or start a new route to that POI. ▲1.10\n Waypoints can be added to route by using any supported search method, including category search (quick links). ▲1.70\n・ Routing system shall handle navigation requests from SDK Smartphone Navigation App.\n・ Routing system shall handle navigation requests from within SDK or any outside source deemed by Toyota. (including all waypoints for the route).\n・ Any route that has been calculated on HU can be sent to SDK Smartphone Navigation App or any other external Smartphone Navigation App deemed by Toyota. (including all waypoints for the route).\n・ Any route that is sent between HS and HU shall remain as the same planned route with same waypoints after it has been transferred to the other source."
+              }
+            ]
+          },
+          {
+            "heading_text": "5－1-1－3． Requirements for HMI specifications",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－1-1－4． User settings items",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－1-1－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－1-1－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－1-2 ETA/Location Sharing Service",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－1-2－2． Basic operation (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "SDK shall contain an API that allows routing system to share CVP location and/or Route ETA to multiple sources deemed by TMNA.\nSDK shall contain an API that allows for route progress to be automatically sent to multiple sources deemed by TMNA (i.e., changes in CVP location or changes in ETA)."
+              },
+              {
+                "heading_text": "Service requirements",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ CVP location on HU can be sent to SDK Smartphone Navigation App or any other external Smartphone Navigation App deemed by Toyota.\n・ ETA for route calculated on HU can be shared to any external Smartphone Navigation App deemed by Toyota.\n・ User can share current location/ETA to contact by SMS\nInterface\nAt least, each interface must have the following elements.\nOnly specific interface for this function is described. (All interfaces are not described.)\n[START_TABLE_CONTENT] | Interface | From | To | Elements |\n| --- | --- | --- | --- |\n| A. Request sending SMS | HU | Smartphone | - Contact. - Current location(text) | [END_TABLE_CONTENT]\n\n・ Destination and ETA information is shared with selected contact(s) via SMS. When a waypoint exists on the route, pressing the Share ETA button should share the ETA to the final destination but mention that it is a multi-stop trip and list the waypoint. Recipient selection in contact list is retained for next share location or ETA until the user turns ACC OFF or phone gets disconnected. Recipient selection status should be shared between share location and share ETA.\nInterface\nAt least, each interface must have the following elements.\nOnly specific interface for this function is described. (All interfaces are not described.)\n[START_TABLE_CONTENT] | Interface | From | To | Elements |\n| --- | --- | --- | --- |\n| A. Request sending SMS | HU | Smartphone | - Contact. - ETA info and Destination(text) | [END_TABLE_CONTENT]\n\no ▲1.60"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－1-2－3． Requirements for HMI specifications",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－1-2－4． User settings items",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－1-2－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－1-2－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－1-3 Business Hours Display Service",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－1-3－2． Basic operation (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "SDK shall contain an API that allows routing system to detect the business hours for a POI that is routed to."
+              },
+              {
+                "heading_text": "Service requirements",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ System will notify that a POI is “closing soon” when beginning or modifying a route. A POI is categorized a “closing soon” when the system calculates that the difference between closing time and ETA is within 60 minutes (configurable).\n・ In a multi-stop route, if both waypoint and final destination meet the condition to provide notification of business hours of POI (closing soon, currently closed, or permanently closed), show the notification for the waypoint first, then show the notification for the final destination."
+              }
+            ]
+          },
+          {
+            "heading_text": "5－1-3－3． Requirements for HMI specifications",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－1-3－4． User settings items",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－1-3－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－1-3－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－2． Reroute Service　リルートサービス",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－2－2． Basic operation (normal system)　 基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview　サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "< Auto Reroute >\nLeave the route the user is guiding, even through ACC off/on cycle, until the user ends the route manually or user arrives at destination.▲1.60\nThe route from the point where it left is displayed on the screen.\n＜オートリルート＞\n・ユーザが案内中の経路を離脱する。\n・ユーザがルート削除するか目的地に到着するまではACC OFFONしても案内中の経路をキープする。▲1.20▲1.60\n・画面上に離脱した地点からの経路が表示される。\n< manual re-exploring>\nChange the type of route the user is driving to any route type.\nThe system explores the route locally with the changed search type.\nAt the same time, request route exploration from the center.\nResume the guide on a new route.\n▲4.30\n＜手動再探索＞\n・ユーザが走行中のルートの種類を任意のルート種別に変更する。\n・システムは変更された探索種別でローカルにてルートを探索する。\n同時に、センターにルート探索を要求する。\n・新しいルートで案内を再開する。\n▲4.30"
+              },
+              {
+                "heading_text": "Service requirements　サービス要件",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ The search function determines whether the autoreroute start condition has been established.\n・ The search function is to select a candidate for a departure point.\nThe search function is to perform the search.\n・ The search function should continue to display existing routes if they are searching.\nHowever,when search type change section by manual the display of the existing route must be erased ▲1.70\n・ The search function is to erase the display of the existing route after the search is completed.\nThe search function outputs the route calculation result.\n▲1.70\n▲1.10\n・探索機能はオートリルート起動条件が成立しているか判断すること。\n・探索機能は出発ポイント候補の選定を行うこと。\n・探索機能は探索を実行すること。\n・探索機能は探索中であれば既存経路の表示を継続させること。\nただし、手動探索時は既存経路の表示を消去させること。▲1.70\n・探索機能は探索終了後、既存経路の表示を消去させること。\n・探索機能は経路計算結果を出力すること。\n・\n▲1.70\n▲1.20\n・<NA/EU/AU>Alternate route shown on map is able to become the active route by driving into it, regardless of the width of angle from the original route.\n-Alternate route shown on map is able to become the active route by tapping on it."
+              }
+            ]
+          },
+          {
+            "heading_text": "5－2－3． Requirements for HMI specifications　 HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": "< manual re-exploring>\n・ After notifying when receiving a route from the center, replace it with a new route.\n＜手動再探索＞\n・センターからのルート受信時に通知後、新しいルートに入れ替える。"
+          },
+          {
+            "heading_text": "5－2－4． User settings items",
+            "heading_level": 3,
+            "children": [],
+            "content": "<NA/EU/AU>\nRoute shall be recalculated after a route settings item is changed during an active route."
+          },
+          {
+            "heading_text": "5－2－5． Exception operation (abnormal system)　 例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ If the version of the data changes due to the replacement of the map media, re-search.\n・ Start rerouting even on IPD roads. Provide audio notices about ipd when rerouting.\n・ In the event that route was calculated while HU is Offline, the route shall be recalculated when the HU comes back online.\n・地図メディアの入れ替えによりデータのバージョンに変化が出た場合、再探索を行うこと。\n・IPD道路上でもリルートを起動すること。リルート時にIPDに関する注意を音声で案内すること。\n・オフラインで再探索した場合は、オンラインになった時点で再度リルートすること。"
+          },
+          {
+            "heading_text": "5－2－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－3． Detour area consideration search service　迂回エリア考慮探索サービス",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－3－2． Basic operation (normal system)　 基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview　サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "・Users register detour memory points\n・The route that avoided the detour area is displayed.\n・ユーザは迂回メモリ地点を登録する\n・迂回エリアを回避した経路を表示される。"
+              },
+              {
+                "heading_text": "Service requirements　サービス要件",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ The search function allows the detour area setting screen to be displayed.\n・ The search function reads link information in the detour area from storage media (map DB).\n・ The search function is to search for links in the detour area from the link information.\n・ The search function is to register the searched link ID as a bypass link.\n・ The search function allows the detour area and detour point to be displayed on a map.\n・ Check whether the search function has a detour area / point set.\n・ The search function costs to avoid the detour area / point specified by the user.\n・探索機能は迂回エリア設定画面を表示させること。\n・探索機能は迂回エリア内のリンク情報をストレージメディア(地図DB)から読み込むこと。\n・探索機能はリンク情報から迂回エリア内のリンクを検索すること。\n・探索機能は検索されたリンクIDを迂回リンクとして登録すること。\n・探索機能は迂回エリアと迂回ポイントを地図表示させること。\n・探索機能は迂回エリア／ポイントが設定されているか確認すること。\n・探索機能はユーザにより指定された迂回エリア／ポイントを回避するようにコスト付けを行うこと。"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－3－3． Requirements for HMI specifications　 HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": "・<JP/ROW> ▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】Users select the area they want to detour with a point or rectangle  area according to their preference　▲1.60\n・<JP/ROW> ▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】 Map displayed in a special color to make the detour area easier to understand.\n・<JP/ROW> ▲6.30 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】 ユーザは迂回したいエリアを嗜好に合わせてポイントまたは矩形で選択する\n・<JP/ROW> ▲6.30【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】 迂回エリアを分かりやすくするため専用色で地図表示される"
+          },
+          {
+            "heading_text": "5－3－4． User settings items　ユーザ設定項目",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          },
+          {
+            "heading_text": "5－3－5． Exception operation (abnormal system)　 例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "▲1.70"
+          },
+          {
+            "heading_text": "5－3－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－3-2． Severe Weather Consideration Service(▲3.10)",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－3-2－2． Basic operation (normal system) (▲3.10)",
+            "heading_level": 3,
+            "children": [],
+            "content": "・\n・"
+          },
+          {
+            "heading_text": "5－3-2－6． other(▲3.10)",
+            "heading_level": 3,
+            "children": [],
+            "content": "(▲3.10)"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－4． Learning Route Search Service 学習ルート探索サービス",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－4－2． Basic operation (normal system)　 基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview　サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "- The user sets the destination and makes the initial search.\n・ If the route learning result can be reflected, it is displayed instead of the route learning route.\n・\n・\n・\n▲1.70\n・ In response to requests from users (opt-out requests, initialization of personal information, etc.), they are accumulated in the local ▲1.70\nThe ability to discard data from route learning results.\n・ユーザが目的地を設定して初期探索させる。\n・ルート学習結果が反映できる場合、ルート学習経路と入れ替えて表示される。\n▲1.60\n・ユーザからの要望（オプトアウト要望、個人情報初期化など）に応じて、ローカル/に蓄積されている\nルート学習結果のデータを破棄できること。▲3.00▲1.60"
+              },
+              {
+                "heading_text": "Service requirements　サービス要件　▲1.20",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ The search function is to memorize the running road from the departure point to the final destination.\n・ The search function is a breakaway link when the user runs away from the initial path,\nRemember the return link when you ride the initial route and the road between them separately.\n・ Record the information in between the user when returning to the original route after leaving the route.\n・ The search function has a link column of the initial route search result that releases / returns the route learning information.\nIf you are passing at the same time, swap the route of the interval with the route learning path.\n・ The learning result is reflected by running the same route three times. In addition, it is not necessary to be three times in a row.\n・ If there are multiple learning routes for the same departure point or destination, consider the thing with a new update date and time\n・ When updating the map, determine the link shape and update the learning result.\n・ Return point to withdrawal that corresponds to the recommended initial route at the time ⇒ route search\nIf found, replace it with the learned path that holds the interval.\nInconsistencies in search types occur when reflecting learning routes possible, but acceptable.\n・ When reflecting the learning route, consider the route preference (search conditions for user selection) and reflect it.\n(In the case of a border refusal setting, route learning passing through the border is not reflected.)\n・ On the center route, learning according to the time of day is also possible.\n・ Keep the maximum number of training data for 100 routes.\n・ Do not learn the route to stop at the service area and parking area.\n・探索機能は出発地から最終目的地までの走行道路を記憶すること。\n・探索機能は初期経路からユーザが離脱走行した時の離脱リンクと、\n初期経路へ乗線した時の復帰リンクとその間の走行道路をセットで別に記憶すること。\n・ユーザがルートから離脱後、元のルートに復帰時に速やかにその間の情報を記録すること。\n・探索機能は初期経路探索結果のリンク列がルート学習情報の離脱リンク／復帰リンクを\n同時に通過している場合、その区間の経路をルート学習経路と入れ替えること。\n・3回同一ルートを走行したことで学習結果が反映される。尚、3回連続でなくても良い。\n・同じ出発地・目的地に対して複数の学習ルートがある場合は更新日時が新しい物を考慮する。\n・地図更新時はリンク形状を判断して学習結果を更新すること。\n・ルート探索時の推奨初期ルートに該当する離脱⇒復帰点が\n見つかった場合は、その区間を保持している学習した経路に差し替えを行う。\n学習ルートを反映した場合、探索種別の矛盾が発生する可能性あるが、許容する。\n・学習ルートを反映する場合、ルートプリファレンス(ユーザ選択の探索条件)を考慮して反映すること。\n(国境通過拒否設定の場合、国境を通過するルート学習は反映しないなど。)\n・センタールートにおいては時間帯に応じた学習も可能にする。\n・学習データの最大件数は100ルート分保持すること。\n・サービスエリアおよびパーキングエリアに立ち寄るルートを学習しないこと。\nA specific learning case is shown below.\n具体的学習ケースを以下に示す。\n【Cases where learning including SAPA is not studied]\n【SAPAを含む学習しないケース】\nUser driving: High-speed main line (withdrawal) →SAPA → high-speed main line (return)\nRoute learning result: High-speed main line\nユーザ走行：高速本線(離脱)→SAPA→高速本線(復帰)\nルート学習結果：高速本線\nUser driving: High-speed main line (withdrawal) → JCT→ high-speed main line→ SAPA→ high-speed main line → JCT → high-speed main line (return)\nRoute learning result: High-speed main line → JCT→ high-speed main line → JCT → high-speed main line\nユーザ走行：高速本線(離脱)→JCT→高速本線→SAPA→高速本線→JCT→高速本線(復帰)\nルート学習結果：高速本線→JCT→高速本線→JCT→高速本線"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－4－3． Requirements for HMI specifications　 HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ The learning results of route learning can be deleted.\n・ルート学習の学習結果については削除可能とすること。"
+          },
+          {
+            "heading_text": "5－4－4． User settings items　ユーザ設定項目",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          },
+          {
+            "heading_text": "5－4－5． Exception operation (abnormal system)　 例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ If the user wants to initialize by changing cars, etc., the contents of route learning can be deleted.\n・ユーザは車の乗り換え等で初期化したい場合、ルート学習の内容を削除できる。"
+          },
+          {
+            "heading_text": "5－4－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－5． Stopover setting (number of settings) service",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－5－2． Basic operation (normal system)　 基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview　サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "＜If you want to add destination>\n・ Users add destinations.\n・ The route is displayed according to the order of the destination added by the user.\n・　Reorder multiple set destinations\n＜目的地追加したい場合＞\n・ユーザは目的地を追加する。\n・ユーザが追加した目的地の順に従い経路が表示される。\n・複数設定した目的地に対して順序を入れ替える\n< to clear destinations that are no longer needed>\nThe user deletes the destination.\n＜不要となった目的地に対して消去する場合＞\n・ユーザは目的地を削除する。"
+              },
+              {
+                "heading_text": "Service requirements　サービス要件",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ If the user adds a destination, the route type should be the last route type before addition.\n・ユーザが目的地追加した場合、ルート種類は、追加前のラストのルート種類とすること。\n・ The ability to add, remove, and rearrange stops before starting the guide.\n・案内開始前に経由地を追加、削除、並び替えができること。\n・ If two or more destinations are set, the route to each destination will be explored with the same route type. It is not possible to change the route type or search conditions between each destination.\n・目的地が２つ以上設定された場合、各目的地までのルートは同一のルート種類で探索する。各目的地間のルート種類変更、探索条件変更は出来ないものとする。\n・ If the search condition is changed by user request, the search function should be searched by the specified route type.\n・ユーザリクエストにより探索条件変更が行われた場合、探索機能は指定されたルート種類で探索すること。\n＜JP/ROW＞\n・ When adding, replacing, or deleting destinations and stops, if there is a transit point that has already passed, ignore the passing stopover and search. However, the transit point will remain displayed on the map.\n・目的地、経由地の追加、入れ替え、削除を行った際、通過済みの経由地がある場合は通過済み経由地を無視して探索を行う。ただし、通過済み経由地は地図上に表示したままとする。\n・ Do not fail to search unless there is a ferry route or the route does not exist.\n・フェリー航路等がなく経路が存在しない場合以外は、探索失敗しないこと。\n・ Up to 10 destinations and up to 5 transit points can be set.\n・目的地は最大10件、通過点は最大5件まで設定可能とする。\n＜NA/EU/AU＞\nUp to 5 destinations can be set for Non-EV routing.\n・ In case of EV routing, as many destinations/stops can be added as need to complete the route.\n<ALL 全仕向>▲1.60\nSDK shall contain an API that allows for the route segments between each stop/waypoint to appear in different colors. (Colors are configurable).\nSDK shall contain an API that allows for the order of waypoints to be reordered. The reordered waypoint order can be sent from the server.\n・ Navi shall add a waypoint before destination"
+              },
+              {
+                "heading_text": "・ User can see updated route which covers waypoint",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ ETA to 1st waypoint is presented to user\n・ Route shall be recalculated with updated ETA when waypoint is added, removed, or order of waypoints is changed\n・ Show modal pop-up with an error note ▲1.60 when user tries to add destination which is farther than 3200 miles or 5000km.▲1.60(distance configurable).\n・ Show modal pop-up with an error note ▲1.60 when user tries to add waypoint that exceeds the max route length (distance configurable). The modal pop-up has two options, either to start a new route or to cancel. When customer selects “New Route, cancel the existing route and show screen to new destination. Customer shall select “Go Now” to start new trip. When customer selects “Cancel”, go back to previous active route."
+              }
+            ]
+          },
+          {
+            "heading_text": "5－5－3． Requirements for HMI specifications　 HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ By placing the + button on the stopover editing screen, it is possible to add a stopover within the same screen.\n・ When adding a stopover, you can add it to the front of the current location side and change the position on the stopover editing screen.\n・経由地編集画面に＋ボタンを配置することで、同画面内で経由地追加を可能とすること。▲3.00\n・経由地追加時は現在地側の一番手前に追加し、経由地編集画面にて位置の変更ができること。▲3.00\n▲1.10\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_28_92ec0ed4.png|92ec0ed44f242807a5723a6dde7378eb [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_29_e1c834d9.png|e1c834d9bf4b601378881867e4d6a2c8 [END_IMAGE_PATH]"
+          },
+          {
+            "heading_text": "5－5－4． User settings items　ユーザ設定項目",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          },
+          {
+            "heading_text": "5－5－5． Exception operation (abnormal system)　例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "< to clear destinations that are no longer needed>\nThe user deletes the destination.\nAll destinations and stops will be deleted. However, it is also possible to delete transit points and additional destinations individually.\n＜不要となった目的地に対して消去する場合＞\n・ユーザは目的地削除する。\n・全ての目的地、経由地が削除される。ただし、経由地点や追加目的地は個別に削除できることも可能とする。\nExample: Delete a Google Maps stop\n例：Googleマップの経由地削除\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_30_4142bc7f.jpg|4142bc7f3b44c6c2fd8b32240f134b63 [END_IMAGE_PATH]\n\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_31_a03a1f04.jpg|a03a1f0401536a878a632260ee969e3f [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_32_c193ab2e.png|c193ab2e4cb14eceed36ea12eb59e098 [END_IMAGE_PATH]\n< If the search fails by adding or erasing the destination>\n∟ If all multiple destinations fail to search\n・ Notify you that the search has failed.\n・  ▲7.30（24SU/CDC：CV）\n∟ If some sections fail to be searched\n・ Notify you that some sections have failed to search.\n・\n▲7.30（24SU/CDC：CV）\n＜目的地追加・消去にて探索失敗した場合＞\n∟複数目的地全ての探索に失敗した場合\n・探索失敗した旨を通知する。\n▲7.30（24SU/CDC：CV）\n∟一部区間の探索に失敗した場合\n・一部区間の探索失敗した旨を通知する。\n▲7.30（24SU/CDC：CV）\n< If the search fails by adding or erasing the destination>\n・ Even if the search is a failed destination, it must be included in the number of maximum destinations.\n・ On the Route Overview screen, display the search failed destination at a scale that fits.\n・ Do not display the failed destination in ETABOX.\nArrival judgment of the destination that searched failed\n∟ If the intermediate destination fails to search\n・ It is assumed that the search has arrived at the failed destination at the same time as the arrival decision at the next destination of the failed destination.\n∟ If the final destination fails to search\n・ It is assumed that you have arrived at the final destination at the same time as the arrival decision at the intermediate destination before the final destination.\n・ The same operation should be made on the center route.\n＜目的地追加・消去にて探索失敗した場合＞\n・探索失敗した目的地であっても最大目的地の件数に含むこと。\n・Route Overview画面では探索失敗した目的地も収まる縮尺で表示すること。\n・探索失敗した目的地はETABOXに表示しないこと。\n・探索失敗した目的地の到着判定\n∟中間目的地が探索失敗の場合\n・探索失敗した目的地の次の目的地に到着判定したと同時に探索失敗した目的地に到着したものとする。\n∟最終目的地が探索失敗の場合\n・最終目的地以前の中間目的地に到着判定したと同時に最終目的地に到着したものとする。\n・センタールートにおいても上記同等の動作をすること。"
+          },
+          {
+            "heading_text": "5－5－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－6． Traffic jam consideration search service　渋滞考慮探索サービス",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－6－2． Basic operation (normal system)　基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview　サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "Traffic jam consideration search service by < traffic information use (DRGS)＞\n・ Notify the user if traffic information changes during route guidance.\n・ In the case of manual setting of the avoidance route, the difference information is linked to the avoidance route and displayed in the balloon.\nDepending on the situation, the user can choose whether to switch to a new route by route or blowout touch.\n・ If the user does not select a route for a certain period of time, guide the original route.\n＜交通情報利用による渋滞考慮探索サービス(DRGS)＞\n・経路案内中に交通情報が変化した場合、ユーザに通知する。\n・回避ルート手動設定の場合、回避ルートに差分情報を紐付けて吹出で表示する。\n・ユーザは状況に応じて、ルートまたは吹出タッチにより新しい経路に切替えるか選択することができる。\n・ユーザが一定時間ルート選択を行わない場合は元ルートのまま案内する。"
+              },
+              {
+                "heading_text": "Service requirements　サービス要件",
+                "heading_level": 4,
+                "children": [],
+                "content": "< Traffic jam consideration search service by traffic information use DRGS＞\n＜交通情報利用による渋滞考慮探索サービス(DRGS)＞\nThe search function determines whether or not the latest route should be presented to the user in consideration of traffic information.\n・ 探索機能は交通情報を考慮して最新の経路をユーザに提示すべきか否かを判断すること。\nWhen presenting the latest route to the user, make sure that the user notices it, such as by producing audio.\n・ 最新の経路をユーザーに提示する場合は、音声を出す等、ユーザに気付いてもらう工夫をすること。\nIn the case of manual setting of avoidance route, the original route and the avoidance route can be confirmed.\n・ 回避ルート手動設定の場合は、元ルートと回避ルートが確認できるようにすること。\nDisplay the shortened time of the avoidance route (difference time from the original route) with a blowout linked to the avoidance route.\n・ 回避ルートの短縮時間(元ルートとの差分時間)を回避ルートに紐付けて吹出で表示すること。\n・ SDK shall use real time traffic information data, road closures and traffic jam and traffic incidents.\n・ SDK shall have the ability to detect when route should be updated due to changes in time restrictions and reroute accordingly.\n・ Example: While driving on the highway, recommendation to get off highway and then get on highway needs to be avoided.\nDisplay the balloon position so that it does not cover the current location, destination, or route.\n・ 吹出位置は、現在地・目的地・ルートに被らないように表示すること。\n・ Routes should be displayed in different route colors.\n・ 2ルートは異なるルート色で表示すること。\n・ Devise a display method so that the current route and the latest route can be understood by the user.\n・ 現在の経路、最新の経路がユーザーに分かるように表示方法を工夫すること。\nYou can switch the selected route by touching (short pressing) the balloon / route.\n・ 吹出/ルートをタッチ(短押し)することで選択ルートの切替ができること。\nOnce a new route is selected, it will prevent the rerouting for a certain period of time (preventing the route change time to be considered by each company from flickering and not confusing the user)\n・ 一旦新しいルートが選択された場合、一定時間(ルート変更のばたつきを防ぎ、ユーザが混乱しない\n程度の時間を各社で検討)は交通情報による渋滞考慮探索を行わないこと。\nThe range of consideration of traffic information shall be within 200 km square around the current location.\nTune regulatory information, traffic jam information, etc. to an appropriate range (range that affects the user).\n・ For example, traffic jams 200 km away may be resolved by the time the user arrives, so it is outside the consideration range. * However, traffic information obtained from the Center must follow the center's designated range.\n・ 交通情報の考慮範囲は、現在地周辺200km四方以内とする。\n規制情報や渋滞情報などに対して、適切な範囲(ユーザに影響のある範囲)にチューニングすること。\n例えば、200km先の渋滞はユーザが到着するまでに解消する可能性があるため考慮範囲外とするなど。※ただし、センターから取得した交通情報についてはセンター指定範囲に従うこと。\nSearch can be performed taking into account link travel time information by direction.\n・ 方向別リンク旅行時間情報も考慮した探索を行えること。（日本のみ）\n・ When considering regulatory information, consider the occurrence period, and do not consider regulatory information outside the period in route search.\nAlso, even if the period straddles the year, make sure that it is considered correctly from the end of the year to the beginning of the year.\n・ 規制情報を考慮する際には発生期間を考慮し、期間外の規制情報はルート探索で考慮しないこと。\nまた期間が年を跨ぐ場合も年末から年始にかけて正しく考慮されるようにすること。\nIf a better route becomes available after original route was given due to changes in traffic information, it can be presented to the user as the latest route. For example, if the traffic jam on the main line is resolved, present a route through the main line instead of a side road.\n・ 交通情報の変化によって元ルートよりも早いルートができた場合、最新のルートとしてユーザに提示できること。例えば、本線上の渋滞が解消した場合、側道ではなく本線を通るルートを提示すること。\n・\n・ Consider traffic information (traffic information for each right and left turn) according to the direction of travel, and search for routes.\n・ 進行方向別の交通情報（右左折毎の交通情報）を考慮し、ルート探索を行うこと。\n・ Consider Jam Lifetime and search for routes.\n・ JamLifetimeを考慮し、ルート探索を行うこと。\nSuggest a new route only if the changed route arrives at the destination earlier.\n・ より確実に変更後のルートの方が早く目的地に到着する場合だけ、新ルートを提案すること。\n・ The new route should be to read aloud how quickly you can get to your destination compared to the original route. If the change in fee is also involved, the change in fee shall also be notified.　▲1.20\n・ 新ルートは、元ルートと比べて、どれだけ早く目的地に行けるかの音声読み上げをすること。その際、料金の変更も伴う場合は、料金の変化についても通知すること。\nTraffic information that takes into account the transit time can be used.\n・ 通過時間を考慮した交通情報を利用できること。\n・ To be able to switch to a new route by voice.\n・ 音声で、新ルートへの切り替えを可能とすること。\nPopup for new route proposal is given when system detects increase of ETA by at least 5min (configurable) and faster route is found.\n・ 5分以上ETAが早くなるルートが見つかった場合に、新しいルートをポップアップで提案すること。\nUser can switch to this route by tapping on the popup.\n・ ▲1.60\n・ユーザはポップアップに触れることでルートを切り替えることができる。▲1.60"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－6－3． Requirements for HMI specifications　HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ The shortened time of the avoidance route (difference time from the original route) is linked to the avoidance route and displayed with a blowout.\nDepending on the situation, the user can choose whether to switch to a new route by route or blowout touch.\n・ Devise a display method so that the current route and the latest route can be understood by the user.\n・回避ルートの短縮時間(元ルートとの差分時間)を回避ルートに紐付けて吹出で表示する。\n・ユーザは状況に応じて、ルートまたは吹出タッチにより新しい経路に切替えるか選択することができる。\n・現在の経路、最新の経路がユーザーに分かるように表示方法を工夫すること。"
+          },
+          {
+            "heading_text": "5－6－4． User settings items　ユーザ設定項目",
+            "heading_level": 3,
+            "children": [],
+            "content": "Users can automatically switch to the avoidance route, manually select the avoidance route, or switch the settings.\n<JP/ROW>\nAvoidance route can be set by the user whether or not to suggest by switching the display setting ON / OFF. ▲1.70\nユーザは自動で回避ルートに切り替わるか、手動で回避ルートを選択するか設定を切り替えることができる。\n<JP/ROW>\n設定をON/OFFすることで、ユーザは回避ルートを提案する/しないを変更することができる。▲1.70\n<NA/EU/AU>\nNA/EU/AU model does not require this setting. Traffic is expected to be avoided by routing at all times automatically. ▲3.00"
+          },
+          {
+            "heading_text": "5－6－5． Exception operation (abnormal system)　例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          },
+          {
+            "heading_text": "5－6－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－7． SALIK Information Service　SALIK案内サービス",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－7－2． Basic operation (normal system)　基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview　サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ In the case of a route passing through the SALIK gate, notify the user.\n▲1.70\n・SALIKゲートを通過するルートの場合、ユーザに通知する。\n▲1.70"
+              },
+              {
+                "heading_text": "Service requirements　サービス要件",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ If the initial search result includes a route containing a SALIK gate, it is displayed that the route including the SALIK gate is displayed when the full route screen is displayed.\n・ Allowing you to choose to take the most common roads\n・ 初期探索結果にSALIKゲートを含むルートが含まれる場合は、全ルート画面時にSALIKゲートを含むルートであることを表示する。\n・ ▲3.50"
+              }
+            ],
+            "content": "In Dubai, there is a system called \"SALIK\" that charges when you pass through the gate.\nThe SALIK gate may not be noticed, so it provides a service to notify users.\nドバイ市内には、ゲートを通過すると料金が課金されるシステム\"SALIK\"がある。\nSALIKゲートは気付かない可能性もあるため、ユーザーに通知するサービスを提供する。\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_33_3ed4dbcf.png|3ed4dbcf13abeb4b78904657240bab20 [END_IMAGE_PATH]"
+          },
+          {
+            "heading_text": "5－7－3． Requirements for HMI specifications　HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": "Same for service requirements\nサービス要件に同じ"
+          },
+          {
+            "heading_text": "5－7－4． User settings items　ユーザ設定項目",
+            "heading_level": 3,
+            "children": [],
+            "content": "▲1.71"
+          },
+          {
+            "heading_text": "5－7－5． Exception operation (abnormal system)　例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular\n特になし"
+          },
+          {
+            "heading_text": "5－7－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "If SALIK cannot be identified due to content maintenance status, an electronic toll booth including them will be used.\nIn addition, all electronic toll booths, including ticket toll booths, will be notified.\nコンテンツ整備状況によりSALIKを特定できない場合、それらを含む電子料金所を使用する。\nまた、チケット料金所の併設も含め、電子料金所があるところはすべて通知する。"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－8． E-toll guidance service",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－8－2． Basic operation (normal system)　基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview　サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "South African highways have an \"E-toll\" system that charges for passing through gates like a Japanese ETC. Information on the \"E-toll\" gate is maintained in the base data, and the E-toll guidance service is provided on the road where the \"E-toll\" gate and the general tollgate can be distinguished.\nThere are two types of infrastructure: \"E-toll\" dedicated lanes and \"E-toll\" gates.\n南アフリカの高速道路には、日本のETCのようなゲートを通過すると料金が課金されるシステム\"e-toll\"がある。\"e-toll\"ゲートの情報が基データに整備されており、\"e-toll\"ゲートと一般の料金所が識別できる道路において、e-toll案内サービスを提供する。\nインフラには、\"e-toll\"専用レーンと\"e-toll\"ゲートの2つの種類がある。\n\" e-toll\" dedicated lane\nThe toll booth has cash payment lanes and \"E-toll\" lanes.\nThe \"E-toll\" lane explicitly pays the fee because there is a bar when passing through the gate.\n・\"e-toll\"専用レーン\n料金所に現金支払いのレーンと\"e-toll\"専用のレーンがある。\n\"e-toll\"専用レーンは、ゲートを通過する際にバーが存在するため利用者が料金を明示的に支払う。\n\"e-toll\" gate\nThere is no cash payment, and you will be charged automatically after passing through the gate, and you will be invoiced at a later date.\n* Vehicles without \"E-tag\" are judged by license plates when passing through the gate.\nThe \"E-toll\" gate may not be noticed and should be notified to the user.\n・\"e-toll\"ゲート\n現金支払いは無く、ゲートを通過したら自動的に課金され、後日請求書が送られてくる。\n※\"e-tag\"非搭載車はゲート通過時にナンバープレートで判断される。\n\"e-toll\"ゲートは気付かない可能性もあるため、ユーザーに通知する必要がある。\nIn the case of a route passing through the E-toll gate, it is possible to recognize whether it passes through the E-toll gate when searching for the route by informing it at the full route screen.\n▲1.70\ne-tollゲートを通過するルートの場合、全ルート画面時にその旨を知らせることにより、ルート探索時にe-tollゲートを通過するか認識できる。\n▲1.70\n[START_SHAPE_CONTENT] E -toll gate [END_SHAPE_CONTENT]\nE-toll gate\n[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_34_3ed4dbcf.png|3ed4dbcf13abeb4b78904657240bab20 [END_IMAGE_PATH]\n【Main operation】\n・ If the initial search result includes a route that contains an E-toll gate, it is displayed that the route containing the E-toll gate is displayed when the full route screen is displayed.\n・ Allowing you to choose to take the most common roads\n【主要動作】\n・ 初期探索結果にe-tollゲートを含むルートが含まれる場合は、全ルート画面時にe-tollゲートを含むルートであることを表示する。\n・ ▲3.50"
+              }
+            ]
+          },
+          {
+            "heading_text": "HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": " Basic operation: Same as [main operation]\n 基本動作：【主要動作】と同じ"
+          },
+          {
+            "heading_text": "5－8－4． User settings items　ユーザ設定項目",
+            "heading_level": 3,
+            "children": [],
+            "content": "▲1.71"
+          },
+          {
+            "heading_text": "5－8－5． Exception operation (abnormal system)　例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "・None in particular"
+          },
+          {
+            "heading_text": "5－8－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ If the E-toll cannot be identified due to content maintenance status, use an electronic toll booth including them.\n・ In addition, all electronic toll booths, including ticket toll booths, will be notified.\n・ コンテンツ整備状況によりe-tollを特定できない場合、それらを含む電子料金所を使用する。\n・ また、チケット料金所の併設も含め、電子料金所があるところはすべて通知する。"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－9． Rodizio Notification Display (EnvironmentalZone Message)",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－9－2． Basic operation (normal system)　 基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview　サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "When using a road in the Environmental Zone that is subject to entry restriction (Rodizio) on a route, it is possible to make a decision for the user to change the route in advance as necessary by informing that fact at the full route screen.\nルート上で進入規制（Rodizio）対象であるEnvironmental Zone内の道路を使用している場合、全ルート画面時にその旨を知らせることにより、必要に応じてユーザが事前にルートを変更するための判断ができる。"
+              },
+              {
+                "heading_text": "Service Requirements　サービス要件",
+                "heading_level": 4,
+                "children": [],
+                "content": "▲1.10\n【Main operation】\n・ If the initial search result includes a route containing the Rodizio section, it is displayed that it is a route that includes the Rodizio section at the full route screen.\n【主要動作】\n・ 初期探索結果にRodizio区間を含むルートが含まれる場合は、全ルート画面時にRodizio区間を含むルートであることを表示する。"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－9－3． Requirements for HMI specifications　HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n Basic operation: Same as 【main operation]\n 基本動作：【主要動作】と同じ"
+          },
+          {
+            "heading_text": "5－9－4． User settings items　ユーザ設定項目",
+            "heading_level": 3,
+            "children": [],
+            "content": "▲1.71"
+          },
+          {
+            "heading_text": "5－9－5． Exception operation (abnormal system)　例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ None in particular"
+          },
+          {
+            "heading_text": "5－9－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－10． ERP warning display service ERP警告表示サービス",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－10－2． Basic operation (normal system) 基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ For Electronic Road Pricing (ERP) in Singapore. Notify the user when the initial search result includes a route passing through the ERP gate.\n・シンガポールのERP(Electronic Road Pricing）を対象とする。初期探索結果にERPゲートを通過するルートを含む場合、ユーザに通知する。"
+              },
+              {
+                "heading_text": "Service requirements　サービス要件",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ If the initial search result includes a route containing an ERP gate, notify the full route that it is a route containing the ERP gate.\n▲1.70\n・ To be able to choose general road priority\n・初期探索結果にERPゲートを含むルートが含まれる場合は、全ルート画面時にERPゲートを含むルートであることを通知する。\n▲1.70\n▲3.50"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－10－3． Requirements for HMI specifications　HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": "Same for service requirements\nサービス要件に同じ"
+          },
+          {
+            "heading_text": "5－10－4． User settings items　ユーザ設定項目",
+            "heading_level": 3,
+            "children": [],
+            "content": "▲1.71"
+          },
+          {
+            "heading_text": "5－10－5． Exception operation (abnormal system)　例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ None in particular"
+          },
+          {
+            "heading_text": "5－10－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "If the ERP cannot be identified due to content maintenance status, use an electronic toll booth including them.\nIn addition, all electronic toll booths, including ticket toll booths, will be notified.\nコンテンツ整備状況によりERPを特定できない場合、それらを含む電子料金所を使用する。\nまた、チケット料金所の併設も含め、電子料金所があるところはすべて通知する。"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－11－1． Target countries and regions",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－11－2． Basic operation (normal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "[START_IMAGE_PATH] /tmp/docx_images_kekbzma_/img_35_4acc6899.png|4acc68996cad2cc1674a4a111a91deee [END_IMAGE_PATH]"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－12． Custom HOV/HOT ▲1.10 Route Service",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－12－2． Basic operation (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "▲1.10\n・ Propose a route that takes into account the number of passengers in the vehicle at any given time. ▲1.10"
+              },
+              {
+                "heading_text": "Service requirements",
+                "heading_level": 4,
+                "children": [],
+                "content": "▲1.10\n* User preferences/ feature data should be held for each user, not per vehicle.\n・ Vehicle shall be able to detect the number of passengers and inform routing system when number of passengers changes.\n・ HOV/HOT lanes shall be allowed when number of required passengers is met.\n・ HOV/HOT lanes shall be avoided when number of required passengers is not met.\n・ If route is currently using HOV/HOT lane and the required number of passengers decreases, the route must be recalculated to avoid the HOV/HOT lanes.\nNote: The number of passengers will be based on the number of seat belts fastened in the vehicle as reported on CAN bus. The minimum number of passengers required for a given HOV/HOT lane should come from map DB\nSeatbelt Signal (MET1S47) is periodically detected and considered failed if the Navi fails to detect the signal 10 times consecutively. In the case of communication failure, number of passengers in the vehicle is assumed to be 1. Once CAN communication is restored and Navi successfully detects the signal, number of passengers shall be detected based on seatbelt signal. ▲1.10\nSeatbelt Signal is below.  ▲3.00\n[START_TABLE_CONTENT] | No | データ名.  Data name | CANデータラベル. CAN data label | メッセージ ラベル. 19PFV3.0向け. Message Lable. For 19PFV3.0 |\n| --- | --- | --- | --- |\n| 1 | 3rd row left side seatbelt SW signal | BKL3LMET | MET1S47 |\n| 2 | 3rd row right side seatbelt SW signal | BKL3RMET | MET1S47 |\n| 3 | 3rd row center side seatbelt SW signal | BKL3CMET | MET1S47 |\n| 4 | Driver's seatbelt SW signal | DBKL_MET | MET1S47 |\n| 5 | Passenger's seatbelt SW signal | PBKL_MET | MET1S47 |\n| 6 | Rear Left side  seatbelt SW signal | RLBKLMET | MET1S47 |\n| 7 | Rear Right side  seatbelt SW signal | RRBKLMET | MET1S47 |\n| 8 | Rear Center seatbelt SW signal | RCBKLMET | MET1S47 | [END_TABLE_CONTENT]\n"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－12－3． Requirements for HMI specifications",
+            "heading_level": 3,
+            "children": [],
+            "content": "Same for service requirements"
+          },
+          {
+            "heading_text": "5－12－4． User settings items",
+            "heading_level": 3,
+            "children": [],
+            "content": "No particular"
+          },
+          {
+            "heading_text": "5－12－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "No particular"
+          },
+          {
+            "heading_text": "5－12－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－13． CO2 Minimum Route Service　CO2ミニマムルートサービス",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－13－2． Basic operation (normal system)　基本動作（正常系）",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview　サービス概要",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ Co2 minimum route considering the power consumption per link is provided using gradient information and traffic jam information possessed by map data.\n・地図データが持つ勾配情報、渋滞情報を用いてリンク単位で消費電量を考慮したCo2ミニマムルートを提供する。"
+              },
+              {
+                "heading_text": "Service requirements　サービス要件",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ Identify the types of BEV, FCEV, HEV, PHEV, and gasoline vehicles, and provide a route that reduces CO2 emissions according to the vehicle.\n・ Route search provides the route that reduces CO2 emissions considering power consumption and fuel consumption using slope information and traffic jam information possessed by map data.\n・General lands are provided by local routes.　▲1.70\n・Use the following CAN signal to determine the vehicle. ▲3.00 (▲3.50)\n・BEV,FCEV,HEV,PHEV,ガソリン車の種別を判別し、その車に応じたCO2排出量が少なくなるルートを提供すること\n・経路探索は、地図データが持つ勾配情報、渋滞情報を用いて消費電力量や消費燃料などを考慮したCO2排出量を低減する、センタールートとして提供する\n・一般地仕向についてはローカルルートで提供する　▲1.70\n・車両の判定は以下のCAN信号を利用すること。▲3.00 (▲3.50)\n■19Ver3PF　▲7.20(CDC：CV)\n[START_TABLE_CONTENT] | No | データ名. Data name | CANデータラベル. CAN data label | メッセージ ラベル. Message Lable |\n| --- | --- | --- | --- |\n| 1 | Powertrain. system | PTSYS | ENG1G13 | [END_TABLE_CONTENT]\n\n▲3.50\n■BEVStep3PF　▲7.20(CDC：CV)\n[START_TABLE_CONTENT] | No | データ名. Data name | CANデータラベル. CAN data label | メッセージ ラベル. Message Lable |\n| --- | --- | --- | --- |\n| 1 | Powertrain information | PTINF_B | BDB1S08 | [END_TABLE_CONTENT]\n"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－13－3． Requirements for HMI specifications　HMI仕様に対する要求",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－13－4． User settings items　ユーザ設定項目",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－13－5． Exception operation (abnormal system)　例外動作（異常系）",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－13－6． Other　その他",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－14． Predictive/Preferred Route Learning Service ▲1.10",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "5－14－2． Basic operation (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "A route learning service that records both route shape preferences (▲3.10)  in order to predict where a user will drive and provide them with routes tailored to their personal preferences.\n- The user sets the destination and makes the initial search.\n・ (▲3.10) Preferred routes are considered in the center route.\nSDK shall contain an API between Navi Server and Toyota Server to allow access to this data.\n・ When managing the route learning result on the center side, there are no cases where data is uploaded from multiple vehicles of the same user. All 24MM navi subscriptions are VIN based, so all route learning data per user can only be uploaded from a single VIN. Route learning results can be managed on center side for multiple users from a single VIN.\n・ In response to requests from users (opt-out requests, initialization of personal information, etc.), they are accumulated in the local / center.\nThe ability to discard data from route learning results is possible"
+              },
+              {
+                "heading_text": "Service requirements",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ The search function is to memorize the running road from the departure point to the final destination.\n・ The search function is a breakaway link when the user runs away from the initial path,\n・ Record the information in between the user when returning to the original route after leaving the route.\n・ Routes begin to be learned as \"Predictive\" when the following criteria is met:\no\no\no (▲3.10)\n・ Routes begin to be learned as \"Preferred\" when the following criteria is met:\no Route is driven from same Departure Point to Destination 3x (parameter is configurable) – or comparable logic.\no\no (▲3.10)\nOnce a route has been learned as a preferred route, the above criteria must be met again for that same preferred route to be re-learned into a new preferred route\n・ If there are multiple learning routes for the same departure point or destination, consider the departure point or destination with a unique day and time - or comparable logic.\n・ When updating the map, determine the link shape and update the learning result.\n・ When reflecting the learning route, consider the route preference (search conditions for user selection) and reflect it."
+              }
+            ]
+          },
+          {
+            "heading_text": "5－14－3． Requirements for HMI specifications",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ The learning results of route learning can be deleted."
+          },
+          {
+            "heading_text": "5－14－4． User settings items",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－14－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "5－14－6． other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "heading_text": "[START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]\n各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）6． QOS (Quality of service)",
+    "heading_level": 1,
+    "children": [],
+    "content": "\n[START_TABLE_CONTENT] | QOS items applicable to this service. 本サービス該当のQOS項目 | Target behavior, function. 対象動作、機能 | Level. レベル |\n| --- | --- | --- |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | Initial exploration. 初期探索 | ＜NA/EU/AU＞. Within 1.0 seconds. Time from destination setting to 1 route button display (short distance *1). 1.0秒以内. 目的地設定から1ルートボタン表示までの時間(近距離※１)▲4.30. ＜JP/ROW＞. ・During non-communication with the center. Within 3.0 seconds. ・During communication with the center. Within 3.0 seconds. Time from destination setting to recommend route display (short distance *1). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 3.0秒以内. ◆センタ通信時▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 3.0秒以内. 目的地設定から推奨ルート表示までの時間(近距離※１) |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | Initial exploration. 初期探索 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）＜NA/EU/AU＞. Within 2.5 seconds ▲3.00. Time from destination setting to 1 route button display (medium distance*2). 2.5秒以内 ▲3.00. 目的地設定から3ルートボタン表示までの時間(中距離※２). ＜JP/ROW＞. ・During non-communication with the center. Within 5.0 seconds. ・During communication with the center. Within 5.0 seconds. Time from destination setting to recommend route display (medium distance*2). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 5.0秒以内. ◆センタ通信時. 5.0秒以内. 目的地設定から推奨ルート表示までの時間(中距離※２) |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | Initial exploration. 初期探索 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）＜NA/EU/AU＞. Within 4.0 seconds ▲3.00. Time from destination setting to 1 route button display (long distance *3). 4.0秒以内 ▲3.00. 目的地設定から3ルートボタン表示までの時間(長距離※３). ＜JP/ROW＞. ・During non-communication with the center. Within 8.0 seconds. ・During communication with the center. Within 8.0 seconds. Time from destination setting to recommend route display (long distance *3). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 8.0秒以内. ◆センタ通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 8.0秒以内. 目的地設定から推奨ルート表示までの時間(長距離※３) |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）All route re-exploration全ルート再探索 | ＜NA/EU/AU＞. Within 1.0 seconds. Time from route type selection to route display on the re-search screen (short distance*1). 1.0 秒以内 ▲3.00. 再探索画面のルート種別選択から経路表示までの時間(近距離※１). ＜JP/ROW＞. ・During non-communication with the center. Within 3.0 seconds. ・During communication with the center. Within 3.0 seconds. Time from route type selection to route display on the re-search screen (short distance*1). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 3.0秒以内▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. ◆センタ通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 3.0秒以内. 再探索画面のルート種別選択から経路表示までの時間(近距離※１) |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）All route re-exploration全ルート再探索 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）＜NA/EU/AU＞. Within 1.6 seconds ▲3.00. Time from route type selection to route display on the re-search screen (medium distance*2). 1.6 秒以内 ▲3.00. 再探索画面のルート種別選択から経路表示までの時間(中距離※２). ＜JP/ROW＞. ・During non-communication with the center. Within 5.0 seconds. ・During communication with the center. Within 5.0 seconds. Time from route type selection to route display on the re-search screen (medium distance*2). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 5.0秒以内. ◆センタ通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 5.0秒以内. 再探索画面のルート種別選択から経路表示までの時間(中距離※２) |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）All route re-exploration全ルート再探索 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）＜NA/EU/AU＞. Within 2.2 seconds ▲3.00. Time from route type selection to route display on the re-search screen (long distance*3). 2.2秒以内 ▲3.00. 再探索画面のルート種別選択から経路表示までの時間(長距離※３). ＜JP/ROW＞. ・During non-communication with the center. Within 8.0 seconds. ・During communication with the center. Within 8.0 seconds. Time from route type selection to route display on the re-search screen (long distance*3). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 8.0秒以内. ◆センタ通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 8.0秒以内. 再探索画面のルート種別選択から経路表示までの時間(長距離※３) |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）Auto-re-discovery. 自動再探索 | ＜NA/EU/AU＞▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. Within 1.0 seconds. Time from route type selection to route display on the re-search screen (short distance*1). 1.0秒以内. 再探索画面のルート種別選択から経路表示までの時間(近距離※１). ＜JP/ROW＞▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. ・During non-communication with the center. Within 3.0 seconds. ・During communication with the center. Within 3.0 seconds. Time taken to deviate from the current route and provide a new route. (short distance*1). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 3.0秒以内. ◆センタ通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 3.0秒以内. 案内中の経路を外れ、新しい経路を提供するまでの時間. (近距離※１) |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）Auto-re-discovery. 自動再探索 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）＜NA/EU/AU＞. Within 1.6 seconds▲3.00. Time from route type selection to route display on the re-search screen (medium distance*2). 1.60秒以内 ▲3.00. 再探索画面のルート種別選択から経路表示までの時間(中距離※２). ＜JP/ROW＞. ・During non-communication with the center. Within 3.5 seconds. ・During communication with the center. Within 4.5 seconds. Time taken to deviate from the current route and provide a new route. (medium distance*2). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 3.5秒以内. ◆センタ通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 4.5秒以内. 案内中の経路を外れ、新しい経路を提供するまでの時間. (中距離※２) |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）Auto-re-discovery. 自動再探索 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）＜NA/EU/AU＞. Within 2.2 seconds ▲3.00. Time from route type selection to route display on the re-search screen (long distance*3). 2.2秒以内 ▲3.00. 再探索画面のルート種別選択から経路表示までの時間(長距離※３. ＜JP/ROW＞. ・During non-communication with the center. Within 4.0 seconds. ・During communication with the center. Within 7.5 seconds. Time taken to deviate from the current route and provide a new route. (long distance*3). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 4.0秒以内. ◆センタ通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 7.5秒以内. 案内中の経路を外れ、新しい経路を提供するまでの時間. (長距離※３） |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | Re-search for traffic information considerations. （DRGS）. 交通情報考慮再探索. （DRGS） | ＜ALL＞. Within 3 seconds. Time between receiving the latest traffic information and displaying a new route. 3秒以内. 最新の交通情報を受信してから新しい経路表示までの時間 |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | Multiple destinations. 複数目的地 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）＜NA/EU/AU＞. Within 1.0 seconds. Time from additional destination setting to 3 route button display (short distance *1). 1.0秒以内. 追加目的地設定から3ルートボタン表示までの時間(近距離※１). ＜JP/ROW＞. Within 3.0 seconds. Time from additional destination setting to recommend route display (short distance *6). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 3.0秒以内. ◆センタ通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 3.0秒以内. 追加目的地設定から推奨ルート▲6.60【24MM(1A)/SU(CV)/CDC(CV)】表示までの時間(近距離※6) |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | Multiple destinations. 複数目的地 | ＜NA/EU/AU＞. Within 2.5 seconds ▲3.00. Time from additional destination setting to 3 route button display (medium distance *2). 2.5秒以内 ▲3.00. 追加目的地設定から3ルートボタン表示までの時間(中距離※２). ＜JP/ROW＞. Within 5.0 seconds. Time from additional destination setting to recommend route display (medium distance *7). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 5.0秒以内. ◆センタ通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 5.0秒以内. 追加目的地設定から推奨ルート▲6.60【24MM(1A)/SU(CV)/CDC(CV)】表示までの時間(中距離※7) ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】 |\n| Nonfunctional requests. Normal load*5. Music playback (SD). Telephone connection. 非機能要求. 通常負荷※５. ・音楽再生(SD). ・電話機接続 | Multiple destinations. 複数目的地 | [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）＜NA/EU/AU＞. Within 4.0 seconds ▲3.00. Time from additional destination setting to recommend route display (long distance *3). 4.0秒以内 ▲3.00. 追加目的地設定から3ルートボタン表示までの時間(長距離※３). ＜JP/ROW＞. Within 8.0 seconds. Time from additional destination setting to 3 route button display (long distance *3). ◆センタ非通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 8.0秒以内. ◆センタ通信時 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】. 8.0秒以内. 追加目的地設定から推奨ルート▲6.60【24MM(1A)/SU(CV)/CDC(CV)】表示までの時間(長距離※8)▲6.60【24MM (1A)/SU(CV)/CDC(CV)】 |\n|  | Initial exploration. All route re-exploration. Auto-re-discovery. Traffic information consideration. Re-explore. （DRGS）. Multiple destinations. 初期探索. 全ﾙｰﾄ再探索. 自動再探索. 交通情報考慮. 再探索. （DRGS）. 複数目的地 | ＜ALL＞. The route search response for each function must be equal to or higher than the existing title model (21MM). (The processing time defined for each of the above functions is satisfied and the processing time in the entrance model is earlier.) ）. 各機能のルート探索レスポンスが既存の号口モデル(21MM)同等以上であること。（上記の機能毎に定義している処理時間を満たすとともに、号口モデルでの処理時間よりも早いこと。）▲6.60【24MM(1A)/SU(CV)/CDC(CV)】 |\n| Route quality | Initial exploration. All route re-exploration. Auto-re-discovery. 初期探索. 全ﾙｰﾄ再探索. 自動再探索 | ＜ALL＞. Discuss continuous route quality improvement, such as improving user satisfaction and market indications, and review and evaluate good product conditions for each search type. ▲3.00. ユーザ満足度や市場指摘からの改善など、継続的な経路品質改善の討議を実施し、探索種別ごとに良品条件の見直し・評価を実施すること。 | [END_TABLE_CONTENT]\n\n[START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]\n各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）*1 Close range: 20km (Set your current location and destination as a guide between cities with a population of 1 million or more))\nExamples: Location: LOS ANGELES, CA, Destinations: INGLEWOOD, CA)\nExamples: Location: Toyota Motor Corporation Headquarters, Destination: Denso Corporation Headquarters) ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n*2 Medium distance: 500km (Set your current location and destination as a guide between cities with a population of 1 million or more))\n[START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]\n各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）Examples: Location: LOS ANGELES, CA, Destination: MONTEREY, CA)\nExamples: Location: Tokyo Metropolitan Government Office, Destination: Osaka Prefectural Government Office) ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n*3 Long distance: 2,000km (Set the current location and destination as a guide between cities with a population of 1 million or more)\nExamples: Location: LOS, CA, Destination: CALGARY, AB ANGELES)\nExamples: Location: Aomori Prefectural Government Office, Destination: Yamaguchi Prefectural Government Office) ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n*5 Performance regulations when traffic information consideration and route learning are not considered\n※１近距離：20km　(人口100万人以上の都市間で現在地、目的地を目安に設定する。\n例：現在地：LOS ANGELES,CA、目的地：INGLEWOOD,CA)\n例：日本:トヨタ自動車本社⇒デンソー本社 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n※２中距離：500km　(人口100万人以上の都市間で現在地、目的地を目安に設定する。\n例：現在地：LOS ANGELES,CA、目的地：MONTEREY,CA)\n例：日本:東京都庁⇒大阪府庁 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n※３長距離：2000km　(人口100万人以上の都市間で現在地、目的地を目安に設定する。\n例：現在地：LOS ANGELES,CA、目的地：CALGARY,AB)\n例：日本:青森県庁⇒山口県庁▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n※５交通情報考慮、ルート学習は考慮しない時の性能規定\nThe route shall be as follows at the additional stopover.\n*6 Close range: 20km (Set your current location and destination as a guide between cities with a population of 1 million or more))\nExamples: Location: Toyota Motor Corporation Headquarters, Destination1: Chiryu Station, Destination2: Denso Corporation Headquarters) ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n*7 Medium distance: 500km (Set your current location and destination as a guide between cities with a population of 1 million or more))\nExamples: Location: Tokyo Metropolitan Government Office, Destination1: Aichi Prefectural Government Office, Destination2: Osaka Prefectural Government Office) ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n*8 Long distance: 2,000km (Set the current location and destination as a guide between cities with a population of 1 million or more)\nExamples: Location: Aomori Prefectural Government Office, Destination1: Niigata Prefectural Government Office, Destination2: Yamaguchi Prefectural Government Office) ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n[START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]\n各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）* Performance regulations when traffic information consideration and route learning are not considered\n追加経由地において経路は下記とすること\n※6：近距離：20km　(人口100万人以上の都市間で現在地、目的地を目安に設定する。\n例：日本:トヨタ自動車本社⇒知立駅（名鉄）⇒デンソー本社 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n※7：中距離：500km　(人口100万人以上の都市間で現在地、目的地を目安に設定する。\n例：日本:東京都庁⇒愛知県庁⇒大阪府庁 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n※8長距離：2000km　(人口100万人以上の都市間で現在地、目的地を目安に設定する。\n例：日本:青森県庁⇒新潟県庁⇒山口県庁 ▲6.60【24MM(1A)/SU(CV)/CDC(CV)】\n※交通情報考慮、ルート学習は考慮しない時の性能規定\n・ The user is not convinced and must not pass the side road instead of the main line with traffic information.\nThe traffic information displayed on the map and the route search results do not lack the user's consent.\nExample of user's unconvincing: Hodogaya bypass ...\nWhile driving on the main line, it becomes a route through the side road running sideways running side by side even though there is no traffic jam in front of you\nWhile traveling on the main line\n→there is information that the main line is crowded, and if the side road is unknown traffic information,\nMake sure you don't have much to go through the side road\n・ユーザの納得性がなく、交通情報等で本線でなく側道を通さないこと。\n地図に表示される交通情報とルート探索結果にユーザの納得性を欠くことが無いこと。\nユーザの納得性がない例：保土ヶ谷バイパス…\n本線を走行中、目の前が渋滞していないにも関わらず、並走している側道を通るルートになる\n→本線を走行中、本線が混雑という情報があり、側道は交通情報不明の場合、側道を通ることがあまりないようにする\n-The System Clock\n\n\n\n [START_SHAPE_CONTENT] 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]\n各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）\n\n\n ▲1.10\n When calculating routes, the waypoint time zones, and DST must be correctly factored in when presenting ETA to any waypoint.\n ▲1.10\nWhen performing off vehicle server route calculations, CVT must be transmitted and used for correct ETA estimations to be returned.\n-ETA accuracy must be able to be measured by the server as a KPI and provided regularly to TMNA.\n・ ETA Accuracy report should be aggregated by location and anonymous following TMNA privacy guidelines.\n・ As part of quotation indicate current ETA Accuracy, and committed timing to future accuracy level, and any exceptions, assumptions, or conditions by region.\n-When a user deviates from route this data must be captured and evaluated to improve routing function."
+  },
+  {
+    "heading_text": "7． Trends and Comparisons of Other Companies 他社動向・比較",
+    "heading_level": 1,
+    "children": [],
+    "content": "None in particular\n特になし"
+  },
+  {
+    "heading_text": "8． How to operate　運用方法",
+    "heading_level": 1,
+    "children": [],
+    "content": "None in particular\n特になし"
+  }
+]

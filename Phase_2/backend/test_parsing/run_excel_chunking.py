@@ -193,12 +193,12 @@ def run_from_raw(raw_path: Path, chunk_size: int, chunk_overlap: int,
 
     # Import the reader from test_parsing/
     sys.path.insert(0, str(BASE_DIR))
-    from xlsx_reader_v2 import process_workbook
+    from xlsx_reader_v2 import process_excel_file
 
     json_path = OUTPUT_DIR / f"{raw_path.stem}.json"
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    result = process_workbook(raw_path)
+    result = process_excel_file(raw_path)
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
     log.info(f"Parsed {raw_path.name} → {json_path}")

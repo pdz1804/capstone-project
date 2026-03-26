@@ -1,0 +1,833 @@
+[
+  {
+    "heading_text": "0－1． Change history",
+    "heading_level": 1,
+    "children": [],
+    "content": "\n[START_TABLE_CONTENT] | Ver | 変更履歴. What's changed? | 作成者. author | 変更理由. Change reason | 日付. date | 正式発行. Official publication |\n| --- | --- | --- | --- | --- | --- |\n| 2.00 | New | VC-based LBS |  | 2021/09/06 | － |\n| 3.00 | 1) Remove mod-related specifications. ※One. 3． Service Contents Table. 6－11． Map Content. 6－14． Map distribution portal site. 6－19． Map update (Map Distribution Center). ※Chapter all. 3－2． Map update by communication equipment. 3－3． Map update by update media. 5－2． Map update by communication equipment. 5－3． Map update by update media. 6－12． Update area. 6－13． Suppression of delivery data (updated data). 6－15． G-BOOK Support Center Service. 6－18． Recovery of map data. 6－22． What to do when a map update conflict. 2) Fixed map updates to all updates. 6－5． Map update service period. 6－6． Map update service rights accrual and termination conditions. 6－7． Behavior after the end of the map update service. 6－8． Map update billing model. 6－9． Maintain map renewal service periods. 3) 1) Correct the chapter numbers of the following and chapters. 6． Service Requirements Table. 9． How to operate. 4) Remove differential update related from QOS. 7． QOS (Quality of Service). 5) Add a supplement to all updates. ５－２－２． Basic movements (normal system). 6) Removed qr code display for all european direction updates. 5－2－3． Requirements for HMI specifications. 7) Revised to exclude European and Australian countries. 5－1－1． Target countries and regions. 5－2－1． Target countries and regions. 8) Added the entire renewal service period for Lexus/Toyota models. 6－5． All renewal service periods. 9) Revised notification processing regarding service deadlines. ５－１－２． Basic movements (normal system). 10) Removed \"17CY\". 6－5． All renewal service periods. 6－9． Maintain all renewal service periods. 11) Remove \"_Overseas\" from the name of the content specification. 6－10． Freshness of information. 7． QOS (Quality of Service). 12) Removed \"Toyota and\". 6－16． Number of years of system support. 13) Changed the \"In-vehicle navigation\" to \"in-vehicle machine\". ５－１－２． Basic movements (normal system). 14) Added Section 10. Map update and triggers, logging, and parameters. Updated the QoS section | VC-based LBS. TMNA |  | 2021/11/19. 2022/3/8 | 〇 |\n| 1.00 | New | VC LBS |  | 2022/3/31 | ○ |\n| RFQ 3.2 | Accepted Changes and created version RFQ 3.2 | TMNA |  | 2022/4/5 |  |\n| 1.10 | 和英併記. Also in Japanese. 5-1-2. QAに対応し、対象仕向を日本だけに修正. According JIRA(WNSDK24-295), modifying the description for target country toward only for JP. QAに対応し、図中に英訳を追記. According JIRA(WNSDK24-295), adding the description for each figure in English. | VC LBS. 飯島 Iijima |  | 2022/7/21 | 〇 |\n| v1.10 | 5-2 Updated Section ▲1.10 WNSDK24-661. 5-2-1 Added EU as a supported region ▲1.10. 5-2-2 Added the EU map update flow for users/dealers ▲1.10. 5-2-3 QR code support for EU ▲1.10 | TMNA Yazid Kadir |  | 2022/7/11 | 〇 |\n| 1.20 | 5-1-1 Temporary map update. 5-2-1 Full map update. 対象国・地域 Target countries and regions. 対象国・地域の表を削除. Delete target countries and regions. 6-5. 全更新サービス期間 Map renewal service period. 欧州GSR-ISA法規要件により、全地図更新サービスの欧州無償7年を追記. In order to comply with GSR-ISA regulation, add the description for full map update service for 7 years free period in EU. 6-16. システム耐用年数 Number of years of system support. 欧州GSR-ISA法規要件により、欧州の全地図更新サービス終了期間14年間の参照先を追記。. In order to comply with GSR-ISA regulation, add the description　for reference of full map update service for 14 years from the last vehicle production in EU. 6-17 更新動作中のほか機能への影響について Impact on functions during update operation. JIRA QA(DC24-5025)に対応し、該当箇所の記載を削除. To comply with JIRA QA(DC24-5025), delete the request for some description. | VC Agent/LBS. 飯島 Iijima |  | 2022/8/12 | ○ |\n| 1.50 | 6-5全更新サービス期間 Map renewal service period. 地図認証、法規対応必要項目に▼Rを追記. Add the description as ▼R for countries which need map approval or to apply regulation. | VC Agent/LBS. 飯島 Iijima |  | 2022/9/21 | ○ |\n| 1.60 | 誤記訂正/Modification for the typo. [START_SHAPE_CONTENT] Ver1.70 以降で、改訂予定部分 Under consideration for 1.70 or later [END_SHAPE_CONTENT]. 対象JIRAチケット/Affected JIRA ticket: DCQA24-471. ・５－１－２．基本動作（正常系） Basic movements (normal system). ・５－２－２．基本動作（正常系） Basic movements (normal system). [START_SHAPE_CONTENT] Ver1.70 以降で、改訂予定部分 Under consideration for 1.70 or late [END_SHAPE_CONTENT]. 誤記訂正/Modification for the typo. 対象JIRAチケット/Affected JIRA ticket: WNSDK24-3006. ・目次Target regionの情報は、『24MM_Navi_Target region for 522 common requirement spec Ver.*.**.xlsx』で管理する為、『5-1-1.Target country/region』、『5-2-1.Target countries and regions』を取り消し線で削除。. The table of contents for “Target region” should be referred with the different file of “24MM_Navi_Target region for 522 common requirement spec Ver.*.**.xlsx”. The strikethrough was added for the both of the table of contents “5-1-1.Target country/region” and “5-2-1.Target countries and regions”. | VC Agent/LBS. Kashima | [理由]. 誤記訂正. Modification for the specification document | 2022/12/16 | ○ |\n| 1.60. Phase2 | To comply with DCQA24-463, updated the procedure in 5-2-2 to add clarity for regions that require USB update. | TMNA Yazid Kadir |  | 2022/12/16 | 〇 |\n| 1.70 | NVJ24-9469. 5-1-2.基本動作（正常系）内の一時地図更新の協調表示の機能廃止. Deprecated functionality for highlighting temporary map updates | VC Agent/LBS. Kumagai | サービス有効性を再検証し廃止. Revalidate service effectiveness and abolish | 2022/3/17 | - |\n| 1.70 | 機能追加/Function addition. 変連番号:DC24-9609, DC24-13146. 対象JIRAチケット/Affected JIRA ticket: WNSDK24-3274. ・５－２－２．基本動作（正常系） Basic movements (normal system). 標準ダイアグにて地図品番が出力できることを追記。. Add the description for output the parts number of map via standard diag. | VC Agent/LBS. Iijima | SU法規要件のトレサビ取得のため、21MMキャリーで個別対応していたダイアグ出力を標準ダイアグで対応することで標準化を実現。. To apply to UN-R156 for traceability of map, we carried 21MM spec to output the traceability information in unique way. We can realize standard way. | 2022/3/17 | - |\n| 1.70 | 正式発行. Official Release | VC Agent/LBS. Kashima | Ver1.70正式発行する為. To release ver1.70 | 2023/3/17 | 〇 |\n| 1.71 | 5-2-2: Updating USB update wording and region flags as discussed in WNSDK24-3558, DCQA24-463. ▲1.71 | TMNA Anna Shelukha | Clarify process of updating the map. | 2023/3/22 | 〇 |\n| 3.50 | 7. QOS (サービス品質Quality of Service). 【仕様明確化/Spec clarification】. 【対象JIRA/ Affected JIRA】. DC24-25998/WNSDK24-5990. 【変更内容】. 全更新サービスにおいて、『RSASSA-PKCS1-v1_5』に対応し、ハッシュ値をSHA-256の仕様にする内容を追加。. Regarding the full map update. service, we added that the content. of “『RSASSA-PKCS1-v1_5』 must be. complied and Hash value must be. developed based on 『SHA-256』 spec.” | LBS. Kashima | Clarification for the RSA( Reliability, Availability and Serviceability) specification of the full map update service | 2023/12/15 | 〇 | [END_TABLE_CONTENT]\n\n[START_TABLE_CONTENT] | 6.10 | ５－２－２．基本動作（正常系） Basic movements (normal system). ６－５．全更新サービス期間 Map renewal service period -3.00. 【仕様明確化/Spec clarification】. 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】. 【対象JIRA/ Affected JIRA】. DC24-37285/WNSDK24-6879/ WNSDK24-6880. 【変更内容】. ▽Rの図をテキストにて\"▽R\"に変更する. The picture of \"▽R\" is changed to text font \"▽R\". | LBS. Kashima | The regulation check action has been led by 3DPV, then 3DPV requested related members to change the picture of “▽R” to text “▽R” to be find the point with text search. | 2024/5/31 | 〇 |\n| --- | --- | --- | --- | --- | --- |\n| 6.20 | 7. QOS (サービス品質Quality of Service). 【仕様変更/Spec change】. 【CDC(PreCV)】. 【対象JIRA/ Affected JIRA】. DC24-40560/WNSDK24-7097. 【変更内容/Change content】. ・参照セキュリティ仕様書の説明誤記修正. ・Reference of Information Security Requirements Specifications is modified for the correction. 変更前: 21CY_情報セキュリティ要求仕様書. Before: 21CY_ Information Security Requirements Specifications. 変更後: 24CY_情報セキュリティ要求仕様書. After: 24CY_ Information Security Requirements Specifications. ・暗号化方式の変更. Change of Encryption method. 変更前/Before: RSASSA-PKCS1-v1.5. 変更後/After: EDCSA. ・セキュリティのリプロに関する項目を削除. Deletion for the Repro topic for security. | LBS. Kashima | RSASSA-PKCS1-v1.5（鍵長2048bit）の暗号化方式は、2041年以降は、セキュリティ強度要件上、使用不可となる為、暗号化方式の変更が必要。. また、リプロに関する記載は本仕様書に記載ないため、セキュリティの項目からリプロに関する記載削除. The encryption scheme of ”RSASSA-PKCS1-v1.5”(key length 2048bit) is going to be prohibited due to the low security level from 2041 year. The encryption scheme must be changed from current one. And, the related “Repro” information is deleted from security item because there is no explanation for “Repro” content in this document | 2024/6/28 | 〇 |\n| 6.30 | 7. QOS (サービス品質Quality of Service). 【仕様変更/Spec change】. 【24MM(CV#2)/SU(PreCV)】. 【対象JIRA/ Affected JIRA】. DC24-37986(№1204)/WNSDK24-7097. 【変更内容/Change content】. 24MM/SUに対しても、Ver6.20のCDC変更対応(DC24-40560)を実施. The same HENREN content(DC24-40560) of CDC is applied to 24MM/SU as well. ６－５．全更新サービス期間 Map renewal service period. 【仕様変更/Spec change】. 【24MM(CV#2)/SU(PreCV)/CDC(PreCV)】. 【対象JIRA/ Affected JIRA】. DC24-42027(№1246)/WNSDK24-7151. 【変更内容/Change content】. 全更新サービス期間の修正対応. The modification for map renewal service period correction. | LBS. Kashima | CDCと24MM/SUで変連が分かれており、仕様書発行タイミングがそれぞれ別の為。. The HENREN is separated between CDC and 24MM/SU, and the specification update timing also separated. 全更新サービス期間の記載内容が間違っていた為. Map update period content was not correct. | 2024/8/30 | 〇 |\n| 6.60 | ５－２－２．基本動作（正常系） Basic movements (normal system). 【仕様明確化/Spec clarification】. 【24MM(1A)/SU(PreCV)/CDC(PreCV)】. 【対象JIRA/Affected JIRA】. DC24-55857(No.1470)/WNSDK24-7382 WNSDK24-7881/ WNSDK24-7882/ WNSDK24-7883. 【変更内容/Change content】. ソフト更新に関する内容を削除. Delete the comment related to SW update | LBS. Kashima | SU法規(UN-R156)観点で、地図更新画面遷移内にソフト更新に繋がる画面遷移を入れるべきでないと判断した為。. From the SU regulation(UN-R156) point of view, we judged that the screen transition for map update should not have the SW update screen transition. | 2024/12/13 | 〇 |\n| 7.20 | 【24SU/CDC(CV)】. DC24-63294（SUCDC-109）. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" | LBS. Shoya Moriyama |  | 2025/3/14 |  |\n| 7.30 | 【24SU TW CONNECTED(CV)）】. 変連№DC24-51648（SU-033）. 【変更】. 5-1.通信機器による一時地図更新. ・台湾HYB化に伴い、台湾仕向においてもサービス期間終了後の動きについても明記. 5-1. Temporary map update by communication equipment. In line with the HYB transition in Taiwan, it is also specified for shipments to Taiwan regarding actions taken after the service period ends. | LBS. Shoya Moriyama | 台湾HYB化対応 | 2025/4/15 |  | [END_TABLE_CONTENT]\n\n目次 table of contents\n0－1． Change history  1\n0－2． Term Definition  4\n1． Aim of service  5\n2． Main use scene  5\n3． Service Description  5\n3－1． Temporary map update by communication equipment  5\n３－２． Full Update  6\n4． System Configuration Figure  7\n5． Operation Overview / HMI Image  8\n5－1． Temporary map update by communication equipment  8\n8　▲Ver1.60\n５－１－２． Basic Movements (Normal)  8\n5－1－3． Demand  11 for HMI specifications\n5－1－4． Custom Item  11\n5－1－5． Exception operation (abnormal system)  11\n5－1－6． Others  11\nPAGEREF _Toc87878056 \\h\n12\n12\n12 for HMI specifications\n12\n13\n13\n14\n14\n14\n14\n15\n15\n５－２． Full Update  16\n16　▲Ver1.60\n５－２－２． Basic action (normal system)  16\n5－2－3． Requirement for HMI specifications  16\n5－2－4． Custom Item  17\n5－2－5． Exception operation (abnormal system)  17\n5－2－6． Others  17\n6． Service Requirement  18\n6－1． Temporary map update service period  19\n6－2． Temporary map update service right accrual and termination condition  19\n6－3． Behavior after the temporary map update service ends  19\n6－4． Temporary map update billing model  19\n6－5．   Map renewal service period  19\n6－6．   Map Renewal Service Rights Accrual and Termination Conditions 20\n6－7． Behavior after the completion of all map update service  21\n6－8．all update billing model 22\n6－9． Management of all map renewal service period 22\n6－10． Freshness of Information  23\n6－11． Map Content  23\n)\n6－12． Map distribution portal site  25\n6－13． Operation confirmed write environment  26\n6－14． Service-enabled  27\n6－15． Map Update (Map Distribution Center)  28\n6－16． System support  28\n6－17． Impact on functions during update operation\n7． QOS (Quality of Service) 31\n8． Trends and Comparision of Other Companies 47\n9． How to Operate 50\n10．Map Update and Triggers 51\nTrends and Comparison of Other Companies36\n9． Operation method  38"
+  },
+  {
+    "heading_text": "0－2． Term Definition",
+    "heading_level": 1,
+    "children": [],
+    "content": "本書で使用する専門用語、造語について以下に列挙する。\nTechnical terms and coined words used in this book are listed below.\n[START_TABLE_CONTENT] | 用語　term | 説明　explanation |\n| --- | --- |\n| 全更新. Full update | 年に２～４回リリースされる地図年度版データによって、すべての地図データを最新のバージョンに更新する処理. The process of updating all map data to the latest version with map year data released 2-4 times a year or more. |\n| ポータルサイト. Portal site | ユーザーが地図更新用のデータをダウンロードする為のwebサイト. Websites for users to download data for map updates |\n| VIN | 車両識別番号（Vehicle Identification Number）. Vehicle Identification Number |\n| ライセンスキー. License key | 全更新を行う時に必要とするキー。車載機を特定するIDと更新する地図DBの組み合わせで作成する。. The key required to make all updates. It is created by a combination of id that identifies the in-vehicle machine and the map DB to be updated. |\n| 有料ライセンスキー. Paid license key | 課金を行って入手したライセンスキー. License key obtained by charging |\n| 無料ライセンスキー. Free license key | 地図更新サービス期間中のみ使用できるライセンスキー。課金を行うことなく入手できる。. A license key that can only be used during the map update service period. Available without charging. | [END_TABLE_CONTENT]\n"
+  },
+  {
+    "heading_text": "1． Aim of service",
+    "heading_level": 1,
+    "children": [],
+    "content": "本サービスは、ユーザーに最新の地図を提供し、道案内としてのナビの利便性向上及びNavi協調車両統合制御に必要な情報の鮮度向上を行うことを目的とする。\nThe purpose of this service is to provide users with the latest maps, improve the convenience of navigation as directions, and improve the freshness of information necessary for Navi cooperative vehicle integration control."
+  },
+  {
+    "heading_text": "2． Main use scene",
+    "heading_level": 1,
+    "children": [],
+    "content": "1 車の運転時に、意識せず最新の地図DBを使用したい\nWhen driving a car, I want to use the latest map DB without being conscious\n2 オフライン時でも新しい地図DBを使用したい\nI want to use a new map DB even when I am offline\n3 有事の際でもユーザーが必要とする地図DBを最適に使用したい\nI want to use the map DB that the user needs optimally even in the event of an emergency\n4 ユーザーがWEB上で地図データを入手し、地図DBを更新したい\nUsers want to obtain map data on the web and update map DB\n5 販売店に入庫時に、地図DBを更新したい\nI want to update the map DB when I enter the store\n地図更新概要\nOverview of Map Updates\n6 ACC ONで地図更新を開始\nMap Update at ACC On\n7 （オンライン時）ズームイン/アウト、マップスクロールの際に地図更新\nMap Update Zoom In/Out, Map Scroll (while online)\n8 （オフライン時）ズームイン/アウト、マップスクロールの際に地図更新\nMap Update Zoom In/Out, Map Scroll (while offline)\n9 事前にダウンロードした地図を使って、目的地に向かってルートを探索\nRouting to destination within Pre-Downloaded Map\n10 事前にダウンロードした地図の範囲を超えて、目的地に向かってルートを探索\nRouting to destination outside Pre-Downloaded Map\n11 ルート探索なしに地図更新\nMap Update without Routing\n12 地図更新実施（車載機内蔵地図）\nUpdate in Progress (Incremental Map Update)\n13 ネットワーク圏外エリアでの動作制約を軽減する\nMitigating No-Network Areas\n14 地図更新のエラーと注意喚起\nMap Update Errors and Alerts\n15 サーバーパラメータを更新する\nMap Update Server Parameters"
+  },
+  {
+    "heading_text": "3． Service Description",
+    "heading_level": 1,
+    "children": [
+      {
+        "heading_text": "3－1． Temporary map update by communication equipment",
+        "heading_level": 2,
+        "children": [],
+        "content": "・センターに格納される最新の地図DBを取得し、最新の地図情報を使用できるサービスを提供する\n・ Provide a service that can obtain the latest map DB stored in the center and use the latest map information\n・センターの地図DBをナビのキャッシュ上に一時的に保持して、ナビ使用中にオフラインとなっても最新の地図使用を継続できるようにする\n・ Temporarily keep the map DB of the center on the navigation cache so that you can continue to use the latest map even if you are offline while using navigation\n※センター地図の更新頻度の詳細は「付録：地図更新コンテンツ要求仕様書」を参照\n* For details on the update frequency of the center map, please refer to \"Appendix: Map Update Content Request Specifications\""
+      },
+      {
+        "heading_text": "３－２． Full Update",
+        "heading_level": 2,
+        "children": [],
+        "content": "・ナビに全更新メディアを接続して、すべての地図DBを更新できるサービスを提供する\n・ Provide a service that can update all map DB by connecting all update media to navi\n・ライセンスキーによって、ナビが更新可能な更新メディアを判断する\n・ Determine which update media navigation can update by license key\n・ナビの地図データより新しい地図データの場合に更新する\nUpdate in the case of map data newer than navi map data\n※更新メディアは、USBを想定\n* The updated media is assumed to be USB."
+      }
+    ],
+    "content": "\n[START_TABLE_CONTENT] | サービス内容 Service Content | 1 | 2 | 3 | 4 | 5 |\n| --- | --- | --- | --- | --- | --- |\n| 通信機器による一時地図更新. Temporary map update by communication equipment | ○ | ○ | ○ |  |  |\n| ▲3.00 |  |  |  |  |  |\n| ▲3.00 |  |  |  |  |  |\n| 全更新. Full update |  |  |  | ○ | ○ | [END_TABLE_CONTENT]\n"
+  },
+  {
+    "heading_text": "4． System Configuration Figure",
+    "heading_level": 1,
+    "children": [],
+    "content": "[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_1_4ac16c0e.png|4ac16c0e3a252f0e7019f407353a0042 [END_IMAGE_PATH]"
+  },
+  {
+    "heading_text": "5． Operation Overview / HMI Image",
+    "heading_level": 1,
+    "children": [
+      {
+        "heading_text": "5－1． Temporary map update by communication equipment",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "５－１－２． Basic Movements (Normal)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "サービス概要 Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "・センターに新しい地図データを配置し、通信により常時最新の地図データを取得する。\n・ Place new map data in the center and always acquire the latest map data by communication.\n・ユーザー体験について\nAbout user experience\n①自宅から目的地を移動する際に、自宅周辺、ルート沿いをセンターの最新地図DBで案内する\n(1) When moving from home to the destination, guide the area around your home and along the route with the latest map DB of the center\n②目的地に到着後、目的地周辺をセンターの最新地図DBで案内する\n(2) After arriving at the destination, guide the destination area with the latest map DB of the center\n③ルート案内中に通信オフライン状態が発生した場合も、センターの最新地図DBで案内継続する\n(3) Even if a communication offline state occurs during route guidance, continue to guide with the latest map DB of the center\n(センター地図DBをキャッシュしている範囲内で動作)\n(Works within the range where the center map DB is cached)\n但し、ナビ契約が切れた場合はキャッシュデータを利用しなくてよい\nHowever, if the navi contract expires, you do not have to use cache data.\n[START_SHAPE_CONTENT] ■ : センターの地図DB キャッシュ Center Map DB Cache → : Guide Route 案内ルート [END_SHAPE_CONTENT]\n■: センターの地図DBキャッシュCenter Map DB Cache→: Guide Route 案内ルート\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_2_74dde9af.png|74dde9afe45f6590c4524983a211ff1a [END_IMAGE_PATH]\n・サービス期間終了の場合は、ユーザーに再契約を促す通知をする。(JP/台湾のみ▲7.30（24SU TW CONNECTED(CV)）　)\n・ In the case of the end of the service period, notify the user to re-contract. ▲3.00\n(Only for JP　 and　Taiwan ▲7.30（24SU TW CONNECTED(CV)）)\n▲1.70"
+              },
+              {
+                "heading_text": "サービス要件 Service requirements -3.00",
+                "heading_level": 4,
+                "children": [],
+                "content": "・ センターの地図DBをキャッシュ上に保持して、オフライン時、およびACCオフオン後でも最新地図を継続して使用可能なこと。\n・ Keep the center map DB on the cache and continue to use the latest map when offline and after ACC is on off.\n・ 取得する地図データバージョンはセンターで保持しているバージョンとなる。\n・ The map data version to be acquired is the version held in the center.\n・ センター側の地図が新しく、車載側の地図にはない道路で探索する必要がある場合は、センターから「案内に必要なデータ(音声データ、描画データ含む)」もダウンロードし目的地までは最新の道路ネットワークで案内できるようにする。この時、道路に関するデータを優先的に取得すること。\n・ If the map on the center side is new and it is necessary to search on a road that is not on the map on the in-vehicle navigation machine side, download \"data necessary for guidance (including voice data and drawing data)\" from the center so that it can be guided to the destination on the latest road network. At this time, preferentially acquire data on roads.\n・ 一時地図配信で取得したローカル地図DBにない道路を走行する場合の案内機能は、ローカルDBを最新に更新した場合と同等レベルの案内とすること。\n・ The guidance function when driving on a road that is not in the local map DB acquired by temporary map delivery should be at the same level as when updating the local DB up to date.\n・ センターからの通知で地図データの取得範囲、取得対象の地図コンテンツを変更可能なこと。\n・ The range of the acquisition of the map data and the map content to be acquired can be changed by notification from the center.\n・ サービス期間はセンターで管理すること。\n・ The service period must be managed by the Center.\n・ 地図全更新の実施時、センターの地図バージョン更新検知時にはキャッシュ削除すること。\n・ When all map updates are performed, and when the map version update of the center is detected, the cache should be deleted.\n・ 一時地図配信データ取得(通信)開始/終了条件\n・ Temporary map delivery data acquisition (communication) start / end conditions\n 開始条件 Start condition\nACC－ON時\n 終了条件 To condition\nACC－OFF時\n・ 主要機能動作要求\n・ Main functional action requirements\n 探索/POI検索機能:\n Explore/POI search function: ▲3.00\n車載内でキャッシュしている一時地図配信データとローカルDBをそれぞれ参照し、より最適な情報を提供する。\nIt provides more optimal information by referring to temporary map distribution data and local DB cached in the in-vehicle navigation machine, respectively.\n※補足:車載での探索では、センターから取得したエリアと車載機が保持しているエリアの\n境界付近の道路ネットワークは接続保証されないことに注意。\n* Supplementary note : In the search with an in-vehicle navigation machine, the area acquired from the center and the area held by the in-vehicle machine\nNote that road networks near the perimeter are not guaranteed \n[START_SHAPE_CONTENT] The area which has map data only in vehicle. [END_SHAPE_CONTENT]\nThe area which has map data only in vehicle.connectivity.\n[START_SHAPE_CONTENT] The area in map which downloaded from server . [END_SHAPE_CONTENT]\nThe area in map which downloaded from server.\n[START_SHAPE_CONTENT] センターから取得した最新 Verの地図データ上には存在する道路が車載機の旧Verのデータには存在しない可能性有り。 There is a possibility that the road that exists on the map data of the latest Ver obtained from the center does not exist in the data of the old Ver of the in-vehicle machine. ⇒その場合、目的地までの探索ができない。 ⇒ In that case, you will not be able to search to your destination. [END_SHAPE_CONTENT]\nセンターから取得した最新Verの地図データ上には存在する道路が車載機の旧Verのデータには存在しない可能性有り。There is a possibility that the road that exists on the map data of the latest Ver obtained from the center does not exist in the data of the old Ver of the in-vehicle machine.⇒その場合、目的地までの探索ができない。⇒ In that case, you will not be able to search to your destination.　　　　　　　\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_3_40309f2c.png|40309f2c23b51decddb08ddedf2ce9b3 [END_IMAGE_PATH]\n 案内/ロケーション機能 Information/Location Features:\n各機能に必要な範囲の一時地図配信データを使用して各機能を実現する。\nEach function is realized using temporary map delivery data within the range required for each function.\n自車位置移動に伴い一時地図配信データをセンターから再度取得する。\nTemporary map distribution data is acquired again from the center with the movement of the vehicle position.\n※取得範囲・取得タイミングは各社検討し機能仕様書に反映すること。\n* The scope and timing of acquisition should be examined by each company and reflected in the functional specifications.\n[START_SHAPE_CONTENT] It is necessary to get the data along route for route searching function. [END_SHAPE_CONTENT]\nIt is necessary to get the data along route for route searching function.\n[START_SHAPE_CONTENT] It is necessary to get the data around the current position for location function. [END_SHAPE_CONTENT]\nIt is necessary to get the data around the current position for location function.\n[START_SHAPE_CONTENT] It is necess ary to get the data along route for route searching function. [END_SHAPE_CONTENT]\nIt is necessary to get the data along routefor route searching function.\n[START_SHAPE_CONTENT] Moving location [END_SHAPE_CONTENT]\nMoving location\n[START_SHAPE_CONTENT] It is necessary to get the data around the current position for location function. [END_SHAPE_CONTENT]\nIt is necessary to get the data around the current position for location function.\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_4_cc56f969.png|cc56f9696c435188b4581e215bdd5aa4 [END_IMAGE_PATH]\n【一時地図配信データ取得イメージ(案内/ロケ)】\n[Temporary map delivery data acquisition image (guide / location)]\n 地図描画機能 Map drawing function: ▲3.00\n・ 車載機は、ローカル地図DBを参照し地図描画する。\nThe in-vehicle  navigation machine maps DB by referring to the local map DB.\n車載機は、センターに一時地図配信データ取得要求を送信する。\nThe in-vehicle  navigation machine sends a request to acquire temporary map distribution data to the center.\n(自車位置周辺等を中心とした描画エリア、かつ、表示縮尺により該当するレイヤを要求すること。)\n(Request a drawing area centered around the vehicle position, etc., and the corresponding layer according to the display scale.)\nセンターは車載機に一時地図配信データを送信する。\nThe center  sends temporary map delivery data to the in-vehicle navigation machine.\n車載機は受信した一時地図配信データを使用して、地図を描画する。\nThe in-vehicle  navigation machine draws a map using the received temporary map delivery data.\nまた、渋滞情報も取得した一時地図配信データに合わせて表示する。\nIn addition, traffic jam information is also displayed according to the acquired temporary map delivery data.\n[START_SHAPE_CONTENT] It is necessary to get the data around the current position . [END_SHAPE_CONTENT]\nIt is necessary to get the data around the current position.\n[START_SHAPE_CONTENT] It is necessary to get the data around the scrolled position . [END_SHAPE_CONTENT]\nIt is necessary to get the data around the scrolled position.\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_5_f927d8c9.png|f927d8c942a42c65789e24590168c543 [END_IMAGE_PATH]\n【一時地図配信データ取得イメージ(地図描画)】\n[Temporary map distribution data acquisition image (map drawing)]"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－1－3． Demand",
+            "heading_level": 3,
+            "children": [],
+            "content": "特になし\nNone in particular"
+          },
+          {
+            "heading_text": "5－1－4． Custom Item",
+            "heading_level": 3,
+            "children": [],
+            "content": "特になし\nNone in particular"
+          },
+          {
+            "heading_text": "5－1－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ 通信できない等の理由でセンターから一時地図の情報取得に失敗し、キャッシュ地図DBによる動作を継続できない場合は、ローカル地図DBにて動作させる。\n・ If the information acquisition of the temporary map is failed from the center due to reasons such as not being able to communicate, and the operation by the cache map DB cannot be continued, it is operated by the local map DB."
+          },
+          {
+            "heading_text": "5－1－6． Others",
+            "heading_level": 3,
+            "children": [],
+            "content": "特になし\nNone in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "5－2－1．　Target countries and regions",
+        "heading_level": 2,
+        "children": [],
+        "content": "\n[START_TABLE_CONTENT] |  | [START_SHAPE_CONTENT] Complies with Post21DCM standards (center-only) [END_SHAPE_CONTENT] |  |  |  |  |  |  |  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n|  | [START_SHAPE_CONTENT] Complies with Post21DCM standards (center-only) [END_SHAPE_CONTENT] |  |  |  |  |  |  |  |  |  |  |  |  | [END_TABLE_CONTENT]\n"
+      },
+      {
+        "heading_text": "５－２－２．　Basic action (normal system)",
+        "heading_level": 2,
+        "children": [],
+        "content": "1\n2\n3"
+      },
+      {
+        "heading_text": "５－２． Full Update",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "５－２－２． Basic action (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "サービス概要 Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "【主要動作 Main Action】\n・全更新メディアによる全更新\n・All updates by all update media\n1 ナビに全更新メディアを接続する\nConnect all update media to navigation\n2 ライセンスキーを入力する\nEnter your license key\n3 全更新メディアから最新の地図データを取得して更新開始する\nGet the latest map data from all update media and start updating\n4 更新が完了したら、更新完了した旨をナビ上に通知する\nWhen the update is complete, notify navigation that the update is complete▲Ver6.60 24MM(1A)/SU(PreCV)/CDC(PreCV)\n※③の動作開始後は、更新完了までユーザー操作無しで動作する\n* After the operation of (3) starts, it operates without user operation until the update is completed.\n・地図パッケージ内の対象国について、センターなし仕向けにおいても追加/削除ができること\n[START_SHAPE_CONTENT] ▲ Ver1.60 [END_SHAPE_CONTENT]▲Ver1.60・For eligible countries in the map package, it is possible to add / remove even for tailoring without centers\n例)ウクライナの法規対応により、全欧地図データにおいてウクライナのみを表示することができるなどを販売店やダイアグを通して設定できるようにすること\nExample) In response to Ukrainian laws and regulations, it is possible to set up the display of Ukraine in all European map data through dealers and diagnostics\n※追加にあたっては現地の法規/認証や生産工程での作業に制約があり、対応方法毎に協議して決められるよう複数の対応手段を提供できること。\n* There are restrictions on local laws/ certifications and work in the production process, and multiple response measures can be provided so that they can be decided by consultation for each response method. ▲3.00\n▽R　　・UN-R156法規に対応するため、ナビ地図DB内に地図品番情報を格納、標準ダイアグにて地図品番が出力できること。　▲Ver1.70　▲Ver6.10(24MM(CV#2)/SU(PreCV)/CDC(PreCV))\nTo comply UN-R156 regulation, navi map DB has map parts number information\ninside of itself, and the output of map parts numbers of map can be\nexecuted via the standard diag.\n・全地図更新をした場合、出力する地図品番は更新後のものとすること。▲Ver1.70\nWhen HU is finished full map update, the output of map parts number should be the updated one.\n・出力する地図品番は、マイナー符号も含めること。送信する地図品番のフォーマットは46F発行の標準ダイアグ仕様に準拠すること▲Ver1.70\nThe output of map parts number should also be involved Minor sign.\nThe format in order to send map parts number should apply to the standard diag spec which is released by 46F.\n詳細はSpec 513:MMCANダイアグ機能仕様書_24MM_Diagnostic_CAN_specification。\nThe detail is mentioned in the “Spec 513:MMCANダイアグ機能仕様書\n_24MM_Diagnostic_CAN_specification”.\n1\n▲1.71 [EU/AU]\n　　Full Update by USB\n① On computer browse to online store application: E-store\n2 Authenticate as user and select map version\n3 Download and save new map version to USB\n4 Insert USB in vehicle USB drive and begin update of HU maps\n5 When the update is complete, notify navigation that the update is complete\n* If software update is required, perform before (4) works\n* After the operation of (4) starts, it operates without user operation until the update is completed.\n* For eligible countries in the map package, it is possible to add / remove even for tailoring without centers\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_6_73367c52.png|73367c523404188afeac69da44a7aee5 [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_7_fe48137a.png|fe48137ae94a12fe07f02642d0f5092d [END_IMAGE_PATH]"
+              }
+            ]
+          },
+          {
+            "heading_text": "5－2－3． Requirement for HMI specifications",
+            "heading_level": 3,
+            "children": [],
+            "content": "・全更新メディアによる全更新\n・All updates by all update media\n更新する地図バージョンを表示する\nView the map version to update\n更新中は進捗状態、残り時間を表示する\nShow progress status and remaining time during update\n更新が完了したら、更新完了した旨をナビ上に通知する\nWhen the update is complete, notify navigation that the update is complete\n.▲1.10 [EU]\n< The map update ID > European direction and information that can be determined whether or not it is during the entire update service period can be displayed on the in-vehicle machine screen with a QR code.▲3.00"
+          },
+          {
+            "heading_text": "5－2－4． Custom Item",
+            "heading_level": 3,
+            "children": [],
+            "content": "特になし\nNone in particular"
+          },
+          {
+            "heading_text": "5－2－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "・ 全更新メディアの異常を検知した場合は、異常がある旨をナビ上に通知し、全更新を開始しない。\n・ If an abnormality of all update media is detected, notify the navigation system that there is an abnormality and do not start all updates.\n・ データコピー中にACC-OFFが発生した場合は、次回ACC-ON時に処理を再開する。\n・ If ACC-OFF occurs during data copying, resume processing the next time ACC-ON.\n・ データコピー中にエラーが発生した場合は、既定のリトライを実施する。\n既定のリトライで復帰しない場合は、更新エラー画面を表示する。\n・ If an error occurs during a data copy, perform a default retry.\nIf the default retry does not return, the update error screen is displayed.\n・ 更新エラー画面には、更新開始日、ライセンスキー、更新メディア、エラーコード、エラー発生工程を表示する。\n・ The update error screen displays the update start date, license key, update media, error code, and error occurrence process.\n・ 更新エラー後、ACCオフオンがあった場合は、前回のレジューム地点からデータコピーを再開する。\n・ If acc is off on after an update error, resume the data copy from the previous resume point."
+          },
+          {
+            "heading_text": "5－2－6． Others",
+            "heading_level": 3,
+            "children": [],
+            "content": "< Europe market>If there are several map packages in the one market such as Europe market, the full map update must be available without any restrictions for each map package.\n(e.g.: Must be available to perform the full map update from Turkey to Europe .)\n▲1.00"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "heading_text": "6． Service Requirement",
+    "heading_level": 1,
+    "children": [
+      {
+        "heading_text": "6－1． Temporary map update service period",
+        "heading_level": 2,
+        "children": [],
+        "content": "本サービスは一時地図配信サービスフラグONの間、一時地図配信のサービスを受けることが出来る。\nThis service can receive temporary map distribution service service during temporary map distribution service flag ON."
+      },
+      {
+        "heading_text": "6－2． Temporary map update service right accrual and termination condition",
+        "heading_level": 2,
+        "children": [],
+        "content": "一時地図配信サービスフラグはセンターで管理する。\nTemporary map distribution service flags are managed by the center."
+      },
+      {
+        "heading_text": "6－3． Behavior after the temporary map update service ends",
+        "heading_level": 2,
+        "children": [],
+        "content": "一時地図配信サービス終了後は、利用する場合に課金が必要となる。\nAfter the temporary map distribution service ends, you will need to pay when using it."
+      },
+      {
+        "heading_text": "6－4． Temporary map update billing model",
+        "heading_level": 2,
+        "children": [],
+        "content": "ユーザーがWEB上で課金することで、センターで管理する期間を延長することができる。\nBy charging on the web, the period of management in the center can be extended."
+      },
+      {
+        "heading_text": "renewal service period19",
+        "heading_level": 2,
+        "children": [],
+        "content": "本サービスは新車（新規車載機）購入後、数年間課金を行わず無料ライセンスキーによる全更新サービスを受けることが出来るサービスである。\nThis service is a service that allows you to receive all renewal services with a free license key without charging for several years after purchasing a new car (new in-vehicle machine).\n[START_TABLE_CONTENT] | ケース case | サービス期間 Service period |\n| --- | --- |\n| 新車購入時. もしくは. 新規車載機購入時(※1). When purchasing a new car. or. When purchasing a new in-vehicle unit (*1) | n（※2）年間、課金を行わず地図全更新サービスが行える。. n(*2) For years, you can perform a map update service without charging. |\n| 有料ライセンスキーによる. 全更新時. By paid license key. When fully updated | 全更新を行い、その後m（※2）年間 と、. 全更新メディア内に設定しているメディア提供有効期限p（※2）年の期間の短い期限の間、課金を行わず地図全更新サービスが行える。. All updates are made, and then m(*2) years and. During the short period of the media provision expiration date p (*2) year set in all renewal media, all map renewal services can be performed without charging. | [END_TABLE_CONTENT]\n\n※ 1 想定しているケースは地図更新対応用品車載機購入時\n※ 1 The assumed case is at the time of purchase of a map update compatible product in-vehicle machine\n※ 2  ▲3.00\n24CY Japan: No free period\n24CY AU/Row: n=3、m=2、p=5▲Ver6.30(24MM(CV#2)/SU(PreCV)/CDC(PreCV))\n24CY Europe market: n=7  ▽R, m=2, p=5　▲1.00 ▲1.20▲Ver6.10(24MM(CV#2)/SU(PreCV)/CDC(PreCV))\n(a)新車購入後、直ぐに（例：半年後）全更新を行った場合サービス期間の考え方n年メディア提供有効期限（b）全更新m年延長(c)全更新日+m年後の日時がメディア提供有効期限を超える場合(b)全更新日+m年後の日時がメディア提供有効期限内の場合全更新版発行年月日＋p 年迄延長（c）全更新m年全更新版発行年月日+p年迄有効全更新メディア内に、設定m年（a）全更新（n – a）年延長a年（＜ n - m）新車購入全更新全更新実施タイミングとサービス終了日の関係\n(a) Immediately after purchasing a new car (e.g. six months later)When all updates are madeConcept of service periodn yearsMedia offer expiration date(b) Full updatem-year extension(c) When the date and time after all renewal date + m exceeds the media provision expiration date(b) If the date and time after all renewal date + m is within the media provision expiration dateExtended to all updated version issue date +p year(c) Full updatem yearsValid until all updated issue date +p yearWithin all update media, setm years(a) Full update(n – a) year extensionayear (< n - m）Buy a new carFull updateRelationship between timing of all updates and end-of-service"
+      },
+      {
+        "heading_text": "6－6． 全更新サービス権利発生と終了条件 Renewal Service Rights Accrual and Termination Conditions ▲3.00",
+        "heading_level": 2,
+        "children": [],
+        "content": "本サービスの権利は新車（新規車載機）購入後とする（下表参照）。\nThe rights to this service shall be after the purchase of a new car (new in-vehicle vehicle) (see table below).\n即開始としないでユーザーがサービスを始めたいタイミングから開始とすると、10、20年後まで地図の更新サービスを保証する必要が出てしまうため上記考え方としている。\nIf the user starts from the timing when they want to start the service without starting immediately, it is necessary to guarantee the map update service until 10 or 20 years later, so the above idea is considered.\n以下の条件で地図更新サービス期間が開始、終了される。\nThe map update service period starts and ends under the following conditions.\n[START_TABLE_CONTENT] | ケース. Case | 地図更新サービス期間開始. Map update service period started | 地図更新サービス期間終了. Map renewal service period ends |\n| --- | --- | --- |\n| 新車購入時. もしくは. 新規車載機. 購入時. When purchasing a new car. or. New in-vehicle equipment. At the time of purchase | 下記いずれかの条件を満たした時（※1）. (ⅰ)走行距離100km経過時. (ⅱ)サプライヤー工場出荷後1年経過時. When any of the following conditions are met (*1). (i) When the mileage has passed 100 km. (ii) One year has passed since the supplier factory was shipped. | 地図更新サービス期間経過時. When the map update service period has elapsed |\n| 新車購入時. もしくは. 新規車載機. 購入時. When purchasing a new car. or. New in-vehicle equipment. At the time of purchase | 下記いずれかの条件を満たした時（※1）. (ⅰ)走行距離100km経過時. (ⅱ)サプライヤー工場出荷後1年経過時. When any of the following conditions are met (*1). (i) When the mileage has passed 100 km. (ii) One year has passed since the supplier factory was shipped. | 地図更新サービス期間経過時. When the map update service period has elapsed |\n| 新車購入時. もしくは. 新規車載機. 購入時. When purchasing a new car. or. New in-vehicle equipment. At the time of purchase | 下記いずれかの条件を満たした時（※1）. (ⅰ)走行距離100km経過時. (ⅱ)サプライヤー工場出荷後1年経過時. When any of the following conditions are met (*1). (i) When the mileage has passed 100 km. (ii) One year has passed since the supplier factory was shipped. | 地図更新サービス期間経過時. When the map update service period has elapsed |\n| 有料ライセンスキーによる. 全更新時. By paid license key. When fully updated | 有料ライセンスキーによる. 全更新を行った時. By paid license key. When all updates are made | 下記いずれかの条件を満たした時. (ⅰ)サービス期間経過時. (ⅱ)次回有料ライセンスキーによる全更新時. ただし、サービス期間開始直後などに有料ライセンスキーによる全更新をしたことで、全更新をしないユーザーより全体のサービス期間が短くなることがないようにする（※２）。. When one of the following conditions is met. (i) When the service period has elapsed. (ii) At the next renewal with a paid license key. However, by updating all with the paid license key immediately after the start of the service period, the overall service period will not be shorter than that of users who do not renew all (*2). | [END_TABLE_CONTENT]\n\n※ １　ただし、（ⅰ）（ⅱ）の条件を満たす前のユーザー操作による地図更新は受け付ける\n1 However, we accept map updates by user operations before meeting the conditions of (i)(ii)\n※ ２　サービス期間の延長の考え方\n2 Concept of extending the service period"
+      },
+      {
+        "heading_text": "Behavior after the completion of all map update service 21",
+        "heading_level": 2,
+        "children": [],
+        "content": "全▲3.00更新サービス終了後は、全▲3.00更新サービスを利用する場合に課金が必要となる。\n▲3.00 update service ends, you will need to pay when using the map 3.00 update service.\nただし全▲3.00更新中は更新終了まで継続する\nHowever, all   continue until the end of the update during the 3.00 update.\n[START_SHAPE_CONTENT] △更新用データ取得 ▲更新メディア車載機挿入時 [END_SHAPE_CONTENT]\n△更新用データ取得▲更新メディア車載機挿入時\n[START_SHAPE_CONTENT] サービス期間 [END_SHAPE_CONTENT]\nサービス期間\n[START_SHAPE_CONTENT] ＜ケース１＞　　　　　　　　　　　　　△　　　　▲　　　　　　　　　　　　：　全更新を行なう [END_SHAPE_CONTENT]\n＜ケース１＞　　　　　　　　　　　　　△　　　　▲　　　　　　　　　　　　：　全更新を行なう\n[START_SHAPE_CONTENT] ＜ケース２＞　　　　　　　　　　　　　△　　　　　　　　　　　　　　▲　　：　全更新を行なわない [END_SHAPE_CONTENT]\n＜ケース２＞　　　　　　　　　　　　　△　　　　　　　　　　　　　　▲　　：　全更新を行なわない\n[START_SHAPE_CONTENT] ＜ケース３＞　　　　　　　　　　　　　　　　　　　　　　　△　　　　▲　　：　全更新を行なわない [END_SHAPE_CONTENT]\n＜ケース３＞　　　　　　　　　　　　　　　　　　　　　　　△　　　　▲　　：　全更新を行なわない\n[START_SHAPE_CONTENT] ＜ケース４＞　　△　　　　▲　　　　　　　　　　　　　　　　　　　　　　　：　全更新を行なう [END_SHAPE_CONTENT]\n＜ケース４＞　　△　　　　▲　　　　　　　　　　　　　　　　　　　　　　　：　全更新を行なう\n[START_SHAPE_CONTENT] ＜ケース５＞　　△　　　　　　　　　　　　　　　▲　　　　　　　　　　　　：　全更新を行なう [END_SHAPE_CONTENT]\n＜ケース５＞　　△　　　　　　　　　　　　　　　▲　　　　　　　　　　　　：　全更新を行なう\n[START_SHAPE_CONTENT] ＜ケース６＞　　△　　　　　　　　　　　　　　　　　　　　　　　　　▲　　：　全更新を行なわない [END_SHAPE_CONTENT]\n＜ケース６＞　　△　　　　　　　　　　　　　　　　　　　　　　　　　▲　　：　全更新を行なわない\n[START_SHAPE_CONTENT] △Data acquisition for updating ▲When inserting the update media in-vehicle machine [END_SHAPE_CONTENT]\n△Data acquisition for updating▲When inserting the update media in-vehicle machine\n[START_SHAPE_CONTENT] Service period [END_SHAPE_CONTENT]\nService period\n[START_SHAPE_CONTENT] < Case 1> △ ▲ : Make all updates [END_SHAPE_CONTENT]\n< Case 1> △ ▲ : Make all updates\n[START_SHAPE_CONTENT] case 2 > < △ ▲ : Do not make all updates [END_SHAPE_CONTENT]\ncase 2 > < △ ▲ : Do not make all updates\n[START_SHAPE_CONTENT] < Case 3 > △ ▲ : Do not make all updates [END_SHAPE_CONTENT]\n< Case 3 > △ ▲ : Do not make all updates\n[START_SHAPE_CONTENT] < Case 4> △ : Complete updates [END_SHAPE_CONTENT]\n< Case 4> △ : Complete updates\n[START_SHAPE_CONTENT] < Case 5> △ ▲ : Complete updates [END_SHAPE_CONTENT]\n< Case 5> △ ▲ : Complete updates\n[START_SHAPE_CONTENT] < Case 6> △ ▲ : Do not make all updates [END_SHAPE_CONTENT]\n< Case 6> △ ▲ : Do not make all updates\nサービス終了後はサービス期間中に最後に更新された地図の状態で使用出来る。\nAfter the end of the service, it can be used in the state of the last updated map during the service period."
+      },
+      {
+        "heading_text": "all update billing model",
+        "heading_level": 2,
+        "children": [],
+        "content": "一定期間課金を行わずサービスが受けられるような仕組みとするために、新車購入時、新規車載機購入時、全更新時に課金を行う（※１）ビジネスモデルとする。(データ取得毎に課金を行うビジネスモデルとしない)\nIn order to create a system that allows users to receive services without charging for a certain period of time, the company will charge at the time of purchase of a new car, when purchasing a new in-vehicle device, and when all updates are made into a business model (*1). (It is not a business model that charges for each data acquisition)\n※１　課金タイミングは新車購入時、新規車載機購入時、全更新時、何れかであっても、全てのタイミングであっても良い。\n*1 The billing timing may be at the time of purchase of a new car, at the time of purchase of a new in-vehicle unit, at the time of all renewal, or any timing."
+      },
+      {
+        "heading_text": "Management of all map renewal service period22",
+        "heading_level": 2,
+        "children": [],
+        "content": "1 本サービスのサービス期間は車載機毎に管理するものとする\nThe service period of this service shall be managed for each in-vehicle machine \n(地図全更新時など、ユーザーが新しい地図購入時に、古い地図にサービス期間が残っていても原則としてサービス期間の引継ぎ(残存期間の新地図データへの加算)は行わない)\n(in principle, the service period will not be transferred \n(addition to the remaining period to the new map data) \neven if the service period remains on the old map when the user purchases a new map, such as when the map is fully updated)\n※ただし、以下ケースについては特別にサービス期間の引継ぎを行う\n* However, for the following cases, specialTake over the service period\ni) 無償保証期間内の車載機故障に伴う地図交換時は残りのサービス期間を交換した車載機に設定すること\nWhen replacing the map due to an in-vehicle machine failure during the free warranty period, set the remaining service period as an in-vehicle machine that has been replaced.\nii) 新車購入もしくは新規車載機購入後、1年以内に地図全更新を行った場合は旧地図に付帯していたサービス期間を新地図のサービス期間として付け替えることを可能とすること\nIf the map is fully updated within one year after purchasing a new car or a new in-vehicle machine, it is possible to replace the service period incidental to the old map as a service period for the new map.\niii) （(ii)に該当しない場合）地図全更新時、旧地図に付帯するサービス期間が残っていた場合、上限n(※1)日まで新地図のサービス期間に加算する\nIf the service period incidental to the old map remains at the time of total map renewal (if it does not fall under (ii), it will be added to the service period of the new map up to the upper limit n (*1) date\n2 サービス期間はユーザーによって変更出来ないように工場、販売店、メーカーダイアグ画面など、多数の関係者がサービス期間を容易に設定出来ないシステムにするようにすること\nEnsure that the service period is a system that cannot be easily set by a large number of parties, such as factories, dealers, and manufacturer diagnostic screens, so that the service period cannot be changed by the user.\n3 将来サービスモデルが変更され、サービス期間の年数が変更されることも考慮し、年度更新版地図リリース時に任意のサービス期間の設定が出来るようにすること\nIn consideration of future service models and changes in the number of years of service periods, any service period can be set at the time of annual update map release\n※ １　▲3.00 n=60 とするn=60"
+      },
+      {
+        "heading_text": "6－10． Freshness of Information",
+        "heading_level": 2,
+        "children": [],
+        "content": "本サービスで提供する情報の鮮度（※１）を『付録：地図更新コンテンツ要求仕様書▲3.00』に記す。\nThe freshness (*1) of the information provided in this service is described in \"Appendix: Map Update Content Request Specifications _ Overseas ▲3.00\".\n※１　本サービスで意味する情報の鮮度とは地物の変更（道路の開通、変更など）からセンターに登録され車載機への配信準備が完了するまでの期間とする。\n*1 The freshness of the information meant in this service is the period from the change of the local thing (opening of the road, change, etc.) to the time until it is registered at the center and ready to be delivered to the in-vehicle device.\n(例えば情報の鮮度を10日間とした場合)\n(For example, if the freshness of the information is set to 10 days)\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_8_449ebc61.png|449ebc61e5fddda03ea293491caae092 [END_IMAGE_PATH]\n\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_9_449ebc61.png|449ebc61e5fddda03ea293491caae092 [END_IMAGE_PATH]\nPM3:00▼開通PM3:00▼配信準備完10日間\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_10_449ebc61.png|449ebc61e5fddda03ea293491caae092 [END_IMAGE_PATH]\n\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_11_449ebc61.png|449ebc61e5fddda03ea293491caae092 [END_IMAGE_PATH]\nearthPM3:00Opening of DoorsPM3:00▼Delivery preparation completed10 days"
+      },
+      {
+        "heading_text": "6－11． Map Content",
+        "heading_level": 2,
+        "children": [],
+        "content": "1 本サービスで提供する情報は、『地図更新コンテンツ要求仕様書』に記載する。\nThe information provided in this service shall be described in the \"Map Update Content Request Specification\".\n2\n▲3.00\n3\n▲3.00"
+      },
+      {
+        "heading_text": "6－12． Map distribution portal site",
+        "heading_level": 2,
+        "children": [],
+        "content": "地図配信ポータルサイトは、ユーザーが車載機の地図を更新したい時に、PC（例えばユーザー自宅のPC）からアクセスする。ポータルサイトでは、更新データをダウンロードする事が出来る。\nThe map distribution portal site is accessed from a PC (for example, a PC at the user's home) when the user wants to update the map of the in-vehicle device. On the portal site, you can download the update data.  that   ▲3.00\n▲3.00"
+      },
+      {
+        "heading_text": "6－13． Operation confirmed write environment",
+        "heading_level": 2,
+        "children": [],
+        "content": "本サービスでは更新手段としてUSBを使用する。動作を確認したメディア（USB）、ライティングソフト、デッキを明確にすること。\nUsb is used as an update method in this service. Make the media (USB), lighting software, and decks that have been confirmed to work."
+      },
+      {
+        "heading_text": "6－14． Service-enabled",
+        "heading_level": 2,
+        "children": [],
+        "content": "・修理対応について\nAbout repair correspondence\n車載機交換時または地図メディア交換時、サービス期間を含め、ユーザーの地図状態に戻せるような仕組みとすること。\nA system that can be returned to the user's map state, including the service period, when replacing in-vehicle aircraft or when exchanging map media.\nユーザーの地図状態に戻せない場合は、サービス期間内である場合には最新の地図状態に戻すこと。サービス期間外の場合には、地図メディア交換による対応とする。\nIf it is not possible to return to the user's map state, if it is within the service period, return to the latest map state. In the case outside the service period, the correspondence is made by the map media exchange.\n不具合車載機品否地図メディア不良時地図メディア不良時地図メディアレスのリンク品にユーザーが使用していた地図メディアを組み込むサービス期間内サービス期間外地図メディアを最新の地図状態に更新する。地図メディア交換による運用とする。\nDefective in-vehicle equipmentNo map media when badMap MediaWhen badMap Medialess LinksUsers were usingIncorporate map mediaService periodOut of service periodMap Media latest mapsupdate to a state.By map media exchangeto be operated.\n・サービス期間の移行について\nAbout the transition of the service period\n地図メディア交換もしくは、車載機交換時に、元のサービス期間を引き継げること。\nTo take over the original service period when exchanging map media or in-vehicle equipment.\n不具合車載機品地図メディア/車載機の両交換時地図メディアまたは、車載機のどちらかを交換時販売店で故障部品の代品交換時に、サービス期間を引き継げること。販売店が、ユーザーのサービス期間をメーカへ連絡し、メーカでサービス期間を紐付けした代品を準備して、代品交換すること。\nDefective in-vehicle equipmentWhen exchanging both map media and in-vehicle equipmentEither map media or in-vehicleAt the time of replacementTo take over the service period at the time of replacement of defective parts at the dealer.The dealer shall contact the manufacturer about the user's service period, prepare a substitute linked to the service period by the manufacturer, and replace the substitute.\n・サービス期間のロバスト性について\n・ About robustness of service period\nサービス障害等によって、本来のサービス期間分のサービスを受けられないユーザーが発生した場合、救済策としてすでにサービス期限の切れた車載機を地図更新する仕組みを用意すること。\nIn the event of a user who is unable to receive the service for the original service period due to a service failure, etc., as a remedy, prepare a mechanism to update the map of the in-vehicle device that has already expired."
+      },
+      {
+        "heading_text": "6－15． Map Update (Map Distribution Center)",
+        "heading_level": 2,
+        "children": [],
+        "content": "24時間、365日配信可能であること\nAvailable 24 hours a day, 365 days a year\n将来的な接続端末数増加に伴い、機器増設や負荷分散が可能なシステム構成とすること\nWith the increase in the number of connected terminals in the future, it is possible to configure a system that can add equipment and load balance.\n将来的な地図配信データの増加に伴う負荷、容量の増加及びセキュリティの強化に対して拡張が可能なシステム構成とすること\nSystem configurations that can be scaled to increase the load, capacity and security of future increase in map delivery data\nシステム構成は、障害時に切替できるように冗長化されていること\nThe system configuration must be redundant to be switched in the event of a failure.\n障害発生によるサービス停止は、20分以内であること\nService outages due to failures must be within 20 minutes\n障害発生時は、メンテナンスのお知らせが出せるようにすること\nIn the event of a failure, be able to notify you of maintenance.\n不正アクセスに対し24時間、365日監視すること\n24/7 monitoring of unauthorized access\n管理者（※１）機能にはアクセス制限を設けること\nRestrict access to administrator (*1) functions\nサーバ毎にウィルスチェックを行うこと\nTo check for viruses on a server-by-server basis\nウィルスのパターンファイルは、最新の状態に保たれていること\nVirus pattern files must be kept up to date\np.m. -3.00\n※１　センター内に入る時、センター内端末を操作する時\n*1 When entering the center, when operating the terminal in the center"
+      },
+      {
+        "heading_text": "6－16． System support",
+        "heading_level": 2,
+        "children": [],
+        "content": "車両流動終了後の更新期間は、以下を参照のこと。▲1.20\n「20.3 (common) navigation map request (center map, factory bundled, supply map) 2.3 地図更新版 Map update version」\nRefer to “20.3 (common) navigation map request (center map, factory bundled, supply map) 2.3 地図更新版 Map update version” for the map update period after finishing vehicle production.\n本サービスの対応はトヨタが該当車載機で提供する最後の地図年度更新版リリース後m年とする。\nThe response to this service will be m year after the release of the last map year update version provided by Toyota on the relevant in-vehicle equipment.\nm年目以降は本サービスを利用出来ない。\nThis service cannot be used after the m year.\n“m”の設定年数については、協議の上決める。\nThe number of years to set \"m\" will be decided after consultation . ▲3.00\n最後の地図年度更新リリースm年サービス期間：（m–a）年a年（a）年度更新版購入（b）年度更新版購入サービス期間：0年サービス終了時期yy/mm/ddp年メディア提供有効期限yy/mm/dd\nLast Map Year Update Releasem yearsService period: (m–a) yeara年(a) Purchase of annual renewal(b) Purchase of the annual renewal versionService period: 0 yearsEnd of serviceyy/mm/ddp yearsMedia offer expiration dateyy/mm/dd"
+      },
+      {
+        "heading_text": "6－17． Impact on functions during update operation",
+        "heading_level": 2,
+        "children": [],
+        "content": "■全更新中のほか機能への影響\n■During all updates, as well as functional impact\n全更新中は、ナビ機能の使用を制限する。\nDuring all updates, limit the use of navigation functions.\nほか機能の動作を実施しない手順とすること。\nProcedures for not performing other functions.\n-3.00\nCall function ▲1.20\n▲1.20"
+      }
+    ],
+    "content": "▲3.00\n[START_TABLE_CONTENT] | サービス要件 Service requirements |\n| --- |\n| 一時地図更新サービス期間. Temporary map update service period |\n| 一時地図更新サービス権利発生と終了条件. Temporary map update service rights accrual and termination conditions |\n| 一時地図更新サービス終了後の振る舞い. Behavior after the temporary map update service ends |\n| 一時地図更新課金モデル. Temporary map update billing model |\n| 全更新サービス期間. Map renewal service period |\n| 全更新サービス権利発生と終了条件. renewal service rights accrual and termination conditions |\n| 全更新サービス終了後の振る舞い. Behavior after the end of the map update service |\n| 全更新課金モデル. full update billing model |\n| 全更新サービス期間の管理. The entire map renewal service period |\n| 情報の鮮度. Freshness of information |\n| 地図コンテンツ. Map Content |\n| 地図配信ポータルサイト. Map distribution portal site |\n| 動作確認済み書込み環境. Operation-confirmed write environment |\n| サービス対応. Service-ready |\n| 地図更新（地図配信センター）. Map update (Map Distribution Center) |\n| システム対応年数. Number of years of system support |\n| 更新動作中のほか機能への影響について. Impact on functions during update operation | [END_TABLE_CONTENT]\n"
+  },
+  {
+    "heading_text": "7． QOS (Quality of Service)",
+    "heading_level": 1,
+    "children": [],
+    "content": "▲3.00\n[START_TABLE_CONTENT] |  | 本サービス該当の. QOS項目 | 本サービス該当の. QOS項目 | 対象動作、機能 | 対象動作、機能 | レベル |\n| --- | --- | --- | --- | --- | --- |\n| 動作 | 動作速度 | 動作速度 | 全更新処理. （全更新地図データコピー開始～全更新地図データコピー終了）. ※リプロの有無によらない、地図データコピー時間 | 全更新処理. （全更新地図データコピー開始～全更新地図データコピー終了）. ※リプロの有無によらない、地図データコピー時間 | 30分以内 |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |  |  |\n|  |  |  | USB検知 | USB挿入～更新SW表示完了 | 10秒以内 |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n|  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| コンテンツ | 鮮度 | 鮮度 | 地図更新データ | 地図更新データ | ※１　▲3.00 |\n| コンテンツ | 精度 | 精度 | 地図更新データ | 地図更新データ | ※１　▲3.00 |\n| コンテンツ | 対象 | 対象 | 更新コンテンツ | 更新コンテンツ | ※１　▲3.00 |\n| コンテンツ | 検査 | 検査 | データ評価 | データ評価 | ※２　▲3.00 |\n| コンテンツ | セキュリティ | 改竄防止. 複製防止 | 地図更新データ・サービス期間 | 地図更新データ・サービス期間 | 暗号化コードを付与※3. ▲3.00 |\n| コンテンツ | セキュリティ | 改竄防止. 複製防止 | ▲Ver6.20 | ▲Ver6.20 | ▲Ver6.20 |\n| 検査 | 組み合わせ検査 | 組み合わせ検査 | 新しいソフトまたは地図リリース | 新しいソフトまたは地図リリース | すでにリリースされているソフトまたは地図との組み合わせによる動作を保証すること |\n| 部品交換 | 記録コンテンツ保護 | 記録コンテンツ保護 | 地図更新（サービス期間情報） | 地図更新（サービス期間情報） | 交換前サービス期間を継続 |\n| 部品交換 | 記録コンテンツ保護 | 記録コンテンツ保護 | 地図更新（地図データ） | 地図更新（地図データ） | 不整合が起きた状態から復帰し、ナビ動作可能 | [END_TABLE_CONTENT]\n\n※ [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]\n各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）１　詳細は『付録：地図更新コンテンツ要求仕様書』を参照　▲3.00\n※ ２　詳細は『付録：基地図評価項目』、『付録：地図オーサリング検査項目』を参照　▲3.00\n※ ３　暗号化方法は標準規格で定められたものとする\nセキュリティ対策要件については、以下仕様書を参照とする。\n『190_24CY_情報セキュリティ要求仕様書』　▲Ver6.20　▽R (24MM(CV#2)/SU(PreCV)/CDC(PreCV)) ▲Ver6.30\n※\n※ 4 全更新サービスにおいて、『ECDSA』にて対応すること。ハッシュ値は『SHA-256』仕様を使用する事。(本内容はUN-R156 SU法規の認証届け出内容且つ \n[START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]\n各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）UN-R155 サイバーセキュリティ法規内容)。▲3.50 ▲Ver.6.20　▽R (24MM(CV#2)/SU(PreCV)/CDC(PreCV)) ▲Ver6.30\n[START_TABLE_CONTENT] |  | This service applies to. QOS projects | This service applies to. QOS projects | Target behavior, function | Target behavior, function | level |\n| --- | --- | --- | --- | --- | --- |\n| action | Speed of action | Speed of action | Full update process. (All update map data copy start ~ All update map data copy end). * Map data copy time regardless of the presence or absence of repro | Full update process. (All update map data copy start ~ All update map data copy end). * Map data copy time regardless of the presence or absence of repro | Within 30 minutes |\n|  |  |  | map data update | map data update | prefectures and 3 years. for 3 years. for one week |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  | map data update | map data update |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  | USB detection | USB insertion to update SW display completed | Within 10 seconds |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  | around the home |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | around the home |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  | in the DB after replacement |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | in the DB after replacement |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  | [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |  |  |\n| [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]. 各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV） |  |  |  |  |  |\n| content | freshness | freshness | Map update data | Map update data | ※2１　▲3.00 |\n| content | precision | precision | Map update data | Map update data | ※2１　▲3.00 |\n| content | target | target | Updated content | Updated content | ※2１　▲3.00 |\n| content | inspection | inspection | Data assessment | Data assessment | ※5２　▲3.00 |\n| content | security | Tamper-proof. Anti-replication | Map update data service period | Map update data service period | Give encryption code*3. ▲3.00 |\n| content | security | Tamper-proof. Anti-replication | ▲Ver6.20 | ▲Ver6.20 | ▲Ver6.20 |\n| inspection | Combination inspection | Combination inspection | New software or map releases | New software or map releases | Ensure operation in combination with software or maps that have already been released |\n| Parts replacement | Record content protection | Record content protection | Map update (service period information) | Map update (service period information) | Continue pre-replacement service period |\n| Parts replacement | Record content protection | Record content protection | Map update (map data) | Map update (map data) | Returns from the state where inconsistencies occurred, and navigation operation is possible | [END_TABLE_CONTENT]\n\n※ [START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]\n各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）1 For details, refer to Appendix: Map Update Content Requirements Specifications _Overseas (3.00)\n※ 2 For details, see Appendix: Base Map Evaluation Items and Appendix: Map Authoring Inspection Items (3.00)\n※ Encryption methods shall be as defined in the standard\nFor security measures requirements, refer to the following specifications.\n\"190_24CY_ Information Security Requirements Specifications\" ▲Ver6.20 ▽R (24MM(CV#2)/SU(PreCV)/CDC(PreCV)) ▲Ver6.30\n※ , please refer to \"\n[START_SHAPE_CONTENT] 各種サービス要求仕様書から 006_性能要求_Performance_Requirement に QOSを統合 Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\" ▲ 7.20（24SU/CDC：CV） [END_SHAPE_CONTENT]\n各種サービス要求仕様書から006_性能要求_Performance_RequirementにQOSを統合Integrate QOS from various service requirement specifications into \"006_性能要求_Performance_Requirement\"▲7.20（24SU/CDC：CV）\n※ 3 For the Map Update process defined in section 10\n1. When online data is available via connection to server, map data in use by the user (defined as viewing, routing through, or searching) should be updated within 350 milliseconds.\n2. Map data housed on server should be updated daily with fixes for:\na. map data\nb. POIs\nc. Corrections to supplier map authoring as necessary\nd.\n※ 4 『ECDSA』 must be complied for the full map update service. Hash value must be developed based on 『SHA-256』 spec. (This content is for the submission document of SU regulation(UN-R156), and CS regulation is related(UN-R155)) ▲3.50 ▲Ver6.20 ▽R (24MM(CV#2)/SU(PreCV)/CDC(PreCV)) ▲Ver6.30"
+  },
+  {
+    "heading_text": "8． 他社動向・比較 Trends and Comparisons of Other Companies",
+    "heading_level": 1,
+    "children": [],
+    "content": "■地図更新 Map update\n・Audi　最大3エリア選択更新　年4回(3か月ごとに自動更新)\n・Audi up to 3 area selection update 4 times a year (automatic update every 3 months)\n・BMW　アメリカとカナダを13エリアに分割　ユーザーはそのうち1エリアを更新エリアに指定　年4回\n・BMW America and Canada divided into 13 areas Users designate one of them as update area 4 times a year\n■ 全更新 Full update\n・Audi　SDによる更新　年2回　$280　初回5回は無料\n・Audi SD update twice a year $280 The first 5 times is free\n・BMW　USBによる更新　年4回　$135\n・Renewal by BMW USB 4 times a year $135\n・Benz　SD･USBによる更新　年1回　3年無料\n・Benz SD / USB update once a year 3 years free\n・Honda (Garmin) https://www.garmin.com/en-US/maps/updates/\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_12_86d4df8b.png|86d4df8b10089d5895e7bdf11cfef6d9 [END_IMAGE_PATH]\n1 16GBのUSBを車両に差し、Update Mapを選択し、情報取得　作業時間・・・3分\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_13_dacd9198.jpeg|dacd919893984d90cb8cb56545ab0bfb [END_IMAGE_PATH]\nInsert a 16GB USB into the vehicle, select the Update Map, and obtain information Working time...\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_14_70d770d4.jpeg|70d770d44016e2cf7e29c6dfd41c8618 [END_IMAGE_PATH]\n\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_15_764ba4f5.jpeg|764ba4f5e8bafcc36a118aca46f30208 [END_IMAGE_PATH]\n2 ・オンラインサイトで地図購入\nMap purchase on the online site\n・Garmin Express(PC上で動作するアプリ)でダウンロード\nDownload with Garmin Express (an app that runs on a PC)\n・USBメモリーに転送\nTransfer to USB memory stick\n・USBをメモリーへ車に持ち込む\nBring USB into the car to the memory\n作業時間・・・1時間\nWorking hours: 1 hour\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_16_adec303a.jpeg|adec303aaad392f7f2ac3bd0c49f3453 [END_IMAGE_PATH]\n\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_17_a0cc6eb8.jpeg|a0cc6eb8fe5474f8a68d126c23475017 [END_IMAGE_PATH]\n3 USBを車両に差し込んで地図更新　1時間\n1 hour to update the map by plugging the USB into the vehicle\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_18_62a39d8b.jpeg|62a39d8b8d4eb64796efd262d0f60ef0 [END_IMAGE_PATH]\n・GM　DISCによる更新　年1回　$129\n・Renewal by GM DISC once a year $129\nオンラインサイトで作業。VIN番号を入れて購入する仕組み\nWorking on an online site. How to purchase with a VIN number\nNext Generation Infotainment 2.5 System Map Update\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_19_9c804d47.png|9c804d4776f21ac5f7125350f32e78db [END_IMAGE_PATH]\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_20_bbddda68.png|bbddda68c42faf9d12379fc75de54bff [END_IMAGE_PATH]\n[START_SHAPE_CONTENT] VIN番号 を 入力 して 購入 する Enter your VIN number to buy [END_SHAPE_CONTENT]\nVIN番号を入力して購入するEnter your VIN number to buy"
+  },
+  {
+    "heading_text": "9． 運用方法　How to operate",
+    "heading_level": 1,
+    "children": [
+      {
+        "heading_text": "車載機 In-vehicle equipment",
+        "heading_level": 4,
+        "children": [],
+        "content": "以下章を参照 See the following chapters\n6-3、6-7、6-9、、6-17▲3.00"
+      },
+      {
+        "heading_text": "サービス service",
+        "heading_level": 4,
+        "children": [],
+        "content": "以下章を参照 See the following chapters\n6-1、6-2、6-4、6-5、6-6、6-8、6-10、6-11、6-12、 6-13、6-14、6-15、6-16▲3.00"
+      }
+    ]
+  },
+  {
+    "heading_text": "10． Map Update Process",
+    "heading_level": 1,
+    "children": [
+      {
+        "heading_text": "10－1． Map Update at ACC On",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－1－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－1－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "The HU requests updated map tiles from the sever for map update to the latest available version if any. This downloaded map tile(s) are stored on HU, until overwritten by the next updated map tile (s). If the subscription status changes to No navigation or cancel, download map shall be stored on head unit but shall not be displayed to user.\n1. HU will download map data for an area specified by “Map Update at ACC-On” as defined in section “Map Update Server Parameters” of this document.  (This value is configurable and controlled from server side)\n2. If a map around CVP is stored on head unit and server updates to that map area exist, map needs to be incrementally updated.\na. If new radius overlaps existing radius, download new map area and update portion that over laps existing map area\nThe HU and the server discuss which portions of the map need updating. And when a mismatch between the map data between the stored map on HU and the same area map data on server is found, the stored map should be updated."
+              }
+            ]
+          },
+          {
+            "heading_text": "10－1－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "This process is transparent and does not require user input or feedback."
+          },
+          {
+            "heading_text": "10－1－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | Download range | [25] mile radius around CVP. The numbers are provisional and controlled on server side. |\n| --- | --- |\n| Map Layer | All Layers |\n| POIs | Specified POI categories:. Gas stations, Charging Stations, Police Stations, Hospitals, Major chain restaurants, Parking, Favorites and Recent(s). Attributes: Name, LAT/LON, address, genre, phone, hours of operation | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－1－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "If map update is interrupted, ACC Off, it automatically resumes at next ignition On\nIf the subscription status changes to No navigation or Cancel, download map shall be stored on head unit but shall not be displayed to user."
+          },
+          {
+            "heading_text": "10－1－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "10－2． Map Update Zoom in and Zoom out, map scroll (Online)",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－2－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－2－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "The user performs one of the below actions:\na. User zooms out on the map\nb. User zooms in on the map\nc. User scrolls the map on right side (at any zoom level)\nd. User scrolls the map on left side (at any zoom level)\ne. User scrolls the map upwards (at any zoom level)\nf. User scrolls the map downwards (at any zoom level)\n1. When user is zooming out from default scale, the HU shows online map area in\naccordance with zooming use case defined in Map Display Specification.\n2. When user is zooming in from default scale, the HU shows online map area around CVP.\n3. User can see the online map on the left side of CVP.\n4. User can see the online map on the right side of CVP.\n5. User can see the online map upwards from CVP.\n6. User can see the online map downwards from CVP."
+              }
+            ]
+          },
+          {
+            "heading_text": "10－2－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－2－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | Download range | [25] mile radius around CVP. The numbers are provisional and controlled on server side. |\n| --- | --- |\n| Map Layer | All Layers |\n| POIs | Specified POI categories:. Gas stations, Charging Stations, Police Stations, Hospitals, Major chain restaurants, Parking, Favorites and Recent(s). Attributes: Name, LAT/LON, address, genre, phone, hours of operation | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－2－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "1. If map update is interrupted, ACC Off, it automatically resumes at next ignition On\n2. If the subscription status changes to No navigation or cancel, download map shall be stored on head unit but shall not be displayed to user."
+          },
+          {
+            "heading_text": "10－2－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "10－3． Map Update Zoom in and Zoom out, map scroll (Offline)",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－3－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－3－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "The user performs one of the below actions:\na. User zooms out on the map\nb. User zooms in on the map\nc. User scrolls the map on right side (at any zoom level)\nd. User scrolls the map on left side (at any zoom level)\ne. User scrolls the map upwards (at any zoom level)\nf. User scrolls the map downwards (at any zoom level)\nIn all of the below cases, map stored in the Head Unit flash memory is used until the Head Unit can re-establish connectivity to the server.\n1. When user is zooming out from default scale, the HU shows online map area in\naccordance with zooming use case defined in Map Display Specification.\n2. When user is zooming in from default scale, the HU shows online map area around CVP.\n3. User can see the online map on the left side of CVP.\n4. User can see the online map on the right side of CVP.\n5. User can see the online map upwards from CVP.\n6. User can see the online map downwards from CVP."
+              }
+            ]
+          },
+          {
+            "heading_text": "10－3－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－3－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | Map Layer | All Layers |\n| --- | --- |\n| POIs | Specified POI categories that are stored on the HU | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－3－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "3. If map update is interrupted, ACC Off, it automatically resumes at next ignition On\n4. If the subscription status changes to No navigation or cancel, download map shall be stored on head unit but shall not be displayed to user."
+          },
+          {
+            "heading_text": "10－3－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "10－4． Routing to destination within Pre-Downloaded Map",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－4－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－4－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "The user sets a destination within the downloaded map area.  A route is set from CVP to destination. Detailed map around the route is downloaded regardless of the zoom level. This map update is incremental and shall cover for the areas of map that have changed compared to map tiles on the server side."
+              }
+            ]
+          },
+          {
+            "heading_text": "10－4－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－4－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | Map Layer | All Layers |\n| --- | --- |\n| POIs | All POIs as specified in the map style | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－4－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "1. If there is a loss of connectivity, goes offline, at any time the Head Unit immediately switches to map stored in HU flash.  The user experience is not interrupted."
+          },
+          {
+            "heading_text": "10－4－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "10－5． Routing to destination outside Pre-Downloaded Map",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－5－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－5－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "User sets destination outside the downloaded map display area.  The Head Unit fetches the map tiles necessary to display the route at an appropriate zoom level such that the user can see the overview of the route.\n1. When the user starts the route, additional map tiles for all zoom levels are fetched.\n2. If the user never starts the route, no additional data is downloaded"
+              }
+            ]
+          },
+          {
+            "heading_text": "10－5－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－5－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | Map Layer | All Layers |\n| --- | --- |\n| POIs | All POIs as specified in the map style | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－5－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "1. During Route planning only the necessary tiles for route overview are fetched to minimize the impact on data consumption.\n2. In an attempt to minimize data use, map data is fetched as the CVP travels along the route.  Enough data is fetched to allow the full user experience, this parameter is server configurable.   For example, planning a route from Dallas to New York City would not fetch all of the map tiles necessary to fully execute the route but incrementally as the route progresses."
+          },
+          {
+            "heading_text": "10－5－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "10－6． Map Update without Routing",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－6－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－6－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "The user is driving within the pre-downloaded area or outside of the pre-downloaded area without an active route.\n1. As the pre-downloaded map is already available, user can see downloaded POI’s and roads in detail on map display. Map area is incrementally updated as user drives through it.\n2. When the user is driving outside the downloaded area, then the HU will be continuously in contact with the server and download the map tiles around CVP."
+              }
+            ]
+          },
+          {
+            "heading_text": "10－6－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－6－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | Map Layer | All Layers 25 miles around CVP ( server configurable ) |\n| --- | --- |\n| POIs | All POIs as specified in the map style | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－6－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "1. If there is a loss of connectivity at any time, the HU automatically switches to map tiles in HU flash memory.  The user experience is not interrupted or otherwise notified about the switch."
+          },
+          {
+            "heading_text": "10－6－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "10－7． Update in Progress (Incremental Map Update)",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－7－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－7－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "The Head Unit is connected to the server and is updating map tiles in the background while any of the below conditions occur:",
+                "heading_level": 4,
+                "children": [],
+                "content": "1. User goes to the navigation/ map display screen or home screen\na. The map display screen is available to the user for searching POI and routing when incremental Map update is in progress in background. After completion of incremental map update, user will be able to see, use these updated tiles for search of POI and routing.\n2. The Head Unit is turned off, ACC OFF, during incremental map update\na. The map update resumes from the point it was left before the ACC cycle. Incremental map update data becomes permanent data on head unit storage.\n3. Incremental map update not successful for any reason\na. Map tiles are returned to the previous version\nb. The Head Unit reports the error(s) to the server with enough details to later identify the HU for troubleshooting"
+              }
+            ]
+          },
+          {
+            "heading_text": "10－7－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－7－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | Map Layer | All Layers |\n| --- | --- |\n| POIs | All POIs as specified in the map style | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－7－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "1. If there is a loss of connectivity at any time, the HU automatically switches to map tiles in HU flash memory.\n2. The user experience is not interrupted or otherwise notified about the switch."
+          },
+          {
+            "heading_text": "10－7－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "10－8． Mitigating No-Network Areas",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－8－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－8－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "1. User sets destination. HU identifies 'no network' areas in the middle of the route.\na. HU connects to the server and downloads map for the no-network areas so that user has a good experience even in an offline scenario. This occurs during route planning and calculation.\n2. User is driving without routing. HU identifies ‘no network’ areas are coming up in 25 miles ahead user is currently driving. 25 miles is server configurable.\na. HU connects to the server and downloads map for the no-network areas so that user has a good experience even in an offline scenario. This occurs when the system detects the user approaching the no-network area."
+              }
+            ]
+          },
+          {
+            "heading_text": "10－8－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－8－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | Map Layer | All Layers |\n| --- | --- |\n| POIs | All POIs as specified in the map style | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－8－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "1. If there is a loss of connectivity at any time, the HU automatically switches to map tiles in HU flash memory.\n2. The user experience is not interrupted or otherwise notified about the switch."
+          },
+          {
+            "heading_text": "10－8－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "10－9． Driving through GeoFence",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－9－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－9－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Service Overview",
+                "heading_level": 4,
+                "children": [],
+                "content": "1. Driving through a specific zone can trigger additional map downloads of predefined data such as marketplace specific metadata.\n2. Driving through a geofence can trigger additional map downloads of data unique to the geofence such as marketplace specific metadata.\n3. Geofences support complex polygons that match the geographic specifics of the area to be geofenced and are not simply a lat/lon used for a center point with some radius."
+              }
+            ]
+          },
+          {
+            "heading_text": "10－9－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－9－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | Map Layer | All Layers |\n| --- | --- |\n| POIs | All POIs as specified in the map style | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－9－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "3. If there is a loss of connectivity at any time, the HU automatically switches to map tiles in HU flash memory.\n4. The user experience is not interrupted or otherwise notified about the switch."
+          },
+          {
+            "heading_text": "10－9－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "10－10． Map Update Errors and Alerts",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－10－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－10－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "In the event of an error during map update, the below table outlines how the error is handled and the user experience.",
+                "heading_level": 4,
+                "children": [],
+                "content": "\n[START_TABLE_CONTENT] | Sr. No. | Error between Navi and.. | Trigger | Result |\n| --- | --- | --- | --- |\n| 1 | Map Update Server | Internal server error. Incremental map data is not made. | Do not send Map Data. |\n| 2 | Map Update Server | Internal System error of Server (E.g. Cannot send a response) | Send Error code to client server. No notification to user. |\n| 3 | Navi Server | Error of Map Data from server. Data is not according to the Specification | Send error code to server. No notification to user. |\n| 4 | Map Update Server | Communication error during caching map | Retry up to specified number of times. |\n| 5 | Map Update Server | Communication error during area update. | Roll back to previous state before updating |\n| 6 | Onboard Routing Engine | Routing Fails due to mismatched map version or missing map data | Notification of Failure presented to the user | [END_TABLE_CONTENT]\n"
+              }
+            ]
+          },
+          {
+            "heading_text": "10－10－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－10－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－10－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－10－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      },
+      {
+        "heading_text": "10－11． Map Update Server Parameters",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "10－11－1． Target countries and regions",
+            "heading_level": 3,
+            "children": [],
+            "content": "\n[START_TABLE_CONTENT] | No | service | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target | Target |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| No | service | Japan | North America | Europe | Oceania | Southeast Asia | India | Middle East | South america | South Africa | Taiwan | Hong Kong and Macau | China |\n| 1 | By telecommunications equipment | ― | ○ | ○ | ○ | ― | ― | ― | ― | ― | ― | ― | ― | [END_TABLE_CONTENT]\n"
+          },
+          {
+            "heading_text": "10－11－2． Basic movements (normal system)",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "The following table outlines the map update configuration parameters that can be controlled from the Server.  The availability of these parameters allows the Navigation Product Owner to make adjustments to map update without changing Head Unit and Map Server software.  Specific values for each parameter in the below table is defined in 0.1_NA_EU_AU_P24MM_Navigation - Server Control Panel Requirements.",
+                "heading_level": 4,
+                "children": [],
+                "content": "\n[START_TABLE_CONTENT] | No | Parameter | Comment |\n| --- | --- | --- |\n| 1 | Area around CVP when Routing | This parameter dictates how much map data around CVP is updated while the user is actively routing |\n| 2 | Area around CVP when not routing | This parameter dictates how much data around CVP is updated when the user is not routing |\n| 3 | Long Route Pre-Fetch | This parameter dictates how much map data is downloaded for Long Routes ( Dal to NYC) |\n| 4 | Mitigating No Network Areas | This Parameter dictates how much data around “No Network Areas” is pre-fetched at Route Planning |\n| 5 | Map Update at ACC-On | This Parameter dictates how much data around CVP is updated at Ignition-On |\n| 6 | Zoom/Scroll | This Parameter dictates how much data is fetched when the user scrolls or zooms to an area that is not pre-downloaded or outdated. | [END_TABLE_CONTENT]\n"
+              }
+            ]
+          },
+          {
+            "heading_text": "10－11－3． Requirements for HMI specification",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－11－4． Custom Items",
+            "heading_level": 3,
+            "children": [],
+            "content": "1.  All parameters defined in this section can be updated by the Map Server Admin by editing a text configuration file that clearly defines each parameter and it’s current value.\n2. Once updated, the configuration file is automatically read by the Map Server and the values become part of the active configuration.\n3. This customization should be governed by a Release Management Process"
+          },
+          {
+            "heading_text": "10－11－5． Exception operation (abnormal system)",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          },
+          {
+            "heading_text": "10－11－6． Other",
+            "heading_level": 3,
+            "children": [],
+            "content": "None in particular"
+          }
+        ]
+      }
+    ],
+    "content": "4.1 Map Update configuration diagram\nThis illustration is provided to explain the requirements for map updates, it is not an architectural proposal.\n[START_IMAGE_PATH] /tmp/docx_images_dthb7sse/img_21_9f41ce1b.png|9f41ce1b79d3559476f8a9ed2be10004 [END_IMAGE_PATH]\n Map Supplier, provides updated maps to 24MM Map Server\n Pre-Production, supplier ingests and store updates in pre-production and performs functional and non-functional QA/Testing\n Production, Updated maps are promoted to Production from Pre-Production after QA/Testing\n Map DB on HU, HU Flash memory that contains the regional maps for the HU. This Map DB shall not be invalidated over the lifetime of the vehicle. These maps are used in no-connectivity scenarios.\n Map Update Process\no Head Unit initiates request for Map Updates\no HU receives updates for defined area around CVP\no 24MM Map Server delivers updated map tiles to HU\no HU replaces old tiles in Map DB with updated tiles\no Updated Map Tiles not in the pre-defined area around CVP are updated as needed based on user action\no This process also applies to renderer if it requires a separate Map DB"
+  }
+]
