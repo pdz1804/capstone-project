@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="388" uniqueCount="124"><si><t>SR#</t></si><si><t>Test Scenario</t></si><si><t>Test Cases</t></si><si><t>Test Steps</t></si><si><t>Test Data</t></si><si><t>Expected Result</t></si><si><t>Actual Result</t></si><si><t>Pass/Fail</t></si><si><t>IP1</t></si><si><t>New Customer</t></si><si><t>Check new Customer is created</t></si><si><t>1) Enter all required fields
+2) Submit</t></si><si><t>Sanjay
+Male
+24/02/1990
+Address - Ahmedabad
+City - Ahmedabad
+State - Gujarat
+PIN - 380009
+Telephone - 8000187025
+Email - sanjayrathod273@gmail.com
+UserId - 1234
+and submit</t></si><si><t>Message Should be display "Customer added successfully !!"</t></si><si><t>IP2</t></si><si><t>Verify Customer is not added twice</t></si><si><t>1) Enter all required field with existing user data
+2) Submit</t></si><si><t>Message Should be displayed"Email address already exist"</t></si><si><t>IP3</t></si><si><t>Edit Customer</t></si><si><t>Check Customer can be edited</t></si><si><t>Message Should be displayed" customer records updated successfully!!"</t></si><si><t>IP4</t></si><si><t>Verify Customer should not be edited for same email id and user id</t></si><si><t>Fill up all fields with repeated email and user id
+for example - Hirenwebdp@gmail.com is associate with userid - 1234
+then for edit other user (name - xyz ) hirenwebdp cannot be associate with user xyz</t></si><si><t>Message Should be display" customer records updated successfully!!"</t></si><si><t>IP5</t></si><si><t>Verify Non existing Customer is not Edited</t></si><si><t>1) Enter the required fields
+2) Submit</t></si><si><t>Customer Id = ABCD</t></si><si><t>Message Should be display" You are not authorise to edit this customer!!"</t></si><si><t>IP6</t></si><si><t>New Account</t></si><si><t>Check New account is added</t></si><si><t>customer id -1234
+account type-saving/current
+Initial Deposit-500</t></si><si><t>Message Should be display " account
+generated successfully"</t></si><si><t>IP7</t></si><si><t>Verify that New Account is not added when same account id already exist</t></si><si><t>1) Enter all fields with customer id and account type already exist</t></si><si><t>IP8</t></si><si><t>Check Ministatement is generated</t></si><si><t>1) Enter Account Number
+2) Submit</t></si><si><t>Account Number - 360560330396</t></si><si><t xml:space="preserve">Display Generated ministatement </t></si><si><t>IP9</t></si><si><t>Edit Account</t></si><si><t>Check Account is edit</t></si><si><t>1) Enter account number
+2) Submit</t></si><si><t>account number of added account</t></si><si><t>Message Should be display " account
+detail successfully updated"</t></si><si><t>IP10</t></si><si><t>Check Customized Statement is generate</t></si><si><t>IP11</t></si><si><t>Delete Account</t></si><si><t>Verify Account is delete</t></si><si><t xml:space="preserve">customer id -1234
+account type-saving/current
+</t></si><si><t>Message Should be display"Account deleted Successfully"</t></si><si><t>IP12</t></si><si><t>Verify Non Existing Account is not edited</t></si><si><t>Message Should be display"Account does not exist "</t></si><si><t>IP13</t></si><si><t>Verify Non Existing Account is not be deleted</t></si><si><t>IP14</t></si><si><t>Check Ministatement is not generated</t></si><si><t>1)Enter all required field of deleted account
+2)Submit</t></si><si><t>Account number of deleted account</t></si><si><t>Message Should be display - "Account does not exist"</t></si><si><t>IP15</t></si><si><t>Delete customer</t></si><si><t>Verify Customer is Deleted</t></si><si><t>Customer Id - 1234</t></si><si><t>Message Should be display"Customer could not be deleted "</t></si><si><t>IP16</t></si><si><t>Check Customized Statement is not generated</t></si><si><t>Message Should be display"You are not authorise to delete this account "</t></si><si><t>IP17</t></si><si><t>Mini Statement</t></si><si><t>Verify Ministatement is generated</t></si><si><t xml:space="preserve">Displayed Generated ministatement </t></si><si><t>IP18</t></si><si><t>Customized Statement</t></si><si><t>Check Customized Statement is generated</t></si><si><t xml:space="preserve">Display Generated Customized statement </t></si><si><t>Display Generated ministatement</t></si><si><t>Displayed Generated ministatement</t></si><si><t>Display Generated Customized statement</t></si><si><t>Could not connect: Access denied for user 'root'@'localhost' (using password: NO)</t></si><si><t>Fail</t></si><si><t>Pass/Fail/Not Executed</t></si><si><t>Not Executed</t></si><si><t>could not connect : Access denied for user 'root'@'localhost' (using password: NO)</t></si><si><t>could not connectAccess denied for user 'root'@'localhost' (using password: NO)</t></si><si><t>Version tested</t></si><si><t>v1</t></si><si><t>v2</t></si><si><t>Customer is added successfully!
+Customer ID: 17283</t></si><si><t>Kate
+Female
+17.01.1995
+Address - Molon
+City - Holon
+State - Bolon
+PIN - 380009
+Telephone - 8000187025
+Email - rafasgj@mac.com
+and submit</t></si><si><t>Pass</t></si><si><t>System error message: "Email Address Already Exist !!"</t></si><si><t>customer id -17283
+account type-saving/current
+Initial Deposit-500</t></si><si><t>1) Enter to Edit Customer form with existing Customer ID = "17283"
+2) Enter all required fields with updated user data
+2) Submit</t></si><si><t>System message: "Customer records updated successfully!"</t></si><si><t>Customer Id = 8906</t></si><si><t>System error message: "You are not authorize to edit this customer!!"</t></si><si><t>System message 
+"customer records updated successfully!!"</t></si><si><t>System message: "New Account added successfully!
+Account No: 95418"</t></si><si><t xml:space="preserve"> System message: "account
+generated successfully
+Account No: 95419"</t></si><si><t>Account Number - 95419</t></si><si><t>Last Five Transaction Details for Account No: 95419</t></si><si><t>Type of account = "current"</t></si><si><t>System message: "Account details successfully updated!!"</t></si><si><t>1) Enter account number = "95419"
+2) Edit account data
+3) Submit</t></si><si><t>1) Enter account number = "95419"
+2) Enter all required fields
+2) Submit</t></si><si><t>From Date = "19.07.2021"
+To Date = "29.07.2021"
+Minimum Transaction Value = "500"
+Number of Transaction = "1"</t></si><si><t>Transaction Details for Account No: 95419 from Date: 2021-07-19 to: 2021-07-29</t></si><si><t>1) Enter  account number = "95419"
+2) Enter all required fields
+3) Submit</t></si><si><t>System error message: "Account cannot be deleted!!"</t></si><si><t>Account Number - 95420</t></si><si><t>Customer Id - 69728</t></si><si><t>System message: "Customer deleted Successfully"</t></si><si><t>Message Should be display"Customer deleted Successfully "</t></si><si><t>Address - Molom
+City - Holom
+State - Bolom
+PIN - 380006
+Telephone - 8000187026
+Email -  rafasghj@mac.com
+and submit</t></si><si><t>v3</t></si><si><t>System error message: "Account deleted successfully!!"</t></si></sst>

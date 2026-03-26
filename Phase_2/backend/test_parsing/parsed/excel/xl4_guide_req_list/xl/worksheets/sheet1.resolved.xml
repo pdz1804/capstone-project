@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='utf-8'?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:ns1="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:ns2="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:ns3="http://schemas.openxmlformats.org/officeDocument/2006/relationships" ns1:Ignorable="x14ac xr xr2 xr3" ns2:uid="{A3FAEADD-1F77-41EC-8882-F7ACBB21F29A}">
+    <dimension ref="A1:C26" />
+    <sheetViews>
+        <sheetView showGridLines="0" topLeftCell="A11" workbookViewId="0">
+            <selection activeCell="B21" sqref="B21" />
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="14.45" />
+    <cols>
+        <col min="1" max="1" width="23" customWidth="1" />
+        <col min="2" max="2" width="100.85546875" customWidth="1" />
+        <col min="3" max="3" width="23.7109375" customWidth="1" />
+    </cols>
+    <sheetData>
+        <row r="1" spans="1:3">
+            <c r="A1" s="59" t="s">
+                <v>Function Level1</v>
+            </c>
+            <c r="B1" s="59" t="s">
+                <v>Navi</v>
+            </c>
+        </row>
+        <row r="2" spans="1:3">
+            <c r="A2" s="59" t="s">
+                <v>Function Level2</v>
+            </c>
+            <c r="B2" s="59" t="s">
+                <v>Map update service</v>
+            </c>
+        </row>
+        <row r="5" spans="1:3">
+            <c r="A5" t="s">
+                <v>Requirement Level1</v>
+            </c>
+            <c r="B5" t="s">
+                <v>Map update service</v>
+            </c>
+        </row>
+        <row r="6" spans="1:3">
+            <c r="A6" t="s">
+                <v>Requirement Level2</v>
+            </c>
+            <c r="B6" s="58">
+                <v>522</v>
+            </c>
+        </row>
+        <row r="7" spans="1:3">
+            <c r="A7" t="s">
+                <v>Requirement Level3</v>
+            </c>
+            <c r="B7" t="s">
+                <v>file name, không có version</v>
+            </c>
+        </row>
+        <row r="10" spans="1:3">
+            <c r="A10" t="s">
+                <v>Input spec file</v>
+            </c>
+            <c r="B10" t="s">
+                <v>01.1 (common) Map update service request specification Ver7.30.docx</v>
+            </c>
+        </row>
+        <row r="11" spans="1:3">
+            <c r="A11" s="1" t="s">
+                <v>no change</v>
+            </c>
+            <c r="B11" t="s">
+                <v>01.2 (Common) Map Update Service Request Specifications_AppendixBase Map Evaluation Items Ver1.10.docx</v>
+            </c>
+        </row>
+        <row r="12" spans="1:3">
+            <c r="B12" s="59" t="s">
+                <v>01.3 (Common) Map Update Service Request Specifications_AppendixMap Authoring Ins Ver1.10.xlsx</v>
+            </c>
+            <c r="C12" t="s">
+                <v>ưu tiên docx trước</v>
+            </c>
+        </row>
+        <row r="13" spans="1:3">
+            <c r="B13" t="s">
+                <v>01.4 (common) Map update service request specifications_AppendixMap update content request specifications Ver7.30.docx</v>
+            </c>
+        </row>
+        <row r="14" spans="1:3">
+            <c r="B14" t="s">
+                <v>01.5 (common) Map update service request specifications _Appendix Map update ID numbering specifications Ver1.60.docx</v>
+            </c>
+        </row>
+        <row r="15" spans="1:3">
+            <c r="B15" t="s">
+                <v>01.6(common)Map Update Service Request Specifications_Appendix_Map update license key specification_Ver.4.30.docx</v>
+            </c>
+        </row>
+        <row r="16" spans="1:3">
+            <c r="B16" t="s">
+                <v>01.7(common)Map Update Service Request Specifications_Appendix_Map serial number specification_Ver.4.30.docx</v>
+            </c>
+        </row>
+        <row r="18" spans="1:2">
+            <c r="A18" t="s">
+                <v>Template</v>
+            </c>
+            <c r="B18" s="1" t="s">
+                <v>24SU_SYS4_Navi_Map update service_TestDesign_Function_v1.00.xlsx</v>
+            </c>
+        </row>
+        <row r="20" spans="1:2">
+            <c r="A20" t="s">
+                <v>Rule chi tiết từng trường</v>
+            </c>
+        </row>
+        <row r="21" spans="1:2">
+            <c r="B21" t="s">
+                <v>Sheet  3.1. Reqlist_Function</v>
+            </c>
+        </row>
+        <row r="24" spans="1:2">
+            <c r="A24" t="s">
+                <v>Output</v>
+            </c>
+            <c r="B24" s="1" t="s">
+                <v>24SU_SYS4_Navi_Map update service_TestDesign_Function_v1.00.xlsx</v>
+            </c>
+        </row>
+        <row r="26" spans="1:2">
+            <c r="B26" t="s">
+                <v>Cột A-M</v>
+            </c>
+        </row>
+    </sheetData>
+    <hyperlinks>
+        <hyperlink ref="B18" ns3:id="rId1" display="https://fptsoftware362-my.sharepoint.com/:x:/r/personal/o365_fs01_fpt_com/Documents/O365.FS01/Tproject/01.Wip/08_Improvement/InputForAI/FunctionTest/Output/Map update service/v1.00/24SU_SYS4_Navi_Map update service_TestDesign_Function_v1.00.xlsx?d=wfdd57733d95b422a9c638ad8a0d344fd&amp;csf=1&amp;web=1&amp;e=LrQTte" ns2:uid="{C472F57B-0A1A-4EBB-9908-08DE3FB32EF6}" />
+        <hyperlink ref="A11" ns3:id="rId2" display="https://fptsoftware362-my.sharepoint.com/:f:/r/personal/o365_fs01_fpt_com/Documents/O365.FS01/Tproject/01.Wip/08_Improvement/InputForAI/FunctionTest/SPEC/522_Navigation common requirement specification/v7.41/no change?csf=1&amp;web=1&amp;e=Di98pL" ns2:uid="{4A37C440-8C7A-4040-8194-6087F9DF9A4A}" />
+        <hyperlink ref="B24" ns3:id="rId3" display="https://fptsoftware362-my.sharepoint.com/:x:/r/personal/o365_fs01_fpt_com/Documents/O365.FS01/Tproject/01.Wip/08_Improvement/InputForAI/FunctionTest/Output/Map update service/v1.00/24SU_SYS4_Navi_Map update service_TestDesign_Function_v1.00.xlsx?d=wfdd57733d95b422a9c638ad8a0d344fd&amp;csf=1&amp;web=1&amp;e=LrQTte" ns2:uid="{B1CE4264-B113-412E-89BE-9B0BCD13FC5A}" />
+    </hyperlinks>
+    <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3" />
+    <drawing ns3:id="rId4" />
+</worksheet>
