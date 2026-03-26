@@ -2539,6 +2539,22 @@ def process_excel_file(
         json.dump(result, f, ensure_ascii=False, indent=2, default=str)
 
     log.info("Output written to: %s", out_path)
+    # --- Optionally produce chunk JSON via chunker helper ---
+    try:
+        import sys
+        src_dir = Path(__file__).resolve().parents[1]
+        if str(src_dir) not in sys.path:
+            sys.path.insert(0, str(src_dir))
+        from chunking.excel_chunker import save_chunks_to_file
+    except Exception as _e:
+        log.debug("Could not import chunker save helper: %s", _e)
+    else:
+        try:
+            out_chunk_dir = output_dir.parent / "output_chunk"
+            out_path_chunks = save_chunks_to_file(result, doc_id=excel_path.stem, source=str(excel_path), out_dir=out_chunk_dir)
+            log.info("Chunks written to: %s", out_path_chunks)
+        except Exception:
+            log.exception("Failed to create/write chunk JSON")
     return out_path
 
 
@@ -2573,6 +2589,23 @@ def process_parsed_dir(
         json.dump(result, f, ensure_ascii=False, indent=2, default=str)
 
     log.info("Output written to: %s", out_path)
+    # --- Optionally produce chunk JSON via chunker helper ---
+    try:
+        import sys
+        src_dir = Path(__file__).resolve().parents[1]
+        if str(src_dir) not in sys.path:
+            sys.path.insert(0, str(src_dir))
+        from chunking.excel_chunker import save_chunks_to_file
+    except Exception as _e:
+        log.debug("Could not import chunker save helper: %s", _e)
+    else:
+        try:
+            doc_id = name
+            out_chunk_dir = output_dir.parent / "output_chunk"
+            out_path_chunks = save_chunks_to_file(result, doc_id=doc_id, source=source_filename or str(parsed_dir), out_dir=out_chunk_dir)
+            log.info("Chunks written to: %s", out_path_chunks)
+        except Exception:
+            log.exception("Failed to create/write chunk JSON")
     return out_path
 
 

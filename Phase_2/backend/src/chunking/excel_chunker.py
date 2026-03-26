@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
+import json
 
 from .chunker import ChunkingConfig, TextChunker
 
@@ -813,3 +814,24 @@ def chunk_excel_json(
     )
     chunker = ExcelTableChunker(config)
     return chunker.chunk_excel_json(sheets, doc_id=doc_id, source=source)
+
+
+def save_chunks_to_file(
+    sheets: List[Dict[str, Any]],
+    *,
+    doc_id: str = "excel_doc",
+    source: str = "",
+    out_dir: str | Path = "output_chunk",
+) -> Path:
+    """
+    Convenience: chunk the parsed Excel JSON and save chunks to `out_dir/<doc_id>_chunks.json`.
+
+    Returns the Path to the written file.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    chunks = chunk_excel_json(sheets, doc_id=doc_id, source=source)
+    out_path = out_dir / (f"{doc_id}_chunks.json")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(chunks, f, ensure_ascii=False, indent=2, default=str)
+    return out_path
