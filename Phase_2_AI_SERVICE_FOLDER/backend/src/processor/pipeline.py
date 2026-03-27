@@ -55,7 +55,11 @@ class PipelineConfig:
     
     # Processing cache
     skip_processed: bool = True  # Skip files that were already processed
-    
+
+    # When True, delete stage1–4 artifacts whose document stem is not present under input/
+    # (avoids re-processing PDFs left in normalized_pdfs/ after files were removed from input/).
+    prune_outputs_not_in_input: bool = True
+
     def __post_init__(self):
         """Initialize sub-configs if not provided."""
         if self.normalizer_config is None:
@@ -153,7 +157,128 @@ class DocumentProcessingPipeline:
                 json.dump(self.cache, f, indent=2)
         except Exception:
             pass
-    
+
+    def _collect_input_stems(self) -> set:
+        """Basenames (stems) of all non-hidden files under the pipeline input directory."""
+        stems = set()
+        if not self.input_dir.exists():
+            return stems
+        for p in self.input_dir.rglob("*"):
+            if p.is_file() and not p.name.startswith("."):
+                stems.add(p.stem)
+        return stems
+
+    def _prune_stale_pipeline_artifacts(self) -> Dict:
+        """
+        Remove normalized / Docling / RAG-ready outputs for documents that no longer exist in input/.
+
+        Stage 3 otherwise picks up every *.pdf in normalized_pdfs/, and Stage 4 consolidates every
+        folder under stage3 — so old files must be deleted when removed from input/.
+        """
+        stats = {
+            "enabled": bool(self.config.prune_outputs_not_in_input),
+            "skipped_empty_input": False,
+            "allowed_stems": 0,
+            "removed_files": 0,
+            "removed_dirs": 0,
+            "paths": [],
+        }
+        if not self.config.prune_outputs_not_in_input:
+            return stats
+
+        allowed = self._collect_input_stems()
+        stats["allowed_stems"] = len(allowed)
+        if not allowed:
+            stats["skipped_empty_input"] = True
+            print(
+                "⚠ prune_outputs_not_in_input: input/ has no files — skipping stale-artifact cleanup "
+                "(would otherwise wipe all outputs)."
+            )
+            return stats
+
+        norm = self.stage_dirs["normalized"]
+
+        def _unlink_if_stale(path: Path) -> None:
+            if not path.exists() or not path.is_file():
+                return
+            if path.stem in allowed:
+                return
+            try:
+                path.unlink()
+                stats["removed_files"] += 1
+                stats["paths"].append(str(path))
+            except OSError:
+                pass
+
+        pdf_dir = norm / "normalized_pdfs"
+        if pdf_dir.exists():
+            for p in pdf_dir.glob("*.pdf"):
+                _unlink_if_stale(p)
+
+        md_dir = norm / "normalized_markdown"
+        if md_dir.exists():
+            for p in md_dir.glob("*.md"):
+                _unlink_if_stale(p)
+
+        orig_dir = norm / "original_files"
+        if orig_dir.exists():
+            for p in orig_dir.iterdir():
+                if p.is_file():
+                    _unlink_if_stale(p)
+
+        excel_dir = norm / "excel_parsed"
+        if excel_dir.exists():
+            for p in excel_dir.glob("*.json"):
+                _unlink_if_stale(p)
+
+        stage3 = self.stage_dirs["final_processed"]
+        if stage3.exists():
+            for p in stage3.iterdir():
+                if p.is_dir() and p.name != "logs" and p.name not in allowed:
+                    try:
+                        shutil.rmtree(p, ignore_errors=True)
+                        stats["removed_dirs"] += 1
+                        stats["paths"].append(str(p))
+                    except OSError:
+                        pass
+
+        # rag_ready folders use same naming as stage3 doc folders
+        rag = self.stage_dirs["rag_ready"]
+        if rag.exists():
+            for p in rag.iterdir():
+                if p.is_dir() and p.name not in allowed:
+                    try:
+                        shutil.rmtree(p, ignore_errors=True)
+                        stats["removed_dirs"] += 1
+                        stats["paths"].append(str(p))
+                    except OSError:
+                        pass
+
+        # Drop cache entries for removed inputs (keys are relative paths under input/)
+        cache_removed = 0
+        for key in list(self.cache.keys()):
+            try:
+                stem = Path(key).stem
+            except Exception:
+                continue
+            if stem not in allowed:
+                del self.cache[key]
+                cache_removed += 1
+        if cache_removed:
+            self._save_cache()
+        stats["cache_entries_removed"] = cache_removed
+
+        total = stats["removed_files"] + stats["removed_dirs"]
+        if total > 0:
+            print(
+                f"🧹 Pruned {stats['removed_files']} file(s) and {stats['removed_dirs']} output folder(s) "
+                f"not matching current input ({len(allowed)} stem(s))."
+            )
+        else:
+            print("🧹 Stale-artifact check: no extra pipeline outputs beyond current input.")
+
+        return stats
+
     def _get_file_hash(self, file_path: Path) -> str:
         """Get file hash for cache checking."""
         try:
@@ -242,7 +367,10 @@ class DocumentProcessingPipeline:
         # Count input files
         self.pipeline_stats["total_input_files"] = self._count_files(self.input_dir)
         print(f"Total input files: {self.pipeline_stats['total_input_files']}")
-        
+
+        prune_stats = self._prune_stale_pipeline_artifacts()
+        self.pipeline_stats["stages"]["prune_stale_outputs"] = prune_stats
+
         try:
             # Stage 1: Normalization
             if self.config.enable_normalization:
