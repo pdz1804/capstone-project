@@ -23,6 +23,11 @@ if str(ROOT) not in sys.path:
 if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
+import os
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
+
 from chunking.docx_preprocessor import preprocess_docx_for_rag  # noqa: E402
 
 logging.basicConfig(

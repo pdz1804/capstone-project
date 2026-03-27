@@ -24,6 +24,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+
 from .docx_chunker import DocxTableChunker, DocxChunkingConfig, IMAGE_PATH_PATTERN
 
 logger = logging.getLogger(__name__)
@@ -48,9 +54,20 @@ class DocxPreprocessor:
         chunk_size: int = 1000,
         chunk_overlap: int = 200,
         max_table_chunk_size: int = 2000,
+        use_llm_fallback: bool = True,
     ):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        self.use_llm_fallback = use_llm_fallback
+        self.llm_client = None
+        if self.use_llm_fallback and OPENAI_AVAILABLE:
+            import os
+            api_key = os.getenv("OPENAI_API_KEY")
+            if api_key:
+                self.llm_client = OpenAI(api_key=api_key)
+            else:
+                logger.warning("OPENAI_API_KEY not found; LLM fallback disabled.")
 
         self.chunker = DocxTableChunker(
             DocxChunkingConfig(
@@ -99,6 +116,15 @@ class DocxPreprocessor:
         # 1. Create output folder
         doc_folder = self.output_dir / doc_id
         doc_folder.mkdir(parents=True, exist_ok=True)
+
+        # 1.5 LLM Fallback for flat documents
+        if self._is_flat_tree(tree) and self.llm_client:
+            logger.info("Flat DOCX tree detected. Invoking LLM fallback to restructure headings...")
+            flat_md = self._build_markdown(tree, doc_id)
+            enriched_md = self._enrich_markdown_with_llm(flat_md)
+            if enriched_md:
+                tree = self._markdown_to_tree(enriched_md)
+                logger.info("Successfully rebuilt tree via LLM.")
 
         # 2. Build combined Markdown
         md_content = self._build_markdown(tree, doc_id)
@@ -207,6 +233,93 @@ class DocxPreprocessor:
                 parts.append(child_md)
 
         return "\n".join(parts)
+
+    def _is_flat_tree(self, tree: List[Dict]) -> bool:
+        """Check if the tree is essentially flat (e.g. no nested headings/children)."""
+        if not tree:
+            return True
+        for node in tree:
+            if node.get("children"):
+                return False
+        return True
+
+    def _enrich_markdown_with_llm(self, text: str) -> Optional[str]:
+        """Send flat markdown to LLM to inject semantic hierarchy headers."""
+        if not self.llm_client:
+            return None
+
+        prompt = (
+            "You are a document structuring assistant. The following text was extracted from a document "
+            "but lost its structural headings. Please inject appropriate Markdown headings (#, ##, ###) "
+            "to reflect logical sections, topics, or pseudo-headings based on the content's natural formatting gaps. "
+            "Do NOT summarize, hallucinate, alter, delete, or rewrite any of the actual text or placeholders (e.g., [START_IMAGE_PATH]). "
+            "Just output the exact original text, but with appropriate Markdown heading lines injected where they belong:\n\n"
+            f"{text}"
+        )
+
+        try:
+            response = self.llm_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1
+            )
+            result = response.choices[0].message.content
+            # Safely strip out Markdown code blocks if the LLM wraps it
+            if result.startswith("```markdown\n") and result.endswith("```"):
+                result = result[12:-3]
+            elif result.startswith("```\n") and result.endswith("```"):
+                result = result[4:-3]
+            return result.strip()
+        except Exception as e:
+            logger.error(f"Failed to enrich markdown with LLM: {str(e)}")
+            return None
+
+    def _markdown_to_tree(self, md_text: str) -> List[Dict]:
+        """Convert a structurally enriched markdown file back into the expected Tree JSON format."""
+        import re
+        tree = []
+        stack = []
+
+        lines = md_text.splitlines()
+        current_content = []
+
+        def flush_content():
+            if current_content and stack:
+                stack[-1][1]["content"] += "\n" + "\n".join(current_content)
+            elif current_content:
+                # Add to a default root node if no heading exists yet
+                tree.append({
+                    "heading_text": "",
+                    "heading_level": 0,
+                    "content": "\n".join(current_content),
+                    "children": []
+                })
+            current_content.clear()
+
+        for line in lines:
+            m = re.match(r"^(#{1,6})\s+(.*)$", line)
+            if m:
+                flush_content()
+                level = len(m.group(1))
+                heading_text = m.group(2).strip()
+                node = {
+                    "heading_text": heading_text,
+                    "heading_level": level,
+                    "content": "",
+                    "children": []
+                }
+                while stack and stack[-1][0] >= level:
+                    stack.pop()
+                if stack:
+                    stack[-1][1]["children"].append(node)
+                else:
+                    tree.append(node)
+                stack.append((level, node))
+            else:
+                current_content.append(line)
+
+        flush_content()
+        return tree
 
     # ------------------------------------------------------------------
     # Counting helpers

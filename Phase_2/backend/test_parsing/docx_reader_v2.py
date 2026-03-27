@@ -1922,6 +1922,18 @@ class DocxParser(object):
         elif stack and text:
             self._append_to_node_content(stack[-1][1], text)
             stack[-1][1]["content"] = self._merge_ver_marker(stack[-1][1]["content"])
+        elif not stack and text:
+            # First text element without a prior heading -> create an implicit root node
+            node = {
+                "heading_text": "",
+                "heading_level": 0,
+                "children": [],
+                "content": ""
+            }
+            tree.append(node)
+            stack.append((0, node))
+            self._append_to_node_content(node, text)
+            node["content"] = self._merge_ver_marker(node["content"])
 
     def _peek_heading_level(self, p_elem) -> Optional[int]:
         """Quick heading level detection from paragraph properties without full parse."""
