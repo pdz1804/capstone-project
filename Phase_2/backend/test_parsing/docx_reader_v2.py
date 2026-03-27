@@ -55,7 +55,7 @@ IMG_PATH_START_MARKER = "[START_IMAGE_PATH]"
 IMG_PATH_END_MARKER = "[END_IMAGE_PATH]"
 
 LVL_TEXT_PATTERN = re.compile(r"%(\d+)")
-log = logging.getLogger(_name_)
+log = logging.getLogger(__name__)
 
 HEX6_UPPER_RE = r"[0-9A-F]{6}"
 HEX6_RE = r"[0-9A-Fa-f]{6}"
