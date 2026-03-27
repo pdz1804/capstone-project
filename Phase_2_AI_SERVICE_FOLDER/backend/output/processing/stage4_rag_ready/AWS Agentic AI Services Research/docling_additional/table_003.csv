@@ -1,7 +1,0 @@
-AgentCore Component,Functional Purpose,Developer Integration Benefit
-Runtime,Serverless agent execution environment. 16,Any model/framework support; built-in security isolation. 16
-Gateway,Connects agents to tools and APIs via MCP. 16,"Secure, standardized access to thousands of tools. 16"
-Memory,Context persistence across sessions. 16,Agents that learn and adapt based on past outcomes. 17
-Evaluations,Data-driven performance assessment. 16,Visualized agent quality metrics in CloudWatch. 17
-Policy,Authoring of agent boundaries and rules. 17,Natural language control over agentic actions. 17
-Browser,Cloud-based browser runtime for agents. 16,"Safe, isolated web interaction and automation. 18"

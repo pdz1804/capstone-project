@@ -1,4 +1,0 @@
-|                   | multi-repo understanding. 1                                 |                                                         |                                                       |
-|-------------------|-------------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------|
-| AWSSecurity Agent | Design review, PR scanning, and autonomous pentesting. 6    | Reduced risk of vulnerabilities; embedded compliance. 2 | Standard in Fortune 500 CI/CD pipelines. 3            |
-| AWSDevOps Agent   | Autonomous incident resolution and telemetry correlation. 2 | Proactive reliability; reduced MTTR. 2                  | 60% of disruptions resolved without humans by 2031. 8 |
