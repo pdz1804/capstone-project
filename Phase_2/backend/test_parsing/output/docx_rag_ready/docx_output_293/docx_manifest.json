@@ -1,0 +1,11 @@
+{
+  "document_type": "document",
+  "doc_id": "docx_output_293",
+  "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/raw/docx/docx_output_293.json",
+  "num_sections": 138,
+  "has_docx_chunks": true,
+  "has_images": true,
+  "num_images": 21,
+  "consolidated_at": "2026-03-26T16:32:27.904132",
+  "source_stage": "docx_preprocessor"
+}
