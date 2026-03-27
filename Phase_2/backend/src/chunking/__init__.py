@@ -4,7 +4,7 @@ Text Chunking Module
 This module provides text chunking functionality for RAG systems,
 splitting documents into smaller, semantically meaningful chunks.
 
-Includes table-aware chunking for Excel/spreadsheet documents.
+Includes table-aware chunking for Excel/spreadsheet and DOCX documents.
 """
 
 from .chunker import (
@@ -25,6 +25,17 @@ from .excel_preprocessor import (
     preprocess_excel_for_rag,
 )
 
+from .docx_chunker import (
+    DocxChunkingConfig,
+    DocxTableChunker,
+    chunk_docx_json,
+)
+
+from .docx_preprocessor import (
+    DocxPreprocessor,
+    preprocess_docx_for_rag,
+)
+
 __all__ = [
     "ChunkingConfig",
     "TextChunker",
@@ -36,5 +47,11 @@ __all__ = [
     "chunk_excel_json",
     "ExcelPreprocessor",
     "preprocess_excel_for_rag",
+    # DOCX-specific
+    "DocxChunkingConfig",
+    "DocxTableChunker",
+    "chunk_docx_json",
+    "DocxPreprocessor",
+    "preprocess_docx_for_rag",
 ]
 
