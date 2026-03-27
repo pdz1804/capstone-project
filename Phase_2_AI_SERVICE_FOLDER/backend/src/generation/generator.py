@@ -419,9 +419,13 @@ class RAGGenerator:
                 "contents": {}
             }
         
-        # Separate text and image documents
-        text_docs = [doc for doc in retrieved_docs if doc.get('retrieval_type') != 'colqwen']
-        image_docs = [doc for doc in retrieved_docs if doc.get('retrieval_type') == 'colqwen']
+        # Separate text and image documents (Qdrant path uses colqwen_qdrant; legacy uses colqwen)
+        def _is_image_retrieval_doc(doc: Dict[str, Any]) -> bool:
+            rt = (doc.get("retrieval_type") or "").lower()
+            return rt in ("colqwen", "colqwen_qdrant")
+
+        text_docs = [doc for doc in retrieved_docs if not _is_image_retrieval_doc(doc)]
+        image_docs = [doc for doc in retrieved_docs if _is_image_retrieval_doc(doc)]
 
         # Collect image paths embedded in spreadsheet chunk metadata
         embedded_image_paths: List[str] = []
@@ -434,9 +438,16 @@ class RAGGenerator:
         
         logger.info(f"Retrieved docs: {len(retrieved_docs)} total, {len(text_docs)} text, {len(image_docs)} images, {len(embedded_image_paths)} embedded spreadsheet images")
         
-        # Debug: log image doc info (all images)
+        # Debug: log image doc info (all images). source_path is the local sync/cache path; storage_uri is canonical S3 when applicable.
         for i, img_doc in enumerate(image_docs):
-            logger.info(f"Image doc {i}: source={img_doc.get('source')}, path={img_doc.get('source_path')}, page={img_doc.get('page')}")
+            logger.info(
+                "Image doc %s: source=%s page=%s storage_uri=%s local_path=%s",
+                i,
+                img_doc.get("source"),
+                img_doc.get("page"),
+                img_doc.get("storage_uri") or "—",
+                img_doc.get("source_path") or "—",
+            )
         
         # Prepare image paths for vision model
         image_paths = []
@@ -463,15 +474,21 @@ class RAGGenerator:
                         logger.debug(f"Converted relative path to absolute (cwd): {source_path_obj}")
                 source_path = str(source_path_obj)
             
-            # Try to render PDF page to image
+            # Try to render PDF page to image (pdf2image/poppler reads a local file — S3-backed runs still use the synced copy under the temp workspace).
             if source_path and Path(source_path).exists():
-                logger.info(f"Rendering PDF page: {source_path} page {page}")
+                canon = img_doc.get("storage_uri") or "n/a"
+                logger.info(
+                    "Rendering PDF page %s (local workspace copy); canonical: %s",
+                    page,
+                    canon,
+                )
+                logger.debug("Local PDF path for pdf2image: %s", source_path)
                 temp_img = self._render_pdf_page_to_image(source_path, page)
                 if temp_img:
                     image_paths.append(temp_img)
                     temp_files.append(temp_img)
                     image_descriptions.append(f"[Image {len(image_paths)}] Page {page} from {source}")
-                    logger.info(f"Successfully rendered image from {source} page {page}")
+                    logger.info("Rendered page %s from %s for vision model", page, source)
                 else:
                     logger.warning(f"Failed to render image from {source} page {page}")
             else:
@@ -581,6 +598,8 @@ CRITICAL FORMATTING RULES:
                         "source": img_doc.get('source', 'unknown'),
                         "page": img_doc.get('page', 0),
                         "source_path": img_doc.get('source_path', ''),
+                        "storage_uri": img_doc.get('storage_uri', ''),
+                        "storage_backend": img_doc.get('storage_backend', ''),
                         "score": img_doc.get('score', 0),
                         "id": f"image-2-{idx}"
                     }

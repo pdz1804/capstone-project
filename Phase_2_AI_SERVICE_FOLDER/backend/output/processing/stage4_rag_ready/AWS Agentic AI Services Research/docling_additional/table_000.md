@@ -1,0 +1,3 @@
+| Frontier Agent   | Core Capability                       | Business Outcome                                   | Potential Reach by 2026                   |
+|------------------|---------------------------------------|----------------------------------------------------|-------------------------------------------|
+| Kiro             | Asynchronous software development and | Increased dev capacity; faster feature delivery. 2 | 80% of dev tasks involve AI assistance. 7 |

@@ -7,7 +7,7 @@
   "frames_extracted": 0,
   "chunks_created": 0,
   "errors": [],
-  "processed_at": "2026-03-25T02:49:26.907199",
+  "processed_at": "2026-03-27T08:30:18.178740",
   "config": {
     "whisper_model": "base",
     "device": "cuda",

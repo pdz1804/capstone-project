@@ -26,10 +26,14 @@ function MetadataSection({ citation }) {
               <span className="text-right ml-4 font-mono text-indigo-600">{citation.metadata.content_type}</span>
             </div>
           )}
-          {citation.metadata.original_file && (
+          {(citation.metadata.storage_uri || citation.metadata.original_file) && (
             <div className="flex justify-between items-start mt-1">
-              <span className="text-slate-600">Original File:</span>
-              <span className="text-right ml-4 break-words max-w-[60%]">{citation.metadata.original_file}</span>
+              <span className="text-slate-600">
+                {citation.metadata.storage_uri ? 'S3 object:' : 'Original File:'}
+              </span>
+              <span className="text-right ml-4 break-words max-w-[60%] font-mono text-[11px]">
+                {citation.metadata.storage_uri || citation.metadata.original_file}
+              </span>
             </div>
           )}
           {citation.metadata.original_file_format && (

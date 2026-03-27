@@ -13,9 +13,18 @@ config/default.yaml    # Pipeline + Qdrant + inference settings
 ```
 
 - **Dense text retrieval** uses **Qdrant** (cosine on `sentence-transformers` embeddings).
-- **BM25** uses an on-disk pickle (`output/retrieval/bm25_index.pkl`) built from the same chunks as Qdrant.
+- **BM25** uses a pickle under each user’s workspace: `<workspace>/output/retrieval/bm25_index.pkl` (local mode: `backend/output/...`; S3 mode: temp `phase2_ai_workspace/<user>/output/retrieval/...`).
 - **Hybrid** fuses BM25 + dense (Qdrant) with weight `inference.hybrid_alpha` (default 0.5).
 - **Image retrieval** stores **ColQwen multivectors** in Qdrant (MaxSim), same idea as `Phase_2_PDZ_003_Test_Qdrant_Cloud`.
+
+### File storage (local vs S3)
+
+Set `FILE_STORAGE_BACKEND` in `.env` (see `.env.example`).
+
+- **Local** — `backend/input` and `backend/output` are created and used end-to-end.
+- **S3** — uploads and published artifacts live in **S3**; the pipeline syncs to a **per-user directory under the system temp folder** for Docling/pdf2image/ColQwen. Logs may show those temp paths even when citations show `s3://...` (pdf2image reads local files; S3 is the durable object store).
+
+Per-user isolation: HTTP header **`X-User-Id`**. S3 keys default to `users/<id>/...` under your configured prefixes (`S3_USER_ISOLATION=true`).
 
 ## Install dependencies into `myenv` (recommended for this repo)
 
@@ -65,6 +74,54 @@ copy .env.example .env            # fill OPENAI_API_KEY, Qdrant, optional SageMa
 
 Open `http://localhost:8000/docs` for OpenAPI.
 
+## HTTP API reference
+
+All **`/api/*`** routes (except where noted) respect the storage user from header **`X-User-Id`** (optional; sanitized; default from **`DEFAULT_STORAGE_USER_ID`** / `default`). Use the **same** user for upload → process → index → search → files → insights.
+
+### Health, config, status
+
+| Method | Path | Query / notes |
+|--------|------|----------------|
+| GET | `/health`, `/api/health` | Liveness. |
+| GET | `/api` | Service name, version, link to `/docs`. |
+| GET | `/api/config` | Merged YAML + env runtime settings. |
+| GET | `/api/system/inference` | SageMaker flag, endpoint, region, Qdrant mode, collection names. |
+| GET | `/api/status` | Pipeline/index summary: `ready`, `indexed_docs`, `image_pages`, nested `text_index` / `image_index` (Qdrant point counts, retriever metadata). **Caching:** responses are cached in-process per user for **`STATUS_QDRANT_CACHE_TTL_SECONDS`** (default **20**; set **0** to disable). **`fresh=true`:** bypass cache (use after **`POST /api/process`** or **`POST /api/index`**). |
+
+### Files and processed tree
+
+| Method | Path | Query / body | Response / notes |
+|--------|------|--------------|------------------|
+| GET | `/api/files` | **`quick`** (bool): if `true`, only lists **input/**; skips processed scan, `documents.json`, and Qdrant image count (faster right after upload). | `{ "input": [...], "processed": [...], "indexed": [...] }` — flat rows with paths, sizes, stages where applicable. |
+| GET | `/api/processed-documents` | **`preview`** (bool): if `true`, embed short text snippets for `.md` / `.json` / `.txt` (slower on large trees). | Snapshot: **`input_file_count`**, **`artifact_count`**, **`document_count`** (sidebar rows including pipeline-wide group), **`named_document_folders`** (stage3/4 document folders only), **`stage_order`**, **`stage_totals`**, **`root_files`**, **`documents`** (each with `id`, `display_name`, `total_files`, **`stages`** map per pipeline stage with `file_count` + `files` rows), **`count_hints`**. Each file row includes **`relative_path`** (posix, under `processing/`), **`name`**, **`size`**, **`size_bytes`**, **`modified`**, **`type`**, **`storage`**. |
+| GET | `/api/processed-file` | **`rel_path`** (required): path under **`processing/`** using forward slashes, e.g. `stage3_document_processed/MyDoc/MyDoc.md` or `.processing_cache.json`. No `..` or empty segments. | Raw bytes, **`Content-Type`** from file or object metadata, **`Content-Disposition: inline`**. **403** if path escapes processing tree or S3 key outside prefix; **404** missing; **413** if larger than **`MAX_PROCESSED_FILE_PREVIEW_BYTES`** (default 50MB). |
+| POST | `/api/upload` | `multipart/form-data`, field **`files`** (repeatable). | `{ "uploaded", "count", "files" }`. |
+| DELETE | `/api/files` | JSON **`{ "path": "<storage-relative or absolute path as returned by API>" }`**. | `{ "deleted": path }` or 404. |
+
+### Pipeline, search, images
+
+| Method | Path | Notes |
+|--------|------|--------|
+| GET | `/api/processing-stats` | Reads pipeline stats JSON when present. |
+| POST | `/api/process` | Query **`force`**. Runs full document pipeline. |
+| POST | `/api/index` | Query **`force`**. Text + image indexing. |
+| POST | `/api/index/text`, `/api/index/image` | Partial index builds. |
+| POST | `/api/search` | Body: **`query`**, **`top_k`**, **`retriever_type`** (`bm25` \| `dense` \| `hybrid`), **`include_images`**, **`images_for_generation`**. |
+| GET | `/api/image`, `/api/pdf-page-image` | Media helpers (path / PDF page rendering). |
+
+### Insights (`/api/insights`)
+
+These routes build LLM context from **processed pipeline markdown** (`processing/stage3_document_processed/**/*.md`, falling back to `stage4_rag_ready` if stage3 has no `.md` for the scope). They do **not** query Qdrant or run hybrid retrieval.
+
+| Method | Path | Body highlights |
+|--------|------|-----------------|
+| POST | `/api/insights/summary` | Optional **`document_id`** (folder name only). **`focus_query`** steers emphasis only. **`depth`**, **`tone`**, **`target_length`**. **`top_k`** is ignored (kept for API compatibility). |
+| POST | `/api/insights/mcq` | **`topic`**, **`num_questions`**, **`difficulty`**, optional **`document_id`**. **`question_style`**, **`include_explanations`**. |
+| POST | `/api/insights/learning-roadmap` | **`goals`** (required), optional **`student_profile`**, optional **`document_id`**. |
+| GET | `/api/insights/analytics` | Placeholder / FR-020. |
+
+OpenAPI at **`/docs`** remains authoritative for exact schemas and trying requests.
+
 ## Unit tests
 
 Tests live under `tests/` (`api/` for route smoke tests with mocks, `services/` for core settings, Qdrant factory, ColQwen inference flags). Run from **`backend`** using the same **`myenv`** interpreter as install.
@@ -91,9 +148,15 @@ Optional: `pytest -m unit` (markers in `pytest.ini`). Pass extra pytest args to 
 
 ## Indexing workflow
 
-1. `POST /api/upload` — files into `input/`.
-2. `POST /api/process` — normalization → `output/processing/stage4_rag_ready/`.
-3. `POST /api/index` or `POST /api/index/text` + `POST /api/index/image` — builds Qdrant + `documents.json` + BM25.
+Use the same **`X-User-Id`** (if any) for upload → process → index → search.
+
+1. `POST /api/upload` — **local:** `backend/input/` · **S3:** object in originals bucket (+ sync to temp input on process).
+2. `POST /api/process` — normalization → **local:** `backend/output/processing/...` · **S3:** temp workspace then `publish` to processed bucket.
+3. `POST /api/index` (or text + image separately) — builds Qdrant collections, **`documents.json`**, BM25. With S3, chunk/image metadata gets **`storage_uri`** for UI citations (re-run index after changing storage or paths).
+
+## Search / generation and “local rendering”
+
+`/api/search` loads text models and (if enabled) **ColQwen** on the API host, queries **Qdrant Cloud** (or self-hosted), and may call **pdf2image** on **local paths** under the user workspace to build images for the vision LLM. That does **not** mean PDFs are “processed only locally forever” — S3 holds the published PDFs; the temp copy is what Poppler and the generator open.
 
 ## Inference: local vs SageMaker
 

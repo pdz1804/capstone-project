@@ -110,3 +110,25 @@ class TextIndexRepository:
             return int(info.points_count)
         except Exception:
             return 0
+
+    def delete_by_source(self, source_value: str) -> int:
+        """Remove all points whose payload ``source`` equals ``source_value`` (exact match)."""
+        from qdrant_client.models import FieldCondition, Filter, FilterSelector, MatchValue
+
+        flt = Filter(must=[FieldCondition(key="source", match=MatchValue(value=source_value))])
+        try:
+            cnt = self.client.count(
+                collection_name=self.collection_name,
+                count_filter=flt,
+                exact=True,
+            ).count
+        except Exception:
+            cnt = 0
+        if cnt == 0:
+            return 0
+        self.client.delete(
+            collection_name=self.collection_name,
+            points_selector=FilterSelector(filter=flt),
+            wait=True,
+        )
+        return int(cnt)

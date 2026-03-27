@@ -6,7 +6,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List
 
-from app.core.paths import BACKEND_ROOT, DOCUMENTS_JSON_PATH
+from app.core.paths import BACKEND_ROOT, workspace_paths_for_user
 from app.services.image_search_service import ImageSearchService
 from app.services.text_search_service import TextSearchService, _load_doc_map
 
@@ -25,8 +25,9 @@ def _image_enabled(cfg: Dict[str, Any]) -> bool:
     return bool((cfg.get("image_retrieval", {}) or {}).get("enabled", False))
 
 
-def _expand_text_for_generation(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    doc_map = _load_doc_map(DOCUMENTS_JSON_PATH)
+def _expand_text_for_generation(rows: List[Dict[str, Any]], user_id: str | None) -> List[Dict[str, Any]]:
+    paths = workspace_paths_for_user(user_id)
+    doc_map = _load_doc_map(paths.documents_json_path)
     out: List[Dict[str, Any]] = []
     for r in rows:
         cid = str(r.get("id", ""))
@@ -43,8 +44,9 @@ def _expand_text_for_generation(rows: List[Dict[str, Any]]) -> List[Dict[str, An
 
 
 class SearchOrchestrator:
-    def __init__(self, yaml_config: Dict[str, Any]):
+    def __init__(self, yaml_config: Dict[str, Any], user_id: str | None = None):
         self.cfg = yaml_config
+        self._user_id = user_id
 
     def run(
         self,
@@ -54,13 +56,13 @@ class SearchOrchestrator:
         include_images: bool = True,
         images_for_generation: int = 5,
     ) -> Dict[str, Any]:
-        text_svc = TextSearchService(self.cfg)
+        text_svc = TextSearchService(self.cfg, user_id=self._user_id)
         text_rows = text_svc.search(query, retriever_type, top_k)
 
         image_rows: List[Dict[str, Any]] = []
         if include_images and _image_enabled(self.cfg):
             try:
-                image_rows = ImageSearchService(self.cfg).search(query, top_k)
+                image_rows = ImageSearchService(self.cfg, user_id=self._user_id).search(query, top_k)
             except Exception as e:
                 logger.exception("Image search failed: %s", e)
 
@@ -93,7 +95,7 @@ class SearchOrchestrator:
                 base_dir=str(BACKEND_ROOT),
             )
             gen = RAGGenerator(gc)
-            text_for_gen = _expand_text_for_generation(text_rows)
+            text_for_gen = _expand_text_for_generation(text_rows, self._user_id)
             imgs = image_rows[:images_for_generation]
             merged = text_for_gen + imgs
             gen_out = gen.generate(query, merged)

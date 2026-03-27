@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List
 
-from app.core.paths import BM25_PICKLE_PATH, DOCUMENTS_JSON_PATH
+from app.core.paths import qdrant_collection_names_for_user, workspace_paths_for_user
 from app.repositories import TextIndexRepository, build_qdrant_client, bm25_search, load_bm25_index
 
 logger = logging.getLogger(__name__)
@@ -40,13 +40,18 @@ def _load_doc_map(path: Path) -> Dict[str, Dict[str, Any]]:
 
 
 class TextSearchService:
-    def __init__(self, yaml_config: Dict[str, Any]):
+    def __init__(self, yaml_config: Dict[str, Any], user_id: str | None = None):
         self.cfg = yaml_config
+        self._paths = workspace_paths_for_user(user_id)
         self._client = build_qdrant_client(yaml_config)
         q = yaml_config.get("qdrant", {}) or {}
         tr = yaml_config.get("text_retrieval", {}) or {}
         inf = yaml_config.get("inference", {}) or {}
-        self._collection = q.get("text_collection", "edu_text_chunks")
+        base_txt = q.get("text_collection", "edu_text_chunks")
+        base_img = q.get("image_collection", "edu_image_pages")
+        self._collection, _ = qdrant_collection_names_for_user(
+            base_txt, base_img, self._paths.user_id
+        )
         self._vec_name = q.get("text_vector_name", "text")
         self._embed_model = tr.get("embedding_model", "all-MiniLM-L6-v2")
         self._alpha = float(inf.get("hybrid_alpha", 0.5))
@@ -75,7 +80,7 @@ class TextSearchService:
         vec, dim = self._encode_query(query)
         repo = self._repo(dim)
         raw = repo.search(vec, limit=top_k)
-        doc_map = _load_doc_map(DOCUMENTS_JSON_PATH)
+        doc_map = _load_doc_map(self._paths.documents_json_path)
         results: List[Dict[str, Any]] = []
         for rank, hit in enumerate(raw, start=1):
             pl = hit.get("payload") or {}
@@ -96,7 +101,7 @@ class TextSearchService:
         return results
 
     def search_bm25(self, query: str, top_k: int) -> List[Dict[str, Any]]:
-        data = load_bm25_index(BM25_PICKLE_PATH)
+        data = load_bm25_index(self._paths.bm25_pickle_path)
         if not data:
             return []
         rows = bm25_search(data, query, top_k)
@@ -118,7 +123,7 @@ class TextSearchService:
                 cid, 0.0
             )
         sorted_ids = sorted(combined.keys(), key=lambda x: combined[x], reverse=True)[:top_k]
-        doc_map = _load_doc_map(DOCUMENTS_JSON_PATH)
+        doc_map = _load_doc_map(self._paths.documents_json_path)
         out: List[Dict[str, Any]] = []
         for rank, cid in enumerate(sorted_ids, start=1):
             base = doc_map.get(cid, {})

@@ -1,0 +1,435 @@
+{
+  "file_info": {
+    "name": "AWS Agentic AI Services Research.pdf",
+    "path": "D:\\PDZ\\BKU\\Learning\\LVTN\\GD1\\Code\\Phase_2_AI_SERVICE_FOLDER\\backend\\output\\processing\\stage1_normalized\\normalized_pdfs\\AWS Agentic AI Services Research.pdf",
+    "size": 265423,
+    "type": "pdf",
+    "modified": 1774575016.6631565
+  },
+  "document_info": {
+    "title": "The Architecture of Autonomy: A Strategic Analysis of AWS Agentic AI Services for Enterprise Business Transformation",
+    "docling_version": "1.9.0",
+    "filename": "AWS Agentic AI Services Research.pdf",
+    "mimetype": "application/pdf",
+    "binary_hash": 10742988835512537286
+  },
+  "content_stats": {
+    "total_pages": 14,
+    "total_images": 0,
+    "total_tables": 6,
+    "total_texts": 130,
+    "total_text_length": 32344
+  },
+  "processing_info": {
+    "processor_version": "MultimodalDocumentProcessor-v1.0",
+    "docling_version": "1.9.0",
+    "processing_timestamp": "2026-03-27T08:30:38.665329",
+    "gpu_used": true,
+    "ocr_enabled": true,
+    "vlm_enabled": true,
+    "asr_enabled": true,
+    "image_filtering": {
+      "min_width": 100,
+      "min_height": 100,
+      "min_area": 10000
+    }
+  },
+  "pages": [
+    {
+      "page_number": 2,
+      "page_key": 1,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 6,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 5
+      }
+    },
+    {
+      "page_number": 3,
+      "page_key": 2,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 8,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 7
+      }
+    },
+    {
+      "page_number": 4,
+      "page_key": 3,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 10,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 5,
+      "page_key": 4,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 9,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 9
+      }
+    },
+    {
+      "page_number": 6,
+      "page_key": 5,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 5,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 4
+      }
+    },
+    {
+      "page_number": 7,
+      "page_key": 6,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 12,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 12
+      }
+    },
+    {
+      "page_number": 8,
+      "page_key": 7,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 7,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 6
+      }
+    },
+    {
+      "page_number": 9,
+      "page_key": 8,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 6,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 1,
+        "texts": 5
+      }
+    },
+    {
+      "page_number": 10,
+      "page_key": 9,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 14,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 14
+      }
+    },
+    {
+      "page_number": 11,
+      "page_key": 10,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 13,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 13
+      }
+    },
+    {
+      "page_number": 12,
+      "page_key": 11,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 18,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 18
+      }
+    },
+    {
+      "page_number": 13,
+      "page_key": 12,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 21,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 21
+      }
+    },
+    {
+      "page_number": 14,
+      "page_key": 13,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 1,
+      "has_content": true,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 1
+      }
+    },
+    {
+      "page_number": 15,
+      "page_key": 14,
+      "dimensions": {
+        "width": 612.0,
+        "height": 792.0
+      },
+      "elements_count": 0,
+      "has_content": false,
+      "elements_by_type": {
+        "pictures": 0,
+        "tables": 0,
+        "texts": 0
+      }
+    }
+  ],
+  "images_details": [],
+  "tables_details": [
+    {
+      "index": 0,
+      "id": "table_000",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 2,
+      "bbox": {
+        "x1": 71.1581039428711,
+        "y1": 188.61639404296875,
+        "x2": 541.6094360351562,
+        "y2": 78.925537109375
+      },
+      "dimensions": {
+        "width": 470.45,
+        "height": 109.69
+      },
+      "area": 51604.21,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 1,
+        "columns": 4,
+        "column_names": [
+          "Frontier Agent",
+          "Core Capability",
+          "Business Outcome",
+          "Potential Reach by 2026"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 1,
+      "id": "table_001",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 3,
+      "bbox": {
+        "x1": 71.2803955078125,
+        "y1": 720.5558166503906,
+        "x2": 541.7289428710938,
+        "y2": 527.1667175292969
+      },
+      "dimensions": {
+        "width": 470.45,
+        "height": 193.39
+      },
+      "area": 90979.62,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 2,
+        "columns": 4,
+        "column_names": [
+          "",
+          "multi-repo understanding. 1",
+          "",
+          ""
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 2,
+      "id": "table_002",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 4,
+      "bbox": {
+        "x1": 71.23676300048828,
+        "y1": 598.4414215087891,
+        "x2": 541.7818603515625,
+        "y2": 369.9467468261719
+      },
+      "dimensions": {
+        "width": 470.55,
+        "height": 228.49
+      },
+      "area": 107517.05,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 3,
+        "columns": 3,
+        "column_names": [
+          "AWSTransform Workload",
+          "Performance / Productivity Metric",
+          "Time to Market Impact"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 3,
+      "id": "table_003",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 6,
+      "bbox": {
+        "x1": 71.00138854980469,
+        "y1": 720.8865814208984,
+        "x2": 541.7257690429688,
+        "y2": 360.0348205566406
+      },
+      "dimensions": {
+        "width": 470.72,
+        "height": 360.85
+      },
+      "area": 169861.72,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 6,
+        "columns": 3,
+        "column_names": [
+          "AgentCore Component",
+          "Functional Purpose",
+          "Developer Integration Benefit"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 4,
+      "id": "table_004",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 8,
+      "bbox": {
+        "x1": 71.31928253173828,
+        "y1": 629.9641571044922,
+        "x2": 541.7471923828125,
+        "y2": 384.1086730957031
+      },
+      "dimensions": {
+        "width": 470.43,
+        "height": 245.86
+      },
+      "area": 115657.28,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 4,
+        "columns": 4,
+        "column_names": [
+          "Benchmark / Capability",
+          "Claude Sonnet 4.5",
+          "Claude Opus 4.5",
+          "Qwen3MoE"
+        ],
+        "has_data": true
+      }
+    },
+    {
+      "index": 5,
+      "id": "table_005",
+      "type": "table",
+      "label": "table",
+      "caption": "",
+      "page_number": 9,
+      "bbox": {
+        "x1": 71.26638793945312,
+        "y1": 322.3230895996094,
+        "x2": 541.7938842773438,
+        "y2": 94.0460205078125
+      },
+      "dimensions": {
+        "width": 470.53,
+        "height": 228.28
+      },
+      "area": 107410.64,
+      "coordinate_origin": "CoordOrigin.BOTTOMLEFT",
+      "structure": {
+        "rows": 3,
+        "columns": 3,
+        "column_names": [
+          "Infrastructure Component",
+          "Key Performance Value",
+          "Business Benefit"
+        ],
+        "has_data": true
+      }
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.api.deps import storage_user_id
 from app.api.schemas import SearchRequest
 from app.core.paths import merged_runtime_settings
 from app.services.search_orchestrator import SearchOrchestrator
@@ -11,10 +12,13 @@ router = APIRouter(prefix="/api", tags=["search"])
 
 
 @router.post("/search")
-async def search(req: SearchRequest):
+async def search(
+    req: SearchRequest,
+    user_id: str = Depends(storage_user_id),
+):
     try:
         cfg = merged_runtime_settings()
-        orch = SearchOrchestrator(cfg)
+        orch = SearchOrchestrator(cfg, user_id=user_id)
         return orch.run(
             query=req.query,
             top_k=req.top_k,

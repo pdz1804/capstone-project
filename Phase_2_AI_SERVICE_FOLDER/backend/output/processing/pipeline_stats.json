@@ -1,6 +1,15 @@
 {
-  "start_time": "2026-03-25T02:49:23.258177",
+  "start_time": "2026-03-27T08:30:16.616830",
   "stages": {
+    "prune_stale_outputs": {
+      "enabled": true,
+      "skipped_empty_input": false,
+      "allowed_stems": 1,
+      "removed_files": 0,
+      "removed_dirs": 0,
+      "paths": [],
+      "cache_entries_removed": 0
+    },
     "normalization": {
       "total_files": 1,
       "normalized_files": 1,
@@ -38,7 +47,7 @@
     }
   },
   "total_input_files": 1,
-  "total_output_files": 10,
+  "total_output_files": 30,
   "errors": [],
-  "end_time": "2026-03-25T02:50:30.903857"
+  "end_time": "2026-03-27T08:30:38.804663"
 }
