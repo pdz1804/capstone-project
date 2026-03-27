@@ -1,3 +1,4 @@
+
 # Software Requirements Specification
 
 ## Educational Content Processing & Retrieval-Augmented Generation System
@@ -6,22 +7,33 @@
 
 ### Requirements Statistics
 
-**Total Requirements**: 35
-- **Functional Requirements**: 20 (FR-001 through FR-020)
-- **Non-Functional Requirements**: 8 (NFR-001 through NFR-008)  
-- **Technical Requirements**: 7 (TR-001 through TR-007)
+**Total Requirements**: 37
+
+-**Functional Requirements**: 22 (FR-001 through FR-022)
+
+-**Non-Functional Requirements**: 8 (NFR-001 through NFR-008)
+
+-**Technical Requirements**: 7 (TR-001 through TR-007)
 
 **AI vs Software Distribution**:
-- **AI-Heavy Requirements**: 12 (34%) - Core AI processing components
-- **Software-Heavy Requirements**: 23 (66%) - Infrastructure and core features
+
+-**AI-Heavy Requirements**: 14 (38%) - Core AI processing components
+
+-**Software-Heavy Requirements**: 23 (62%) - Infrastructure and core features
 
 **Functional Requirements by Category**:
-- **Content Processing**: 8 requirements
-- **Information Retrieval**: 3 requirements
-- **Question Answering**: 2 requirements
-- **User Interface**: 2 requirements
-- **Lecture Summary**: 2 requirements
-- **Personalization**: 3 requirements
+
+-**Content Processing**: 8 requirements
+
+-**Information Retrieval**: 3 requirements
+
+-**Question Answering**: 4 requirements
+
+-**User Interface**: 2 requirements
+
+-**Lecture Summary**: 2 requirements
+
+-**Personalization**: 3 requirements
 
 **Most Critical Requirements**: FR-001, FR-002, FR-009, FR-012, NFR-001
 
@@ -51,12 +63,17 @@ The system encompasses:
 
 #### 1.3 Definitions
 
-- **ASR**: Automatic Speech Recognition
-- **OCR**: Optical Character Recognition
-- **RAG**: Retrieval-Augmented Generation
-- **VLM**: Vision Language Model
-- **BM25**: Best Match 25 (sparse retrieval algorithm)
-- **Dense Retrieval**: Semantic similarity-based retrieval using embeddings
+-**ASR**: Automatic Speech Recognition
+
+-**OCR**: Optical Character Recognition
+
+-**RAG**: Retrieval-Augmented Generation
+
+-**VLM**: Vision Language Model
+
+-**BM25**: Best Match 25 (sparse retrieval algorithm)
+
+-**Dense Retrieval**: Semantic similarity-based retrieval using embeddings
 
 ---
 
@@ -156,15 +173,43 @@ The system encompasses:
 - Present generated answers with citations
 - Support result filtering and sorting
 
+**FR-014: Chat Assistant with Intelligent Query Processing**
+
+-**Step 1: Query Decomposition**
+
+- Analyze complex user questions and decompose into simple, atomic tasks
+- Identify multiple sub-questions within compound queries
+- Generate task breakdown for parallel processing
+- Maintain question context and intent during decomposition
+
+-**Step 2: Search Strategy Classification**
+
+- Classify each sub-task for appropriate search method:
+
+  - Keyword search for exact matches and specific terms
+  - Semantic search for conceptual similarity and meaning
+  - Hybrid search combining keyword and semantic approaches
+- Determine optimal search parameters per task (retrieval depth, filters)
+- Select appropriate document modalities (text, images, audio, video)
+
+-**Step 3: Multi-Search Retrieval and Aggregation**
+
+- Execute parallel searches across classified strategies
+- Retrieve relevant documents from multiple search methods
+- Aggregate and rank results from different retrieval approaches
+- Resolve conflicts and merge overlapping information
+- Generate comprehensive answer using aggregated context
+- Provide citations from all relevant sources used in answer generation
+
 #### 2.4 User Interface Requirements
 
-**FR-014: File Management**
+**FR-021: File Management**
 
 - Drag-and-drop file upload interface
 - Display uploaded, processed, and indexed files
 - Show processing progress and status
 
-**FR-015: Search Interface**
+**FR-022: Search Interface**
 
 - Natural language query input
 - Display multimodal search results
@@ -172,7 +217,7 @@ The system encompasses:
 
 #### 2.5 Lecture Summary Requirements
 
-**FR-016: Automated Lecture Summary Generation**
+**FR-023: Automated Lecture Summary Generation**
 
 - Generate concise summaries from lecture transcripts and documents
 - Extract key concepts and learning objectives
@@ -181,7 +226,7 @@ The system encompasses:
 - Preserve original timestamps and source references
 - Support customizable summary length and focus areas
 
-**FR-017: Interactive Summary Navigation**
+**FR-024: Interactive Summary Navigation**
 
 - Clickable summary sections with links to source material
 - Timeline view of lecture flow with key milestones
@@ -191,7 +236,7 @@ The system encompasses:
 
 #### 2.6 Personalization Requirements
 
-**FR-018: Personalized Learning Path Generation**
+**FR-025: Personalized Learning Path Generation**
 
 - Analyze student query patterns and learning style
 - Generate customized "learning roadmaps" based on weak/strong areas
@@ -200,7 +245,7 @@ The system encompasses:
 - Track learning progression over multiple sessions
 - Suggest supplementary materials based on performance
 
-**FR-019: Student Knowledge Assessment**
+**FR-026: Student Knowledge Assessment**
 
 - Generate adaptive multiple-choice questions (MCQs) from lecture content
 - Create question sets targeting identified weak areas
@@ -209,7 +254,7 @@ The system encompasses:
 - Track student responses and learning gaps
 - Categorize questions by concept/topic
 
-**FR-020: Performance Analytics Dashboard**
+**FR-027: Performance Analytics Dashboard**
 
 - Display student strength/weakness matrix by topic
 - Visualize learning progress over time
