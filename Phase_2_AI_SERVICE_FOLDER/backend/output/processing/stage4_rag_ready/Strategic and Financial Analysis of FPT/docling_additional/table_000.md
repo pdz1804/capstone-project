@@ -1,9 +1,0 @@
-| Metric                     | FY2024      | FY2025     | YoY Change   |
-|----------------------------|-------------|------------|--------------|
-| Revenue (VND B)            | 62,849 [10] | 70,113 [1] | +11.6%       |
-| Pre-tax Profit (VND B)     | 11,071 [10] | 13,039 [7] | +17.8%       |
-| Profit After Tax (VND B)   | ~9,425      | 11,226 [1] | +19.1%       |
-| Gross Margin               | ~36%        | ~36.9% [1] | Expansion    |
-| Net Margin                 | ~15%        | ~16.0% [1] | Expansion    |
-| EPS (VND)                  | ~6,470      | 7,857 [1]  | +21.4%       |
-| Cash & Equivalents (VND B) | 9,315 [1]   | 10,540 [1] | +13.2%       |

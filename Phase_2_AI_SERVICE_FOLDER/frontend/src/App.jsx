@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { 
   Upload, 
@@ -9,8 +9,6 @@ import {
   Loader2,
   CheckCircle,
   XCircle,
-  ChevronDown,
-  ChevronUp,
   Trash2,
   RefreshCw,
   Database,
@@ -23,7 +21,8 @@ import {
   Hash,
   AlertCircle,
   ArrowRight,
-  Lightbulb
+  Lightbulb,
+  Eye,
 } from 'lucide-react'
 
 // Components
@@ -33,6 +32,7 @@ import CitationCard from './components/CitationCard'
 import ImageCitation from './components/ImageCitation'
 import SettingsPanel from './components/SettingsPanel'
 import InsightsPanel from './components/InsightsPanel'
+import ProcessedFilePreviewModal from './components/ProcessedFilePreviewModal'
 import { getApiBase } from './apiBase'
 
 // API base — see apiBase.js (avoids VITE_API_URL=http://host:8000 missing /api)
@@ -55,12 +55,108 @@ const getFileIcon = (type) => {
   return File
 }
 
-// Stage info with colors
+// Stage info with colors — stage3 is full-doc markdown (Docling), not index “chunks” (those come from Build Index).
 const stageInfo = {
-  'stage1_normalized': { label: 'Normalized', color: 'sky', step: 1 },
-  'stage2_media_processed': { label: 'Media', color: 'cyan', step: 2 },
-  'stage3_document_processed': { label: 'Chunked', color: 'blue', step: 3 },
-  'stage4_rag_ready': { label: 'RAG Ready', color: 'indigo', step: 4 },
+  'stage1_normalized': {
+    label: 'Normalized',
+    color: 'sky',
+    step: 1,
+    blurb: 'Original uploads and normalized PDF copies.',
+  },
+  'stage2_media_processed': {
+    label: 'Media',
+    color: 'cyan',
+    step: 2,
+    blurb: 'Extracted images, transcripts, and media metadata.',
+  },
+  'stage3_document_processed': {
+    label: 'Document markdown',
+    color: 'blue',
+    step: 3,
+    blurb:
+      'Structured markdown per document (e.g. Docling output). These are not retrieval chunks — chunking happens when you Build Index.',
+  },
+  'stage4_rag_ready': {
+    label: 'RAG-ready bundle',
+    color: 'indigo',
+    step: 4,
+    blurb:
+      'Consolidated folder per doc for indexing (MD, PDF, extras). Header “Chunks” counts indexed segments, not one-to-one with files here.',
+  },
+}
+
+const STAGE_ORDER_LIST = Object.keys(stageInfo)
+
+/** When GET /api/processed-documents fails or returns empty, rebuild from flat /api/files rows (same as pre-snapshot UI). */
+function buildLegacyProcessedLayout(processedFiles, inputFileCount) {
+  if (!Array.isArray(processedFiles) || processedFiles.length === 0) return null
+
+  const emptyStages = () =>
+    Object.fromEntries(STAGE_ORDER_LIST.map((s) => [s, { file_count: 0, files: [] }]))
+
+  const stage_totals = Object.fromEntries(STAGE_ORDER_LIST.map((s) => [s, 0]))
+  const byDoc = {}
+
+  for (const f of processedFiles) {
+    const st = STAGE_ORDER_LIST.includes(f.stage) ? f.stage : null
+    const targetStage = st || 'stage1_normalized'
+    if (STAGE_ORDER_LIST.includes(targetStage)) {
+      stage_totals[targetStage] = (stage_totals[targetStage] || 0) + 1
+    }
+
+    const docName = String(f.name || 'file')
+      .replace(/\.(json|md|txt)$/i, '')
+      .replace(/_stats$/, '')
+
+    if (!byDoc[docName]) {
+      byDoc[docName] = {
+        id: docName,
+        display_name: docName,
+        total_files: 0,
+        stages: emptyStages(),
+      }
+    }
+    const rel = st ? `${st}/${f.name}` : String(f.name || '')
+    const row = {
+      name: f.name,
+      relative_path: rel,
+      path: f.path,
+      size: f.size,
+      modified: f.modified,
+      type: f.type,
+      storage: f.storage,
+      ...(f.preview ? { preview: f.preview } : {}),
+    }
+    byDoc[docName].stages[targetStage].files.push(row)
+    byDoc[docName].total_files++
+  }
+
+  for (const d of Object.values(byDoc)) {
+    for (const s of STAGE_ORDER_LIST) {
+      d.stages[s].file_count = d.stages[s].files.length
+    }
+  }
+
+  const documents = Object.values(byDoc)
+  return {
+    input_file_count: inputFileCount ?? 0,
+    artifact_count: processedFiles.length,
+    document_count: documents.length,
+    stage_order: STAGE_ORDER_LIST,
+    stage_totals,
+    root_files: [],
+    documents,
+    _fallback: true,
+  }
+}
+
+function shouldUseLegacyProcessedSnapshot(apiLayout, flatProcessedLength) {
+  if (flatProcessedLength === 0) return false
+  if (apiLayout == null) return true
+  const hasApiData =
+    (apiLayout.artifact_count ?? 0) > 0 ||
+    (Array.isArray(apiLayout.documents) && apiLayout.documents.length > 0)
+  return !hasApiData
 }
 
 function App() {
@@ -73,7 +169,6 @@ function App() {
   const [searchLoading, setSearchLoading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(null)
   const [pipelineStatus, setPipelineStatus] = useState(null)
-  const [expandedResults, setExpandedResults] = useState({})
   const [previewImage, setPreviewImage] = useState(null)
   const [processedFilter, setProcessedFilter] = useState('all')
   const [dataLoading, setDataLoading] = useState(true)
@@ -83,26 +178,78 @@ function App() {
   const [expandedCitations, setExpandedCitations] = useState({})
   const [expandedCitationMetadata, setExpandedCitationMetadata] = useState({})
   const [expandedCitationContent, setExpandedCitationContent] = useState({})
+  const [processedLayout, setProcessedLayout] = useState(null)
+  const [processedLayoutError, setProcessedLayoutError] = useState(null)
+  const [selectedProcessedDocId, setSelectedProcessedDocId] = useState(null)
+  const [processedPreviewFile, setProcessedPreviewFile] = useState(null)
+
+  const fetchProcessedLayout = useCallback(async () => {
+    try {
+      const r = await axios.get(`${API_BASE}/processed-documents`)
+      setProcessedLayout(r.data)
+      setProcessedLayoutError(null)
+    } catch (e) {
+      console.error('processed-documents:', e)
+      setProcessedLayout(null)
+      setProcessedLayoutError(e.response?.data?.detail || e.message || 'Request failed')
+    }
+  }, [])
+
+  const fetchPipelineStatus = useCallback(async (fresh = false) => {
+    try {
+      const r = await axios.get(`${API_BASE}/status`, { params: fresh ? { fresh: true } : {} })
+      setPipelineStatus(r.data)
+    } catch (e) {
+      console.error('Failed to fetch status:', e)
+    }
+  }, [])
+
+  const processedDisplay = useMemo(() => {
+    const flat = files.processed || []
+    const n = flat.length
+    const api = processedLayout
+    if (shouldUseLegacyProcessedSnapshot(api, n)) {
+      return buildLegacyProcessedLayout(flat, files.input?.length ?? 0)
+    }
+    return api
+  }, [processedLayout, files.processed, files.input])
 
   // ── Effects ────────────────────────────────────────────
   useEffect(() => {
     setDataLoading(true)
-    Promise.all([fetchFiles(), fetchPipelineStatus(), fetchConfig(), fetchProcessingStats()]).finally(() => setDataLoading(false))
+    Promise.all([
+      fetchFiles(),
+      fetchPipelineStatus(false),
+      fetchConfig(),
+      fetchProcessingStats(),
+      fetchProcessedLayout(),
+    ]).finally(() => setDataLoading(false))
     
     let interval = null
     const startPolling = () => {
       if (interval) clearInterval(interval)
-      interval = setInterval(fetchPipelineStatus, 30000)
+      // Server caches /api/status (Qdrant); 60s polling is enough for a dashboard ticker.
+      interval = setInterval(() => fetchPipelineStatus(false), 60000)
     }
     const stopPolling = () => { if (interval) { clearInterval(interval); interval = null } }
     startPolling()
     
     const handleVisibilityChange = () => {
-      if (document.hidden) { stopPolling() } else { fetchPipelineStatus(); startPolling() }
+      if (document.hidden) { stopPolling() } else { fetchPipelineStatus(false); startPolling() }
     }
     document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => { stopPolling(); document.removeEventListener('visibilitychange', handleVisibilityChange) }
-  }, [])
+  }, [fetchProcessedLayout, fetchPipelineStatus])
+
+  useEffect(() => {
+    const docs = processedDisplay?.documents
+    if (!docs?.length) {
+      setSelectedProcessedDocId(null)
+      return
+    }
+    const ids = docs.map((d) => d.id)
+    setSelectedProcessedDocId((cur) => (cur && ids.includes(cur) ? cur : ids[0]))
+  }, [processedDisplay])
 
   // ── API Calls ──────────────────────────────────────────
   const fetchFiles = async (quick = false) => {
@@ -116,11 +263,6 @@ function App() {
     } catch (e) {
       console.error('Failed to fetch files:', e)
     }
-  }
-
-  const fetchPipelineStatus = async () => {
-    try { const r = await axios.get(`${API_BASE}/status`); setPipelineStatus(r.data) }
-    catch (e) { console.error('Failed to fetch status:', e) }
   }
 
   const fetchConfig = async () => {
@@ -169,7 +311,12 @@ function App() {
     }
   }, [])
 
-  const refreshAfterAction = () => { fetchFiles(); fetchPipelineStatus(); fetchProcessingStats() }
+  const refreshAfterAction = () => {
+    fetchFiles()
+    fetchPipelineStatus(true)
+    fetchProcessingStats()
+    fetchProcessedLayout()
+  }
 
   const handleProcess = async () => {
     setLoading(true)
@@ -210,6 +357,46 @@ function App() {
     setLoading(false)
   }
 
+  const handleRemoveTextFromIndex = async (textSource) => {
+    if (!textSource || !window.confirm('Remove this source from the text index (Qdrant + documents.json + BM25)?')) return
+    setLoading(true)
+    try {
+      const r = await axios.post(`${API_BASE}/index/remove`, { text_source: textSource })
+      const tr = r.data?.results?.text
+      alert(
+        tr
+          ? `Removed ${tr.removed_qdrant_points ?? 0} Qdrant points, ${tr.removed_documents_json_chunks ?? 0} chunks from documents.json.`
+          : 'Remove completed.',
+      )
+      await new Promise((x) => setTimeout(x, 500))
+      refreshAfterAction()
+    } catch (error) {
+      console.error('Remove from index failed:', error.response?.data || error.message)
+      alert(`Remove from index failed: ${error.response?.data?.detail || error.message}`)
+    }
+    setLoading(false)
+  }
+
+  const handleClearImageIndex = async () => {
+    if (!window.confirm('Clear the entire vision index (all ColQwen pages in Qdrant)?')) return
+    setLoading(true)
+    try {
+      const r = await axios.post(`${API_BASE}/index/remove`, { clear_image_index: true })
+      const ir = r.data?.results?.image
+      alert(
+        ir?.cleared_collection
+          ? `Image index cleared (had ${ir.previous_point_count ?? 0} pages).`
+          : 'Request completed.',
+      )
+      await new Promise((x) => setTimeout(x, 500))
+      refreshAfterAction()
+    } catch (error) {
+      console.error('Clear image index failed:', error.response?.data || error.message)
+      alert(`Clear image index failed: ${error.response?.data?.detail || error.message}`)
+    }
+    setLoading(false)
+  }
+
   const handleSearch = async () => {
     if (!query.trim()) return
     setSearchLoading(true)
@@ -239,7 +426,6 @@ function App() {
   }
 
   // ── Helpers ────────────────────────────────────────────
-  const toggleExpand = (id) => setExpandedResults(prev => ({ ...prev, [id]: !prev[id] }))
   const toggleCitationExpand = (citationId) => setExpandedCitations(prev => ({ ...prev, [citationId]: !prev[citationId] }))
   const toggleCitationMetadata = (citationId) => setExpandedCitationMetadata(prev => ({ ...prev, [citationId]: !prev[citationId] }))
 
@@ -297,18 +483,17 @@ function App() {
   }
 
   // ── Derived Data ───────────────────────────────────────
-  const processedByDoc = (files.processed && Array.isArray(files.processed)) ? files.processed.reduce((acc, file) => {
-    const docName = file.name.replace(/\.(json|md|txt)$/, '').replace(/_stats$/, '')
-    if (!acc[docName]) acc[docName] = { files: [], stages: new Set() }
-    acc[docName].files.push(file)
-    if (file.stage) acc[docName].stages.add(file.stage)
-    return acc
-  }, {}) : {}
+  const documentsForFilter = useMemo(() => {
+    const docs = processedDisplay?.documents || []
+    if (processedFilter === 'all') return docs
+    return docs.filter((d) => (d.stages?.[processedFilter]?.file_count || 0) > 0)
+  }, [processedDisplay, processedFilter])
 
-  const filteredDocs = Object.entries(processedByDoc).filter(([_, doc]) => {
-    if (processedFilter === 'all') return true
-    return doc.stages && doc.stages.has(processedFilter)
-  })
+  const selectedProcessedDoc = useMemo(() => {
+    if (!documentsForFilter.length) return null
+    const hit = documentsForFilter.find((d) => d.id === selectedProcessedDocId)
+    return hit || documentsForFilter[0]
+  }, [documentsForFilter, selectedProcessedDocId])
 
   const tabs = [
     { id: 'upload', label: 'Upload Files', icon: Upload },
@@ -368,7 +553,7 @@ function App() {
                 </div>
               )}
               <button
-                onClick={() => { fetchFiles(); fetchPipelineStatus() }}
+                onClick={() => { fetchFiles(); fetchPipelineStatus(true); fetchProcessedLayout() }}
                 className="p-3 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 title="Refresh"
               >
@@ -573,20 +758,74 @@ function App() {
               processingStats={processingStats}
             />
 
+            {(processedLayoutError || processedDisplay?._fallback) && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 shadow-sm">
+                <p className="font-semibold text-amber-900">Processed view fallback</p>
+                <p className="mt-1 text-amber-900/90">
+                  {processedLayoutError
+                    ? `Could not load GET /api/processed-documents (${processedLayoutError}). `
+                    : 'The structured snapshot reported no artifacts while the file list still has items, or the API is outdated. '}
+                  Showing a grouped view built from GET /api/files. Use the refresh button after restarting the backend so
+                  <code className="mx-1 rounded bg-amber-100/80 px-1 font-mono text-xs">/api/processed-documents</code>
+                  is available.
+                </p>
+              </div>
+            )}
+
+            {/* Counts — aligned with storage layout (users/…/processing) */}
+            <div className="flex flex-wrap gap-3">
+              <div className="px-4 py-3 rounded-xl bg-white border border-sky-100 shadow-sm">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Input files</p>
+                <p className="text-2xl font-bold text-sky-700">{processedDisplay?.input_file_count ?? files.input?.length ?? 0}</p>
+                <p className="text-[10px] text-slate-400 mt-1 leading-snug">In input/ (uploads)</p>
+              </div>
+              <div className="px-4 py-3 rounded-xl bg-white border border-sky-100 shadow-sm">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Document groups</p>
+                <p className="text-2xl font-bold text-blue-700">{processedDisplay?.document_count ?? 0}</p>
+                {processedDisplay?.named_document_folders != null &&
+                  processedDisplay.named_document_folders !== processedDisplay.document_count && (
+                    <p className="text-[10px] text-slate-400 mt-1 leading-snug">
+                      {processedDisplay.named_document_folders} named folder{processedDisplay.named_document_folders === 1 ? '' : 's'} + pipeline-wide
+                    </p>
+                  )}
+                <p className="text-[10px] text-slate-400 mt-1 leading-snug">Matches sidebar rows</p>
+              </div>
+              <div className="px-4 py-3 rounded-xl bg-white border border-indigo-100 shadow-sm">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Processing artifacts</p>
+                <p className="text-2xl font-bold text-indigo-700">{processedDisplay?.artifact_count ?? 0}</p>
+                <p className="text-[10px] text-slate-400 mt-1 leading-snug">All files under processing/</p>
+              </div>
+            </div>
+            {processedDisplay?.count_hints && (
+              <div className="rounded-xl border border-slate-200/80 bg-slate-50/90 px-4 py-3 text-xs text-slate-600 space-y-2 max-w-4xl">
+                <p>
+                  <span className="font-semibold text-slate-700">Stage cards: </span>
+                  {processedDisplay.count_hints.stage_totals}
+                </p>
+                <p>
+                  <span className="font-semibold text-slate-700">Document groups: </span>
+                  {processedDisplay.count_hints.document_groups}
+                </p>
+              </div>
+            )}
+
             {/* Filter Buttons */}
             <div className="flex items-center space-x-2 flex-wrap gap-2">
               <span className="text-sm font-medium text-slate-600">Filter:</span>
-              <button onClick={() => setProcessedFilter('all')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${processedFilter === 'all' ? 'bg-sky-500 text-white shadow-lg shadow-sky-200/50' : 'bg-white/60 text-slate-600 border border-sky-100 hover:bg-sky-50'}`}>
-                All ({files.processed?.length || 0})
+              <button
+                type="button"
+                onClick={() => setProcessedFilter('all')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${processedFilter === 'all' ? 'bg-sky-500 text-white shadow-lg shadow-sky-200/50' : 'bg-white/60 text-slate-600 border border-sky-100 hover:bg-sky-50'}`}
+              >
+                All ({processedDisplay?.artifact_count ?? files.processed?.length ?? 0})
               </button>
               {Object.entries(stageInfo).map(([stage, info]) => {
-                const count = files.processed?.filter(f => f.stage === stage).length || 0
+                const count = processedDisplay?.stage_totals?.[stage] ?? 0
                 if (count === 0) return null
                 const active = { sky: 'bg-sky-500 text-white shadow-lg shadow-sky-200/50', cyan: 'bg-cyan-500 text-white shadow-lg shadow-cyan-200/50', blue: 'bg-blue-500 text-white shadow-lg shadow-blue-200/50', indigo: 'bg-indigo-500 text-white shadow-lg shadow-indigo-200/50' }
                 const inactive = { sky: 'bg-white/60 text-slate-600 border border-sky-100 hover:bg-sky-50', cyan: 'bg-white/60 text-slate-600 border border-cyan-100 hover:bg-cyan-50', blue: 'bg-white/60 text-slate-600 border border-blue-100 hover:bg-blue-50', indigo: 'bg-white/60 text-slate-600 border border-indigo-100 hover:bg-indigo-50' }
                 return (
-                  <button key={stage} onClick={() => setProcessedFilter(stage)}
+                  <button key={stage} type="button" onClick={() => setProcessedFilter(stage)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${processedFilter === stage ? active[info.color] : inactive[info.color]}`}>
                     {info.label} ({count})
                   </button>
@@ -594,71 +833,154 @@ function App() {
               })}
             </div>
 
-            {/* Processing Pipeline Visual */}
+            {/* Processing Pipeline Visual + master–detail */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-6">Processing Pipeline</h3>
-              <div className="grid grid-cols-4 gap-4 mb-8">
+              <h3 className="text-lg font-semibold text-slate-800">Processing Pipeline</h3>
+              <p className="text-xs text-slate-500 mt-1 mb-6 leading-relaxed">
+                Folders follow{' '}
+                <code className="rounded bg-slate-100 px-1 font-mono text-[11px]">stage1_normalized</code>
+                {' → '}
+                <code className="rounded bg-slate-100 px-1 font-mono text-[11px]">stage4_rag_ready</code>
+                . Numbers below count <span className="font-medium text-slate-600">files on disk</span>. The header{' '}
+                <span className="font-medium text-slate-600">Chunks</span> value is how many text segments were written to the
+                index (after chunking) — usually much larger than a single stage-3 <code className="font-mono text-[11px]">.md</code>{' '}
+                per document.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
                 {Object.entries(stageInfo).map(([stage, info]) => {
-                  const count = files.processed?.filter(f => f.stage === stage).length || 0
+                  const count = processedDisplay?.stage_totals?.[stage] ?? 0
                   const colors = { sky: 'bg-sky-100 text-sky-700 border-sky-200', cyan: 'bg-cyan-100 text-cyan-700 border-cyan-200', blue: 'bg-blue-100 text-blue-700 border-blue-200', indigo: 'bg-indigo-100 text-indigo-700 border-indigo-200' }
                   return (
                     <div key={stage} className={`${colors[info.color]} border p-4 rounded-xl text-center relative`}>
                       <div className="text-3xl font-bold mb-1">{count}</div>
                       <div className="text-xs font-medium">{info.label}</div>
-                      {info.step < 4 && <ArrowRight className="absolute -right-8 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />}
+                      {info.step < 4 && <ArrowRight className="hidden sm:block absolute -right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />}
                     </div>
                   )
                 })}
               </div>
 
-              {/* Document List */}
-              {files.processed && files.processed.length > 0 ? (
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                  {filteredDocs.length > 0 ? (
-                    filteredDocs.map(([docName, doc], idx) => {
-                      const stagesArray = Array.from(doc.stages || new Set())
-                      const isExpanded = expandedResults[`doc-${idx}`]
-                      return (
-                        <div key={idx} className="border border-sky-100 rounded-xl overflow-hidden bg-white hover:shadow-md transition-all duration-200">
-                          <button onClick={() => toggleExpand(`doc-${idx}`)} className="w-full p-4 flex items-center justify-between hover:bg-sky-50/50 transition-colors">
-                            <div className="text-left flex-1">
-                              <p className="font-medium text-slate-800">{docName}</p>
-                              <div className="flex items-center space-x-2 mt-2">
-                                {stagesArray.map(stage => {
-                                  const info = stageInfo[stage] || { label: stage, color: 'sky' }
-                                  const cc = { sky: 'bg-sky-100 text-sky-700', cyan: 'bg-cyan-100 text-cyan-700', blue: 'bg-blue-100 text-blue-700', indigo: 'bg-indigo-100 text-indigo-700' }
-                                  return <span key={stage} className={`px-2.5 py-1 rounded-md text-xs font-medium ${cc[info.color] || cc.sky}`}>{info.label}</span>
-                                })}
-                              </div>
+              {(processedDisplay?.artifact_count ?? 0) > 0 || (files.processed?.length ?? 0) > 0 ? (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <div className="lg:col-span-4 space-y-2 max-h-[min(560px,70vh)] overflow-y-auto pr-1">
+                    <p className="text-sm font-semibold text-slate-600 mb-2">Your documents</p>
+                    {documentsForFilter.length > 0 ? (
+                      documentsForFilter.map((doc) => {
+                        const active = selectedProcessedDoc?.id === doc.id
+                        const badges = (processedDisplay?.stage_order || Object.keys(stageInfo)).filter((st) => (doc.stages?.[st]?.file_count || 0) > 0)
+                        return (
+                          <button
+                            key={doc.id}
+                            type="button"
+                            onClick={() => setSelectedProcessedDocId(doc.id)}
+                            className={`w-full text-left p-4 rounded-xl border transition-all ${active ? 'border-sky-400 bg-sky-50 ring-2 ring-sky-300/60 shadow-md' : 'border-slate-200 bg-white hover:border-sky-200 hover:shadow-sm'}`}
+                          >
+                            <p className="font-semibold text-slate-800 truncate" title={doc.display_name || doc.id}>{doc.display_name || doc.id}</p>
+                            <p className="text-xs text-slate-500 mt-1">{doc.total_files ?? 0} files</p>
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {badges.map((st) => {
+                                const inf = stageInfo[st] || { label: st, color: 'sky' }
+                                const cc = { sky: 'bg-sky-100 text-sky-800', cyan: 'bg-cyan-100 text-cyan-800', blue: 'bg-blue-100 text-blue-800', indigo: 'bg-indigo-100 text-indigo-800' }
+                                return (
+                                  <span key={st} className={`px-2 py-0.5 rounded text-[10px] font-medium ${cc[inf.color] || cc.sky}`}>{inf.label}</span>
+                                )
+                              })}
                             </div>
-                            {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
                           </button>
-                          {isExpanded && (
-                            <div className="border-t border-slate-100 p-4 bg-slate-50/50 space-y-3">
-                              {doc.files.map((file, fidx) => (
-                                <div key={fidx} className="p-3 bg-white rounded-lg border border-slate-200">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <p className="font-medium text-slate-800 text-sm">{file.name}</p>
-                                    <span className="text-xs text-slate-400">{file.size}</span>
-                                  </div>
-                                  {file.preview && (
-                                    <pre className="text-xs text-slate-600 bg-slate-50 p-2 rounded overflow-x-auto max-h-24 overflow-y-auto font-mono">
-                                      {file.preview.substring(0, 200)}...
-                                    </pre>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                        )
+                      })
+                    ) : (
+                      <div className="text-center py-8 text-slate-400 text-sm">
+                        <AlertCircle className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                        No documents match this filter
+                      </div>
+                    )}
+                  </div>
+                  <div className="lg:col-span-8 min-h-[320px]">
+                    {processedDisplay?.root_files?.length > 0 && (
+                      <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        <h4 className="text-sm font-semibold text-slate-700 mb-2">Workspace root files</h4>
+                        <ul className="text-xs text-slate-600 space-y-2 font-mono break-all">
+                          {processedDisplay.root_files.map((f, i) => (
+                            <li key={i} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white px-2 py-2">
+                              <span>
+                                {f.relative_path} <span className="text-slate-400">({f.size})</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setProcessedPreviewFile(f)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 border border-sky-100 shrink-0"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                Preview
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {selectedProcessedDoc ? (
+                      <div className="space-y-5">
+                        <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                          <h4 className="text-lg font-bold text-slate-800 truncate">{selectedProcessedDoc.display_name || selectedProcessedDoc.id}</h4>
+                          <span className="text-sm text-slate-500 shrink-0">{selectedProcessedDoc.total_files} files</span>
                         </div>
-                      )
-                    })
-                  ) : (
-                    <div className="text-center py-12 text-slate-400">
-                      <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                      <p>No files in selected filter</p>
-                    </div>
-                  )}
+                        {(processedDisplay?.stage_order || Object.keys(stageInfo)).map((stageKey) => {
+                          const stData = selectedProcessedDoc.stages?.[stageKey]
+                          if (!stData?.files?.length) return null
+                          const info = stageInfo[stageKey] || { label: stageKey, color: 'sky' }
+                          const headColors = { sky: 'border-sky-200 bg-sky-50/80', cyan: 'border-cyan-200 bg-cyan-50/80', blue: 'border-blue-200 bg-blue-50/80', indigo: 'border-indigo-200 bg-indigo-50/80' }
+                          return (
+                            <div key={stageKey} className={`rounded-xl border ${headColors[info.color] || headColors.sky} overflow-hidden`}>
+                              <div className="px-4 py-2 border-b border-white/60 flex justify-between items-start gap-3">
+                                <div className="min-w-0">
+                                  <span className="text-sm font-bold text-slate-800">{info.label}</span>
+                                  {info.blurb ? (
+                                    <p className="text-[11px] text-slate-500 mt-1 leading-snug">{info.blurb}</p>
+                                  ) : null}
+                                </div>
+                                <span className="text-xs text-slate-500 shrink-0">{stData.files.length} files</span>
+                              </div>
+                              <ul className="p-3 space-y-2 max-h-72 overflow-y-auto bg-white/90">
+                                {stData.files.map((f, i) => (
+                                  <li key={i} className="text-sm rounded-lg border border-slate-100 p-3 bg-white">
+                                    <div className="flex justify-between gap-2 items-start">
+                                      <span className="font-medium text-slate-800 truncate min-w-0">{f.name}</span>
+                                      <div className="flex items-center gap-2 shrink-0">
+                                        <button
+                                          type="button"
+                                          onClick={() => setProcessedPreviewFile(f)}
+                                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 border border-sky-100"
+                                        >
+                                          <Eye className="w-3.5 h-3.5" />
+                                          Preview
+                                        </button>
+                                        <span className="text-xs text-slate-400 whitespace-nowrap">{f.modified}</span>
+                                      </div>
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-1 break-all font-mono">{f.relative_path}</p>
+                                    <div className="flex justify-between mt-1 text-xs text-slate-400">
+                                      <span>{f.size}</span>
+                                      <span>{f.type || '—'}</span>
+                                    </div>
+                                    {f.preview ? (
+                                      <pre className="mt-2 text-xs text-slate-600 bg-slate-50 p-2 rounded max-h-28 overflow-auto whitespace-pre-wrap">{f.preview}</pre>
+                                    ) : null}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+                        <Layers className="w-14 h-14 mb-3 opacity-25" />
+                        <p className="font-medium">Select a document</p>
+                        <p className="text-sm mt-1 text-center max-w-sm">Choose a folder on the left to see normalized → RAG-ready files in order.</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-12 text-slate-400">
@@ -746,19 +1068,43 @@ function App() {
                 <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                   {files.indexed.map((file, idx) => (
                     <div key={idx} className={`p-4 rounded-xl border transition-all duration-200 hover:shadow-md ${file.type === 'image' ? 'bg-indigo-50 border-indigo-100 hover:border-indigo-200' : 'bg-sky-50 border-sky-100 hover:border-sky-200'}`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${file.type === 'image' ? 'bg-indigo-100' : 'bg-sky-100'}`}>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center space-x-3 min-w-0 flex-1">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${file.type === 'image' ? 'bg-indigo-100' : 'bg-sky-100'}`}>
                             {file.type === 'image' ? <Image className="w-5 h-5 text-indigo-600" /> : <FileText className="w-5 h-5 text-sky-600" />}
                           </div>
-                          <div>
-                            <p className="font-medium text-slate-800">{file.name}</p>
+                          <div className="min-w-0">
+                            <p className="font-medium text-slate-800 break-all">{file.name}</p>
                             <p className="text-sm text-slate-400">{file.type === 'image' ? `${file.pages} pages` : `${file.chunks} chunks`}</p>
                           </div>
                         </div>
-                        <span className={`px-3 py-1.5 rounded-lg text-sm font-medium ${file.type === 'image' ? 'bg-indigo-100 text-indigo-700' : 'bg-sky-100 text-sky-700'}`}>
-                          {file.type === 'image' ? 'Vision' : 'Text'}
-                        </span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {file.type === 'text' && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTextFromIndex(file.name)}
+                              disabled={loading}
+                              className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-40"
+                              title="Remove this source from text index (Qdrant + BM25)"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          )}
+                          {file.type === 'image' && (
+                            <button
+                              type="button"
+                              onClick={handleClearImageIndex}
+                              disabled={loading}
+                              className="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg border border-red-100 disabled:opacity-40"
+                              title="Remove all pages from vision index"
+                            >
+                              Clear vision index
+                            </button>
+                          )}
+                          <span className={`px-3 py-1.5 rounded-lg text-sm font-medium ${file.type === 'image' ? 'bg-indigo-100 text-indigo-700' : 'bg-sky-100 text-sky-700'}`}>
+                            {file.type === 'image' ? 'Vision' : 'Text'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -842,13 +1188,21 @@ function App() {
         )}
 
         {activeTab === 'insights' && (
-          <InsightsPanel apiBase={API_BASE} />
+          <InsightsPanel apiBase={API_BASE} processedLayout={processedDisplay} />
         )}
           </>
         )}
       </div>
 
       {/* Image Preview Modal */}
+      {processedPreviewFile && (
+        <ProcessedFilePreviewModal
+          file={processedPreviewFile}
+          apiBase={API_BASE}
+          onClose={() => setProcessedPreviewFile(null)}
+        />
+      )}
+
       {previewImage && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setPreviewImage(null)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-auto animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>

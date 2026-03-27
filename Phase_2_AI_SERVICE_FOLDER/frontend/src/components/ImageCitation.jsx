@@ -60,6 +60,12 @@ export default function ImageCitation({ citationKey, citation, expanded, onToggl
 
             {metadataExpanded && (
               <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2 bg-slate-50 rounded-lg p-3">
+                {citation.storage_uri && (
+                  <div className="flex justify-between items-start">
+                    <span className="font-semibold text-slate-700">S3 object:</span>
+                    <span className="text-right ml-4 break-words max-w-[60%] font-mono text-[11px]">{citation.storage_uri}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-start">
                   <span className="font-semibold text-slate-700">Source:</span>
                   <span className="text-right ml-4 truncate max-w-[60%]">{citation.source}</span>

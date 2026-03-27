@@ -71,6 +71,41 @@ def test_index_image_mocked(client: TestClient):
 
 
 @pytest.mark.unit
+def test_index_remove_text_mocked(client: TestClient):
+    with patch("app.api.routes.pipeline_routes.IndexingService") as MockSvc:
+        MockSvc.return_value.remove_from_index.return_value = {
+            "status": "ok",
+            "text": {"removed_qdrant_points": 2, "removed_documents_json_chunks": 2},
+            "image": None,
+        }
+        r = client.post(
+            "/api/index/remove",
+            json={"text_source": "D:/proj/stage4_rag_ready/foo/foo.md"},
+        )
+    assert r.status_code == 200
+    assert r.json()["status"] == "completed"
+    MockSvc.return_value.remove_from_index.assert_called_once()
+
+
+@pytest.mark.unit
+def test_index_remove_clear_image_mocked(client: TestClient):
+    with patch("app.api.routes.pipeline_routes.IndexingService") as MockSvc:
+        MockSvc.return_value.remove_from_index.return_value = {
+            "status": "ok",
+            "text": None,
+            "image": {"cleared_collection": True, "previous_point_count": 5},
+        }
+        r = client.post("/api/index/remove", json={"clear_image_index": True})
+    assert r.status_code == 200
+
+
+@pytest.mark.unit
+def test_index_remove_requires_action(client: TestClient):
+    r = client.post("/api/index/remove", json={})
+    assert r.status_code == 422
+
+
+@pytest.mark.unit
 def test_insights_summary_mocked(client: TestClient):
     with patch("app.api.routes.insights_routes.InsightsService") as MockSvc:
         MockSvc.return_value.lecture_summary.return_value = {"summary": "# OK", "depth": "brief"}

@@ -1,0 +1,909 @@
+<?xml version='1.0' encoding='utf-8'?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:ns1="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:ns2="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" ns1:Ignorable="x14ac xr xr2 xr3" ns2:uid="{F43CB4D4-6912-4F22-9F58-A2EAF3FEFA85}">
+    <dimension ref="A1:K39" />
+    <sheetViews>
+        <sheetView showGridLines="0" zoomScaleNormal="100" workbookViewId="0">
+            <selection activeCell="A2" sqref="A2" />
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultColWidth="8.7109375" defaultRowHeight="13.5" customHeight="1" />
+    <cols>
+        <col min="1" max="1" width="4.5703125" style="48" customWidth="1" />
+        <col min="2" max="2" width="24.5703125" style="48" customWidth="1" />
+        <col min="3" max="3" width="20.42578125" style="48" customWidth="1" />
+        <col min="4" max="4" width="43.42578125" style="48" customWidth="1" />
+        <col min="5" max="5" width="20.140625" style="48" customWidth="1" />
+        <col min="6" max="6" width="19.85546875" style="48" customWidth="1" />
+        <col min="7" max="7" width="18.5703125" style="48" customWidth="1" />
+        <col min="8" max="8" width="14.5703125" style="48" customWidth="1" />
+        <col min="9" max="9" width="22.7109375" style="48" customWidth="1" />
+        <col min="10" max="11" width="28.140625" style="48" customWidth="1" />
+        <col min="12" max="14" width="8.7109375" style="48" />
+        <col min="15" max="15" width="21.42578125" style="48" customWidth="1" />
+        <col min="16" max="16384" width="8.7109375" style="48" />
+    </cols>
+    <sheetData>
+        <row r="1" spans="1:11" ht="12.95">
+            <c r="A1" s="46" t="s">
+                <v>No</v>
+            </c>
+            <c r="B1" s="46" t="s">
+                <v>Function name 1</v>
+            </c>
+            <c r="C1" s="46" t="s">
+                <v>Function name 2</v>
+            </c>
+            <c r="D1" s="46" t="s">
+                <v>Function name </v>
+            </c>
+            <c r="E1" s="46" t="s">
+                <v>Requirement type</v>
+            </c>
+            <c r="F1" s="46" t="s">
+                <v>Req Creation type</v>
+            </c>
+            <c r="G1" s="46" t="s">
+                <v>Test Decision</v>
+            </c>
+            <c r="H1" s="46" t="s">
+                <v>Spec version</v>
+            </c>
+            <c r="I1" s="47" t="s">
+                <v>Test Design version</v>
+            </c>
+            <c r="J1" s="46" t="s">
+                <v>Test Design Technique</v>
+            </c>
+            <c r="K1" s="46" t="s">
+                <v>Server Type</v>
+            </c>
+        </row>
+        <row r="2" spans="1:11" ht="12.95">
+            <c r="A2" s="49">
+                <v>1</v>
+            </c>
+            <c r="B2" s="49" t="s">
+                <v>-</v>
+            </c>
+            <c r="C2" s="49" t="s">
+                <v>-</v>
+            </c>
+            <c r="D2" s="49" />
+            <c r="E2" s="49" t="s">
+                <v>Text</v>
+            </c>
+            <c r="F2" s="49" t="s">
+                <v>New</v>
+            </c>
+            <c r="G2" s="49" t="s">
+                <v>Yes</v>
+            </c>
+            <c r="H2" s="49" t="s">
+                <v>v6.6</v>
+            </c>
+            <c r="I2" s="49" t="s">
+                <v>v0.1</v>
+            </c>
+            <c r="J2" s="49" t="s">
+                <v>Equivalence Partitioning (EP)</v>
+            </c>
+            <c r="K2" s="49" t="s">
+                <v>-</v>
+            </c>
+        </row>
+        <row r="3" spans="1:11" ht="12.95">
+            <c r="A3" s="49">
+                <v>2</v>
+            </c>
+            <c r="B3" s="49" t="s">
+                <v>Agent</v>
+            </c>
+            <c r="C3" s="49" t="s">
+                <v>&lt;NAVI&gt;</v>
+            </c>
+            <c r="D3" s="49" t="s">
+                <v>&lt;ナビサービス&gt;</v>
+            </c>
+            <c r="E3" s="49" t="s">
+                <v>Image</v>
+            </c>
+            <c r="F3" s="49" t="s">
+                <v>Add</v>
+            </c>
+            <c r="G3" s="49" t="s">
+                <v>No</v>
+            </c>
+            <c r="H3" s="49" t="s">
+                <v>v6.7</v>
+            </c>
+            <c r="I3" s="49" t="s">
+                <v>v0.2</v>
+            </c>
+            <c r="J3" s="49" t="s">
+                <v>Boundary Value Analysis (BVA)</v>
+            </c>
+            <c r="K3" s="49" t="s">
+                <v>Local</v>
+            </c>
+        </row>
+        <row r="4" spans="1:11" ht="12.95">
+            <c r="A4" s="49">
+                <v>3</v>
+            </c>
+            <c r="B4" s="49" t="s">
+                <v>AV</v>
+            </c>
+            <c r="C4" s="49" t="s">
+                <v>ETC連携</v>
+            </c>
+            <c r="D4" s="50" t="s">
+                <v>Map update service</v>
+            </c>
+            <c r="E4" s="49" t="s">
+                <v>Table</v>
+            </c>
+            <c r="F4" s="49" t="s">
+                <v>Modify</v>
+            </c>
+            <c r="G4" s="49" t="s">
+                <v>DG</v>
+            </c>
+            <c r="H4" s="49" t="s">
+                <v>v6.8</v>
+            </c>
+            <c r="I4" s="49" t="s">
+                <v>v0.3</v>
+            </c>
+            <c r="J4" s="49" t="s">
+                <v>State Transition Testing</v>
+            </c>
+            <c r="K4" s="49" t="s">
+                <v>Center</v>
+            </c>
+        </row>
+        <row r="5" spans="1:11" ht="12.95">
+            <c r="A5" s="49">
+                <v>4</v>
+            </c>
+            <c r="B5" s="49" t="s">
+                <v>Communication</v>
+            </c>
+            <c r="C5" s="49" t="s">
+                <v>ナビサービス</v>
+            </c>
+            <c r="D5" s="50" t="s">
+                <v>Location Service</v>
+            </c>
+            <c r="E5" s="49" t="s">
+                <v>Title</v>
+            </c>
+            <c r="F5" s="49" t="s">
+                <v>Delete</v>
+            </c>
+            <c r="G5" s="49" t="s">
+                <v>Duplicate</v>
+            </c>
+            <c r="H5" s="49" t="s">
+                <v>v6.9</v>
+            </c>
+            <c r="I5" s="49" t="s">
+                <v>v0.4</v>
+            </c>
+            <c r="J5" s="49" t="s">
+                <v>Decision table</v>
+            </c>
+            <c r="K5" s="49" t="s">
+                <v>Local&amp;Center</v>
+            </c>
+        </row>
+        <row r="6" spans="1:11" ht="12.95">
+            <c r="A6" s="49">
+                <v>5</v>
+            </c>
+            <c r="B6" s="49" t="s">
+                <v>ConnectedService</v>
+            </c>
+            <c r="C6" s="49" t="s">
+                <v>メーター</v>
+            </c>
+            <c r="D6" s="50" t="s">
+                <v>Content (maps, etc.)</v>
+            </c>
+            <c r="E6" s="49" />
+            <c r="F6" s="49" />
+            <c r="G6" s="49" />
+            <c r="H6" s="49" t="s">
+                <v>v7.1</v>
+            </c>
+            <c r="I6" s="49" t="s">
+                <v>v0.5</v>
+            </c>
+            <c r="J6" s="49" t="s">
+                <v>User case Testing</v>
+            </c>
+            <c r="K6" s="49" />
+        </row>
+        <row r="7" spans="1:11" ht="12.95">
+            <c r="A7" s="49">
+                <v>6</v>
+            </c>
+            <c r="B7" s="49" t="s">
+                <v>Diag</v>
+            </c>
+            <c r="C7" s="49" t="s">
+                <v>&lt;UserProfile&gt;</v>
+            </c>
+            <c r="D7" s="50" t="s">
+                <v>Navi Map Reques(Map Coverage)</v>
+            </c>
+            <c r="E7" s="49" />
+            <c r="F7" s="49" />
+            <c r="G7" s="49" />
+            <c r="H7" s="49" t="s">
+                <v>v7.2</v>
+            </c>
+            <c r="I7" s="49" t="s">
+                <v>v0.6</v>
+            </c>
+            <c r="J7" s="49" t="s">
+                <v>EP&amp;BVA</v>
+            </c>
+            <c r="K7" s="49" />
+        </row>
+        <row r="8" spans="1:11" ht="12.95">
+            <c r="A8" s="49">
+                <v>7</v>
+            </c>
+            <c r="B8" s="49" t="s">
+                <v>DriveRecorder</v>
+            </c>
+            <c r="C8" s="49" t="s">
+                <v>DigitalKey</v>
+            </c>
+            <c r="D8" s="50" t="s">
+                <v>Traffic Information Service</v>
+            </c>
+            <c r="E8" s="49" />
+            <c r="F8" s="49" />
+            <c r="G8" s="49" />
+            <c r="H8" s="49" t="s">
+                <v>v7.3</v>
+            </c>
+            <c r="I8" s="49" t="s">
+                <v>v0.7</v>
+            </c>
+            <c r="J8" s="49" />
+            <c r="K8" s="49" />
+        </row>
+        <row r="9" spans="1:11" ht="12.95">
+            <c r="A9" s="49">
+                <v>8</v>
+            </c>
+            <c r="B9" s="49" t="s">
+                <v>DTV</v>
+            </c>
+            <c r="C9" s="49" t="s">
+                <v>UserRegistration</v>
+            </c>
+            <c r="D9" s="50" t="s">
+                <v>Center Route Service</v>
+            </c>
+            <c r="E9" s="49" />
+            <c r="F9" s="49" />
+            <c r="G9" s="49" />
+            <c r="H9" s="49" t="s">
+                <v>v7.4Z</v>
+            </c>
+            <c r="I9" s="49" t="s">
+                <v>v0.8</v>
+            </c>
+            <c r="J9" s="49" />
+            <c r="K9" s="49" />
+        </row>
+        <row r="10" spans="1:11" ht="12.95">
+            <c r="A10" s="49">
+                <v>9</v>
+            </c>
+            <c r="B10" s="49" t="s">
+                <v>HMI</v>
+            </c>
+            <c r="C10" s="49" t="s">
+                <v>プライバシー保護機能</v>
+            </c>
+            <c r="D10" s="50" t="s">
+                <v>Multilingual Service</v>
+            </c>
+            <c r="E10" s="49" />
+            <c r="F10" s="49" />
+            <c r="G10" s="49" />
+            <c r="H10" s="49" t="s">
+                <v>v7.5</v>
+            </c>
+            <c r="I10" s="49" t="s">
+                <v>v0.9</v>
+            </c>
+            <c r="J10" s="49" />
+            <c r="K10" s="49" />
+        </row>
+        <row r="11" spans="1:11" ht="12.95">
+            <c r="A11" s="49">
+                <v>10</v>
+            </c>
+            <c r="B11" s="49" t="s">
+                <v>NAVI</v>
+            </c>
+            <c r="C11" s="49" t="s">
+                <v>メーター</v>
+            </c>
+            <c r="D11" s="50" t="s">
+                <v>Range Service</v>
+            </c>
+            <c r="E11" s="49" />
+            <c r="F11" s="49" />
+            <c r="G11" s="49" />
+            <c r="H11" s="49" t="s">
+                <v>v7.6</v>
+            </c>
+            <c r="I11" s="49" t="s">
+                <v>v1.0</v>
+            </c>
+            <c r="J11" s="49" />
+            <c r="K11" s="49" />
+        </row>
+        <row r="12" spans="1:11" ht="12.95">
+            <c r="A12" s="49">
+                <v>11</v>
+            </c>
+            <c r="B12" s="49" t="s">
+                <v>OTA</v>
+            </c>
+            <c r="C12" s="49" t="s">
+                <v>ユーザ情報管理</v>
+            </c>
+            <c r="D12" s="50" t="s">
+                <v>Map display service</v>
+            </c>
+            <c r="E12" s="49" />
+            <c r="F12" s="49" />
+            <c r="G12" s="49" />
+            <c r="H12" s="49" t="s">
+                <v>v7.7</v>
+            </c>
+            <c r="I12" s="49" t="s">
+                <v>v1.1</v>
+            </c>
+            <c r="J12" s="49" />
+            <c r="K12" s="49" />
+        </row>
+        <row r="13" spans="1:11" ht="12.95">
+            <c r="A13" s="49">
+                <v>12</v>
+            </c>
+            <c r="B13" s="49" t="s">
+                <v>Radio</v>
+            </c>
+            <c r="C13" s="48" t="s">
+                <v>起動終了</v>
+            </c>
+            <c r="D13" s="50" t="s">
+                <v>Route Search</v>
+            </c>
+            <c r="E13" s="49" />
+            <c r="F13" s="49" />
+            <c r="G13" s="49" />
+            <c r="H13" s="49" t="s">
+                <v>v7.8</v>
+            </c>
+            <c r="I13" s="49" t="s">
+                <v>v1.2</v>
+            </c>
+            <c r="J13" s="49" />
+            <c r="K13" s="49" />
+        </row>
+        <row r="14" spans="1:11" ht="12.95">
+            <c r="A14" s="49">
+                <v>13</v>
+            </c>
+            <c r="B14" s="49" t="s">
+                <v>SmartPhoneCoop</v>
+            </c>
+            <c r="C14" s="49" t="s">
+                <v>&lt;ConnectedService&gt;</v>
+            </c>
+            <c r="D14" s="50" t="s">
+                <v>DLR Service</v>
+            </c>
+            <c r="E14" s="49" />
+            <c r="F14" s="49" />
+            <c r="G14" s="49" />
+            <c r="H14" s="49" t="s">
+                <v>v7.9</v>
+            </c>
+            <c r="I14" s="49" t="s">
+                <v>v1.3</v>
+            </c>
+            <c r="J14" s="49" />
+            <c r="K14" s="49" />
+        </row>
+        <row r="15" spans="1:11" ht="15">
+            <c r="A15" s="49">
+                <v>14</v>
+            </c>
+            <c r="B15" s="49" t="s">
+                <v>SYSTEM</v>
+            </c>
+            <c r="C15" s="51" t="s">
+                <v>HU通信</v>
+            </c>
+            <c r="D15" s="50" t="s">
+                <v>Driving support service</v>
+            </c>
+            <c r="E15" s="49" />
+            <c r="F15" s="49" />
+            <c r="G15" s="49" />
+            <c r="H15" s="49" />
+            <c r="I15" s="49" />
+            <c r="J15" s="49" />
+            <c r="K15" s="49" />
+        </row>
+        <row r="16" spans="1:11" ht="15">
+            <c r="A16" s="49">
+                <v>15</v>
+            </c>
+            <c r="B16" s="49" t="s">
+                <v>UserProfile</v>
+            </c>
+            <c r="C16" s="51" t="s">
+                <v>WEBブラウザ</v>
+            </c>
+            <c r="D16" s="50" t="s">
+                <v>Battery Precondition</v>
+            </c>
+            <c r="E16" s="49" />
+            <c r="F16" s="49" />
+            <c r="G16" s="49" />
+            <c r="H16" s="49" />
+            <c r="I16" s="49" />
+            <c r="J16" s="49" />
+            <c r="K16" s="49" />
+        </row>
+        <row r="17" spans="1:11" ht="15">
+            <c r="A17" s="49">
+                <v>16</v>
+            </c>
+            <c r="B17" s="49" t="s">
+                <v>VehicleCoop</v>
+            </c>
+            <c r="C17" s="51" t="s">
+                <v>オペレーターサービス</v>
+            </c>
+            <c r="D17" s="50" t="s">
+                <v>Destination Search Service</v>
+            </c>
+            <c r="E17" s="49" />
+            <c r="F17" s="49" />
+            <c r="G17" s="49" />
+            <c r="H17" s="49" />
+            <c r="I17" s="49" />
+            <c r="J17" s="49" />
+            <c r="K17" s="49" />
+        </row>
+        <row r="18" spans="1:11" ht="15">
+            <c r="A18" s="49">
+                <v>17</v>
+            </c>
+            <c r="B18" s="50" t="s">
+                <v>Map update service</v>
+            </c>
+            <c r="C18" s="51" t="s">
+                <v>リモートイモビライザ</v>
+            </c>
+            <c r="D18" s="50" t="s">
+                <v>Smartphone Navigation Cooperation Service</v>
+            </c>
+            <c r="E18" s="52" />
+            <c r="F18" s="49" />
+            <c r="G18" s="49" />
+            <c r="H18" s="49" />
+            <c r="I18" s="49" />
+            <c r="J18" s="49" />
+            <c r="K18" s="49" />
+        </row>
+        <row r="19" spans="1:11" ht="15">
+            <c r="A19" s="49">
+                <v>18</v>
+            </c>
+            <c r="B19" s="50" t="s">
+                <v>Location Service</v>
+            </c>
+            <c r="C19" s="51" t="s">
+                <v>リモートウォーニング</v>
+            </c>
+            <c r="D19" s="50" t="s">
+                <v>Navigation map color</v>
+            </c>
+            <c r="E19" s="52" />
+            <c r="F19" s="49" />
+            <c r="G19" s="49" />
+            <c r="H19" s="49" />
+            <c r="I19" s="49" />
+            <c r="J19" s="49" />
+            <c r="K19" s="49" />
+        </row>
+        <row r="20" spans="1:11" ht="15">
+            <c r="A20" s="49">
+                <v>19</v>
+            </c>
+            <c r="B20" s="50" t="s">
+                <v>Content (maps, etc.)</v>
+            </c>
+            <c r="C20" s="51" t="s">
+                <v>リモートサービス</v>
+            </c>
+            <c r="D20" s="50" t="s">
+                <v>NaviProbe Service</v>
+            </c>
+            <c r="E20" s="52" />
+            <c r="F20" s="49" />
+            <c r="G20" s="49" />
+            <c r="H20" s="49" />
+            <c r="I20" s="49" />
+            <c r="J20" s="49" />
+            <c r="K20" s="49" />
+        </row>
+        <row r="21" spans="1:11" ht="15">
+            <c r="A21" s="49">
+                <v>20</v>
+            </c>
+            <c r="B21" s="50" t="s">
+                <v>Navi Map Reques(Map Coverage)</v>
+            </c>
+            <c r="C21" s="51" t="s">
+                <v>リモート空調</v>
+            </c>
+            <c r="D21" s="50" t="s">
+                <v>Performance Requirement</v>
+            </c>
+            <c r="E21" s="52" />
+            <c r="F21" s="49" />
+            <c r="G21" s="49" />
+            <c r="H21" s="49" />
+            <c r="I21" s="49" />
+            <c r="J21" s="49" />
+            <c r="K21" s="49" />
+        </row>
+        <row r="22" spans="1:11" ht="15">
+            <c r="A22" s="49">
+                <v>21</v>
+            </c>
+            <c r="B22" s="50" t="s">
+                <v>Traffic Information Service</v>
+            </c>
+            <c r="C22" s="51" t="s">
+                <v>契約解約</v>
+            </c>
+            <c r="D22" s="50" t="s">
+                <v>Directions Service</v>
+            </c>
+            <c r="E22" s="52" />
+            <c r="F22" s="49" />
+            <c r="G22" s="49" />
+            <c r="H22" s="49" />
+            <c r="I22" s="49" />
+            <c r="J22" s="49" />
+            <c r="K22" s="49" />
+        </row>
+        <row r="23" spans="1:11" ht="15">
+            <c r="A23" s="49">
+                <v>22</v>
+            </c>
+            <c r="B23" s="50" t="s">
+                <v>Center Route Service</v>
+            </c>
+            <c r="C23" s="51" t="s">
+                <v>緊急通報</v>
+            </c>
+            <c r="D23" s="53" />
+            <c r="E23" s="52" />
+            <c r="F23" s="49" />
+            <c r="G23" s="49" />
+            <c r="H23" s="49" />
+            <c r="I23" s="49" />
+            <c r="J23" s="49" />
+            <c r="K23" s="49" />
+        </row>
+        <row r="24" spans="1:11" ht="15">
+            <c r="A24" s="49">
+                <v>23</v>
+            </c>
+            <c r="B24" s="50" t="s">
+                <v>Multilingual Service</v>
+            </c>
+            <c r="C24" s="51" t="s">
+                <v>起動終了</v>
+            </c>
+            <c r="D24" s="53" />
+            <c r="E24" s="52" />
+            <c r="F24" s="49" />
+            <c r="G24" s="49" />
+            <c r="H24" s="49" />
+            <c r="I24" s="49" />
+            <c r="J24" s="49" />
+            <c r="K24" s="49" />
+        </row>
+        <row r="25" spans="1:11" ht="12.95">
+            <c r="A25" s="49">
+                <v>24</v>
+            </c>
+            <c r="B25" s="50" t="s">
+                <v>Range Service</v>
+            </c>
+            <c r="C25" s="49" t="s">
+                <v>Car Maintenance Info Assistant App</v>
+            </c>
+            <c r="D25" s="52" />
+            <c r="E25" s="52" />
+            <c r="F25" s="49" />
+            <c r="G25" s="49" />
+            <c r="H25" s="49" />
+            <c r="I25" s="49" />
+            <c r="J25" s="49" />
+            <c r="K25" s="49" />
+        </row>
+        <row r="26" spans="1:11" ht="12.95">
+            <c r="A26" s="49">
+                <v>25</v>
+            </c>
+            <c r="B26" s="50" t="s">
+                <v>Map display service</v>
+            </c>
+            <c r="C26" s="49" t="s">
+                <v>&lt;AV&gt;</v>
+            </c>
+            <c r="D26" s="52" />
+            <c r="E26" s="52" />
+            <c r="F26" s="49" />
+            <c r="G26" s="49" />
+            <c r="H26" s="49" />
+            <c r="I26" s="49" />
+            <c r="J26" s="49" />
+            <c r="K26" s="49" />
+        </row>
+        <row r="27" spans="1:11" ht="12.95">
+            <c r="A27" s="49">
+                <v>26</v>
+            </c>
+            <c r="B27" s="50" t="s">
+                <v>Route Search</v>
+            </c>
+            <c r="C27" s="49" t="s">
+                <v>AV共通</v>
+            </c>
+            <c r="D27" s="52" />
+            <c r="E27" s="52" />
+            <c r="F27" s="49" />
+            <c r="G27" s="49" />
+            <c r="H27" s="49" />
+            <c r="I27" s="49" />
+            <c r="J27" s="49" />
+            <c r="K27" s="49" />
+        </row>
+        <row r="28" spans="1:11" ht="12.95">
+            <c r="A28" s="49">
+                <v>27</v>
+            </c>
+            <c r="B28" s="50" t="s">
+                <v>DLR Service</v>
+            </c>
+            <c r="C28" s="49" t="s">
+                <v>AV性能</v>
+            </c>
+            <c r="D28" s="49" />
+            <c r="E28" s="49" />
+            <c r="F28" s="49" />
+            <c r="G28" s="49" />
+            <c r="H28" s="49" />
+            <c r="I28" s="49" />
+            <c r="J28" s="49" />
+            <c r="K28" s="49" />
+        </row>
+        <row r="29" spans="1:11" ht="12.95">
+            <c r="A29" s="49">
+                <v>28</v>
+            </c>
+            <c r="B29" s="50" t="s">
+                <v>Driving support service</v>
+            </c>
+            <c r="C29" s="49" t="s">
+                <v>BT</v>
+            </c>
+            <c r="D29" s="49" />
+            <c r="E29" s="49" />
+            <c r="F29" s="49" />
+            <c r="G29" s="49" />
+            <c r="H29" s="49" />
+            <c r="I29" s="49" />
+            <c r="J29" s="49" />
+            <c r="K29" s="49" />
+        </row>
+        <row r="30" spans="1:11" ht="12.95">
+            <c r="A30" s="49">
+                <v>29</v>
+            </c>
+            <c r="B30" s="50" t="s">
+                <v>Battery Precondition</v>
+            </c>
+            <c r="C30" s="49" t="s">
+                <v>HDMI</v>
+            </c>
+            <c r="D30" s="49" />
+            <c r="E30" s="49" />
+            <c r="F30" s="49" />
+            <c r="G30" s="49" />
+            <c r="H30" s="49" />
+            <c r="I30" s="49" />
+            <c r="J30" s="49" />
+            <c r="K30" s="49" />
+        </row>
+        <row r="31" spans="1:11" ht="12.95">
+            <c r="A31" s="49">
+                <v>30</v>
+            </c>
+            <c r="B31" s="50" t="s">
+                <v>Destination Search Service</v>
+            </c>
+            <c r="C31" s="49" t="s">
+                <v>iOS</v>
+            </c>
+            <c r="D31" s="49" />
+            <c r="E31" s="49" />
+            <c r="F31" s="49" />
+            <c r="G31" s="49" />
+            <c r="H31" s="49" />
+            <c r="I31" s="49" />
+            <c r="J31" s="49" />
+            <c r="K31" s="49" />
+        </row>
+        <row r="32" spans="1:11" ht="12.95">
+            <c r="A32" s="49">
+                <v>31</v>
+            </c>
+            <c r="B32" s="50" t="s">
+                <v>Smartphone Navigation Cooperation Service</v>
+            </c>
+            <c r="C32" s="49" t="s">
+                <v>Performance</v>
+            </c>
+            <c r="D32" s="49" />
+            <c r="E32" s="49" />
+            <c r="F32" s="49" />
+            <c r="G32" s="49" />
+            <c r="H32" s="49" />
+            <c r="I32" s="49" />
+            <c r="J32" s="49" />
+            <c r="K32" s="49" />
+        </row>
+        <row r="33" spans="1:11" ht="12.95">
+            <c r="A33" s="49">
+                <v>32</v>
+            </c>
+            <c r="B33" s="50" t="s">
+                <v>Navigation map color</v>
+            </c>
+            <c r="C33" s="49" t="s">
+                <v>StreamingAudio</v>
+            </c>
+            <c r="D33" s="49" />
+            <c r="E33" s="49" />
+            <c r="F33" s="49" />
+            <c r="G33" s="49" />
+            <c r="H33" s="49" />
+            <c r="I33" s="49" />
+            <c r="J33" s="49" />
+            <c r="K33" s="49" />
+        </row>
+        <row r="34" spans="1:11" ht="12.95">
+            <c r="A34" s="49">
+                <v>33</v>
+            </c>
+            <c r="B34" s="50" t="s">
+                <v>NaviProbe Service</v>
+            </c>
+            <c r="C34" s="49" t="s">
+                <v>USB</v>
+            </c>
+            <c r="D34" s="49" />
+            <c r="E34" s="49" />
+            <c r="F34" s="49" />
+            <c r="G34" s="49" />
+            <c r="H34" s="49" />
+            <c r="I34" s="49" />
+            <c r="J34" s="49" />
+            <c r="K34" s="49" />
+        </row>
+        <row r="35" spans="1:11" ht="12.95">
+            <c r="A35" s="49">
+                <v>34</v>
+            </c>
+            <c r="B35" s="50" t="s">
+                <v>Performance Requirement</v>
+            </c>
+            <c r="C35" s="49" t="s">
+                <v>メーター</v>
+            </c>
+            <c r="D35" s="49" />
+            <c r="E35" s="49" />
+            <c r="F35" s="49" />
+            <c r="G35" s="49" />
+            <c r="H35" s="49" />
+            <c r="I35" s="49" />
+            <c r="J35" s="49" />
+            <c r="K35" s="49" />
+        </row>
+        <row r="36" spans="1:11" ht="12.95">
+            <c r="A36" s="49">
+                <v>35</v>
+            </c>
+            <c r="B36" s="50" t="s">
+                <v>Directions Service</v>
+            </c>
+            <c r="C36" s="49" t="s">
+                <v>起動終了</v>
+            </c>
+            <c r="D36" s="49" />
+            <c r="E36" s="49" />
+            <c r="F36" s="49" />
+            <c r="G36" s="49" />
+            <c r="H36" s="49" />
+            <c r="I36" s="49" />
+            <c r="J36" s="49" />
+            <c r="K36" s="49" />
+        </row>
+        <row r="37" spans="1:11" ht="12.95">
+            <c r="A37" s="49">
+                <v>36</v>
+            </c>
+            <c r="B37" s="50" />
+            <c r="C37" s="49" />
+            <c r="D37" s="49" />
+            <c r="E37" s="49" />
+            <c r="F37" s="49" />
+            <c r="G37" s="49" />
+            <c r="H37" s="49" />
+            <c r="I37" s="49" />
+            <c r="J37" s="49" />
+            <c r="K37" s="49" />
+        </row>
+        <row r="38" spans="1:11" ht="12.95">
+            <c r="A38" s="49">
+                <v>37</v>
+            </c>
+            <c r="B38" s="50" />
+            <c r="C38" s="49" />
+            <c r="D38" s="49" />
+            <c r="E38" s="49" />
+            <c r="F38" s="49" />
+            <c r="G38" s="49" />
+            <c r="H38" s="49" />
+            <c r="I38" s="49" />
+            <c r="J38" s="49" />
+            <c r="K38" s="49" />
+        </row>
+        <row r="39" spans="1:11" ht="12.95">
+            <c r="A39" s="49">
+                <v>38</v>
+            </c>
+            <c r="B39" s="50" />
+            <c r="C39" s="49" />
+            <c r="D39" s="49" />
+            <c r="E39" s="49" />
+            <c r="F39" s="49" />
+            <c r="G39" s="49" />
+            <c r="H39" s="49" />
+            <c r="I39" s="49" />
+            <c r="J39" s="49" />
+            <c r="K39" s="49" />
+        </row>
+    </sheetData>
+    <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3" />
+</worksheet>

@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_dotenv(Path(__file__).resolve().parent.parent / ".env")
-    ensure_data_dirs()
+    ensure_data_dirs("default")
     logger.info("AI service startup")
     yield
     logger.info("AI service shutdown")
