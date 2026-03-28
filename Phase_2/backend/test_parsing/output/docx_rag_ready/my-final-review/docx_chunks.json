@@ -1,0 +1,1390 @@
+{
+  "metadata": {
+    "doc_id": "my-final-review",
+    "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+    "num_sections": 22,
+    "total_chunks": 43,
+    "chunking_config": {
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "max_table_chunk_size": 2000
+    },
+    "created_at": "2026-03-27T11:36:21.605951"
+  },
+  "chunks": [
+    {
+      "id": "my-final-review_chunk_0",
+      "text": "[Section: Chapter 4: Define project > ﻿Step 1: Defining the Project Scope]\n\n﻿Project Scope\n– A definition of the end result or mission of the project—a product or service for the client/customer — in specific, tangible, and measurable terms.\n• Purpose of the Scope Statement\n– To clearly define the deliverable(s) for the end user.\n– To focus the project on successful completion of its goals.\n– To be used by the project owner and participants as a planning tool and for measuring project success\n﻿\nProject Scope Checklist: Project objective, Deliverables, Milestones, Technical requirements, Limits & exclusions, Reviews with customer\n﻿Project Scope: Terms & Definitions\n• Scope statements / statements of work (SOW)\n• Project Charter\n– Can contain an expanded version of scope statement\n– A document authorizing the project manager to initiate & lead the project.\n• Project Creep: The tendency for the project scope to expand over time due to\nchanging requirements, specifications, & priorities",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 0,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 4: Define project",
+          "﻿Step 1: Defining the Project Scope"
+        ],
+        "heading_text": "﻿Step 1: Defining the Project Scope",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 0,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_1",
+      "text": "[Section: Chapter 4: Define project > Step 2: Establishing Project Priorities]\n\n﻿Causes of Project Trade-offs\n– Shifts in the relative importance of criterions related to cost, time & performance params\n• Budget >< Cost; Schedule >< Time; Performance >< Scope\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_1_b36ea2f4.png|b36ea2f4643e57753e798b31620f85f2 [END_IMAGE_PATH] PM tradeoffs\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_2_5fdf293f.png|5fdf293f3ead8e9e20daa6b160f37c4c [END_IMAGE_PATH] Project Priority matrix\n• Managing the Priorities of Project Trade-offs\n– Constrain: a parameter is a fixed requirement.\n– Enhance: optimizing a parameter over others.\n– Accept: reducing (or not meeting) a parameter requirement",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 1,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 4: Define project",
+          "Step 2: Establishing Project Priorities"
+        ],
+        "heading_text": "Step 2: Establishing Project Priorities",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_1_b36ea2f4.png",
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_2_5fdf293f.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 1,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_2",
+      "text": "[Section: Chapter 4: Define project > Step 3: Creating the Work Breakdown Structure]\n\nDefinition\n﻿– An hierarchical outline (map) identifies the products & work elements in a project.\n– Defines the relationship of the final deliverable (the project) to its sub-deliverables, & in turn, their relationships to work packages.\n– Best suited for design & build projects that have tangible outcomes rather than process-oriented projects.\nHow it helps PM:\n﻿– Facilitates evaluation of cost, time & technical perf of the organization on a project.\n– Provides management with information appropriate to each organizational level.\n– Helps in the development of the OBS, which assigns project responsibilities to organizational units and individuals\n– Helps manage plan, schedule, and budget.\n– Defines communication channels & assists in coordinating the various project elements\nHierarchical Breakdown of WBS[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_3_6df1745c.png|6df1745cf260d69f7e872484d4a7315e [END_IMAGE_PATH]",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 2,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 4: Define project",
+          "Step 3: Creating the Work Breakdown Structure"
+        ],
+        "heading_text": "Step 3: Creating the Work Breakdown Structure",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_3_6df1745c.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 2,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_3",
+      "text": "[Section: Chapter 4: Define project > Step 3: Creating the Work Breakdown Structure]\n\nect elements\nHierarchical Breakdown of WBS[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_3_6df1745c.png|6df1745cf260d69f7e872484d4a7315e [END_IMAGE_PATH]\n﻿Work Package: is the lowest level of the WBS.\n+ Output-oriented:\nDefines work (what);\nIdentifies time to complete a work package (how long);\nIdentifies a time-phased budget to complete a work package (cost);\nIdentifies resources needed to complete a work package (how much)\nIdentifies a single person responsible for units of work (who)\nIdentifies monitoring points (milestones) for measuring success\nNgay trên các Work packages là Lowest manageable subdeliverables",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 3,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 4: Define project",
+          "Step 3: Creating the Work Breakdown Structure"
+        ],
+        "heading_text": "Step 3: Creating the Work Breakdown Structure",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_3_6df1745c.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 3,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_4",
+      "text": "[Section: Chapter 4: Define project > Step 4: Integrating the WBS with the Organization with Org. Breakdown Structure (OBS)]\n\n﻿Definition: Depicts how the firm is organized to discharge its work responsiblity for a project.\n• Provides a framework to summarize organization work unit performance.\n• Identifies organization units responsible for work packages.\n• Ties the organizational units to cost control accounts.\nIntegration of OBS to WBS[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_4_31026062.png|3102606286bd12e072c0cc7ba9236d1e [END_IMAGE_PATH]",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 4,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 4: Define project",
+          "Step 4: Integrating the WBS with the Organization with Org. Breakdown Structure (OBS)"
+        ],
+        "heading_text": "Step 4: Integrating the WBS with the Organization with Org. Breakdown Structure (OBS)",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_4_31026062.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 4,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_5",
+      "text": "[Section: Chapter 4: Define project > Step 5: Coding the WBS for the Information System]\n\n﻿WBS Coding System Defines: Levels & elements of the WBS, Organization elements, Work packages, Budget and cost information. It allows reports to be consolidated at any\nlevel in the organization structure\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_5_625af610.png|625af61090cf11a37476c4b0bd256e2e [END_IMAGE_PATH]\n﻿Project Roll-up\n• Cost Account\n– The intersection of the WBS & the OBS that is a budgetary control point for work packages.\n– Used to provide a roll-up (summation) of costs incurred over time by a work package across organization units and levels, & by deliverables\n﻿Process Breakdown Structure\n• Process-Oriented Projects are driven by performance requirements in which the final outcome is the product of a series of steps of phases in which one phase affects the next phase.\n• Process Breakdown Structure (PBS): Defines deliverables as outputs required to move to the next phase.\n– Checklists for managing PBS:",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 5,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 4: Define project",
+          "Step 5: Coding the WBS for the Information System"
+        ],
+        "heading_text": "Step 5: Coding the WBS for the Information System",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_5_625af610.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 5,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_6",
+      "text": "[Section: Chapter 4: Define project > Step 5: Coding the WBS for the Information System]\n\ns of steps of phases in which one phase affects the next phase.\n• Process Breakdown Structure (PBS): Defines deliverables as outputs required to move to the next phase.\n– Checklists for managing PBS:\n• Deliverables needed to exit one phase & begin the next.\n• Quality checkpoints for complete & accurate deliverables.\n• Sign-offs by responsible stakeholders to monitor progress\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_6_d5f63eb6.png|d5f63eb6a5baebecb623f904c8c29b24 [END_IMAGE_PATH]\n﻿Responsibility Matrix (RM) / Linear responsibility chart\n– Summarizes the tasks to be accomplished and who is responsible for what on the project.\n• Lists project activities and participants.\n• Clarifies critical interfaces between units and individuals that need coordination.\n• Provide an means for all participants to view their responsibilities and agree on their assignments.\n• Clarifies the extent or type of authority that can be exercised by each participant.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 6,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 4: Define project",
+          "Step 5: Coding the WBS for the Information System"
+        ],
+        "heading_text": "Step 5: Coding the WBS for the Information System",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_6_d5f63eb6.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 6,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_7",
+      "text": "[Section: Chapter 5: Developing the project plan]\n\n﻿The Project Network: A flow chart that graphically depicts the sequence, interdependencies, & start and finish times of the project job plan of activities that is the critical path through the network.\n• Provides the basis for scheduling labor & equipment.\n• Enhances communication among project participants.\n• Provides an estimate of the project’s duration.\n• Provides a basis for budgeting cash flow.\n• Identifies activities that are critical.\n• Highlights activities that are “critical” & can not be delayed.\n• Help managers get & stay on plan.\n﻿Terminology\n–Activity: an element of the project that requires time.\n–Merge Activity: an activity that has two or more preceding activities on which it depends\n–Parallel (Concurrent) Activities: Activities that can occur independently and, if desired, not at the same time.\n﻿– Path: a sequence of connected, dependent activities.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 7,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 5: Developing the project plan"
+        ],
+        "heading_text": "Chapter 5: Developing the project plan",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 7,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_8",
+      "text": "[Section: Chapter 5: Developing the project plan]\n\nctivities on which it depends\n–Parallel (Concurrent) Activities: Activities that can occur independently and, if desired, not at the same time.\n﻿– Path: a sequence of connected, dependent activities.\n– Critical path: the longest path through the activity network that allows for the completion of all project-related activities; # the shortest expected time in which the entire project can be completed. Delays on the critical path will delay completion of the entire project.\n﻿–Event: a point in time when an activity is started or completed. It does not consume time.\n–Burst Activity: an activity that has more than one activity immediately following it (more than one dependency arrow flowing from it) (Activity rẽ nhánh sang các activity khác)\n﻿Two Approaches\n– Activity-on-Node (AON): Uses a node to depict an activity.\n– Activity-on-Arrow (AOA): Uses an arrow to depict an activity.\n﻿Rules:\n Networks typically flow from left to right.\n An activity cannot begin until all of its activities are completed.\n Arrows indicate precedence & flow & can cross over each other.\n Identify each activity with a unique number; this number must be greater than its predecessors.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 8,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 5: Developing the project plan"
+        ],
+        "heading_text": "Chapter 5: Developing the project plan",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 8,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_9",
+      "text": "[Section: Chapter 5: Developing the project plan]\n\nall of its activities are completed.\n Arrows indicate precedence & flow & can cross over each other.\n Identify each activity with a unique number; this number must be greater than its predecessors.\n Looping is not allowed.\n Conditional statements are not allowed.\n Use common start & stop nodes.\n One clear project start and one clear project finish event\n AOA-exclusive: No two distinct activities can share the same pair of beginning and ending events\n AOA-exclusive: Every event is both the finish of at least one activity and the start of at least one other, except the unique start and finish events\n AOA-exclusive: Dummy activities are used only to show logic—not duration. They carry zero time and cost. Usecase: to avoid dual-coding of a node pair / to reflect independent precedence paths when an activity shares only part of another’s predecessor set.\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_7_3f405ba3.png|3f405ba3abb88b81b5c7c4232695cedb [END_IMAGE_PATH]\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_8_4ee2e864.png|4ee2e86480afb5a9b1a6ef7a63229de2 [END_IMAGE_PATH]",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 9,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 5: Developing the project plan"
+        ],
+        "heading_text": "Chapter 5: Developing the project plan",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_7_3f405ba3.png",
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_8_4ee2e864.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 9,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_10",
+      "text": "[Section: Chapter 5: Developing the project plan]\n\nabb88b81b5c7c4232695cedb [END_IMAGE_PATH]\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_8_4ee2e864.png|4ee2e86480afb5a9b1a6ef7a63229de2 [END_IMAGE_PATH]\n• Forward Pass—Earliest Times\n–How soon can the activity start? (Early Start — ES)\n–How soon can the activity finish? (Early Finish — EF)\n–How soon can the project finish? (Expected Time — ET)\n• Backward Pass—Latest Times\n–How late can the activity start? (Late Start — LS)\n–How late can the activity finish? (Late Finish — LF)\n–Which activities represent the critical path?\n–How long can it be delayed? (slack or float — SL)\n﻿- Forward Pass Computation\n• Add activity times along each path in the network (ES + Duration = EF).\n• Carry EF to the next activity where it becomes its ES unless the next succeeding activity is a merge activity, in which case the largest EF of all preceding activities is selected.\n﻿- Backward Pass Computation\n• Subtract activity times along each path in the network (LF - Duration = LS).",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 10,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 5: Developing the project plan"
+        ],
+        "heading_text": "Chapter 5: Developing the project plan",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_8_4ee2e864.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 10,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_11",
+      "text": "[Section: Chapter 5: Developing the project plan]\n\nis a merge activity, in which case the largest EF of all preceding activities is selected.\n﻿- Backward Pass Computation\n• Subtract activity times along each path in the network (LF - Duration = LS).\n• Carry the LS to the next activity where it becomes its LF unless the next succeeding activity is a burst activity, in which case the smallest LF of all preceding activities is selected\n﻿- Slack (or Float) = LS-ES: The amount of time an activity can be delayed after the start of a longer parallel activity or activities.\nTotal slack: The amount of time an activity can be delayed without delaying the entire project.\nThe critical path is the network path(s) that have the least sum of slack or the longest duration path.\n﻿Slack of activity = X -> maximum time an activity can be delayed is X days\nif X=X+1 => Expected time = ET will be delayed 1 day. The critical path may change.\nProject duration is Sum of all activities' durations\nThere are two types of slack:\n- Free slack: The free slack of an activity is the time this activity can be delayed without impact on the following activity. FS = min(ES of immediate successors) - EF",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 11,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 5: Developing the project plan"
+        ],
+        "heading_text": "Chapter 5: Developing the project plan",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 11,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_12",
+      "text": "[Section: Chapter 5: Developing the project plan]\n\nThere are two types of slack:\n- Free slack: The free slack of an activity is the time this activity can be delayed without impact on the following activity. FS = min(ES of immediate successors) - EF\n- Total slack: The total slack of an activity is the time this activity can be delayed without impact on the finish date of the project. TS = LS-ES = LF-EF\n﻿Practical Considerations\n• Network Logic Errors (Illogical Loop: A->B->C->A...)\n• Activity Numbering\n• Use of Computers to Develop Networks\n• Calendar Dates\n• Multiple Starts and Multiple Projects\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_9_0d84de91.png|0d84de91e74e277864c76193e96c45f1 [END_IMAGE_PATH]\n﻿Extended Network Techniques to Come Close to Reality\n• Laddering: Activities are broken into segments so the following activity can begin sooner & not delay the work.\n• Lags: The minimum amount of time a dependent activity must be delayed to begin or end.\n- Lengthy activities are broken down to reduce the delay in the start of successor activities.\n- Lags can be used to constrain finish-to-start, start-to-start, finishto-finish, start-to-finish, or combination relationships.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 12,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 5: Developing the project plan"
+        ],
+        "heading_text": "Chapter 5: Developing the project plan",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_9_0d84de91.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 12,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_13",
+      "text": "[Section: Chapter 5: Developing the project plan]\n\nbroken down to reduce the delay in the start of successor activities.\n- Lags can be used to constrain finish-to-start, start-to-start, finishto-finish, start-to-finish, or combination relationships.\n﻿Hammock Activities\n–An activity that spans over a segment of a project.\n–Duration of hammock activities is determined after the network plan is drawn.\n–Hammock activities are used to aggregate sections of the project to facilitate getting the right amount of detail for specific sections of a project\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_11_d21f7e59.png|d21f7e5975543a3556d3a074a74749c8 [END_IMAGE_PATH]\nTrong AOA, có 1 loại activity gọi là Dummy activity (biểu diễn bằng nét đứt). Dummy ko tốn thời gian, dùng khi ko muốn starting và ending activity trùng nhau.[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_10_8ab50b34.png|8ab50b34d38269b356f9e21527c05db3 [END_IMAGE_PATH]\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_12_5801db29.png|5801db294ec917c06d696eea423cfc9a [END_IMAGE_PATH]",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 13,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 5: Developing the project plan"
+        ],
+        "heading_text": "Chapter 5: Developing the project plan",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_11_d21f7e59.png",
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_10_8ab50b34.png",
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_12_5801db29.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 13,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_14",
+      "text": "[Section: Chapter 5: Developing the project plan]\n\n38269b356f9e21527c05db3 [END_IMAGE_PATH]\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_12_5801db29.png|5801db294ec917c06d696eea423cfc9a [END_IMAGE_PATH]\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_13_61425457.png|61425457377370930bae0d7bd4c0aeb5 [END_IMAGE_PATH]",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 14,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 5: Developing the project plan"
+        ],
+        "heading_text": "Chapter 5: Developing the project plan",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_12_5801db29.png",
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_13_61425457.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 14,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_15",
+      "text": "[Section: Chapter 6: Risk management]\n\n﻿Risk: Uncertain or chance events that planning can not overcome or control.\n• Risk Management: A proactive attempt to recognize and manage internal events and external threats that affect the likelihood of a project’s success.\n• What can go wrong (risk event).\n• How to minimize the risk event’s impact (consequences).\n• What can be done before an event occurs (anticipation).\n• What to do when an event occurs (contingency plans: ﻿A plan of actions that will reduce or mitigate the negative impact (consequences) of a risk event))\n﻿Risks of Not Having a Contingency Plan\n–Having no plan may slow managerial response.\n–Decisions made under pressure can be potentially dangerous and costly\nThe Risk-Event graph[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_14_f3093cd0.png|f3093cd0b74474d7120139b8bc83a412 [END_IMAGE_PATH]\n﻿Risk Management’s Benefits\n• A proactive rather than reactive approach.\n• Reduces surprises & negative consequences.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 15,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 6: Risk management"
+        ],
+        "heading_text": "Chapter 6: Risk management",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_14_f3093cd0.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 15,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_16",
+      "text": "[Section: Chapter 6: Risk management]\n\nes_d31dw0oy/img_14_f3093cd0.png|f3093cd0b74474d7120139b8bc83a412 [END_IMAGE_PATH]\n﻿Risk Management’s Benefits\n• A proactive rather than reactive approach.\n• Reduces surprises & negative consequences.\n• Prepares the project manager to take advantage of appropriate risks.\n• Provides better control over the future.\n• Improves chances of reaching project performance objectives within budget & on time.\nCó 4 bước trong Risk management. Mỗi bước có thể sẽ introduce new risks cho Step 1 tiếp tục identify.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 16,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 6: Risk management"
+        ],
+        "heading_text": "Chapter 6: Risk management",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 16,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_17",
+      "text": "[Section: Chapter 6: Risk management > ﻿Step 1: Risk Identification:]\n\nGenerate a list of possible risks through brainstorming, problem identification and risk profiling. Macro risks first, then specific events",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 17,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 6: Risk management",
+          "﻿Step 1: Risk Identification:"
+        ],
+        "heading_text": "﻿Step 1: Risk Identification:",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 17,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_18",
+      "text": "[Section: Chapter 6: Risk management > Step 2: Risk assessment (Đánh giá: 1-5)]\n\n–Scenario analysis\n–Risk assessment form: gồm cột Event, Likelihood, Impact, Detect Difficulty, When.\n- Risk assessment/severity matrix\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_15_59aa0bee.png|59aa0beee0a0bd81992ac657e26ed61c [END_IMAGE_PATH]\n–Failure Mode & Effects Analysis (FMEA)\n–Probability analysis: Decision trees, NPV, and PERT\n- Semi-quantitative scenario analysis",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 18,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 6: Risk management",
+          "Step 2: Risk assessment (Đánh giá: 1-5)"
+        ],
+        "heading_text": "Step 2: Risk assessment (Đánh giá: 1-5)",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_15_59aa0bee.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 18,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_19",
+      "text": "[Section: Chapter 6: Risk management > ﻿Step 3: Risk Response Development]\n\nCác loại response:\n–Mitigating Risk: Reducing the likelihood an adverse event will occur + Reducing impact of adverse event.\n–Transferring Risk: Paying a premium to pass the risk to another party.\n–Avoiding Risk: Changing the project plan to eliminate the risk or condition.\n–Sharing Risk: Allocating risk to different parties\n–Retaining Risk: Making a conscious decision to accept the risk\nRisk Response matrix: Gồm Event, Response_Type, Contingency_Plan, Trigger_Cond, Who_Responsible\n﻿Technical Risks: Backup strategies if chosen technology fails; Assessing whether technical uncertainties can be resolved.\nSchedule Risks:\n- Use of slack increases the risk of a late project finish.\n- Imposed duration dates (absolute project finish date)\n- Compression of project schedules due to a shortened project duration date.\n﻿Costs Risks\n- Time/cost dependency links: costs increase when problems take longer to solve than expected.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 19,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 6: Risk management",
+          "﻿Step 3: Risk Response Development"
+        ],
+        "heading_text": "﻿Step 3: Risk Response Development",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 19,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_20",
+      "text": "[Section: Chapter 6: Risk management > ﻿Step 3: Risk Response Development]\n\nt finish date)\n- Compression of project schedules due to a shortened project duration date.\n﻿Costs Risks\n- Time/cost dependency links: costs increase when problems take longer to solve than expected.\n- Deciding to use the schedule to solve cash flow problems should be avoided.\n- Price protection risks (a rise in input costs) increase if the duration of a project is increased.\nFunding Risks: Changes in the supply of funds for the project can dramatically affect the likelihood of implementation or successful completion of a project.\n﻿+ Contingency Funds\n–Funds to cover project risks—identified and unknown. Size of funds reflects overall risk of a project\n–Budget reserves: Are linked to the identified risks of specific work packages.\n–Management reserves: Are large funds to be used to cover major unforeseen risks (e.g., change in project scope) of the total project.\n+ Time Buffers: Amounts of time used to compensate for unplanned delays in the project schedule.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 20,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 6: Risk management",
+          "﻿Step 3: Risk Response Development"
+        ],
+        "heading_text": "﻿Step 3: Risk Response Development",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 20,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_21",
+      "text": "[Section: Chapter 6: Risk management > ﻿Step 4: Risk Response Control]\n\n- Risk control: Execution of the risk response strategy\n•Monitoring of triggering events\n• Initiating contingency plans\n• Watching for new risks\n- Establishing a Change Management System\n• Monitoring, tracking, and reporting risk\n• Fostering an open organization environment\n• Repeating risk identification/assessment exercises\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_16_b903dd8a.png|b903dd8a27644333dfab8fc7ceaed39e [END_IMAGE_PATH]• Assigning and documenting responsibility for managing risk\n﻿Change Management Control\n- Sources: Project scope changes, Implement of contingency plans, Improvement changes\n﻿- Process\nIdentify proposed changes.\nList expected effects of proposed changes on schedule & budget.\nReview, evaluate, & approve or disapprove of changes formally.\nNegotiate and resolve conflicts of change, condition, and cost.\nCommunicate changes to parties affected.\nAssign responsibility for implementing change.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 21,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 6: Risk management",
+          "﻿Step 4: Risk Response Control"
+        ],
+        "heading_text": "﻿Step 4: Risk Response Control",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_16_b903dd8a.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 21,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_22",
+      "text": "[Section: Chapter 6: Risk management > ﻿Step 4: Risk Response Control]\n\ne, & approve or disapprove of changes formally.\nNegotiate and resolve conflicts of change, condition, and cost.\nCommunicate changes to parties affected.\nAssign responsibility for implementing change.\nAdjust master schedule & budget.\nTrack all changes that are to be implemented\n﻿- Benefits of a Change Control System\n1. Inconsequential changes are discouraged by the formal process.\n2. Costs of changes are maintained in a log.\n3. Integrity of the WBS and performance measures is maintained.\n4. Allocation and use of budget and management reserve funds are tracked.\n5. Responsibility for implementation is clarified.\n6. Effect of changes is visible to all parties involved.\n7. Implementation of change is monitored.\n8. Scope changes will be quickly reflected in baseline and performance measures.\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_17_910ed62a.png|910ed62a0df9302a2583dbd3d98f2862 [END_IMAGE_PATH]﻿PERT — PROGRAM EVALUATION REVIEW TECHNIQUE\n• Assumes each activity duration has a range that statistically follows a beta distribution.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 22,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 6: Risk management",
+          "﻿Step 4: Risk Response Control"
+        ],
+        "heading_text": "﻿Step 4: Risk Response Control",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_17_910ed62a.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 22,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_23",
+      "text": "[Section: Chapter 6: Risk management > ﻿Step 4: Risk Response Control]\n\n_910ed62a.png|910ed62a0df9302a2583dbd3d98f2862 [END_IMAGE_PATH]﻿PERT — PROGRAM EVALUATION REVIEW TECHNIQUE\n• Assumes each activity duration has a range that statistically follows a beta distribution.\n• PERT uses three time estimates for each activity: optimistic, pessimistic, and a weighted average to represent activity durations.\n–Knowing the weighted average and variances for each activity allows the project planner to compute the probability of meeting different project durations.\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_18_6feae837.png|6feae8371b69486a2be517b5b560e5db [END_IMAGE_PATH]\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_19_bf17bdfd.png|bf17bdfdb2a09a1db5bee3f6dee69042 [END_IMAGE_PATH]\nThe weighted average activity time is computed by the\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_20_7fb05d46.png|7fb05d46b8f8696ca2a54a00ac05ede0 [END_IMAGE_PATH]following formula:",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 23,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 6: Risk management",
+          "﻿Step 4: Risk Response Control"
+        ],
+        "heading_text": "﻿Step 4: Risk Response Control",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_18_6feae837.png",
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_19_bf17bdfd.png",
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_20_7fb05d46.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 23,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_24",
+      "text": "[Section: Chapter 6: Risk management > ﻿Step 4: Risk Response Control]\n\nime is computed by the\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_20_7fb05d46.png|7fb05d46b8f8696ca2a54a00ac05ede0 [END_IMAGE_PATH]following formula:\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_21_cd5f058f.png|cd5f058fb287e547c97f075f2b456a22 [END_IMAGE_PATH][START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_22_dedf5e5f.png|dedf5e5ff56e0c15feb1f76884f4ce52 [END_IMAGE_PATH]\n﻿Probability project is completed before scheduled time T_S=X <=> Probability project is completed by the X unit time period (T_S) = Xác suất từ bên trái đến T_S\nNote: T_S > T_E thì Prob hoàn thành trước T_S là > 0.5,\nT_S < T_E thì Prob hoàn thành trước T_S là <0.5",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 24,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 6: Risk management",
+          "﻿Step 4: Risk Response Control"
+        ],
+        "heading_text": "﻿Step 4: Risk Response Control",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_20_7fb05d46.png",
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_21_cd5f058f.png",
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_22_dedf5e5f.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 24,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_25",
+      "text": "[Section: Chapter 7: Reducing project duration]\n\n﻿Rationale for Reducing Project Duration\n• Time Is Money: Cost-Time Tradeoffs => Reducing the time of a critical activity usually incurs additional direct costs.\n• Cost-time solutions focus on reducing (crashing) activities on the critical path to shorten overall duration of the project.\n–Reasons for imposed project duration dates:\n• Customer requirements and contract commitments\n• Time-to-market pressures\n• Incentive contracts (bonuses for early completion)\n• Unforeseen delays\n• Overhead and goodwill costs\n• Pressure to move resources to other projects\n﻿Options for Accelerating Project Completion:\n• Adding Resources\n• Outsourcing Project Work\n• Scheduling Overtime\n• Establishing a Core Project Team\n• Do It Twice—Fast and Correctly\n• Fast-Tracking\n• Critical-Chain\n• Reducing Project Scope\n• Compromise Quality\nProject Costs",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 25,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 7: Reducing project duration"
+        ],
+        "heading_text": "Chapter 7: Reducing project duration",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 25,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_26",
+      "text": "[Section: Chapter 7: Reducing project duration]\n\ning Project Work\n• Scheduling Overtime\n• Establishing a Core Project Team\n• Do It Twice—Fast and Correctly\n• Fast-Tracking\n• Critical-Chain\n• Reducing Project Scope\n• Compromise Quality\nProject Costs\nIndirect: ﻿Costs that cannot be associated with any particular work package or project activity: Supervision, administration, consultants & interest. It varies (increases) with time. Reducing project time directly reduces indirect costs.\n﻿Direct: Normal costs that can be assigned directly to a specific work package or project activity: Labor, materials, equipment, and sub-contractors. Crashing activities increases direct costs.\n﻿Reducing Project Duration to Reduce Project Cost: Identifying direct costs to reduce project time\n- Compute total costs for specific durations and compare to benefits of reducing project time.\n- Search critical activities for lowest direct-cost activities to shorten project duration.\n- Gather information about direct & indirect costs of specific project durations.\n=> ﻿Practical Considerations\n• Using the Project Cost—Duration Graph\n• Crash Times\n• Linearity Assumption\n• Choice of Activities to Crash Revisited\n• Time Reduction Decisions and Sensitivity",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 26,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 7: Reducing project duration"
+        ],
+        "heading_text": "Chapter 7: Reducing project duration",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 26,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_27",
+      "text": "[Section: Chapter 7: Reducing project duration]\n\nrations.\n=> ﻿Practical Considerations\n• Using the Project Cost—Duration Graph\n• Crash Times\n• Linearity Assumption\n• Choice of Activities to Crash Revisited\n• Time Reduction Decisions and Sensitivity\n﻿Constructing a Project Cost—Duration Graph\n﻿• Find total direct costs for selected project durations.\n• Find total indirect costs for selected project durations.\n• Sum direct & indirect costs for these selected project durations.\n• Compare additional cost alternatives for benefits\n• Choose Activities to Shorten: the one with smallest increase in cost per unit of time.\n– Assumptions:\n• The cost relationship is linear.\n• Normal time assumes low-cost, efficient methods to complete the activity.\n• Crash time represents a limit — the greatest time reduction possible under realistic conditions.\n• Slope represents a constant cost per unit of time.\n• All accelerations must occur within the normal and crash times.\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_23_ef6503f3.png|ef6503f33e99bc3058f188bba7ed6784 [END_IMAGE_PATH]",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 27,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 7: Reducing project duration"
+        ],
+        "heading_text": "Chapter 7: Reducing project duration",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_23_ef6503f3.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 27,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_28",
+      "text": "[Section: Chapter 7: Reducing project duration]\n\noccur within the normal and crash times.\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_23_ef6503f3.png|ef6503f33e99bc3058f188bba7ed6784 [END_IMAGE_PATH]\n﻿What if Cost, Not Time is the Issue? => Methods to Cut Costs: Reduce project scope; Have owner take on more responsibility; Outsourcing project activities or even the entire project; Brainstorming cost savings options",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 28,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 7: Reducing project duration"
+        ],
+        "heading_text": "Chapter 7: Reducing project duration",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_23_ef6503f3.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 28,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_29",
+      "text": "[Section: Chapter 8: Monitor Progress & Performance measurement & Evaluation]\n\n﻿Information System Structure\n– What data are collected?\n•Current status of project (schedule & cost)\n•Remaining cost to compete project\n•Date that project will be complete\n•Potential problems to be addressed now\n•Out-of-control activities requiring intervention\n•Cost and/or schedule overruns & the reasons for them\n•Forecast of overruns at time of project completion\n﻿– Collecting data & analysis: Who will collect project data? How will data be collected? When will the data be collected? Who will compile and analyze the data?\n– Reports & reporting: Who will receive the reports? How will the reports be transmitted? When will the reports be distributed?",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 29,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 8: Monitor Progress & Performance measurement & Evaluation"
+        ],
+        "heading_text": "Chapter 8: Monitor Progress & Performance measurement & Evaluation",
+        "heading_level": 1,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 29,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_30",
+      "text": "[Section: Chapter 8: Monitor Progress & Performance measurement & Evaluation > ﻿The Project Control Process]\n\n• Control: The process of comparing actual performance against plan to identify deviations, evaluate courses of action, and take appropriate corrective action.\n• Project Control Steps\n1. Setting a baseline plan.\n2. Measuring progress and performance.\n3. Comparing plan against actual.\n4. Taking actions\n﻿Monitoring Time Performance: Tools used to catch negative variances from plan\nand communicate project schedule status:\n– Tracking and baseline Gantt charts: Show expected, actual, and trend data for event duration performance.\n– Control charts: Plot the difference in scheduled time on the critical path with the\nactual point on the critical path\n﻿Terms\n• EV (Earned Value): The percent complete times its original budget. The percent of the original budget that has been earned by actual work completed. The older acronym for this value was BCWP—budgeted cost of the work performed.\n• PV (Planned Value): The time-phased baseline of the value of the work scheduled. An",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 30,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 8: Monitor Progress & Performance measurement & Evaluation",
+          "﻿The Project Control Process"
+        ],
+        "heading_text": "﻿The Project Control Process",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 30,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_31",
+      "text": "[Section: Chapter 8: Monitor Progress & Performance measurement & Evaluation > ﻿The Project Control Process]\n\nn earned by actual work completed. The older acronym for this value was BCWP—budgeted cost of the work performed.\n• PV (Planned Value): The time-phased baseline of the value of the work scheduled. An\napproved cost estimate of the resources scheduled in a time-phased cumulative baseline (BCWS—budgeted cost of the work scheduled).\n• AC (Actual cost): The actual cost of the work completed. The sum of the costs incurred in accomplishing work. (ACWP—actual cost of the work performed).\n﻿• CV: Cost variance is the difference between the earned value and the actual costs for the work completed to date where CV=EV-AC.\nCV < 0 => Project is over budget, Earn value < Actual cost. We want EV > AC aka project is under budget\n• SV: Schedule variance is the difference between the earned value and the baseline line to date where SV=EV-PV.\nSV < 0 => Project is behind schedule. We also prefer SV > 0 aka EV > PV\n• BAC: Budgeted cost at completion(total budgeted cost of baseline or project cost accounts)\n• EAC: Estimated costs at completion. Includes costs to-date plus revised estimated costs for the work remaining. EAC_f = ETC+AC",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 31,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 8: Monitor Progress & Performance measurement & Evaluation",
+          "﻿The Project Control Process"
+        ],
+        "heading_text": "﻿The Project Control Process",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 31,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_32",
+      "text": "[Section: Chapter 8: Monitor Progress & Performance measurement & Evaluation > ﻿The Project Control Process]\n\nt completion(total budgeted cost of baseline or project cost accounts)\n• EAC: Estimated costs at completion. Includes costs to-date plus revised estimated costs for the work remaining. EAC_f = ETC+AC\n﻿• ETC: Estimate to complete; ﻿ETC=Work remaining/CPI = (BAC-EV) / (EV/AC)\nIf CPI = EV/AC > 1 => EV > AC, CV > 0 => our project is under budget\n• VAC: Variance at Completion, VAC=BAC−EAC\nBAC = Budget at Completion (total planned budget)\nEAC = Estimate at Completion (forecasted total cost)\nVAC indicates expected actual over-or underrun cost at completion\nThere are two main approaches for EAC:\nEACₑ = Estimate from experts, No fixed formula — it's based on bottom-up forecasting.\nUse when: Scope has changed significantly or performance assumptions are no longer valid.\nEAC𝒇 = Formula-based estimate. Use when: You assume future performance will follow current cost efficiency. Use when: You assume future performance will follow current cost efficiency. EAC_f = BAC/CPI",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 32,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 8: Monitor Progress & Performance measurement & Evaluation",
+          "﻿The Project Control Process"
+        ],
+        "heading_text": "﻿The Project Control Process",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 32,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_33",
+      "text": "[Section: Chapter 8: Monitor Progress & Performance measurement & Evaluation > ﻿Developing an Integrated Cost/Schedule System]\n\n﻿1. Define the work using a WBS: Scope, Work packages, Deliverables, Organization units, Resources, Budgets\n2. Develop work and resource schedules: Schedule resource to activities + Time-phase work packages into a network\n﻿3. Develop a time-phased budget using work packages included in an activity.\nAccumulate budgets (PV).\n4. At the work package level, collect the actual costs for the work performed (AC).\n5. Multiply percent complete times original budget (EV).\n6. Compute the schedule variance (EV-PV) and the cost variance (EV-AC).",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 33,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 8: Monitor Progress & Performance measurement & Evaluation",
+          "﻿Developing an Integrated Cost/Schedule System"
+        ],
+        "heading_text": "﻿Developing an Integrated Cost/Schedule System",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 33,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_34",
+      "text": "[Section: Chapter 8: Monitor Progress & Performance measurement & Evaluation > ﻿Development of Project Baselines]\n\n﻿- Purposes of a Baseline (PV): An anchor point for measuring performance\n• A planned cost & expected schedule against which actual cost and schedule are measured.\n• A basis for cash flows and awarding progress payments.\n• A summation of time-phased budgets (cost accounts as summed work packages) along a project timeline.\n- Costs Are Included in Baselines: Labor, Equips, Mats, Project direct overhead costs (DOC)\n﻿- Rules for Placing Costs in Baselines: Costs are placed exactly as they are expected to be\n“earned” in order to track them to their point of origin.\n+ Percent Complete Rule: Costs are periodically assigned to a baseline as units of work are completed over the duration of a work package.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 34,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 8: Monitor Progress & Performance measurement & Evaluation",
+          "﻿Development of Project Baselines"
+        ],
+        "heading_text": "﻿Development of Project Baselines",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 34,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_35",
+      "text": "[Section: Chapter 8: Monitor Progress & Performance measurement & Evaluation > ﻿Methods of Variance Analysis]\n\n• Comparing Earned Value: With the expected schedule value or With the actual costs.\n• Assessing Status of a Project: Required data elements\n• Data Budgeted cost of the work scheduled (PV)\n• Budgeted cost of the work completed (EV)\n• Actual cost of the work completed (AC): Calculate schedule and cost variances\n• A positive variance indicates a desirable condition, while a negative variance suggests problems or changes that have taken place.\n﻿• Cost Variance (CV): Indicates if the work accomplished using labor and materials costs more or less than was planned at any point in the project.\n• Schedule Variance (SV): Presents an overall assessment in dollar terms of the progress of all work packages in the project scheduled to date.\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_24_5d03cc8e.png|5d03cc8e281cfc80383570068913ea08 [END_IMAGE_PATH]",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 35,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 8: Monitor Progress & Performance measurement & Evaluation",
+          "﻿Methods of Variance Analysis"
+        ],
+        "heading_text": "﻿Methods of Variance Analysis",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_24_5d03cc8e.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 35,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_36",
+      "text": "[Section: Chapter 8: Monitor Progress & Performance measurement & Evaluation > ﻿Methods of Variance Analysis]\n\nckages in the project scheduled to date.\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_24_5d03cc8e.png|5d03cc8e281cfc80383570068913ea08 [END_IMAGE_PATH]\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_25_a759d209.png|a759d2090617e9d63ae17bf5a7ffb85f [END_IMAGE_PATH]\n﻿Additional Earned Value Rules (apply to short-duration activities and/or small-cost activities):\n–0/100 percent rule: Assumes 100 % of budget credit is earned at once and only when work is completed.\n–50/50 rule: allows for 50% of the value of the work package budget to be earned when it is started and 50% to be earned when the package is completed.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 36,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 8: Monitor Progress & Performance measurement & Evaluation",
+          "﻿Methods of Variance Analysis"
+        ],
+        "heading_text": "﻿Methods of Variance Analysis",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_24_5d03cc8e.png",
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_25_a759d209.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 36,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_37",
+      "text": "[Section: Chapter 8: Monitor Progress & Performance measurement & Evaluation > ﻿Forecasting Final Project Cost]\n\n–EAC_e: Allows experts in the field to change original baseline durations and costs because new information tells them the original estimates are not accurate.\n–EAC_f: Uses actual costs-to-date plus an efficiency index to project final costs in large projects where the original budget is unreliable.\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_26_38a0f95e.png|38a0f95e9f1f2669f1955a314a3453ed [END_IMAGE_PATH]\n﻿Issues In Maintaining Control Of Projects: Baseline Changes, Contingency Reserve, Costs and Problems of Data Acquisition, Scope Creep, Managing the Portfolio of Projects",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 37,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 8: Monitor Progress & Performance measurement & Evaluation",
+          "﻿Forecasting Final Project Cost"
+        ],
+        "heading_text": "﻿Forecasting Final Project Cost",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_26_38a0f95e.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 37,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_38",
+      "text": "[Section: Chapter 9: Closure > ﻿Project Audit Components]\n\n• Why the project was selected?\n• Project’s role in the organization’s priorities?\n• Organizational culture?\n• How well the project team is functioning? Need more resource/staff?\n• External factors that might change where the project is heading?\n﻿Types of Project Audits\n• In-process project audits: Allow for corrective changes if conditions have changed and for concentration on project progress and performance.\n• Post-project audits: Take a broader and longer-term view of the project’s role in the organization and emphasize improving the management of future projects\n﻿Factors Influencing Audit Depth and Detail: Organization size, Project importance, Project type, Project risk, Project size, Project problems\n﻿Conducting a Project Audit:\n• Step 1: Initiation and Staffing\n• Step 2: Data Collection and Analysis (Org's View and Project Team's View)\n• Step 3: Reporting\n﻿Characteristics of Audit Leaders\n1. No direct involvement or direct interest in the project.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 38,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 9: Closure",
+          "﻿Project Audit Components"
+        ],
+        "heading_text": "﻿Project Audit Components",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 38,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_39",
+      "text": "[Section: Chapter 9: Closure > ﻿Project Audit Components]\n\nStaffing\n• Step 2: Data Collection and Analysis (Org's View and Project Team's View)\n• Step 3: Reporting\n﻿Characteristics of Audit Leaders\n1. No direct involvement or direct interest in the project.\n2. Respect (impartial and fair) of senior management and other project stakeholders.\n3. Willingness to listen.\n4. Independence and authority to report audit results without fear of recriminations from special interests.\n5. Perceived as having the best interests of the organization in making decisions.\n6. Broad-based experience in the organization or industry.\n[START_IMAGE_PATH] /var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_27_9db4d07e.png|9db4d07ea470a3bae4befd0238d9b370 [END_IMAGE_PATH]\n﻿Key Points in Conducting Audits\n• Have automatic times or points when audits will take place. Surprises should be avoided.\n• Conduct audits carefully and with sensitivity.\n• Audit staff must independent from the project.\n• Audit reports need to be used and accessible.\n• Audits support organizational culture .\n• Project closures should be planned and orderly.\n• Certain “core conditions” must be in place to support team and individual evaluation.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 39,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 9: Closure",
+          "﻿Project Audit Components"
+        ],
+        "heading_text": "﻿Project Audit Components",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": true,
+        "image_paths": [
+          "/var/folders/2r/6k4lt40n56g5w9yy_dl1hjbw0000gn/T/docx_images_d31dw0oy/img_27_9db4d07e.png"
+        ],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 39,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_40",
+      "text": "[Section: Chapter 9: Closure > ﻿Project Audit Components]\n\nsed and accessible.\n• Audits support organizational culture .\n• Project closures should be planned and orderly.\n• Certain “core conditions” must be in place to support team and individual evaluation.\n• Conduct individual and team evaluations separate from pay or merit reviews",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 40,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 9: Closure",
+          "﻿Project Audit Components"
+        ],
+        "heading_text": "﻿Project Audit Components",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 40,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_41",
+      "text": "[Section: Chapter 9: Closure > Project Closure]\n\n﻿Conditions for Closure: Normal, Premature, Perpetual, Failed Project, or Changed Priority\n• Close-out Plan\n– What tasks are required to close the project?\n– Who will be responsible for these tasks?\n– When will closure begin and end?\n– How will the project be delivered?\n﻿Implementing Closedown\n1. Getting delivery acceptance from the customer.\n2. Shutting down resources and releasing to new uses.\n3. Reassigning project team members.\n4. Closing accounts and seeing all bills are paid.\n5. Evaluating the project team, project team members, and the project manager.\n﻿Reasons for Poor-Quality Project Performance\n–Evaluations of individuals are left to supervisors of the team member’s home department.\n–Typical measures of team performance center on time, cost, and specifications.\n﻿Project Performance Evaluation: Individual\n• Responsibility for assessing performance",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 41,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 9: Closure",
+          "Project Closure"
+        ],
+        "heading_text": "Project Closure",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 41,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    },
+    {
+      "id": "my-final-review_chunk_42",
+      "text": "[Section: Chapter 9: Closure > Project Closure]\n\ne team member’s home department.\n–Typical measures of team performance center on time, cost, and specifications.\n﻿Project Performance Evaluation: Individual\n• Responsibility for assessing performance\n–Functional organization or functional matrix: the individual’s area manager. The area manager may solicit the project manager’s opinion of the individual’s performance on a specific project.\n–Balanced matrix: the project manager and the area manager jointly evaluate an individual’s performance.\n–Project matrix and project organizations: the project manager is responsible for appraising individual performance.\n﻿• Multi-rater appraisal or the “360-degree feedback”\n–Involves soliciting feedback concerning team members’ performance from all the people their work affects.\n–This includes project managers, area managers, peers, subordinates, and even customers",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+      "doc_id": "my-final-review",
+      "chunk_index": 42,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "my-final-review",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Chapter 9: Closure",
+          "Project Closure"
+        ],
+        "heading_text": "Project Closure",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/my-final-review.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.605951",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 42,
+        "total_chunks": 43
+      },
+      "total_chunks": 43
+    }
+  ]
+}

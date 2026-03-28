@@ -1,0 +1,321 @@
+{
+  "metadata": {
+    "doc_id": "Test_Plan.docx",
+    "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+    "num_sections": 14,
+    "total_chunks": 10,
+    "chunking_config": {
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "max_table_chunk_size": 2000
+    },
+    "created_at": "2026-03-27T11:37:17.471784"
+  },
+  "chunks": [
+    {
+      "id": "Test_Plan.docx_chunk_0",
+      "text": "[Section: Test Plan – Manual Testing for Zero Bank Project > 2. Objective / Purpose:]\n\nTo ensure the core banking features of the Zero Bank website (http://zero.webappsecurity.com/) work as expected under valid and invalid user inputs, and to identify and report defects for resolution.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+      "doc_id": "Test_Plan.docx",
+      "chunk_index": 0,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Test_Plan.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Test Plan – Manual Testing for Zero Bank Project",
+          "2. Objective / Purpose:"
+        ],
+        "heading_text": "2. Objective / Purpose:",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:17.471784",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 0,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Test_Plan.docx_chunk_1",
+      "text": "[Section: Test Plan – Manual Testing for Zero Bank Project > 3. Scope of Testing: > In Scope:]\n\n- Login/Logout functionality\n- Account summary viewing\n- Transfer Funds\n- Feedback submission",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+      "doc_id": "Test_Plan.docx",
+      "chunk_index": 1,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Test_Plan.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Test Plan – Manual Testing for Zero Bank Project",
+          "3. Scope of Testing:",
+          "In Scope:"
+        ],
+        "heading_text": "In Scope:",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:17.471784",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 1,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Test_Plan.docx_chunk_2",
+      "text": "[Section: Test Plan – Manual Testing for Zero Bank Project > 5. Test Environment:]\n\n- Browser: Chrome v134+,\n- OS: Windows 10\n- Site URL: http://zero.webappsecurity.com",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+      "doc_id": "Test_Plan.docx",
+      "chunk_index": 2,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Test_Plan.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Test Plan – Manual Testing for Zero Bank Project",
+          "5. Test Environment:"
+        ],
+        "heading_text": "5. Test Environment:",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:17.471784",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 2,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Test_Plan.docx_chunk_3",
+      "text": "[Section: Test Plan – Manual Testing for Zero Bank Project > 6. Test Deliverables:]\n\n- Test Plan\n- Test Scenarios\n- Test Cases\n- RTM (Requirement Traceability Matrix)\n- Defect Report / Bug Report\n- Final Test Summary Report",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+      "doc_id": "Test_Plan.docx",
+      "chunk_index": 3,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Test_Plan.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Test Plan – Manual Testing for Zero Bank Project",
+          "6. Test Deliverables:"
+        ],
+        "heading_text": "6. Test Deliverables:",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:17.471784",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 3,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Test_Plan.docx_chunk_4",
+      "text": "[Section: Test Plan – Manual Testing for Zero Bank Project > 7. Entry Criteria:]\n\n- Application is deployed and stable\n- Requirements and functionalities are understood\n- Test cases are reviewed",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+      "doc_id": "Test_Plan.docx",
+      "chunk_index": 4,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Test_Plan.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Test Plan – Manual Testing for Zero Bank Project",
+          "7. Entry Criteria:"
+        ],
+        "heading_text": "7. Entry Criteria:",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:17.471784",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 4,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Test_Plan.docx_chunk_5",
+      "text": "[Section: Test Plan – Manual Testing for Zero Bank Project > 8. Exit Criteria:]\n\n- All critical test cases executed\n- All major bugs resolved\n- RTM is fully covered\n- Test summary report submitted",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+      "doc_id": "Test_Plan.docx",
+      "chunk_index": 5,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Test_Plan.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Test Plan – Manual Testing for Zero Bank Project",
+          "8. Exit Criteria:"
+        ],
+        "heading_text": "8. Exit Criteria:",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:17.471784",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 5,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Test_Plan.docx_chunk_6",
+      "text": "[Section: Test Plan – Manual Testing for Zero Bank Project > 9. Test Schedule (Timeline):]\n\n| Phase | Duration |\n| --- | --- |\n| Requirement Review | Day 1 |\n| Test Case Design | Day 2 – Day 3 |\n| Test Execution | Day 4 – Day 6 |\n| Bug Reporting/Retest | Day 5 – Day 6 |\n| Final Reporting | Day 7 |",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+      "doc_id": "Test_Plan.docx",
+      "chunk_index": 6,
+      "is_table": true,
+      "metadata": {
+        "doc_id": "Test_Plan.docx",
+        "chunk_type": "table",
+        "heading_breadcrumb": [
+          "Test Plan – Manual Testing for Zero Bank Project",
+          "9. Test Schedule (Timeline):"
+        ],
+        "heading_text": "9. Test Schedule (Timeline):",
+        "heading_level": 2,
+        "is_table": true,
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+        "original_file_format": "json",
+        "current_format": "markdown_table",
+        "uploaded_timestamp": "2026-03-27T11:37:17.471784",
+        "content_type": "table_data",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 6,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Test_Plan.docx_chunk_7",
+      "text": "[Section: Test Plan – Manual Testing for Zero Bank Project > 10. Roles and Responsibilities:]\n\n| Role | Name | Responsibility |\n| --- | --- | --- |\n| Test Lead | Tanay Puranik | Create plan, monitor progress |\n| Tester | Tanay Puranik | Design, execute, report bugs |",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+      "doc_id": "Test_Plan.docx",
+      "chunk_index": 7,
+      "is_table": true,
+      "metadata": {
+        "doc_id": "Test_Plan.docx",
+        "chunk_type": "table",
+        "heading_breadcrumb": [
+          "Test Plan – Manual Testing for Zero Bank Project",
+          "10. Roles and Responsibilities:"
+        ],
+        "heading_text": "10. Roles and Responsibilities:",
+        "heading_level": 2,
+        "is_table": true,
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+        "original_file_format": "json",
+        "current_format": "markdown_table",
+        "uploaded_timestamp": "2026-03-27T11:37:17.471784",
+        "content_type": "table_data",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 7,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Test_Plan.docx_chunk_8",
+      "text": "[Section: Test Plan – Manual Testing for Zero Bank Project > 11. Risks & Mitigation:]\n\n| Risk | Mitigation |\n| --- | --- |\n| Limited testing time | Prioritize critical test cases |",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+      "doc_id": "Test_Plan.docx",
+      "chunk_index": 8,
+      "is_table": true,
+      "metadata": {
+        "doc_id": "Test_Plan.docx",
+        "chunk_type": "table",
+        "heading_breadcrumb": [
+          "Test Plan – Manual Testing for Zero Bank Project",
+          "11. Risks & Mitigation:"
+        ],
+        "heading_text": "11. Risks & Mitigation:",
+        "heading_level": 2,
+        "is_table": true,
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+        "original_file_format": "json",
+        "current_format": "markdown_table",
+        "uploaded_timestamp": "2026-03-27T11:37:17.471784",
+        "content_type": "table_data",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 8,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Test_Plan.docx_chunk_9",
+      "text": "[Section: Test Plan – Manual Testing for Zero Bank Project > 12. Tools Used:]\n\n- Jira (for story/bug tracking and timeline)\n- Excel (for Test Cases, RTM)",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+      "doc_id": "Test_Plan.docx",
+      "chunk_index": 9,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Test_Plan.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Test Plan – Manual Testing for Zero Bank Project",
+          "12. Tools Used:"
+        ],
+        "heading_text": "12. Tools Used:",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Test_Plan.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:17.471784",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 9,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    }
+  ]
+}

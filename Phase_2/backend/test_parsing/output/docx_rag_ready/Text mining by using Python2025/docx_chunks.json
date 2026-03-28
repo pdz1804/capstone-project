@@ -1,0 +1,405 @@
+{
+  "metadata": {
+    "doc_id": "Text mining by using Python2025",
+    "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+    "num_sections": 12,
+    "total_chunks": 12,
+    "chunking_config": {
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "max_table_chunk_size": 2000
+    },
+    "created_at": "2026-03-27T11:36:21.674749"
+  },
+  "chunks": [
+    {
+      "id": "Text mining by using Python2025_chunk_0",
+      "text": "[Section: Text mining by using Python2025 > Text mining by using Python: Application to patent documents]\n\n（2025 Project description）  \nInstructor: Kazuyuki Motohashi (motohashi@tmi.t.u-tokyo.ac.jp) and his lab members",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 0,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Text mining by using Python: Application to patent documents"
+        ],
+        "heading_text": "Text mining by using Python: Application to patent documents",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 0,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_1",
+      "text": "[Section: Text mining by using Python2025 > Text mining by using Python: Application to patent documents > 1. Introduction]\n\nThis project is for understanding practices of applying NLP techniques for technology management analysis using patent text information. The project starts with a course work for one week with some preparatory activities, followed by individual project works (mainly topic modeling of some particular type of technology) for some weeks.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 1,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Text mining by using Python: Application to patent documents",
+          "1. Introduction"
+        ],
+        "heading_text": "1. Introduction",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 1,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_2",
+      "text": "[Section: Text mining by using Python2025 > Text mining by using Python: Application to patent documents > 2. Setting]\n\n- PC with Python: You need to install Python 3.X “anaconda” environment. We use “Jupyter notebook” inside “anaconda” for this project. It can be downloaded freely.\n- I will let you access to the shared drive of Google Suite of my laboratory (motolabo.net). Python_Text_Mining holder contains\n  - Some files used in this project (including this file)\n  - Coursera_video directory: Michigan U, “Applied Text Mining by Python”, referred as “VIDEO” here after\n  - Data for topic modeling project\n- Please check whether you could access to the following holder. If it is not the case, report to prof. Motohashi with your name and e-mail address.  \n  https://drive.google.com/drive/folders/1eIbsqmaCnY8tjryYRnriZ2Wu_stQl7g9?usp=sharing  \n  The folder of “Internahip_files” is only for those who did the phase 2 of this project, “innovation discovery from patent and web contents information”",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 2,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Text mining by using Python: Application to patent documents",
+          "2. Setting"
+        ],
+        "heading_text": "2. Setting",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 2,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_3",
+      "text": "[Section: Text mining by using Python2025 > Text mining by using Python: Application to patent documents > 3. Preparatory activities (Will be introduced at the orientation day)]\n\n- Preparatory activities to start course work is provided in the appendix 1.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 3,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Text mining by using Python: Application to patent documents",
+          "3. Preparatory activities (Will be introduced at the orientation day)"
+        ],
+        "heading_text": "3. Preparatory activities (Will be introduced at the orientation day)",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 3,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_4",
+      "text": "[Section: Text mining by using Python2025 > Text mining by using Python: Application to patent documents > 4. Whole structure]\n\n- Part 1 : June 9- June 13 : course works with practical exercise\n- Part 2 : June 16 – August 1 : internship project with real data",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 4,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Text mining by using Python: Application to patent documents",
+          "4. Whole structure"
+        ],
+        "heading_text": "4. Whole structure",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 4,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_5",
+      "text": "[Section: Text mining by using Python2025 > Text mining by using Python: Application to patent documents > 4. Whole structure > [Phase 1]: Learning text mining technique by small sample data : June 9 – June 13 (Orientation will take place on June 2, as follows)]\n\nVenue : Zoom Conference Room : https://u-tokyo-ac-jp.zoom.us/j/99083411670?pwd=U0dicHlONXNiUjBmUFU3Y1h6NWFZdz09  \nOrientation Day: June 2, 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)\n- Explanation of home works etc (Appendix 1)\n- Web crawling introduction by Suchit",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 5,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Text mining by using Python: Application to patent documents",
+          "4. Whole structure",
+          "[Phase 1]: Learning text mining technique by small sample data : June 9 – June 13 (Orientation will take place on June 2, as follows)"
+        ],
+        "heading_text": "[Phase 1]: Learning text mining technique by small sample data : June 9 – June 13 (Orientation will take place on June 2, as follows)",
+        "heading_level": 4,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 5,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_6",
+      "text": "[Section: Text mining by using Python2025 > Text mining by using Python: Application to patent documents > 4. Whole structure > [Phase 1]: Learning text mining technique by small sample data : June 9 – June 13 (Orientation will take place on June 2, as follows) > Day1: June 9, 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)]\n\n- Review of preparatory activities\n- How to convert technology contents info (in patent document) to numeric (vector) information? : Keyword extraction, TF-IDF, Word/Document embedding (such as Word2Vec)\n- HOMEWORK1: Extract three keywords by using TF-IDF score from 25 AI patents abstracts, supplied as a home work file. TF-IDF score can be obtained easily by Python module like “scikit-learn” and “genism”. But I would advice you to do it without such modules for your understanding of the concept. There are many hints over internet such as  \n  https://towardsdatascience.com/text-summarization-using-tf-idf-e64a0644ace3",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 6,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Text mining by using Python: Application to patent documents",
+          "4. Whole structure",
+          "[Phase 1]: Learning text mining technique by small sample data : June 9 – June 13 (Orientation will take place on June 2, as follows)",
+          "Day1: June 9, 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)"
+        ],
+        "heading_text": "Day1: June 9, 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)",
+        "heading_level": 5,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 6,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_7",
+      "text": "[Section: Text mining by using Python2025 > Text mining by using Python: Application to patent documents > 4. Whole structure > [Phase 1]: Learning text mining technique by small sample data : June 9 – June 13 (Orientation will take place on June 2, as follows) > Day 2: June 11, 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)]\n\n- Review of homework of Day 1\n- What are ML applications of patent text information?\n- Preprocessing of text: tokenization regularization (lowering character), stemming/lemmatization and stop words exclusion\n- Text processing of tf-idf vectors:\n  1. Create dictionary: mapping every word to a number\n  2. Corpus (list of bags of words) : a list of number of words occurring in each documents\n- HOMEWORK2: Calculation of similarity measures across each documents, and find out the closed documents of each of 25 AI patents : Now please use genism module, again there are many hints over internet such as “How do I compare document similarity using Python?” by Jonathan Mugan  \n  https://www.oreilly.com/content/how-do-i-compare-document-similarity-using-python/",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 7,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Text mining by using Python: Application to patent documents",
+          "4. Whole structure",
+          "[Phase 1]: Learning text mining technique by small sample data : June 9 – June 13 (Orientation will take place on June 2, as follows)",
+          "Day 2: June 11, 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)"
+        ],
+        "heading_text": "Day 2: June 11, 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)",
+        "heading_level": 5,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 7,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_8",
+      "text": "[Section: Text mining by using Python2025 > Text mining by using Python: Application to patent documents > 4. Whole structure > [Phase 1]: Learning text mining technique by small sample data : June 9 – June 13 (Orientation will take place on June 2, as follows) > Day 3: June 13 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)]\n\n- Review of homework of Day2\n- Understanding technology trend by patent information (clustering vs topic modeling)\n- Watch VIDEO 16&17\n  1. Understanding the concept of topic modeling\n  2. LDA model by using genism module\n- Some references\n  1. There is a very easy to read document of LDA model available in the shared drive. (Beginners_Guide_Topic_Modeling.doc)\n  2. Good reference about topic modeling by genism https://www.machinelearningplus.com/nlp/topic-modeling-gensim-python/",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 8,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Text mining by using Python: Application to patent documents",
+          "4. Whole structure",
+          "[Phase 1]: Learning text mining technique by small sample data : June 9 – June 13 (Orientation will take place on June 2, as follows)",
+          "Day 3: June 13 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)"
+        ],
+        "heading_text": "Day 3: June 13 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)",
+        "heading_level": 5,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 8,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_9",
+      "text": "[Section: Text mining by using Python2025 > Text mining by using Python: Application to patent documents > 4. Whole structure > [Phase 2]: Project work with final presentation : June 16 – August 1]\n\nOrientation Day: June 16, 10:00-12:00 Thai& Vietnam Time (12:00-14:00, JST)\n- Orientation of phase 2\n- Dual Attention Model\n  (Outline of works, details to be announced)\n- This process is using NLP techniques above to real world exercises, such as technology opportunity discovery tasks. Please refer to the following Youtube video for this research project.  \n  https://www.youtube.com/watch?v=Y6TIHxfKsmM&t=581s\n- Major tasks are scraping company’s web pages and using such text information together with patent information to predict market opportunities based on particular type of technology.\n- Web scraping task will start after June 2 orientation (with a short course of web scraping)\n- Some research assistant honorarium will be offered to this works.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 9,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Text mining by using Python: Application to patent documents",
+          "4. Whole structure",
+          "[Phase 2]: Project work with final presentation : June 16 – August 1"
+        ],
+        "heading_text": "[Phase 2]: Project work with final presentation : June 16 – August 1",
+        "heading_level": 4,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 9,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_10",
+      "text": "[Section: Text mining by using Python2025 > Appendix1 Preparatory Homework]\n\n1. Python environment and understanding on basic command\n   - You need to bring your own PC with Python 3.X anaconda environment, particularly Jupyter notebook (download for free)\n   - Familiarize yourself with basic Python function dealing with text, such as making word list from sentence, word count and distribution\n   - Playing with NLTK library of Python\n2. Tasks\n   - Watch Video 01,05 and 06 in “Coursera_Video” directory) for the following contents\n   - What is National Language Processing?\n   - Playing with NLTK (Natural Language Processing Tool Kit)\n   - Use the patent abstract data (25 AI related patent abstracts, provided as “homework.csv”), to calculate\n     - How many sentences, words, unique words\n     - List of words occurring no less than 10 times and no less than 5 character lengths\n     - After regularization (lowering characters), then comparing the case of Porter Stemmer and Lenmatizer. Compare the results and which one would you think it is better and why?",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 10,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Appendix1 Preparatory Homework"
+        ],
+        "heading_text": "Appendix1 Preparatory Homework",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 10,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    },
+    {
+      "id": "Text mining by using Python2025_chunk_11",
+      "text": "[Section: Text mining by using Python2025 > Appendix1 Preparatory Homework]\n\ncharacter lengths\n     - After regularization (lowering characters), then comparing the case of Porter Stemmer and Lenmatizer. Compare the results and which one would you think it is better and why?\n     - Any other observations?\n3. Notes\n   - You may go ahead to watching other videos, but I will give you some general directions.\n   - VIDEO 02 and 03 are for regular expression, working with Pandas module of python (concept of “data framework”) : No need to worry about them for now, but it will be useful for rule based text manipulations.\n   - VIDEO 04 is for character code information for various languages (Python’s default character set is UFT-8, no need to worry about this for now either.\n   - Watching VIDEO 07 is optional (could be helpful for your subsequent tasks)",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+      "doc_id": "Text mining by using Python2025",
+      "chunk_index": 11,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Text mining by using Python2025",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Text mining by using Python2025",
+          "Appendix1 Preparatory Homework"
+        ],
+        "heading_text": "Appendix1 Preparatory Homework",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Text mining by using Python2025.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:36:21.674749",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 11,
+        "total_chunks": 12
+      },
+      "total_chunks": 12
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "document_type": "document",
+  "doc_id": "Requirement_Doc.docx",
+  "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+  "num_sections": 17,
+  "has_docx_chunks": true,
+  "has_images": false,
+  "num_images": 0,
+  "consolidated_at": "2026-03-27T11:38:47.487230",
+  "source_stage": "docx_preprocessor"
+}
