@@ -1,0 +1,96 @@
+# Phase 2 AI Service — same stack as Phase_2 backend, plus Qdrant + SageMaker client.
+# FAISS: CPU build for portability (rag_retrievers still imports faiss for legacy helpers).
+#
+# ------------------------------------------------------------------------------
+# PyTorch CUDA 12.8 (win_amd64 / cp311): must satisfy colpali-engine==0.3.13 → torch>=2.2,<2.9.
+# So use 2.8.x+cu128 (NOT 2.11+cu128 — pip raises ResolutionImpossible with colpali).
+# Newer colpali-engine 0.3.14 allows torch<2.11 but requires transformers>=5, peft>=0.18 (bigger bump).
+# CUDA: --extra-index-url is required for +cu128 wheels.
+# Install needs several GB free on the drive used for TEMP + pip cache (torch wheel ~3.5 GB).
+# If Errno 28: free disk space, run `pip cache purge`, or set TEMP to a larger drive before pip.
+# ------------------------------------------------------------------------------
+
+--extra-index-url https://download.pytorch.org/whl/cu128
+
+# llama-index-core needs setuptools>=80.9; cap <82 if a future torch wheel pins setuptools again:
+setuptools>=80.9.0,<82
+
+transformers==4.57.3
+peft==0.14.0
+sentence-transformers==3.0.1
+accelerate>=0.30.0
+huggingface-hub>=0.23.0
+
+colpali-engine==0.3.13
+ragatouille>=0.0.8
+
+docling[all]>=2.0.0
+docling-core>=2.0.0
+docling-parse>=2.0.0
+bitsandbytes
+
+python-docx
+python-pptx
+openpyxl
+pandas
+tabulate
+beautifulsoup4
+lxml
+html5lib
+Pillow
+img2pdf
+pdf2image
+reportlab
+
+moviepy
+pydub
+librosa
+soundfile
+audioread
+openai-whisper
+
+# PyTorch — ColPali-compatible CUDA 12.8 stack (cp311 win_amd64)
+torch==2.8.0+cu128
+torchvision==0.23.0+cu128
+torchaudio==2.8.0+cu128
+opencv-python
+
+pytesseract
+easyocr
+rapidocr-onnxruntime
+
+faiss-cpu
+rank-bm25
+datasets
+
+openai
+python-dotenv
+qdrant-client>=1.9.0
+boto3>=1.34.0
+strands-agents
+strands-agents-tools
+
+loguru
+tqdm
+python-magic
+filetype
+pyyaml
+toml
+numpy
+scipy
+psutil
+
+pytest
+pytest-cov
+black
+flake8
+mypy
+
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+pydantic-settings>=2.0.0
+firebase-admin>=6.5.0
+email-validator>=2.2.0
+pydantic[email]

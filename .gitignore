@@ -619,5 +619,8 @@ _bmad/
 _bmad-output/
 .claude/
 .cursor/
-.github/
+.github/*
+!.github/workflows/
+!.github/workflows/*.yml
+!.github/workflows/*.yaml
 .windsurf/

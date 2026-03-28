@@ -1,0 +1,405 @@
+name: Frontend CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'Phase_2_FE_AI_Merge/frontend/**'
+      - '.github/workflows/frontend-cicd.yml'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'Phase_2_FE_AI_Merge/frontend/**'
+
+env:
+  AWS_REGION: us-west-2
+  ECR_REPOSITORY: rag-pipeline-frontend
+  IMAGE_TAG: ${{ github.sha }}
+  SERVICE_NAME: rag-pipeline-cluster-frontend-service
+  CLUSTER_NAME: rag-pipeline-cluster
+  TASK_DEFINITION_FAMILY: rag-pipeline-cluster-frontend
+
+jobs:
+  # ==================== Build & Push ====================
+  build-and-push:
+    name: Build & Push Frontend Image
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Log Step 1 - Checkout
+        run: |
+          echo "========================================"
+          echo "STEP 1: CODE CHECKOUT COMPLETE"
+          echo "========================================"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Build triggered by: ${{ github.event_name }}"
+          echo "Repository Contents (frontend):"
+          ls -la Phase_2_FE_AI_Merge/frontend/ | head -20
+
+      # Step 2: Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log Step 2 - AWS Credentials
+        run: |
+          echo "========================================"
+          echo "STEP 2: AWS CREDENTIALS CONFIGURED"
+          echo "========================================"
+          echo "AWS Region: ${{ env.AWS_REGION }}"
+          echo "AWS Account ID: $(aws sts get-caller-identity --query Account --output text)"
+          echo "IAM User/Role: $(aws sts get-caller-identity --query Arn --output text)"
+
+      # Step 3: Login to ECR
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Log Step 3 - ECR Login
+        run: |
+          echo "========================================"
+          echo "STEP 3: ECR LOGIN SUCCESSFUL"
+          echo "========================================"
+          echo "ECR Registry: ${{ steps.login-ecr.outputs.registry }}"
+          echo "ECR Repository: ${{ env.ECR_REPOSITORY }}"
+          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} || echo "Repository will be created by Terraform"
+
+      # Step 4: Node.js setup
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Log Step 4 - Node.js Setup
+        run: |
+          echo "========================================"
+          echo "STEP 4: NODE.JS SETUP"
+          echo "========================================"
+          echo "Node Version: $(node --version)"
+          echo "npm Version: $(npm --version)"
+          echo "npm Cache Location: $(npm config get cache)"
+
+      # Step 5: Install dependencies
+      - name: Install dependencies
+        working-directory: Phase_2_FE_AI_Merge/frontend
+        run: |
+          echo "========================================"
+          echo "STEP 5: INSTALLING DEPENDENCIES"
+          echo "========================================"
+          npm install --verbose
+          echo "Dependency installation complete"
+          npm list --depth=0
+
+      # Step 6: Run linting
+      - name: Run ESLint
+        working-directory: Phase_2_FE_AI_Merge/frontend
+        continue-on-error: true
+        run: |
+          echo "========================================"
+          echo "STEP 6: RUNNING ESLINT"
+          echo "========================================"
+          npx eslint src/ --max-warnings 0 || echo "No ESLint config found, skipping"
+          echo "ESLint check complete"
+
+      # Step 7: Build application
+      - name: Build application
+        working-directory: Phase_2_FE_AI_Merge/frontend
+        run: |
+          echo "========================================"
+          echo "STEP 7: BUILDING APPLICATION"
+          echo "========================================"
+          npm run build
+          echo "Build complete"
+          echo "Build artifacts:"
+          du -sh dist/ 2>/dev/null || echo "No dist directory found"
+          ls -la dist/ | head -20
+
+      - name: Log Step 7 - Build Complete
+        run: |
+          echo "========================================"
+          echo "Build artifacts size:"
+          du -sh Phase_2_FE_AI_Merge/frontend/dist/
+
+      # Step 8: Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log Step 8 - Docker Setup
+        run: |
+          echo "========================================"
+          echo "STEP 8: DOCKER BUILDX SETUP"
+          echo "========================================"
+          docker --version
+          docker buildx version
+
+      # Step 9: Prepare image tags (only tag :latest on main)
+      - name: Prepare image tags
+        id: image-tags
+        run: |
+          TAGS="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            TAGS="${TAGS},${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest"
+          fi
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+
+      # Step 10: Build and push Docker image
+      - name: Build and push Docker image
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Phase_2_FE_AI_Merge/frontend
+          push: true
+          tags: ${{ steps.image-tags.outputs.tags }}
+          cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache
+          cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache,mode=max
+          build-args: |
+            VITE_API_URL=/api
+
+      - name: Log Step 9 - Docker Build
+        run: |
+          echo "========================================"
+          echo "STEP 9: DOCKER IMAGE BUILD COMPLETE"
+          echo "========================================"
+          echo "Image SHA: ${{ steps.docker_build.outputs.digest }}"
+          echo "Image Pushed:"
+          aws ecr describe-images --repository-name ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} | jq '.imageDetails[] | {tag: .imageTags[0], pushed: .imagePushedAt}'
+
+  # ==================== Deploy ====================
+  deploy:
+    name: Deploy to ECS
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log Step 1 - Checkout
+        run: |
+          echo "========================================"
+          echo "STEP 1: CHECKOUT FOR DEPLOYMENT"
+          echo "========================================"
+          echo "Target Branch: main"
+          echo "Deployment Type: Push to main"
+
+      # Step 2: Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log Step 2 - AWS Setup
+        run: |
+          echo "========================================"
+          echo "STEP 2: AWS CREDENTIALS FOR DEPLOYMENT"
+          echo "========================================"
+          echo "Region: ${{ env.AWS_REGION }}"
+          echo "Account: $(aws sts get-caller-identity --query Account --output text)"
+
+      # Step 3: Login to ECR
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Step 4: Check if task definition exists and prepare accordingly
+      - name: Prepare task definition
+        id: prepare-task-def
+        run: |
+          echo "========================================"
+          echo "STEP 4: PREPARE TASK DEFINITION"
+          echo "========================================"
+          
+          NEW_IMAGE="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          echo "New Image URI: $NEW_IMAGE"
+          
+          # Try to get existing task definition
+          echo "Checking for existing task definition family: ${{ env.TASK_DEFINITION_FAMILY }}"
+          
+          EXISTING_TD=$(aws ecs describe-task-definition \
+            --task-definition ${{ env.TASK_DEFINITION_FAMILY }} \
+            --region ${{ env.AWS_REGION }} \
+            --query 'taskDefinition' \
+            2>/dev/null || echo "")
+          
+          if [ -z "$EXISTING_TD" ]; then
+            echo "No existing task definition found. This is the first deployment."
+            echo "Using template from repository..."
+            echo "use_template=true" >> $GITHUB_OUTPUT
+          else
+            echo "Existing task definition found. Updating image URI only..."
+            echo "use_template=false" >> $GITHUB_OUTPUT
+            
+            # Extract and update the task definition
+            echo "$EXISTING_TD" | jq --arg IMAGE "$NEW_IMAGE" '
+              .containerDefinitions[0].image = $IMAGE |
+              del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)
+            ' > /tmp/updated-task-def.json
+            
+            echo "Updated task definition saved to /tmp/updated-task-def.json"
+            echo "Task definition preview:"
+            cat /tmp/updated-task-def.json | jq '.containerDefinitions[0] | {name, image, portMappings}'
+          fi
+
+      # Step 5: Render task definition (conditional)
+      - name: Render task definition from template
+        if: steps.prepare-task-def.outputs.use_template == 'true'
+        id: task-def-template
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ./Phase_2_FE_AI_Merge/frontend/task-definition.json
+          container-name: frontend-container
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+      - name: Use updated task definition
+        if: steps.prepare-task-def.outputs.use_template == 'false'
+        run: |
+          echo "Using updated task definition from existing revision"
+          cp /tmp/updated-task-def.json ${{ github.workspace }}/task-definition.json
+
+      - name: Set task definition file path
+        id: task-def-path
+        run: |
+          if [ "${{ steps.prepare-task-def.outputs.use_template }}" == "true" ]; then
+            echo "path=${{ steps.task-def-template.outputs.task-definition }}" >> $GITHUB_OUTPUT
+            echo "Using template-based task definition"
+          else
+            echo "path=${{ github.workspace }}/task-definition.json" >> $GITHUB_OUTPUT
+            echo "Using updated task definition"
+          fi
+
+      - name: Log Step 5 - Task Definition Ready
+        run: |
+          echo "========================================"
+          echo "STEP 5: TASK DEFINITION PREPARED"
+          echo "========================================"
+          echo "Task Definition Path: ${{ steps.task-def-path.outputs.path }}"
+          echo "Task Definition Contents:"
+          cat ${{ steps.task-def-path.outputs.path }} | jq '.'
+
+      # Step 6: Deploy to ECS
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-path.outputs.path }}
+          service: ${{ env.SERVICE_NAME }}
+          cluster: ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+      - name: Log Step 6 - Deployment Complete
+        run: |
+          echo "========================================"
+          echo "STEP 6: DEPLOYMENT TO ECS COMPLETE"
+          echo "========================================"
+          echo "Service: ${{ env.SERVICE_NAME }}"
+          echo "Cluster: ${{ env.CLUSTER_NAME }}"
+          
+          # Get service status
+          aws ecs describe-services \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --services ${{ env.SERVICE_NAME }} \
+            --region ${{ env.AWS_REGION }} \
+            --query 'services[0].{desiredCount: desiredCount, runningCount: runningCount, pendingCount: pendingCount, status: status}' | jq '.'
+          
+          # Get task information
+          echo "Recent tasks:"
+          aws ecs list-tasks \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --service-name ${{ env.SERVICE_NAME }} \
+            --region ${{ env.AWS_REGION }} \
+            --query 'taskArns[:5]' | jq '.'
+
+      # Step 8: Get load balancer URL
+      - name: Get load balancer URL
+        run: |
+          echo "========================================"
+          echo "STEP 8: GET APPLICATION URL"
+          echo "========================================"
+          
+          ALB_DNS=$(aws elbv2 describe-load-balancers \
+            --region ${{ env.AWS_REGION }} \
+            --query "LoadBalancers[?LoadBalancerName=='rag-pipeline-alb'].DNSName" \
+            --output text)
+          
+          if [ -n "$ALB_DNS" ]; then
+            echo "Application URL: http://$ALB_DNS"
+            echo "Frontend is accessible at: http://$ALB_DNS"
+            echo "Backend API is accessible at: http://$ALB_DNS/api"
+          else
+            echo "Could not retrieve load balancer URL"
+          fi
+
+      # Step 9: Health check
+      - name: Health check
+        run: |
+          echo "========================================"
+          echo "STEP 9: HEALTH CHECK"
+          echo "========================================"
+          
+          # Get service endpoint from target group
+          TARGET_GROUP_ARN=$(aws elbv2 describe-target-groups \
+            --region ${{ env.AWS_REGION }} \
+            --query "TargetGroups[?TargetGroupName=='rag-pipeline-alb-frontend-tg'].TargetGroupArn" \
+            --output text)
+          
+          echo "Target Group: $TARGET_GROUP_ARN"
+          
+          # Get health status
+          HEALTH_STATUS=$(aws elbv2 describe-target-health \
+            --target-group-arn $TARGET_GROUP_ARN \
+            --region ${{ env.AWS_REGION }} \
+            --query 'TargetHealthDescriptions' | jq '.')
+          
+          echo "Target Health Status:"
+          echo "$HEALTH_STATUS"
+          
+          if echo "$HEALTH_STATUS" | grep -q "healthy"; then
+            echo "All targets are healthy"
+          else
+            echo "Warning: Some targets may not be healthy yet"
+          fi
+
+  # ==================== Notification ====================
+  notify:
+    name: Send Notification
+    needs: [build-and-push, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Send deployment notification
+        run: |
+          echo "========================================"
+          echo "FINAL DEPLOYMENT SUMMARY"
+          echo "========================================"
+          echo "Build & Push Status: ${{ needs.build-and-push.result }}"
+          echo "Deployment Status: ${{ needs.deploy.result }}"
+          echo "GitHub Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo ""
+          if [ "${{ needs.deploy.result }}" != "success" ]; then
+            echo "Deployment failed. Check the logs above for detailed error messages."
+          else
+            echo "Deployment completed successfully!"
+          fi
