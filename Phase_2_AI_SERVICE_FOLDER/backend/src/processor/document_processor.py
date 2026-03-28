@@ -31,53 +31,46 @@ try:
     from docling.document_converter import DocumentConverter
     from docling.datamodel.base_models import InputFormat
     from docling.datamodel.pipeline_options import (
-        PipelineOptions, 
+        PipelineOptions,
         PdfPipelineOptions,
-        OcrOptions,
-        TesseractOcrOptions,
-        EasyOcrOptions,
-        RapidOcrOptions,
-        VlmPipelineOptions,
-        PictureDescriptionVlmOptions,
-        AsrPipelineOptions
     )
-    
+
     # Try to import advanced features (may not be available in all versions)
     try:
         from docling.datamodel.pipeline_options import TableStructureOptions
     except ImportError:
         TableStructureOptions = None
-    
+
     try:
         from docling.backend.docling_parse_backend import DoclingParseDocumentBackend
     except ImportError:
         DoclingParseDocumentBackend = None
-    
+
     try:
         from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
     except ImportError:
         PyPdfiumDocumentBackend = None
-    
+
     DOCLING_AVAILABLE = True
 except ImportError as e:
     logging.warning(f"Docling not fully available: {e}")
     DOCLING_AVAILABLE = False
-    
+
     # Create dummy classes for development/testing without Docling
     class DocumentConverter:
         def __init__(self, **kwargs):
             raise ImportError("Docling not installed. Please install with: pip install docling[all]")
-        
+
         def convert(self, source):
             raise ImportError("Docling not installed")
-    
+
     class InputFormat:
         PDF = "pdf"
         IMAGE = "image"
-        PNG = "png" 
+        PNG = "png"
         JPEG = "jpeg"
         AUDIO = "audio"
-    
+
     class PipelineOptions:
         def __init__(self):
             pass
@@ -86,7 +79,6 @@ except ImportError as e:
 try:
     from docling.datamodel.pipeline_options import OcrOptions, TesseractOcrOptions, EasyOcrOptions, RapidOcrOptions
 except ImportError:
-    # Create dummy OCR classes
     class OcrOptions:
         pass
     class TesseractOcrOptions:
@@ -103,6 +95,13 @@ try:
     from docling.datamodel.pipeline_options import VlmPipelineOptions
 except ImportError:
     class VlmPipelineOptions:
+        def __init__(self, **kwargs):
+            pass
+
+try:
+    from docling.datamodel.pipeline_options import PictureDescriptionVlmOptions
+except ImportError:
+    class PictureDescriptionVlmOptions:
         def __init__(self, **kwargs):
             pass
 

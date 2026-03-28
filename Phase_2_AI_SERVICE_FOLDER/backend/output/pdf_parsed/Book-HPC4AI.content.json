@@ -1,0 +1,656 @@
+[
+  {
+    "heading_text": "Intelligence",
+    "heading_level": 1,
+    "children": [
+      {
+        "heading_text": "Workloads",
+        "heading_level": 2,
+        "children": [
+          {
+            "heading_text": "Jordi Torres",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "2025",
+                "heading_level": 4,
+                "children": [],
+                "content": "SUPERCOMPUTING FOR ARTIFICIAL INTELLIGENCE\nFoundations, Architectures, and Scaling Deep Learning\nJordi Torres\nWATCH THIS SPACE Book Series – Barcelona: Book 8\nKindle Direct Publishing\nISBN  979-831932835-9\nFirst edition. August 2025\nCover illustration: Supercomputer Marenostrum 5\nJordi Torres\nhttps://www.torres.ai\nUniversitat Politècnica de Catalunya - UPC Barcelona Tech\nCampus Nord, mòdul C6\nJordi Girona 1-3\n08034 Barcelona\nLicense\nThis book is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-\nNC 4.0). You are free to copy, distribute, and adapt portions of the work, provided that proper credit is given to\nthe author and source, and no commercial use is made without prior authorization.\nFor more information on this license, please visit: https://creativecommons.org/licenses/by-nc/4.0/\nTransparency note\nAI-based tools such as Google Translate, ChatGPT, and Grammarly were used to support the writing, illustration,\nand language editing processes of this book. All content and figures were fully conceived, structured, and reviewed\nby the author.\nHow to cite this book\nTorres, Jordi. (2025). Supercomputing for Artificial Intelligence: Foundations, Architectures, and Scaling Deep Learning. WATCH\nTHIS SPACE Book Series – Barcelona. Amazon KDP. ISBN  979-831932835-9.\n[START_IMAGE_PATH] images/img_003_00.png|aa2e5b99dc56 [END_IMAGE_PATH]"
+              }
+            ],
+            "content": "[START_IMAGE_PATH] images/img_002_00.png|b0125e057039 [END_IMAGE_PATH]"
+          },
+          {
+            "heading_text": "Table of Contents ZZZ",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "MAPPING TECHNOLOGIES TO BOOK CHAPTERS ............................................. 37",
+                "heading_level": 4,
+                "children": [],
+                "content": "LIST OF TASKS ....................................................................................... 39"
+              },
+              {
+                "heading_text": "What is Supercomputing? ........................................................... 47",
+                "heading_level": 4,
+                "children": [],
+                "content": "High Performance Computing vs. Supercomputing ............................................................. 48\nParallelism: The Cornerstone of High Performance Computing ......................................... 50\nUnderstanding Parallel Computer Architectures .................................................................. 54\nHow Supercomputing Powers Modern Science ................................................................... 59\nBarcelona Supercomputing Center ....................................................................................... 61"
+              },
+              {
+                "heading_text": "Performance in Supercomputing ................................................. 62",
+                "heading_level": 4,
+                "children": [],
+                "content": "Performance and Metrics ...................................................................................................... 62\nStandard Benchmarks in HPC .............................................................................................. 63\nMeasuring and Understanding Parallel Performance ........................................................... 68\nSpeedup Bounds and Scalability Models .............................................................................. 77"
+              },
+              {
+                "heading_text": "Compute Nodes ......................................................................... 89",
+                "heading_level": 4,
+                "children": [],
+                "content": "Main Components ................................................................................................................ 89\nMarenostrum 5 Computer Nodes ......................................................................................... 93\nAccessing Marenostrum 5 Resources ................................................................................... 99"
+              },
+              {
+                "heading_text": "Storage in Supercomputing ....................................................... 102",
+                "heading_level": 4,
+                "children": [],
+                "content": "Parallel File Systems in HPC .............................................................................................. 102\nParallel File System in MareNostrum 5 .............................................................................. 105\nWorking with Files on MareNostrum 5 .............................................................................. 108"
+              },
+              {
+                "heading_text": "Interconnection Networks in Supercomputing ............................. 111",
+                "heading_level": 4,
+                "children": [],
+                "content": "Bandwidth and Latency Metrics in Supercomputing ......................................................... 111\nInterconnection Networks in HPC Systems ....................................................................... 112\nInterconnect Architecture in MareNostrum 5 .................................................................... 114"
+              },
+              {
+                "heading_text": "Data Center Infrastructure ....................................................... 117",
+                "heading_level": 4,
+                "children": [],
+                "content": "General Concepts of HPC Data Centers ............................................................................ 117\nMareNostrum 5 Data Center at BSC ................................................................................. 121"
+              },
+              {
+                "heading_text": "Key Takeaways from Chapter 2 ................................................. 126",
+                "heading_level": 4,
+                "children": [],
+                "content": "3 SUPERCOMPUTING SOFTWARE ENVIRONMENT AND TOOLS ..................... 129"
+              },
+              {
+                "heading_text": "Base Software Stack ................................................................. 129",
+                "heading_level": 4,
+                "children": [],
+                "content": "Foundational Software Stack .............................................................................................. 129\nEnvironment Modules System ............................................................................................ 130\nCompiling and Running C Programs ................................................................................. 131"
+              },
+              {
+                "heading_text": "Workload Management with SLURM ......................................... 137",
+                "heading_level": 4,
+                "children": [],
+                "content": "The Essentials of SLURM .................................................................................................. 137\nJob Directives ...................................................................................................................... 143\nComputing Resource Allocation ......................................................................................... 148"
+              },
+              {
+                "heading_text": "Getting Started with Docker Containers ..................................... 154",
+                "heading_level": 4,
+                "children": [],
+                "content": "Docker basics ...................................................................................................................... 155\nLaunching a Jupyter Notebook server inside a Docker container ...................................... 160"
+              },
+              {
+                "heading_text": "Containerization with Singularity .............................................. 162",
+                "heading_level": 4,
+                "children": [],
+                "content": "Containers in Supercomputing ........................................................................................... 162\nBuilding Containers ............................................................................................................ 165"
+              },
+              {
+                "heading_text": "PART II — THE PARALLEL EXECUTION LAYER",
+                "heading_level": 4,
+                "children": [],
+                "content": "4 LAUNCHING AND STRUCTURING PARALLEL PROGRAMS WITH MPI ............ 177"
+              },
+              {
+                "heading_text": "Foundations of Parallel Execution on Supercomputers ................. 177",
+                "heading_level": 4,
+                "children": [],
+                "content": "How We Launch Parallel Jobs in This Book ...................................................................... 177\nWhy Parallel Programming Models Matter ....................................................................... 180"
+              },
+              {
+                "heading_text": "Getting Started with MPI .......................................................... 183",
+                "heading_level": 4,
+                "children": [],
+                "content": "MPI Hello World ................................................................................................................ 184\nmpirun Launcher ................................................................................................................ 184\nsrun Launcher ..................................................................................................................... 186\nKey MPI Concepts .............................................................................................................. 190"
+              },
+              {
+                "heading_text": "Case Study: Parallelizing the Trapezoidal Rule Example ............... 193",
+                "heading_level": 4,
+                "children": [],
+                "content": "Serial Implementation ......................................................................................................... 195\nMPI Parallel Version ........................................................................................................... 196\nHandling I/O in MPI Programs ......................................................................................... 205\nBarrier Synchronization ...................................................................................................... 206"
+              },
+              {
+                "heading_text": "Collective Communication Primitives ......................................... 207",
+                "heading_level": 4,
+                "children": [],
+                "content": "Broadcast ............................................................................................................................. 207\nReduction Operations ......................................................................................................... 208\nScatter and Gather .............................................................................................................. 209\nAdvanced Patterns ............................................................................................................... 210"
+              },
+              {
+                "heading_text": "Foundations of GPU Acceleration and CUDA Programming ........... 215",
+                "heading_level": 4,
+                "children": [],
+                "content": "Accelerators in Supercomputing ......................................................................................... 215\nCUDA: A Programming Platform for GPUs ...................................................................... 220\nCore CUDA Libraries for Accelerated Computing ............................................................ 221"
+              },
+              {
+                "heading_text": "Getting Started with CUDA: Threads, Kernels, and Memory ......... 223",
+                "heading_level": 4,
+                "children": [],
+                "content": "Hello World in CUDA ........................................................................................................ 223\nThreads Organization ......................................................................................................... 226\nMemory Management ........................................................................................................ 231\nLaunching a CUDA Kernel ................................................................................................ 236\nLooking Ahead: Topics Beyond the Basics ......................................................................... 241"
+              },
+              {
+                "heading_text": "Case study: Matrix Multiplication in CUDA ................................. 243",
+                "heading_level": 4,
+                "children": [],
+                "content": "Handling Errors .................................................................................................................. 244\nManaging Flattened Matrices ............................................................................................. 244\nAllocating a GPU with SLURM ......................................................................................... 248\nTiming the kernel ................................................................................................................ 249\nPerformance and Scalability Analysis Using  nvprof .......................................................... 252"
+              },
+              {
+                "heading_text": "H100: A Platform for Parallel and Distributed Computation .......... 257",
+                "heading_level": 4,
+                "children": [],
+                "content": "Streaming Multiprocessors (SMs) ........................................................................................ 258\nUnderstanding the CUDA Execution Model: Threads, Warps and Blocks ....................... 261\nTensor Cores: Accelerating Matrix Operations for AI ....................................................... 264\nHBM3: Ultra-Fast On-Board Memory ............................................................................... 268"
+              },
+              {
+                "heading_text": "High-Speed Communication for Multi-GPU Systems .................... 269",
+                "heading_level": 4,
+                "children": [],
+                "content": "Inter-GPU Communication Challenges in Modern AI Supercomputing .......................... 269\nNVLink: Fast GPU-to-GPU Communication .................................................................... 270\nPCI Express Gen 5: Faster CPU–GPU Communication ................................................... 271\nNetworking for Distributed GPU Systems: RDMA and GPUDirect ................................. 272\nOther Interconnect Technologies and Communication Protocols ..................................... 274"
+              },
+              {
+                "heading_text": "Distributed Computing with CUDA-aware MPI ........................... 274",
+                "heading_level": 4,
+                "children": [],
+                "content": "CUDA-aware MPI ............................................................................................................. 275\nHow does CUDA-aware MPI work? .................................................................................. 276"
+              },
+              {
+                "heading_text": "NCCL: Collective Communication for GPUs ................................ 277",
+                "heading_level": 4,
+                "children": [],
+                "content": "Limitations of MPI for GPU-Accelerated Workloads ........................................................ 277\nDesign Principles of NCCL ................................................................................................ 278\nOther Software Level Comunication Libraries .................................................................. 279"
+              },
+              {
+                "heading_text": "Case Study: Distributed GPU Computing .................................... 280",
+                "heading_level": 4,
+                "children": [],
+                "content": "Jacobi Algorithm ................................................................................................................. 281\nRunning the Jacobi Code ................................................................................................... 284\nPerformance Benchmarking and Scalability Analysis ........................................................ 290"
+              },
+              {
+                "heading_text": "The Rise of AI and the Role of Supercomputing ........................ 303",
+                "heading_level": 4,
+                "children": [],
+                "content": "How Humans Created the First AI: The Knowledge Paradigm ........................................ 303\nHow AI Began Learning from Humans: The Data Paradigm ........................................... 306\nWhen AI Learned from Experience: The Reinforcement Paradigm ................................. 308\nWhen AI Began to Create: The Generative Paradigm ...................................................... 310"
+              },
+              {
+                "heading_text": "An Artificial Neuron ................................................................. 312",
+                "heading_level": 4,
+                "children": [],
+                "content": "A Basic Deep Learning Example ........................................................................................ 312\nIntroduction to Basic Terminology and Notation .............................................................. 315\nRegression Algorithms ........................................................................................................ 318\nA Simple Artificial Neuron ................................................................................................. 318"
+              },
+              {
+                "heading_text": "Neural Networks ..................................................................... 321",
+                "heading_level": 4,
+                "children": [],
+                "content": "Perceptron ........................................................................................................................... 322\nMultilayer Perceptron ......................................................................................................... 323\nMultilayer Perceptron for Classification ............................................................................. 326"
+              },
+              {
+                "heading_text": "Neural Networks with TensorFlow ............................................. 330",
+                "heading_level": 4,
+                "children": [],
+                "content": "Loading Data with Keras .................................................................................................... 330\nInput Data Preprocessing For a Neural Neuronal .............................................................. 333\nModel Definition ................................................................................................................. 335\nLearning Process Configuration ......................................................................................... 338\nTraining the Model ............................................................................................................. 339\nModel Evaluation ................................................................................................................ 340\nGenerating Predictions ....................................................................................................... 342"
+              },
+              {
+                "heading_text": "Key Takeaways from Chapter 7 ................................................. 347",
+                "heading_level": 4,
+                "children": [],
+                "content": "8 TRAINING NEURAL NETWORKS: BASICS, CNNS, AND DEPLOYMENT .............. 349"
+              },
+              {
+                "heading_text": "Understanding the Training Process .......................................... 349",
+                "heading_level": 4,
+                "children": [],
+                "content": "Learning Process ................................................................................................................. 349\nGradient Descent ................................................................................................................ 354"
+              },
+              {
+                "heading_text": "Parameters and Hyperparameters in Neural Networks ................. 357",
+                "heading_level": 4,
+                "children": [],
+                "content": "Model Parameterization ...................................................................................................... 357\nHyperparameters Related to the Learning Algorithm ........................................................ 359\nActivation Functions ............................................................................................................ 362"
+              },
+              {
+                "heading_text": "Convolutional Neural Networks ................................................. 364",
+                "heading_level": 4,
+                "children": [],
+                "content": "Introduction to Convolutional Neural Networks ................................................................ 364\nBuilding a Basic CNN in Keras ........................................................................................... 368\nCoding Convolutional Neural Network .............................................................................. 372"
+              },
+              {
+                "heading_text": "Pretrained Networks and Transfer Learning ............................... 377",
+                "heading_level": 4,
+                "children": [],
+                "content": "What is Transfer Learning? ................................................................................................. 377\nNamed Architectures and Pretrained Networks ................................................................. 378\nA Catalog of Pretrained Models .......................................................................................... 382"
+              },
+              {
+                "heading_text": "Introduction to PyTorch ............................................................ 386",
+                "heading_level": 4,
+                "children": [],
+                "content": "What is PyTorch? ................................................................................................................ 386\nCore Components of PyTorch ............................................................................................ 386\nTensors in PyTorch ............................................................................................................. 387"
+              },
+              {
+                "heading_text": "Neural Networks Programming in PyTorch ................................. 390",
+                "heading_level": 4,
+                "children": [],
+                "content": "Importing Required Libraries ............................................................................................. 390\nLoading the Dataset ............................................................................................................ 391\nData Preprocessing .............................................................................................................. 391\nDefining a Neural Network Model in PyTorch .................................................................. 392"
+              },
+              {
+                "heading_text": "Configuring Neural Network Training in PyTorch ........................ 393",
+                "heading_level": 4,
+                "children": [],
+                "content": "Loss Funtion ........................................................................................................................ 394\nOptimizer ............................................................................................................................ 394\nBackpropagation and Automatic Differentiation ................................................................ 394"
+              },
+              {
+                "heading_text": "Training a Neural Networks in PyTorch ...................................... 395",
+                "heading_level": 4,
+                "children": [],
+                "content": "Training Loop ..................................................................................................................... 395\nMonitoring the Training Process ........................................................................................ 396\nModel Evaluation in PyTorch ............................................................................................. 398"
+              },
+              {
+                "heading_text": "TensorFlow versus PyTorch ....................................................... 399",
+                "heading_level": 4,
+                "children": [],
+                "content": "Import Required Libraries .................................................................................................. 400\nLoading and Preprocessing the Data .................................................................................. 400\nDefining the Model ............................................................................................................. 402\nDefining the Optimizer and the Loss Function ................................................................... 402\nTraining the Model ............................................................................................................. 402\nEvaluating the Model .......................................................................................................... 403"
+              },
+              {
+                "heading_text": "PART IV — THE SCALABILITY LAYER",
+                "heading_level": 4,
+                "children": [],
+                "content": "10 INTRODUCTION TO PARALLEL TRAINING OF NEURAL NETWORKS ............. 411"
+              },
+              {
+                "heading_text": "Landscape of Parallel Deep Learning Frameworks ....................... 412",
+                "heading_level": 4,
+                "children": [],
+                "content": "The Challenge of Communication Across GPUs ............................................................... 412\nHigh-Level Frameworks for Distributed Deep Learning .................................................... 413"
+              },
+              {
+                "heading_text": "Comparing CPU and GPU Performance: A Practical Training Case 416",
+                "heading_level": 4,
+                "children": [],
+                "content": "Training Data: CIFAR10 ................................................................................................... 416\nModel architectures: ResNet .............................................................................................. 418\nBaseline Code: Sequential Training on CPU and GPU .................................................... 420"
+              },
+              {
+                "heading_text": "Accelerate Training with Parallelism in TensorFlow .................... 423",
+                "heading_level": 4,
+                "children": [],
+                "content": "Types of Parallelism ............................................................................................................ 423\nParallel Training with TensorFlow ..................................................................................... 426\nExploring the Parallelization of the Training Step with MirroredStrategy ........................ 432"
+              },
+              {
+                "heading_text": "Impact of Model Size on Parallel Training .................................. 441",
+                "heading_level": 4,
+                "children": [],
+                "content": "Case Study: ResNet152 ...................................................................................................... 441\nParallelization of the ResNet152V2 Neural Network ......................................................... 441\nComparing ResNet50 vs ResNet152V2 ............................................................................. 445\nApplying Amdahl’s and Gustafson’s Laws .......................................................................... 450"
+              },
+              {
+                "heading_text": "Key Takeaways from Chapter 10 ............................................... 453",
+                "heading_level": 4,
+                "children": [],
+                "content": "11 PRACTICAL GUIDE TO EFFICIENT TRAINING WITH PYTORCH .................. 455"
+              },
+              {
+                "heading_text": "Illustrative Case Study ............................................................. 456",
+                "heading_level": 4,
+                "children": [],
+                "content": "Custom Datasets ................................................................................................................. 456\nModels: ViT and Custom ................................................................................................... 458\nCode Walkthrough:  The train.py Script ............................................................................ 460"
+              },
+              {
+                "heading_text": "Setting up for Experiment Execution .......................................... 464",
+                "heading_level": 4,
+                "children": [],
+                "content": "Python code outputs ............................................................................................................ 465\nSLURM Job Submission Scripts ........................................................................................ 466"
+              },
+              {
+                "heading_text": "Tuning the Maximum Batch Size Hyperparameter ...................... 470",
+                "heading_level": 4,
+                "children": [],
+                "content": "Motivation: Why Does Batch Size Matter? ........................................................................ 470\nMethodology: Empirical Search ......................................................................................... 471\nExperimental Results .......................................................................................................... 471"
+              },
+              {
+                "heading_text": "Efficient Data Handling: Preventing DataLoader Bottleneck ......... 473",
+                "heading_level": 4,
+                "children": [],
+                "content": "Observing the Bottleneck with a Lightweight Model ......................................................... 474\nIncreasing num_workers to Unlock Performance .............................................................. 476\nReturning to ViT: When DataLoader Parallelism Is Hidden ............................................ 479"
+              },
+              {
+                "heading_text": "Mixed Precision and Tensor Cores ............................................. 481",
+                "heading_level": 4,
+                "children": [],
+                "content": "Understanding Floating-Point Formats .............................................................................. 481\nMixed Precision Training with AMP ................................................................................. 482\nExperimental Results .......................................................................................................... 483"
+              },
+              {
+                "heading_text": "Key Takeaways from Chapter 11 ................................................ 487",
+                "heading_level": 4,
+                "children": [],
+                "content": "12 PARALLELIZING MODEL TRAINING WITH DISTRIBUTED DATA PARALLEL .... 489"
+              },
+              {
+                "heading_text": "How Computation is Distributed ................................................ 490",
+                "heading_level": 4,
+                "children": [],
+                "content": "Understanding the Full Stack of Distributed Training ....................................................... 490\nWhat is torchrun? ................................................................................................................ 491\nWhat is Distributed Data Parallel? ...................................................................................... 493"
+              },
+              {
+                "heading_text": "Setting Up for DDP Experiment Execution ................................... 498",
+                "heading_level": 4,
+                "children": [],
+                "content": "Code Walkthrough: Key Differences in train_ddp.py ........................................................ 499\nSlurm Job Submission Scripts ............................................................................................. 502"
+              },
+              {
+                "heading_text": "Throughput and scalability measurements .................................. 505",
+                "heading_level": 4,
+                "children": [],
+                "content": "Results with micro-224 Dataset ........................................................................................... 505\nA Brief Analytical Reflection ............................................................................................... 508\nResults with the Tiny Dataset ............................................................................................. 510\nCritical Thinking for an HPC practitioner ......................................................................... 512"
+              },
+              {
+                "heading_text": "The Evolution of LLMs and the Central Role of Supercomputing .... 523",
+                "heading_level": 4,
+                "children": [],
+                "content": "A New Era of Artificial Intelligence Powered by Large Language Models ........................ 523\nLarge-Scale Pretraining: Building the Foundation with Data and Compute ..................... 524\nPost-Training and Alignment: Teaching Models to Follow Human Instructions .............. 525\nAdvanced Inference: Real-Time Deployment at Global Scale ........................................... 526\nAutonomous Agents: The Emerging Frontier of LLM Applications .................................. 528\nSupercomputing as the Silent Engine Behind LLM Progress ............................................. 529"
+              },
+              {
+                "heading_text": "The Anatomy of Large Language Models ..................................... 530",
+                "heading_level": 4,
+                "children": [],
+                "content": "Transformers: The Foundation of Modern LLMs .............................................................. 530\nTransformer Variants: Encoder, Decoder, and Encoder–Decoder .................................... 533\nWhat Is a Language Model? ............................................................................................... 535\nTransfer Learning: The Two-Stage Training Paradigm .................................................... 536\nThe Attention Mechanism: How Transformers Understand Context ............................... 538"
+              },
+              {
+                "heading_text": "Hugging Face Framework .......................................................... 542",
+                "heading_level": 4,
+                "children": [],
+                "content": "Why Hugging Face Matters for LLMs ................................................................................ 543\nCore Components of the Hugging Face Ecosystem ............................................................ 545\nHugging Face Trainer API: Simplifying Distributed Training ........................................... 549"
+              },
+              {
+                "heading_text": "Authentication and Downloading Models with Hugging Face .......... 559",
+                "heading_level": 4,
+                "children": [],
+                "content": "12.2.1 Authenticating in Hugging Face .............................................................................. 559\nDownloading from Hugging Face ...................................................................................... 562"
+              },
+              {
+                "heading_text": "LLM \"Hello World\" in Google Colab .......................................... 563",
+                "heading_level": 4,
+                "children": [],
+                "content": "Inference with a Pretrained Model ..................................................................................... 564\nFine-tuning a model With a Toy Dataset ........................................................................... 565"
+              },
+              {
+                "heading_text": "Preparing Models and Datasets for Supercomputing .................... 568",
+                "heading_level": 4,
+                "children": [],
+                "content": "Download and Transfer of the Model ................................................................................ 568\nDownload and Transfer of the Dataset .............................................................................. 569"
+              },
+              {
+                "heading_text": "LLM \"Hello World\" on Marenostrum 5 ....................................... 570",
+                "heading_level": 4,
+                "children": [],
+                "content": "Python Script for Inference and Fine-Tuning .................................................................... 571\nSLURM Script and Explanation ........................................................................................ 573\nRemarks on Simplified Inference ....................................................................................... 575"
+              },
+              {
+                "heading_text": "Case study and code ................................................................. 578",
+                "heading_level": 4,
+                "children": [],
+                "content": "LLaMA 3.2 with 1B parameters ......................................................................................... 578\nSynthetic Data ..................................................................................................................... 578\nBaseline Training Script ..................................................................................................... 578\nPerformance Metrics: Measuring Training Efficiency ....................................................... 580\nSLURM Job Submission Script .......................................................................................... 581\nRunning the Baseline Experiment ...................................................................................... 581"
+              },
+              {
+                "heading_text": "Efficient Training on a single GPU ............................................. 582",
+                "heading_level": 4,
+                "children": [],
+                "content": "Batch Size Scaling ............................................................................................................... 582\nEnhancing Training Efficiency with Mixed Precision ........................................................ 583\nFine-Tuning Model Precision ............................................................................................. 584\nEnhancing Attention Mechanisms ...................................................................................... 585\nAccelerating Training with Triton and Liger Kernels ........................................................ 586"
+              },
+              {
+                "heading_text": "Scaling Up: Distributed Training Across Multiple GPUs ............... 588",
+                "heading_level": 4,
+                "children": [],
+                "content": "Experimental Setup ............................................................................................................ 589\nScaling Results .................................................................................................................... 590"
+              },
+              {
+                "heading_text": "Key Takeaways from Chapter 15 ............................................... 594",
+                "heading_level": 4,
+                "children": [],
+                "content": "16 LOOKING FORWARD: SUPERCOMPUTING AND AI FUTURES .......................... 597"
+              },
+              {
+                "heading_text": "APPENDICES",
+                "heading_level": 4,
+                "children": [],
+                "content": "17 APPENDICES ..................................................................................... 609"
+              },
+              {
+                "heading_text": "GLOSSARY .............................................................................. 645",
+                "heading_level": 4,
+                "children": [],
+                "content": "A .......................................................................................................................................... 645\nB .......................................................................................................................................... 645\nC .......................................................................................................................................... 646\nD .......................................................................................................................................... 647\nE .......................................................................................................................................... 648\nF ........................................................................................................................................... 648\nG .......................................................................................................................................... 649\nH .......................................................................................................................................... 649\nI ........................................................................................................................................... 650\nJ ........................................................................................................................................... 650\nK .......................................................................................................................................... 650\nL .......................................................................................................................................... 651\nM ......................................................................................................................................... 651\nN .......................................................................................................................................... 652\nO .......................................................................................................................................... 653\nP ........................................................................................................................................... 653\nQ .......................................................................................................................................... 654\nR .......................................................................................................................................... 654\nS ........................................................................................................................................... 654\nT .......................................................................................................................................... 655\nU .......................................................................................................................................... 656\nV .......................................................................................................................................... 656\nZ .......................................................................................................................................... 656"
+              }
+            ],
+            "content": "PREFACE .............................................................................................. 19\nABOUT THIS BOOK ................................................................................. 23\nTarget Audience .................................................................................................................... 23\nApproach and Philosophy ..................................................................................................... 24\nStructural Overview of the Book ........................................................................................... 25\nHow to Read This Book ........................................................................................................ 28"
+          },
+          {
+            "heading_text": "Preface",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Parallelism",
+                "heading_level": 4,
+                "children": [],
+                "content": "[START_TABLE_CONTENT]\n| From my earliest days as a student, I was fascinated by parallelism — the |  |\n| --- | --- |\n| beating heart of any supercomputer — a concept I fell in love with for both |  |\n| its elegance and its potential. I suppose the context helped: I studied at the |  |\n| Facultat d'Informàtica de Barcelona (FIB), where I had the chance to learn |  |\n| from professors affiliated with the Computer Architecture Department at |  |\n| Universitat Politècnica de Ctalunya (UPC Barcelona Teh). They not only |  |\n| taught us technical content, but also conveyed something deeper — how |  |\n| important it was that we, their students, could enjoy those early years of |  |\n| academic freedom, hard-won by previous generations. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | I knew exactly who I wanted to work with. As a student, I worked hard to |  |\n| --- | --- | --- |\n| join that department, and eventually the opportunity came: I began |  |  |\n| collaborating with the research team led by Professor Jesús Labarta and soon |  |  |\n| after started my PhD under the supervision of Professor Eduard Ayguadé. At |  |  |\n| the time, we were all working under the umbrella of the CEPBA (European |  |  |\n| Center for Parallelism of Barcelona), which would later become the |  |  |\n| foundation of what is now the Barcelona Supercomputing Center (BSC). The |  |  |\n| CEPBA was led by Professor Mateo Valero — a name surely familiar to |  |  |\n| anyone reading this book. He was the driving force behind this passionate |  |  |\n| and visionary department in parallelism, and his support and friendship from |  |  |\n| those early days have had a profound and lasting impact on my career. |  |  |\n[END_TABLE_CONTENT]"
+              },
+              {
+                "heading_text": "Machine Learning",
+                "heading_level": 4,
+                "children": [
+                  {
+                    "heading_text": "next decades of my career.",
+                    "heading_level": 5,
+                    "children": [],
+                    "content": "[START_TABLE_CONTENT]\n| Since then, I’ve continued studying and deepening my understanding of |  |\n| --- | --- |\n| machine learning through personal effort and continuous learning. One of |  |\n| the true privileges of academic life is that studying — learning — is part of |  |\n| the job. I’ve taken specialized courses, read foundational textbooks carefully, |  |\n| and followed the evolution of the field through key scientific papers. |  |\n[END_TABLE_CONTENT]"
+                  }
+                ]
+              },
+              {
+                "heading_text": "Deep Learning",
+                "heading_level": 4,
+                "children": [],
+                "content": "[START_TABLE_CONTENT]\n| Allow me to pause and share a few moments that truly thrilled me — |  |\n| --- | --- |\n| milestones that made me feel the pulse of the emerging deep learning |  |\n| revolution and what lies beneath today’s AI systems. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | In 2014, thanks to the encouragement of my colleague Jordi Nin, I was |  |\n| --- | --- | --- |\n| first exposed to deep learning just as it was beginning to gain traction. I was |  |  |\n| deeply impressed to see how it was transforming entire research areas — all |  |  |\n| thanks to the power of GPUs, which we in the supercomputing world had |  |  |\n| long used for numerical simulations. |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | In 2015, Dr. Joan Capdevila, then a PhD student, suggested me to join |  |\n| --- | --- | --- |\n| him at the UPM Machine Learning and Advanced Statistics Summer School. |  |  |\n| There, I took a course on neural networks and deep learning that left a strong |  |  |\n| mark on me. I met exceptional researchers like Professors Concha Bielza and |  |  |\n| Pedro Larrañaga, and for the first time, I saw how my research focus could |  |  |\n| shift. |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | One year later, on the advice of Dr. Oriol Vinyals, I attended the Machine |  |\n| --- | --- | --- |\n| Learning Summer School — that year held in Cádiz. It was an |  |  |\n| internationally renowned event bringing together some of the world’s leading |  |  |\n| experts in machine learning. For me, it was also the first time I encountered |  |  |\n| reinforcement learning — a key piece in today’s AI models. My mind was |  |  |\n| buzzing. Despite being one of the older attendees —surrounded by younger |  |  |\n| researchers— I felt grateful and inspired. I knew I had to make a leap and |  |  |\n| fully commit to this new direction in my work. |  |  |\n[END_TABLE_CONTENT]"
+              },
+              {
+                "heading_text": "Artificial Intelligence",
+                "heading_level": 4,
+                "children": [],
+                "content": "[START_TABLE_CONTENT]\n| In 2016, I began co-supervising doctoral theses at the intersection of AI and |  |\n| --- | --- |\n| supercomputing with the visionary Dr. Xavier Giró-i-Nieto. Working |  |\n| alongside PhD students like Miriam Bellver, Víctor Campos, and Amanda |  |\n| Duarte gave me fresh insight into modern AI and, without a doubt, helped |  |\n| shift the BSC’s research direction in this field. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | This stage also allowed me to actively participate in top-tier AI |  |\n| --- | --- | --- |\n| conferences — quite a contrast from the supercomputing conferences I had |  |  |\n| been attending for decades. I had the chance to connect with the deep |  |  |\n| learning community, and in some cases, to co-author papers with brilliant |  |  |\n| researchers: Ferran Marquès, Cristian Canton-Ferrer, Amaia Salvador, |  |  |\n| Kevin McGuinness, Noel E. O'Connor, Kevis-Kokitsi Maninis, Jordi Pont- |  |  |\n| Tuset, Luc Van Gool, Shih-Fu Chang, Santiago Pascual, Eva Mohedano, |  |  |\n| Shruti Palaskar, Lucas Ventura, Deepti Ghadiyaram, Florian Metze, |  |  |\n| Alexander Trott, Caiming Xiong, and Richard Socher. I consider myself |  |  |\n| very fortunate to have learned from all of them, and I am truly grateful for |  |  |\n| their generosity and collaboration. |  |  |\n[END_TABLE_CONTENT]"
+              },
+              {
+                "heading_text": "This Book",
+                "heading_level": 4,
+                "children": [
+                  {
+                    "heading_text": "So I decided to write it.",
+                    "heading_level": 5,
+                    "children": [],
+                    "content": "[START_TABLE_CONTENT]\n|  | I’ve been lucky to teach with MareNostrum supercomputers family right |\n| --- | --- |\n| next door — quite literally, as it's located on the UPC campus. Teaching |  |\n| parallel programming, distributed training, or performance optimization in |  |\n[END_TABLE_CONTENT]"
+                  },
+                  {
+                    "heading_text": "such an environment is a privilege.",
+                    "heading_level": 5,
+                    "children": [],
+                    "content": "[START_TABLE_CONTENT]\n|  | Over the years, I’ve been writing and refining teaching material for |\n| --- | --- |\n| various courses — which have gradually converged toward what we now call |  |\n| HPC for AI. When the FIB invited me to launch a course with that name, it |  |\n| felt like the right time to gather, organize, and formalize everything into this |  |\n| book. I’ve finally completed it in the 2025–2026 academic year, and now you |  |\n| have it in your hands. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | This book is not just a tool for my courses. It is an invitation to understand |\n| --- | --- |\n| why, now more than ever, artificial intelligence is —at its core— a |  |\n| supercomputing problem. |  |\n[END_TABLE_CONTENT]"
+                  }
+                ],
+                "content": "[START_TABLE_CONTENT]\n| Thanks to this long path, I was already deeply immersed in the deep learning |  |\n| --- | --- |\n| field when large language models (LLMs) began to take off. And perhaps for |  |\n| that reason, coming from a supercomputing background, it felt natural to |  |\n| recognize the real driving force behind this new AI revolution: |  |\n| supercomputing itself. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | This book was born out of a specific need: to provide a modern and |  |\n| --- | --- | --- |\n| rigorous theoretical resource for my courses at the Universitat Politècnica de |  |  |\n| Catalunya (UPC), tailored to the current challenges of supercomputing for |  |  |\n| AI. For years, I searched for a textbook that bridged supercomputing and |  |  |\n| deep learning — something pedagogical, cohesive, and practical — but never |  |  |\n| found one. |  |  |\n[END_TABLE_CONTENT]"
+              }
+            ],
+            "content": "[START_TABLE_CONTENT]\n| Like most things that truly matter in life, this book has been a long journey |  |\n| --- | --- |\n| in the making. Let me tell you how it came to be. |  |\n[END_TABLE_CONTENT]"
+          },
+          {
+            "heading_text": "About This Book",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Target Audience",
+                "heading_level": 4,
+                "children": [
+                  {
+                    "heading_text": "foundations of large-scale AI training and inference;",
+                    "heading_level": 5,
+                    "children": [],
+                    "content": "[START_TABLE_CONTENT]\n| Engineers and data scientists optimizing deep learning workloads |  |\n| --- | --- |\n| on distributed infrastructures; |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n| HPC practitioners and system architects aiming to understand |  |\n| --- | --- |\n| how AI workloads interact with modern hardware and software |  |\n| stacks; |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n| Instructors and educators searching for up-to-date teaching |  |\n| --- | --- |\n| material or inspiration in the fields of HPC and AI systems. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | To support this diversity of profiles, the book adopts a progressive and |\n| --- | --- |\n| modular approach, allowing readers to engage with the material at different |  |\n| entry points depending on their background and objectives. Educators, in |  |\n| particular, will find a rich set of reproducible experiments, diagrams, visual |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n| explanations, and practical exercises that can be directly incorporated into |  |\n| --- | --- |\n| coursework or adapted to various instructional contexts. The chapter |  |\n| structure and terminology mapping have been carefully curated to facilitate |  |\n| course planning and topic sequencing. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | This is not intended to be a comprehensive or encyclopedic treatise—such |  |\n| --- | --- | --- |\n| an endeavor would be unrealistic given the pace at which the field evolves. |  |  |\n| Instead, the book focuses on a well-curated selection of core concepts and |  |  |\n| tools, directly inspired by classroom teaching and complemented by selected |  |  |\n| topics that offer both technical depth and narrative coherence. |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | The multifaceted approach—bridging theory and practice, and spanning |  |\n| --- | --- | --- |\n| multiple levels of the AI supercomputing stack—is intended to make this |  |  |\n| book a valuable companion not only for students, but also for professionals, |  |  |\n| educators, and innovators navigating the rapidly evolving landscape of large- |  |  |\n| scale AI computing. |  |  |\n[END_TABLE_CONTENT]"
+                  }
+                ],
+                "content": "[START_TABLE_CONTENT]\n| As mentioned in the epilogue, this book emerged from a specific academic |  |\n| --- | --- |\n| need: to provide my courses at the Universitat Politècnica de Catalunya |  |\n| (UPC) with a modern and rigorous resource tailored to the evolving |  |\n| challenges of supercomputing for artificial intelligence. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | In my own teaching practice, selected chapters or adapted excerpts from |  |\n| --- | --- | --- |\n| this book are shared as official course material with students at the UPC. This |  |  |\n| ensures that the core content reaches its primary audience—those for whom |  |  |\n| it was initially developed—as part of their academic training in AI and |  |  |\n| supercomputing. |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | Although it was originally conceived as supporting material for students |  |\n| --- | --- | --- |\n| enrolled in AI-focused supercomputing courses, the content has been |  |  |\n| carefully structured to serve a broader audience. Its modular design, hands- |  |  |\n| on examples, and real-world case studies make it accessible and relevant to: |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n| Master’s and advanced undergraduate students seeking practical |  |\n| --- | --- |\n| knowledge of HPC applied to AI; |  |\n[END_TABLE_CONTENT]"
+              },
+              {
+                "heading_text": "Approach and Philosophy",
+                "heading_level": 4,
+                "children": [],
+                "content": "[START_TABLE_CONTENT]\n| Beyond its technical scope, this book reflects a commitment to teaching |  |\n| --- | --- |\n| through doing, a principle that has guided the design of every chapter. Each |  |\n| concept is reinforced with hands-on tasks that can be executed on real |  |\n| supercomputing systems or cloud-based environments like Google Colab. |  |\n| This deliberate integration of theory and practice aims to help readers not |  |\n| only understand the “what” and “why,” but also confidently navigate the |  |\n| “how” of deploying AI workloads in distributed, high performance |  |\n| environments. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | Reproducibility and clarity were core priorities during the writing process. |  |\n| --- | --- | --- |\n| All examples have been tested and aligned with real software environments, |  |  |\n| such as MareNostrum 5 at the Barcelona Supercomputing Center. This |  |  |\n| ensures that students and practitioners alike can replicate the experiments |  |  |\n| and build upon them using state-of-the-art tools like SLURM, PyTorch, |  |  |\n| Hugging Face, or CUDA. These reproducible building blocks empower |  |  |\n| readers to adapt and scale solutions to their specific contexts. |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | The book also reflects the author’s dual experience as a researcher and |\n| --- | --- |\n| educator. With more than tree decades in both domains, the goal was not |  |\n| only to transfer knowledge, but to bridge the gap between academic learning |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n| and technological application. Readers will find frequent annotations, side |  |\n| --- | --- |\n| notes, and discussions that make explicit the rationale behind architectural |  |\n| decisions or implementation choices—encouraging critical thinking and |  |\n| independent exploration. |  |\n[END_TABLE_CONTENT]"
+              },
+              {
+                "heading_text": "Structural Overview of  the Book",
+                "heading_level": 4,
+                "children": [
+                  {
+                    "heading_text": "This progressive approach ensures that each chapter builds upon the",
+                    "heading_level": 5,
+                    "children": [],
+                    "content": "[START_TABLE_CONTENT]\n| foundations laid by the previous ones, enabling a gradual and coherent |  |\n| --- | --- |\n| development of knowledge. In this way, students can navigate the |  |\n| multifaceted landscape of supercomputing for AI with clarity and purpose. |  |\n[END_TABLE_CONTENT]"
+                  },
+                  {
+                    "heading_text": "The Infrastructure Layer",
+                    "heading_level": 5,
+                    "children": [],
+                    "content": "[START_TABLE_CONTENT]\n| This bottom level encompasses the fundamental knowledge of computer |  |\n| --- | --- |\n| hardware and data center infrastructure. It also includes the system software |  |\n| and low-level environment that underpin a supercomputer, such as the |  |\n| operating system, compilers, or drivers. Additionally, this layer covers the job |  |\n| scheduler SLURM responsible for orchestrating the allocation of computing |  |\n| resources across the cluster. Optionally, a containerization subsystem may be |  |\n| integrated at this level to encapsulate applications and their dependencies, |  |\n| ensuring consistent and portable runtime environments across different |  |\n| supercomputing platforms. |  |\n[END_TABLE_CONTENT]"
+                  },
+                  {
+                    "heading_text": "The Parallel Execution Layer",
+                    "heading_level": 5,
+                    "children": [],
+                    "content": "[START_TABLE_CONTENT]\n| In this part, we shift from the foundational infrastructure discussed in Part I |  |\n| --- | --- |\n| to the practical orchestration of parallel programs on a supercomputer. This |  |\n| is a crucial intermediate step between understanding the system and running |  |\n| large-scale AI workloads, and it forms the operational core of any well- |  |\n| rounded course in high performance computing. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | We begin by introducing srun, the central tool used to launch parallel jobs |  |\n| --- | --- | --- |\n| in SLURM-managed environments. This launch mechanism is the gateway |  |  |\n| to scalable execution and is used consistently throughout the book. |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | We show traditional parallel programming models, such as MPI and |  |\n| --- | --- | --- |\n| CUDA, to accelerate computation by exploiting parallelism—the key |  |  |\n| ingredient that truly empowers supercomputing. |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | This layer provides the student with a solid understanding of how to |  |\n| --- | --- | --- |\n| launch parallel programs on a supercomputer—laying the groundwork for |  |  |\n| the deep learning workflows covered in the following parts of the book. |  |  |\n[END_TABLE_CONTENT]"
+                  },
+                  {
+                    "heading_text": "The Intelligence Abstraction Layer",
+                    "heading_level": 5,
+                    "children": [
+                      {
+                        "heading_text": "modern AI applications. These frameworks, such as TensorFlow and",
+                        "heading_level": 6,
+                        "children": [],
+                        "content": "[START_TABLE_CONTENT]\n| PyTorch, provide a high-level abstraction that simplifies the design, training, |  |\n| --- | --- |\n| and deployment of neural networks—removing the need to manually |  |\n| manage the low-level parallel code we encountered in the previous part on |  |\n| parallel execution. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | Through practical examples based on TensorFlow we illustrate how to |  |\n| --- | --- | --- |\n| implement and train AI models. This part serves as an entry point to deep |  |  |\n| learning theory for students who may be approaching these concepts for the |  |  |\n| first time. |  |  |\n[END_TABLE_CONTENT]"
+                      }
+                    ]
+                  },
+                  {
+                    "heading_text": "The Scalability Layer",
+                    "heading_level": 5,
+                    "children": [],
+                    "content": "[START_TABLE_CONTENT]\n| The Part IV of this book is devoted to the study of efficient scaling strategies |  |\n| --- | --- |\n| necessary for training large-scale neural networks across multiple nodes of a |  |\n| supercomputing infrastructure. The content is structured around practical |  |\n| case studies developed using TensorFlow and PyTorch framework. Through |  |\n| these exercises, students will explore techniques for parallelizing training |  |\n| across multiple GPUs and will become familiar with launcher tools designed |  |\n| to orchestrate and manage distributed training workloads effectively. |  |\n[END_TABLE_CONTENT]"
+                  },
+                  {
+                    "heading_text": "The Language Abstraction Layer",
+                    "heading_level": 5,
+                    "children": [],
+                    "content": "[START_TABLE_CONTENT]\n| The highest level of the abstraction hierarchy presented in Part V of this book |  |\n| --- | --- |\n| is dedicated to the study and practical use of Large Language Models (LLMs), |  |\n| which currently constitute one of the most influential developments in |  |\n| artificial intelligence. This part introduces the essential theoretical concepts |  |\n| of LLMs, ensuring that students without prior background in the field can |  |\n| fully engage with the material. At this level, interaction with AI models is |  |\n| centered around standardized frameworks and pre-trained solutions, and the |  |\n| complexities of the underlying hardware, distributed architectures, and |  |\n| training algorithms are almost completely abstracted away. The Hugging |  |\n| Face Transformers library exemplifies this paradigm by offering standardized |  |\n| model architectures, access to large pre-trained models, and simple APIs for |  |\n| fine-tuning and deployment. |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n| Together, these five parts form a coherent journey through the |  |\n| --- | --- |\n| supercomputing landscape, equipping students with both theoretical |  |\n| knowledge and practical skills needed to drive today's AI advances. Figure 2 |  |\n| summarizes this layered architecture. |  |\n[END_TABLE_CONTENT]\n[START_IMAGE_PATH] images/img_027_00.png|e1e799725e57 [END_IMAGE_PATH]\nFigure 2 – Hierarchical structure of the book, illustrating the five abstraction layers that guide the\nprogressive learning path from supercomputing fundamentals to Large Language Models."
+                  }
+                ],
+                "content": "[START_TABLE_CONTENT]\n| This book spans a wide range of topics—hardware, system software, parallel |  |\n| --- | --- |\n| programming, deep learning, distributed training, and modern AI models. |  |\n| While this broad scope reflects the reality of AI supercomputing workflows, |  |\n| it also poses a challenge for learners: how can we make sense of so many |  |\n| technologies without getting lost in the details? |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | The content of this book is structured following a hierarchical abstraction |  |\n| --- | --- | --- |\n| model—a layered stack. Each layer isolates a specific level of the |  |  |\n| supercomputing ecosystem, allowing students to build their understanding |  |  |\n| progressively without being overwhelmed by the intricacies of lower or higher |  |  |\n| levels prematurely. This structure is intended to address the inherent |  |  |\n| complexity of the field in a pedagogical and accessible way, focusing on what |  |  |\n| is essential for mastering the connection between supercomputing and |  |  |\n| artificial intelligence today. |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | We will start (in Part I) with a classically styled presentation of traditional |  |\n| --- | --- | --- |\n| supercomputing topics — the kind that has formed the backbone of |  |  |\n| supercomputing courses for many years: their purpose, architecture, |  |  |\n| performance metrics, software systems, etc. Then (in Part II), we will describe |  |  |\n| how to execute parallel programs with traditional parallel programming |  |  |\n| models on a supercomputer. |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | From that point onward (in Parts III, IV, and V), we shift toward the |  |\n| --- | --- | --- |\n| current frontiers of the field. These sections explore how supercomputing is |  |  |\n| now used to address emerging demands posed by artificial intelligence. To |  |  |\n| illustrate this, we present concrete, real-world examples executed on |  |  |\n| MareNostrum 5, the flagship supercomputer of the Barcelona |  |  |\n| Supercomputing Center (BSC). These hands-on cases are accompanied by |  |  |\n| the necessary theoretical context, discussing both the nature of each problem |  |  |\n| and how it is solved on a modern supercomputing platform. |  |  |\n[END_TABLE_CONTENT]"
+              },
+              {
+                "heading_text": "How to Read This Book",
+                "heading_level": 4,
+                "children": [
+                  {
+                    "heading_text": "Can I Skip the Tasks?",
+                    "heading_level": 5,
+                    "children": [
+                      {
+                        "heading_text": "actively working on a supercomputer or executing scripts.",
+                        "heading_level": 6,
+                        "children": [],
+                        "content": "[START_TABLE_CONTENT]\n|  | In the courses I teach using this book as a reference, each subject will |\n| --- | --- |\n| include clear guidance on which tasks to complete and how to submit |  |\n| responses, as part of the course-specific instructions. |  |\n[END_TABLE_CONTENT]"
+                      }
+                    ]
+                  },
+                  {
+                    "heading_text": "Typographical Conventions Used in This Book",
+                    "heading_level": 5,
+                    "children": [
+                      {
+                        "heading_text": "book’s content, often when they are introduced for the first time.",
+                        "heading_level": 6,
+                        "children": [],
+                        "content": "[START_TABLE_CONTENT]\n| Code blocks are displayed using a monospaced font on a gray |  |\n| --- | --- |\n| background, as shown below: |  |\n[END_TABLE_CONTENT]\n#include <stdio.h>\nint main(){\nprintf(\"Hello world!\\n\");\n}\n[START_TABLE_CONTENT]\n| Highlighted lines within code blocks—those that are referenced in |  |\n| --- | --- |\n| the main text—appear in bold monospaced font on the same gray |  |\n| background: |  |\n[END_TABLE_CONTENT]\n#include <stdio.h>\nint main(){\nprintf(\"Hello world!\\n\");\n}\n[START_TABLE_CONTENT]\n| Command-line commands are shown in a monospaced font on a |  |\n| --- | --- |\n| gray background, prefixed with a $ symbol to indicate they are |  |\n| entered in a terminal session: |  |\n[END_TABLE_CONTENT]\n$ module load intel\n$ icx hello.c -o hello"
+                      },
+                      {
+                        "heading_text": "• Standard output is shown in Courier New font:",
+                        "heading_level": 6,
+                        "children": [],
+                        "content": "[START_TABLE_CONTENT]\n|  |  |\n| --- | --- |\n| $ ./hello |  |\n|  |  |\n| Hello world! |  |\n[END_TABLE_CONTENT]\nHello world!"
+                      }
+                    ]
+                  },
+                  {
+                    "heading_text": "Where to Get the Code and Errata",
+                    "heading_level": 5,
+                    "children": [],
+                    "content": "[START_TABLE_CONTENT]\n| All source code, job scripts, and configuration files referenced in the book are |  |\n| --- | --- |\n| available in the public GitHub repository: |  |\n[END_TABLE_CONTENT]\nhttps://github.com/jorditorresBCN/HPC4AIbook\n[START_TABLE_CONTENT]\n|  | This repository also provides information on how to access updates and |  |\n| --- | --- | --- |\n| report errata. |  |  |\n[END_TABLE_CONTENT]"
+                  },
+                  {
+                    "heading_text": "Disclaimer and Author’s Note",
+                    "heading_level": 5,
+                    "children": [
+                      {
+                        "heading_text": "Use the content at your own risk and always validate your implementations.",
+                        "heading_level": 6,
+                        "children": [],
+                        "content": "[START_TABLE_CONTENT]\n|  | Throughout the book, readers may notice that certain transversal topics |\n| --- | --- |\n| appear across multiple chapters. This is intentional. Over the years, I have |  |\n| shared selected chapters of this book as teaching materials for different |  |\n| university courses, depending on each course’s specific focus. While the book |  |\n| as a whole covers a broad range of themes, I found it more coherent—and |  |\n| more useful for the reader—to consolidate everything into a single volume, |  |\n| rather than fragment the content across several separate textbooks. Of |  |\n| course, each course targets different profiles: some students come from an |  |\n[END_TABLE_CONTENT]"
+                      },
+                      {
+                        "heading_text": "pedagogical vision.",
+                        "heading_level": 6,
+                        "children": [],
+                        "content": "[START_TABLE_CONTENT]\n|  | Additionally, the content of this book builds upon materials I have |\n| --- | --- |\n| developed over many years for various courses and training programs. As a |  |\n| result, readers may notice some stylistic differences between chapters. I |  |\n| apologize for any inconsistencies or rough edges. With over 650 pages, |  |\n| perfection is difficult to achieve—but the intent is always to provide useful, |  |\n| practical guidance. |  |\n[END_TABLE_CONTENT]"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "heading_text": "Acknowledgments",
+            "heading_level": 3,
+            "children": [],
+            "content": "[START_TABLE_CONTENT]\n| Many people have helped me—some more, some less—over the years with |  |\n| --- | --- |\n| the content of the notes and previous books that made this one possible. To |  |\n| all of them, thank you: |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n| Ferran Agulló, Pablo Arancibia, Oriol Aranda, Gonzalo Artiach, Roser |  |\n| --- | --- |\n| Bellido, Enric Aromí, Eduard Ayguadé, Guifré Ballester, Javier Bartolomé, |  |\n| Yolanda Becerra, Jeroni Boixareu, Míriam Bellver, Miguel Bernabeu, Josep |  |\n| Lluís Berral, Víctor Campos, Ramon Canal, Daniel Cano, Joan Capdevila, |  |\n| Manuel Carbonell, David Carrera, Oliver Chan, Miquel Escobar Castells, |  |\n| Mauro Cavaller, Hugo Centeno, François Chollet, Juan Luís Domínguez, |  |\n| Amanda Duarte, Mauricio Echevarría, Rosa Maria Esqué, Agustín |  |\n| Fernández, Javier Ferrando, Joan Gallet, Raul Garcia Fuentes, David |  |\n| Garcia, Raul Garcia, Bernat García, Pol Garcia Recasens, Ricard Gavaldà, |  |\n| Sergi Girona, Xavier Giró-i-Nieto, Alberto Gutiérrez, Andrés Gómez, |  |\n| Antonio Guardia, Jordi Guitart, Laura Juan, Álvaro Jover Álvarez, Ferran |  |\n| Julià, Jiri Kraus, Jesús Labarta, Isabel Larraburu, Josep M. Martorell, Xavier |  |\n| Marturià, Màrius Mollà, Jordi Morera, Jordi Nadal, Nacho Fernández, |  |\n| Nacho Navarro, Jon Navarro, Jordi Nin, Ramon Nou, Oriol Núñez, Nico |  |\n| Poggi, Alberto Pou, Oriol Pujol, Félix Ramos, Oscar Romero, Sergi Sales, |  |\n| Xisco Sastre, Fernando García Sedano, Antoni-Joan Solergibert, Alejandro |  |\n| Fernández Suárez, Laia Tarrés, Joan Teruel, Bernat Torres, Júlia Torres, |  |\n| Jordi Torres i Mas, Rubèn Tous, Carlos Tripiana, Mateo Valero, David |  |\n| Vicente, Alba Vila, Oriol Vinyals, Katy Wallace, Maurici Yagües. |  |\n[END_TABLE_CONTENT]"
+          },
+          {
+            "heading_text": "Technologies Covered in This Book",
+            "heading_level": 3,
+            "children": [],
+            "content": "[START_IMAGE_PATH] images/img_034_00.png|d75c7e29459e [END_IMAGE_PATH]"
+          },
+          {
+            "heading_text": "Mapping Technologies to Book Chapters",
+            "heading_level": 3,
+            "children": [
+              {
+                "heading_text": "Chapters",
+                "heading_level": 4,
+                "children": [],
+                "content": "Development Tools\nJupyter\nCap. 3,7, Appendices\nDevelopment Tools\nColab\nCap. 7, 14, Appendices\nLLM Models\nLLaMA 3.2\nCap. 14\nLLM Models\nopt-1.3b\nCap. 13\nLLM Libraries\nHugging Face\nCap. 14\nLLM Libraries\nTrainer\nCap. 14\nLLM Libraries\nTransformers\nCap. 14\nLLM Libraries\nDatasets\nCap. 14\nLLM Libraries\nTokenizers\nCap. 14\nAI Frameworks\nPyTorch\nCap. 9, 11, 12\nAI Frameworks\nTensorFlow\nCap. 7, 8, 10\nModel Execution Optimizations\nFlash Attention\nCap. 15\nModel Execution Optimizations\nLiger kernels\nCap. 15\nModel Execution Optimizations\nMixed Precision\nCap. 11, 15\nModel Execution Optimizations\nModel Precision\nCap. 15\nDistributed Runtimes & Libraries\nDDP\nCap. 12, 15\nDistributed Runtimes & Libraries\naccelerate\nCap. 13\nParallel Launchers\ntorchrun\nCap. 12, 15\nParallel Launchers\nsrun\nCap. 4, 5, 11, 12, 13\nParallel Launchers\nmpirun\nCap. 4 , 6\nCommunication Middleware\nMPI\nCap. 4, 6\nCommunication Middleware\nNCCL\nCap. 6, 12\nCommunication Middleware\nGPUDirect\nCap. 6\nPython\nAppendices\nProgramming Languages &\nCompilers\nC/C++\nAppendices\nProgramming Languages &\nCompilers\nCUDA\nCap. 5\n[START_TABLE_CONTENT]\n| Programming Languages & |  |\n| --- | --- |\n| Compilers |  |\n[END_TABLE_CONTENT]\ngcc\nCap. 3\nProgramming Languages &\nCompilers\nicx\nCap. 3\n[START_TABLE_CONTENT]\n| Programming Languages & |  |\n| --- | --- |\n| Compilers |  |\n[END_TABLE_CONTENT]\nOS & Resource Managers\nLinux\nAppendices\nOS & Resource Managers\nSLURM\nCap. 3\nOS & Resource Managers\nSingularity\nCap. 3\nOS & Resource Managers\nDockers\nCap. 3\nHardware\nCPUs\nCap. 2\nHardware\nGPUs (H100)\nCap. 2, 6\nHardware\nInterconnect (NVLink)\nCap. 2,6\nHardware\nInterconnect (Infiniband)\nCap. 2"
+              }
+            ]
+          },
+          {
+            "heading_text": "List of Tasks",
+            "heading_level": 3,
+            "children": [],
+            "content": "TASK 1.1 – PLAYING WITH SPEEDUP AND EFFICIENCY ............................................................................. 73\nTASK 1.2 – UNDERSTANDING STRONG AND WEAK SCALING ................................................................... 75\nTASK 1.3 – APPLYING AMDAHL’S LAW ........................................................................................................ 80\nTASK 1.4 – GUSTAFSON-BARSIS’S LAW AND SCALING INTUITION .......................................................... 83\nTASK 2.1 – LOG INTO MARENOSTRUM 5 ................................................................................................... 101\nTASK 2.2 – CHANGE YOUR PASSWORD ...................................................................................................... 101\nTASK 2.3 – (OPTIONAL) ENABLE PASSWORDLESS SSH AUTHENTICATION ........................................ 101\nTASK 2.4 – TRANSFER FILES USING SCP .................................................................................................... 110\nTASK 2.5 – (OPTIONAL) MOUNT THE MN5 FILESYSTEM ON YOUR LAPTOP ...................................... 110\nTASK 3.1 – COMPARE ICX AND GCC COMPILER OPTIMIZATIONS .......................................................... 137\nTASK 3.2 – REFLECTING ON SLURM JOB PRIORITIZATION ................................................................... 143\nTASK 3.3 – SUBMIT YOUR FIRST SLURM JOB .......................................................................................... 146\nTASK 3.4 – INSTALL DOCKER IN YOUR PLATFORM .................................................................................. 157\nTASK 3.5 – DOWNLOAD DOCKER IMAGE ................................................................................................... 158\nTASK 3.6 – RUN DOCKER IMAGE ................................................................................................................. 159\nTASK 3.7 – STOP A DOCKER CONTAINER ................................................................................................... 159\nTASK 3.8 – RUN DOCKER WITH PORT MAPPING ...................................................................................... 161\nTASK 3.9 – START THE JUPYTER NOTEBOOK SERVER ............................................................................. 161\nTASK 3.10 – CREATE AND RUN A TEST NOTEBOOK ................................................................................ 162\nTASK 4.1 – COMPILE AND RUN YOUR FIRST MPI PROGRAM ................................................................... 187\nTASK 4.2 – OBSERVE NODE DISTRIBUTION USING HOSTNAMES ............................................................. 189\nTASK 4.3 – POINT-TO-POINT COMMUNICATION ....................................................................................... 193\nTASK 4.4 – WRITE AND RUN THE SEQUENTIAL PROGRAM THAT ESTIMATE Π .................................. 196\nTASK 4.5 – WRITE AND RUN THE PARALLEL MPI  CODE TO ESTIMATE THE VALUE OF Π ............... 199\nTASK 4.6 – ANALYSIS USING GUSTAFSON’S LAW TO ESTIMATE THE VALUE OF Π ............................... 205\nTASK 4.7 –  EXPERIMENTING WITH SCATTER AND GATHER .................................................................. 210\nTASK 5.1 –  YOUR FIRST HELLO WORLD IN CUDA ................................................................................. 226\nTASK 5.2 – DIMENSIONALITY OF A THREAD BLOCK AND GRID .............................................................. 231\nTASK 5.3 – INVESTIGATING PARALLEL EXECUTION WITH MULTIPLE THREADS ................................ 235\nTASK 5.4 – ELEMENT-WISE VECTOR ADDITION USING CUDA ............................................................. 241\nTASK 5.5 – PARALLEL MATRIX MULTIPLICATION WITH CUDA ............................................................ 247\nTASK 5.6 – RUNNING CUDA JOBS WITH SLURM ................................................................................... 249\nTASK 5.7 – PROFILING MATRIX MULTIPLICATION ON THE GPU ........................................................... 252\nTASK 5.8 – COMPUTE-BOUND VS MEMORY-BOUND ............................................................................... 254\nTASK 6.1 – REFLECTING ON CUDA'S EXECUTION MODEL .................................................................... 264\nTASK 6.2 – PRECISION TRADE-OFFS: TRUE OR FALSE? .......................................................................... 267\nTASK 6.3 – SUBMIT AND VALIDATE THE FIRST PERFORMANCE RUN ................................................... 286\nTASK 6.4 – UNDERSTAND THE METRICS COLLECTION ........................................................................... 287\nTASK 6.5 – EXPLORE THE EFFECT OF OPTIMIZED COMPILATION FLAGS ............................................. 288\nTASK 6.6 – EVALUATE THE IMPACT OF THE CUB LIBRARY ................................................................... 290\nTASK 6.7 – BENCHMARKING THE IMPACT OF GPU COUNT AND PROBLEM SIZE ................................ 295\nTASK 7.1 – SET UP YOUR GOOGLE COLAB ENVIRONMENT .................................................................... 345\nTASK 7.2 – EXECUTE THE PROVIDED NOTEBOOK STEP-BY-STEP ........................................................ 346\nTASK 7.3 – IMPROVE THE ACCURACY OF YOUR MODEL ......................................................................... 347\nTASK 8.1 — IMPROVING A BASIC CNN MODEL ....................................................................................... 373\nTASK 8.2 — EXPORTING THE PYTHON SCRIPT ........................................................................................ 374\nTASK 8.3 — RUNNING YOUR FIRST NATURAL NETWORK ON A LOGIN NODE .................................... 375\nTASK 8.4 — SUBMITTING YOUR FIRST GPU DL TRAINING WITH SLURM ........................................ 377\nTASK 9.1 – COMPARATIVE IMPLEMENTATION IN PYTORCH AND TENSORFLOW ............................... 405\nTASK 10.1 – TASK SETUP AND FILE STRUCTURE .................................................................................... 419\nTASK 10.2 – CODE REVIEW AND UNDERSTANDING ................................................................................ 421\nTASK 10.3 – TRAINING ON CPU (BASELINE PERFORMANCE) .............................................................. 422\nTASK 10.4 –  GPU EXECUTION TIME AND CPU VS GPU COMPARISON ............................................... 422\nTASK 10.6 – ANALYZE THE IMPACT OF GPU PARALLELISM .................................................................. 440\nTASK 10.7 – PARALLELIZATION OF RESNET152 .................................................................................... 445\nTASK 10.8 – COMPARING PARALLEL TRAINING PERFORMANCE ACROSS MODEL SIZES .................. 448\nTASK 10.9 – RESNET101V2 SCALABILITY ANALYSIS ........................................................................... 449\nTASK 10.10 – INTERPRETING RESULTS WITH AMDAHL’S AND GUSTAFSON’S LAWS ........................ 452\nTASK 10.11 – APPLYING AMDAHL’S AND GUSTAFSON’S LAWS TO RESNET101V2 ......................... 453\nTASK 11.1 – FIND THE MAXIMUM VIABLE BATCH SIZE ......................................................................... 473\nTASK 11.2 – INVESTIGATING THE DATALOADER BOTTLENECK WITH A LIGHTWEIGHT MODEL ..... 476\nTASK 11.3 – OPTIMIZING DATALOADERS WITH APPROPRIATE NUM_WORKERS ................................ 478\nTASK 11.4 – CONFIRMING DATALOADER EFFICIENCY WITH VIT ........................................................ 480\nTASK 11.5 – ENABLE MIXED PRECISION WITH VIT + MICRO-224 ...................................................... 483\nTASK 11.6 – REPRODUCING THE EFFECT OF TORCH.COMPILE() ........................................................... 485\nTASK 11.7 – REPORT YOUR CONCLUSIONS ............................................................................................... 485\nTASK 11.6 – MINOR CODE TWEAKS FOR A FINAL THROUGHPUT BOOST ............................................ 486\nTASK 12.1 – REPRODUCING DISTRIBUTED TRAINING RESULTS ON MN5 .......................................... 509\nTASK 12.2 – ANALYZE AND COMPARE SCALING EFFICIENCY ................................................................ 516\nTASK 12.3 – INVESTIGATE DIMINISHING RETURNS IN TRAINING TIME .............................................. 517\nTASK 12.4 – FIND THE SWEET SPOT FOR YOUR USE CASE .................................................................... 517\nTASK 14.1 – OBTAIN YOUR HUGGING FACE ACCESS TOKEN ................................................................. 562\nTASK 14.2 – DOWNLOAD AND RUN THE HELLO WORLD IN GOOGLE COLAB ...................................... 567\nTASK 14.3 – DOWNLOAD THE MODEL AND DATASET LOCALLY USING HUGGINGFACE-CLI .............. 570\nTASK 14.4 – TRANSFER THE MODEL AND DATASET TO MARENOSTRUM 5 ........................................ 570\nTASK 14.5 – RUN THE INFERENCE AND FINE-TUNING SCRIPT ON MN5 ............................................. 574\nTASK 14.6 – COMPARE EXECUTION IN COLAB VS MN5 .......................................................................... 574\nTASK 15.1 – BASELINE EXPERIMENT USING FACEBOOK/OPT-1.3B ..................................................... 582\nTASK 15.2 – FINDING THE OUT-OF-MEMORY LIMIT .............................................................................. 583\nTASK 15.3 – MIXED PRECISION TRAINING ................................................................................................ 584\nTASK 15.4 – MODEL PRECISION ................................................................................................................. 585\nTASK 15.5 – INCREASING BATCH SIZE WITH MODEL PRECISION .......................................................... 585\nTASK 15.6 – ENABLING FLASH ATTENTION ............................................................................................. 586\nTASK 15.7 – INCREASING BATCH SIZE WITH FLASH ATTENTION ......................................................... 586\nTASK 15.8 – USING THE LIGER KERNEL ..................................................................................................... 587\nTASK 15.9 – AUGMENTING BATCH SIZE DUE TO LIGER KERNELS ........................................................ 588\nTASK 15.10 – SCALING ON MULTIPLE GPUS ........................................................................................... 591\nTASK 15.11 – FINAL REFLECTIONS ............................................................................................................ 593\nTASK 16.1 — MAPPING THE PENDULUM SHIFTS OF THE TRIAD .......................................................... 598\nTASK 16.2 — EXPLORING THE NEW GIANTS OF COMPUTE ................................................................... 599\nTASK 16.3 — POWERING THE FUTURE OF AI .......................................................................................... 600\nTASK 16.4 — CHARTING THE ROLE OF QUANTUM IN FUTURE SUPERCOMPUTING ........................... 601\nTASK 16.5 — FROM DATA FARMS TO AI PRESERVES ............................................................................ 602\nTASK 16.6 — EMBODIMENT AS A SOURCE OF LEARNING ...................................................................... 603"
+          }
+        ]
+      }
+    ]
+  }
+]
