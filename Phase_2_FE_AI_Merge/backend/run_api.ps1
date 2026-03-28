@@ -1,10 +1,10 @@
 # Start FastAPI from this folder (fixes ModuleNotFoundError: No module named 'app' when cwd is wrong).
 # Usage: .\run_api.ps1
-# Optional: .\run_api.ps1 --port 8001
+# Optional: .\run_api.ps1 --port 5001
 
 param(
     [string]$Host = "0.0.0.0",
-    [int]$Port = 8000
+    [int]$Port = 5000
 )
 
 $ErrorActionPreference = "Stop"

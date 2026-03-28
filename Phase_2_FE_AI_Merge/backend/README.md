@@ -72,7 +72,7 @@ cd backend
 copy .env.example .env            # fill OPENAI_API_KEY, Qdrant, optional SageMaker
 ```
 
-Open `http://localhost:8000/docs` for OpenAPI.
+Open `http://localhost:5000/docs` for OpenAPI.
 
 ## HTTP API reference
 
@@ -214,5 +214,5 @@ Probe: `GET /api/system/inference`.
 
 ```bash
 docker build -t phase2-ai-backend .
-docker run -p 8000:8000 --env-file .env phase2-ai-backend
+docker run -p 5000:5000 --env-file .env phase2-ai-backend
 ```

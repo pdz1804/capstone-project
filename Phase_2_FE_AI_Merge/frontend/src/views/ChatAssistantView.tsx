@@ -28,7 +28,7 @@ interface ToolTrace {
 
 const LOCAL_AUTH_TOKEN_KEY = 'bk_local_auth_token';
 const LOCAL_AUTH_UID_KEY = 'bk_local_auth_uid';
-const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const CHAT_MARKDOWN_COMPONENTS: Components = {
   h1: ({ children }) => <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-3">{children}</h1>,
