@@ -1,0 +1,331 @@
+{
+  "metadata": {
+    "doc_id": "Requirement_Doc.docx",
+    "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+    "num_sections": 17,
+    "total_chunks": 10,
+    "chunking_config": {
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "max_table_chunk_size": 2000
+    },
+    "created_at": "2026-03-27T11:38:47.487230"
+  },
+  "chunks": [
+    {
+      "id": "Requirement_Doc.docx_chunk_0",
+      "text": "[Section: Requirement_Doc.docx > 1. Project Overview]\n\nZero Bank is a demo online banking application that simulates the basic functionalities of a banking system. The goal is to test the user experience, data validation, and functionality of the key features available to users.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+      "doc_id": "Requirement_Doc.docx",
+      "chunk_index": 0,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Requirement_Doc.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Requirement_Doc.docx",
+          "1. Project Overview"
+        ],
+        "heading_text": "1. Project Overview",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:38:47.487230",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 0,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Requirement_Doc.docx_chunk_1",
+      "text": "[Section: Requirement_Doc.docx > 2. Scope of Testing]\n\nThe following modules will be tested manually:\n- Login\n- Account Summary\n- Transfer Funds\n- Feedback Form\n- Logout",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+      "doc_id": "Requirement_Doc.docx",
+      "chunk_index": 1,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Requirement_Doc.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Requirement_Doc.docx",
+          "2. Scope of Testing"
+        ],
+        "heading_text": "2. Scope of Testing",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:38:47.487230",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 1,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Requirement_Doc.docx_chunk_2",
+      "text": "[Section: Requirement_Doc.docx > 3. Functional Requirements > 🔐 Module 1: Login]\n\n- System must allow users to login with valid credentials.\n- Invalid login attempts should show proper error messages.\n- \"Forgot your password\" should redirect properly.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+      "doc_id": "Requirement_Doc.docx",
+      "chunk_index": 2,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Requirement_Doc.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Requirement_Doc.docx",
+          "3. Functional Requirements",
+          "🔐 Module 1: Login"
+        ],
+        "heading_text": "🔐 Module 1: Login",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:38:47.487230",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 2,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Requirement_Doc.docx_chunk_3",
+      "text": "[Section: Requirement_Doc.docx > 3. Functional Requirements > 📊 Module 2: Account Summary]\n\n- User must see current account balances.\n- Different account types must display (Checking, Savings, etc.).",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+      "doc_id": "Requirement_Doc.docx",
+      "chunk_index": 3,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Requirement_Doc.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Requirement_Doc.docx",
+          "3. Functional Requirements",
+          "📊 Module 2: Account Summary"
+        ],
+        "heading_text": "📊 Module 2: Account Summary",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:38:47.487230",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 3,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Requirement_Doc.docx_chunk_4",
+      "text": "[Section: Requirement_Doc.docx > 3. Functional Requirements > 🔁 Module 3: Transfer Funds]\n\n- Allow transfer from one account to another.\n- Validate negative and empty values.\n- Show success message upon valid transfer.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+      "doc_id": "Requirement_Doc.docx",
+      "chunk_index": 4,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Requirement_Doc.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Requirement_Doc.docx",
+          "3. Functional Requirements",
+          "🔁 Module 3: Transfer Funds"
+        ],
+        "heading_text": "🔁 Module 3: Transfer Funds",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:38:47.487230",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 4,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Requirement_Doc.docx_chunk_5",
+      "text": "[Section: Requirement_Doc.docx > 3. Functional Requirements > 📩 Module 4: Feedback Form]\n\n- Should allow users to submit feedback.\n- Fields: Name, Email, Subject, Comment.\n- Form validations must be in place.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+      "doc_id": "Requirement_Doc.docx",
+      "chunk_index": 5,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Requirement_Doc.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Requirement_Doc.docx",
+          "3. Functional Requirements",
+          "📩 Module 4: Feedback Form"
+        ],
+        "heading_text": "📩 Module 4: Feedback Form",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:38:47.487230",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 5,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Requirement_Doc.docx_chunk_6",
+      "text": "[Section: Requirement_Doc.docx > 3. Functional Requirements > 🚪 Module 5: Logout]\n\n- Clicking \"Logout\" should end the session.\n- User must be redirected to login page after logout.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+      "doc_id": "Requirement_Doc.docx",
+      "chunk_index": 6,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Requirement_Doc.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Requirement_Doc.docx",
+          "3. Functional Requirements",
+          "🚪 Module 5: Logout"
+        ],
+        "heading_text": "🚪 Module 5: Logout",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:38:47.487230",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 6,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Requirement_Doc.docx_chunk_7",
+      "text": "[Section: Requirement_Doc.docx > 4. Non-Functional Requirements]\n\n- Website should be accessible on Chrome and Firefox.\n- All pages should load within 3 seconds.\n- Mobile compatibility testing (optional).",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+      "doc_id": "Requirement_Doc.docx",
+      "chunk_index": 7,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Requirement_Doc.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Requirement_Doc.docx",
+          "4. Non-Functional Requirements"
+        ],
+        "heading_text": "4. Non-Functional Requirements",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:38:47.487230",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 7,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Requirement_Doc.docx_chunk_8",
+      "text": "[Section: Requirement_Doc.docx > 5. Assumptions]\n\n- The site is a demo and will not save data.\n- Valid login credentials are public: username: username, password: password.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+      "doc_id": "Requirement_Doc.docx",
+      "chunk_index": 8,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Requirement_Doc.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Requirement_Doc.docx",
+          "5. Assumptions"
+        ],
+        "heading_text": "5. Assumptions",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:38:47.487230",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 8,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    },
+    {
+      "id": "Requirement_Doc.docx_chunk_9",
+      "text": "[Section: Requirement_Doc.docx > 6. Tools Used]\n\n- Manual Testing\n- Excel (for test cases and reports)\n- JIRA (for tracking bugs, stories, and progress)",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+      "doc_id": "Requirement_Doc.docx",
+      "chunk_index": 9,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Requirement_Doc.docx",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Requirement_Doc.docx",
+          "6. Tools Used"
+        ],
+        "heading_text": "6. Tools Used",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Requirement_Doc.docx.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:38:47.487230",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 9,
+        "total_chunks": 10
+      },
+      "total_chunks": 10
+    }
+  ]
+}
