@@ -1,0 +1,341 @@
+[
+  {
+    "heading_text": "",
+    "heading_level": 0,
+    "children": [
+      {
+        "heading_text": "Clustering",
+        "heading_level": 1,
+        "children": [
+          {
+            "heading_text": "01 Problem Statement",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "Facts: Regions (cities, provinces) affects significantly in",
+                "heading_level": 3,
+                "children": [],
+                "content": "consumer behavior,\nincome,\nand infrastructure."
+              },
+              {
+                "heading_text": "Our method: Market Region Clustering groups these areas based on",
+                "heading_level": 3,
+                "children": [],
+                "content": "sales patterns and similarities rather than just geography."
+              },
+              {
+                "heading_text": "Our targets: Enable business strategies",
+                "heading_level": 3,
+                "children": [],
+                "content": "3"
+              }
+            ]
+          },
+          {
+            "heading_text": "01 Problem Statement",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "Need-human processes: Organizations often rely on intuition rather",
+                "heading_level": 3,
+                "children": [],
+                "content": "than reliable data to categorize regions."
+              },
+              {
+                "heading_text": "Inconsistency: Issues lead to missed opportunities in emerging",
+                "heading_level": 3,
+                "children": [],
+                "content": "markets and inability to identify underperforming areas."
+              },
+              {
+                "heading_text": "Complexity: Without automated pipelines, extracting insights from",
+                "heading_level": 3,
+                "children": [],
+                "content": "large datasets is inefficient."
+              },
+              {
+                "heading_text": "The Need: A shift from manual segmentation to an automated, data-",
+                "heading_level": 3,
+                "children": [],
+                "content": "driven clustering system.\n4"
+              }
+            ]
+          },
+          {
+            "heading_text": "01 Problem Statement",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "1.Establish a Data Warehouse",
+                "heading_level": 3,
+                "children": [],
+                "content": "Centralize and structure big data\nCreate a pipeline for data cleaning, integrating,  and organization."
+              },
+              {
+                "heading_text": "2.Develop a Decision Support System (DSS)",
+                "heading_level": 3,
+                "children": [],
+                "content": "Apply clustering algorithms to identify market patterns.\nProvide helpful insights for\nstrategic planning,\nresource allocation,\noperational improvements.\n5"
+              }
+            ]
+          },
+          {
+            "heading_text": "02 Data Warehouse Design",
+            "heading_level": 2,
+            "children": [],
+            "content": "[START_IMAGE_PATH] images/img_005_00.png|d4c3835b3da1 [END_IMAGE_PATH]\nFigure 3.1: Data\nWarehouse Shema\nDiagram\n6"
+          },
+          {
+            "heading_text": "03 ELT (Extract, Load, Transform)",
+            "heading_level": 2,
+            "children": [],
+            "content": "[START_IMAGE_PATH] images/img_006_00.png|49ce652c4873 [END_IMAGE_PATH]\n7"
+          },
+          {
+            "heading_text": "03 ELT (Extract, Load, Transform)",
+            "heading_level": 2,
+            "children": [],
+            "content": "[START_IMAGE_PATH] images/img_007_00.png|50d25b99dc9d [END_IMAGE_PATH]\n8"
+          },
+          {
+            "heading_text": "03 ELT (Extract, Load, Transform)",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "Setup Source/ Setup Destination for Airbyte Pipeline",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_IMAGE_PATH] images/img_008_00.png|c987ea929e55 [END_IMAGE_PATH]\n9"
+              }
+            ]
+          },
+          {
+            "heading_text": "03 ELT (Extract, Load, Transform)",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "Setup Source/ Setup Destination for Airbyte Pipeline",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_IMAGE_PATH] images/img_009_01.png|68dab05de1c2 [END_IMAGE_PATH]\n[START_IMAGE_PATH] images/img_009_00.png|6d7bbd22fd6c [END_IMAGE_PATH]\n10"
+              }
+            ]
+          },
+          {
+            "heading_text": "ELT (Extract, Load, Transform)",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "Incremental | Append (Newly Created Record)",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_TABLE_CONTENT]\n| name | deceased | updated at<br>_ |\n| --- | --- | --- |\n| Louis XVI | FALSE | 1754 |\n| Marie<br>Antoinette | FALSE | 1755 |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n| name | deceased | updated at<br>_ |\n| --- | --- | --- |\n| Louis XVII | FALSE | 1785 |\n[END_TABLE_CONTENT]\nDestination\nSource\n11"
+              }
+            ],
+            "content": "03"
+          },
+          {
+            "heading_text": "ELT (Extract, Load, Transform)",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "Incremental | Append (Newly Created Record)",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_TABLE_CONTENT]\n| name | deceased | updated at<br>_ |\n| --- | --- | --- |\n| Marie Antoinette | FALSE | 1755 |\n| Louis XVI | FALSE | 1754 |\n| Louis XVII | FALSE | 1785 |\n[END_TABLE_CONTENT]\n12"
+              }
+            ],
+            "content": "03"
+          },
+          {
+            "heading_text": "ELT (Extract, Load, Transform)",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "Incremental | Append (Updating a record)",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_TABLE_CONTENT]\n| name | deceased | updated at<br>_ |\n| --- | --- | --- |\n| Louis XVI | TRUE | 1793 |\n| Marie<br>Antoinette | TRUE | 1793 |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n| name | deceased | updated at<br>_ |\n| --- | --- | --- |\n| Louis XVI | TRUE | 1793 |\n| Marie<br>Antoinette | TRUE | 1793 |\n| Louis XVII | FALSE | 1785 |\n[END_TABLE_CONTENT]\n13"
+              }
+            ],
+            "content": "03"
+          },
+          {
+            "heading_text": "ELT (Extract, Load, Transform)",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "Incremental | Append mechanism",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_TABLE_CONTENT]\n|  | Definition | Example / Purpose |\n| --- | --- | --- |\n| Cursor | Value used to determine if a record<br>should be included in an incremental<br>sync. | A timestamp indicating last update. |\n| Cursor Field | The field/column where the cursor<br>value is stored. | updated at column in a table.<br>_ |\n| Primary Key | One or multiple columns that<br>uniquely identify an entity. Used to<br>determine which record to update. | id column; composite keys like<br>(user id, order id).<br>_ _ |\n[END_TABLE_CONTENT]\n14"
+              }
+            ],
+            "content": "03"
+          },
+          {
+            "heading_text": "ELT (Extract, Load, Transform)",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "Full Refresh | Overwrite",
+                "heading_level": 3,
+                "children": [],
+                "content": "Languages\nLanguages\nLanguages\nPython\nPython\nPython\nJava\nC++\nC++\nBash\nRuby\nRuby\nDestination\nSource\n15"
+              }
+            ],
+            "content": "03"
+          },
+          {
+            "heading_text": "ELT (Extract, Load, Transform)",
+            "heading_level": 2,
+            "children": [
+              {
+                "heading_text": "Selecting Streams and Sync Modes in Airbyte",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_TABLE_CONTENT]\n| Sync Mode | How It Works | When Records Are<br>Replaced | When It’s Useful |\n| --- | --- | --- | --- |\n| Incremental \\| Append | Adds only new or<br>updated records (based<br>on a cursor). Does not<br>remove or overwrite<br>existing rows. | Never. Old rows remain;<br>new rows are appended<br>even if they refer to the<br>same primary key. | Keeping a full history of<br>changes, audit logs,<br>event-style data. |\n| Full Refresh \\| Overwrite | Rebuilds the entire table<br>on every sync by pulling<br>all source data. | Always. The destination<br>table is dropped and<br>rebuilt with the latest full<br>dataset. | Ensuring the destination<br>always matches the<br>source exactly; small<br>datasets; when no<br>incremental cursor<br>exists. |\n[END_TABLE_CONTENT]\n16"
+              },
+              {
+                "heading_text": "03 ELT (Extract, Load, Transform)",
+                "heading_level": 3,
+                "children": [
+                  {
+                    "heading_text": "Selecting Streams and Sync Modes in Airbyte",
+                    "heading_level": 4,
+                    "children": [],
+                    "content": "[START_IMAGE_PATH] images/img_016_00.png|9cc255cc7b2a [END_IMAGE_PATH]\n17"
+                  }
+                ]
+              },
+              {
+                "heading_text": "03 ELT (Extract, Load, Transform)",
+                "heading_level": 3,
+                "children": [
+                  {
+                    "heading_text": "Data Transformation",
+                    "heading_level": 4,
+                    "children": [],
+                    "content": "[START_IMAGE_PATH] images/img_017_00.png|61406fef11a2 [END_IMAGE_PATH]\n18"
+                  }
+                ]
+              },
+              {
+                "heading_text": "03 ELT (Extract, Load, Transform)",
+                "heading_level": 3,
+                "children": [
+                  {
+                    "heading_text": "Data Transformation",
+                    "heading_level": 4,
+                    "children": [],
+                    "content": "[START_IMAGE_PATH] images/img_018_00.png|875acccd6552 [END_IMAGE_PATH]\n19"
+                  }
+                ]
+              },
+              {
+                "heading_text": "03 ELT (Extract, Load, Transform)",
+                "heading_level": 3,
+                "children": [
+                  {
+                    "heading_text": "Data Transformation",
+                    "heading_level": 4,
+                    "children": [],
+                    "content": "[START_IMAGE_PATH] images/img_019_00.png|61f084ad8f4e [END_IMAGE_PATH]\n20\n[START_IMAGE_PATH] images/img_020_00.png|7f7673ed7cc8 [END_IMAGE_PATH]"
+                  }
+                ]
+              },
+              {
+                "heading_text": "03 ELT (Extract, Load, Transform)",
+                "heading_level": 3,
+                "children": [
+                  {
+                    "heading_text": "Data Transformation",
+                    "heading_level": 4,
+                    "children": [],
+                    "content": "21\n[START_IMAGE_PATH] images/img_021_00.png|7f7673ed7cc8 [END_IMAGE_PATH]"
+                  }
+                ]
+              },
+              {
+                "heading_text": "03 ELT (Extract, Load, Transform)",
+                "heading_level": 3,
+                "children": [
+                  {
+                    "heading_text": "Data Transformation",
+                    "heading_level": 4,
+                    "children": [],
+                    "content": "22"
+                  }
+                ]
+              },
+              {
+                "heading_text": "03 ELT (Extract, Load, Transform)",
+                "heading_level": 3,
+                "children": [
+                  {
+                    "heading_text": "Data Transformation",
+                    "heading_level": 4,
+                    "children": [],
+                    "content": "23"
+                  }
+                ],
+                "content": "[START_IMAGE_PATH] images/img_022_00.png|b4057a6d0af5 [END_IMAGE_PATH]"
+              },
+              {
+                "heading_text": "04 Decision Support System Design",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_IMAGE_PATH] images/img_023_00.png|26bd332972ff [END_IMAGE_PATH]\nSegmentation\nresult on\nMay 2014\n24"
+              },
+              {
+                "heading_text": "04 Decision Support System Design",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_IMAGE_PATH] images/img_024_00.png|4c3e2e357680 [END_IMAGE_PATH]\nFigure: Playground Mode\n25"
+              },
+              {
+                "heading_text": "04 Some Example Insights",
+                "heading_level": 3,
+                "children": [],
+                "content": "1. Resource Allocation: Efficiency vs Scale\nThe system separates high-efficiency markets from low-efficiency ones.\nSegment 1 delivers $1.82M efficiently. Segment 5 requires 3 markets to match that output.\n=> Action: Restructure Segment 5 to reduce overhead; expand Segment 2, which shows strong\nrevenue efficiency.\n[START_IMAGE_PATH] images/img_025_00.png|d9b03c862644 [END_IMAGE_PATH]\n26"
+              },
+              {
+                "heading_text": "04 Some Example Insights",
+                "heading_level": 3,
+                "children": [],
+                "content": "2.Product Strategy: Average unit price reveals two customer types:\nSegment 1 operates as a Volume Leader (~$343).\nSegments 2 and 5 form a Premium Niche (~$430 and ~$410).\n=> Action: Loyalty programs for price-sensitive Segment 1; target premium upselling to Segments\n2 and 5.\n[START_IMAGE_PATH] images/img_026_00.png|d9b03c862644 [END_IMAGE_PATH]\n27"
+              },
+              {
+                "heading_text": "04 Some Example Insights",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_IMAGE_PATH] images/img_027_00.png|1d2d155c693b [END_IMAGE_PATH]\n3. Market Behavior: LSTM trends expose growth\nand seasonal patterns.\nSegment\n3\nshows\nthe\nstrongest\nmomentum, growing from $324k to $1.35M.\nSegments\n1\nand\n4\nexhibit\nstrong\nseasonality.\n=> Action: Invest in Segment 3 as a future\ngrowth driver; align inventory and marketing\nwith seasonal spikes in Segments 1 and 4.\n28"
+              },
+              {
+                "heading_text": "04 Some Example Insights",
+                "heading_level": 3,
+                "children": [],
+                "content": "[START_IMAGE_PATH] images/img_028_00.png|fd44c35130d2 [END_IMAGE_PATH]\n29\nFigure: AI Suggestion"
+              },
+              {
+                "heading_text": "05 Conclusion",
+                "heading_level": 3,
+                "children": [],
+                "content": "The Big Wins:\nSpeed: Insights arrive instantly after month-close, not days later.\nTrajectory: We see who is growing and who is dying, preventing bad investments in declining\nmarkets.\nScale: Cloud-native design handles 50 or 5,000 markets without breaking.\nThe Trade-off:\n\"Cold Start\": The AI needs history to learn. Brand new markets can't be classified immediately\n—but this protects us from \"false start\" investments.\nAI hallucination problem.\nWhat's Next?\nForecasting: Move from describing the past to predicting next month’s inventory needs.\nReal-Time: Capture viral trends instantly instead of waiting for the monthly report.\n30"
+              }
+            ],
+            "content": "03"
+          }
+        ],
+        "content": "Group: 06\nCourse: Data warehouse and Decision Support System\nLecturer: Phan Trọng Nhân, PhD\n1\n[START_TABLE_CONTENT]\n| Table of Content<br>01 Problem Statement<br>02 Data Warehouse Design<br>03 ELT Pipeline<br>04 Decision Support System Design<br>05 Conclusion<br>2 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |\n[END_TABLE_CONTENT]\n[START_TABLE_CONTENT]\n|  | 04 |\n| --- | --- |\n|  |  |\n[END_TABLE_CONTENT]"
+      },
+      {
+        "heading_text": "You.",
+        "heading_level": 1,
+        "children": [],
+        "content": "For Your Attention\n31"
+      }
+    ],
+    "content": "[START_IMAGE_PATH] images/img_000_00.png|cd99595d9274 [END_IMAGE_PATH]\nHO CHI MINH UNIVERSITY OF TECHNOLOGY, VNU-HCM\nFaculty of Computer Science and Engineering\nA S S I G N M E N T  P R E S E N T A T I O N"
+  }
+]

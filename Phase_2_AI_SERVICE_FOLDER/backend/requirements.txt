@@ -10,7 +10,7 @@ huggingface-hub>=0.23.0
 colpali-engine==0.3.13
 ragatouille>=0.0.8
 
-docling[all]>=2.0.0
+docling>=2.14.0
 docling-core>=2.0.0
 docling-parse>=2.0.0
 bitsandbytes
@@ -26,6 +26,7 @@ html5lib
 Pillow
 img2pdf
 pdf2image
+pymupdf>=1.24.0
 reportlab
 
 moviepy
@@ -42,7 +43,7 @@ pytesseract
 easyocr
 rapidocr-onnxruntime
 
-faiss-cpu
+faiss-cpu>=1.8.0
 rank-bm25
 datasets
 
