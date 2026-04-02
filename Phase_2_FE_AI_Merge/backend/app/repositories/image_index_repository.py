@@ -43,19 +43,52 @@ class ImageIndexRepository:
                 scalar=ScalarQuantizationConfig(
                     type=ScalarType.INT8,
                     quantile=0.99,
-                    always_ram=True,
+                    always_ram=False,
                 )
             )
         if sq == "binary":
-            return BinaryQuantization(binary=BinaryQuantizationConfig(always_ram=True))
+            return BinaryQuantization(binary=BinaryQuantizationConfig(always_ram=False))
         return None
+
+    def _ensure_payload_indexes(self) -> None:
+        from qdrant_client.models import PayloadSchemaType
+
+        fields = (
+            ("user_id", PayloadSchemaType.KEYWORD),
+            ("source", PayloadSchemaType.KEYWORD),
+            ("page", PayloadSchemaType.INTEGER),
+            ("source_path", PayloadSchemaType.KEYWORD),
+        )
+        for field_name, field_schema in fields:
+            ok = False
+            attempts = [field_schema]
+            if field_schema == PayloadSchemaType.KEYWORD:
+                attempts.append("keyword")
+            if field_schema == PayloadSchemaType.INTEGER:
+                attempts.append("integer")
+            last_err: Exception | None = None
+            for schema in attempts:
+                try:
+                    self.client.create_payload_index(
+                        collection_name=self.collection_name,
+                        field_name=field_name,
+                        field_schema=schema,
+                    )
+                    ok = True
+                    break
+                except Exception as e:
+                    last_err = e
+            if not ok:
+                msg = f"Failed to create payload index '{field_name}' on {self.collection_name}: {last_err}"
+                if field_name == "user_id":
+                    raise RuntimeError(msg) from last_err
+                logger.warning(msg)
 
     def ensure_collection(self, recreate: bool = False) -> None:
         from qdrant_client.models import (
             Distance,
             MultiVectorComparator,
             MultiVectorConfig,
-            PayloadSchemaType,
             VectorParams,
         )
 
@@ -64,30 +97,20 @@ class ImageIndexRepository:
             if recreate:
                 self.client.delete_collection(self.collection_name)
             else:
+                self._ensure_payload_indexes()
                 return
         params = VectorParams(
             size=self.embedding_dim,
             distance=Distance.DOT,
             multivector_config=MultiVectorConfig(comparator=MultiVectorComparator.MAX_SIM),
             quantization_config=self._quant_config(),
+            on_disk=True,
         )
         self.client.create_collection(
             collection_name=self.collection_name,
             vectors_config={self.vector_name: params},
         )
-        for field_name, field_type in (
-            ("source", PayloadSchemaType.KEYWORD),
-            ("page", PayloadSchemaType.INTEGER),
-            ("source_path", PayloadSchemaType.KEYWORD),
-        ):
-            try:
-                self.client.create_payload_index(
-                    collection_name=self.collection_name,
-                    field_name=field_name,
-                    field_schema=field_type,
-                )
-            except Exception as e:
-                logger.debug("Payload index %s: %s", field_name, e)
+        self._ensure_payload_indexes()
 
     def upsert_pages(
         self,
@@ -95,6 +118,7 @@ class ImageIndexRepository:
         multivectors: List[List[List[float]]],
         payloads: List[Dict[str, Any]],
         batch_size: int = 8,
+        wait: bool = False,
     ) -> None:
         from qdrant_client.models import PointStruct
 
@@ -112,14 +136,22 @@ class ImageIndexRepository:
                         payload=payloads[i],
                     )
                 )
-            self.client.upsert(collection_name=self.collection_name, points=points, wait=True)
+            self.client.upsert(collection_name=self.collection_name, points=points, wait=wait)
 
-    def search(self, query_multivec: List[List[float]], limit: int = 5) -> List[Dict[str, Any]]:
+    def search(
+        self, query_multivec: List[List[float]], limit: int = 5, user_id: str | None = None
+    ) -> List[Dict[str, Any]]:
+        qfilter = None
+        if user_id:
+            from qdrant_client.models import FieldCondition, Filter, MatchValue
+
+            qfilter = Filter(must=[FieldCondition(key="user_id", match=MatchValue(value=user_id))])
         res = self.client.query_points(
             collection_name=self.collection_name,
             query=query_multivec,
             using=self.vector_name,
             limit=limit,
+            query_filter=qfilter,
             with_payload=True,
             with_vectors=False,
         )
@@ -134,18 +166,32 @@ class ImageIndexRepository:
             )
         return out
 
-    def count_points(self) -> int:
+    def count_points(self, user_id: str | None = None) -> int:
         try:
+            if user_id:
+                from qdrant_client.models import FieldCondition, Filter, MatchValue
+
+                flt = Filter(must=[FieldCondition(key="user_id", match=MatchValue(value=user_id))])
+                return int(
+                    self.client.count(
+                        collection_name=self.collection_name,
+                        count_filter=flt,
+                        exact=True,
+                    ).count
+                )
             info = self.client.get_collection(self.collection_name)
             return int(info.points_count)
         except Exception:
             return 0
 
-    def delete_by_pdf_name(self, pdf_filename: str) -> int:
+    def delete_by_pdf_name(self, pdf_filename: str, user_id: str | None = None) -> int:
         """Remove pages indexed with payload ``source`` == PDF basename (e.g. ``report.pdf``)."""
         from qdrant_client.models import FieldCondition, Filter, FilterSelector, MatchValue
 
-        flt = Filter(must=[FieldCondition(key="source", match=MatchValue(value=pdf_filename))])
+        must = [FieldCondition(key="source", match=MatchValue(value=pdf_filename))]
+        if user_id:
+            must.append(FieldCondition(key="user_id", match=MatchValue(value=user_id)))
+        flt = Filter(must=must)
         try:
             cnt = self.client.count(
                 collection_name=self.collection_name,
@@ -166,3 +212,24 @@ class ImageIndexRepository:
     def clear_all_points(self) -> None:
         """Drop and recreate the image collection (empty)."""
         self.ensure_collection(recreate=True)
+
+    def delete_by_user(self, user_id: str) -> int:
+        from qdrant_client.models import FieldCondition, Filter, FilterSelector, MatchValue
+
+        flt = Filter(must=[FieldCondition(key="user_id", match=MatchValue(value=user_id))])
+        try:
+            cnt = self.client.count(
+                collection_name=self.collection_name,
+                count_filter=flt,
+                exact=True,
+            ).count
+        except Exception:
+            cnt = 0
+        if cnt == 0:
+            return 0
+        self.client.delete(
+            collection_name=self.collection_name,
+            points_selector=FilterSelector(filter=flt),
+            wait=True,
+        )
+        return int(cnt)

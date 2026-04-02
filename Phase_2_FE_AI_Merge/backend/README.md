@@ -12,10 +12,10 @@ src/                   # Legacy pipeline: processor, chunking, retrieval helpers
 config/default.yaml    # Pipeline + Qdrant + inference settings
 ```
 
-- **Dense text retrieval** uses **Qdrant** (cosine on `sentence-transformers` embeddings).
-- **BM25** uses a pickle under each user’s workspace: `<workspace>/output/retrieval/bm25_index.pkl` (local mode: `backend/output/...`; S3 mode: temp `phase2_ai_workspace/<user>/output/retrieval/...`).
+- **Dense text retrieval** uses **Qdrant** (cosine on `sentence-transformers` embeddings) in one shared text collection, tenant-scoped by payload `user_id`.
+- **BM25** uses per-user sidecar files: local mode `backend/output/retrieval/*`; S3 mode `s3://<processed-bucket>/<user-prefix>/retrieval/{bm25_index.pkl,documents.json.pkl}`.
 - **Hybrid** fuses BM25 + dense (Qdrant) with weight `inference.hybrid_alpha` (default 0.5).
-- **Image retrieval** stores **ColQwen multivectors** in Qdrant (MaxSim), same idea as `Phase_2_PDZ_003_Test_Qdrant_Cloud`.
+- **Image retrieval** stores **ColQwen multivectors** in one shared image collection, tenant-scoped by payload `user_id` (MaxSim).
 
 ### File storage (local vs S3)
 
@@ -154,7 +154,9 @@ Use the same **`X-User-Id`** (if any) for upload → process → index → searc
 
 1. `POST /api/upload` — **local:** `backend/input/` · **S3:** object in originals bucket (+ sync to temp input on process).
 2. `POST /api/process` — normalization → **local:** `backend/output/processing/...` · **S3:** temp workspace then `publish` to processed bucket.
-3. `POST /api/index` (or text + image separately) — builds Qdrant collections, **`documents.json`**, BM25. With S3, chunk/image metadata gets **`storage_uri`** for UI citations (re-run index after changing storage or paths).
+3. `POST /api/index` (or text + image separately) — upserts tenant-filtered points into shared Qdrant collections and writes per-user BM25 sidecars. With S3, chunk/image metadata gets **`storage_uri`** for UI citations (re-run index after changing storage or paths).
+
+See `docs/QDRANT_MULTITENANCY.md` for the multitenancy standard and migration notes.
 
 ## Fast vs Standard modes
 

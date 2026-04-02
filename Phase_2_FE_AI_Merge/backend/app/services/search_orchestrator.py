@@ -8,8 +8,10 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from app.core.paths import BACKEND_ROOT, workspace_paths_for_user
+from app.services.citation_uris import canonical_document_source, sanitize_metadata_for_api
+from app.repositories import load_documents_snapshot
 from app.services.image_search_service import ImageSearchService
-from app.services.text_search_service import TextSearchService, _load_doc_map
+from app.services.text_search_service import TextSearchService
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +35,11 @@ def _estimate_tokens(text: str) -> int:
 
 def _expand_text_for_generation(rows: List[Dict[str, Any]], user_id: str | None) -> List[Dict[str, Any]]:
     paths = workspace_paths_for_user(user_id)
-    doc_map = _load_doc_map(paths.documents_json_path)
+    doc_map = {}
+    for d in load_documents_snapshot(paths.documents_json_path, user_id=paths.user_id):
+        cid = str(d.get("id", ""))
+        if cid:
+            doc_map[cid] = d
     out: List[Dict[str, Any]] = []
     for r in rows:
         cid = str(r.get("id", ""))
@@ -41,10 +47,11 @@ def _expand_text_for_generation(rows: List[Dict[str, Any]], user_id: str | None)
         text = full.get("text") or r.get("text", "")
         item = dict(r)
         item["text"] = text
-        if full.get("source"):
-            item["source"] = full["source"]
-        if full.get("metadata"):
-            item["metadata"] = full["metadata"]
+        meta = dict(full.get("metadata") or {})
+        if item.get("metadata"):
+            meta.update(dict(item["metadata"]))
+        item["metadata"] = sanitize_metadata_for_api(meta)
+        item["source"] = canonical_document_source(item["metadata"], str(item.get("source") or full.get("source", "")))
         out.append(item)
     return out
 
@@ -142,7 +149,7 @@ class SearchOrchestrator:
             imgs = image_rows[:images_for_generation]
             merged = text_for_gen + imgs
             t_gen = perf_counter()
-            gen_out = gen.generate(query, merged)
+            gen_out = gen.generate(query, merged, storage_user_id=self._user_id)
             step_ms["generation"] = int((perf_counter() - t_gen) * 1000)
             result["answer"] = gen_out.get("answer")
             if "contents" in gen_out:

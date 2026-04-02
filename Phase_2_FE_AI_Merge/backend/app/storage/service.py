@@ -280,6 +280,33 @@ class S3FileStorage(FileStorageService):
     def _uri(self, bucket: str, key: str) -> str:
         return f"s3://{bucket}/{key}"
 
+    def processed_uri(self, relative_path: str) -> str:
+        key = self._key_processing(relative_path)
+        return self._uri(self.processed_bucket, key)
+
+    def write_processed_bytes(
+        self, relative_path: str, data: bytes, content_type: Optional[str] = None
+    ) -> str:
+        key = self._key_processing(relative_path)
+        kwargs: Dict[str, Any] = {"Bucket": self.processed_bucket, "Key": key, "Body": data}
+        if content_type:
+            kwargs["ContentType"] = content_type
+        self._client.put_object(**kwargs)
+        return self._uri(self.processed_bucket, key)
+
+    def read_processed_bytes(self, relative_path: str) -> Optional[bytes]:
+        from botocore.exceptions import ClientError
+
+        key = self._key_processing(relative_path)
+        try:
+            obj = self._client.get_object(Bucket=self.processed_bucket, Key=key)
+            return obj["Body"].read()
+        except ClientError as e:
+            code = e.response.get("Error", {}).get("Code", "")
+            if code in ("404", "NoSuchKey", "NotFound"):
+                return None
+            raise
+
     def read_object(self, bucket: str, key: str) -> Tuple[bytes, Optional[str]]:
         """Download object body; used for image streaming."""
         if bucket not in (self.originals_bucket, self.processed_bucket):
