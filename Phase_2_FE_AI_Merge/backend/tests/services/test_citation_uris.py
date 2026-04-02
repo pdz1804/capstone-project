@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from app.services.citation_uris import enrich_chunk_documents_storage_uris
+from app.services.citation_uris import enrich_chunk_documents_storage_uris, sanitize_metadata_for_api
 from app.storage.service import S3FileStorage
 
 
@@ -70,3 +70,17 @@ def test_enrich_documents_sets_storage_uri(monkeypatch: pytest.MonkeyPatch, tmp_
     enrich_chunk_documents_storage_uris(docs, user_id="default")
     assert docs[0]["metadata"].get("storage_uri") == "s3://proc/pr/stage4_rag_ready/Doc/Doc.md"
     assert docs[0]["metadata"].get("storage_backend") == "s3"
+
+
+@pytest.mark.unit
+def test_sanitize_metadata_strips_local_paths_when_storage_uri():
+    meta = {
+        "storage_uri": "s3://b/k/doc.md",
+        "storage_backend": "s3",
+        "original_file": r"C:\Temp\machine\doc.md",
+        "source_path": r"C:\Temp\page.png",
+    }
+    out = sanitize_metadata_for_api(meta)
+    assert out.get("storage_uri") == "s3://b/k/doc.md"
+    assert "original_file" not in out
+    assert "source_path" not in out

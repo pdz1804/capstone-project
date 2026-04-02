@@ -19,6 +19,7 @@ class ImageSearchService:
         q = yaml_config.get("qdrant", {}) or {}
         quant = q.get("image_storage_quantization", "scalar")
         paths = workspace_paths_for_user(user_id)
+        self._user_id = paths.user_id
         _, img_col = qdrant_collection_names_for_user(
             q.get("text_collection", "edu_text_chunks"),
             q.get("image_collection", "edu_image_pages"),
@@ -35,7 +36,9 @@ class ImageSearchService:
 
     def search(self, query: str, top_k: int) -> List[Dict[str, Any]]:
         qvec = self._colqwen.embed_query(query)
-        hits = self._repo.search(qvec, limit=top_k)
+        # Ensure payload indexes (notably user_id) exist on pre-migration collections.
+        self._repo.ensure_collection(recreate=False)
+        hits = self._repo.search(qvec, limit=top_k, user_id=self._user_id)
         results: List[Dict[str, Any]] = []
         for rank, hit in enumerate(hits, start=1):
             pl = hit.get("payload") or {}

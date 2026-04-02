@@ -41,3 +41,24 @@ def enrich_chunk_documents_storage_uris(
         if uri:
             meta["storage_uri"] = uri
             meta["storage_backend"] = "s3"
+
+
+def sanitize_metadata_for_api(meta: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Copy of chunk metadata safe for API/UI: when ``storage_uri`` is set, drop ``original_file`` so
+    clients never use ephemeral local paths for loading or display.
+    """
+    out = dict(meta or {})
+    su = str(out.get("storage_uri") or "").strip()
+    if su:
+        out.pop("original_file", None)
+        out.pop("source_path", None)
+    return out
+
+
+def canonical_document_source(meta: Dict[str, Any], fallback: str) -> str:
+    """Prefer S3 ``storage_uri`` over local ``source`` / path strings."""
+    su = str((meta or {}).get("storage_uri") or "").strip()
+    if su:
+        return su
+    return (fallback or "").strip()

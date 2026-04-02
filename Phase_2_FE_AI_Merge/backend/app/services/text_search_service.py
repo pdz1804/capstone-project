@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
-import json
 import logging
 from pathlib import Path
 from typing import Any, Dict, List
 
 from app.core.paths import qdrant_collection_names_for_user, workspace_paths_for_user
-from app.repositories import TextIndexRepository, build_qdrant_client, bm25_search, load_bm25_index
+from app.repositories import (
+    TextIndexRepository,
+    bm25_search,
+    build_qdrant_client,
+    load_bm25_index,
+    load_documents_snapshot,
+)
+from app.services.citation_uris import canonical_document_source, sanitize_metadata_for_api
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +29,8 @@ def _min_max_normalize(scores: Dict[str, float]) -> Dict[str, float]:
     return {k: (v - lo) / (hi - lo) for k, v in scores.items()}
 
 
-def _load_doc_map(path: Path) -> Dict[str, Dict[str, Any]]:
-    if not path.exists():
-        return {}
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            docs = json.load(f)
-    except Exception:
-        return {}
+def _load_doc_map_for_user(path: Path, user_id: str | None) -> Dict[str, Dict[str, Any]]:
+    docs = load_documents_snapshot(path, user_id=user_id)
     out: Dict[str, Dict[str, Any]] = {}
     for d in docs:
         cid = str(d.get("id", ""))
@@ -43,6 +43,7 @@ class TextSearchService:
     def __init__(self, yaml_config: Dict[str, Any], user_id: str | None = None):
         self.cfg = yaml_config
         self._paths = workspace_paths_for_user(user_id)
+        self._user_id = self._paths.user_id
         self._client = build_qdrant_client(yaml_config)
         q = yaml_config.get("qdrant", {}) or {}
         tr = yaml_config.get("text_retrieval", {}) or {}
@@ -53,6 +54,7 @@ class TextSearchService:
             base_txt, base_img, self._paths.user_id
         )
         self._vec_name = q.get("text_vector_name", "text")
+        self._text_quant = q.get("text_storage_quantization", "scalar")
         self._embed_model = tr.get("embedding_model", "all-MiniLM-L6-v2")
         self._alpha = float(inf.get("hybrid_alpha", 0.5))
         self._reranker_model = None
@@ -66,6 +68,8 @@ class TextSearchService:
             collection_name=self._collection,
             vector_name=self._vec_name,
             vector_size=dim,
+            storage_quantization=self._text_quant,
+            on_disk_vectors=True,
         )
 
     def _encode_query(self, query: str) -> tuple:
@@ -79,30 +83,38 @@ class TextSearchService:
     def search_dense(self, query: str, top_k: int) -> List[Dict[str, Any]]:
         vec, dim = self._encode_query(query)
         repo = self._repo(dim)
-        raw = repo.search(vec, limit=top_k)
-        doc_map = _load_doc_map(self._paths.documents_json_path)
+        # Ensure payload indexes (notably user_id) exist on pre-migration collections.
+        repo.ensure_collection(recreate=False)
+        raw = repo.search(vec, limit=top_k, user_id=self._user_id)
+        doc_map = _load_doc_map_for_user(self._paths.documents_json_path, self._user_id)
         results: List[Dict[str, Any]] = []
         for rank, hit in enumerate(raw, start=1):
             pl = hit.get("payload") or {}
             cid = str(pl.get("chunk_id", hit.get("id", "")))
             base = doc_map.get(cid, {})
             full_text = base.get("text") or pl.get("text_preview") or ""
+            meta_raw = dict(base.get("metadata") or {})
+            if pl.get("storage_uri"):
+                meta_raw["storage_uri"] = pl["storage_uri"]
+                meta_raw["storage_backend"] = pl.get("storage_backend", "s3")
+            meta = sanitize_metadata_for_api(meta_raw)
+            src = canonical_document_source(meta, str(base.get("source", pl.get("source", ""))))
             results.append(
                 {
                     "id": cid,
                     "text": full_text[:500] + ("..." if len(full_text) > 500 else ""),
                     "full_text": full_text,
-                    "source": base.get("source", pl.get("source", "")),
+                    "source": src,
                     "score": float(hit.get("score", 0.0)),
                     "rank": rank,
-                    "metadata": base.get("metadata", {}),
+                    "metadata": meta,
                     "retrieval_type": "dense_qdrant",
                 }
             )
         return results
 
     def search_bm25(self, query: str, top_k: int) -> List[Dict[str, Any]]:
-        data = load_bm25_index(self._paths.bm25_pickle_path)
+        data = load_bm25_index(self._paths.bm25_pickle_path, user_id=self._user_id)
         if not data:
             return []
         rows = bm25_search(data, query, top_k)
@@ -111,6 +123,9 @@ class TextSearchService:
             r["full_text"] = full_text
             r["text"] = full_text[:500] + ("..." if len(full_text) > 500 else "")
             r["retrieval_type"] = "bm25"
+            m = dict(r.get("metadata") or {})
+            r["metadata"] = sanitize_metadata_for_api(m)
+            r["source"] = canonical_document_source(r["metadata"], str(r.get("source", "")))
         return rows
 
     def search_hybrid(self, query: str, top_k: int, skip_reranker: bool = False) -> List[Dict[str, Any]]:
@@ -127,20 +142,22 @@ class TextSearchService:
                 cid, 0.0
             )
         sorted_ids = sorted(combined.keys(), key=lambda x: combined[x], reverse=True)[:top_k]
-        doc_map = _load_doc_map(self._paths.documents_json_path)
+        doc_map = _load_doc_map_for_user(self._paths.documents_json_path, self._user_id)
         out: List[Dict[str, Any]] = []
         for rank, cid in enumerate(sorted_ids, start=1):
             base = doc_map.get(cid, {})
             full_text = base.get("text", "")
+            meta = sanitize_metadata_for_api(dict(base.get("metadata") or {}))
+            src = canonical_document_source(meta, str(base.get("source", "")))
             out.append(
                 {
                     "id": cid,
                     "text": full_text[:500] + ("..." if len(full_text) > 500 else ""),
                     "full_text": full_text,
-                    "source": base.get("source", ""),
+                    "source": src,
                     "score": float(combined[cid]),
                     "rank": rank,
-                    "metadata": base.get("metadata", {}),
+                    "metadata": meta,
                     "retrieval_type": "hybrid_qdrant_bm25",
                     "retrieval_info": {
                         "bm25_score": bm_scores.get(cid),
@@ -168,6 +185,9 @@ class TextSearchService:
             reranked = ce.rerank(query, full_docs, top_k)
             for x in reranked:
                 x["retrieval_type"] = "hybrid_qdrant_bm25_reranked"
+                xm = dict(x.get("metadata") or {})
+                x["metadata"] = sanitize_metadata_for_api(xm)
+                x["source"] = canonical_document_source(x["metadata"], str(x.get("source", "")))
             return reranked
         return out
 

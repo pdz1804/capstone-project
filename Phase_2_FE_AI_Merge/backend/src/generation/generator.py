@@ -15,7 +15,47 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from app.services.citation_uris import sanitize_metadata_for_api
+
 logger = logging.getLogger(__name__)
+
+
+def _display_filename_from_source(source: str) -> str:
+    """Basename for citations when ``source`` is a local path or ``s3://`` URI."""
+    s = (source or "").strip().replace("\\", "/")
+    if not s:
+        return "unknown"
+    if s.startswith("s3://"):
+        tail = s.rsplit("/", 1)[-1]
+        return tail or "unknown"
+    return Path(s).name if s else "unknown"
+
+
+def _image_citation_chunk(img_doc: Dict[str, Any], idx: int) -> Dict[str, Any]:
+    su = (img_doc.get("storage_uri") or "").strip()
+    meta = sanitize_metadata_for_api(
+        {
+            "source": img_doc.get("source", "unknown"),
+            "source_path": img_doc.get("source_path", ""),
+            "storage_uri": img_doc.get("storage_uri", ""),
+            "storage_backend": img_doc.get("storage_backend", ""),
+            "page": img_doc.get("page", 0),
+            "total_pages": img_doc.get("total_pages", 0),
+            "retrieval_type": img_doc.get("retrieval_type", "colqwen_qdrant"),
+            "score": img_doc.get("score", 0),
+        }
+    )
+    return {
+        "type": "image",
+        "source": img_doc.get("source", "unknown"),
+        "page": img_doc.get("page", 0),
+        "source_path": "" if su else img_doc.get("source_path", ""),
+        "storage_uri": img_doc.get("storage_uri", ""),
+        "storage_backend": img_doc.get("storage_backend", ""),
+        "score": img_doc.get("score", 0),
+        "id": f"image-2-{idx}",
+        "metadata": meta,
+    }
 
 
 @dataclass
@@ -241,8 +281,7 @@ class RAGGenerator:
         file_chunks = {}
         for doc in retrieved_docs:
             source = doc.get('source', 'unknown')
-            # Extract filename from path
-            filename = Path(source).name if source else 'unknown'
+            filename = _display_filename_from_source(str(source))
             
             if filename not in file_chunks:
                 file_chunks[filename] = []
@@ -266,12 +305,12 @@ class RAGGenerator:
                     'score': chunk.get('score', 0),
                     'id': chunk.get('id', ''),
                     'retrieval_info': chunk.get('retrieval_info', {}),  # Include raw scores
-                    'metadata': chunk.get('metadata', {})  # Include uniform metadata
+                    'metadata': sanitize_metadata_for_api(dict(chunk.get('metadata') or {})),
                 }
                 
                 # Format chunk with citation marker
                 text = chunk.get('text', '')
-                metadata = chunk.get('metadata', {})
+                metadata = sanitize_metadata_for_api(dict(chunk.get('metadata') or {}))
 
                 # Add context hints for spreadsheet / table chunks
                 context_hint = ""
@@ -357,6 +396,43 @@ class RAGGenerator:
             logger.warning(f"Failed to render PDF page: {e}")
         
         return None
+
+    def _materialize_storage_uri_to_temp(self, storage_uri: str, storage_user_id: Optional[str]) -> Optional[str]:
+        """Download an S3 object to a temp file for pdf2image / vision (tenant-scoped read)."""
+        import os
+        import tempfile
+
+        uri = (storage_uri or "").strip()
+        if not uri.startswith("s3://") or not storage_user_id:
+            return None
+        try:
+            from app.storage import get_file_storage
+            from app.storage.service import S3FileStorage, parse_s3_uri
+        except Exception as e:
+            logger.warning("Storage import failed for vision materialize: %s", e)
+            return None
+        st = get_file_storage(storage_user_id)
+        if not isinstance(st, S3FileStorage):
+            return None
+        parsed = parse_s3_uri(uri)
+        if not parsed:
+            return None
+        bucket, key = parsed
+        if not st.can_read_object(bucket, key):
+            logger.warning("Vision: access denied for storage_uri=%s", uri)
+            return None
+        try:
+            body, _ = st.read_object(bucket, key)
+        except Exception as e:
+            logger.warning("Vision: S3 read failed for %s: %s", uri, e)
+            return None
+        suffix = Path(key).suffix.lower() or ".bin"
+        fd, name = tempfile.mkstemp(suffix=suffix)
+        try:
+            os.write(fd, body)
+        finally:
+            os.close(fd)
+        return name
     
     def _call_azure(self, prompt: str) -> str:
         """Call Azure OpenAI API."""
@@ -444,7 +520,8 @@ class RAGGenerator:
         self, 
         query: str, 
         retrieved_docs: List[Dict[str, Any]],
-        include_citations: Optional[bool] = None
+        include_citations: Optional[bool] = None,
+        storage_user_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Generate an answer from retrieved documents.
@@ -454,6 +531,7 @@ class RAGGenerator:
             retrieved_docs: List of retrieved documents with 'text', 'source', 'score', 'id'
                            Image docs have 'retrieval_type': 'colqwen' and 'page', 'source_path' fields
             include_citations: Override config.enable_citations
+            storage_user_id: Sanitized storage user id for downloading ``storage_uri`` objects from S3 when local cache is missing.
             
         Returns:
             Dict with 'answer', 'citations', 'files', 'contents'
@@ -507,41 +585,53 @@ class RAGGenerator:
             source_path = img_doc.get('source_path', '')
             page = img_doc.get('page', 1)
             source = img_doc.get('source', 'unknown')
-            
-            logger.debug(f"Processing image doc: {source}, page {page}, path: {source_path}")
-            
-            # Convert to absolute path if relative
-            if source_path:
+            storage_uri = (img_doc.get("storage_uri") or "").strip()
+
+            logger.debug("Processing image doc: %s, page %s, storage_uri=%s path=%s", source, page, storage_uri, source_path)
+
+            local_file: Optional[str] = None
+            temp_download: Optional[str] = None
+
+            if storage_user_id and storage_uri.startswith("s3://"):
+                temp_download = self._materialize_storage_uri_to_temp(storage_uri, storage_user_id)
+                if temp_download:
+                    local_file = temp_download
+                    temp_files.append(temp_download)
+
+            if not local_file and source_path:
                 source_path_obj = Path(source_path)
                 if not source_path_obj.is_absolute():
-                    # Try to resolve relative to base_dir (if set) or current working directory
                     if self.base_dir:
                         source_path_obj = self.base_dir / source_path
-                        logger.debug(f"Converted relative path to absolute (base_dir): {source_path_obj}")
                     else:
                         source_path_obj = Path.cwd() / source_path
-                        logger.debug(f"Converted relative path to absolute (cwd): {source_path_obj}")
                 source_path = str(source_path_obj)
-            
-            # Try to render PDF page to image (pdf2image/poppler reads a local file — S3-backed runs still use the synced copy under the temp workspace).
-            if source_path and Path(source_path).exists():
-                canon = img_doc.get("storage_uri") or "n/a"
-                logger.info(
-                    "Rendering PDF page %s (local workspace copy); canonical: %s",
-                    page,
-                    canon,
-                )
-                logger.debug("Local PDF path for pdf2image: %s", source_path)
-                temp_img = self._render_pdf_page_to_image(source_path, page)
+                if Path(source_path).exists():
+                    local_file = source_path
+
+            if not local_file:
+                logger.warning("No local or S3-backed file for image doc (source=%s page=%s)", source, page)
+                continue
+
+            lp = Path(local_file)
+            canon = storage_uri or local_file
+            logger.info("Vision input path=%s canonical=%s page=%s", local_file, canon, page)
+
+            if lp.suffix.lower() == ".pdf":
+                temp_img = self._render_pdf_page_to_image(str(lp), page)
                 if temp_img:
                     image_paths.append(temp_img)
                     temp_files.append(temp_img)
                     image_descriptions.append(f"[Image {len(image_paths)}] Page {page} from {source}")
-                    logger.info("Rendered page %s from %s for vision model", page, source)
+                    logger.info("Rendered PDF page %s for vision model", page)
                 else:
-                    logger.warning(f"Failed to render image from {source} page {page}")
+                    logger.warning("Failed to render PDF page %s from %s", page, source)
+            elif lp.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"):
+                image_paths.append(str(lp))
+                image_descriptions.append(f"[Image {len(image_paths)}] {lp.name} from {source}")
+                logger.info("Attached raster %s for vision model", lp.name)
             else:
-                logger.warning(f"Source path not found or empty: {source_path}")
+                logger.warning("Unsupported vision source type: %s", lp.suffix)
         
         # Add embedded images from spreadsheet chunks
         for emb_img in embedded_image_paths:
@@ -642,26 +732,7 @@ CRITICAL FORMATTING RULES:
                     for k, v in chunk_map.items()
                 },
                 **{
-                    f"[2.{idx}]": {
-                        "type": "image",
-                        "source": img_doc.get('source', 'unknown'),
-                        "page": img_doc.get('page', 0),
-                        "source_path": img_doc.get('source_path', ''),
-                        "storage_uri": img_doc.get('storage_uri', ''),
-                        "storage_backend": img_doc.get('storage_backend', ''),
-                        "score": img_doc.get('score', 0),
-                        "id": f"image-2-{idx}",
-                        "metadata": {
-                            "source": img_doc.get('source', 'unknown'),
-                            "source_path": img_doc.get('source_path', ''),
-                            "storage_uri": img_doc.get('storage_uri', ''),
-                            "storage_backend": img_doc.get('storage_backend', ''),
-                            "page": img_doc.get('page', 0),
-                            "total_pages": img_doc.get('total_pages', 0),
-                            "retrieval_type": img_doc.get('retrieval_type', 'colqwen_qdrant'),
-                            "score": img_doc.get('score', 0),
-                        },
-                    }
+                    f"[2.{idx}]": _image_citation_chunk(img_doc, idx)
                     for idx, img_doc in enumerate(image_docs, 1)
                 }
             },
