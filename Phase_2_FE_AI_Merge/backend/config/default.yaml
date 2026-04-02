@@ -256,10 +256,11 @@ qdrant:
   port: 6333
   url: ""                           # cloud: https://xxx.cloud.qdrant.io:6333
   api_key: ""                       # cloud only; prefer QDRANT_API_KEY env
-  text_collection: "edu_text_chunks"
-  image_collection: "edu_image_pages"
+  text_collection: "edu_text_chunks"      # shared text collection for all users (payload user_id tenancy)
+  image_collection: "edu_image_pages"     # shared image collection for all users (payload user_id tenancy)
   image_vector_name: "colpali_multivec"
   text_vector_name: "text"
+  text_storage_quantization: "scalar"     # none | scalar | binary (dense text vectors)
   image_storage_quantization: "scalar"   # none | scalar | binary (ColQwen multivec)
 
 # ============================================================================

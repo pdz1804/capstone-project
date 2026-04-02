@@ -198,7 +198,11 @@ export default function SearchView({ files }: SearchViewProps) {
     const page = Number(row.page || 1);
     try {
       setImagePreviewLoading((prev) => ({ ...prev, [key]: true }));
-      const { body } = await getSearchImagePreview(storageUri || undefined, sourcePath || undefined, page);
+      const { body } = await getSearchImagePreview(
+        storageUri || undefined,
+        storageUri ? undefined : sourcePath || undefined,
+        page,
+      );
       const url = URL.createObjectURL(body);
       setImagePreviewUrls((prev) => ({ ...prev, [key]: url }));
     } catch {

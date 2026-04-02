@@ -44,12 +44,11 @@ def sanitize_storage_user_id(raw: str | None) -> str:
 
 
 def should_isolate_qdrant_by_user() -> bool:
-    """When true, text/image collection names get a per-user suffix (multi-tenant Qdrant)."""
-    v = os.getenv("QDRANT_ISOLATE_BY_USER", "").strip().lower()
-    if v in ("1", "true", "yes", "on"):
-        return True
-    if v in ("0", "false", "no", "off"):
-        return False
+    """
+    Deprecated per-user collection mode.
+
+    Multi-tenant best practice is one shared collection per modality with payload filtering by ``user_id``.
+    """
     return False
 
 
@@ -63,10 +62,8 @@ def qdrant_collection_names_for_user(
     base_image_collection: str,
     sanitized_user_id: str,
 ) -> tuple[str, str]:
-    if not should_isolate_qdrant_by_user():
-        return base_text_collection, base_image_collection
-    suf = qdrant_safe_suffix(sanitized_user_id)
-    return f"{base_text_collection}_{suf}", f"{base_image_collection}_{suf}"
+    _ = sanitized_user_id
+    return base_text_collection, base_image_collection
 
 
 @dataclass(frozen=True)

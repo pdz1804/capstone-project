@@ -12,6 +12,7 @@ from PIL import Image
 
 from app.core.paths import (
     WorkspacePaths,
+    is_s3_storage_backend,
     qdrant_collection_names_for_user,
     workspace_paths_for_user,
 )
@@ -19,7 +20,9 @@ from app.repositories import (
     ImageIndexRepository,
     TextIndexRepository,
     build_qdrant_client,
+    load_documents_snapshot,
     save_bm25_index,
+    save_documents_snapshot,
 )
 from app.services.citation_uris import enrich_chunk_documents_storage_uris
 from app.services.colqwen_inference import ColQwenInferenceService
@@ -28,6 +31,28 @@ from app.storage import get_file_storage
 from app.storage.service import S3FileStorage
 
 logger = logging.getLogger(__name__)
+
+
+def _drop_legacy_user_collections(client: Any, base_name: str) -> int:
+    """
+    Delete historical per-user collections named ``<base_name>_<suffix>``.
+    """
+    try:
+        cols = [c.name for c in client.get_collections().collections]
+    except Exception as e:
+        logger.warning("List collections failed: %s", e)
+        return 0
+    prefix = f"{base_name}_"
+    dropped = 0
+    for name in cols:
+        if name == base_name or not name.startswith(prefix):
+            continue
+        try:
+            client.delete_collection(name)
+            dropped += 1
+        except Exception as e:
+            logger.warning("Delete legacy collection %s failed: %s", name, e)
+    return dropped
 
 
 def _embedding_dim_from_model_name(model_name: str) -> int:
@@ -109,6 +134,7 @@ class IndexingService:
         )
         self._text_vec = q.get("text_vector_name", "text")
         self._image_vec = q.get("image_vector_name", "colpali_multivec")
+        self._text_quant = q.get("text_storage_quantization", "scalar")
         self._embed_model = tr.get("embedding_model", "all-MiniLM-L6-v2")
         self._colqwen = ColQwenInferenceService(yaml_config)
 
@@ -118,7 +144,8 @@ class IndexingService:
         selected_paths: Sequence[str] | None = None,
         selected_names: Sequence[str] | None = None,
     ) -> Dict[str, Any]:
-        self._paths.retrieval_dir.mkdir(parents=True, exist_ok=True)
+        if not is_s3_storage_backend():
+            self._paths.retrieval_dir.mkdir(parents=True, exist_ok=True)
         if not self._paths.rag_ready_dir.exists():
             return {
                 "status": "failed",
@@ -180,7 +207,12 @@ class IndexingService:
             collection_name=self._text_collection,
             vector_name=self._text_vec,
             vector_size=dim,
+            storage_quantization=self._text_quant,
+            on_disk_vectors=True,
         )
+        dropped_text = _drop_legacy_user_collections(self._client, self._text_collection)
+        if dropped_text:
+            logger.info("Dropped %s legacy text collections", dropped_text)
         repo.ensure_collection(recreate=force)
 
         ids: List[str] = []
@@ -196,6 +228,7 @@ class IndexingService:
             meta = d.get("metadata") if isinstance(d.get("metadata"), dict) else {}
             pl: Dict[str, Any] = {
                 "chunk_id": cid,
+                "user_id": self._paths.user_id,
                 "source": d.get("source", ""),
                 "text_preview": (d.get("text", "") or "")[:4000],
             }
@@ -207,9 +240,8 @@ class IndexingService:
 
         repo.upsert_chunks(ids, embeddings, payloads)
 
-        with open(self._paths.documents_json_path, "w", encoding="utf-8") as f:
-            json.dump(documents, f, ensure_ascii=False, indent=2)
-        save_bm25_index(documents, self._paths.bm25_pickle_path)
+        save_documents_snapshot(documents, self._paths.documents_json_path, user_id=self._paths.user_id)
+        save_bm25_index(documents, self._paths.bm25_pickle_path, user_id=self._paths.user_id)
 
         return {
             "status": "ok",
@@ -243,6 +275,9 @@ class IndexingService:
             embedding_dim=128,
             storage_quantization=quant,
         )
+        dropped_image = _drop_legacy_user_collections(self._client, self._image_collection)
+        if dropped_image:
+            logger.info("Dropped %s legacy image collections", dropped_image)
         repo.ensure_collection(recreate=force)
 
         doc_folders = [d for d in self._paths.rag_ready_dir.iterdir() if d.is_dir()]
@@ -309,6 +344,7 @@ class IndexingService:
                     hid = hashlib.md5(str(pdf_path).encode("utf-8", errors="ignore")).hexdigest()[:10]
                     point_id = f"{doc.name}_{hid}_p{page_num}"
                     payload: Dict[str, Any] = {
+                        "user_id": self._paths.user_id,
                         "source": doc.name,
                         "source_path": str(pdf_path),
                         "page": page_num,
@@ -340,6 +376,7 @@ class IndexingService:
                 hid = hashlib.md5(str(image_path).encode("utf-8", errors="ignore")).hexdigest()[:10]
                 point_id = f"{doc.name}_{hid}_i{idx}"
                 payload = {
+                    "user_id": self._paths.user_id,
                     "source": doc.name,
                     "source_path": str(image_path),
                     "page": idx,
@@ -414,13 +451,18 @@ class IndexingService:
                 collection_name=self._text_collection,
                 vector_name=self._text_vec,
                 vector_size=dim,
+                storage_quantization=self._text_quant,
+                on_disk_vectors=True,
             )
-            prev_count = t_repo.count_points()
-            t_repo.clear_all_points()
-            if self._paths.documents_json_path.exists():
-                self._paths.documents_json_path.write_text("[]", encoding="utf-8")
-            save_bm25_index([], self._paths.bm25_pickle_path)
-            out["text"] = {"cleared_collection": True, "previous_point_count": prev_count}
+            removed = t_repo.delete_by_user(self._paths.user_id)
+            save_documents_snapshot([], self._paths.documents_json_path, user_id=self._paths.user_id)
+            save_bm25_index([], self._paths.bm25_pickle_path, user_id=self._paths.user_id)
+            dropped_legacy = _drop_legacy_user_collections(self._client, self._text_collection)
+            out["text"] = {
+                "cleared_user_points": True,
+                "removed_qdrant_points": removed,
+                "dropped_legacy_collections": dropped_legacy,
+            }
         elif text_source:
             ts = text_source.strip()
             if not ts:
@@ -431,25 +473,20 @@ class IndexingService:
                     collection_name=self._text_collection,
                     vector_name=self._text_vec,
                     vector_size=dim,
+                    storage_quantization=self._text_quant,
+                    on_disk_vectors=True,
                 )
-                removed_q = t_repo.delete_by_source(ts)
+                removed_q = t_repo.delete_by_source(ts, user_id=self._paths.user_id)
                 removed_json = 0
                 kept: List[Dict[str, Any]] = []
-                if self._paths.documents_json_path.exists():
-                    try:
-                        with open(self._paths.documents_json_path, "r", encoding="utf-8") as f:
-                            docs = json.load(f)
-                        if isinstance(docs, list):
-                            for d in docs:
-                                if (d.get("source") or "") == ts:
-                                    removed_json += 1
-                                else:
-                                    kept.append(d)
-                        with open(self._paths.documents_json_path, "w", encoding="utf-8") as f:
-                            json.dump(kept, f, ensure_ascii=False, indent=2)
-                    except Exception as e:
-                        logger.warning("documents.json update after remove: %s", e)
-                save_bm25_index(kept, self._paths.bm25_pickle_path)
+                docs = load_documents_snapshot(self._paths.documents_json_path, user_id=self._paths.user_id)
+                for d in docs:
+                    if (d.get("source") or "") == ts:
+                        removed_json += 1
+                    else:
+                        kept.append(d)
+                save_documents_snapshot(kept, self._paths.documents_json_path, user_id=self._paths.user_id)
+                save_bm25_index(kept, self._paths.bm25_pickle_path, user_id=self._paths.user_id)
                 out["text"] = {
                     "removed_qdrant_points": removed_q,
                     "removed_documents_json_chunks": removed_json,
@@ -465,15 +502,19 @@ class IndexingService:
         )
 
         if clear_image_index:
-            prev_count = i_repo.count_points()
-            i_repo.clear_all_points()
+            removed = i_repo.delete_by_user(self._paths.user_id)
             _write_image_sidecar(self._paths, 0)
-            out["image"] = {"cleared_collection": True, "previous_point_count": prev_count}
+            dropped_legacy = _drop_legacy_user_collections(self._client, self._image_collection)
+            out["image"] = {
+                "cleared_user_points": True,
+                "removed_qdrant_points": removed,
+                "dropped_legacy_collections": dropped_legacy,
+            }
         elif image_pdf_name:
             name = image_pdf_name.strip()
             if not name.lower().endswith(".pdf"):
                 name = f"{name}.pdf"
-            removed_img = i_repo.delete_by_pdf_name(name)
+            removed_img = i_repo.delete_by_pdf_name(name, user_id=self._paths.user_id)
             out["image"] = {"removed_qdrant_points": removed_img, "pdf": name}
 
         return out

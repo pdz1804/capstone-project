@@ -249,19 +249,19 @@ async def list_files(
 
     files["processed"] = storage.list_processed_files(include_preview=True)
 
-    docs_path = workspace_paths_for_user(user_id).documents_json_path
-    if docs_path.exists():
-        try:
-            with open(docs_path, "r", encoding="utf-8") as f:
-                docs = json.load(f)
-            sources: Dict[str, int] = {}
-            for doc in docs:
-                s = doc.get("source", "unknown")
-                sources[s] = sources.get(s, 0) + 1
-            for source, count in sources.items():
-                files["indexed"].append({"name": source, "chunks": count, "type": "text"})
-        except Exception as e:
-            logger.error("documents.json: %s", e)
+    try:
+        from app.repositories import load_documents_snapshot
+
+        paths = workspace_paths_for_user(user_id)
+        docs = load_documents_snapshot(paths.documents_json_path, user_id=paths.user_id)
+        sources: Dict[str, int] = {}
+        for doc in docs:
+            s = doc.get("source", "unknown")
+            sources[s] = sources.get(s, 0) + 1
+        for source, count in sources.items():
+            files["indexed"].append({"name": source, "chunks": count, "type": "text"})
+    except Exception as e:
+        logger.error("documents snapshot: %s", e)
 
     cfg = merged_runtime_settings()
     try:
@@ -280,7 +280,8 @@ async def list_files(
             vector_name=q.get("image_vector_name", "colpali_multivec"),
             storage_quantization=q.get("image_storage_quantization", "scalar"),
         )
-        n = ir.count_points()
+        ir.ensure_collection(recreate=False)
+        n = ir.count_points(user_id=workspace_paths_for_user(user_id).user_id)
         if n > 0:
             files["indexed"].append(
                 {"name": "Image Index (ColQwen → Qdrant)", "pages": n, "type": "image"}
@@ -307,18 +308,34 @@ async def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> D
     processed_snapshot = build_processed_documents_snapshot(user_id, include_preview=False)
     docs = processed_snapshot.get("documents") or []
     stage_totals = processed_snapshot.get("stage_totals") or {}
-    indexed_rows: List[Dict[str, Any]] = []
+    # Performance: avoid nested call to /api/files(quick=false), which rescans processed tree
+    # and may trigger repeated Qdrant index ensure/count requests.
+    text_sources: List[str] = []
+    image_index_exists = False
     try:
-        indexed_rows = (await list_files(quick=False, user_id=user_id)).get("indexed") or []
-    except Exception:
-        indexed_rows = []
+        from app.repositories import ImageIndexRepository, build_qdrant_client, load_documents_snapshot
 
-    text_sources = [
-        str(r.get("name") or "")
-        for r in indexed_rows
-        if str(r.get("type") or "").lower() != "image"
-    ]
-    image_index_exists = any(str(r.get("type") or "").lower() == "image" for r in indexed_rows)
+        cfg = merged_runtime_settings()
+        paths = workspace_paths_for_user(user_id)
+        doc_snapshot = load_documents_snapshot(paths.documents_json_path, user_id=paths.user_id)
+        text_sources = [str(d.get("source") or "") for d in doc_snapshot if str(d.get("source") or "").strip()]
+
+        q = cfg.get("qdrant", {}) or {}
+        _, img_col = qdrant_collection_names_for_user(
+            q.get("text_collection", "edu_text_chunks"),
+            q.get("image_collection", "edu_image_pages"),
+            paths.user_id,
+        )
+        ir = ImageIndexRepository(
+            build_qdrant_client(cfg),
+            collection_name=img_col,
+            vector_name=q.get("image_vector_name", "colpali_multivec"),
+            storage_quantization=q.get("image_storage_quantization", "scalar"),
+        )
+        image_index_exists = ir.count_points(user_id=paths.user_id) > 0
+    except Exception:
+        # Keep endpoint resilient and return metadata even if index probes fail.
+        pass
 
     metadata_svc = FileMetadataService()
     out: List[Dict[str, Any]] = []

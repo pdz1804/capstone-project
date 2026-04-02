@@ -6,7 +6,6 @@ avoids hammering Qdrant when the UI polls. Use ?fresh=true after index/process t
 
 from __future__ import annotations
 
-import json
 import os
 import threading
 import time
@@ -16,7 +15,12 @@ from fastapi import APIRouter, Depends, Query
 
 from app.api.deps import storage_user_id
 from app.core.paths import merged_runtime_settings, qdrant_collection_names_for_user, workspace_paths_for_user
-from app.repositories import ImageIndexRepository, TextIndexRepository, build_qdrant_client
+from app.repositories import (
+    ImageIndexRepository,
+    TextIndexRepository,
+    build_qdrant_client,
+    load_documents_snapshot,
+)
 
 router = APIRouter(prefix="/api", tags=["status"])
 
@@ -86,15 +90,9 @@ def _compute_pipeline_status(user_id: str) -> Dict[str, Any]:
 
     indexed_docs = 0
     n_sources = 0
-    doc_list = []
-    if paths.documents_json_path.exists():
-        try:
-            with open(paths.documents_json_path, "r", encoding="utf-8") as f:
-                doc_list = json.load(f)
-            indexed_docs = len(doc_list)
-            n_sources = len({d.get("source", "") for d in doc_list if d.get("source")})
-        except Exception:
-            pass
+    doc_list = load_documents_snapshot(paths.documents_json_path, user_id=paths.user_id)
+    indexed_docs = len(doc_list)
+    n_sources = len({d.get("source", "") for d in doc_list if d.get("source")})
 
     t_count = 0
     i_count = 0
@@ -105,6 +103,8 @@ def _compute_pipeline_status(user_id: str) -> Dict[str, Any]:
             collection_name=text_col,
             vector_name=q.get("text_vector_name", "text"),
             vector_size=dim,
+            storage_quantization=q.get("text_storage_quantization", "scalar"),
+            on_disk_vectors=True,
         )
         i_repo = ImageIndexRepository(
             client,
@@ -113,8 +113,10 @@ def _compute_pipeline_status(user_id: str) -> Dict[str, Any]:
             embedding_dim=128,
             storage_quantization=q.get("image_storage_quantization", "scalar"),
         )
-        t_count = t_repo.count_points()
-        i_count = i_repo.count_points()
+        t_repo.ensure_collection(recreate=False)
+        i_repo.ensure_collection(recreate=False)
+        t_count = t_repo.count_points(user_id=paths.user_id)
+        i_count = i_repo.count_points(user_id=paths.user_id)
     except Exception:
         pass
 
