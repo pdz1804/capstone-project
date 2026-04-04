@@ -34,6 +34,9 @@ Phase_2_PDZ_001/input/
 Phase_2_PDZ_001/output/
 Phase_2_PDZ_001/uploads/
 
+Phase_2_AI_SERVICE_FOLDER/backend/input/
+Phase_2_AI_SERVICE_FOLDER/backend/output/
+
 # Ignore BMAD
 _bmad/
 _bmad-output/
