@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  UploadCloud, 
-  FileText, 
-  Video, 
-  Image as ImageIcon, 
+import {
+  UploadCloud,
+  FileText,
+  Video,
+  Image as ImageIcon,
   MoreVertical,
   CheckCircle2,
   AlertCircle,
@@ -20,7 +20,9 @@ import {
   Eye,
   X,
   Music,
-  File
+  File,
+  Play,
+  Layers,
 } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { FileItem } from '../App';
@@ -32,9 +34,15 @@ interface LibraryViewProps {
   files: FileItem[];
   setFiles: React.Dispatch<React.SetStateAction<FileItem[]>>;
   onRefreshFiles: () => Promise<void>;
+  controlMode?: 'upload' | 'process' | 'index';
 }
 
-export default function LibraryView({ files, setFiles, onRefreshFiles }: LibraryViewProps) {
+export default function LibraryView({
+  files,
+  setFiles,
+  onRefreshFiles,
+  controlMode = 'upload'
+}: LibraryViewProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -72,7 +80,7 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
     if (previewFile && previewFile.originalFile) {
       const url = URL.createObjectURL(previewFile.originalFile);
       setPreviewUrl(url);
-      
+
       if (previewFile.originalFile.type === 'text/plain') {
         fetch(url).then(res => res.text()).then(setTextContent);
       } else {
@@ -298,87 +306,106 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
-      {/* Upload Section */}
-      <div 
-        className={`border-2 border-dashed rounded-2xl p-12 text-center transition-colors ${
-          isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-slate-300 bg-white hover:border-indigo-400 hover:bg-slate-50'
-        }`}
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={handleDrop}
-      >
-        <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <UploadCloud className="w-8 h-8" />
-        </div>
-        <h3 className="text-xl font-semibold text-slate-900 mb-2">Upload Educational Content</h3>
-        <p className="text-slate-500 max-w-md mx-auto mb-6">
-          Drag and drop your video lectures, PDFs, presentations, or spreadsheets here. 
-          BK-MInD will automatically process, transcribe, and index them for RAG.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <input
-            type="file"
-            multiple
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-          />
-          <button
-            type="button"
-            disabled={uploadBusy}
-            onClick={() => fileInputRef.current?.click()}
-            className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
-          >
-            {uploadBusy ? 'Uploading…' : 'Browse Files'}
-          </button>
-          <button
-            type="button"
-            disabled={pipelineBusy !== 'idle'}
-            onClick={() => void handleRunProcess()}
-            className="px-6 py-2.5 bg-white text-slate-800 border border-slate-300 rounded-lg font-medium hover:bg-slate-50 disabled:opacity-50"
-          >
-            {pipelineBusy === 'process'
-              ? 'Processing…'
-              : selectedFiles.length > 0
-                ? `Process selected (${selectedFiles.length})`
-                : 'Run pipeline (process)'}
-          </button>
-          <button
-            type="button"
-            disabled={pipelineBusy !== 'idle'}
-            onClick={() => void handleRunIndex()}
-            className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50"
-          >
-            {pipelineBusy === 'index'
-              ? 'Indexing…'
-              : selectedFiles.length > 0
-                ? `Index selected (${selectedFiles.length})`
-                : 'Build index'}
-          </button>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500">Mode</span>
-            <select
-              value={pipelineMode}
-              onChange={(e) => setPipelineMode(e.target.value as 'standard' | 'fast')}
-              className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700"
-              disabled={pipelineBusy !== 'idle'}
+      {/* Upload/Pipeline/Index Control Section */}
+      {controlMode === 'upload' && (
+        <div
+          className={`border-2 border-dashed rounded-2xl p-12 text-center transition-colors ${isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-slate-300 bg-white hover:border-indigo-400 hover:bg-slate-50'
+            }`}
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+        >
+          <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <UploadCloud className="w-8 h-8" />
+          </div>
+          <h3 className="text-xl font-semibold text-slate-900 mb-2">Upload Educational Content</h3>
+          <p className="text-slate-500 max-w-md mx-auto mb-6">
+            Drag and drop your video lectures, PDFs, presentations, or spreadsheets here.
+            BK-MInD will automatically process, transcribe, and index them for RAG.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <input
+              type="file"
+              multiple
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+            />
+            <button
+              type="button"
+              disabled={uploadBusy}
+              onClick={() => fileInputRef.current?.click()}
+              className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
             >
-              <option value="standard">Standard</option>
-              <option value="fast">Fast</option>
-            </select>
+              {uploadBusy ? 'Uploading…' : 'Browse Files'}
+            </button>
+          </div>
+          <p className="mt-4 text-center text-xs text-slate-500 max-w-xl mx-auto">
+            Upload sends files to the API <code className="bg-slate-100 px-1 rounded">POST /api/upload</code>. After uploading, go to the <span className="font-semibold text-indigo-600">Run Pipeline</span> tab to process your files.
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-6 text-xs text-slate-400 flex-wrap">
+            <span className="flex items-center gap-1.5"><Video className="w-4 h-4" /> MP4, AVI, MOV</span>
+            <span className="flex items-center gap-1.5"><FileText className="w-4 h-4" /> PDF, DOCX, PPTX</span>
+            <span className="flex items-center gap-1.5"><FileText className="w-4 h-4" /> XLSX, CSV</span>
+            <span className="flex items-center gap-1.5"><ImageIcon className="w-4 h-4" /> PNG, JPG</span>
+            <span className="flex items-center gap-1.5"><Music className="w-4 h-4" /> MP3, WAV, AAC</span>
           </div>
         </div>
-        <p className="mt-4 text-center text-xs text-slate-500 max-w-xl mx-auto">
-          Upload sends files to the API <code className="bg-slate-100 px-1 rounded">POST /api/upload</code>. Then run process (Docling) and build index (Qdrant) on the server — same as Phase 2 AI Service.
-        </p>
-        <div className="mt-8 flex items-center justify-center gap-6 text-xs text-slate-400 flex-wrap">
-          <span className="flex items-center gap-1.5"><Video className="w-4 h-4" /> MP4, AVI, MOV</span>
-          <span className="flex items-center gap-1.5"><FileText className="w-4 h-4" /> PDF, DOCX, PPTX</span>
-          <span className="flex items-center gap-1.5"><FileText className="w-4 h-4" /> XLSX, CSV</span>
-          <span className="flex items-center gap-1.5"><ImageIcon className="w-4 h-4" /> PNG, JPG</span>
-          <span className="flex items-center gap-1.5"><Music className="w-4 h-4" /> MP3, WAV, AAC</span>
+      )}
+
+      {(controlMode === 'process' || controlMode === 'index') && (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 ring-1 ring-slate-100">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="space-y-2 text-center md:text-left">
+              <h3 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2 justify-center md:justify-start">
+                {controlMode === 'process' ? <><Play className="w-5 h-5 text-indigo-600" /> Pipeline Control</> : <><Layers className="w-5 h-5 text-emerald-600" /> Vector Index Control</>}
+              </h3>
+              <p className="text-slate-500 font-medium leading-relaxed max-w-md">
+                {controlMode === 'process'
+                  ? 'Select staged files from the library below to start transcription and insight extraction.'
+                  : 'Select processed files to build the semantic search index.'}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mode</span>
+                <select
+                  value={pipelineMode}
+                  onChange={(e) => setPipelineMode(e.target.value as 'standard' | 'fast')}
+                  className="bg-transparent border-none text-sm font-bold text-slate-900 focus:ring-0 p-0 pr-8 cursor-pointer"
+                  disabled={pipelineBusy !== 'idle'}
+                >
+                  <option value="standard">Standard</option>
+                  <option value="fast">Fast</option>
+                </select>
+              </div>
+
+              {controlMode === 'process' ? (
+                <button
+                  type="button"
+                  disabled={pipelineBusy !== 'idle' || selectedFiles.length === 0}
+                  onClick={() => void handleRunProcess()}
+                  className="flex items-center gap-3 px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all disabled:opacity-50 shadow-lg shadow-indigo-100 hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  {pipelineBusy === 'process' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
+                  {pipelineBusy === 'process' ? 'Processing…' : `Run Pipeline (${selectedFiles.length})`}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={pipelineBusy !== 'idle' || selectedFiles.length === 0}
+                  onClick={() => void handleRunIndex()}
+                  className="flex items-center gap-3 px-8 py-3.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all disabled:opacity-50 shadow-lg shadow-emerald-100 hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  {pipelineBusy === 'index' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Layers className="w-5 h-5" />}
+                  {pipelineBusy === 'index' ? 'Indexing…' : `Build Vector Index (${selectedFiles.length})`}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* File List Section */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -389,7 +416,7 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
               <div className="flex items-center gap-3 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-lg">
                 <span className="text-sm font-medium text-indigo-700">{selectedFiles.length} selected</span>
                 <div className="w-px h-4 bg-indigo-200"></div>
-                <button 
+                <button
                   onClick={handleBulkDelete}
                   className="text-sm font-medium text-red-600 hover:text-red-700 flex items-center gap-1"
                 >
@@ -401,9 +428,9 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
           <div className="flex items-center gap-3">
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Search files..." 
+              <input
+                type="text"
+                placeholder="Search files..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-64"
@@ -426,11 +453,10 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
               </button>
             </div>
             <div className="relative">
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); setIsFilterOpen(!isFilterOpen); setActiveDropdown(null); }}
-                className={`p-2 border rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                  filterType !== 'all' ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'border-slate-300 text-slate-600 hover:bg-slate-50'
-                }`}
+                className={`p-2 border rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${filterType !== 'all' ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+                  }`}
               >
                 <Filter className="w-4 h-4" />
                 {filterType === 'all' ? 'Filter' : filterType.charAt(0).toUpperCase() + filterType.slice(1)}
@@ -451,201 +477,200 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
             </div>
           </div>
         </div>
-        
+
         {viewMode === 'list' ? (
           <div className="overflow-x-auto min-h-[300px]">
             <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-4 w-12">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedFiles.length === filteredAndSortedFiles.length && filteredAndSortedFiles.length > 0}
-                    onChange={toggleAll}
-                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                </th>
-                <th className="px-6 py-4 cursor-pointer hover:text-slate-700 select-none" onClick={() => handleSort('name')}>
-                  File Name <SortIcon column="name" />
-                </th>
-                <th className="px-6 py-4">Type</th>
-                <th className="px-6 py-4 cursor-pointer hover:text-slate-700 select-none" onClick={() => handleSort('size')}>
-                  Size <SortIcon column="size" />
-                </th>
-                <th className="px-6 py-4 cursor-pointer hover:text-slate-700 select-none" onClick={() => handleSort('date')}>
-                  Date Added <SortIcon column="date" />
-                </th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredAndSortedFiles.length === 0 ? (
+              <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
-                    No files found matching your criteria.
-                  </td>
+                  <th className="px-6 py-4 w-12">
+                    <input
+                      type="checkbox"
+                      checked={selectedFiles.length === filteredAndSortedFiles.length && filteredAndSortedFiles.length > 0}
+                      onChange={toggleAll}
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                  </th>
+                  <th className="px-6 py-4 cursor-pointer hover:text-slate-700 select-none" onClick={() => handleSort('name')}>
+                    File Name <SortIcon column="name" />
+                  </th>
+                  <th className="px-6 py-4">Type</th>
+                  <th className="px-6 py-4 cursor-pointer hover:text-slate-700 select-none" onClick={() => handleSort('size')}>
+                    Size <SortIcon column="size" />
+                  </th>
+                  <th className="px-6 py-4 cursor-pointer hover:text-slate-700 select-none" onClick={() => handleSort('date')}>
+                    Date Added <SortIcon column="date" />
+                  </th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
-              ) : (
-                filteredAndSortedFiles.map((file) => (
-                  <tr key={file.id} className={`hover:bg-slate-50/50 transition-colors group ${selectedFiles.includes(file.id) ? 'bg-indigo-50/30' : ''}`}>
-                    <td className="px-6 py-4">
-                      <input 
-                        type="checkbox" 
-                        checked={selectedFiles.includes(file.id)}
-                        onChange={() => toggleSelection(file.id)}
-                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${
-                          file.type === 'video' ? 'bg-indigo-100 text-indigo-600' :
-                          file.type === 'document' ? 'bg-blue-100 text-blue-600' :
-                          file.type === 'pdf' ? 'bg-red-100 text-red-600' :
-                          file.type === 'spreadsheet' ? 'bg-emerald-100 text-emerald-600' :
-                          file.type === 'audio' ? 'bg-purple-100 text-purple-600' :
-                          'bg-amber-100 text-amber-600'
-                        }`}>
-                          {file.type === 'video' ? <Video className="w-4 h-4" /> :
-                           file.type === 'document' ? <FileText className="w-4 h-4" /> :
-                           file.type === 'pdf' ? <File className="w-4 h-4" /> :
-                           file.type === 'spreadsheet' ? <FileText className="w-4 h-4" /> :
-                           file.type === 'audio' ? <Music className="w-4 h-4" /> :
-                           <ImageIcon className="w-4 h-4" />}
-                        </div>
-                        <div>
-                          {renamingFileId === file.id ? (
-                            <input
-                              type="text"
-                              value={newName}
-                              onChange={(e) => setNewName(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleRename(file.id, newName);
-                                if (e.key === 'Escape') setRenamingFileId(null);
-                              }}
-                              autoFocus
-                              className="w-full px-2 py-1 text-sm border border-indigo-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                              onBlur={() => handleRename(file.id, newName)}
-                              onClick={e => e.stopPropagation()}
-                            />
-                          ) : (
-                            <p className="font-medium text-slate-900 truncate max-w-[250px] cursor-pointer hover:text-indigo-600" title={file.name} onClick={() => setPreviewFile(file)}>{file.name}</p>
-                          )}
-                          <p className="text-xs text-slate-400 mt-0.5">
-                            {file.duration && `Duration: ${file.duration}`}
-                            {file.pages && `Pages: ${file.pages}`}
-                            {file.rows && `Rows: ${file.rows}`}
-                            {file.resolution && `Res: ${file.resolution}`}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 capitalize">{file.type}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{file.size}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{file.date}</td>
-                    <td className="px-6 py-4">
-                      {file.status === 'indexed' && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          {file.indexStatus === 'all'
-                            ? 'Indexed (All)'
-                            : file.indexStatus === 'text'
-                              ? 'Indexed (Text)'
-                              : file.indexStatus === 'image'
-                                ? 'Indexed (Image)'
-                                : 'Indexed'}
-                        </span>
-                      )}
-                      {file.status === 'uploading' && (
-                        <div className="flex flex-col gap-1.5 w-48">
-                          <div className="flex items-center justify-between">
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700">
-                              <UploadCloud className="w-3 h-3 animate-bounce" />
-                              Uploading {file.progress}%
-                            </span>
-                            <span className="text-[10px] text-slate-500">{file.timeRemaining}s left</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-500 rounded-full transition-all duration-300" style={{ width: `${file.progress}%` }}></div>
-                          </div>
-                          <div className="text-[10px] text-slate-400 text-right">
-                            {formatBytes(file.uploadedBytes)} / {formatBytes(file.rawSize)}
-                          </div>
-                        </div>
-                      )}
-                      {file.status === 'uploaded' && (
-                        <span
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 cursor-default"
-                          title="Uploaded to storage. Click “Run pipeline (process)”, then “Build index” on the server."
-                        >
-                          Not indexed
-                        </span>
-                      )}
-                      {file.status === 'processed' && (
-                        <span
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-sky-100 text-sky-800 cursor-default"
-                          title="Processing is done. Build index to make this searchable."
-                        >
-                          Processed
-                        </span>
-                      )}
-                      {file.status === 'processing' && (
-                        <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
-                            <div className="w-3.5 h-3.5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                            Processing
-                          </span>
-                          {typeof file.progress === 'number' && (
-                            <span className="text-xs text-slate-500">{file.progress}%</span>
-                          )}
-                        </div>
-                      )}
-                      {file.status === 'failed' && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          Failed
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-right relative">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === file.id ? null : file.id); setIsFilterOpen(false); }}
-                        className={`p-1.5 rounded-lg transition-all ${activeDropdown === file.id ? 'bg-slate-200 text-slate-800' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100'}`}
-                      >
-                        <MoreVertical className="w-5 h-5" />
-                      </button>
-                      
-                      {activeDropdown === file.id && (
-                        <div className="absolute right-8 top-10 w-40 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-10" onClick={e => e.stopPropagation()}>
-                          <button onClick={() => setPreviewFile(file)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                            <Eye className="w-4 h-4" /> Preview
-                          </button>
-                          <button onClick={() => { setRenamingFileId(file.id); setNewName(file.name); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                            <Edit2 className="w-4 h-4" /> Rename
-                          </button>
-                          <button onClick={() => { handleDownload(file); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                            <Download className="w-4 h-4" /> Download
-                          </button>
-                          <button onClick={() => void handleViewMetadata(file)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                            <Eye className="w-4 h-4" /> View metadata
-                          </button>
-                          <div className="h-px bg-slate-100 my-1"></div>
-                          <button 
-                            onClick={() => handleDelete(file.id)}
-                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                          >
-                            <Trash2 className="w-4 h-4" /> Delete
-                          </button>
-                        </div>
-                      )}
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredAndSortedFiles.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
+                      No files found matching your criteria.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  filteredAndSortedFiles.map((file) => (
+                    <tr key={file.id} className={`hover:bg-slate-50/50 transition-colors group ${selectedFiles.includes(file.id) ? 'bg-indigo-50/30' : ''}`}>
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedFiles.includes(file.id)}
+                          onChange={() => toggleSelection(file.id)}
+                          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${file.type === 'video' ? 'bg-indigo-100 text-indigo-600' :
+                            file.type === 'document' ? 'bg-blue-100 text-blue-600' :
+                              file.type === 'pdf' ? 'bg-red-100 text-red-600' :
+                                file.type === 'spreadsheet' ? 'bg-emerald-100 text-emerald-600' :
+                                  file.type === 'audio' ? 'bg-purple-100 text-purple-600' :
+                                    'bg-amber-100 text-amber-600'
+                            }`}>
+                            {file.type === 'video' ? <Video className="w-4 h-4" /> :
+                              file.type === 'document' ? <FileText className="w-4 h-4" /> :
+                                file.type === 'pdf' ? <File className="w-4 h-4" /> :
+                                  file.type === 'spreadsheet' ? <FileText className="w-4 h-4" /> :
+                                    file.type === 'audio' ? <Music className="w-4 h-4" /> :
+                                      <ImageIcon className="w-4 h-4" />}
+                          </div>
+                          <div>
+                            {renamingFileId === file.id ? (
+                              <input
+                                type="text"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleRename(file.id, newName);
+                                  if (e.key === 'Escape') setRenamingFileId(null);
+                                }}
+                                autoFocus
+                                className="w-full px-2 py-1 text-sm border border-indigo-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                onBlur={() => handleRename(file.id, newName)}
+                                onClick={e => e.stopPropagation()}
+                              />
+                            ) : (
+                              <p className="font-medium text-slate-900 truncate max-w-[250px] cursor-pointer hover:text-indigo-600" title={file.name} onClick={() => setPreviewFile(file)}>{file.name}</p>
+                            )}
+                            <p className="text-xs text-slate-400 mt-0.5">
+                              {file.duration && `Duration: ${file.duration}`}
+                              {file.pages && `Pages: ${file.pages}`}
+                              {file.rows && `Rows: ${file.rows}`}
+                              {file.resolution && `Res: ${file.resolution}`}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 capitalize">{file.type}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{file.size}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{file.date}</td>
+                      <td className="px-6 py-4">
+                        {file.status === 'indexed' && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            {file.indexStatus === 'all'
+                              ? 'Indexed (All)'
+                              : file.indexStatus === 'text'
+                                ? 'Indexed (Text)'
+                                : file.indexStatus === 'image'
+                                  ? 'Indexed (Image)'
+                                  : 'Indexed'}
+                          </span>
+                        )}
+                        {file.status === 'uploading' && (
+                          <div className="flex flex-col gap-1.5 w-48">
+                            <div className="flex items-center justify-between">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700">
+                                <UploadCloud className="w-3 h-3 animate-bounce" />
+                                Uploading {file.progress}%
+                              </span>
+                              <span className="text-[10px] text-slate-500">{file.timeRemaining}s left</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div className="h-full bg-blue-500 rounded-full transition-all duration-300" style={{ width: `${file.progress}%` }}></div>
+                            </div>
+                            <div className="text-[10px] text-slate-400 text-right">
+                              {formatBytes(file.uploadedBytes)} / {formatBytes(file.rawSize)}
+                            </div>
+                          </div>
+                        )}
+                        {file.status === 'uploaded' && (
+                          <span
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 cursor-default"
+                            title="Uploaded to storage. Click “Run pipeline (process)”, then “Build index” on the server."
+                          >
+                            Not indexed
+                          </span>
+                        )}
+                        {file.status === 'processed' && (
+                          <span
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-sky-100 text-sky-800 cursor-default"
+                            title="Processing is done. Build index to make this searchable."
+                          >
+                            Processed
+                          </span>
+                        )}
+                        {file.status === 'processing' && (
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                              <div className="w-3.5 h-3.5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                              Processing
+                            </span>
+                            {typeof file.progress === 'number' && (
+                              <span className="text-xs text-slate-500">{file.progress}%</span>
+                            )}
+                          </div>
+                        )}
+                        {file.status === 'failed' && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                            <AlertCircle className="w-3.5 h-3.5" />
+                            Failed
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right relative">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === file.id ? null : file.id); setIsFilterOpen(false); }}
+                          className={`p-1.5 rounded-lg transition-all ${activeDropdown === file.id ? 'bg-slate-200 text-slate-800' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100'}`}
+                        >
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+
+                        {activeDropdown === file.id && (
+                          <div className="absolute right-8 top-10 w-40 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-10" onClick={e => e.stopPropagation()}>
+                            <button onClick={() => setPreviewFile(file)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                              <Eye className="w-4 h-4" /> Preview
+                            </button>
+                            <button onClick={() => { setRenamingFileId(file.id); setNewName(file.name); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                              <Edit2 className="w-4 h-4" /> Rename
+                            </button>
+                            <button onClick={() => { handleDownload(file); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                              <Download className="w-4 h-4" /> Download
+                            </button>
+                            <button onClick={() => void handleViewMetadata(file)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                              <Eye className="w-4 h-4" /> View metadata
+                            </button>
+                            <div className="h-px bg-slate-100 my-1"></div>
+                            <button
+                              onClick={() => handleDelete(file.id)}
+                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                            >
+                              <Trash2 className="w-4 h-4" /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 min-h-[300px]">
             {filteredAndSortedFiles.length === 0 ? (
@@ -656,8 +681,8 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
               filteredAndSortedFiles.map((file) => (
                 <div key={file.id} className={`relative group border rounded-xl p-4 transition-all ${selectedFiles.includes(file.id) ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200 hover:border-indigo-300 hover:shadow-md bg-white'}`}>
                   <div className="absolute top-3 left-3 z-10">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={selectedFiles.includes(file.id)}
                       onChange={() => toggleSelection(file.id)}
                       className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -665,7 +690,7 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
                     />
                   </div>
                   <div className="absolute top-2 right-2 z-10">
-                    <button 
+                    <button
                       onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === file.id ? null : file.id); setIsFilterOpen(false); }}
                       className={`p-1.5 rounded-lg transition-all ${activeDropdown === file.id ? 'bg-slate-200 text-slate-800' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100'}`}
                     >
@@ -686,7 +711,7 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
                           <Eye className="w-4 h-4" /> View metadata
                         </button>
                         <div className="h-px bg-slate-100 my-1"></div>
-                        <button 
+                        <button
                           onClick={() => handleDelete(file.id)}
                           className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                         >
@@ -695,24 +720,23 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex flex-col items-center text-center mt-2 cursor-pointer" onClick={() => setPreviewFile(file)}>
-                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${
-                      file.type === 'video' ? 'bg-indigo-100 text-indigo-600' :
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${file.type === 'video' ? 'bg-indigo-100 text-indigo-600' :
                       file.type === 'document' ? 'bg-blue-100 text-blue-600' :
-                      file.type === 'pdf' ? 'bg-red-100 text-red-600' :
-                      file.type === 'spreadsheet' ? 'bg-emerald-100 text-emerald-600' :
-                      file.type === 'audio' ? 'bg-purple-100 text-purple-600' :
-                      'bg-amber-100 text-amber-600'
-                    }`}>
+                        file.type === 'pdf' ? 'bg-red-100 text-red-600' :
+                          file.type === 'spreadsheet' ? 'bg-emerald-100 text-emerald-600' :
+                            file.type === 'audio' ? 'bg-purple-100 text-purple-600' :
+                              'bg-amber-100 text-amber-600'
+                      }`}>
                       {file.type === 'video' ? <Video className="w-8 h-8" /> :
-                       file.type === 'document' ? <FileText className="w-8 h-8" /> :
-                       file.type === 'pdf' ? <File className="w-8 h-8" /> :
-                       file.type === 'spreadsheet' ? <FileText className="w-8 h-8" /> :
-                       file.type === 'audio' ? <Music className="w-8 h-8" /> :
-                       <ImageIcon className="w-8 h-8" />}
+                        file.type === 'document' ? <FileText className="w-8 h-8" /> :
+                          file.type === 'pdf' ? <File className="w-8 h-8" /> :
+                            file.type === 'spreadsheet' ? <FileText className="w-8 h-8" /> :
+                              file.type === 'audio' ? <Music className="w-8 h-8" /> :
+                                <ImageIcon className="w-8 h-8" />}
                     </div>
-                    
+
                     {renamingFileId === file.id ? (
                       <div className="w-full px-2" onClick={e => e.stopPropagation()}>
                         <input
@@ -731,13 +755,13 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
                     ) : (
                       <h4 className="font-medium text-slate-900 text-sm line-clamp-2 mb-1 px-2 hover:text-indigo-600" title={file.name}>{file.name}</h4>
                     )}
-                    
+
                     <div className="text-xs text-slate-500 flex items-center gap-2 mt-2">
                       <span>{file.size}</span>
                       <span>•</span>
                       <span>{file.date}</span>
                     </div>
-                    
+
                     <div className="mt-3">
                       {file.status === 'indexed' && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-700">
@@ -809,27 +833,26 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-4 border-b border-slate-200">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${
-                  previewFile.type === 'video' ? 'bg-indigo-100 text-indigo-600' :
+                <div className={`p-2 rounded-lg ${previewFile.type === 'video' ? 'bg-indigo-100 text-indigo-600' :
                   previewFile.type === 'document' ? 'bg-blue-100 text-blue-600' :
-                  previewFile.type === 'pdf' ? 'bg-red-100 text-red-600' :
-                  previewFile.type === 'spreadsheet' ? 'bg-emerald-100 text-emerald-600' :
-                  previewFile.type === 'audio' ? 'bg-purple-100 text-purple-600' :
-                  'bg-amber-100 text-amber-600'
-                }`}>
+                    previewFile.type === 'pdf' ? 'bg-red-100 text-red-600' :
+                      previewFile.type === 'spreadsheet' ? 'bg-emerald-100 text-emerald-600' :
+                        previewFile.type === 'audio' ? 'bg-purple-100 text-purple-600' :
+                          'bg-amber-100 text-amber-600'
+                  }`}>
                   {previewFile.type === 'video' ? <Video className="w-5 h-5" /> :
-                   previewFile.type === 'document' ? <FileText className="w-5 h-5" /> :
-                   previewFile.type === 'pdf' ? <File className="w-5 h-5" /> :
-                   previewFile.type === 'spreadsheet' ? <FileText className="w-5 h-5" /> :
-                   previewFile.type === 'audio' ? <Music className="w-5 h-5" /> :
-                   <ImageIcon className="w-5 h-5" />}
+                    previewFile.type === 'document' ? <FileText className="w-5 h-5" /> :
+                      previewFile.type === 'pdf' ? <File className="w-5 h-5" /> :
+                        previewFile.type === 'spreadsheet' ? <FileText className="w-5 h-5" /> :
+                          previewFile.type === 'audio' ? <Music className="w-5 h-5" /> :
+                            <ImageIcon className="w-5 h-5" />}
                 </div>
                 <div>
                   <h3 className="font-semibold text-slate-900">{previewFile.name}</h3>
                   <p className="text-xs text-slate-500">{previewFile.size} • Added {previewFile.date}</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setPreviewFile(null)}
                 className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
               >
@@ -859,8 +882,8 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
                   >
                     {Array.from(new Array(numPages), (el, index) => (
                       <div key={`page_${index + 1}`} className="shadow-md">
-                        <Page 
-                          pageNumber={index + 1} 
+                        <Page
+                          pageNumber={index + 1}
                           width={800}
                           renderTextLayer={false}
                           renderAnnotationLayer={false}
@@ -910,11 +933,11 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
                   <p className="text-slate-500 max-w-md mb-8">
                     This file type cannot be previewed in the browser. Please download the file to view its contents.
                   </p>
-                  <button 
-                    onClick={() => handleDownload(previewFile)} 
+                  <button
+                    onClick={() => handleDownload(previewFile)}
                     className="px-6 py-3 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors flex items-center gap-2 shadow-sm"
                   >
-                    <Download className="w-5 h-5" /> 
+                    <Download className="w-5 h-5" />
                     Download File
                   </button>
                 </div>
@@ -952,7 +975,7 @@ export default function LibraryView({ files, setFiles, onRefreshFiles }: Library
                 </div>
               ) : (
                 <pre className="text-xs leading-5 whitespace-pre-wrap break-all bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-700">
-{JSON.stringify(metadataDetail, null, 2)}
+                  {JSON.stringify(metadataDetail, null, 2)}
                 </pre>
               )}
             </div>
