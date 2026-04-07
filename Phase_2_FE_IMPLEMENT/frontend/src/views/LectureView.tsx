@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { 
-  Play, 
-  Pause, 
-  Volume2, 
-  Maximize, 
-  Settings, 
-  ChevronRight, 
+import {
+  Play,
+  Pause,
+  Volume2,
+  Maximize,
+  Settings,
+  ChevronRight,
   ChevronLeft,
   Search,
   MessageSquare,
@@ -29,7 +29,7 @@ interface LectureViewProps {
 export default function LectureView({ files = [] }: LectureViewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeTab, setActiveTab] = useState<'transcript' | 'summary'>('summary');
-  
+
   const videoFiles = files.filter(f => f.type === 'video');
   const [selectedLectureId, setSelectedLectureId] = useState<number | null>(
     videoFiles.length > 0 ? videoFiles[0].id : null
@@ -79,7 +79,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const transcriptText = transcript.map(t => `[${t.time}] ${t.text}`).join('\n');
-      
+
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Generate a ${summaryLength} summary focusing on ${summaryFocus} for the following lecture transcript:\n\n${transcriptText}`,
@@ -118,7 +118,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
           }
         }
       });
-      
+
       if (response.text) {
         setGeneratedSummary(JSON.parse(response.text));
       }
@@ -147,11 +147,11 @@ export default function LectureView({ files = [] }: LectureViewProps) {
     <div className="h-full flex flex-col lg:flex-row gap-8 max-w-[1600px] mx-auto">
       {/* Left Column: Video & Slides */}
       <div className="flex-1 flex flex-col gap-8 min-w-0">
-        
+
         {/* Lecture Selector */}
         <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm">
+            <div className="w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center shadow-sm">
               <Video className="w-6 h-6" />
             </div>
             <div>
@@ -160,10 +160,10 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             </div>
           </div>
           <div className="flex-1 max-w-md relative group">
-            <select 
+            <select
               value={selectedLectureId || ''}
               onChange={(e) => setSelectedLectureId(Number(e.target.value))}
-              className="w-full appearance-none border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer"
+              className="w-full appearance-none border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer"
               disabled={videoFiles.length === 0}
             >
               {videoFiles.length === 0 ? (
@@ -176,7 +176,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                 ))
               )}
             </select>
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-indigo-500 transition-colors">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-sky-500 transition-colors">
               <ChevronRight className="w-4 h-4 rotate-90" />
             </div>
           </div>
@@ -185,9 +185,9 @@ export default function LectureView({ files = [] }: LectureViewProps) {
         {/* Video Player */}
         <div className="bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl relative aspect-video group flex items-center justify-center border-4 border-white">
           {videoUrl ? (
-            <video 
-              src={videoUrl} 
-              controls 
+            <video
+              src={videoUrl}
+              controls
               className="w-full h-full object-contain"
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
@@ -212,17 +212,17 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   </div>
                 )}
               </div>
-              
+
               {/* Video Controls Overlay (Mock) */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                 <div className="w-full h-1.5 bg-white/20 rounded-full mb-6 cursor-pointer group/progress">
-                  <div className="h-full bg-indigo-500 rounded-full w-1/3 relative">
+                  <div className="h-full bg-sky-500 rounded-full w-1/3 relative">
                     <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg scale-0 group-hover/progress:scale-100 transition-transform"></div>
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-white">
                   <div className="flex items-center gap-6">
-                    <button onClick={() => setIsPlaying(!isPlaying)} className="hover:text-indigo-400 transition-all transform hover:scale-110">
+                    <button onClick={() => setIsPlaying(!isPlaying)} className="hover:text-sky-400 transition-all transform hover:scale-110">
                       {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current" />}
                     </button>
                     <div className="flex items-center gap-3">
@@ -234,8 +234,8 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     <span className="text-xs font-black font-mono tracking-wider text-white/80">15:42 / {selectedLecture?.duration || '45:00'}</span>
                   </div>
                   <div className="flex items-center gap-5">
-                    <button className="hover:text-indigo-400 transition-all"><Settings className="w-5 h-5" /></button>
-                    <button className="hover:text-indigo-400 transition-all"><Maximize className="w-5 h-5" /></button>
+                    <button className="hover:text-sky-400 transition-all"><Settings className="w-5 h-5" /></button>
+                    <button className="hover:text-sky-400 transition-all"><Maximize className="w-5 h-5" /></button>
                   </div>
                 </div>
               </div>
@@ -248,16 +248,16 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       <div className="w-full lg:w-[480px] bg-white rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col shrink-0 h-[calc(100vh-10rem)] overflow-hidden">
         {/* Tabs */}
         <div className="flex items-center p-3 bg-slate-50/50 border-b border-slate-100 shrink-0">
-          <button 
+          <button
             onClick={() => setActiveTab('transcript')}
-            className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 ${activeTab === 'transcript' ? 'bg-white text-indigo-600 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'}`}
+            className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 ${activeTab === 'transcript' ? 'bg-white text-sky-600 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'}`}
           >
             <MessageSquare className="w-4 h-4" />
             Transcript
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('summary')}
-            className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 ${activeTab === 'summary' ? 'bg-white text-indigo-600 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'}`}
+            className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 ${activeTab === 'summary' ? 'bg-white text-sky-600 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'}`}
           >
             <Sparkles className="w-4 h-4" />
             AI Summary
@@ -269,20 +269,20 @@ export default function LectureView({ files = [] }: LectureViewProps) {
           {activeTab === 'transcript' ? (
             <div className="p-8 space-y-6">
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                <input 
-                  type="text" 
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-sky-500 transition-colors" />
+                <input
+                  type="text"
                   placeholder="Search transcript..."
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all shadow-inner"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-all shadow-inner"
                 />
               </div>
               <div className="space-y-2">
                 {transcript.map((item, i) => (
-                  <div key={i} className={`flex gap-4 p-4 rounded-2xl transition-all cursor-pointer group ${item.active ? 'bg-indigo-50/80 border border-indigo-100 shadow-sm' : 'hover:bg-slate-50 border border-transparent'}`}>
-                    <span className={`text-[10px] font-black font-mono pt-1 shrink-0 uppercase tracking-tighter ${item.active ? 'text-indigo-600' : 'text-slate-300 group-hover:text-slate-400'}`}>
+                  <div key={i} className={`flex gap-4 p-4 rounded-2xl transition-all cursor-pointer group ${item.active ? 'bg-sky-50/80 border border-sky-100 shadow-sm' : 'hover:bg-slate-50 border border-transparent'}`}>
+                    <span className={`text-[10px] font-black font-mono pt-1 shrink-0 uppercase tracking-tighter ${item.active ? 'text-sky-600' : 'text-slate-300 group-hover:text-slate-400'}`}>
                       {item.time}
                     </span>
-                    <p className={`text-sm leading-relaxed font-medium ${item.active ? 'text-indigo-900' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                    <p className={`text-sm leading-relaxed font-medium ${item.active ? 'text-sky-900' : 'text-slate-600 group-hover:text-slate-900'}`}>
                       {item.text}
                     </p>
                   </div>
@@ -297,21 +297,21 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             <div className="flex flex-col h-full">
               {!generatedSummary && !isGenerating ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-10 text-center m-6 bg-[#F8FAFC] rounded-[2rem] border border-slate-100 shadow-inner">
-                  <div className="w-20 h-20 bg-white text-indigo-600 rounded-[1.5rem] flex items-center justify-center mb-6 shadow-xl shadow-indigo-100/50">
+                  <div className="w-20 h-20 bg-white text-sky-600 rounded-[1.5rem] flex items-center justify-center mb-6 shadow-xl shadow-sky-100/50">
                     <Sparkles className="w-10 h-10" />
                   </div>
                   <h3 className="text-xl font-black text-slate-900 mb-3 tracking-tight">Lecture Insight</h3>
                   <p className="text-sm text-slate-500 mb-8 max-w-xs font-medium leading-relaxed">
                     Generate a structured, multi-level summary from the lecture transcript using AI.
                   </p>
-                  
+
                   <div className="w-full max-w-sm space-y-5 mb-10 text-left">
                     <div>
                       <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Summary Length</label>
-                      <select 
+                      <select
                         value={summaryLength}
                         onChange={(e) => setSummaryLength(e.target.value as any)}
-                        className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white shadow-sm"
+                        className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none bg-white shadow-sm"
                       >
                         <option value="brief">Brief (Executive Summary)</option>
                         <option value="detailed">Detailed (Standard)</option>
@@ -320,10 +320,10 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     </div>
                     <div>
                       <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Focus Area</label>
-                      <select 
+                      <select
                         value={summaryFocus}
                         onChange={(e) => setSummaryFocus(e.target.value as any)}
-                        className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white shadow-sm"
+                        className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none bg-white shadow-sm"
                       >
                         <option value="general">General Concepts</option>
                         <option value="formulas">Formulas & Math</option>
@@ -332,9 +332,9 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     onClick={handleGenerateSummary}
-                    className="w-full max-w-sm py-4 bg-indigo-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-200 hover:-translate-y-0.5"
+                    className="w-full max-w-sm py-4 bg-sky-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-sky-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-sky-200 hover:-translate-y-0.5"
                   >
                     <Sparkles className="w-5 h-5" />
                     Generate Summary
@@ -343,8 +343,8 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               ) : isGenerating ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-10 text-center m-6">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-indigo-600/20 blur-2xl animate-pulse rounded-full"></div>
-                    <Loader2 className="w-16 h-16 text-indigo-600 animate-spin mb-8 relative" />
+                    <div className="absolute inset-0 bg-sky-600/20 blur-2xl animate-pulse rounded-full"></div>
+                    <Loader2 className="w-16 h-16 text-sky-600 animate-spin mb-8 relative" />
                   </div>
                   <h3 className="text-xl font-black text-slate-900 tracking-tight">Analyzing Transcript...</h3>
                   <p className="text-sm text-slate-500 mt-3 font-medium max-w-[200px] mx-auto leading-relaxed">Extracting key concepts and generating structured summary.</p>
@@ -356,9 +356,9 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                       <h3 className="font-black text-slate-900 text-xl tracking-tight">Lecture Summary</h3>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">AI Generated Insights</p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => setGeneratedSummary(null)}
-                      className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all border border-transparent hover:border-indigo-100"
+                      className="p-2 text-sky-600 hover:bg-sky-50 rounded-xl transition-all border border-transparent hover:border-sky-100"
                     >
                       <RefreshCw className="w-5 h-5" />
                     </button>
@@ -366,20 +366,20 @@ export default function LectureView({ files = [] }: LectureViewProps) {
 
                   {/* Objectives & Concepts */}
                   <div className="space-y-6">
-                    <div className="bg-indigo-50/50 rounded-[1.5rem] p-6 border border-indigo-100 shadow-sm">
-                      <h4 className="text-xs font-black text-indigo-900 mb-4 flex items-center gap-2 uppercase tracking-widest">
+                    <div className="bg-sky-50/50 rounded-[1.5rem] p-6 border border-sky-100 shadow-sm">
+                      <h4 className="text-xs font-black text-sky-900 mb-4 flex items-center gap-2 uppercase tracking-widest">
                         <Target className="w-4 h-4" /> Learning Objectives
                       </h4>
                       <ul className="space-y-3">
                         {generatedSummary.learningObjectives.map((obj: string, i: number) => (
-                          <li key={i} className="flex gap-3 text-sm text-indigo-800 font-medium leading-relaxed">
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-2 shrink-0"></span>
+                          <li key={i} className="flex gap-3 text-sm text-sky-800 font-medium leading-relaxed">
+                            <span className="w-1.5 h-1.5 rounded-full bg-sky-400 mt-2 shrink-0"></span>
                             {obj}
                           </li>
                         ))}
                       </ul>
                     </div>
-                    
+
                     <div className="bg-emerald-50/50 rounded-[1.5rem] p-6 border border-emerald-100 shadow-sm">
                       <h4 className="text-xs font-black text-emerald-900 mb-4 flex items-center gap-2 uppercase tracking-widest">
                         <Key className="w-4 h-4" /> Key Concepts
@@ -402,10 +402,10 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     <div className="space-y-10">
                       {generatedSummary.sections.map((section: any, i: number) => (
                         <div key={i} className="relative pl-8 border-l-2 border-slate-100 pb-2 last:pb-0 group">
-                          <div className="absolute w-4 h-4 bg-white border-4 border-indigo-500 rounded-full -left-[9px] top-0 shadow-sm group-hover:scale-125 transition-transform"></div>
+                          <div className="absolute w-4 h-4 bg-white border-4 border-sky-500 rounded-full -left-[9px] top-0 shadow-sm group-hover:scale-125 transition-transform"></div>
                           <div className="flex items-center justify-between mb-3">
                             <h5 className="font-black text-slate-900 text-sm tracking-tight">{section.title}</h5>
-                            <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg border border-indigo-100 uppercase tracking-widest">{section.timeRange}</span>
+                            <span className="text-[10px] font-black text-sky-600 bg-sky-50 px-2 py-1 rounded-lg border border-sky-100 uppercase tracking-widest">{section.timeRange}</span>
                           </div>
                           <ul className="space-y-3">
                             {section.points.map((point: string, j: number) => (
@@ -428,8 +428,8 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                       </h4>
                       <div className="space-y-4">
                         {generatedSummary.definitionsAndFormulas.map((item: any, i: number) => (
-                          <div key={i} className="bg-slate-50/50 rounded-2xl p-5 border border-slate-100 shadow-sm group hover:bg-white hover:border-indigo-200 transition-all">
-                            <span className="font-black text-slate-900 text-sm block mb-2 tracking-tight group-hover:text-indigo-600 transition-colors">{item.term}</span>
+                          <div key={i} className="bg-slate-50/50 rounded-2xl p-5 border border-slate-100 shadow-sm group hover:bg-white hover:border-sky-200 transition-all">
+                            <span className="font-black text-slate-900 text-sm block mb-2 tracking-tight group-hover:text-sky-600 transition-colors">{item.term}</span>
                             <span className="text-sm text-slate-500 font-medium leading-relaxed">{item.definition}</span>
                           </div>
                         ))}

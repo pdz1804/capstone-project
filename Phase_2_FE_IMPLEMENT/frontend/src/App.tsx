@@ -4,17 +4,17 @@
  */
 
 import { useState, useEffect } from 'react';
-import { 
-  LayoutDashboard, 
-  Database, 
-  BookOpen, 
-  TrendingUp, 
+import {
+  LayoutDashboard,
+  Database,
+  BookOpen,
+  TrendingUp,
   Bell,
   User,
   LogOut,
   Loader2,
-  ChevronDown, 
-  UploadCloud, 
+  ChevronDown,
+  UploadCloud,
   Search,
   BarChart3,
   MessageSquare
@@ -66,7 +66,7 @@ export default function App() {
   const [isKnowledgeExpanded, setIsKnowledgeExpanded] = useState(true);
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
-  
+
   const [files, setFiles] = useState<FileItem[]>([]);
   const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
 
@@ -92,7 +92,7 @@ export default function App() {
   if (!isAuthReady) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+        <Loader2 className="w-10 h-10 text-sky-600 animate-spin" />
       </div>
     );
   }
@@ -103,9 +103,9 @@ export default function App() {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { 
-      id: 'knowledge', 
-      label: 'Knowledge Management', 
+    {
+      id: 'knowledge',
+      label: 'Knowledge Management',
       icon: Database,
       subItems: [
         { id: 'dashboard', label: 'Knowledge Dashboard', icon: BarChart3 },
@@ -124,7 +124,7 @@ export default function App() {
       <aside className="w-80 bg-white border-r border-slate-200 flex flex-col shrink-0">
         <div className="p-6 border-b border-slate-200">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold text-slate-900 tracking-tight">BK-MInD</span>
@@ -137,7 +137,7 @@ export default function App() {
             const Icon = item.icon;
             const isActive = currentView === item.id;
             const hasSubItems = 'subItems' in item;
-            
+
             return (
               <div key={item.id} className="space-y-1">
                 <button
@@ -155,13 +155,13 @@ export default function App() {
                   }}
                   className={cn(
                     "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
-                    isActive 
-                      ? "bg-indigo-50 text-indigo-700" 
+                    isActive
+                      ? "bg-sky-50 text-sky-700"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={cn("w-5 h-5 shrink-0", isActive ? "text-indigo-600" : "text-slate-400")} />
+                    <Icon className={cn("w-5 h-5 shrink-0", isActive ? "text-sky-600" : "text-slate-400")} />
                     <span className="whitespace-nowrap">{item.label}</span>
                   </div>
                   {hasSubItems && (
@@ -197,12 +197,12 @@ export default function App() {
                               }}
                               className={cn(
                                 "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left",
-                                isSubActive 
-                                  ? "bg-indigo-50/50 text-indigo-700" 
+                                isSubActive
+                                  ? "bg-sky-50/50 text-sky-700"
                                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                               )}
                             >
-                              <SubIcon className={cn("w-4 h-4 shrink-0", isSubActive ? "text-indigo-600" : "text-slate-400")} />
+                              <SubIcon className={cn("w-4 h-4 shrink-0", isSubActive ? "text-sky-600" : "text-slate-400")} />
                               <span className="whitespace-nowrap">{sub.label}</span>
                             </button>
                           );
@@ -217,7 +217,7 @@ export default function App() {
         </nav>
 
         <div className="p-4 border-t border-slate-200 space-y-1">
-          <button 
+          <button
             onClick={() => authService.logout()}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
           >
@@ -243,7 +243,7 @@ export default function App() {
               {user.photoURL ? (
                 <img src={user.photoURL} alt={user.displayName || 'User'} className="w-8 h-8 rounded-full border border-slate-200" referrerPolicy="no-referrer" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-sm">
+                <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-semibold text-sm">
                   {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
                 </div>
               )}
@@ -259,20 +259,20 @@ export default function App() {
         <div className="flex-1 overflow-y-auto p-8">
           {currentView === 'dashboard' && <DashboardView onNavigate={setCurrentView} user={user} files={files} />}
           {currentView === 'knowledge' && (
-            <KnowledgeManagementView 
-              files={files} 
-              setFiles={setFiles} 
-              onNavigate={setCurrentView} 
+            <KnowledgeManagementView
+              files={files}
+              setFiles={setFiles}
+              onNavigate={setCurrentView}
               activeTab={knowledgeSubTab}
               onTabChange={setKnowledgeSubTab}
             />
           )}
           {currentView === 'lecture' && <LectureView files={files} />}
           {currentView === 'learning' && (
-            <LearningPathView 
-              files={files} 
-              quizResults={quizResults} 
-              onQuizComplete={addQuizResult} 
+            <LearningPathView
+              files={files}
+              quizResults={quizResults}
+              onQuizComplete={addQuizResult}
             />
           )}
           {currentView === 'chat' && <ChatAssistantView />}

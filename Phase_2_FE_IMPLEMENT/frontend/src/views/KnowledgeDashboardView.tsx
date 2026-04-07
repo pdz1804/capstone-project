@@ -45,7 +45,7 @@ export default function KnowledgeDashboardView({ files }: KnowledgeDashboardView
   const recentUploads = [...files].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
 
   const stats = [
-    { label: 'Total Files', value: files.length, icon: Database, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { label: 'Total Files', value: files.length, icon: Database, color: 'text-sky-600', bg: 'bg-sky-50' },
     { label: 'Storage Used', value: formatSize(totalSize), icon: HardDrive, color: 'text-emerald-600', bg: 'bg-emerald-50' },
   ];
 

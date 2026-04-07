@@ -86,10 +86,10 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
         </div>
 
         {/* Image Index */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-indigo-100 p-8 hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-8 hover:shadow-lg hover:border-sky-200 transition-all duration-300">
           <div className="flex items-center space-x-4 mb-6">
-            <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-              <Image className="w-6 h-6 text-indigo-600" />
+            <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center">
+              <Image className="w-6 h-6 text-sky-600" />
             </div>
             <div>
               <h3 className="font-semibold text-slate-800">Image Index</h3>
@@ -99,9 +99,9 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
           {stats?.image_index ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                  <div className="text-sm text-indigo-600 font-medium mb-1">Pages</div>
-                  <p className="text-3xl font-bold text-indigo-700">{stats.image_index.pages || 0}</p>
+                <div className="p-4 bg-sky-50 rounded-xl border border-sky-100">
+                  <div className="text-sm text-sky-600 font-medium mb-1">Pages</div>
+                  <p className="text-3xl font-bold text-sky-700">{stats.image_index.pages || 0}</p>
                 </div>
                 <div className="p-4 bg-purple-50 rounded-xl border border-purple-100">
                   <div className="text-sm text-purple-600 font-medium mb-1">Vector DB</div>
@@ -111,7 +111,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium">
+                <span className="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-lg text-sm font-medium">
                   ColQwen
                 </span>
                 <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium">
@@ -158,7 +158,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
               <button
                 onClick={() => handleAction(onRebuildImage)}
                 disabled={loading}
-                className="px-4 py-2.5 bg-indigo-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-indigo-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="px-4 py-2.5 bg-sky-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-sky-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95"
                 title="Rebuild image index only"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}

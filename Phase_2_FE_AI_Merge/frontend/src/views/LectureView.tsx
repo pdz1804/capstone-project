@@ -517,7 +517,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       <div className="flex-1 flex flex-col gap-2 min-w-0">
         <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col gap-6 w-full">
           <div className="flex items-start gap-4 shrink-0">
-            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm shrink-0">
+            <div className="w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center shadow-sm shrink-0">
               {selectedFile?.type === 'video' ? (
                 <Video className="w-6 h-6" />
               ) : selectedFile?.type === 'image' ? (
@@ -543,14 +543,14 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                 value={fileQuery}
                 onChange={(e) => setFileQuery(e.target.value)}
                 placeholder="Search by name"
-                className="w-full border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white"
+                className="w-full border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none bg-white"
                 aria-label="Filter uploaded files by name"
               />
               {fileQuery.trim() && (
                 <button
                   type="button"
                   onClick={() => setFileQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold text-indigo-600 hover:text-indigo-800 px-2 py-1 rounded-lg hover:bg-indigo-50"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold text-sky-600 hover:text-sky-800 px-2 py-1 rounded-lg hover:bg-sky-50"
                 >
                   Clear
                 </button>
@@ -574,7 +574,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   <button
                     type="button"
                     onClick={() => setFileQuery('')}
-                    className="text-xs font-bold text-indigo-600 hover:underline"
+                    className="text-xs font-bold text-sky-600 hover:underline"
                   >
                     Show all files
                   </button>
@@ -591,12 +591,12 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                           aria-selected={active}
                           onClick={() => setSelectedFileId(file.id)}
                           className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-start gap-3 ${active
-                            ? 'bg-indigo-50 border-l-4 border-l-indigo-600 font-semibold text-slate-900'
+                            ? 'bg-sky-50 border-l-4 border-l-sky-600 font-semibold text-slate-900'
                             : 'hover:bg-white text-slate-700 border-l-4 border-l-transparent'
                             }`}
                         >
                           <ChevronRight
-                            className={`w-4 h-4 mt-0.5 shrink-0 ${active ? 'text-indigo-600' : 'text-slate-300'}`}
+                            className={`w-4 h-4 mt-0.5 shrink-0 ${active ? 'text-sky-600' : 'text-slate-300'}`}
                           />
                           <span className="min-w-0 flex-1">
                             <span className="block truncate" title={file.name}>
@@ -637,7 +637,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             )}
             {selectedFile && selectedFile.type !== 'video' && inputPreviewLoading && (
               <div className="shrink-0 flex flex-col items-center justify-center gap-2 py-10 border-b border-slate-100 bg-slate-50/50">
-                <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+                <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
                 <p className="text-xs font-bold text-slate-500">Loading original file preview…</p>
               </div>
             )}
@@ -736,7 +736,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     href={inputPreview.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center rounded-xl bg-indigo-600 text-white text-xs font-bold uppercase tracking-wide px-4 py-2.5 hover:bg-indigo-700"
+                    className="inline-flex items-center justify-center rounded-xl bg-sky-600 text-white text-xs font-bold uppercase tracking-wide px-4 py-2.5 hover:bg-sky-700"
                   >
                     Open original file
                   </a>
@@ -751,7 +751,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   </div>
                 )}
                 {selectedFile && shouldFallbackToProcessedMarkdownMain && processedMdLoading && (
-                  <div className="flex flex-col items-center justify-center gap-3 py-16 text-indigo-600">
+                  <div className="flex flex-col items-center justify-center gap-3 py-16 text-sky-600">
                     <Loader2 className="w-10 h-10 animate-spin" />
                     <p className="text-sm font-bold">Loading processed markdown…</p>
                   </div>
@@ -812,7 +812,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             type="button"
             onClick={() => setActiveTab('transcript')}
             className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 ${activeTab === 'transcript'
-              ? 'bg-white text-indigo-600 shadow-sm border border-slate-200'
+              ? 'bg-white text-sky-600 shadow-sm border border-slate-200'
               : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
               }`}
           >
@@ -823,7 +823,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             type="button"
             onClick={() => setActiveTab('summary')}
             className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 ${activeTab === 'summary'
-              ? 'bg-white text-indigo-600 shadow-sm border border-slate-200'
+              ? 'bg-white text-sky-600 shadow-sm border border-slate-200'
               : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
               }`}
           >
@@ -844,7 +844,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     type="button"
                     onClick={() => setPassagesPane('chunks')}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${passagesPane === 'chunks'
-                      ? 'bg-white text-indigo-600 shadow-sm border border-slate-100'
+                      ? 'bg-white text-sky-600 shadow-sm border border-slate-100'
                       : 'text-slate-500 hover:text-slate-700'
                       }`}
                   >
@@ -855,7 +855,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     type="button"
                     onClick={() => setPassagesPane('markdown')}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${passagesPane === 'markdown'
-                      ? 'bg-white text-indigo-600 shadow-sm border border-slate-100'
+                      ? 'bg-white text-sky-600 shadow-sm border border-slate-100'
                       : 'text-slate-500 hover:text-slate-700'
                       }`}
                   >
@@ -869,7 +869,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                 <div className="space-y-4">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Processed markdown (same as pipeline output)</p>
                   {processedMdLoading && (
-                    <div className="flex items-center gap-3 text-indigo-600 text-sm font-bold py-8 justify-center">
+                    <div className="flex items-center gap-3 text-sky-600 text-sm font-bold py-8 justify-center">
                       <Loader2 className="w-6 h-6 animate-spin" />
                       Loading markdown…
                     </div>
@@ -895,17 +895,17 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               ) : (
                 <>
                   <div className="relative group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-sky-500 transition-colors" />
                     <input
                       type="text"
                       value={transcriptQuery}
                       onChange={(e) => setTranscriptQuery(e.target.value)}
                       placeholder="Filter passages…"
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all shadow-inner"
+                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-all shadow-inner"
                     />
                   </div>
                   {transcriptLoading && (
-                    <div className="flex items-center gap-3 text-indigo-600 text-sm font-bold">
+                    <div className="flex items-center gap-3 text-sky-600 text-sm font-bold">
                       <Loader2 className="w-5 h-5 animate-spin" />
                       Loading passages…
                     </div>
@@ -937,10 +937,10 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                       return (
                         <div
                           key={`${scopeFile?.name}-${source}-${i}`}
-                          className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-indigo-50/40 hover:border-indigo-100 transition-all"
+                          className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-sky-50/40 hover:border-sky-100 transition-all"
                         >
                           {source && (
-                            <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2 truncate" title={source}>
+                            <p className="text-[10px] font-black text-sky-500 uppercase tracking-widest mb-2 truncate" title={source}>
                               {source}
                             </p>
                           )}
@@ -959,7 +959,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             <div className="flex flex-col h-full">
               {!summaryMarkdown && !isGenerating ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-10 text-center m-6 bg-[#F8FAFC] rounded-[2rem] border border-slate-100 shadow-inner">
-                  <div className="w-20 h-20 bg-white text-indigo-600 rounded-[1.5rem] flex items-center justify-center mb-6 shadow-xl shadow-indigo-100/50">
+                  <div className="w-20 h-20 bg-white text-sky-600 rounded-[1.5rem] flex items-center justify-center mb-6 shadow-xl shadow-sky-100/50">
                     <Sparkles className="w-10 h-10" />
                   </div>
                   <h3 className="text-xl font-black text-slate-900 mb-3 tracking-tight">Lecture insight</h3>
@@ -982,7 +982,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     type="button"
                     onClick={() => void handleGenerateSummary()}
                     disabled={!scopeFile}
-                    className="w-full max-w-sm py-4 bg-indigo-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:pointer-events-none"
+                    className="w-full max-w-sm py-4 bg-sky-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-sky-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-sky-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:pointer-events-none"
                   >
                     <Sparkles className="w-5 h-5" />
                     Generate summary
@@ -991,8 +991,8 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               ) : isGenerating ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-10 text-center m-6">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-indigo-600/20 blur-2xl animate-pulse rounded-full"></div>
-                    <Loader2 className="w-16 h-16 text-indigo-600 animate-spin mb-8 relative" />
+                    <div className="absolute inset-0 bg-sky-600/20 blur-2xl animate-pulse rounded-full"></div>
+                    <Loader2 className="w-16 h-16 text-sky-600 animate-spin mb-8 relative" />
                   </div>
                   <h3 className="text-xl font-black text-slate-900 tracking-tight">Calling insights API…</h3>
                   <p className="text-sm text-slate-500 mt-3 font-medium max-w-[240px] mx-auto leading-relaxed">
@@ -1012,7 +1012,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                         setSummaryMarkdown(null);
                         setSummaryError(null);
                       }}
-                      className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all border border-transparent hover:border-indigo-100"
+                      className="p-2 text-sky-600 hover:bg-sky-50 rounded-xl transition-all border border-transparent hover:border-sky-100"
                       title="New summary"
                     >
                       <RefreshCw className="w-5 h-5" />
