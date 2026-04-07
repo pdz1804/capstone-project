@@ -7,5 +7,5 @@ router = APIRouter(tags=["health"])
 
 @router.get("/api/health")
 @router.get("/health")
-async def health():
+def health():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}

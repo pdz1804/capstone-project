@@ -271,10 +271,14 @@ qdrant:
 inference:
   use_aws_sagemaker: false            # Prefer env USE_AWS_SAGEMAKER_INFERENCE
   aws_region: "us-west-2"
-  sagemaker_endpoint_name: "phase2-colqwen-rt"
-  # Optional second endpoint for Docling document conversion (Stage 3) — ColQwen/ColPali stays on sagemaker_endpoint_name
+  # Primary endpoint. For single-endpoint mode, all services can share this.
+  sagemaker_endpoint_name: "phase2-multimodal-rt"
+  # Optional dedicated endpoint for Docling. If empty, backend falls back to sagemaker_endpoint_name.
   use_aws_sagemaker_docling: false    # Prefer env USE_AWS_SAGEMAKER_DOCLING=true
   sagemaker_docling_endpoint_name: ""
+  # Optional dedicated endpoint for Whisper ASR. If empty, backend falls back to sagemaker_endpoint_name.
+  use_aws_sagemaker_whisper: false    # Prefer env USE_AWS_SAGEMAKER_WHISPER=true
+  sagemaker_whisper_endpoint_name: ""
   hybrid_alpha: 0.5                 # weight for dense vs BM25 in hybrid (0..1)
 
 

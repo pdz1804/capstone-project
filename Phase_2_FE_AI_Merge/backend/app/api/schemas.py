@@ -153,6 +153,8 @@ class InferenceProbeResponse(BaseModel):
     sagemaker_endpoint_name: Optional[str] = None
     use_aws_sagemaker_docling: bool = False
     sagemaker_docling_endpoint_name: Optional[str] = None
+    use_aws_sagemaker_whisper: bool = False
+    sagemaker_whisper_endpoint_name: Optional[str] = None
     aws_region: Optional[str] = None
     qdrant_mode: str
     text_collection: str

@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api", tags=["config"])
 
 
 @router.get("/config")
-async def get_config() -> Dict[str, Any]:
+def get_config() -> Dict[str, Any]:
     try:
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             config_dict = yaml.safe_load(f) or {}
@@ -38,6 +38,8 @@ async def get_config() -> Dict[str, Any]:
                 "sagemaker_endpoint": inf.get("sagemaker_endpoint_name"),
                 "use_aws_sagemaker_docling": bool(inf.get("use_aws_sagemaker_docling")),
                 "sagemaker_docling_endpoint": inf.get("sagemaker_docling_endpoint_name"),
+                "use_aws_sagemaker_whisper": bool(inf.get("use_aws_sagemaker_whisper")),
+                "sagemaker_whisper_endpoint": inf.get("sagemaker_whisper_endpoint_name"),
                 "docling_backend": proc_doc.get("docling_backend", "local"),
                 "generation_provider": gen.get("provider"),
                 "generation_model": gen.get("model"),

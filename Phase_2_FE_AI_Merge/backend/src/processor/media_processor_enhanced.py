@@ -26,6 +26,8 @@ import tempfile
 import hashlib
 from collections import Counter
 
+from .whisper_remote import invoke_sagemaker_whisper, should_use_sagemaker_whisper
+
 # Audio/Video processing
 try:
     import torch
@@ -157,6 +159,11 @@ class MediaProcessorConfig:
     # Device
     device: str = "cuda" if TORCH_AVAILABLE and torch.cuda.is_available() else "cpu"
     compute_dtype: str = "float16" if device == "cuda" else "float32"
+
+    # Optional remote ASR (single shared SageMaker endpoint can host Whisper op)
+    use_aws_sagemaker_whisper: bool = False
+    sagemaker_whisper_endpoint_name: str = ""
+    aws_region: str = "us-west-2"
     
     def __post_init__(self):
         """Sync device with use_gpu flag for backward compatibility."""
@@ -619,6 +626,15 @@ class AudioTranscriber:
     
     def _load_model(self):
         """Load Whisper model with appropriate device."""
+        if should_use_sagemaker_whisper(media_config=self.config):
+            logger.info(
+                "Whisper ASR configured for SageMaker endpoint mode (region=%s, endpoint=%s)",
+                self.config.aws_region,
+                self.config.sagemaker_whisper_endpoint_name or os.getenv("SAGEMAKER_ENDPOINT_NAME", ""),
+            )
+            self.model = "sagemaker-runtime"
+            return
+
         if not WHISPER_AVAILABLE:
             logger.error("Whisper required for transcription")
             return
@@ -649,6 +665,22 @@ class AudioTranscriber:
         Returns:
             Dictionary with transcription results or None if error
         """
+        if should_use_sagemaker_whisper(media_config=self.config):
+            try:
+                data = invoke_sagemaker_whisper(
+                    Path(audio_path),
+                    language=self.config.asr_language,
+                    word_timestamps=self.config.use_word_timestamps,
+                    media_config=self.config,
+                )
+                if not isinstance(data, dict):
+                    logger.error("Invalid SageMaker Whisper response type: %s", type(data))
+                    return None
+                return data
+            except Exception as e:
+                logger.error(f"SageMaker Whisper invocation failed: {str(e)}")
+                return None
+
         if self.model is None:
             logger.error("Model not loaded")
             return None

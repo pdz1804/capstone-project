@@ -51,6 +51,7 @@ def test_system_inference_probe(client: TestClient, clear_sagemaker_env):
     assert r.status_code == 200
     data = r.json()
     assert "use_aws_sagemaker_inference" in data
+    assert "use_aws_sagemaker_whisper" in data
     assert "qdrant_mode" in data
     assert "text_collection" in data
     assert "image_collection" in data
