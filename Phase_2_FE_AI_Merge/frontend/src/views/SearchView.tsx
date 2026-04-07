@@ -242,62 +242,62 @@ export default function SearchView({ files }: SearchViewProps) {
         )}
         {showAdvancedConfig && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 mb-4">
-          <label className="text-xs text-slate-600">
-            Mode
-            <select
-              value={mode}
-              onChange={(e) => setMode(e.target.value as SearchMode)}
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
-            >
-              <option value="retrieval_only">Retrieval only</option>
-              <option value="retrieval_generation">Retrieval + generation</option>
-            </select>
-          </label>
-          <label className="text-xs text-slate-600">
-            Search scope
-            <select
-              value={scope}
-              onChange={(e) => setScope(e.target.value as SearchScope)}
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
-            >
-              <option value="text">Text index only</option>
-              <option value="image">Image index only</option>
-              <option value="both">Both text + image</option>
-            </select>
-          </label>
-          <label className="text-xs text-slate-600">
-            Text retrieval
-            <select
-              value={retrieverType}
-              onChange={(e) => setRetrieverType(e.target.value as RetrieverType)}
-              disabled={scope === 'image'}
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm disabled:opacity-50"
-            >
-              <option value="hybrid">Hybrid</option>
-              <option value="dense">Dense (Qdrant)</option>
-              <option value="bm25">BM25</option>
-            </select>
-          </label>
-          <label className="text-xs text-slate-600">
-            Top K
-            <input
-              type="number"
-              min={1}
-              max={100}
-              value={topK}
-              onChange={(e) => setTopK(Math.max(1, Math.min(100, Number(e.target.value || 10))))}
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
-            />
-          </label>
-          <label className="text-xs text-slate-600 flex items-end gap-2 pb-2">
-            <input
-              type="checkbox"
-              checked={skipReranker}
-              onChange={(e) => setSkipReranker(e.target.checked)}
-              className="rounded border-slate-300"
-            />
-            Skip reranker
-          </label>
+            <label className="text-xs text-slate-600">
+              Mode
+              <select
+                value={mode}
+                onChange={(e) => setMode(e.target.value as SearchMode)}
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+              >
+                <option value="retrieval_only">Retrieval only</option>
+                <option value="retrieval_generation">Retrieval + generation</option>
+              </select>
+            </label>
+            <label className="text-xs text-slate-600">
+              Search scope
+              <select
+                value={scope}
+                onChange={(e) => setScope(e.target.value as SearchScope)}
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+              >
+                <option value="text">Text index only</option>
+                <option value="image">Image index only</option>
+                <option value="both">Both text + image</option>
+              </select>
+            </label>
+            <label className="text-xs text-slate-600">
+              Text retrieval
+              <select
+                value={retrieverType}
+                onChange={(e) => setRetrieverType(e.target.value as RetrieverType)}
+                disabled={scope === 'image'}
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm disabled:opacity-50"
+              >
+                <option value="hybrid">Hybrid</option>
+                <option value="dense">Dense (Qdrant)</option>
+                <option value="bm25">BM25</option>
+              </select>
+            </label>
+            <label className="text-xs text-slate-600">
+              Top K
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={topK}
+                onChange={(e) => setTopK(Math.max(1, Math.min(100, Number(e.target.value || 10))))}
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-xs text-slate-600 flex items-end gap-2 pb-2">
+              <input
+                type="checkbox"
+                checked={skipReranker}
+                onChange={(e) => setSkipReranker(e.target.checked)}
+                className="rounded border-slate-300"
+              />
+              Skip reranker
+            </label>
           </div>
         )}
         {showAdvancedConfig && mode === 'retrieval_generation' && (
@@ -383,7 +383,7 @@ export default function SearchView({ files }: SearchViewProps) {
           <span className="font-medium">Recent:</span>
           {recentSearches.map((q) => (
             <span key={q} className="inline-flex items-center gap-1 bg-slate-100 rounded-full pl-3 pr-1 py-0.5">
-              <button type="button" className="hover:text-indigo-600" onClick={() => handleRecentSearchClick(q)}>
+              <button type="button" className="hover:text-sky-600" onClick={() => handleRecentSearchClick(q)}>
                 {q.slice(0, 40)}
                 {q.length > 40 ? '…' : ''}
               </button>
@@ -412,7 +412,7 @@ export default function SearchView({ files }: SearchViewProps) {
             </span>
           </div>
           <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-2">
-            <Clock3 className="w-4 h-4 text-indigo-600" />
+            <Clock3 className="w-4 h-4 text-sky-600" />
             <span className="text-sm text-slate-700">Generation: {telemetry.steps_ms?.generation || 0} ms</span>
           </div>
           <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-2">
@@ -490,12 +490,12 @@ export default function SearchView({ files }: SearchViewProps) {
                   c.metadata && Object.keys(c.metadata).length > 0
                     ? c.metadata
                     : {
-                        source: c.source || '',
-                        source_path: c.source_path || '',
-                        storage_uri: c.storage_uri || '',
-                        page: c.page || 0,
-                        score: c.score ?? 0,
-                      };
+                      source: c.source || '',
+                      source_path: c.source_path || '',
+                      storage_uri: c.storage_uri || '',
+                      page: c.page || 0,
+                      score: c.score ?? 0,
+                    };
                 return (
                   <div
                     id={cid || undefined}
@@ -544,7 +544,7 @@ export default function SearchView({ files }: SearchViewProps) {
                                 cid
                               )
                             }
-                            className="text-xs px-2 py-1 rounded border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 disabled:opacity-60"
+                            className="text-xs px-2 py-1 rounded border border-sky-200 text-sky-700 bg-sky-50 hover:bg-sky-100 disabled:opacity-60"
                           >
                             {imagePreviewLoading[cid] ? 'Loading...' : 'Load image'}
                           </button>

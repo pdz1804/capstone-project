@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  FileText, 
+import {
+  Search,
+  FileText,
   MessageSquare,
   RefreshCw,
   Database
@@ -49,10 +49,10 @@ export default function SearchView({ onNavigate, files }: SearchViewProps) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
-    
+
     saveRecentSearch(query.trim());
     setIsSearching(true);
-    
+
     setTimeout(() => {
       setIsSearching(false);
       setShowResults(true);
@@ -64,7 +64,7 @@ export default function SearchView({ onNavigate, files }: SearchViewProps) {
     saveRecentSearch(searchQuery);
     setIsSearching(true);
     setShowResults(false);
-    
+
     setTimeout(() => {
       setIsSearching(false);
       setShowResults(true);
@@ -91,10 +91,10 @@ export default function SearchView({ onNavigate, files }: SearchViewProps) {
         <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">AI Model (Generation)</label>
-            <select 
+            <select
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium flex items-center justify-between cursor-pointer hover:border-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none"
+              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium flex items-center justify-between cursor-pointer hover:border-sky-300 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 appearance-none"
             >
               <option value="Gemini 1.5 Flash">Gemini 1.5 Flash (Default)</option>
               <option value="Gemini 1.5 Pro">Gemini 1.5 Pro</option>
@@ -124,7 +124,7 @@ export default function SearchView({ onNavigate, files }: SearchViewProps) {
               className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-lg min-h-[120px] resize-none"
             />
           </div>
-          
+
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap gap-2 flex-1">
               {[
@@ -132,7 +132,7 @@ export default function SearchView({ onNavigate, files }: SearchViewProps) {
                 "How does RAG improve AI accuracy?",
                 "What are the key components of a RAG system?"
               ].map((q, i) => (
-                <button 
+                <button
                   key={i}
                   type="button"
                   onClick={() => setQuery(q)}
@@ -143,7 +143,7 @@ export default function SearchView({ onNavigate, files }: SearchViewProps) {
               ))}
             </div>
 
-            <button 
+            <button
               type="submit"
               disabled={!query.trim() || isSearching}
               className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md shrink-0"
@@ -179,8 +179,8 @@ export default function SearchView({ onNavigate, files }: SearchViewProps) {
                 <span className="text-slate-400 font-medium">Citations:</span>
                 <div className="flex gap-2">
                   {[1, 2, 3].map(n => (
-                    <span 
-                      key={n} 
+                    <span
+                      key={n}
                       onClick={() => scrollToChunk(`chunk-${n}`)}
                       className="text-blue-600 font-bold cursor-pointer hover:underline"
                     >
@@ -218,15 +218,15 @@ export default function SearchView({ onNavigate, files }: SearchViewProps) {
               </div>
               <h3 className="font-bold text-slate-800 uppercase tracking-tight text-sm">Matching Chunks (13 Found)</h3>
             </div>
-            
+
             <div className="space-y-3">
               {[
                 { id: 'chunk-1', name: 'Introduction to RAG.pdf', score: '0.95', text: 'RAG combines the power of pre-trained language models with a retrieval mechanism that accesses a large corpus of documents.' },
                 { id: 'chunk-2', name: 'Vector Database Basics.pdf', score: '0.88', text: 'Vector databases store document embeddings, allowing for efficient similarity search during the retrieval phase of RAG.' },
                 { id: 'chunk-3', name: 'Prompt Engineering for RAG.pdf', score: '0.82', text: 'Effective prompt engineering is crucial for guiding the LLM to use the retrieved context accurately and concisely.' }
               ].map((chunk, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   id={chunk.id}
                   className="bg-white rounded-xl border border-slate-200 p-4 flex flex-col gap-3 hover:border-blue-300 transition-all group cursor-pointer"
                 >

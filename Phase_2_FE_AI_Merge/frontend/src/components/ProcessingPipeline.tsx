@@ -49,11 +49,11 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
       ? indexedFiles
       : processedFilter === 'processed'
         ? processedFiles
-      : processedFilter === 'processing'
-        ? processingFiles
-        : processedFilter === 'uploaded'
-          ? uploadedFiles
-          : failedFiles;
+        : processedFilter === 'processing'
+          ? processingFiles
+          : processedFilter === 'uploaded'
+            ? uploadedFiles
+            : failedFiles;
 
   const selectedFile = files.find(f => f.id === selectedDocId) || (filteredFiles.length > 0 ? filteredFiles[0] : null);
 
@@ -85,7 +85,7 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
               sky: 'bg-sky-100 text-sky-700 border-sky-200',
               cyan: 'bg-cyan-100 text-cyan-700 border-cyan-200',
               blue: 'bg-blue-100 text-blue-700 border-blue-200',
-              indigo: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+              indigo: 'bg-sky-100 text-sky-700 border-sky-200',
             };
 
             return (
@@ -114,11 +114,10 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
             <button
               key={filter.id}
               onClick={() => setProcessedFilter(filter.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                processedFilter === filter.id
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${processedFilter === filter.id
                   ? 'bg-sky-500 text-white shadow-lg shadow-sky-200/50'
                   : 'bg-white/60 text-slate-600 border border-sky-100 hover:bg-sky-50'
-              }`}
+                }`}
             >
               {filter.label} ({filter.count})
             </button>
@@ -137,11 +136,10 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
                   <button
                     key={file.id}
                     onClick={() => setSelectedDocId(file.id)}
-                    className={`w-full text-left p-4 rounded-xl border transition-all ${
-                      isActive
+                    className={`w-full text-left p-4 rounded-xl border transition-all ${isActive
                         ? 'border-sky-400 bg-sky-50 ring-2 ring-sky-300/60 shadow-md'
                         : 'border-slate-200 bg-white hover:border-sky-200 hover:shadow-sm'
-                    }`}
+                      }`}
                   >
                     <p className="font-semibold text-slate-800 truncate">{file.name}</p>
                     <p className="text-xs text-slate-500 mt-1">
@@ -149,15 +147,14 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
                     </p>
                     <div className="flex flex-wrap gap-1 mt-2">
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-                          file.status === 'indexed'
+                        className={`px-2 py-0.5 rounded text-[10px] font-medium ${file.status === 'indexed'
                             ? 'bg-green-100 text-green-800'
                             : file.status === 'processing'
                               ? 'bg-yellow-100 text-yellow-800'
                               : file.status === 'failed'
                                 ? 'bg-red-100 text-red-800'
                                 : 'bg-slate-100 text-slate-800'
-                        }`}
+                          }`}
                       >
                         {file.status.charAt(0).toUpperCase() + file.status.slice(1)}
                       </span>
@@ -192,25 +189,23 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
                   <div className="space-y-2">
                     <h5 className="text-sm font-semibold text-slate-700">Processing Stages</h5>
                     {Object.entries(stageInfo).map(([stageKey, info]) => {
-                      const isProcessed = selectedFile.status === 'indexed' || 
-                                         (stageKey === 'stage1_normalized' && selectedFile.status !== 'uploaded');
-                      
+                      const isProcessed = selectedFile.status === 'indexed' ||
+                        (stageKey === 'stage1_normalized' && selectedFile.status !== 'uploaded');
+
                       return (
                         <button
                           key={stageKey}
                           onClick={() => toggleStage(stageKey)}
-                          className={`w-full text-left p-3 rounded-lg border transition-all ${
-                            isProcessed
+                          className={`w-full text-left p-3 rounded-lg border transition-all ${isProcessed
                               ? `bg-${info.color}-50 border-${info.color}-200 text-${info.color}-800`
                               : 'bg-slate-50 border-slate-200 text-slate-500'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               <div
-                                className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                                  isProcessed ? `bg-${info.color}-200` : 'bg-slate-200'
-                                }`}
+                                className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${isProcessed ? `bg-${info.color}-200` : 'bg-slate-200'
+                                  }`}
                               >
                                 {isProcessed ? '✓' : '○'}
                               </div>
