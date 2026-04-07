@@ -65,9 +65,9 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
   ];
 
   const quickActions = [
-    { id: 'search', label: 'Ask AI Assistant', desc: 'Query your knowledge base', icon: Search, color: 'bg-sky-600', view: 'chat' },
-    { id: 'upload', label: 'Import Content', desc: 'Add new lecture materials', icon: UploadCloud, color: 'bg-blue-600', view: 'knowledge' },
-    { id: 'lecture', label: 'Lecture Viewer', desc: 'Comprehensive material library', icon: BookOpen, color: 'bg-cyan-600', view: 'lecture' },
+    { id: 'search', label: 'Ask AI Assistant', desc: 'Query your knowledge base', icon: Search, color: 'bg-cyan-600', view: 'chat' },
+    { id: 'upload', label: 'Import Content', desc: 'Add new lecture materials', icon: UploadCloud, color: 'bg-sky-600', view: 'knowledge' },
+    { id: 'lecture', label: 'Lecture Viewer', desc: 'Comprehensive material library', icon: BookOpen, color: 'bg-blue-600', view: 'lecture' },
   ];
 
   const recentActivity = files.slice(0, 5).map((f) => ({
