@@ -1,0 +1,668 @@
+{
+  "metadata": {
+    "doc_id": "Testplan",
+    "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+    "num_sections": 20,
+    "total_chunks": 21,
+    "chunking_config": {
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "max_table_chunk_size": 2000
+    },
+    "created_at": "2026-03-27T11:37:30.995978"
+  },
+  "chunks": [
+    {
+      "id": "Testplan_chunk_0",
+      "text": "[Section: Testplan > Table of contents]\n\nOverview          2  \nScope           2  \nInclusions          2  \nTest Environment        2  \nExclusions          2  \nTest Strategy         3  \nDefect Reporting Procedure       4  \nRoles/Responsibilities        4  \nTest Schedule          5  \nTest Deliverables         5  \nEntry and Exit criteria        6  \nTools           6  \nRisks and Mitigations        7  \nApprovals             8",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 0,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Table of contents"
+        ],
+        "heading_text": "Table of contents",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 0,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_1",
+      "text": "[Section: Testplan > Overview]\n\nIn this documents includes how to test the functionalities of the web application https://demo.opencart.com/  \nThis document serves as high level test planning document with details on the scope of the project, test strategy, test schedule and resource requirements, test deliverables and schedule.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 1,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Overview"
+        ],
+        "heading_text": "Overview",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 1,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_2",
+      "text": "[Section: Testplan > Scope]\n\nThe scope of the project includes testing the following features of ‘https://demo.opencart.com/’ web application.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 2,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Scope"
+        ],
+        "heading_text": "Scope",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 2,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_3",
+      "text": "[Section: Testplan > Inclusions]\n\n• Register  \n• Login & Logout  \n• Forgot Password  \n• Search  \n• Product Compare  \n• Product Display Page  \n• Add to Cart  \n• Wish List  \n• Shopping Cart  \n• Currencies  \n• Home Page  \n• Checkout Page  \n• My Account Page  \n• Order History Page  \n• Downloads Page  \n• Contact Us Page  \n• Menu Options  \n• Footer Options  \n• Category Pages",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 3,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Inclusions"
+        ],
+        "heading_text": "Inclusions",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 3,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_4",
+      "text": "[Section: Testplan > Test Environment]\n\n• The operating systems that will be used for testing, such as Windows 10  \n• The browsers that will be used for testing such as Google Chrome, Mozilla Firefox, or Microsoft Edge.  \n• The network connectivity and bandwidth that will be available for testing, such as Wi-Fi, cellular, or wired connections.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 4,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Test Environment"
+        ],
+        "heading_text": "Test Environment",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 4,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_5",
+      "text": "[Section: Testplan > Exclusions]\n\nAll the features except that are mentioned under Inclusions",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 5,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Exclusions"
+        ],
+        "heading_text": "Exclusions",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 5,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_6",
+      "text": "[Section: Testplan > Test Strategy]\n\nStep 1 – Creation of Test Scenarios and Test Cases for the different features in scope.  \n• We will apply several Test Designing techniques while creating Test Cases  \n  o Equivalence Class Partition  \n  o Boundary Value Analysis  \n  o Decision Table Testing  \n  o State Transition Testing  \n• We prioritise the Test Cases",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 6,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Test Strategy"
+        ],
+        "heading_text": "Test Strategy",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 6,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_7",
+      "text": "[Section: Testplan > Test Strategy]\n\nng techniques while creating Test Cases  \n  o Equivalence Class Partition  \n  o Boundary Value Analysis  \n  o Decision Table Testing  \n  o State Transition Testing  \n• We prioritise the Test Cases  \n\nStep 2 – Our Testing process, when we get an Application for Testing:  \n• Firstly, we will perform Smoke Testing to check whether the different and important functionalities of the application are working.  \n• We reject the build, if the Smoke Testing fails and will wait for the stable build before performing in depth testing of the application functionalities.  \n• Once we receive a stable build, which passes Smoke Testing, we perform in depth testing using the Test Cases created.  \n• We then report the bugs in bug tracking tool and send to developer, management the defect found on that day in a status end of the day email.  \n• As part of the Testing, we will perform the below types of Testing:  \n  o Smoke Testing and Sanity Testing  \n  o Regression Testing and Retesting  \n  o Usability Testing, Functionality & UI Testing  \n• We repeat Test Cycles until we get the quality product.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 7,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Test Strategy"
+        ],
+        "heading_text": "Test Strategy",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 7,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_8",
+      "text": "[Section: Testplan > Defect Reporting Procedure]\n\n• Any deviation from expected behaviour by the application will be noted.  \n• The steps for reporting a defect, such as using a designated template, providing detailed reproduction steps, and attaching screenshots or logs.  \n• The tools and systems that will be used for tracking and managing defects, such as a defect tracking software or a project management tool.  \n• Every day, at the end of the test execution, defects encountered will be sent along with the observations.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 8,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Defect Reporting Procedure"
+        ],
+        "heading_text": "Defect Reporting Procedure",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 8,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_9",
+      "text": "[Section: Testplan > Test Schedule]\n\nFollowing is the test schedule planned for the project",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 9,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Test Schedule"
+        ],
+        "heading_text": "Test Schedule",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 9,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_10",
+      "text": "[Section: Testplan > Test Schedule]\n\n| Task | Time Duration |  \n| --- | --- |  \n| Creating Test Plan | 30.11.2023 |  \n| Test Case Creation | 12.12.2023 |  \n| Test Case Execution |  |",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 10,
+      "is_table": true,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "table",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Test Schedule"
+        ],
+        "heading_text": "Test Schedule",
+        "heading_level": 2,
+        "is_table": true,
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "markdown_table",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "table_data",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 10,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_11",
+      "text": "[Section: Testplan > Test Deliverables]\n\n| Deliverables | Description | Target completion date |  \n| --- | --- | --- |  \n| Test Plan | Details on the scope of the Project, test strategy, test schedule, resource requirements, test deliverables and schedule | 30.11.2023 |  \n| Functional Test Cases | Test Cases created for the scope defined | 24.12.2023 |  \n| Defect Reports | Detailed description of the defects identified along with screenshots and steps to reproduce on a daily basis. | NA |",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 11,
+      "is_table": true,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "table",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Test Deliverables"
+        ],
+        "heading_text": "Test Deliverables",
+        "heading_level": 2,
+        "is_table": true,
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "markdown_table",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "table_data",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 11,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_12",
+      "text": "[Section: Testplan > Entry and Exit Criteria]\n\nThe below are the entry and exit criteria for every phase of Software Testing Life Cycle:",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 12,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Entry and Exit Criteria"
+        ],
+        "heading_text": "Entry and Exit Criteria",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 12,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_13",
+      "text": "[Section: Testplan > Entry and Exit Criteria > Requirement Analysis]\n\nEntry criteria:-  \nThe testing team receives the requirement documents or details about the project  \nExit criteria:-  \n• List of Requirements should explored and understood by the testing team  \n• Doubts are need to be clarified",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 13,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Entry and Exit Criteria",
+          "Requirement Analysis"
+        ],
+        "heading_text": "Requirement Analysis",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 13,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_14",
+      "text": "[Section: Testplan > Entry and Exit Criteria > Test Planning]\n\nEntry criteria:-  \n• Testable requirements are derived from given requirement document or project details  \n• Doubts are need to be clarified  \nExit criteria:-  \n• Test plan document need to created  \n• Test plan document is signed off by the client",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 14,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Entry and Exit Criteria",
+          "Test Planning"
+        ],
+        "heading_text": "Test Planning",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 14,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_15",
+      "text": "[Section: Testplan > Entry and Exit Criteria > Test Designing]\n\nEntry criteria:-  \n• Test plan document is signed off by the client  \nExit criteria:-  \n• Test scenarios and test cases need to be created  \n• Test scenarios and test cases is signed off by the client",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 15,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Entry and Exit Criteria",
+          "Test Designing"
+        ],
+        "heading_text": "Test Designing",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 15,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_16",
+      "text": "[Section: Testplan > Entry and Exit Criteria > Test Execution]\n\nEntry criteria:-  \n• Test scenarios and test cases is signed off by the client  \n• Application is ready for Testing  \nExit criteria:-  \n• Test Case Reports, Defect Reports are ready",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 16,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Entry and Exit Criteria",
+          "Test Execution"
+        ],
+        "heading_text": "Test Execution",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 16,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_17",
+      "text": "[Section: Testplan > Entry and Exit Criteria > Test cycle closure]\n\nEntry criteria:-  \n• Test Case Reports, Defect Reports are ready  \nExit criteria:-  \n• Test Summary Report",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 17,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Entry and Exit Criteria",
+          "Test cycle closure"
+        ],
+        "heading_text": "Test cycle closure",
+        "heading_level": 3,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 17,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_18",
+      "text": "[Section: Testplan > Tools]\n\nThe following are the list of Tools we will be using in this Project:  \n• Bug Tracking Tool  \n• Snipping Screenshot Tool  \n• Word and Excel documents",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 18,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Tools"
+        ],
+        "heading_text": "Tools",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 18,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_19",
+      "text": "[Section: Testplan > Risks and Mitigations]\n\nThe following are the list of risks possible and the ways to mitigate them:  \nRisk: Non-Availability of a Resource  \nMitigation: Backup Resource Planning  \nRisk: Build URL is not working  \nMitigation: Resources will work on other tasks  \nRisk: Less time for Testing  \nMitigation: Ramp up the resources based on the Client needs dynamically",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 19,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Risks and Mitigations"
+        ],
+        "heading_text": "Risks and Mitigations",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 19,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    },
+    {
+      "id": "Testplan_chunk_20",
+      "text": "[Section: Testplan > Approvals]\n\nTeam will send different types of documents for Client Approval like below:  \n• Test Plan  \n• Test Scenarios  \n• Test Cases  \n• Reports  \nTesting will only continue to the next steps once these approvals are done",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+      "doc_id": "Testplan",
+      "chunk_index": 20,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "Testplan",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Testplan",
+          "Approvals"
+        ],
+        "heading_text": "Approvals",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/Testplan.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:30.995978",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 20,
+        "total_chunks": 21
+      },
+      "total_chunks": 21
+    }
+  ]
+}

@@ -1,4 +1,3 @@
-import React from 'react';
 import LibraryView from './LibraryView';
 import SearchView from './SearchView';
 import KnowledgeDashboardView from './KnowledgeDashboardView';
@@ -25,8 +24,16 @@ export default function KnowledgeManagementView({
       description: 'Overview of indexing status, storage usage, and processed artifacts by file.',
     },
     upload: {
-      title: 'Upload',
-      description: 'Upload files, manage items, preview content, and run remove actions with confirmation.',
+      title: 'Upload Content',
+      description: 'Upload your educational materials to the server. These files will be staged for processing.',
+    },
+    'run-pipeline': {
+      title: 'Run Pipeline',
+      description: 'Run the pipeline to transcribe videos and extract structured insights from documents.',
+    },
+    'build-index': {
+      title: 'Build Index',
+      description: 'Index processed content into the vector database to enable semantic search and RAG.',
     },
     explorer: {
       title: 'Knowledge Explorer',
@@ -43,11 +50,16 @@ export default function KnowledgeManagementView({
         </div>
       </div>
 
-      {/* Subtab Content */}
       <div className="flex-1 overflow-y-auto">
         {activeTab === 'dashboard' && <KnowledgeDashboardView files={files} />}
         {activeTab === 'upload' && (
-          <LibraryView files={files} setFiles={setFiles} onRefreshFiles={onRefreshFiles} />
+          <LibraryView files={files} setFiles={setFiles} onRefreshFiles={onRefreshFiles} controlMode="upload" />
+        )}
+        {activeTab === 'run-pipeline' && (
+          <LibraryView files={files} setFiles={setFiles} onRefreshFiles={onRefreshFiles} controlMode="process" />
+        )}
+        {activeTab === 'build-index' && (
+          <LibraryView files={files} setFiles={setFiles} onRefreshFiles={onRefreshFiles} controlMode="index" />
         )}
         {activeTab === 'explorer' && <SearchView files={files} />}
       </div>

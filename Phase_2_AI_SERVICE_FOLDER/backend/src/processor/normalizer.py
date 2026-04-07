@@ -144,8 +144,10 @@ class DocumentNormalizer:
         self.metadata_dir = self.output_dir / "normalization_metadata"
         self.originals_dir = self.output_dir / "original_files"  # Keep originals for Docling Stage 3
         self.excel_parsed_dir = self.output_dir / "excel_parsed"  # Custom Excel parser output
-        
-        for dir_path in [self.pdf_dir, self.markdown_dir, self.metadata_dir, self.originals_dir, self.excel_parsed_dir]:
+        self.docx_parsed_dir = self.output_dir / "docx_parsed"   # Custom DOCX parser output
+        self.pdf_parsed_dir = self.output_dir / "pdf_parsed"     # Custom PDF parser output (born-digital)
+
+        for dir_path in [self.pdf_dir, self.markdown_dir, self.metadata_dir, self.originals_dir, self.excel_parsed_dir, self.docx_parsed_dir, self.pdf_parsed_dir]:
             dir_path.mkdir(parents=True, exist_ok=True)
         
         # Setup logging
@@ -316,29 +318,30 @@ class DocumentNormalizer:
         return f"{truncated}_{hash_suffix}"
     
     # ======================== DOCX Normalization ========================
-    
+
     def _normalize_docx(self, file_path: Path, stem: str):
-        """Normalize DOCX files to PDF only (no markdown conversion)."""
-        if not PYTHON_DOCX_AVAILABLE:
-            print("WARNING: python-docx not available, skipping DOCX processing")
-            return
-        
+        """Parse DOCX files using the custom XML-based DocxParser.
+
+        Produces a structured JSON in docx_parsed/ that preserves the heading
+        hierarchy, table content, and image paths.  The JSON is consumed later
+        by _run_docx_processing() in the pipeline via DocxPreprocessor.
+        """
         try:
-            doc = Document(file_path)
-            
-            # Convert to PDF only - Try LibreOffice first (best quality)
-            if self.config.generate_pdf:
-                print("  → Trying LibreOffice for PDF conversion...")
-                if not self._docx_to_pdf_libreoffice(file_path, stem):
-                    # Fallback to ReportLab if LibreOffice not available
-                    print("  → LibreOffice not available, using ReportLab (text-only)")
-                    self._docx_to_pdf(doc, stem)
-                else:
-                    print("  → ✓ LibreOffice conversion successful (images preserved)")
-                    
+            from .docx_reader_v2 import DocxParser
+            import json as _json
+
+            parser = DocxParser(drop_deleted_table_content=True)
+            tree = parser.extract_docx_text(str(file_path))
+
+            out_json = self.docx_parsed_dir / f"{stem}.json"
+            with open(out_json, "w", encoding="utf-8") as fh:
+                _json.dump(tree, fh, ensure_ascii=False, indent=2)
+
+            print(f"  → ✓ DOCX parsed to JSON: {out_json.name}")
+
         except Exception as e:
-            print(f"ERROR: Error processing DOCX {file_path}: {str(e)}")
-            raise
+            print(f"  → ✗ Custom DOCX parser failed: {e}")
+            print(f"  → Falling back to Docling processing")
     
     # Unused anymore but maybe keep
     def _docx_to_markdown(self, doc: 'Document') -> str:
@@ -725,8 +728,21 @@ class DocumentNormalizer:
                 # Keep the copy in originals_dir so Docling can try
         
         elif ext == '.xls':
-            # .xls (legacy binary format) — keep in originals for Docling
-            print(f"  → .xls file — will be processed by Docling")
+            # .xls (legacy binary format) — convert to .xlsx via LibreOffice then parse
+            try:
+                from .xls_reader import XlsParser
+                from .xlsx_reader_v2 import process_excel_file
+
+                xlsx_path = XlsParser().convert_xls_to_xlsx(str(file_path))
+                json_output = process_excel_file(
+                    excel_path=Path(xlsx_path),
+                    output_dir=self.excel_parsed_dir,
+                    parsed_parent=self.excel_parsed_dir / "_parsed",
+                )
+                print(f"  → ✓ .xls converted and parsed to JSON: {json_output.name}")
+            except Exception as e:
+                print(f"  → ✗ .xls custom parsing failed: {e}")
+                print(f"  → Falling back to Docling processing")
     
     # ======================== CSV Normalization ========================
     
@@ -759,11 +775,69 @@ class DocumentNormalizer:
     # ======================== Direct Copy Operations ========================
     
     def _copy_pdf(self, file_path: Path, stem: str):
-        """Copy PDF files to normalized directory with safe name."""
+        """Classify and process PDF files.
+
+        Born-digital PDFs are parsed with the custom PDF reader into
+        ``pdf_parsed/{stem}.json`` (same heading-tree format as DOCX).
+        Scanned/hybrid PDFs are copied to ``normalized_pdfs/`` for
+        Docling processing.
+        """
+        # Always copy to normalized_pdfs/ as Docling fallback
         if self.config.generate_pdf:
             dest = self.pdf_dir / f"{stem}.pdf"
             shutil.copy(file_path, dest)
-            print(f"Copied PDF: {dest.name}")
+
+        # Classify the PDF
+        try:
+            from .pdf_classifier import PdfClassifier, PdfType
+            classifier = PdfClassifier()
+            classification = classifier.classify(file_path)
+
+            print(f"  PDF classified as: {classification.pdf_type.value} "
+                  f"(confidence={classification.confidence:.2f}, "
+                  f"version={classification.pdf_version}, "
+                  f"pages={classification.page_count})")
+
+            # Save classification metadata
+            import json as _json
+            meta_path = self.metadata_dir / f"{stem}_pdf_classification.json"
+            meta = {
+                "pdf_type": classification.pdf_type.value,
+                "confidence": classification.confidence,
+                "pdf_version": classification.pdf_version,
+                "has_structure_tree": classification.has_structure_tree,
+                "page_count": classification.page_count,
+                "signals": classification.signals,
+            }
+            with open(meta_path, "w", encoding="utf-8") as f:
+                _json.dump(meta, f, ensure_ascii=False, indent=2, default=str)
+
+            # Route based on classification
+            if classification.pdf_type == PdfType.BORN_DIGITAL:
+                self._parse_born_digital_pdf(file_path, stem)
+            else:
+                print(f"  -> Routing to Docling (copied to normalized_pdfs/)")
+
+        except Exception as e:
+            print(f"  WARNING: PDF classification failed ({e}), routing to Docling")
+
+    def _parse_born_digital_pdf(self, file_path: Path, stem: str):
+        """Parse a born-digital PDF using the custom PDF reader."""
+        import json as _json
+        from .pdf_reader import PdfParser
+
+        parsed_output_dir = self.pdf_parsed_dir / "_parsed" / stem
+        parsed_output_dir.mkdir(parents=True, exist_ok=True)
+
+        parser = PdfParser()
+        tree = parser.parse(str(file_path), output_dir=str(parsed_output_dir))
+
+        out_json = self.pdf_parsed_dir / f"{stem}.json"
+        with open(out_json, "w", encoding="utf-8") as f:
+            _json.dump(tree, f, ensure_ascii=False, indent=2)
+
+        print(f"  -> Born-digital PDF parsed to JSON: {out_json.name} "
+              f"({len(tree)} top-level sections)")
     
     def _txt_to_md(self, file_path: Path, stem: str):
         """Convert TXT to MD format with safe name."""

@@ -111,6 +111,62 @@ class BaseRetriever(ABC):
                     )
                 continue  # skip further checks for this folder
 
+            # Check if this is a PDF document (has pdf_manifest.json)
+            pdf_manifest = doc_folder / "pdf_manifest.json"
+            pdf_chunks_file = doc_folder / "pdf_chunks.json"
+
+            if pdf_manifest.exists() and pdf_chunks_file.exists():
+                # PDF DOCUMENT: Load pre-built heading+table-aware chunks directly
+                try:
+                    with open(pdf_chunks_file, 'r', encoding='utf-8') as f:
+                        pdf_data = json.load(f)
+
+                    pdf_chunks = pdf_data.get("chunks", [])
+
+                    for chunk in pdf_chunks:
+                        chunk_text_val = chunk.get("text", "")
+                        if not chunk_text_val.strip():
+                            continue
+                        prebuilt_chunks.append(chunk)
+
+                    logger.info(
+                        f"Loaded {len(pdf_chunks)} pre-built PDF chunks "
+                        f"for doc: {doc_folder.name}"
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"Error loading PDF chunks from {pdf_chunks_file}: {e}"
+                    )
+                continue  # skip further checks for this folder
+
+            # Check if this is a DOCX document (has docx_manifest.json)
+            docx_manifest = doc_folder / "docx_manifest.json"
+            docx_chunks_file = doc_folder / "docx_chunks.json"
+
+            if docx_manifest.exists() and docx_chunks_file.exists():
+                # DOCX DOCUMENT: Load pre-built heading+table-aware chunks directly
+                try:
+                    with open(docx_chunks_file, 'r', encoding='utf-8') as f:
+                        docx_data = json.load(f)
+
+                    docx_chunks = docx_data.get("chunks", [])
+
+                    for chunk in docx_chunks:
+                        chunk_text_val = chunk.get("text", "")
+                        if not chunk_text_val.strip():
+                            continue
+                        prebuilt_chunks.append(chunk)
+
+                    logger.info(
+                        f"Loaded {len(docx_chunks)} pre-built DOCX chunks "
+                        f"for doc: {doc_folder.name}"
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"Error loading DOCX chunks from {docx_chunks_file}: {e}"
+                    )
+                continue  # skip further checks for this folder
+
             if media_manifest.exists() and chunks_file.exists():
                 # MEDIA DOCUMENT: Load pre-built transcript chunks directly
                 try:

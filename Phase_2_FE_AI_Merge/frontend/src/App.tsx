@@ -19,6 +19,10 @@ import {
   MessageSquare,
   ChevronsLeft,
   ChevronsRight,
+  Menu,
+  Library,
+  Play,
+  Layers,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
@@ -40,7 +44,7 @@ import {
 } from './api/ragApi';
 
 export type ViewType = 'dashboard' | 'knowledge' | 'lecture' | 'learning' | 'chat';
-export type KnowledgeSubTab = 'dashboard' | 'upload' | 'explorer';
+export type KnowledgeSubTab = 'dashboard' | 'upload' | 'run-pipeline' | 'build-index' | 'explorer';
 
 export interface FileItem {
   id: number;
@@ -81,7 +85,7 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
-  
+
   const [files, setFiles] = useState<FileItem[]>([]);
   const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
 
@@ -167,7 +171,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col">
         <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+          <Loader2 className="w-10 h-10 text-sky-600 animate-spin" />
         </div>
         <AppFooter />
       </div>
@@ -180,12 +184,14 @@ export default function App() {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { 
-      id: 'knowledge', 
-      label: 'Knowledge Management', 
+    {
+      id: 'knowledge',
+      label: 'Knowledge Management',
       icon: Database,
       subItems: [
-        { id: 'upload', label: 'Upload', icon: UploadCloud },
+        { id: 'upload', label: 'Upload Files', icon: UploadCloud },
+        { id: 'run-pipeline', label: 'Run Pipeline', icon: Play },
+        { id: 'build-index', label: 'Build Index', icon: Layers },
         { id: 'explorer', label: 'Knowledge Explorer', icon: Search },
         { id: 'dashboard', label: 'Knowledge Dashboard', icon: BarChart3 },
       ]
@@ -201,12 +207,13 @@ export default function App() {
       <aside
         className={cn(
           'bg-white border-r border-slate-200 flex flex-col shrink-0 transition-[width] duration-200 ease-out overflow-hidden',
-          sidebarCollapsed ? 'w-[4.5rem]' : 'w-80'
+          sidebarCollapsed ? 'w-[4.5rem]' : 'w-72'
         )}
       >
         <div className={cn('border-b border-slate-200', sidebarCollapsed ? 'p-3 flex justify-center' : 'p-6')}>
+
           <div className={cn('flex items-center gap-2', sidebarCollapsed && 'justify-center')}>
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shrink-0">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
             {!sidebarCollapsed && (
@@ -214,6 +221,17 @@ export default function App() {
             )}
           </div>
           {!sidebarCollapsed && <p className="text-xs text-slate-500 mt-1">Educational RAG System</p>}
+        </div>
+        <div className={cn("p-2 flex", sidebarCollapsed ? "justify-center" : "px-4 py-2 border-b border-slate-100")}>
+          <button
+            type="button"
+            onClick={() => setSidebarCollapsed((c) => !c)}
+            className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors shrink-0"
+            aria-expanded={!sidebarCollapsed}
+            aria-label={sidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'}
+          >
+            {<Menu className='w-5 h-5' />}
+          </button>
         </div>
 
         <nav className="flex-1 p-2 sm:p-4 space-y-1 overflow-y-auto overflow-x-hidden">
@@ -229,12 +247,6 @@ export default function App() {
                   title={sidebarCollapsed ? item.label : undefined}
                   onClick={() => {
                     if (hasSubItems) {
-                      if (sidebarCollapsed) {
-                        setSidebarCollapsed(false);
-                        setCurrentView(item.id as ViewType);
-                        setIsKnowledgeExpanded(true);
-                        return;
-                      }
                       if (currentView === item.id) {
                         setIsKnowledgeExpanded(!isKnowledgeExpanded);
                       } else {
@@ -248,11 +260,11 @@ export default function App() {
                   className={cn(
                     'w-full flex items-center rounded-lg text-sm font-medium transition-colors text-left',
                     sidebarCollapsed ? 'justify-center px-2 py-3' : 'justify-between px-3 py-2.5',
-                    isActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    isActive ? 'bg-sky-50 text-sky-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   )}
                 >
                   <div className={cn('flex items-center min-w-0', sidebarCollapsed ? '' : 'gap-3')}>
-                    <Icon className={cn('w-5 h-5 shrink-0', isActive ? 'text-indigo-600' : 'text-slate-400')} />
+                    <Icon className={cn('w-5 h-5 shrink-0', isActive ? 'text-sky-600' : 'text-slate-400')} />
                     {!sidebarCollapsed && <span className="whitespace-nowrap truncate">{item.label}</span>}
                   </div>
                   {hasSubItems && !sidebarCollapsed && (
@@ -267,7 +279,7 @@ export default function App() {
                 </button>
 
                 <AnimatePresence initial={false}>
-                  {hasSubItems && isKnowledgeExpanded && !sidebarCollapsed && (
+                  {hasSubItems && isKnowledgeExpanded && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
@@ -275,26 +287,28 @@ export default function App() {
                       transition={{ duration: 0.2, ease: "easeInOut" }}
                       className="overflow-hidden"
                     >
-                      <div className="pl-10 py-1 space-y-1">
+                      <div className={cn("py-1 space-y-1", sidebarCollapsed ? "px-0" : "pl-4")}>
                         {item.subItems.map((sub) => {
                           const SubIcon = sub.icon;
                           const isSubActive = isActive && knowledgeSubTab === sub.id;
                           return (
                             <button
                               key={sub.id}
+                              title={sidebarCollapsed ? sub.label : undefined}
                               onClick={() => {
                                 setCurrentView(item.id as ViewType);
                                 setKnowledgeSubTab(sub.id as KnowledgeSubTab);
                               }}
                               className={cn(
-                                "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left",
-                                isSubActive 
-                                  ? "bg-indigo-50/50 text-indigo-700" 
+                                "w-full flex items-center rounded-lg text-sm font-medium transition-colors text-left",
+                                sidebarCollapsed ? "justify-center px-2 py-2.5" : "gap-2 px-3 py-2",
+                                isSubActive
+                                  ? "bg-sky-50/50 text-sky-700"
                                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                               )}
                             >
-                              <SubIcon className={cn("w-4 h-4 shrink-0", isSubActive ? "text-indigo-600" : "text-slate-400")} />
-                              <span className="whitespace-nowrap">{sub.label}</span>
+                              <SubIcon className={cn("w-5 h-5 shrink-0", isSubActive ? "text-sky-600" : "text-slate-400")} />
+                              {!sidebarCollapsed && <span className="whitespace-nowrap">{sub.label}</span>}
                             </button>
                           );
                         })}
@@ -328,7 +342,7 @@ export default function App() {
         {/* Header */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 shrink-0 gap-3">
           <div className="flex items-center gap-2 min-w-0">
-            <button
+            {/* <button
               type="button"
               onClick={() => setSidebarCollapsed((c) => !c)}
               className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors shrink-0"
@@ -336,7 +350,7 @@ export default function App() {
               aria-label={sidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'}
             >
               {sidebarCollapsed ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
-            </button>
+            </button> */}
             <h1 className="text-lg font-semibold text-slate-800 truncate">
               {navItems.find((i) => i.id === currentView)?.label || currentView}
             </h1>
@@ -350,7 +364,7 @@ export default function App() {
               {user.photoURL ? (
                 <img src={user.photoURL} alt={user.displayName || 'User'} className="w-8 h-8 rounded-full border border-slate-200" referrerPolicy="no-referrer" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-sm">
+                <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-semibold text-sm">
                   {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
                 </div>
               )}
