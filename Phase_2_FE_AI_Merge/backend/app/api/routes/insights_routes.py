@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/insights", tags=["insights"])
 
 
 @router.post("/summary")
-async def lecture_summary(
+def lecture_summary(
     req: SummaryRequest,
     user_id: str = Depends(storage_user_id),
 ):
@@ -32,7 +32,7 @@ async def lecture_summary(
 
 
 @router.post("/mcq")
-async def mcq(
+def mcq(
     req: McqRequest,
     user_id: str = Depends(storage_user_id),
 ):
@@ -52,7 +52,7 @@ async def mcq(
 
 
 @router.post("/learning-roadmap")
-async def roadmap(
+def roadmap(
     req: RoadmapRequest,
     user_id: str = Depends(storage_user_id),
 ):
@@ -69,6 +69,6 @@ async def roadmap(
 
 
 @router.get("/analytics")
-async def analytics(user_id: str = Depends(storage_user_id)):
+def analytics(user_id: str = Depends(storage_user_id)):
     cfg = merged_runtime_settings()
     return InsightsService(cfg, user_id=user_id).analytics_placeholder()

@@ -19,7 +19,7 @@ router = APIRouter(prefix="/api", tags=["search"])
 
 
 @router.post("/search")
-async def search(
+def search(
     req: SearchRequest,
     user_id: str = Depends(storage_user_id),
 ):
@@ -43,7 +43,7 @@ async def search(
 
 
 @router.get("/search/generation-models")
-async def list_generation_models() -> Dict[str, Any]:
+def list_generation_models() -> Dict[str, Any]:
     cfg = merged_runtime_settings()
     gyaml = cfg.get("generation", {}) or {}
     provider = str(gyaml.get("provider", "") or "").lower()
@@ -80,7 +80,7 @@ async def list_generation_models() -> Dict[str, Any]:
 
 
 @router.get("/search/image-preview")
-async def search_image_preview(
+def search_image_preview(
     storage_uri: str | None = Query(None, description="s3:// URI for indexed image/pdf page source."),
     source_path: str | None = Query(None, description="Absolute local source path fallback for local backend."),
     page: int = Query(1, ge=1, description="1-based page to render when source is a PDF."),

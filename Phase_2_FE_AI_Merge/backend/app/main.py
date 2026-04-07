@@ -82,7 +82,7 @@ app.include_router(identity_users_router, prefix="/api")
 
 
 @app.get("/api")
-async def api_root():
+def api_root():
     return {
         "service": "phase2-fe-ai-merge",
         "version": "2.1.0",

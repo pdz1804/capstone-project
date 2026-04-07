@@ -26,7 +26,7 @@ def get_user_service(repo: DynamoUserRepository = Depends(get_user_repository)) 
 
 
 @auth_router.post("/login", response_model=UserResponse)
-async def login(
+def login(
     authorization: str = Header(...),
     auth_service: FirebaseAuthService = Depends(get_firebase_auth),
     user_service: UserService = Depends(get_user_service),
@@ -42,7 +42,7 @@ async def login(
 
 
 @auth_router.post("/register-local", response_model=AuthSessionResponse)
-async def register_local_account(
+def register_local_account(
     body: LocalRegisterRequest,
     user_service: UserService = Depends(get_user_service),
 ):
@@ -50,14 +50,14 @@ async def register_local_account(
 
 
 @auth_router.post("/login-local", response_model=AuthSessionResponse)
-async def login_local_account(
+def login_local_account(
     body: LocalLoginRequest,
     user_service: UserService = Depends(get_user_service),
 ):
     return user_service.login_local_account(body)
 
 
-async def get_current_user(
+def get_current_user(
     authorization: str = Header(...),
     auth_service: FirebaseAuthService = Depends(get_firebase_auth),
     user_service: UserService = Depends(get_user_service),
@@ -77,12 +77,12 @@ async def get_current_user(
 
 
 @users_router.get("/me", response_model=UserResponse)
-async def get_me(user: UserResponse = Depends(get_current_user)):
+def get_me(user: UserResponse = Depends(get_current_user)):
     return user
 
 
 @users_router.get("/", response_model=List[UserResponse])
-async def list_users(
+def list_users(
     user_service: UserService = Depends(get_user_service),
     skip: int = 0,
     limit: int = 100,

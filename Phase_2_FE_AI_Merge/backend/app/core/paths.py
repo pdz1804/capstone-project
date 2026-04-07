@@ -184,6 +184,12 @@ def merged_runtime_settings(yaml_config: Dict[str, Any] | None = None) -> Dict[s
     if os.getenv("SAGEMAKER_DOCLING_ENDPOINT_NAME"):
         inf["sagemaker_docling_endpoint_name"] = os.getenv("SAGEMAKER_DOCLING_ENDPOINT_NAME", "")
 
+    sm_whisper = os.getenv("USE_AWS_SAGEMAKER_WHISPER", "").strip().lower() in ("1", "true", "yes")
+    if sm_whisper:
+        inf["use_aws_sagemaker_whisper"] = True
+    if os.getenv("SAGEMAKER_WHISPER_ENDPOINT_NAME"):
+        inf["sagemaker_whisper_endpoint_name"] = os.getenv("SAGEMAKER_WHISPER_ENDPOINT_NAME", "")
+
     gen = cfg.setdefault("generation", {})
     if os.getenv("GENERATION_PROVIDER"):
         gen["provider"] = os.getenv("GENERATION_PROVIDER", "").strip()

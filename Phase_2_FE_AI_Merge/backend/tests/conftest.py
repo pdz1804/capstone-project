@@ -43,5 +43,7 @@ def clear_sagemaker_env(monkeypatch: pytest.MonkeyPatch):
         "SAGEMAKER_ENDPOINT_NAME",
         "USE_AWS_SAGEMAKER_DOCLING",
         "SAGEMAKER_DOCLING_ENDPOINT_NAME",
+        "USE_AWS_SAGEMAKER_WHISPER",
+        "SAGEMAKER_WHISPER_ENDPOINT_NAME",
     ):
         monkeypatch.delenv(key, raising=False)

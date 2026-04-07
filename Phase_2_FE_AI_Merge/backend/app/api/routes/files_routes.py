@@ -230,7 +230,7 @@ def _read_input_file_bytes(user_id: str, file_name: str) -> Tuple[bytes, str]:
 
 
 @router.get("/files")
-async def list_files(
+def list_files(
     quick: bool = Query(
         False,
         description="If true, only scan input/ (skip processed tree, documents.json, Qdrant). "
@@ -293,7 +293,7 @@ async def list_files(
 
 
 @router.get("/files-with-metadata")
-async def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[str, Any]:
+def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[str, Any]:
     """
     Return uploaded input files enriched with lightweight metadata/status.
 
@@ -401,7 +401,7 @@ async def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> D
 
 
 @router.get("/files/{file_name}/processed")
-async def get_file_processed_artifacts(file_name: str, user_id: str = Depends(storage_user_id)) -> Dict[str, Any]:
+def get_file_processed_artifacts(file_name: str, user_id: str = Depends(storage_user_id)) -> Dict[str, Any]:
     """
     Return processed artifacts grouped by pipeline stage for one selected uploaded file.
     """
@@ -434,7 +434,7 @@ async def get_file_processed_artifacts(file_name: str, user_id: str = Depends(st
 
 
 @router.get("/files/{file_name}/chunks")
-async def get_file_all_chunks(file_name: str, user_id: str = Depends(storage_user_id)) -> Dict[str, Any]:
+def get_file_all_chunks(file_name: str, user_id: str = Depends(storage_user_id)) -> Dict[str, Any]:
     """
     Return ALL transcript/media chunks for one selected file, ordered by timestamp range.
     No semantic search is used here.
@@ -508,7 +508,7 @@ async def get_file_all_chunks(file_name: str, user_id: str = Depends(storage_use
 
 
 @router.get("/processed-documents")
-async def processed_documents(
+def processed_documents(
     preview: bool = Query(
         False,
         description="If true, include short text previews for .md/.json/.txt artifacts (slower on large trees).",
@@ -521,7 +521,7 @@ async def processed_documents(
 
 
 @router.get("/processed-file")
-async def get_processed_file(
+def get_processed_file(
     rel_path: str = Query(
         ...,
         min_length=1,
@@ -550,7 +550,7 @@ async def get_processed_file(
 
 
 @router.get("/input-file")
-async def get_input_file(
+def get_input_file(
     file_name: str = Query(
         ...,
         min_length=1,
@@ -579,7 +579,7 @@ async def get_input_file(
 
 
 @router.get("/input-file-url")
-async def get_input_file_url(
+def get_input_file_url(
     file_name: str = Query(
         ...,
         min_length=1,
@@ -657,7 +657,7 @@ async def upload(
 
 
 @router.delete("/files")
-async def delete_file(
+def delete_file(
     body: FileDeleteRequest,
     user_id: str = Depends(storage_user_id),
 ):
@@ -673,7 +673,7 @@ async def delete_file(
 
 
 @router.get("/file-metadata/{file_name}")
-async def get_file_metadata(
+def get_file_metadata(
     file_name: str,
     user_id: str = Depends(storage_user_id),
 ):
@@ -721,7 +721,7 @@ async def get_file_metadata(
 
 
 @router.get("/files-metadata-stats")
-async def get_files_metadata_stats(
+def get_files_metadata_stats(
     user_id: str = Depends(storage_user_id),
 ) -> Dict:
     """Get aggregate metadata statistics for all files in user's workspace."""
@@ -739,7 +739,7 @@ async def get_files_metadata_stats(
 
 
 @router.get("/files-by-status")
-async def get_files_by_status(
+def get_files_by_status(
     status: str = Query("pending", description="Filter by processing status: pending, processing, completed, or failed"),
     user_id: str = Depends(storage_user_id),
 ) -> Dict:

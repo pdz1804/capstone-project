@@ -407,8 +407,8 @@ class DocumentProcessingPipeline:
         print(f"Output: {self._format_console_path(self.output_dir)}")
         
         # Check for already processed files
+        input_files = [f for f in self.input_dir.rglob("*") if f.is_file()]
         if self.config.skip_processed:
-            input_files = [f for f in self.input_dir.rglob("*") if f.is_file()]
             skipped_count = 0
             
             for file_path in input_files:
@@ -417,9 +417,20 @@ class DocumentProcessingPipeline:
             
             if skipped_count > 0:
                 print(f"⚡ Skipping {skipped_count} already-processed files (use --force to reprocess)")
+            # If everything is already processed and stage4 outputs exist, avoid re-running stages.
+            if input_files and skipped_count == len(input_files):
+                print("✅ All input files already processed; returning cached pipeline state.")
+                self.pipeline_stats["total_input_files"] = len(input_files)
+                self.pipeline_stats["successful_files"] = len(input_files)
+                self.pipeline_stats["failed_files"] = 0
+                self.pipeline_stats["processing_time"] = 0.0
+                self.pipeline_stats["status"] = "completed"
+                self.pipeline_stats["cached"] = True
+                self._save_pipeline_stats()
+                return self.pipeline_stats
         
         # Count input files
-        self.pipeline_stats["total_input_files"] = self._count_files(self.input_dir)
+        self.pipeline_stats["total_input_files"] = len(input_files)
         print(f"Total input files: {self.pipeline_stats['total_input_files']}")
 
         prune_stats = self._prune_stale_pipeline_artifacts()
@@ -865,13 +876,21 @@ class DocumentProcessingPipeline:
             print(f"  → {stats['with_markdown']} documents with Markdown")
             print(f"  → {stats['with_additional']} documents with additional files")
             
-            # Mark all input files as successfully processed
+            # Mark input cache only for files that truly produced stage4 outputs.
             if self.config.skip_processed:
+                doc_stage = self.pipeline_stats.get("stages", {}).get("document_processing", {}) or {}
+                failed_doc = int(doc_stage.get("failed_files", 0) or 0)
+                if failed_doc > 0:
+                    print(f"  → Skip cache update: document processing has {failed_doc} failed file(s)")
+                    return stats
                 input_files = [f for f in self.input_dir.rglob("*") if f.is_file()]
+                updated = 0
                 for file_path in input_files:
-                    if not self._is_file_processed(file_path):
+                    final_dir = self.stage_dirs["rag_ready"] / file_path.stem
+                    if final_dir.exists() and not self._is_file_processed(file_path):
                         self._mark_file_processed(file_path, success=True)
-                print(f"  → Updated processing cache for {len(input_files)} files")
+                        updated += 1
+                print(f"  → Updated processing cache for {updated}/{len(input_files)} files")
             
             return stats
         

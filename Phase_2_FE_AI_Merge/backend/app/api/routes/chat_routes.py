@@ -152,7 +152,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 "- Never output raw <function_calls> or <function_result> tags in final answer."
             )
             agent = Agent(system_prompt=system_prompt, tools=[text_rag])
-            out = agent(query)
+            out = await asyncio.to_thread(agent, query)
             final_text = _strip_raw_tool_markup(str(out or "").strip()) or "No response generated."
 
             # Emit tool traces so UI can render call/result blocks.
