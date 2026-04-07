@@ -1,0 +1,415 @@
+{
+  "metadata": {
+    "doc_id": "prepare_interview",
+    "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+    "num_sections": 14,
+    "total_chunks": 13,
+    "chunking_config": {
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "max_table_chunk_size": 2000
+    },
+    "created_at": "2026-03-27T11:37:55.930164"
+  },
+  "chunks": [
+    {
+      "id": "prepare_interview_chunk_0",
+      "text": "[Section: Prepare Interview > Restful API]\n\nLà phương thức tạo API với nguyên lý tổ chức nhất định. Những nguyên lý này nhằm hướng dẫn lập trình viên tạo môi trường xử lý API request được toàn diện.  \nREST hoạt động chủ yếu dựa vào giao thức HTTP. Các hoạt động cơ bản nêu trên sẽ sử dụng những phương thức HTTP riêng.  \n- GET (SELECT): Trả về một Resource hoặc một danh sách Resource. Ko nên có body  \n- POST (CREATE): Tạo mới một Resource. Cần body (Vị trí chính để gửi dữ liệu cần tạo)  \n- PUT (UPDATE): Cập nhật thông tin cho Resource. Cần URL  \n- DELETE (DELETE): Xoá một Resource. Cần URL, ko nên có body  \nHTTP request gồm request line (đường dẫn URL tới thứ mình muốn tương tác) header, body (ko bắt buộc)  \nHeader: thường là authorization",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 0,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "Restful API"
+        ],
+        "heading_text": "Restful API",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 0,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_1",
+      "text": "[Section: Prepare Interview > Agile và Scrum]\n\n- Agile là gì, scrum là gì.  \nphương pháp tiếp cận lặp đi lặp lại (iterative) và tăng dần (incremental) để phát triển phần mềm, trái ngược với mô hình thác nước (Waterfall) truyền thống.  \nNó nhấn mạnh vào việc phân chia dự án lớn thành các vòng lặp nhỏ và phát triển từng phần trong các chu kỳ ngắn (Sprint). Khách hàng hoặc người dùng được xem xét sản phẩm sau mỗi vòng lặp để đưa ra phản hồi, đảm bảo sản phẩm đi đúng hướng. Đội ngũ phát triển được trao quyền tự quyết định cách tốt nhất để hoàn thành công việc. Sau mỗi chu kỳ, thông qua Retrospective, đội nhóm xem xét lại quy trình và tìm cách làm việc hiệu quả hơn.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 1,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "Agile và Scrum"
+        ],
+        "heading_text": "Agile và Scrum",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 1,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_2",
+      "text": "[Section: Prepare Interview > Docker]\n\n- Docker là gì? khác gì với VM. Devcontainer là gì  \n- Docker: app giúp phát triển, triển khai và quản lý các ứng dụng bằng cách đóng gói trong container  \n- Container là gì: Mục tiêu chính của Docker là giải quyết vấn đề \"chạy trên máy tôi nhưng không chạy trên máy bạn\" bằng cách đóng gói ứng dụng cùng với tất cả các thư viện, dependencies, cấu hình cần thiết vào một đơn vị độc lập gọi là Container.  \n- VM là một máy tính hoàn chỉnh mô phỏng trên phần cứng ảo, trong khi Docker chỉ là một môi trường chạy ứng dụng cô lập chia sẻ chung OS của máy chủ.  \n- Devcontainer (Development Container) là một Docker Container được tinh chỉnh để có sẵn tất cả các công cụ, runtime, dependencies, cài đặt editor (như VS Code), môi trường phát triển hoàn chỉnh và cấu hình cần thiết để phát triển một dự án cụ thể. Cấu hình thông qua một tệp .devcontainer.json",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 2,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "Docker"
+        ],
+        "heading_text": "Docker",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 2,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_3",
+      "text": "[Section: Prepare Interview > GCP và Azure]\n\n- GCP: đã dùng dịch vụ gì, có những dịch vụ gì nổi bật hơn (Vertex AI workbench, VM)  \n- Azure: đã dùng dịch vụ gì, có những dịch vụ gì nổi bật hơn (Azure ai foundry, azure ML)",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 3,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "GCP và Azure"
+        ],
+        "heading_text": "GCP và Azure",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 3,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_4",
+      "text": "[Section: Prepare Interview > Langgraph vs Langchain]\n\n- Langgraph vs langchain (vs n8n)  \n- LangGraph is a framework used in the project to build and manage the multi-agent system. It enables the creation of dynamic, stateful workflows where multiple AI agents collaborate to process user inputs and generate outputs.  \nLanggraph giải quyết vấn đề của LangChain: khó quản lý các quy trình phức tạp, có chu kỳ (ví dụ: Agent ra quyết định và sau đó đánh giá lại chính quyết định đó).  \n+ Mô hình Đồ thị: LangGraph định nghĩa quy trình làm việc như một Đồ thị có hướng (Directed Graph), cho phép bạn xác định chính xác luồng điều khiển và dữ liệu.  \n- n8n nếu cần tự động hóa một quy trình kinh doanh tổng thể bằng cách kết nối nhiều hệ thống khác nhau và sử dụng LLM chỉ là một bước xử lý dữ liệu trong quy trình đó.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 4,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "Langgraph vs Langchain"
+        ],
+        "heading_text": "Langgraph vs Langchain",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 4,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_5",
+      "text": "[Section: Prepare Interview > MySQL vs PostgreSQL]\n\n- MySQL vs PostgreSQL  \nMaybe biggest difference:  \n- Nếu ứng dụng của bạn cần thường xuyên cập nhật dữ liệu, PostgreSQL là một lựa chọn tốt hơn. Tuy nhiên, nếu cần thường xuyên đọc dữ liệu, bạn nên ưu tiên MySQL  \n- Indexing: MySQL hỗ trợ lập chỉ mục B-tree và R-tree lưu trữ dữ liệu được lập chỉ mục theo thứ bậc. Các loại chỉ mục của PostgreSQL bao gồm cây, chỉ mục biểu thức, chỉ mục một phần và chỉ mục băm.  \n- Loại dữ liệu  \nMySQL đơn thuần là một cơ sở dữ liệu quan hệ. Mặt khác, PostgreSQL là một cơ sở dữ liệu quan hệ đối tượng. Điều này có nghĩa là trong PostgreSQL, bạn có thể lưu trữ dữ liệu dưới dạng đối tượng mang các thuộc tính.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 5,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "MySQL vs PostgreSQL"
+        ],
+        "heading_text": "MySQL vs PostgreSQL",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 5,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_6",
+      "text": "[Section: Prepare Interview > SQL vs NoSQL]\n\n- SQL vs NoSQL (MongoDB)  \n- so sánh vectordb vs graphdb vs table (sql/nosql) và usecase của chúng.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 6,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "SQL vs NoSQL"
+        ],
+        "heading_text": "SQL vs NoSQL",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 6,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_7",
+      "text": "[Section: Prepare Interview > SQL vs NoSQL]\n\n| Mô hình DB | Tổ chức Dữ liệu | Usecase (Trường hợp sử dụng) |  \n| --- | --- | --- |  \n| TableDB (SQL/NoSQL) | Dữ liệu có cấu trúc (bảng/hàng/cột) hoặc bán cấu trúc (Document/Key-Value). | SQL: Hệ thống giao dịch (OLTP), Quản lý Kho hàng, CRM/ERP. NoSQL: Hồ sơ người dùng, Ứng dụng cần mở rộng nhanh (ví dụ: IoT, blog). |  \n| GraphDB | Dữ liệu được tổ chức dưới dạng Nodes (thực thể) và Edges (quan hệ) giữa các Nodes. | Phân tích mối quan hệ phức tạp: Mạng xã hội (Ai quen Ai), Phát hiện gian lận (Phát hiện các mô hình liên kết bất thường), Hệ thống gợi ý (Users who bought X also bought Y). |  \n| VectorDB | Dữ liệu được lưu trữ dưới dạng vector nhúng (embeddings) – các dãy số đại diện cho ý nghĩa ngữ nghĩa của dữ liệu (văn bản, hình ảnh, âm thanh). | Tìm kiếm ngữ nghĩa (Semantic Search) cho phép tìm kiếm theo ý nghĩa thay vì từ khóa, Hệ thống RAG (Retrieval-Augmented Generation) cho LLM, Gợi ý dựa trên sự tương đồng. |",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 7,
+      "is_table": true,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "table",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "SQL vs NoSQL"
+        ],
+        "heading_text": "SQL vs NoSQL",
+        "heading_level": 2,
+        "is_table": true,
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "markdown_table",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "table_data",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 7,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_8",
+      "text": "[Section: Prepare Interview > NLP Pipeline]\n\n- NLP: pipeline thế nào (tokenize -> embed -> ...)",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 8,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "NLP Pipeline"
+        ],
+        "heading_text": "NLP Pipeline",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 8,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_9",
+      "text": "[Section: Prepare Interview > Temperature and Sampling]\n\n- temperature là gì  \n- top_p: Chỉ xem xét một tập hợp tokens sao cho tổng xác suất của các tokens đó đạt đến giá trị ngưỡng p.  \nVí dụ: Nếu p=0.9, mô hình sắp xếp tất cả các tokens theo xác suất và chỉ giữ lại những tokens đầu tiên cho đến khi tổng xác suất của chúng đạt 90%.  \n- top_k: Chỉ xem xét $K$ tokens có xác suất cao nhất và lấy mẫu từ phân phối xác suất chỉ giới hạn trong nhóm $K$ token này.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 9,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "Temperature and Sampling"
+        ],
+        "heading_text": "Temperature and Sampling",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 9,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_10",
+      "text": "[Section: Prepare Interview > Temperature and Sampling]\n\n| Loại Mô hình | Viết tắt | Nhiệm vụ Tiền huấn luyện (Ví dụ) | Đặc điểm | Ví dụ Mô hình |  \n| --- | --- | --- | --- | --- |  \n| Masked Language Model | MLM | Điền từ bị che (Masked Token Prediction) | Encoder-only (Chỉ bộ mã hóa). Tốt cho việc hiểu ngữ cảnh hai chiều (bidirectional context), phân loại, nhận dạng thực thể. | BERT, RoBERTa |  \n| Causal Language Model | CLM | Dự đoán token tiếp theo (Next Token Prediction) | Decoder-only (Chỉ bộ giải mã). Tốt cho tạo sinh văn bản (chỉ nhìn thấy tokens trước đó - unidirectional context). | GPT (GPT-3, 4), Llama |  \n| Seq2Seq (Sequence-to-Sequence) | Seq2Seq | Mã hóa chuỗi đầu vào, giải mã chuỗi đầu ra | Encoder-Decoder. Tốt cho các nhiệm vụ dịch, tóm tắt, hỏi đáp. | T5, BART, NMT Models |  \n| Transformers | T | Kiến trúc nền tảng (Attention) | Kiến trúc ban đầu giới thiệu cơ chế Self-Attention cho cả Encoder và Decoder. Tất cả các mô hình trên (BERT, GPT, T5) đều dựa trên kiến trúc Transformer. | Transformer (Original Paper) |",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 10,
+      "is_table": true,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "table",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "Temperature and Sampling"
+        ],
+        "heading_text": "Temperature and Sampling",
+        "heading_level": 2,
+        "is_table": true,
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "markdown_table",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "table_data",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 10,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_11",
+      "text": "[Section: Prepare Interview > Machine Learning Concepts]\n\n- bagging, boosting, LSTM/GRU/RNN, BERT (encoder-only)  \nDữ liệu mất cân đối (Imbalance Data) là gì và vì sao cần xử lý?  \nDữ liệu mất cân đối là tình trạng số lượng mẫu giữa các lớp (class) trong tập dữ liệu có sự chênh lệch lớn. Ví dụ, trong các bài toán thực tế như phát hiện giao dịch giả mạo hay dự đoán khách hàng rời bỏ dịch vụ, số lượng các trường hợp \"bình thường\" (đa số - majority class) thường áp đảo so với các trường hợp \"bất thường\" hoặc \"quan trọng\" (thiểu số - minority class).  \nVấn đề với dữ liệu mất cân đối là hầu hết các thuật toán phân lớp trong Machine Learning hoạt động tốt nhất với dữ liệu cân bằng. Khi dữ liệu không cân bằng, mô hình sẽ có xu hướng dự đoán ra lớp đa số (majority class) để đạt độ chính xác (accuracy) cao.  \nPrecision (Độ chính xác) cho biết trong số các điểm mà mô hình dự đoán là Positive (lớp quan tâm, thường là lớp thiểu số), có bao nhiêu phần trăm là đúng. Precision=TP/TP+FP (FP: predict positive, actual negative)",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 11,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "Machine Learning Concepts"
+        ],
+        "heading_text": "Machine Learning Concepts",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 11,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    },
+    {
+      "id": "prepare_interview_chunk_12",
+      "text": "[Section: Prepare Interview > Machine Learning Concepts]\n\nính xác) cho biết trong số các điểm mà mô hình dự đoán là Positive (lớp quan tâm, thường là lớp thiểu số), có bao nhiêu phần trăm là đúng. Precision=TP/TP+FP (FP: predict positive, actual negative)  \n◦ Recall (Độ nhạy/Tỷ lệ nhớ) cho biết trong tổng số các điểm thực sự là Positive (lớp quan tâm) trong dữ liệu, mô hình đã phát hiện được bao nhiêu phần trăm. Đặc biệt với lớp thiểu số (ví dụ: bệnh nhân ung thư), Recall cao là rất quan trọng để tránh bỏ sót các trường hợp này.",
+      "source": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+      "doc_id": "prepare_interview",
+      "chunk_index": 12,
+      "is_table": false,
+      "metadata": {
+        "doc_id": "prepare_interview",
+        "chunk_type": "text",
+        "heading_breadcrumb": [
+          "Prepare Interview",
+          "Machine Learning Concepts"
+        ],
+        "heading_text": "Machine Learning Concepts",
+        "heading_level": 2,
+        "is_table": false,
+        "has_images": false,
+        "image_paths": [],
+        "document_type": "document",
+        "original_file": "/Users/frankie/Library/CloudStorage/onedrive/BK227/CO4029-Specialized-Project/capstone-project/Phase_2/backend/test_parsing/output/docx/prepare_interview.json",
+        "original_file_format": "json",
+        "current_format": "text",
+        "uploaded_timestamp": "2026-03-27T11:37:55.930164",
+        "content_type": "document_text",
+        "uniform_metadata_version": "1.0",
+        "chunk_index": 12,
+        "total_chunks": 13
+      },
+      "total_chunks": 13
+    }
+  ]
+}

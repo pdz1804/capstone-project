@@ -1,0 +1,50 @@
+{
+  "start_time": "2026-03-28T16:50:09.159409",
+  "stages": {
+    "normalization": {
+      "total_files": 2,
+      "normalized_files": 2,
+      "failed_files": 0,
+      "by_type": {
+        "document": 2
+      },
+      "errors": []
+    },
+    "media_processing": {
+      "total_files": 0,
+      "processed_files": 0,
+      "failed_files": 0,
+      "audio_extracted": 0,
+      "transcribed": 0,
+      "frames_extracted": 0,
+      "chunks_created": 0,
+      "errors": []
+    },
+    "document_processing": {
+      "processed_files": 0,
+      "failed_files": 1,
+      "total_files": 1
+    },
+    "docx_processing": {
+      "processed_files": 1,
+      "failed_files": 0,
+      "total_files": 1,
+      "total_chunks": 205
+    },
+    "consolidation": {
+      "total_documents": 0,
+      "with_pdf": 0,
+      "without_pdf": 0,
+      "with_markdown": 0,
+      "with_additional": 0,
+      "media_documents": 0,
+      "media_with_chunks": 0,
+      "media_with_frames": 0,
+      "errors": []
+    }
+  },
+  "total_input_files": 2,
+  "total_output_files": 242,
+  "errors": [],
+  "end_time": "2026-03-28T16:50:10.481833"
+}

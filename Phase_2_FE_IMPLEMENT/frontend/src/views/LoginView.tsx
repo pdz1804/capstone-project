@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { 
-  BookOpen, 
-  LogIn, 
-  Loader2, 
-  CheckCircle2, 
-  Sparkles, 
-  Database, 
+import {
+  BookOpen,
+  LogIn,
+  Loader2,
+  CheckCircle2,
+  Sparkles,
+  Database,
   Zap,
   ArrowRight
 } from 'lucide-react';
@@ -36,10 +36,10 @@ export default function LoginView() {
   return (
     <div className="min-h-screen flex bg-white overflow-hidden">
       {/* Left Side: Visual & Marketing */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-indigo-600 items-center justify-center overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-sky-600 items-center justify-center overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] bg-indigo-500 rounded-full blur-[120px] opacity-50 animate-pulse" />
+          <div className="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] bg-sky-500 rounded-full blur-[120px] opacity-50 animate-pulse" />
           <div className="absolute -bottom-[10%] -right-[10%] w-[60%] h-[60%] bg-blue-400 rounded-full blur-[120px] opacity-40 animate-pulse" style={{ animationDelay: '2s' }} />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,transparent_0%,rgba(79,70,229,0.4)_100%)]" />
         </div>
@@ -51,16 +51,16 @@ export default function LoginView() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-100 text-xs font-medium mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sky-100 text-xs font-medium mb-8">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Next Generation Learning</span>
             </div>
-            
+
             <h1 className="text-5xl font-extrabold tracking-tight mb-6 leading-[1.1]">
               Unlock the full potential of your <span className="text-blue-200">knowledge</span>.
             </h1>
-            
-            <p className="text-lg text-indigo-100/80 mb-12 leading-relaxed">
+
+            <p className="text-lg text-sky-100/80 mb-12 leading-relaxed">
               BK-MInD uses state-of-the-art AI to transform your lecture notes, videos, and documents into an interactive, searchable knowledge base.
             </p>
 
@@ -76,7 +76,7 @@ export default function LoginView() {
                   <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-colors">
                     <feature.icon className="w-5 h-5 text-blue-200" />
                   </div>
-                  <span className="text-indigo-50 font-medium">{feature.text}</span>
+                  <span className="text-sky-50 font-medium">{feature.text}</span>
                 </motion.div>
               ))}
             </div>
@@ -93,7 +93,7 @@ export default function LoginView() {
         <div className="w-full max-w-md">
           {/* Logo (Mobile Only) */}
           <div className="lg:hidden flex justify-center mb-12">
-            <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+            <div className="w-12 h-12 rounded-xl bg-sky-600 flex items-center justify-center shadow-lg shadow-sky-200">
               <BookOpen className="w-7 h-7 text-white" />
             </div>
           </div>
@@ -132,10 +132,10 @@ export default function LoginView() {
               <button
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="group relative w-full flex justify-center items-center gap-3 py-4 px-4 border border-slate-200 rounded-2xl shadow-sm bg-white text-base font-semibold text-slate-700 hover:bg-slate-50 hover:border-indigo-300 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden active:scale-[0.98]"
+                className="group relative w-full flex justify-center items-center gap-3 py-4 px-4 border border-slate-200 rounded-2xl shadow-sm bg-white text-base font-semibold text-slate-700 hover:bg-slate-50 hover:border-sky-300 focus:outline-none focus:ring-4 focus:ring-sky-500/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden active:scale-[0.98]"
               >
                 {isLoading ? (
-                  <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+                  <Loader2 className="w-6 h-6 animate-spin text-sky-600" />
                 ) : (
                   <>
                     <svg className="w-6 h-6" viewBox="0 0 24 24">
@@ -157,7 +157,7 @@ export default function LoginView() {
                       />
                     </svg>
                     <span>Continue with Google</span>
-                    <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all" />
+                    <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-sky-500 group-hover:translate-x-1 transition-all" />
                   </>
                 )}
               </button>
@@ -173,7 +173,7 @@ export default function LoginView() {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="mt-8 flex items-center justify-center gap-2 text-slate-400 text-sm">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                   <span>Registration is automatic and secure</span>
@@ -186,7 +186,7 @@ export default function LoginView() {
           <div className="mt-auto pt-24 text-center">
             <p className="text-xs text-slate-400">
               By continuing, you agree to BK-MInD's <br />
-              <button className="text-slate-600 hover:text-indigo-600 underline underline-offset-4">Terms of Service</button> and <button className="text-slate-600 hover:text-indigo-600 underline underline-offset-4">Privacy Policy</button>.
+              <button className="text-slate-600 hover:text-sky-600 underline underline-offset-4">Terms of Service</button> and <button className="text-slate-600 hover:text-sky-600 underline underline-offset-4">Privacy Policy</button>.
             </p>
           </div>
         </div>

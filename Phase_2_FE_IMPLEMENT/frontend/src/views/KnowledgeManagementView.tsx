@@ -31,7 +31,7 @@ export default function KnowledgeManagementView({
     <div className="h-full flex flex-col space-y-6">
       {/* <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+          <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center text-sky-600">
             <Database className="w-6 h-6" />
           </div>
           <div>
@@ -53,14 +53,14 @@ export default function KnowledgeManagementView({
               className={cn(
                 "flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all relative",
                 isActive
-                  ? "text-indigo-600"
+                  ? "text-sky-600"
                   : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               )}
             >
-              <Icon className={cn("w-4 h-4", isActive ? "text-indigo-600" : "text-slate-400")} />
+              <Icon className={cn("w-4 h-4", isActive ? "text-sky-600" : "text-slate-400")} />
               {tab.label}
               {isActive && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t-full" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-600 rounded-t-full" />
               )}
             </button>
           );

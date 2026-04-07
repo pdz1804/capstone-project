@@ -127,7 +127,7 @@ export default function ChatAssistantView() {
       {/* Chat Header */}
       <div className="px-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100">
+          <div className="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center shadow-lg shadow-sky-100">
             <Bot className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -162,7 +162,7 @@ export default function ChatAssistantView() {
           >
             <div className={cn(
               "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
-              message.role === 'assistant' ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-600"
+              message.role === 'assistant' ? "bg-sky-100 text-sky-600" : "bg-slate-100 text-slate-600"
             )}>
               {message.role === 'assistant' ? <Bot className="w-5 h-5" /> : <User className="w-5 h-5" />}
             </div>
@@ -174,7 +174,7 @@ export default function ChatAssistantView() {
                 "px-6 py-4 rounded-[1.5rem] text-sm font-medium leading-relaxed shadow-sm border",
                 message.role === 'assistant'
                   ? "bg-white border-slate-100 text-slate-700 rounded-tl-none"
-                  : "bg-indigo-600 border-indigo-500 text-white rounded-tr-none"
+                  : "bg-sky-600 border-sky-500 text-white rounded-tr-none"
               )}>
                 {message.content}
               </div>
@@ -186,11 +186,11 @@ export default function ChatAssistantView() {
         ))}
         {isLoading && (
           <div className="flex gap-4 mr-auto max-w-[85%]">
-            <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0 shadow-sm">
               <Bot className="w-5 h-5" />
             </div>
             <div className="bg-white border border-slate-100 px-6 py-4 rounded-[1.5rem] rounded-tl-none shadow-sm flex items-center gap-3">
-              <Loader2 className="w-4 h-4 text-indigo-600 animate-spin" />
+              <Loader2 className="w-4 h-4 text-sky-600 animate-spin" />
               <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Assistant is thinking...</span>
             </div>
           </div>
@@ -208,7 +208,7 @@ export default function ChatAssistantView() {
                 onClick={() => {
                   setInput(s.text);
                 }}
-                className="p-4 bg-white border border-slate-200 rounded-2xl text-left hover:border-indigo-300 hover:shadow-md transition-all group"
+                className="p-4 bg-white border border-slate-200 rounded-2xl text-left hover:border-sky-300 hover:shadow-md transition-all group"
               >
                 <p className="text-xs font-bold text-slate-700 leading-snug">{s.text}</p>
               </button>
@@ -221,12 +221,12 @@ export default function ChatAssistantView() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message here..."
-            className="w-full pl-6 pr-16 py-5 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-xl shadow-slate-200/50"
+            className="w-full pl-6 pr-16 py-5 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all shadow-xl shadow-slate-200/50"
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-200 active:scale-95"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-sky-600 text-white rounded-xl flex items-center justify-center hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-sky-200 active:scale-95"
           >
             <Send className="w-5 h-5" />
           </button>

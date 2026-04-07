@@ -195,7 +195,7 @@ export default function QuizView({ files, standalone = false, onComplete, initia
             className="bg-white rounded-[2.5rem] border border-slate-200 p-8 md:p-12 shadow-xl shadow-slate-200/50 flex-1 flex flex-col justify-center"
           >
             <div className="text-center mb-10">
-              <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-100">
+              <div className="w-16 h-16 bg-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-sky-100">
                 <BrainCircuit className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-2xl font-black text-slate-900 tracking-tight">Quiz Configuration</h2>
@@ -216,7 +216,7 @@ export default function QuizView({ files, standalone = false, onComplete, initia
                   type="text"
                   value={config.topic}
                   onChange={(e) => setConfig({ ...config, topic: e.target.value })}
-                  className="w-full p-4 rounded-xl border-2 border-slate-100 bg-slate-50 font-medium text-slate-700 focus:border-indigo-500 outline-none"
+                  className="w-full p-4 rounded-xl border-2 border-slate-100 bg-slate-50 font-medium text-slate-700 focus:border-sky-500 outline-none"
                   placeholder="What should questions focus on?"
                 />
                 <p className="text-[10px] text-slate-400">
@@ -238,7 +238,7 @@ export default function QuizView({ files, standalone = false, onComplete, initia
                       selectedFileId: v === '' ? null : Number(v),
                     });
                   }}
-                  className="w-full p-4 rounded-xl border-2 border-slate-100 bg-slate-50 font-bold text-slate-700 focus:border-indigo-500 focus:ring-0 transition-all outline-none"
+                  className="w-full p-4 rounded-xl border-2 border-slate-100 bg-slate-50 font-bold text-slate-700 focus:border-sky-500 focus:ring-0 transition-all outline-none"
                 >
                   <option value="">All processed materials</option>
                   {quizScopes.map((f) => (
@@ -267,8 +267,8 @@ export default function QuizView({ files, standalone = false, onComplete, initia
                       className={cn(
                         "py-3 rounded-xl font-bold transition-all border-2 text-sm",
                         config.numQuestions === n
-                          ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100"
-                          : "bg-white border-slate-100 text-slate-600 hover:border-indigo-200"
+                          ? "bg-sky-600 border-sky-600 text-white shadow-lg shadow-sky-100"
+                          : "bg-white border-slate-100 text-slate-600 hover:border-sky-200"
                       )}
                     >
                       {n}
@@ -290,8 +290,8 @@ export default function QuizView({ files, standalone = false, onComplete, initia
                       className={cn(
                         "py-3 rounded-xl font-bold transition-all border-2 text-sm",
                         config.duration === m
-                          ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100"
-                          : "bg-white border-slate-100 text-slate-600 hover:border-indigo-200"
+                          ? "bg-sky-600 border-sky-600 text-white shadow-lg shadow-sky-100"
+                          : "bg-white border-slate-100 text-slate-600 hover:border-sky-200"
                       )}
                     >
                       {m}m
@@ -328,7 +328,7 @@ export default function QuizView({ files, standalone = false, onComplete, initia
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Progress</p>
                   <div className="flex items-center justify-between gap-3 mb-2">
                     <p className="text-sm font-bold text-slate-700">
-                      Question <span className="text-indigo-600">{currentQuestionIndex + 1}</span> of {questions.length}
+                      Question <span className="text-sky-600">{currentQuestionIndex + 1}</span> of {questions.length}
                     </p>
                     <p className="text-xs font-semibold text-slate-500">
                       {Math.round(((currentQuestionIndex + 1) / Math.max(questions.length, 1)) * 100)}%
@@ -336,16 +336,16 @@ export default function QuizView({ files, standalone = false, onComplete, initia
                   </div>
                   <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-indigo-600 transition-all duration-500"
+                      className="h-full bg-sky-600 transition-all duration-500"
                       style={{ width: `${((currentQuestionIndex + 1) / Math.max(questions.length, 1)) * 100}%` }}
                     />
                   </div>
                 </div>
                 <div className={cn(
                   "md:w-[220px] rounded-xl border px-4 py-3 flex items-center gap-3",
-                  timeLeft < 60 ? "border-red-200 bg-red-50" : "border-indigo-100 bg-indigo-50/60"
+                  timeLeft < 60 ? "border-red-200 bg-red-50" : "border-sky-100 bg-sky-50/60"
                 )}>
-                  <Timer className={cn("w-5 h-5 shrink-0", timeLeft < 60 ? "text-red-500 animate-pulse" : "text-indigo-600")} />
+                  <Timer className={cn("w-5 h-5 shrink-0", timeLeft < 60 ? "text-red-500 animate-pulse" : "text-sky-600")} />
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Time left</p>
                     <p className={cn("text-lg font-black leading-none mt-1", timeLeft < 60 ? "text-red-600" : "text-slate-900")}>
@@ -367,7 +367,7 @@ export default function QuizView({ files, standalone = false, onComplete, initia
                   const isCorrect = idx === questions[currentQuestionIndex].correctAnswer;
                   const isSelected = answers[currentQuestionIndex] === idx;
 
-                  let buttonClass = "bg-white border-slate-100 text-slate-600 hover:border-indigo-200 hover:bg-slate-50";
+                  let buttonClass = "bg-white border-slate-100 text-slate-600 hover:border-sky-200 hover:bg-slate-50";
                   if (isAnswered) {
                     if (isCorrect) {
                       buttonClass = "bg-emerald-50 border-emerald-500 text-emerald-700";
@@ -377,7 +377,7 @@ export default function QuizView({ files, standalone = false, onComplete, initia
                       buttonClass = "bg-white border-slate-100 text-slate-400 opacity-50";
                     }
                   } else if (isSelected) {
-                    buttonClass = "bg-indigo-50 border-indigo-600 text-indigo-700";
+                    buttonClass = "bg-sky-50 border-sky-600 text-sky-700";
                   }
 
                   return (
@@ -395,7 +395,7 @@ export default function QuizView({ files, standalone = false, onComplete, initia
                         "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
                         isAnswered
                           ? (isCorrect ? "border-emerald-500 bg-emerald-500 text-white" : (isSelected ? "border-red-500 bg-red-500 text-white" : "border-slate-200"))
-                          : (isSelected ? "border-indigo-600 bg-indigo-600 text-white" : "border-slate-200 group-hover:border-indigo-300")
+                          : (isSelected ? "border-sky-600 bg-sky-600 text-white" : "border-slate-200 group-hover:border-sky-300")
                       )}>
                         {isAnswered && isCorrect && <CheckCircle2 className="w-3 h-3" />}
                         {isAnswered && isSelected && !isCorrect && <XCircle className="w-3 h-3" />}
@@ -434,7 +434,7 @@ export default function QuizView({ files, standalone = false, onComplete, initia
             <div className="grid grid-cols-2 gap-4 w-full max-w-sm mb-10">
               <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Score</span>
-                <p className="text-2xl font-black text-indigo-600">{score} / {questions.length || config.numQuestions}</p>
+                <p className="text-2xl font-black text-sky-600">{score} / {questions.length || config.numQuestions}</p>
               </div>
               <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Accuracy</span>

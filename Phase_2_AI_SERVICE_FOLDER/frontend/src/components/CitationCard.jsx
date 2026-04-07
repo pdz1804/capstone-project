@@ -1,6 +1,57 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, Hash } from 'lucide-react'
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
+/**
+ * Render chunk text, replacing [START_IMAGE_PATH]...[END_IMAGE_PATH] markers
+ * with actual <img> tags served via /api/image.
+ */
+function RichChunkContent({ text }) {
+  if (!text) return null
+
+  const parts = []
+  let remaining = text
+  let key = 0
+
+  while (remaining) {
+    const startIdx = remaining.indexOf('[START_IMAGE_PATH]')
+    if (startIdx === -1) {
+      parts.push(<span key={key++}>{remaining}</span>)
+      break
+    }
+
+    // Text before the marker
+    if (startIdx > 0) {
+      parts.push(<span key={key++}>{remaining.slice(0, startIdx)}</span>)
+    }
+
+    const endIdx = remaining.indexOf('[END_IMAGE_PATH]', startIdx)
+    if (endIdx === -1) {
+      parts.push(<span key={key++}>{remaining.slice(startIdx)}</span>)
+      break
+    }
+
+    // Extract the path (may contain |hash suffix)
+    const inner = remaining.slice(startIdx + '[START_IMAGE_PATH]'.length, endIdx).trim()
+    const imgPath = inner.split('|')[0].trim()
+
+    parts.push(
+      <img
+        key={key++}
+        src={`${API_BASE}/api/image?path=${encodeURIComponent(imgPath)}`}
+        alt="embedded image"
+        className="my-2 max-w-full rounded border border-slate-200"
+        loading="lazy"
+      />
+    )
+
+    remaining = remaining.slice(endIdx + '[END_IMAGE_PATH]'.length)
+  }
+
+  return <div className="text-slate-700 text-sm whitespace-pre-wrap leading-relaxed">{parts}</div>
+}
+
 function MetadataSection({ citation }) {
   return (
     <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2 bg-slate-50 rounded-lg p-3">
@@ -172,12 +223,12 @@ export default function CitationCard({ citationKey, citation, expanded, onToggle
 
               if (contentExpanded || !hasMoreContent) {
                 return (
-                  <p className="text-slate-700 text-sm whitespace-pre-wrap leading-relaxed">{fullText}</p>
+                  <RichChunkContent text={fullText} />
                 )
               } else {
                 return (
                   <div>
-                    <p className="text-slate-700 text-sm whitespace-pre-wrap leading-relaxed">{previewText}</p>
+                    <RichChunkContent text={previewText} />
                     <button
                       onClick={(e) => { e.stopPropagation(); onExpandContent(citationKey) }}
                       className="mt-3 text-sky-600 hover:text-sky-700 text-sm font-semibold flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-sky-50 transition-colors border border-sky-200 bg-white"
