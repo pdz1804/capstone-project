@@ -643,9 +643,9 @@ export default function LibraryView({
 
                         {activeDropdown === file.id && (
                           <div className="absolute right-8 top-10 w-40 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-10" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => setPreviewFile(file)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                            {/* <button onClick={() => setPreviewFile(file)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
                               <Eye className="w-4 h-4" /> Preview
-                            </button>
+                            </button> */}
                             <button onClick={() => { setRenamingFileId(file.id); setNewName(file.name); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
                               <Edit2 className="w-4 h-4" /> Rename
                             </button>
