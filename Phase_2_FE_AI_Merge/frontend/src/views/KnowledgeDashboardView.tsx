@@ -217,7 +217,7 @@ export default function KnowledgeDashboardView({ files }: KnowledgeDashboardView
   };
 
   const stats = [
-    { label: 'Total Files', value: files.length, icon: Database, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { label: 'Total Files', value: files.length, icon: Database, color: 'text-sky-600', bg: 'bg-sky-50' },
     { label: 'Storage Used', value: formatSize(totalSize), icon: HardDrive, color: 'text-emerald-600', bg: 'bg-emerald-50' },
   ];
 
@@ -332,9 +332,8 @@ export default function KnowledgeDashboardView({ files }: KnowledgeDashboardView
                   key={f.path || f.file_name}
                   type="button"
                   onClick={() => setSelectedFile(f.file_name)}
-                  className={`w-full text-left rounded-lg border px-3 py-2 transition ${
-                    active ? 'border-indigo-400 bg-indigo-50' : 'border-slate-200 hover:bg-slate-50'
-                  }`}
+                  className={`w-full text-left rounded-lg border px-3 py-2 transition ${active ? 'border-sky-400 bg-sky-50' : 'border-slate-200 hover:bg-slate-50'
+                    }`}
                 >
                   <p className="text-sm font-semibold text-slate-800 break-all">{f.file_name}</p>
                   <p className="text-xs text-slate-500 mt-1">
@@ -347,7 +346,7 @@ export default function KnowledgeDashboardView({ files }: KnowledgeDashboardView
                         e.stopPropagation();
                         void handlePreviewInputFile(f.file_name);
                       }}
-                      className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                      className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       Preview Original

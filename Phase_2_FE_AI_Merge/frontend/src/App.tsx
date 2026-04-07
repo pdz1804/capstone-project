@@ -21,6 +21,7 @@ import {
   ChevronsRight,
   Menu,
   Library,
+  Play,
   Layers,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -170,7 +171,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col">
         <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+          <Loader2 className="w-10 h-10 text-sky-600 animate-spin" />
         </div>
         <AppFooter />
       </div>
@@ -189,7 +190,7 @@ export default function App() {
       icon: Database,
       subItems: [
         { id: 'upload', label: 'Upload Files', icon: UploadCloud },
-        { id: 'run-pipeline', label: 'Run Pipeline', icon: Loader2 },
+        { id: 'run-pipeline', label: 'Run Pipeline', icon: Play },
         { id: 'build-index', label: 'Build Index', icon: Layers },
         { id: 'explorer', label: 'Knowledge Explorer', icon: Search },
         { id: 'dashboard', label: 'Knowledge Dashboard', icon: BarChart3 },
@@ -212,7 +213,7 @@ export default function App() {
         <div className={cn('border-b border-slate-200', sidebarCollapsed ? 'p-3 flex justify-center' : 'p-6')}>
 
           <div className={cn('flex items-center gap-2', sidebarCollapsed && 'justify-center')}>
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shrink-0">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
             {!sidebarCollapsed && (
@@ -259,11 +260,11 @@ export default function App() {
                   className={cn(
                     'w-full flex items-center rounded-lg text-sm font-medium transition-colors text-left',
                     sidebarCollapsed ? 'justify-center px-2 py-3' : 'justify-between px-3 py-2.5',
-                    isActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    isActive ? 'bg-sky-50 text-sky-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   )}
                 >
                   <div className={cn('flex items-center min-w-0', sidebarCollapsed ? '' : 'gap-3')}>
-                    <Icon className={cn('w-5 h-5 shrink-0', isActive ? 'text-indigo-600' : 'text-slate-400')} />
+                    <Icon className={cn('w-5 h-5 shrink-0', isActive ? 'text-sky-600' : 'text-slate-400')} />
                     {!sidebarCollapsed && <span className="whitespace-nowrap truncate">{item.label}</span>}
                   </div>
                   {hasSubItems && !sidebarCollapsed && (
@@ -302,11 +303,11 @@ export default function App() {
                                 "w-full flex items-center rounded-lg text-sm font-medium transition-colors text-left",
                                 sidebarCollapsed ? "justify-center px-2 py-2.5" : "gap-2 px-3 py-2",
                                 isSubActive
-                                  ? "bg-indigo-50/50 text-indigo-700"
+                                  ? "bg-sky-50/50 text-sky-700"
                                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                               )}
                             >
-                              <SubIcon className={cn("w-5 h-5 shrink-0", isSubActive ? "text-indigo-600" : "text-slate-400")} />
+                              <SubIcon className={cn("w-5 h-5 shrink-0", isSubActive ? "text-sky-600" : "text-slate-400")} />
                               {!sidebarCollapsed && <span className="whitespace-nowrap">{sub.label}</span>}
                             </button>
                           );
@@ -363,7 +364,7 @@ export default function App() {
               {user.photoURL ? (
                 <img src={user.photoURL} alt={user.displayName || 'User'} className="w-8 h-8 rounded-full border border-slate-200" referrerPolicy="no-referrer" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-sm">
+                <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-semibold text-sm">
                   {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
                 </div>
               )}

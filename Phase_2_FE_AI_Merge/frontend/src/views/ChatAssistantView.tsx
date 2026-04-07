@@ -240,7 +240,7 @@ export default function ChatAssistantView() {
       {/* Chat Header */}
       <div className="px-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100">
+          <div className="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center shadow-lg shadow-sky-100">
             <Bot className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -275,7 +275,7 @@ export default function ChatAssistantView() {
           >
             <div className={cn(
               "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
-              message.role === 'assistant' ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-600"
+              message.role === 'assistant' ? "bg-sky-100 text-sky-600" : "bg-slate-100 text-slate-600"
             )}>
               {message.role === 'assistant' ? <Bot className="w-5 h-5" /> : <User className="w-5 h-5" />}
             </div>
@@ -287,14 +287,14 @@ export default function ChatAssistantView() {
                 "px-6 py-4 rounded-[1.5rem] text-sm font-medium leading-relaxed shadow-sm border",
                 message.role === 'assistant'
                   ? "bg-white border-slate-100 text-slate-700 rounded-tl-none"
-                  : "bg-indigo-600 border-indigo-500 text-white rounded-tr-none"
+                  : "bg-sky-600 border-sky-500 text-white rounded-tr-none"
               )}>
                 {message.role === 'assistant' ? (
-                  <div className="prose prose-sm max-w-none prose-p:my-2 prose-headings:my-2 prose-li:my-1 prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:text-indigo-700">
+                  <div className="prose prose-sm max-w-none prose-p:my-2 prose-headings:my-2 prose-li:my-1 prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:text-sky-700">
                     {(message.traces || []).map((trace, idx) => (
                       <div key={`${message.id}-trace-${idx}`} className="not-prose mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-700">
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
                             Tool Call: {trace.tool}
                           </p>
                           <button
@@ -319,9 +319,9 @@ export default function ChatAssistantView() {
                           result_count: <span className="font-semibold">{trace.result_count}</span>
                         </p>
                         <pre className="mt-2 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-white p-2 text-[11px] leading-relaxed text-slate-700 border border-slate-200 max-h-72">
-{(traceJsonOpen[`${message.id}-trace-${idx}`] ?? true)
-  ? JSON.stringify(trace, null, 2)
-  : trace.result_preview}
+                          {(traceJsonOpen[`${message.id}-trace-${idx}`] ?? true)
+                            ? JSON.stringify(trace, null, 2)
+                            : trace.result_preview}
                         </pre>
                       </div>
                     ))}
@@ -345,11 +345,11 @@ export default function ChatAssistantView() {
             animate={{ opacity: 1, y: 0 }}
             className="flex gap-4 mr-auto"
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm bg-indigo-100 text-indigo-600">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm bg-sky-100 text-sky-600">
               <Bot className="w-5 h-5" />
             </div>
             <div className="space-y-1 w-full text-left">
-              <div className="px-4 py-3 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm border bg-indigo-50 border-indigo-100 text-indigo-700 rounded-tl-none">
+              <div className="px-4 py-3 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm border bg-sky-50 border-sky-100 text-sky-700 rounded-tl-none">
                 {assistantStatus || 'Thinking...'}
               </div>
             </div>
@@ -368,7 +368,7 @@ export default function ChatAssistantView() {
                 onClick={() => {
                   setInput(s.text);
                 }}
-                className="p-4 bg-white border border-slate-200 rounded-2xl text-left hover:border-indigo-300 hover:shadow-md transition-all group"
+                className="p-4 bg-white border border-slate-200 rounded-2xl text-left hover:border-sky-300 hover:shadow-md transition-all group"
               >
                 <p className="text-xs font-bold text-slate-700 leading-snug">{s.text}</p>
               </button>
@@ -381,12 +381,12 @@ export default function ChatAssistantView() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message here..."
-            className="w-full pl-6 pr-16 py-5 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-xl shadow-slate-200/50"
+            className="w-full pl-6 pr-16 py-5 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all shadow-xl shadow-slate-200/50"
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-200 active:scale-95"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-sky-600 text-white rounded-xl flex items-center justify-center hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-sky-200 active:scale-95"
           >
             <Send className="w-5 h-5" />
           </button>

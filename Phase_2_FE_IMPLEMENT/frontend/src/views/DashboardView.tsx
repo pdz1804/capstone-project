@@ -1,8 +1,8 @@
-import { 
-  FileText, 
-  Video, 
-  Image as ImageIcon, 
-  Search, 
+import {
+  FileText,
+  Video,
+  Image as ImageIcon,
+  Search,
   TrendingUp,
   Clock,
   CheckCircle2,
@@ -23,7 +23,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
 
   const stats = [
     { label: 'Total Files', value: totalFiles.toString(), icon: FileText, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: 'Video Lectures', value: videoFiles.toString(), icon: Video, color: 'text-indigo-600', bg: 'bg-indigo-100' },
+    { label: 'Video Lectures', value: videoFiles.toString(), icon: Video, color: 'text-sky-600', bg: 'bg-sky-100' },
   ];
 
   const recentActivity = files.slice(0, 4).map(f => ({
@@ -41,14 +41,14 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Welcome back, {user?.displayName || 'User'}!</h2>
           <div className="mt-6 flex gap-3">
-            <button 
+            <button
               onClick={() => onNavigate('knowledge')}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors flex items-center gap-2"
             >
               <Search className="w-4 h-4" />
               Ask a Question
             </button>
-            <button 
+            <button
               onClick={() => onNavigate('learning')}
               className="px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg font-medium hover:bg-slate-50 transition-colors flex items-center gap-2"
             >
@@ -81,9 +81,9 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
       <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-slate-900">Recent Activity</h3>
-          <button 
+          <button
             onClick={() => onNavigate('knowledge')}
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+            className="text-sm font-medium text-sky-600 hover:text-sky-700"
           >
             View all files
           </button>
@@ -93,18 +93,17 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
             {recentActivity.map((activity) => (
               <div key={activity.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer">
                 <div className="flex items-center gap-4">
-                  <div className={`p-2 rounded-lg ${
-                    activity.type === 'video' ? 'bg-indigo-100 text-indigo-600' :
-                    activity.type === 'document' ? 'bg-blue-100 text-blue-600' :
-                    activity.type === 'spreadsheet' ? 'bg-emerald-100 text-emerald-600' :
-                    activity.type === 'audio' ? 'bg-purple-100 text-purple-600' :
-                    'bg-amber-100 text-amber-600'
-                  }`}>
+                  <div className={`p-2 rounded-lg ${activity.type === 'video' ? 'bg-sky-100 text-sky-600' :
+                      activity.type === 'document' ? 'bg-blue-100 text-blue-600' :
+                        activity.type === 'spreadsheet' ? 'bg-emerald-100 text-emerald-600' :
+                          activity.type === 'audio' ? 'bg-purple-100 text-purple-600' :
+                            'bg-amber-100 text-amber-600'
+                    }`}>
                     {activity.type === 'video' ? <Video className="w-5 h-5" /> :
-                     activity.type === 'document' ? <FileText className="w-5 h-5" /> :
-                     activity.type === 'spreadsheet' ? <FileText className="w-5 h-5" /> :
-                     activity.type === 'audio' ? <Music className="w-5 h-5" /> :
-                     <ImageIcon className="w-5 h-5" />}
+                      activity.type === 'document' ? <FileText className="w-5 h-5" /> :
+                        activity.type === 'spreadsheet' ? <FileText className="w-5 h-5" /> :
+                          activity.type === 'audio' ? <Music className="w-5 h-5" /> :
+                            <ImageIcon className="w-5 h-5" />}
                   </div>
                   <div>
                     <p className="font-medium text-slate-900">{activity.title}</p>

@@ -108,14 +108,14 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
               setSelectedFileIdForQuiz(null);
               setActiveTab('roadmap');
             }}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'roadmap' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'roadmap' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
           >
             <Target className="w-4 h-4 inline-block mr-2" />
             Roadmap
           </button>
           <button
             onClick={() => setActiveTab('priority')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'priority' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'priority' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
           >
             <Compass className="w-4 h-4 inline-block mr-2" />
             Learning Journey
@@ -125,14 +125,14 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
               setSelectedFileIdForQuiz(null);
               setActiveTab('quiz');
             }}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'quiz' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'quiz' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
           >
             <BrainCircuit className="w-4 h-4 inline-block mr-2" />
             Quiz
           </button>
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'analytics' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'analytics' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
           >
             <BarChart3 className="w-4 h-4 inline-block mr-2" />
             Analytics
@@ -146,7 +146,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
           {/* Roadmap Timeline */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
             <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
-              {activeTab === 'priority' ? <Compass className="w-5 h-5 text-indigo-600" /> : <TrendingUp className="w-5 h-5 text-indigo-600" />}
+              {activeTab === 'priority' ? <Compass className="w-5 h-5 text-sky-600" /> : <TrendingUp className="w-5 h-5 text-sky-600" />}
               {activeTab === 'priority' ? 'Learning Journey (Lowest Accuracy First)' : 'Roadmap'}
             </h3>
             <div className="relative border-l-2 border-slate-100 ml-4 space-y-8">
@@ -154,22 +154,22 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
                 <div key={item.id} className="relative pl-8">
                   {/* Timeline Node */}
                   <div className={`absolute w-6 h-6 rounded-full -left-[13px] top-1 flex items-center justify-center border-2 ${item.status === 'completed' ? 'bg-emerald-500 border-emerald-500 text-white' :
-                    item.status === 'in-progress' ? 'bg-white border-indigo-500' :
+                    item.status === 'in-progress' ? 'bg-white border-sky-500' :
                       'bg-slate-100 border-slate-300'
                     }`}>
                     {item.status === 'completed' && <CheckCircle2 className="w-3 h-3" />}
-                    {item.status === 'in-progress' && <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>}
+                    {item.status === 'in-progress' && <div className="w-2 h-2 bg-sky-500 rounded-full"></div>}
                   </div>
 
                   {/* Content */}
-                  <div className={`bg-white rounded-xl border p-5 transition-all ${item.status === 'in-progress' ? 'border-indigo-200 shadow-md ring-1 ring-indigo-50' :
+                  <div className={`bg-white rounded-xl border p-5 transition-all ${item.status === 'in-progress' ? 'border-sky-200 shadow-md ring-1 ring-sky-50' :
                     item.status === 'completed' ? 'border-slate-200 hover:border-slate-300' :
                       'border-slate-100 opacity-60'
                     }`}>
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <span className={`text-xs font-bold uppercase tracking-wider mb-1 block ${item.status === 'completed' ? 'text-emerald-600' :
-                          item.status === 'in-progress' ? 'text-indigo-600' :
+                          item.status === 'in-progress' ? 'text-sky-600' :
                             'text-slate-400'
                           }`}>
                           File {index + 1}
@@ -201,7 +201,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
                           disabled={item.status === 'locked'}
                           className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${item.status === 'locked'
                             ? 'bg-slate-50 text-slate-400 cursor-not-allowed border border-slate-100'
-                            : 'bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 shadow-sm'
+                            : 'bg-white text-sky-600 border border-sky-200 hover:bg-sky-50 shadow-sm'
                             }`}
                         >
                           <BrainCircuit className="w-4 h-4" />
@@ -237,7 +237,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
               <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Average Accuracy</span>
               <div className={cn(
                 "text-2xl font-bold",
-                averageAccuracy === null ? "text-slate-400" : "text-indigo-600"
+                averageAccuracy === null ? "text-slate-400" : "text-sky-600"
               )}>
                 {averageAccuracy === null ? "Not Taken" : `${averageAccuracy}%`}
               </div>
@@ -260,7 +260,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
               <select
                 value={filterFileId}
                 onChange={(e) => setFilterFileId(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-sky-500/20"
               >
                 <option value="all">All Files</option>
                 {files.map(f => (
