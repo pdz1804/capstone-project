@@ -196,6 +196,45 @@ class TextIndexRepository:
         except Exception:
             return 0
 
+    def list_sources(self, user_id: str | None = None, limit: int = 50000) -> set[str]:
+        """
+        Return distinct payload ``source`` values currently present in the text collection.
+        Useful for per-file indexed-text status checks without relying on sidecar snapshots.
+        """
+        out: set[str] = set()
+        try:
+            from qdrant_client.models import FieldCondition, Filter, MatchValue
+
+            flt = None
+            if user_id:
+                flt = Filter(must=[FieldCondition(key="user_id", match=MatchValue(value=user_id))])
+
+            offset = None
+            fetched = 0
+            page_size = min(512, max(32, limit))
+            while fetched < limit:
+                points, offset = self.client.scroll(
+                    collection_name=self.collection_name,
+                    scroll_filter=flt,
+                    with_payload=["source"],
+                    with_vectors=False,
+                    limit=min(page_size, limit - fetched),
+                    offset=offset,
+                )
+                if not points:
+                    break
+                fetched += len(points)
+                for p in points:
+                    payload = p.payload or {}
+                    src = payload.get("source")
+                    if src:
+                        out.add(str(src).strip().lower())
+                if offset is None:
+                    break
+        except Exception:
+            return set()
+        return out
+
     def delete_by_source(self, source_value: str, user_id: str | None = None) -> int:
         """Remove all points whose payload ``source`` equals ``source_value`` (exact match)."""
         from qdrant_client.models import FieldCondition, Filter, FilterSelector, MatchValue

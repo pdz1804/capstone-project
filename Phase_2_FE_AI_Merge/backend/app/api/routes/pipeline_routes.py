@@ -85,6 +85,13 @@ def index_all(
         selected_paths = body.selected_paths if body else []
         selected_names = body.selected_names if body else []
         mode = (body.mode if body else "standard") or "standard"
+        logger.info(
+            "index request user=%s mode=%s selected_paths=%s selected_names=%s",
+            user_id,
+            mode,
+            len(selected_paths),
+            selected_names,
+        )
         out = svc.index_all(force=force, selected_paths=selected_paths, selected_names=selected_names, mode=mode)
         if out.get("text", {}).get("status") == "failed":
             raise HTTPException(status_code=500, detail=out["text"].get("error"))

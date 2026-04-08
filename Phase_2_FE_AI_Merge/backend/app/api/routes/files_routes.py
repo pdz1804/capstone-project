@@ -19,6 +19,14 @@ from app.core.paths import (
     qdrant_collection_names_for_user,
     workspace_paths_for_user,
 )
+from app.repositories import (
+    ImageIndexRepository,
+    TextIndexRepository,
+    build_qdrant_client,
+    load_documents_snapshot,
+    save_bm25_index,
+    save_documents_snapshot,
+)
 from app.services.processed_documents_service import build_processed_documents_snapshot
 from app.services.file_metadata_service import FileMetadataService
 from app.storage import get_file_storage
@@ -59,12 +67,97 @@ def _is_visual_artifact(name: str) -> bool:
 def _match_indexed_text_source(file_name: str, source_name: str) -> bool:
     fn = file_name.lower()
     stem = _file_stem(file_name)
+    safe = _normalizer_safe_stem(file_name)
     src = (source_name or "").replace("\\", "/").lower()
     if not src:
         return False
+    src_name = Path(src).name
+    src_stem = Path(src_name).stem
+    src_parent = Path(src).parent.name.lower()
     if fn in src or src.endswith("/" + fn):
         return True
-    return bool(stem and stem in src)
+    if stem and (stem in src or stem == src_stem or stem == src_parent):
+        return True
+    if safe and (safe in src or safe == src_stem or safe == src_parent):
+        return True
+    return False
+
+
+def _remove_document_indexes(user_id: str, file_name: str, document_id: str | None) -> Dict[str, Any]:
+    cfg = merged_runtime_settings()
+    paths = workspace_paths_for_user(user_id)
+    q = cfg.get("qdrant", {}) or {}
+    tr = cfg.get("text_retrieval", {}) or {}
+    embed_model = tr.get("embedding_model", "all-MiniLM-L6-v2")
+    if "minilm-l6" in embed_model.lower():
+        dim = 384
+    elif "large" in embed_model.lower():
+        dim = 1024
+    else:
+        dim = 384
+
+    text_col, image_col = qdrant_collection_names_for_user(
+        q.get("text_collection", "edu_text_chunks"),
+        q.get("image_collection", "edu_image_pages"),
+        paths.user_id,
+    )
+    client = build_qdrant_client(cfg)
+
+    text_repo = TextIndexRepository(
+        client,
+        collection_name=text_col,
+        vector_name=q.get("text_vector_name", "text"),
+        vector_size=dim,
+        storage_quantization=q.get("text_storage_quantization", "scalar"),
+        on_disk_vectors=True,
+    )
+    image_repo = ImageIndexRepository(
+        client,
+        collection_name=image_col,
+        vector_name=q.get("image_vector_name", "colpali_multivec"),
+        embedding_dim=128,
+        storage_quantization=q.get("image_storage_quantization", "scalar"),
+    )
+
+    source_docs = load_documents_snapshot(paths.documents_json_path, user_id=paths.user_id)
+    doc_id_norm = (document_id or "").strip().lower()
+    matched_sources: set[str] = set()
+    kept_docs: List[Dict[str, Any]] = []
+    for d in source_docs:
+        src = str(d.get("source") or "")
+        src_norm = src.replace("\\", "/").lower()
+        is_match = _match_indexed_text_source(file_name, src)
+        if not is_match and doc_id_norm:
+            is_match = f"/{doc_id_norm}/" in src_norm or src_norm.endswith(f"/{doc_id_norm}") or src_norm.endswith(
+                f"/{doc_id_norm}.md"
+            )
+        if is_match:
+            matched_sources.add(src)
+        else:
+            kept_docs.append(d)
+
+    removed_text_points = 0
+    for src in matched_sources:
+        removed_text_points += int(text_repo.delete_by_source(src, user_id=paths.user_id))
+
+    if len(kept_docs) != len(source_docs):
+        save_documents_snapshot(kept_docs, paths.documents_json_path, user_id=paths.user_id)
+        save_bm25_index(kept_docs, paths.bm25_pickle_path, user_id=paths.user_id)
+
+    name_l = (file_name or "").strip().lower()
+    stem_l = _file_stem(file_name)
+    safe_l = _normalizer_safe_stem(file_name)
+    image_sources = {s for s in (name_l, stem_l, safe_l, doc_id_norm) if s}
+    removed_image_points = 0
+    for source_value in image_sources:
+        removed_image_points += int(image_repo.delete_by_source(source_value, user_id=paths.user_id))
+
+    return {
+        "matched_text_sources": sorted(matched_sources),
+        "removed_text_qdrant_points": removed_text_points,
+        "removed_text_chunks": max(len(source_docs) - len(kept_docs), 0),
+        "removed_image_qdrant_points": removed_image_points,
+    }
 
 
 def _find_document_entry_for_input_name(processed_snapshot: Dict[str, Any], file_name: str) -> Dict[str, Any] | None:
@@ -311,9 +404,10 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
     # Performance: avoid nested call to /api/files(quick=false), which rescans processed tree
     # and may trigger repeated Qdrant index ensure/count requests.
     text_sources: List[str] = []
-    image_index_exists = False
+    indexed_text_sources: set[str] = set()
+    indexed_image_sources: set[str] = set()
     try:
-        from app.repositories import ImageIndexRepository, build_qdrant_client, load_documents_snapshot
+        from app.repositories import ImageIndexRepository, TextIndexRepository, build_qdrant_client, load_documents_snapshot
 
         cfg = merged_runtime_settings()
         paths = workspace_paths_for_user(user_id)
@@ -332,7 +426,16 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
             vector_name=q.get("image_vector_name", "colpali_multivec"),
             storage_quantization=q.get("image_storage_quantization", "scalar"),
         )
-        image_index_exists = ir.count_points(user_id=paths.user_id) > 0
+        indexed_image_sources = ir.list_sources(user_id=paths.user_id)
+        tr = TextIndexRepository(
+            build_qdrant_client(cfg),
+            collection_name=text_col,
+            vector_name=q.get("text_vector_name", "text"),
+            vector_size=384,  # not used by list_sources/scroll; repository init requires a size
+            storage_quantization=q.get("text_storage_quantization", "scalar"),
+            on_disk_vectors=True,
+        )
+        indexed_text_sources = tr.list_sources(user_id=paths.user_id)
     except Exception:
         # Keep endpoint resilient and return metadata even if index probes fail.
         pass
@@ -345,11 +448,46 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
         doc_entry = _find_document_entry_for_input_name(processed_snapshot, name)
         doc_stages = (doc_entry or {}).get("stages") or {}
         doc_total_files = int((doc_entry or {}).get("total_files") or 0)
-        stage4_files = ((doc_stages.get("stage4_rag_ready") or {}).get("files") or [])
-        has_stage4_visuals = any(_is_visual_artifact(str((f or {}).get("name") or "")) for f in stage4_files)
+        doc_id = str((doc_entry or {}).get("id") or "").strip().lower()
+        text_candidates = {
+            name.lower(),
+            _file_stem(name),
+            _normalizer_safe_stem(name),
+            doc_id,
+        }
+        text_candidates = {c for c in text_candidates if c}
+        indexed_text = False
+        # Prefer live Qdrant payload sources; fallback to documents snapshot.
+        text_probe_sources = indexed_text_sources or {str(s).strip().lower() for s in text_sources if str(s).strip()}
+        for src in text_probe_sources:
+            src_norm = str(src or "").replace("\\", "/").lower()
+            if not src_norm:
+                continue
+            src_name = Path(src_norm).name
+            src_stem = Path(src_name).stem
+            src_parent = Path(src_norm).parent.name.lower()
+            if any(
+                c == src_norm
+                or src_norm.endswith("/" + c)
+                or c in src_norm
+                or c == src_name
+                or c == src_stem
+                or c == src_parent
+                for c in text_candidates
+            ):
+                indexed_text = True
+                break
 
-        indexed_text = any(_match_indexed_text_source(name, src) for src in text_sources)
-        indexed_image = image_index_exists and has_stage4_visuals
+        source_candidates = {
+            _file_stem(name),
+            _normalizer_safe_stem(name),
+            name.lower(),
+            doc_id,
+        }
+        source_candidates = {s for s in source_candidates if s}
+        # Do not gate image status on current stage4 visuals; image vectors may
+        # already exist from an earlier run/mode.
+        indexed_image = any(s in indexed_image_sources for s in source_candidates)
         index_status = "none"
         if indexed_text and indexed_image:
             index_status = "all"
@@ -661,11 +799,86 @@ def delete_file(
     body: FileDeleteRequest,
     user_id: str = Depends(storage_user_id),
 ):
+    ensure_data_dirs(user_id)
     storage = get_file_storage(user_id)
+    paths = workspace_paths_for_user(user_id)
+
+    raw_path = (body.path or "").strip()
+    if not raw_path:
+        raise HTTPException(status_code=400, detail="path is required")
+
+    parsed = parse_s3_uri(raw_path)
+    if parsed:
+        _, key = parsed
+        file_name = Path(key).name
+    else:
+        file_name = Path(raw_path).name
+
+    processed_snapshot = build_processed_documents_snapshot(user_id, include_preview=False)
+    doc_entry = _find_document_entry_for_input_name(processed_snapshot, file_name)
+    doc_id = str((doc_entry or {}).get("id") or "").strip() or None
+
+    deleted_original = False
+    deleted_processed_count = 0
+
+    index_cleanup_error: str | None = None
     try:
-        if storage.delete(body.path):
-            return {"deleted": body.path}
-        raise HTTPException(status_code=404, detail="File not found")
+        deleted_original = bool(storage.delete(raw_path))
+
+        for stage_data in ((doc_entry or {}).get("stages") or {}).values():
+            for f in (stage_data.get("files") or []):
+                p = str((f or {}).get("path") or "").strip()
+                rel = str((f or {}).get("relative_path") or "").strip().replace("\\", "/")
+                removed = False
+                if p:
+                    removed = bool(storage.delete(p))
+                # Fallback path construction makes deletion robust for both local and S3 snapshots.
+                if not removed and rel:
+                    if isinstance(storage, S3FileStorage):
+                        removed = bool(storage.delete(storage.processed_uri(rel)))
+                    else:
+                        removed = bool(storage.delete(str((paths.processing_dir / Path(*rel.split("/"))).resolve())))
+                if removed:
+                    deleted_processed_count += 1
+
+        try:
+            index_cleanup = _remove_document_indexes(
+                user_id=user_id,
+                file_name=file_name,
+                document_id=doc_id,
+            )
+        except Exception as e:
+            # Do not fail file deletion if index backend is temporarily unavailable.
+            index_cleanup_error = str(e)
+            index_cleanup = {
+                "matched_text_sources": [],
+                "removed_text_qdrant_points": 0,
+                "removed_text_chunks": 0,
+                "removed_image_qdrant_points": 0,
+            }
+
+        any_removed = deleted_original or deleted_processed_count > 0
+        any_index_removed = (
+            index_cleanup.get("removed_text_qdrant_points", 0) > 0
+            or index_cleanup.get("removed_text_chunks", 0) > 0
+            or index_cleanup.get("removed_image_qdrant_points", 0) > 0
+        )
+        if not any_removed and not any_index_removed:
+            raise HTTPException(status_code=404, detail="File not found")
+
+        return {
+            "deleted": raw_path,
+            "file_name": file_name,
+            "document_id": doc_id,
+            "removed": {
+                "original_file": deleted_original,
+                "processed_files": deleted_processed_count,
+                "qdrant_text_points": index_cleanup.get("removed_text_qdrant_points", 0),
+                "qdrant_image_points": index_cleanup.get("removed_image_qdrant_points", 0),
+                "documents_snapshot_chunks": index_cleanup.get("removed_text_chunks", 0),
+            },
+            "index_cleanup_error": index_cleanup_error,
+        }
     except HTTPException:
         raise
     except Exception as e:
