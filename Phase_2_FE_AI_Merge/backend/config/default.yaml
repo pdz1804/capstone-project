@@ -30,6 +30,7 @@ processing:
   enable_normalization: true
   enable_media_processing: true
   enable_document_processing: true
+  enable_processing_cache: false    # If true, skip unchanged files using .processing_cache.json
   
   # GPU acceleration
   use_gpu: true
@@ -64,12 +65,14 @@ processing:
     # Docling execution: "local" (in-process Docling) or "sagemaker" (see inference.sagemaker_docling_endpoint_name)
     docling_backend: "local"
     enable_ocr: true
-    enable_vlm: true                # Vision Language Model for document understanding
+    enable_vlm: false               # Disable VLM for lower latency (enable when richer image understanding is needed)
     enable_asr: true
     ocr_engine: "rapidocr"          # Options: tesseract, easyocr, rapidocr
     ocr_languages: null             # null=auto, or list like ["en", "vi"]
     vlm_model: "granite_docling"    # Options: granite_docling, custom
     export_markdown: true
+    export_images: false            # Disable image extraction to reduce processing time
+    export_tables: false            # Disable table extraction to reduce processing time
 
 # ============================================================================
 # TEXT RETRIEVAL CONFIGURATION

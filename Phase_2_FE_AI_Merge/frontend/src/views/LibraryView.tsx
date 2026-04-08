@@ -24,9 +24,18 @@ import {
   Play,
   Layers,
 } from 'lucide-react';
-import { Document, Page, pdfjs } from 'react-pdf';
 import { FileItem } from '../App';
-import { deleteFile, getFileMetadata, runIndex, runProcess, uploadFiles } from '../api/ragApi';
+import {
+  coerceBlobForPreview,
+  deleteFile,
+  getFileMetadata,
+  getInputFile,
+  getInputFileUrl,
+  runIndex,
+  runProcess,
+  uploadFiles,
+} from '../api/ragApi';
+import { Document, Page, pdfjs } from 'react-pdf';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -67,37 +76,150 @@ export default function LibraryView({
   const [newName, setNewName] = useState('');
   const [previewFile, setPreviewFile] = useState<any | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [numPages, setNumPages] = useState<number>();
+  const [numPages, setNumPages] = useState<number>(0);
+  const [pdfPageWidth, setPdfPageWidth] = useState<number>(900);
   const [textContent, setTextContent] = useState<string | null>(null);
+  const [remotePreview, setRemotePreview] = useState<
+    | { kind: 'none' }
+    | { kind: 'blob'; url: string; mime: string }
+    | { kind: 'text'; content: string }
+    | { kind: 'html'; content: string }
+    | { kind: 'office'; iframeSrc: string }
+  >({ kind: 'none' });
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [metadataFileName, setMetadataFileName] = useState<string | null>(null);
   const [metadataDetail, setMetadataDetail] = useState<Record<string, unknown> | null>(null);
   const [metadataLoading, setMetadataLoading] = useState(false);
   const [pipelineMode, setPipelineMode] = useState<'standard' | 'fast'>('standard');
   const [pipelineBusy, setPipelineBusy] = useState<'idle' | 'process' | 'index'>('idle');
   const [uploadBusy, setUploadBusy] = useState(false);
+  const pdfContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (previewFile && previewFile.originalFile) {
+    const updateWidth = () => {
+      const container = pdfContainerRef.current;
+      if (!container) return;
+      const next = Math.max(320, Math.floor(container.clientWidth - 32));
+      setPdfPageWidth(next);
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, [previewFile, remotePreview.kind, previewUrl]);
+
+  useEffect(() => {
+    let localUrlToRevoke: string | null = null;
+    let remoteObjectUrlToRevoke: string | null = null;
+    let cancelled = false;
+
+    setPreviewUrl(null);
+    setNumPages(0);
+    setTextContent(null);
+    setRemotePreview({ kind: 'none' });
+    setPreviewLoading(false);
+    setPreviewError(null);
+
+    if (!previewFile) {
+      return;
+    }
+
+    if (previewFile.originalFile) {
       const url = URL.createObjectURL(previewFile.originalFile);
+      localUrlToRevoke = url;
       setPreviewUrl(url);
 
       if (previewFile.originalFile.type === 'text/plain') {
-        fetch(url).then(res => res.text()).then(setTextContent);
-      } else {
-        setTextContent(null);
+        fetch(url)
+          .then((res) => res.text())
+          .then((txt) => {
+            if (!cancelled) setTextContent(txt);
+          })
+          .catch(() => {
+            if (!cancelled) setTextContent(null);
+          });
       }
+    } else {
+      setPreviewLoading(true);
+      void (async () => {
+        try {
+          const nameLower = String(previewFile.name || '').toLowerCase();
+          const ext = nameLower.includes('.') ? nameLower.slice(nameLower.lastIndexOf('.')) : '';
+          const officeExt = ['.ppt', '.pptx', '.xls', '.xlsx', '.doc', '.docx'];
 
-      return () => URL.revokeObjectURL(url);
+          if (officeExt.includes(ext)) {
+            const u = await getInputFileUrl(previewFile.name, 900);
+            if (cancelled) return;
+            if (!u?.url) throw new Error('Office preview URL is not available for this file.');
+            setRemotePreview({
+              kind: 'office',
+              iframeSrc: `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(u.url)}`,
+            });
+            return;
+          }
+
+          const { body, mediaType } = await getInputFile(previewFile.name);
+          if (cancelled) return;
+
+          const mime = (mediaType || '').split(';')[0].trim().toLowerCase();
+          const textish =
+            mime.startsWith('text/') ||
+            mime === 'application/json' ||
+            /\.(txt|md|csv|json|log)$/i.test(nameLower);
+
+          if (mime === 'text/html' || ext === '.html' || ext === '.htm') {
+            const html = await body.text();
+            if (cancelled) return;
+            setRemotePreview({ kind: 'html', content: html });
+            return;
+          }
+
+          if (textish && mime !== 'application/pdf') {
+            const txt = await body.text();
+            if (cancelled) return;
+            setRemotePreview({ kind: 'text', content: txt });
+            return;
+          }
+
+          const coerced = coerceBlobForPreview(body, previewFile.name, mediaType);
+          const objectUrl = URL.createObjectURL(coerced);
+          remoteObjectUrlToRevoke = objectUrl;
+          setRemotePreview({
+            kind: 'blob',
+            url: objectUrl,
+            mime: coerced.type || mime || 'application/octet-stream',
+          });
+        } catch (e) {
+          if (cancelled) return;
+          if (previewFile.type === 'pdf' || String(previewFile.name || '').toLowerCase().endsWith('.pdf')) {
+            try {
+              const u = await getInputFileUrl(previewFile.name, 900);
+              if (cancelled) return;
+              if (u?.url) {
+                setRemotePreview({ kind: 'blob', url: u.url, mime: 'application/pdf' });
+                setPreviewError(null);
+                return;
+              }
+            } catch {
+              // fall through
+            }
+          }
+          setRemotePreview({ kind: 'none' });
+          setPreviewError(e instanceof Error ? e.message : 'Could not load file for preview.');
+        } finally {
+          if (!cancelled) setPreviewLoading(false);
+        }
+      })();
     }
-    setPreviewUrl(null);
-    setTextContent(null);
+
+    return () => {
+      cancelled = true;
+      if (localUrlToRevoke) URL.revokeObjectURL(localUrlToRevoke);
+      if (remoteObjectUrlToRevoke) URL.revokeObjectURL(remoteObjectUrlToRevoke);
+    };
   }, [previewFile]);
 
-  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-    setNumPages(numPages);
-  }
-
-  const handleDownload = (file: any) => {
+  const handleDownload = async (file: any) => {
     if (file.originalFile) {
       const url = URL.createObjectURL(file.originalFile);
       const a = document.createElement('a');
@@ -108,9 +230,36 @@ export default function LibraryView({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } else {
-      alert(
-        `${file.name} is stored in your cloud workspace. Browser download is not available for server-side objects yet; use upload/process in Knowledge or your storage console if you need a local copy.`
-      );
+      try {
+        const u = await getInputFileUrl(file.name, 900);
+        if (u?.url) {
+          const a = document.createElement('a');
+          a.href = u.url;
+          a.target = '_blank';
+          a.rel = 'noreferrer';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          return;
+        }
+      } catch {
+        // Fall through to blob download.
+      }
+
+      try {
+        const { body, mediaType } = await getInputFile(file.name);
+        const coerced = coerceBlobForPreview(body, file.name, mediaType);
+        const url = URL.createObjectURL(coerced);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Download failed');
+      }
     }
   };
 
@@ -178,11 +327,19 @@ export default function LibraryView({
   const handleRunIndex = async () => {
     setPipelineBusy('index');
     try {
-      const selectedRows = files.filter((f) => selectedFiles.includes(f.id));
+      let selectedRows = files.filter((f) => selectedFiles.includes(f.id));
+      // Fallback to currently rendered rows if list ids drift after refresh/sort.
+      if (selectedRows.length === 0 && selectedFiles.length > 0) {
+        selectedRows = filteredAndSortedFiles.filter((f) => selectedFiles.includes(f.id));
+      }
       const selectedPaths = selectedRows
         .map((f) => f.storagePath)
         .filter((p): p is string => Boolean(p));
       const selectedNames = selectedRows.map((f) => f.name).filter(Boolean);
+      if (selectedRows.length === 0) {
+        alert('No selected files resolved for indexing. Please re-select the file and try again.');
+        return;
+      }
       await runIndex(false, selectedPaths, selectedNames, pipelineMode);
       await onRefreshFiles();
     } catch (e) {
@@ -302,6 +459,20 @@ export default function LibraryView({
   const SortIcon = ({ column }: { column: 'date' | 'name' | 'size' }) => {
     if (sortBy !== column) return null;
     return sortOrder === 'asc' ? <ChevronUp className="w-4 h-4 inline ml-1" /> : <ChevronDown className="w-4 h-4 inline ml-1" />;
+  };
+
+  const isPdfPreview =
+    !!previewFile &&
+    (
+      previewFile.type === 'pdf' ||
+      previewFile.originalFile?.type === 'application/pdf' ||
+      (remotePreview.kind === 'blob' && remotePreview.mime === 'application/pdf')
+    );
+
+  const getPdfSrc = () => {
+    if (previewUrl) return previewUrl;
+    if (remotePreview.kind === 'blob') return remotePreview.url;
+    return '';
   };
 
   return (
@@ -649,7 +820,7 @@ export default function LibraryView({
                             <button onClick={() => { setRenamingFileId(file.id); setNewName(file.name); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
                               <Edit2 className="w-4 h-4" /> Rename
                             </button>
-                            <button onClick={() => { handleDownload(file); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                            <button onClick={() => { void handleDownload(file); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
                               <Download className="w-4 h-4" /> Download
                             </button>
                             <button onClick={() => void handleViewMetadata(file)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
@@ -704,7 +875,7 @@ export default function LibraryView({
                         <button onClick={() => { setRenamingFileId(file.id); setNewName(file.name); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
                           <Edit2 className="w-4 h-4" /> Rename
                         </button>
-                        <button onClick={() => { handleDownload(file); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                        <button onClick={() => { void handleDownload(file); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
                           <Download className="w-4 h-4" /> Download
                         </button>
                         <button onClick={() => void handleViewMetadata(file)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
@@ -859,32 +1030,61 @@ export default function LibraryView({
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex-1 bg-slate-50 p-8 flex items-center justify-center overflow-y-auto min-h-[400px]">
+            <div
+              className={`flex-1 bg-slate-50 min-h-[400px] ${isPdfPreview
+                ? 'p-0 overflow-hidden'
+                : 'p-8 flex items-center justify-center overflow-y-auto'
+                }`}
+            >
               {/* Preview Content */}
-              {previewUrl && previewFile.type === 'image' ? (
-                <img src={previewUrl} alt={previewFile.name} className="max-w-full max-h-full object-contain rounded-xl shadow-lg" />
-              ) : previewUrl && previewFile.type === 'video' ? (
-                <video src={previewUrl} controls className="w-full max-w-2xl aspect-video rounded-xl shadow-lg bg-black" />
-              ) : previewUrl && previewFile.type === 'audio' ? (
+              {previewLoading ? (
+                <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg border border-slate-200 p-12 min-h-[320px] flex flex-col items-center justify-center text-center">
+                  <Loader2 className="w-8 h-8 animate-spin text-sky-600 mb-4" />
+                  <p className="text-sm text-slate-600">Loading preview...</p>
+                </div>
+              ) : previewError ? (
+                <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg border border-red-200 p-12 min-h-[320px] flex flex-col items-center justify-center text-center">
+                  <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
+                  <p className="text-sm text-red-700 mb-2">Cannot preview this file.</p>
+                  <p className="text-xs text-slate-500 max-w-lg">{previewError}</p>
+                </div>
+              ) : (previewUrl || remotePreview.kind === 'blob') && (
+                (previewFile.type === 'image' || (remotePreview.kind === 'blob' && remotePreview.mime.startsWith('image/')))
+              ) ? (
+                <img
+                  src={previewUrl || (remotePreview.kind === 'blob' ? remotePreview.url : '')}
+                  alt={previewFile.name}
+                  className="max-w-full max-h-full object-contain rounded-xl shadow-lg"
+                />
+              ) : (previewUrl || remotePreview.kind === 'blob') && previewFile.type === 'video' ? (
+                <video
+                  src={previewUrl || (remotePreview.kind === 'blob' ? remotePreview.url : '')}
+                  controls
+                  className="w-full max-w-2xl aspect-video rounded-xl shadow-lg bg-black"
+                />
+              ) : (previewUrl || remotePreview.kind === 'blob') && previewFile.type === 'audio' ? (
                 <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg border border-slate-200 p-12 flex flex-col items-center justify-center text-center">
                   <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mb-8 shadow-inner">
                     <Music className="w-12 h-12 text-purple-600" />
                   </div>
-                  <audio src={previewUrl} controls className="w-full" />
+                  <audio src={previewUrl || (remotePreview.kind === 'blob' ? remotePreview.url : '')} controls className="w-full" />
                 </div>
-              ) : previewUrl && previewFile.originalFile?.type === 'application/pdf' ? (
-                <div className="w-full h-full min-h-[600px] max-h-[70vh] overflow-y-auto bg-slate-200 rounded-xl shadow-inner flex flex-col items-center p-4">
+              ) : isPdfPreview ? (
+                <div
+                  ref={pdfContainerRef}
+                  className="w-full h-full min-h-[600px] max-h-[70vh] overflow-y-auto bg-slate-200 flex flex-col items-center p-4"
+                >
                   <Document
-                    file={previewUrl}
-                    onLoadSuccess={onDocumentLoadSuccess}
+                    file={getPdfSrc()}
+                    onLoadSuccess={({ numPages: pages }) => setNumPages(pages)}
                     loading={<Loader2 className="w-8 h-8 animate-spin text-sky-600 my-12" />}
                     className="flex flex-col items-center gap-4"
                   >
-                    {Array.from(new Array(numPages), (el, index) => (
-                      <div key={`page_${index + 1}`} className="shadow-md">
+                    {Array.from({ length: numPages || 0 }, (_, index) => (
+                      <div key={`page_${index + 1}`} className="shadow-md bg-white">
                         <Page
                           pageNumber={index + 1}
-                          width={800}
+                          width={pdfPageWidth}
                           renderTextLayer={false}
                           renderAnnotationLayer={false}
                         />
@@ -892,9 +1092,28 @@ export default function LibraryView({
                     ))}
                   </Document>
                 </div>
-              ) : previewUrl && previewFile.originalFile?.type === 'text/plain' ? (
+              ) : textContent || remotePreview.kind === 'text' ? (
                 <div className="w-full h-full min-h-[600px] max-h-[70vh] overflow-y-auto bg-white rounded-xl shadow-lg p-8 border border-slate-200 text-left">
-                  <pre className="whitespace-pre-wrap font-mono text-sm text-slate-800">{textContent || 'Loading text...'}</pre>
+                  <pre className="whitespace-pre-wrap font-mono text-sm text-slate-800">
+                    {remotePreview.kind === 'text' ? remotePreview.content : textContent || 'Loading text...'}
+                  </pre>
+                </div>
+              ) : remotePreview.kind === 'html' ? (
+                <div className="w-full h-full min-h-[600px] max-h-[70vh] overflow-hidden bg-white rounded-xl shadow-lg border border-slate-200">
+                  <iframe
+                    title={`HTML: ${previewFile.name}`}
+                    srcDoc={remotePreview.content}
+                    sandbox=""
+                    className="w-full h-full border-0"
+                  />
+                </div>
+              ) : remotePreview.kind === 'office' ? (
+                <div className="w-full h-full min-h-[600px] max-h-[70vh] overflow-hidden bg-white rounded-xl shadow-lg border border-slate-200">
+                  <iframe
+                    title={`Office: ${previewFile.name}`}
+                    src={remotePreview.iframeSrc}
+                    className="w-full h-full border-0"
+                  />
                 </div>
               ) : previewFile.type === 'video' ? (
                 <div className="w-full max-w-2xl aspect-video bg-slate-900 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden">
@@ -934,7 +1153,7 @@ export default function LibraryView({
                     This file type cannot be previewed in the browser. Please download the file to view its contents.
                   </p>
                   <button
-                    onClick={() => handleDownload(previewFile)}
+                    onClick={() => void handleDownload(previewFile)}
                     className="px-6 py-3 text-sm font-medium text-white bg-sky-600 rounded-xl hover:bg-sky-700 transition-colors flex items-center gap-2 shadow-sm"
                   >
                     <Download className="w-5 h-5" />
@@ -944,7 +1163,7 @@ export default function LibraryView({
               )}
             </div>
             <div className="p-4 border-t border-slate-200 bg-white flex justify-end gap-3">
-              <button onClick={() => handleDownload(previewFile)} className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors flex items-center gap-2">
+              <button onClick={() => void handleDownload(previewFile)} className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors flex items-center gap-2">
                 <Download className="w-4 h-4" /> Download Original
               </button>
             </div>

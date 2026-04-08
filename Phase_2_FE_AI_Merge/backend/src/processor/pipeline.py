@@ -866,7 +866,12 @@ class DocumentProcessingPipeline:
                 stage2_dir=self.stage_dirs["media_processed"],
                 stage3_dir=self.stage_dirs["final_processed"],
                 output_dir=self.stage_dirs["rag_ready"],
-                config=ConsolidatorConfig()
+                config=ConsolidatorConfig(
+                    include_normalized_pdfs=True,
+                    include_metadata=True,
+                    include_tables=bool(self.config.document_config.export_tables),
+                    include_images=bool(self.config.document_config.export_images),
+                ),
             )
             
             stats = consolidator.consolidate()

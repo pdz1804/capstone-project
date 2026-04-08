@@ -318,18 +318,22 @@ class MultimodalDocumentProcessor:
                 use_vlm = self.config.enable_vlm if hasattr(self.config, 'enable_vlm') else True
                 logger.info(f"🔥 FORCING VLM: {use_vlm} (config: {self.config.enable_vlm})")
                 
-                pdf_options = PdfPipelineOptions(
-                    do_ocr=self.config.enable_ocr,                    # Enable OCR
-                    do_table_structure=True,                          # Enable table structure detection
-                    generate_picture_images=True,                     # CRITICAL: Enable image extraction
-                    generate_page_images=True,                        # Generate full page images for better extraction
-                    generate_table_images=True,                       # Generate table images
-                    do_picture_classification=True,                   # Enable advanced picture classification
-                    do_picture_description=use_vlm,                   # Enable picture description with VLM
-                    images_scale=2.0,                                 # HIGHER SCALE: 2x resolution for better image quality
-                    ocr_options=self._get_ocr_options(),              # OCR configuration
-                    picture_description_options=vlm_options if use_vlm else None,  # VLM options
-                )
+                pdf_options_kwargs = {
+                    "do_ocr": self.config.enable_ocr,
+                    # Keep table-structure work off when table export is disabled.
+                    "do_table_structure": bool(self.config.export_tables),
+                    # Avoid generating/caching image artifacts unless explicitly requested.
+                    "generate_picture_images": bool(self.config.export_images),
+                    "generate_page_images": bool(self.config.export_images),
+                    "generate_table_images": bool(self.config.export_tables),
+                    "do_picture_classification": bool(use_vlm),
+                    "do_picture_description": bool(use_vlm),
+                    "images_scale": 2.0,
+                    "ocr_options": self._get_ocr_options(),
+                }
+                if use_vlm and vlm_options is not None:
+                    pdf_options_kwargs["picture_description_options"] = vlm_options
+                pdf_options = PdfPipelineOptions(**pdf_options_kwargs)
                 
                 # DEBUG: Print final pipeline options
                 logger.info(f"🔍 Pipeline Debug - do_picture_description: {pdf_options.do_picture_description}")
@@ -1623,8 +1627,10 @@ class MultimodalDocumentProcessor:
         exported_files = {}
         
         try:
-            # Create simple document-specific output directory: output_dir/filename/
+            # Recreate output folder to avoid stale artifacts from prior runs.
             doc_output_dir = self.output_dir / safe_stem
+            if doc_output_dir.exists():
+                shutil.rmtree(doc_output_dir, ignore_errors=True)
             doc_output_dir.mkdir(parents=True, exist_ok=True)
             
             # Export ONLY to Markdown (main content)

@@ -44,8 +44,8 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         ocr_languages=ocr_langs,
         vlm_model=str(doc.get("vlm_model", "smolvlm")),
         export_markdown=bool(doc.get("export_markdown", True)),
-        export_images=bool(doc.get("export_images", True)),
-        export_tables=bool(doc.get("export_tables", True)),
+        export_images=bool(doc.get("export_images", False)),
+        export_tables=bool(doc.get("export_tables", False)),
     )
 
     media_config = MediaProcessorConfig(
@@ -73,8 +73,9 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         media_config.remove_duplicate_frames = False
         media_config.temperature_schedule = (0.0,)
 
+    cache_enabled = _as_bool(proc.get("enable_processing_cache", False), default=False)
     return PipelineConfig(
-        skip_processed=not force,
+        skip_processed=(not force) and cache_enabled,
         runtime_yaml=runtime,
         use_gpu=use_gpu,
         enable_normalization=bool(proc.get("enable_normalization", True)),
@@ -119,5 +120,7 @@ def run_processing(
         config=pc,
     )
     result = pipe.run()
-    storage.publish_pipeline_output(paths.processing_dir)
+    # Cached runs have no new artifacts; avoid redundant S3 upload scan.
+    if not (isinstance(result, dict) and result.get("cached") is True):
+        storage.publish_pipeline_output(paths.processing_dir)
     return result

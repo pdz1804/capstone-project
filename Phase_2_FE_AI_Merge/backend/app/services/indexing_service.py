@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import shutil
+import threading
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Set, Tuple
 
@@ -31,6 +33,11 @@ from app.storage import get_file_storage
 from app.storage.service import S3FileStorage
 
 logger = logging.getLogger(__name__)
+
+_TEXT_EMBEDDER_CACHE: Dict[str, Any] = {}
+_TEXT_EMBEDDER_LOCK = threading.Lock()
+_PREPARED_TEXT_COLLECTIONS: Set[str] = set()
+_PREPARED_IMAGE_COLLECTIONS: Set[str] = set()
 
 
 def _drop_legacy_user_collections(client: Any, base_name: str) -> int:
@@ -120,6 +127,42 @@ def _is_image_file_name(name: str) -> bool:
     return n.endswith((".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"))
 
 
+def _doc_matches_selection(doc: Dict[str, Any], selected_name_set: Set[str], selected_stem_set: Set[str]) -> bool:
+    meta = doc.get("metadata") if isinstance(doc.get("metadata"), dict) else {}
+    candidates = [
+        str(meta.get("original_file", "")),
+        str(meta.get("source", "")),
+        str(doc.get("source", "")),
+        str(doc.get("id", "")),
+        str(doc.get("doc_id", "")),
+    ]
+    for c in candidates:
+        c_norm = _name_from_path_or_uri(c).lower()
+        if not c_norm:
+            continue
+        if c_norm in selected_name_set or _stem(c_norm) in selected_stem_set:
+            return True
+        folder_name = Path(c.replace("\\", "/")).parent.name.lower()
+        if folder_name and (folder_name in selected_name_set or folder_name in selected_stem_set):
+            return True
+    return False
+
+
+def _get_text_embedder(model_name: str):
+    from sentence_transformers import SentenceTransformer
+
+    key = (model_name or "").strip()
+    if not key:
+        key = "all-MiniLM-L6-v2"
+    with _TEXT_EMBEDDER_LOCK:
+        cached = _TEXT_EMBEDDER_CACHE.get(key)
+        if cached is not None:
+            return cached
+        model = SentenceTransformer(key)
+        _TEXT_EMBEDDER_CACHE[key] = model
+        return model
+
+
 class IndexingService:
     def __init__(self, yaml_config: Dict[str, Any], user_id: str | None = None):
         self.cfg = yaml_config
@@ -138,6 +181,63 @@ class IndexingService:
         self._embed_model = tr.get("embedding_model", "all-MiniLM-L6-v2")
         self._colqwen = ColQwenInferenceService(yaml_config)
 
+    def _sync_selected_stage4_docs_from_s3(
+        self,
+        selected_paths: Sequence[str] | None = None,
+        selected_names: Sequence[str] | None = None,
+    ) -> None:
+        """
+        In S3 storage mode, refresh local stage4_rag_ready from S3 for selected docs only.
+        This prevents indexing stale local folders from prior runs.
+        """
+        if not is_s3_storage_backend():
+            return
+        selected_name_set, selected_stem_set = _build_selection(selected_paths, selected_names)
+        if not selected_name_set and not selected_stem_set:
+            return
+
+        st = get_file_storage(self._paths.user_id)
+        if not isinstance(st, S3FileStorage):
+            return
+
+        # Rebuild local stage4 view with selected docs only.
+        shutil.rmtree(self._paths.rag_ready_dir, ignore_errors=True)
+        self._paths.rag_ready_dir.mkdir(parents=True, exist_ok=True)
+
+        stage4_prefix = st._key_processing("stage4_rag_ready/")
+        paginator = st._client.get_paginator("list_objects_v2")
+        downloaded = 0
+        for page in paginator.paginate(Bucket=st.processed_bucket, Prefix=stage4_prefix):
+            for obj in page.get("Contents") or []:
+                key = str(obj.get("Key") or "")
+                if not key or key.endswith("/"):
+                    continue
+                rel = key[len(st.processing_prefix) :].lstrip("/") if st.processing_prefix else key.lstrip("/")
+                parts = rel.split("/")
+                # Expect: stage4_rag_ready/<doc_id>/<file>
+                if len(parts) < 3 or parts[0] != "stage4_rag_ready":
+                    continue
+                doc_id = parts[1].lower()
+                file_name = parts[-1].lower()
+                file_stem = Path(file_name).stem.lower()
+                match = (
+                    doc_id in selected_stem_set
+                    or file_name in selected_name_set
+                    or file_stem in selected_stem_set
+                )
+                if not match:
+                    continue
+                dest = self._paths.processing_dir / Path(*parts)
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                st._client.download_file(st.processed_bucket, key, str(dest))
+                downloaded += 1
+        logger.info(
+            "S3 stage4 sync for indexing: selected_names=%s selected_stems=%s downloaded_files=%s",
+            sorted(selected_name_set),
+            sorted(selected_stem_set),
+            downloaded,
+        )
+
     def index_text(
         self,
         force: bool = False,
@@ -152,38 +252,15 @@ class IndexingService:
                 "error": f"RAG-ready dir missing: {self._paths.rag_ready_dir}. Run /api/process first.",
             }
 
+        self._sync_selected_stage4_docs_from_s3(selected_paths=selected_paths, selected_names=selected_names)
+
         documents = load_documents_for_indexing(self._paths.rag_ready_dir, self.cfg)
         if not documents:
             return {"status": "failed", "error": "No text chunks produced from RAG-ready documents."}
 
         selected_name_set, selected_stem_set = _build_selection(selected_paths, selected_names)
         if selected_name_set or selected_stem_set:
-            filtered: List[Dict[str, Any]] = []
-            for d in documents:
-                meta = d.get("metadata") if isinstance(d.get("metadata"), dict) else {}
-                candidates = [
-                    str(meta.get("original_file", "")),
-                    str(meta.get("source", "")),
-                    str(d.get("source", "")),
-                    str(d.get("id", "")),
-                    str(d.get("doc_id", "")),
-                ]
-                matched = False
-                for c in candidates:
-                    c_norm = _name_from_path_or_uri(c).lower()
-                    if not c_norm:
-                        continue
-                    if c_norm in selected_name_set or _stem(c_norm) in selected_stem_set:
-                        matched = True
-                        break
-                    # Parent folder name in source is often the document id.
-                    folder_name = Path(c.replace("\\", "/")).parent.name.lower()
-                    if folder_name and (folder_name in selected_name_set or folder_name in selected_stem_set):
-                        matched = True
-                        break
-                if matched:
-                    filtered.append(d)
-            documents = filtered
+            documents = [d for d in documents if _doc_matches_selection(d, selected_name_set, selected_stem_set)]
             if not documents:
                 return {
                     "status": "ok",
@@ -195,9 +272,7 @@ class IndexingService:
 
         enrich_chunk_documents_storage_uris(documents, user_id=self._paths.user_id)
 
-        from sentence_transformers import SentenceTransformer
-
-        model = SentenceTransformer(self._embed_model)
+        model = _get_text_embedder(self._embed_model)
         dim = model.get_sentence_embedding_dimension()
         texts = [d.get("text", "") for d in documents]
         embeddings = model.encode(texts, show_progress_bar=False)
@@ -213,7 +288,11 @@ class IndexingService:
         dropped_text = _drop_legacy_user_collections(self._client, self._text_collection)
         if dropped_text:
             logger.info("Dropped %s legacy text collections", dropped_text)
-        repo.ensure_collection(recreate=force)
+        if force:
+            _PREPARED_TEXT_COLLECTIONS.discard(self._text_collection)
+        if force or self._text_collection not in _PREPARED_TEXT_COLLECTIONS:
+            repo.ensure_collection(recreate=force)
+            _PREPARED_TEXT_COLLECTIONS.add(self._text_collection)
 
         ids: List[str] = []
         payloads: List[Dict[str, Any]] = []
@@ -240,8 +319,16 @@ class IndexingService:
 
         repo.upsert_chunks(ids, embeddings, payloads)
 
-        save_documents_snapshot(documents, self._paths.documents_json_path, user_id=self._paths.user_id)
-        save_bm25_index(documents, self._paths.bm25_pickle_path, user_id=self._paths.user_id)
+        # Keep index state additive for partial (selected-file) runs:
+        # replace only selected docs in sparse sidecars, preserve others.
+        docs_to_save = documents
+        if (selected_name_set or selected_stem_set) and not force:
+            existing_docs = load_documents_snapshot(self._paths.documents_json_path, user_id=self._paths.user_id)
+            kept_docs = [d for d in existing_docs if not _doc_matches_selection(d, selected_name_set, selected_stem_set)]
+            docs_to_save = kept_docs + documents
+
+        save_documents_snapshot(docs_to_save, self._paths.documents_json_path, user_id=self._paths.user_id)
+        save_bm25_index(docs_to_save, self._paths.bm25_pickle_path, user_id=self._paths.user_id)
 
         return {
             "status": "ok",
@@ -264,6 +351,8 @@ class IndexingService:
         if not self._paths.rag_ready_dir.exists():
             return {"status": "failed", "error": f"RAG-ready dir missing: {self._paths.rag_ready_dir}"}
 
+        self._sync_selected_stage4_docs_from_s3(selected_paths=selected_paths, selected_names=selected_names)
+
         cq = (self.cfg.get("image_retrieval", {}) or {}).get("colqwen", {}) or {}
         dpi = int(cq.get("pdf_dpi", 150))
         quant = (self.cfg.get("qdrant", {}) or {}).get("image_storage_quantization", "scalar")
@@ -278,7 +367,11 @@ class IndexingService:
         dropped_image = _drop_legacy_user_collections(self._client, self._image_collection)
         if dropped_image:
             logger.info("Dropped %s legacy image collections", dropped_image)
-        repo.ensure_collection(recreate=force)
+        if force:
+            _PREPARED_IMAGE_COLLECTIONS.discard(self._image_collection)
+        if force or self._image_collection not in _PREPARED_IMAGE_COLLECTIONS:
+            repo.ensure_collection(recreate=force)
+            _PREPARED_IMAGE_COLLECTIONS.add(self._image_collection)
 
         doc_folders = [d for d in self._paths.rag_ready_dir.iterdir() if d.is_dir()]
         selected_name_set, selected_stem_set = _build_selection(selected_paths, selected_names)
