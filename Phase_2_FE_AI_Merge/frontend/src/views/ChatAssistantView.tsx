@@ -51,15 +51,29 @@ const CHAT_MARKDOWN_COMPONENTS: Components = {
   },
 };
 
+function newSessionId(): string {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+const DEFAULT_SUGGESTIONS = [
+  "What documents do I have in my knowledge base?",
+  "Show me my quiz performance and learning analytics",
+  "Quiz me on the key topics from my lectures",
+];
+
 export default function ChatAssistantView() {
+  const [sessionId, setSessionId] = useState<string>(() => newSessionId());
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: "Hello! I'm your BK-MInD Assistant. I can help you understand your lectures, summarize documents, or answer questions about your learning path. How can I help you today?",
+      content: "Hello! I'm your BK-MInD Assistant. I can help you understand your lectures, summarize documents, quiz you on any topic, or analyze your learning progress. How can I help you today?",
       timestamp: new Date()
     }
   ]);
+  const [suggestions, setSuggestions] = useState<string[]>(DEFAULT_SUGGESTIONS);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [traceJsonOpen, setTraceJsonOpen] = useState<Record<string, boolean>>({});
@@ -104,7 +118,7 @@ export default function ChatAssistantView() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
           'X-User-Id': uid,
         },
-        body: JSON.stringify({ query: userMessage.content, top_k: 10 }),
+        body: JSON.stringify({ query: userMessage.content, top_k: 10, session_id: sessionId }),
       });
 
       if (!response.ok || !response.body) {
@@ -179,7 +193,7 @@ export default function ChatAssistantView() {
           if (!line) continue;
           const payloadText = line.slice(5).trim();
           if (!payloadText) continue;
-          let payload: { type?: string; delta?: string; message?: string; trace?: ToolTrace } = {};
+          let payload: { type?: string; delta?: string; message?: string; trace?: ToolTrace; questions?: string[] } = {};
           try {
             payload = JSON.parse(payloadText);
           } catch {
@@ -192,6 +206,8 @@ export default function ChatAssistantView() {
             appendAssistantTrace(payload.trace);
           } else if (payload.type === 'status') {
             setAssistantStatus(payload.message || 'Thinking...');
+          } else if (payload.type === 'suggestions' && Array.isArray(payload.questions)) {
+            setSuggestions(payload.questions.slice(0, 3).filter(Boolean));
           } else if (payload.type === 'error') {
             throw new Error(payload.message || 'Chat agent error');
           }
@@ -218,6 +234,8 @@ export default function ChatAssistantView() {
 
   const clearChat = () => {
     if (window.confirm('Are you sure you want to clear the chat history?')) {
+      setSessionId(newSessionId());
+      setSuggestions(DEFAULT_SUGGESTIONS);
       setMessages([
         {
           id: '1',
@@ -229,18 +247,13 @@ export default function ChatAssistantView() {
     }
   };
 
-  const suggestions = [
-    { text: "Summarize my recent lectures" },
-    { text: "How do I improve my learning path?" },
-    { text: "Search for 'backpropagation' in my notes" },
-  ];
 
   return (
     <div className="mx-auto h-full flex flex-col overflow-hidden">
       {/* Chat Header */}
       <div className="px-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center shadow-lg shadow-sky-100">
+          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm">
             <Bot className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -253,7 +266,7 @@ export default function ChatAssistantView() {
         </div>
         <button
           onClick={clearChat}
-          className="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all"
+          className="px-3 py-2 text-sm text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
           title="Clear Chat"
         >
           {/* <Trash2 className="w-5 h-5" /> */}
@@ -275,7 +288,7 @@ export default function ChatAssistantView() {
           >
             <div className={cn(
               "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
-              message.role === 'assistant' ? "bg-sky-100 text-sky-600" : "bg-slate-100 text-slate-600"
+              message.role === 'assistant' ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-600"
             )}>
               {message.role === 'assistant' ? <Bot className="w-5 h-5" /> : <User className="w-5 h-5" />}
             </div>
@@ -284,15 +297,15 @@ export default function ChatAssistantView() {
               message.role === 'user' ? "max-w-[80%] text-right" : "w-full text-left"
             )}>
               <div className={cn(
-                "px-6 py-4 rounded-[1.5rem] text-sm font-medium leading-relaxed shadow-sm border",
+                "px-5 py-4 rounded-xl text-sm font-medium leading-relaxed shadow-sm border",
                 message.role === 'assistant'
                   ? "bg-white border-slate-100 text-slate-700 rounded-tl-none"
-                  : "bg-sky-600 border-sky-500 text-white rounded-tr-none"
+                  : "bg-blue-600 border-blue-500 text-white rounded-tr-none"
               )}>
                 {message.role === 'assistant' ? (
                   <div className="prose prose-sm max-w-none prose-p:my-2 prose-headings:my-2 prose-li:my-1 prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:text-sky-700">
                     {(message.traces || []).map((trace, idx) => (
-                      <div key={`${message.id}-trace-${idx}`} className="not-prose mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                      <div key={`${message.id}-trace-${idx}`} className="not-prose mb-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
                         <div className="flex items-center justify-between gap-2">
                           <p className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
                             Tool Call: {trace.tool}
@@ -303,7 +316,7 @@ export default function ChatAssistantView() {
                               const key = `${message.id}-trace-${idx}`;
                               setTraceJsonOpen((prev) => ({ ...prev, [key]: !prev[key] }));
                             }}
-                            className="rounded-md border border-slate-300 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 hover:bg-slate-100"
+                            className="rounded border border-slate-300 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 hover:bg-slate-100"
                           >
                             {(traceJsonOpen[`${message.id}-trace-${idx}`] ?? true) ? 'Show Preview' : 'Show JSON'}
                           </button>
@@ -345,11 +358,11 @@ export default function ChatAssistantView() {
             animate={{ opacity: 1, y: 0 }}
             className="flex gap-4 mr-auto"
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm bg-sky-100 text-sky-600">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-blue-100 text-blue-600">
               <Bot className="w-5 h-5" />
             </div>
             <div className="space-y-1 w-full text-left">
-              <div className="px-4 py-3 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm border bg-sky-50 border-sky-100 text-sky-700 rounded-tl-none">
+              <div className="px-4 py-3 rounded-lg text-xs font-semibold leading-relaxed border bg-blue-50 border-blue-100 text-blue-700 rounded-tl-none">
                 {assistantStatus || 'Thinking...'}
               </div>
             </div>
@@ -359,34 +372,32 @@ export default function ChatAssistantView() {
       </div>
 
       {/* Input Area */}
-      <div className="p-8 border-t border-slate-100 bg-slate-50/30">
-        {messages.length === 1 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            {suggestions.map((s, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setInput(s.text);
-                }}
-                className="p-4 bg-white border border-slate-200 rounded-2xl text-left hover:border-sky-300 hover:shadow-md transition-all group"
-              >
-                <p className="text-xs font-bold text-slate-700 leading-snug">{s.text}</p>
-              </button>
-            ))}
-          </div>
-        )}
+      <div className="px-8 pt-3 pb-8 border-t border-slate-100 bg-slate-50/30">
+        {/* Suggestion chips — always visible; updates to follow-ups after each response */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+          {suggestions.map((s, i) => (
+            <button
+              key={`${s}-${i}`}
+              onClick={() => setInput(s)}
+              disabled={isLoading}
+              className="p-3 bg-white border border-slate-200 rounded-lg text-left hover:border-blue-300 hover:shadow-sm hover:bg-blue-50/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <p className="text-xs font-medium text-slate-600 leading-snug line-clamp-2">{s}</p>
+            </button>
+          ))}
+        </div>
         <form onSubmit={handleSend} className="relative">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message here..."
-            className="w-full pl-6 pr-16 py-5 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all shadow-xl shadow-slate-200/50"
+            className="w-full pl-5 pr-16 py-4 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-sky-600 text-white rounded-xl flex items-center justify-center hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-sky-200 active:scale-95"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
           >
             <Send className="w-5 h-5" />
           </button>
