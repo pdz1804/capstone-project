@@ -88,23 +88,14 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
       {/* Premium Hero Section */}
       <motion.div
         variants={itemVariants}
-        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-sky-400 via-blue-500 to-sky-500 text-white shadow-2xl shadow-sky-200/50 p-8 lg:p-12 mb-12"
+        className="relative overflow-hidden rounded-xl bg-blue-600 text-white shadow-lg p-8 lg:p-12 mb-12"
       >
-        <div className="absolute inset-0 bg-white/10 opacity-30 mix-blend-overlay pointer-events-none" />
-        <div className="absolute top-0 right-0 w-1/2 h-full opacity-90 mix-blend-screen pointer-events-none hidden lg:block">
-          <img
-            src="C:\Users\nam\.gemini\antigravity\brain\ea4abc8e-8bdd-4a60-912d-86596658c15c\bright_welcome_illustration_1775564857932.png"
-            alt="Hero"
-            className="w-full h-full object-cover transform scale-110 translate-x-12"
-          />
-        </div>
-
         <div className="relative z-10 max-w-2xl">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-3 py-1 bg-white/30 backdrop-blur-md rounded-full text-white text-xs font-black uppercase tracking-widest mb-6 border border-white/30"
+            className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-white text-xs font-semibold uppercase tracking-widest mb-6 border border-white/30"
           >
             <Sparkles className="w-3.5 h-3.5" stroke="white" /> AI-Powered Learning Hub
           </motion.div>
@@ -118,13 +109,13 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
           <div className="flex flex-wrap gap-4">
             <button
               onClick={() => onNavigate('chat' as ViewType)}
-              className="px-8 py-4 bg-white text-sky-600 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-slate-50 hover:scale-105 transition-all shadow-xl shadow-sky-900/10 active:scale-95 flex items-center gap-2 group"
+              className="px-6 py-3 bg-white text-blue-600 rounded-lg font-bold text-sm hover:bg-blue-50 transition-all active:scale-95 flex items-center gap-2 group"
             >
               Start Chatting <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
               onClick={() => onNavigate('knowledge')}
-              className="px-8 py-4 bg-sky-700/30 hover:bg-sky-700/50 backdrop-blur-md text-white rounded-2xl font-black text-sm uppercase tracking-wider transition-all border border-white/20 active:scale-95"
+              className="px-6 py-3 bg-white/15 hover:bg-white/25 text-white rounded-lg font-bold text-sm transition-all border border-white/30 active:scale-95"
             >
               Explore Library
             </button>
@@ -141,10 +132,10 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
               key={i}
               variants={itemVariants}
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xl shadow-slate-100/50 flex flex-col justify-between group h-full"
+              className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between group h-full"
             >
               <div className="flex items-center justify-between mb-4">
-                <div className={`p-4 rounded-[1.25rem] ${stat.bg} ${stat.color} transition-colors group-hover:bg-slate-900 group-hover:text-white`}>
+                <div className={`p-3 rounded-lg ${stat.bg} ${stat.color} transition-colors`}>
                   <Icon className="w-6 h-6" />
                 </div>
                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest border border-slate-100 rounded-full px-2 py-0.5">Live</div>
@@ -179,9 +170,9 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => onNavigate(action.view as ViewType)}
-                  className="w-full flex items-center gap-5 p-5 bg-white border border-slate-200 rounded-[1.75rem] shadow-lg shadow-slate-100/50 hover:border-sky-200 text-left group"
+                  className="w-full flex items-center gap-5 p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-200 hover:shadow-md text-left group transition-all"
                 >
-                  <div className={`w-14 h-14 rounded-2xl ${action.color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                  <div className={`w-12 h-12 rounded-lg ${action.color} text-white flex items-center justify-center group-hover:scale-105 transition-transform`}>
                     <ActionIcon className="w-6 h-6" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -209,7 +200,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
 
           <motion.div
             variants={itemVariants}
-            className="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden"
+            className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
           >
             <div className="divide-y divide-slate-100">
               {recentActivity.length === 0 ? (
@@ -225,7 +216,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
                     onClick={() => onNavigate('lecture' as ViewType)}
                   >
                     <div className="flex items-center gap-5 min-w-0">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm shrink-0 ${activity.type === 'video' ? 'bg-sky-100 text-sky-600' :
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${activity.type === 'video' ? 'bg-sky-100 text-sky-600' :
                         activity.type === 'document' ? 'bg-blue-100 text-blue-600' :
                           activity.type === 'spreadsheet' ? 'bg-emerald-100 text-emerald-600' :
                             activity.type === 'audio' ? 'bg-purple-100 text-purple-600' :
@@ -253,7 +244,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
                     <div className="flex items-center gap-4">
                       <div className="hidden sm:block">
                         {activity.status === 'indexed' && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-emerald-100/80 text-emerald-700">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-emerald-100 text-emerald-700">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             {activity.indexStatus === 'all'
                               ? 'Indexed (All)'
@@ -265,23 +256,23 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
                           </span>
                         )}
                         {activity.status === 'uploaded' && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-700">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-slate-100 text-slate-700">
                             Uploaded
                           </span>
                         )}
                         {activity.status === 'processed' && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-sky-100 text-sky-700">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-sky-100 text-sky-700">
                             Processed
                           </span>
                         )}
                         {activity.status === 'processing' && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-sky-100 text-sky-700">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-sky-100 text-sky-700">
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                             Syncing
                           </span>
                         )}
                         {activity.status === 'failed' && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-red-100 text-red-700">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-red-100 text-red-700">
                             <AlertCircle className="w-3.5 h-3.5" />
                             Error
                           </span>

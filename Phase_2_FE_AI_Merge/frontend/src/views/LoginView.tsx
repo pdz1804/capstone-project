@@ -69,9 +69,7 @@ export default function LoginView() {
       <div className="hidden lg:flex lg:w-1/2 relative bg-sky-600 items-center justify-center overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-[12%] -left-[8%] w-[58%] h-[58%] bg-cyan-300 rounded-full blur-[110px] opacity-35 animate-pulse" />
-          <div className="absolute -bottom-[12%] -right-[10%] w-[62%] h-[62%] bg-blue-300 rounded-full blur-[120px] opacity-35 animate-pulse" style={{ animationDelay: '2s' }} />
-          <div className="absolute inset-0 bg-white/10" />
+          <div className="absolute inset-0 bg-white/5" />
           <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,0.25)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.25)_1px,transparent_1px)] [background-size:48px_48px]" />
         </div>
 
@@ -105,7 +103,7 @@ export default function LoginView() {
                   whileHover={{ x: 6 }}
                   className="flex items-center gap-4 group"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-white/18 backdrop-blur-md border border-white/35 flex items-center justify-center group-hover:bg-white/28 transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-white/20 border border-white/30 flex items-center justify-center group-hover:bg-white/30 transition-colors">
                     <feature.icon className="w-5 h-5 text-sky-100" />
                   </div>
                   <span className="text-sky-50 font-medium">{feature.text}</span>
@@ -114,22 +112,15 @@ export default function LoginView() {
             </div>
           </motion.div>
 
-          {/* Floating Decorative Elements */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/10 rounded-full border border-white/25 animate-float" />
-          <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-white/10 rounded-full border border-white/25 animate-float-delayed" />
         </div>
       </div>
 
       {/* Right Side: Login Form */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 sm:px-12 lg:px-24 relative bg-sky-50">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-20 right-16 w-52 h-52 rounded-full bg-sky-200/40 blur-3xl" />
-          <div className="absolute bottom-16 left-10 w-44 h-44 rounded-full bg-blue-200/35 blur-3xl" />
-        </div>
         <div className="w-full max-w-md">
           {/* Logo (Mobile Only) */}
           <div className="lg:hidden flex justify-center mb-12">
-            <div className="w-12 h-12 rounded-xl bg-sky-600 flex items-center justify-center shadow-lg shadow-sky-300/70">
+            <div className="w-12 h-12 rounded-lg bg-sky-600 flex items-center justify-center shadow-md">
               <BookOpen className="w-7 h-7 text-white" />
             </div>
           </div>
@@ -139,7 +130,7 @@ export default function LoginView() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
             whileHover={{ y: -2 }}
-            className="relative z-10 rounded-3xl bg-white/88 backdrop-blur-xl border border-sky-200 shadow-[0_20px_60px_-25px_rgba(2,132,199,0.38)] px-6 py-7 sm:px-8"
+            className="relative z-10 rounded-xl bg-white border border-sky-100 shadow-lg px-6 py-7 sm:px-8"
           >
             <div className="mb-10">
               <h2 className="text-3xl font-bold text-slate-900 tracking-tight mb-3">
@@ -170,7 +161,7 @@ export default function LoginView() {
               <button
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="group relative w-full flex justify-center items-center gap-3 py-4 px-4 border border-sky-200 rounded-2xl shadow-sm bg-white text-base font-semibold text-slate-700 hover:bg-sky-50/70 hover:border-sky-300 focus:outline-none focus:ring-4 focus:ring-sky-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden active:scale-[0.98]"
+                className="group relative w-full flex justify-center items-center gap-3 py-3.5 px-4 border border-slate-200 rounded-lg shadow-sm bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
               >
                 {isLoading ? (
                   <Loader2 className="w-6 h-6 animate-spin text-sky-600" />
@@ -200,7 +191,7 @@ export default function LoginView() {
                 )}
               </button>
 
-              <div className="rounded-2xl border border-sky-200 bg-sky-100/45 p-4 space-y-3">
+              <div className="rounded-lg border border-sky-200 bg-sky-50 p-4 space-y-3">
                 <p className="text-sm font-medium text-slate-700">Or sign in with app account</p>
                 <input
                   type="email"

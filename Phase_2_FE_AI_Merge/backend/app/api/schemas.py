@@ -165,6 +165,14 @@ class InferenceProbeResponse(BaseModel):
 class ChatStreamRequest(BaseModel):
     query: str = Field(..., min_length=1, description="Natural language user message.")
     top_k: int = Field(8, ge=1, le=30, description="Default retrieval breadth for inline tools.")
+    session_id: str = Field(
+        "",
+        description=(
+            "Chat session ID for AgentCore memory continuity. "
+            "Auto-generated server-side if empty. "
+            "Regenerate on the client to start a fresh memory session (e.g. after Clear Chat)."
+        ),
+    )
 
 
 class QuizResultCreateRequest(BaseModel):

@@ -158,7 +158,9 @@ def _get_text_embedder(model_name: str):
         cached = _TEXT_EMBEDDER_CACHE.get(key)
         if cached is not None:
             return cached
-        model = SentenceTransformer(key)
+        # Always load on CPU: GPU is reserved for ColQwen/Docling/Whisper on SageMaker.
+        # all-MiniLM-L6-v2 is fast enough on CPU for the chunk sizes used here.
+        model = SentenceTransformer(key, device="cpu")
         _TEXT_EMBEDDER_CACHE[key] = model
         return model
 
@@ -243,6 +245,7 @@ class IndexingService:
         force: bool = False,
         selected_paths: Sequence[str] | None = None,
         selected_names: Sequence[str] | None = None,
+        _skip_s3_sync: bool = False,
     ) -> Dict[str, Any]:
         if not is_s3_storage_backend():
             self._paths.retrieval_dir.mkdir(parents=True, exist_ok=True)
@@ -252,7 +255,8 @@ class IndexingService:
                 "error": f"RAG-ready dir missing: {self._paths.rag_ready_dir}. Run /api/process first.",
             }
 
-        self._sync_selected_stage4_docs_from_s3(selected_paths=selected_paths, selected_names=selected_names)
+        if not _skip_s3_sync:
+            self._sync_selected_stage4_docs_from_s3(selected_paths=selected_paths, selected_names=selected_names)
 
         documents = load_documents_for_indexing(self._paths.rag_ready_dir, self.cfg)
         if not documents:
@@ -342,6 +346,7 @@ class IndexingService:
         force: bool = False,
         selected_paths: Sequence[str] | None = None,
         selected_names: Sequence[str] | None = None,
+        _skip_s3_sync: bool = False,
     ) -> Dict[str, Any]:
         try:
             from pdf2image import convert_from_path
@@ -351,7 +356,8 @@ class IndexingService:
         if not self._paths.rag_ready_dir.exists():
             return {"status": "failed", "error": f"RAG-ready dir missing: {self._paths.rag_ready_dir}"}
 
-        self._sync_selected_stage4_docs_from_s3(selected_paths=selected_paths, selected_names=selected_names)
+        if not _skip_s3_sync:
+            self._sync_selected_stage4_docs_from_s3(selected_paths=selected_paths, selected_names=selected_names)
 
         cq = (self.cfg.get("image_retrieval", {}) or {}).get("colqwen", {}) or {}
         dpi = int(cq.get("pdf_dpi", 150))
@@ -502,15 +508,59 @@ class IndexingService:
         selected_names: Sequence[str] | None = None,
         mode: str = "standard",
     ) -> Dict[str, Any]:
-        text_res = self.index_text(force=force, selected_paths=selected_paths, selected_names=selected_names)
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        # Sync S3 stage4 artifacts once before spawning threads to avoid
+        # concurrent writes to rag_ready_dir.
+        self._sync_selected_stage4_docs_from_s3(
+            selected_paths=selected_paths, selected_names=selected_names
+        )
+
         if mode == "fast":
-            img_res = {
-                "status": "skipped_fast_mode",
-                "message": "Fast indexing mode runs text index only.",
-                "pages": 0,
+            text_res = self.index_text(
+                force=force,
+                selected_paths=selected_paths,
+                selected_names=selected_names,
+                _skip_s3_sync=True,
+            )
+            return {
+                "text": text_res,
+                "image": {
+                    "status": "skipped_fast_mode",
+                    "message": "Fast indexing mode runs text index only.",
+                    "pages": 0,
+                },
             }
-        else:
-            img_res = self.index_images(force=force, selected_paths=selected_paths, selected_names=selected_names)
+
+        # Standard mode: run text and image indexing in parallel.
+        text_res: Dict[str, Any] = {}
+        img_res: Dict[str, Any] = {}
+
+        def _run_text() -> Dict[str, Any]:
+            return self.index_text(
+                force=force,
+                selected_paths=selected_paths,
+                selected_names=selected_names,
+                _skip_s3_sync=True,
+            )
+
+        def _run_images() -> Dict[str, Any]:
+            return self.index_images(
+                force=force,
+                selected_paths=selected_paths,
+                selected_names=selected_names,
+                _skip_s3_sync=True,
+            )
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            fut_text = pool.submit(_run_text)
+            fut_imgs = pool.submit(_run_images)
+            for fut in as_completed([fut_text, fut_imgs]):
+                if fut is fut_text:
+                    text_res = fut.result()
+                else:
+                    img_res = fut.result()
+
         return {"text": text_res, "image": img_res}
 
     def remove_from_index(

@@ -68,7 +68,7 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
   return (
     <div className="space-y-6">
       {/* Stage Progress Visualization */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-sky-100 p-6">
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-slate-800">Processing Pipeline</h3>
           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
@@ -115,8 +115,8 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
               key={filter.id}
               onClick={() => setProcessedFilter(filter.id)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${processedFilter === filter.id
-                  ? 'bg-sky-500 text-white shadow-lg shadow-sky-200/50'
-                  : 'bg-white/60 text-slate-600 border border-sky-100 hover:bg-sky-50'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-white text-slate-600 border border-sky-100 hover:bg-sky-50'
                 }`}
             >
               {filter.label} ({filter.count})
@@ -137,7 +137,7 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
                     key={file.id}
                     onClick={() => setSelectedDocId(file.id)}
                     className={`w-full text-left p-4 rounded-xl border transition-all ${isActive
-                        ? 'border-sky-400 bg-sky-50 ring-2 ring-sky-300/60 shadow-md'
+                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-300 shadow-sm'
                         : 'border-slate-200 bg-white hover:border-sky-200 hover:shadow-sm'
                       }`}
                   >
@@ -167,7 +167,7 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
             {/* Document Details - Right Side */}
             <div className="lg:col-span-8 min-h-[320px]">
               {selectedFile ? (
-                <div className="space-y-5 bg-white/50 p-6 rounded-xl border border-slate-100">
+                <div className="space-y-5 bg-white p-6 rounded-lg border border-slate-200">
                   <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
                     <h4 className="text-lg font-bold text-slate-800 truncate">{selectedFile.name}</h4>
                     <span className="text-sm text-slate-500 shrink-0">{selectedFile.type.toUpperCase()}</span>
