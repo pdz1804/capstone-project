@@ -20,7 +20,7 @@ def get_quiz_results_service() -> QuizResultsService | None:
 
 
 @router.get("/quiz-results", response_model=QuizResultsListResponse)
-async def list_quiz_results(
+def list_quiz_results(
     limit: int = Query(200, ge=1, le=1000),
     user_id: str = Depends(storage_user_id),
     svc: QuizResultsService | None = Depends(get_quiz_results_service),
@@ -36,7 +36,7 @@ async def list_quiz_results(
 
 
 @router.post("/quiz-results")
-async def create_quiz_result(
+def create_quiz_result(
     body: QuizResultCreateRequest,
     user_id: str = Depends(storage_user_id),
     svc: QuizResultsService | None = Depends(get_quiz_results_service),

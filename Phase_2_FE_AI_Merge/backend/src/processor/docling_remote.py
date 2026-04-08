@@ -57,10 +57,12 @@ def _endpoint_and_region(runtime_yaml: Dict[str, Any]) -> tuple[str, str]:
     ep = (
         os.getenv("SAGEMAKER_DOCLING_ENDPOINT_NAME", "").strip()
         or (inf.get("sagemaker_docling_endpoint_name") or "").strip()
+        or os.getenv("SAGEMAKER_ENDPOINT_NAME", "").strip()
+        or (inf.get("sagemaker_endpoint_name") or "").strip()
     )
     region = (
         os.getenv("AWS_REGION", "").strip()
-        or (inf.get("aws_region") or "us-east-1").strip()
+        or (inf.get("aws_region") or "us-west-2").strip()
     )
     return ep, region
 
@@ -69,10 +71,12 @@ def invoke_sagemaker_docling(file_path: Path, runtime_yaml: Dict[str, Any]) -> D
     ep, region = _endpoint_and_region(runtime_yaml)
     if not ep:
         raise RuntimeError(
-            "SageMaker Docling is enabled but sagemaker_docling_endpoint_name / "
-            "SAGEMAKER_DOCLING_ENDPOINT_NAME is empty."
+            "SageMaker Docling is enabled but endpoint name is empty. "
+            "Set sagemaker_docling_endpoint_name / SAGEMAKER_DOCLING_ENDPOINT_NAME, "
+            "or provide shared sagemaker_endpoint_name / SAGEMAKER_ENDPOINT_NAME."
         )
     import boto3
+    from botocore.config import Config
 
     raw = file_path.read_bytes()
     payload = {
@@ -80,7 +84,20 @@ def invoke_sagemaker_docling(file_path: Path, runtime_yaml: Dict[str, Any]) -> D
         "filename": file_path.name,
         "content_base64": base64.b64encode(raw).decode("ascii"),
     }
-    rt = boto3.client("sagemaker-runtime", region_name=region)
+    # Large documents can exceed botocore's default read timeout (~60s).
+    # Also disable retries for invoke_endpoint to avoid duplicate non-idempotent
+    # Docling processing when a response arrives late.
+    read_timeout = int(os.getenv("SAGEMAKER_RUNTIME_READ_TIMEOUT_SECONDS", "420"))
+    connect_timeout = int(os.getenv("SAGEMAKER_RUNTIME_CONNECT_TIMEOUT_SECONDS", "10"))
+    rt = boto3.client(
+        "sagemaker-runtime",
+        region_name=region,
+        config=Config(
+            read_timeout=read_timeout,
+            connect_timeout=connect_timeout,
+            retries={"max_attempts": 0},
+        ),
+    )
     resp = rt.invoke_endpoint(
         EndpointName=ep,
         ContentType="application/json",

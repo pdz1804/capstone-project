@@ -1,0 +1,44 @@
+# Unified endpoint dependencies (aligned with backend local stack + PDZ_002 Docker base)
+# torch/torchvision are installed in Dockerfile with cu126 wheels.
+
+# API / runtime
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+pydantic>=2.0.0
+boto3>=1.34.0
+Pillow>=10.0.0
+pyyaml>=6.0.0
+python-dotenv>=1.0.0
+
+# ColQwen
+transformers==4.57.3
+accelerate>=0.30.0
+colpali-engine==0.3.13
+bitsandbytes>=0.43.0
+
+# Docling
+docling[all]>=2.0.0
+docling-core>=2.0.0
+docling-parse>=2.0.0
+rapidocr-onnxruntime>=1.4.0
+pytesseract>=0.3.10
+easyocr>=1.7.0
+
+# Whisper / media
+openai-whisper>=20240930
+librosa>=0.10.0
+soundfile>=0.12.1
+moviepy>=1.0.3
+opencv-python-headless>=4.10.0.84
+pydub>=0.25.1
+audioread>=3.0.1
+imagehash>=4.3.1
+
+# Utilities
+numpy>=1.24.0
+scipy>=1.11.0
+tqdm>=4.66.0
+loguru>=0.7.0
+psutil>=5.9.0
+pynvml>=11.5.0

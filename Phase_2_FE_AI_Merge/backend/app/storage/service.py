@@ -6,6 +6,7 @@ import logging
 import os
 import json
 import hashlib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from pathlib import Path
@@ -569,18 +570,36 @@ class S3FileStorage(FileStorageService):
     def publish_pipeline_output(self, local_processing_dir: Path) -> None:
         if not local_processing_dir.exists():
             return
-        for f in local_processing_dir.rglob("*"):
-            if not f.is_file():
-                continue
-            rel = f.relative_to(local_processing_dir).as_posix()
+        files = [f for f in local_processing_dir.rglob("*") if f.is_file()]
+        if not files:
+            return
+
+        max_workers_raw = os.getenv("S3_UPLOAD_MAX_WORKERS", "8").strip()
+        try:
+            max_workers = max(1, min(32, int(max_workers_raw)))
+        except ValueError:
+            max_workers = 8
+
+        def _upload_one(file_path: Path) -> None:
+            rel = file_path.relative_to(local_processing_dir).as_posix()
             key = self._key_processing(rel)
-            ct = _guess_content_type(f.name)
+            ct = _guess_content_type(file_path.name)
             if ct:
                 self._client.upload_file(
-                    str(f), self.processed_bucket, key, ExtraArgs={"ContentType": ct}
+                    str(file_path), self.processed_bucket, key, ExtraArgs={"ContentType": ct}
                 )
             else:
-                self._client.upload_file(str(f), self.processed_bucket, key)
+                self._client.upload_file(str(file_path), self.processed_bucket, key)
+
+        if max_workers == 1 or len(files) == 1:
+            for f in files:
+                _upload_one(f)
+            return
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(_upload_one, f) for f in files]
+            for fut in as_completed(futures):
+                fut.result()
 
     def resolve_pdf_path(
         self,

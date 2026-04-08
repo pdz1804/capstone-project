@@ -30,6 +30,7 @@ processing:
   enable_normalization: true
   enable_media_processing: true
   enable_document_processing: true
+  enable_processing_cache: false    # If true, skip unchanged files using .processing_cache.json
   
   # GPU acceleration
   use_gpu: true
@@ -64,12 +65,14 @@ processing:
     # Docling execution: "local" (in-process Docling) or "sagemaker" (see inference.sagemaker_docling_endpoint_name)
     docling_backend: "local"
     enable_ocr: true
-    enable_vlm: true                # Vision Language Model for document understanding
+    enable_vlm: false               # Disable VLM for lower latency (enable when richer image understanding is needed)
     enable_asr: true
     ocr_engine: "rapidocr"          # Options: tesseract, easyocr, rapidocr
     ocr_languages: null             # null=auto, or list like ["en", "vi"]
     vlm_model: "granite_docling"    # Options: granite_docling, custom
     export_markdown: true
+    export_images: false            # Disable image extraction to reduce processing time
+    export_tables: false            # Disable table extraction to reduce processing time
 
 # ============================================================================
 # TEXT RETRIEVAL CONFIGURATION
@@ -271,10 +274,14 @@ qdrant:
 inference:
   use_aws_sagemaker: false            # Prefer env USE_AWS_SAGEMAKER_INFERENCE
   aws_region: "us-west-2"
-  sagemaker_endpoint_name: "phase2-colqwen-rt"
-  # Optional second endpoint for Docling document conversion (Stage 3) — ColQwen/ColPali stays on sagemaker_endpoint_name
+  # Primary endpoint. For single-endpoint mode, all services can share this.
+  sagemaker_endpoint_name: "phase2-multimodal-rt"
+  # Optional dedicated endpoint for Docling. If empty, backend falls back to sagemaker_endpoint_name.
   use_aws_sagemaker_docling: false    # Prefer env USE_AWS_SAGEMAKER_DOCLING=true
   sagemaker_docling_endpoint_name: ""
+  # Optional dedicated endpoint for Whisper ASR. If empty, backend falls back to sagemaker_endpoint_name.
+  use_aws_sagemaker_whisper: false    # Prefer env USE_AWS_SAGEMAKER_WHISPER=true
+  sagemaker_whisper_endpoint_name: ""
   hybrid_alpha: 0.5                 # weight for dense vs BM25 in hybrid (0..1)
 
 

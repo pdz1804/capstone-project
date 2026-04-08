@@ -1,5 +1,6 @@
 import json
 import logging
+import threading
 from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -14,9 +15,19 @@ from app.services.processing_service import run_processing
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["pipeline"])
 
+_user_pipeline_locks: Dict[str, threading.Lock] = {}
+_user_pipeline_locks_guard = threading.Lock()
+
+
+def _pipeline_lock_for_user(user_id: str) -> threading.Lock:
+    with _user_pipeline_locks_guard:
+        if user_id not in _user_pipeline_locks:
+            _user_pipeline_locks[user_id] = threading.Lock()
+        return _user_pipeline_locks[user_id]
+
 
 @router.get("/processing-stats")
-async def processing_stats(user_id: str = Depends(storage_user_id)) -> Dict[str, Any]:
+def processing_stats(user_id: str = Depends(storage_user_id)) -> Dict[str, Any]:
     p = workspace_paths_for_user(user_id).processing_dir / "pipeline_stats.json"
     if not p.exists():
         return {"error": "No processing stats found"}
@@ -28,37 +39,59 @@ async def processing_stats(user_id: str = Depends(storage_user_id)) -> Dict[str,
 
 
 @router.post("/process")
-async def process(
+def process(
     force: bool = False,
     body: ProcessRequest | None = None,
     user_id: str = Depends(storage_user_id),
 ) -> Dict[str, Any]:
+    lock = _pipeline_lock_for_user(user_id)
+    if not lock.acquire(blocking=False):
+        raise HTTPException(status_code=409, detail="A pipeline process/index job is already running for this user.")
     try:
         selected_paths = body.selected_paths if body else []
         mode = (body.mode if body else "standard") or "standard"
         stats = run_processing(user_id=user_id, force=force, selected_paths=selected_paths, mode=mode)
-        if isinstance(stats, dict) and stats.get("status") == "failed":
-            raise HTTPException(status_code=500, detail=stats.get("error", "Processing failed"))
+        if isinstance(stats, dict):
+            if stats.get("status") == "failed":
+                raise HTTPException(status_code=500, detail=stats.get("error", "Processing failed"))
+            doc_stage = (stats.get("stages") or {}).get("document_processing") or {}
+            if int(doc_stage.get("failed_files", 0) or 0) > 0:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Document processing failed for {doc_stage.get('failed_files')} file(s).",
+                )
         return {"status": "completed", "results": stats}
     except HTTPException:
         raise
     except Exception as e:
         logger.exception("process")
         raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        lock.release()
 
 
 @router.post("/index")
-async def index_all(
+def index_all(
     force: bool = False,
     body: IndexRequest | None = None,
     user_id: str = Depends(storage_user_id),
 ) -> Dict[str, Any]:
+    lock = _pipeline_lock_for_user(user_id)
+    if not lock.acquire(blocking=False):
+        raise HTTPException(status_code=409, detail="A pipeline process/index job is already running for this user.")
     cfg = merged_runtime_settings()
     try:
         svc = IndexingService(cfg, user_id=user_id)
         selected_paths = body.selected_paths if body else []
         selected_names = body.selected_names if body else []
         mode = (body.mode if body else "standard") or "standard"
+        logger.info(
+            "index request user=%s mode=%s selected_paths=%s selected_names=%s",
+            user_id,
+            mode,
+            len(selected_paths),
+            selected_names,
+        )
         out = svc.index_all(force=force, selected_paths=selected_paths, selected_names=selected_names, mode=mode)
         if out.get("text", {}).get("status") == "failed":
             raise HTTPException(status_code=500, detail=out["text"].get("error"))
@@ -79,14 +112,19 @@ async def index_all(
             ) from e
         logger.exception("index")
         raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        lock.release()
 
 
 @router.post("/index/text")
-async def index_text(
+def index_text(
     force: bool = False,
     body: IndexRequest | None = None,
     user_id: str = Depends(storage_user_id),
 ) -> Dict[str, Any]:
+    lock = _pipeline_lock_for_user(user_id)
+    if not lock.acquire(blocking=False):
+        raise HTTPException(status_code=409, detail="A pipeline process/index job is already running for this user.")
     cfg = merged_runtime_settings()
     try:
         selected_paths = body.selected_paths if body else []
@@ -112,13 +150,18 @@ async def index_text(
                 ),
             ) from e
         raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        lock.release()
 
 
 @router.post("/index/remove")
-async def index_remove(
+def index_remove(
     body: RemoveFromIndexRequest,
     user_id: str = Depends(storage_user_id),
 ) -> Dict[str, Any]:
+    lock = _pipeline_lock_for_user(user_id)
+    if not lock.acquire(blocking=False):
+        raise HTTPException(status_code=409, detail="A pipeline process/index job is already running for this user.")
     cfg = merged_runtime_settings()
     try:
         svc = IndexingService(cfg, user_id=user_id)
@@ -145,14 +188,19 @@ async def index_remove(
             ) from e
         logger.exception("index/remove")
         raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        lock.release()
 
 
 @router.post("/index/image")
-async def index_image(
+def index_image(
     force: bool = False,
     body: IndexRequest | None = None,
     user_id: str = Depends(storage_user_id),
 ) -> Dict[str, Any]:
+    lock = _pipeline_lock_for_user(user_id)
+    if not lock.acquire(blocking=False):
+        raise HTTPException(status_code=409, detail="A pipeline process/index job is already running for this user.")
     cfg = merged_runtime_settings()
     try:
         selected_paths = body.selected_paths if body else []
@@ -178,3 +226,5 @@ async def index_image(
                 ),
             ) from e
         raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        lock.release()

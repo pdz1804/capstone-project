@@ -15,8 +15,20 @@ from src.processor.pipeline import DocumentProcessingPipeline, PipelineConfig
 
 def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "standard") -> PipelineConfig:
     """Apply ``processing`` / ``processing.document`` from merged YAML (was ignored before)."""
+    def _as_bool(v: Any, default: bool = False) -> bool:
+        if isinstance(v, str):
+            s = v.strip().lower()
+            if s in ("1", "true", "yes"):
+                return True
+            if s in ("0", "false", "no"):
+                return False
+            return default
+        return bool(v)
+
     proc = runtime.get("processing") or {}
+    media = proc.get("media") or {}
     doc = proc.get("document") or {}
+    inf = runtime.get("inference") or {}
     use_gpu = bool(proc.get("use_gpu", True))
 
     ocr_langs = doc.get("ocr_languages")
@@ -32,18 +44,22 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         ocr_languages=ocr_langs,
         vlm_model=str(doc.get("vlm_model", "smolvlm")),
         export_markdown=bool(doc.get("export_markdown", True)),
-        export_images=bool(doc.get("export_images", True)),
-        export_tables=bool(doc.get("export_tables", True)),
+        export_images=bool(doc.get("export_images", False)),
+        export_tables=bool(doc.get("export_tables", False)),
     )
 
     media_config = MediaProcessorConfig(
         use_gpu=use_gpu,
-        extract_audio=bool(proc.get("enable_media_processing", True)),
-        enable_transcription=True,
-        asr_model=str((proc.get("media") or {}).get("asr_model", "base")),
-        extract_frames=True,
-        frame_interval=int((proc.get("media") or {}).get("frame_interval", 100)),
-        use_word_timestamps=True,
+        extract_audio=_as_bool(proc.get("enable_media_processing", True), default=True),
+        enable_transcription=_as_bool(media.get("enable_transcription", True), default=True),
+        asr_model=str(media.get("asr_model", "base")),
+        asr_language=media.get("asr_language"),
+        extract_frames=_as_bool(media.get("extract_frames", False), default=False),
+        frame_interval=int(media.get("frame_interval", 100)),
+        use_word_timestamps=_as_bool(media.get("use_word_timestamps", True), default=True),
+        use_aws_sagemaker_whisper=_as_bool(inf.get("use_aws_sagemaker_whisper", False), default=False),
+        sagemaker_whisper_endpoint_name=str(inf.get("sagemaker_whisper_endpoint_name", "")),
+        aws_region=str(inf.get("aws_region", "us-west-2")),
     )
 
     if mode == "fast":
@@ -57,8 +73,9 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         media_config.remove_duplicate_frames = False
         media_config.temperature_schedule = (0.0,)
 
+    cache_enabled = _as_bool(proc.get("enable_processing_cache", False), default=False)
     return PipelineConfig(
-        skip_processed=not force,
+        skip_processed=(not force) and cache_enabled,
         runtime_yaml=runtime,
         use_gpu=use_gpu,
         enable_normalization=bool(proc.get("enable_normalization", True)),
@@ -103,5 +120,7 @@ def run_processing(
         config=pc,
     )
     result = pipe.run()
-    storage.publish_pipeline_output(paths.processing_dir)
+    # Cached runs have no new artifacts; avoid redundant S3 upload scan.
+    if not (isinstance(result, dict) and result.get("cached") is True):
+        storage.publish_pipeline_output(paths.processing_dir)
     return result

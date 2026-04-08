@@ -145,7 +145,7 @@ def _compute_pipeline_status(user_id: str) -> Dict[str, Any]:
 
 
 @router.get("/status")
-async def status(
+def status(
     user_id: str = Depends(storage_user_id),
     fresh: bool = Query(
         False,

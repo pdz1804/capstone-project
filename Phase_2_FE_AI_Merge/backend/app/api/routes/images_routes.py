@@ -17,7 +17,7 @@ router = APIRouter(prefix="/api", tags=["images"])
 
 
 @router.get("/image")
-async def get_image(
+def get_image(
     path: str,
     user_id: str = Depends(storage_user_id),
 ):
@@ -48,7 +48,7 @@ async def get_image(
 
 
 @router.get("/pdf-page-image")
-async def pdf_page_image(
+def pdf_page_image(
     pdf_name: str,
     page: int,
     user_id: str = Depends(storage_user_id),

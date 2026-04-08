@@ -184,11 +184,54 @@ class ImageIndexRepository:
         except Exception:
             return 0
 
+    def list_sources(self, user_id: str | None = None, limit: int = 50000) -> set[str]:
+        """
+        Return distinct payload ``source`` values currently present in the image collection.
+        Useful for per-file "indexed_image" status checks without false positives.
+        """
+        out: set[str] = set()
+        try:
+            from qdrant_client.models import FieldCondition, Filter, MatchValue
+
+            flt = None
+            if user_id:
+                flt = Filter(must=[FieldCondition(key="user_id", match=MatchValue(value=user_id))])
+
+            offset = None
+            fetched = 0
+            page_size = min(512, max(32, limit))
+            while fetched < limit:
+                points, offset = self.client.scroll(
+                    collection_name=self.collection_name,
+                    scroll_filter=flt,
+                    with_payload=["source"],
+                    with_vectors=False,
+                    limit=min(page_size, limit - fetched),
+                    offset=offset,
+                )
+                if not points:
+                    break
+                fetched += len(points)
+                for p in points:
+                    payload = p.payload or {}
+                    src = payload.get("source")
+                    if src:
+                        out.add(str(src).strip().lower())
+                if offset is None:
+                    break
+        except Exception:
+            return set()
+        return out
+
     def delete_by_pdf_name(self, pdf_filename: str, user_id: str | None = None) -> int:
         """Remove pages indexed with payload ``source`` == PDF basename (e.g. ``report.pdf``)."""
+        return self.delete_by_source(pdf_filename, user_id=user_id)
+
+    def delete_by_source(self, source_value: str, user_id: str | None = None) -> int:
+        """Remove pages indexed with payload ``source`` == ``source_value`` (exact match)."""
         from qdrant_client.models import FieldCondition, Filter, FilterSelector, MatchValue
 
-        must = [FieldCondition(key="source", match=MatchValue(value=pdf_filename))]
+        must = [FieldCondition(key="source", match=MatchValue(value=source_value))]
         if user_id:
             must.append(FieldCondition(key="user_id", match=MatchValue(value=user_id)))
         flt = Filter(must=must)
