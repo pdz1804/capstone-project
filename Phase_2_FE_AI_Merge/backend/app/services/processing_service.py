@@ -86,6 +86,19 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
     )
 
 
+def _clear_pipeline_stage_dirs(processing_dir: "Path") -> None:
+    """Remove stage1-3 subdirectories so stale normalized/media/docling
+    artifacts from previous runs don't bleed into the current run.
+    Stage 4 (rag_ready) is intentionally kept — it is cumulative and
+    uploaded to S3; it will be rebuilt only for the files being processed."""
+    import shutil as _shutil
+
+    for stage in ("stage1_normalized", "stage2_media_processed", "stage3_document_processed"):
+        d = processing_dir / stage
+        if d.exists():
+            _shutil.rmtree(d, ignore_errors=True)
+
+
 def run_processing(
     user_id: str | None = None,
     force: bool = False,
@@ -107,6 +120,13 @@ def run_processing(
 
     paths = workspace_paths_for_user(user_id)
     storage = get_file_storage(user_id)
+
+    # In S3 mode the local workspace is purely ephemeral. Clear stage1-3 before
+    # each run so stale normalized/docling artifacts from previous runs don't get
+    # re-processed alongside the current selection.
+    if is_s3_storage_backend():
+        _clear_pipeline_stage_dirs(paths.processing_dir)
+
     storage.prepare_pipeline_input(paths.input_dir, selected_paths=selected_paths)
     runtime = merged_runtime_settings(load_yaml_config())
     pc = _build_pipeline_config(runtime, force, mode=mode)

@@ -168,17 +168,19 @@ def _build_colqwen_cfg() -> Dict[str, Any]:
 
 
 def _build_docling_cfg() -> ProcessingConfig:
+    # Defaults aligned with backend default.yaml: VLM, image-export and table-export are
+    # OFF by default for lower latency. Enable explicitly via container env when needed.
     return ProcessingConfig(
         use_gpu=_truthy_env("DOCLING_USE_GPU", default=True),
         enable_ocr=_truthy_env("DOCLING_ENABLE_OCR", default=True),
-        enable_vlm=_truthy_env("DOCLING_ENABLE_VLM", default=True),
+        enable_vlm=_truthy_env("DOCLING_ENABLE_VLM", default=False),
         enable_asr=_truthy_env("DOCLING_ENABLE_ASR", default=True),
         ocr_engine=os.getenv("DOCLING_OCR_ENGINE", "rapidocr"),
         vlm_model=os.getenv("DOCLING_VLM_MODEL", "granite_docling"),
         asr_model=os.getenv("DOCLING_ASR_MODEL", "whisper"),
         export_markdown=True,
-        export_images=_truthy_env("DOCLING_EXPORT_IMAGES", default=True),
-        export_tables=_truthy_env("DOCLING_EXPORT_TABLES", default=True),
+        export_images=_truthy_env("DOCLING_EXPORT_IMAGES", default=False),
+        export_tables=_truthy_env("DOCLING_EXPORT_TABLES", default=False),
         export_metadata=_truthy_env("DOCLING_EXPORT_METADATA", default=True),
     )
 

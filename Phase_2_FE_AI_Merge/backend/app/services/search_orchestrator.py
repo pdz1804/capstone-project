@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from time import perf_counter
 from pathlib import Path
 from typing import Any, Dict, List
@@ -78,27 +79,60 @@ class SearchOrchestrator:
         scope = (search_scope or "both").strip().lower()
         run_generation = (mode or "retrieval_generation").strip().lower() == "retrieval_generation"
 
-        text_rows: List[Dict[str, Any]] = []
-        if scope in ("text", "both"):
-            t_text = perf_counter()
-            text_svc = TextSearchService(self.cfg, user_id=self._user_id)
-            text_rows = text_svc.search(query, retriever_type, top_k, skip_reranker=skip_reranker)
-            step_ms["text_retrieval"] = int((perf_counter() - t_text) * 1000)
-        else:
-            step_ms["text_retrieval"] = 0
-
-        image_rows: List[Dict[str, Any]] = []
+        run_text = scope in ("text", "both")
         can_run_image = scope in ("image", "both") and include_images and _image_enabled(self.cfg)
-        if can_run_image:
-            t_image = perf_counter()
-            try:
-                image_rows = ImageSearchService(self.cfg, user_id=self._user_id).search(query, top_k)
-            except Exception as e:
-                logger.exception("Image search failed: %s", e)
-            finally:
-                step_ms["image_retrieval"] = int((perf_counter() - t_image) * 1000)
+
+        text_rows: List[Dict[str, Any]] = []
+        image_rows: List[Dict[str, Any]] = []
+
+        if run_text and can_run_image:
+            # Both branches active — run them in parallel.
+            def _fetch_text() -> List[Dict[str, Any]]:
+                return TextSearchService(self.cfg, user_id=self._user_id).search(
+                    query, retriever_type, top_k, skip_reranker=skip_reranker
+                )
+
+            def _fetch_images() -> List[Dict[str, Any]]:
+                return ImageSearchService(self.cfg, user_id=self._user_id).search(query, top_k)
+
+            t_parallel = perf_counter()
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                fut_t = pool.submit(_fetch_text)
+                fut_i = pool.submit(_fetch_images)
+                for fut in as_completed([fut_t, fut_i]):
+                    if fut is fut_t:
+                        try:
+                            text_rows = fut.result()
+                        except Exception as e:
+                            logger.exception("Text search failed: %s", e)
+                    else:
+                        try:
+                            image_rows = fut.result()
+                        except Exception as e:
+                            logger.exception("Image search failed: %s", e)
+            elapsed = int((perf_counter() - t_parallel) * 1000)
+            step_ms["text_retrieval"] = elapsed
+            step_ms["image_retrieval"] = elapsed
         else:
-            step_ms["image_retrieval"] = 0
+            if run_text:
+                t_text = perf_counter()
+                text_rows = TextSearchService(self.cfg, user_id=self._user_id).search(
+                    query, retriever_type, top_k, skip_reranker=skip_reranker
+                )
+                step_ms["text_retrieval"] = int((perf_counter() - t_text) * 1000)
+            else:
+                step_ms["text_retrieval"] = 0
+
+            if can_run_image:
+                t_image = perf_counter()
+                try:
+                    image_rows = ImageSearchService(self.cfg, user_id=self._user_id).search(query, top_k)
+                except Exception as e:
+                    logger.exception("Image search failed: %s", e)
+                finally:
+                    step_ms["image_retrieval"] = int((perf_counter() - t_image) * 1000)
+            else:
+                step_ms["image_retrieval"] = 0
 
         result: Dict[str, Any] = {
             "query": query,

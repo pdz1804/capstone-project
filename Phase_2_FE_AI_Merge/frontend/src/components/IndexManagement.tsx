@@ -47,10 +47,10 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
       {/* Index Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Text Index */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-8 hover:shadow-lg hover:border-sky-200 transition-all duration-300">
+        <div className="bg-white rounded-xl shadow-sm border border-sky-100 p-6 hover:shadow-md hover:border-sky-200 transition-all">
           <div className="flex items-center space-x-4 mb-6">
-            <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center">
-              <FileText className="w-6 h-6 text-sky-600" />
+            <div className="w-10 h-10 bg-sky-100 rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 text-sky-600" />
             </div>
             <div>
               <h3 className="font-semibold text-slate-800">Text Index</h3>
@@ -60,11 +60,11 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
           {stats?.text_index ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-sky-50 rounded-xl border border-sky-100">
+                <div className="p-4 bg-sky-50 rounded-lg border border-sky-100">
                   <div className="text-sm text-sky-600 font-medium mb-1">Chunks</div>
                   <p className="text-3xl font-bold text-sky-700">{stats.text_index.chunks || 0}</p>
                 </div>
-                <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
                   <div className="text-sm text-blue-600 font-medium mb-1">Documents</div>
                   <p className="text-3xl font-bold text-blue-700">{stats.text_index.docs || 0}</p>
                 </div>
@@ -86,10 +86,10 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
         </div>
 
         {/* Image Index */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-8 hover:shadow-lg hover:border-sky-200 transition-all duration-300">
+        <div className="bg-white rounded-xl shadow-sm border border-sky-100 p-6 hover:shadow-md hover:border-sky-200 transition-all">
           <div className="flex items-center space-x-4 mb-6">
-            <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center">
-              <Image className="w-6 h-6 text-sky-600" />
+            <div className="w-10 h-10 bg-sky-100 rounded-lg flex items-center justify-center">
+              <Image className="w-5 h-5 text-sky-600" />
             </div>
             <div>
               <h3 className="font-semibold text-slate-800">Image Index</h3>
@@ -99,11 +99,11 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
           {stats?.image_index ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-sky-50 rounded-xl border border-sky-100">
+                <div className="p-4 bg-sky-50 rounded-lg border border-sky-100">
                   <div className="text-sm text-sky-600 font-medium mb-1">Pages</div>
                   <p className="text-3xl font-bold text-sky-700">{stats.image_index.pages || 0}</p>
                 </div>
-                <div className="p-4 bg-purple-50 rounded-xl border border-purple-100">
+                <div className="p-4 bg-purple-50 rounded-lg border border-purple-100">
                   <div className="text-sm text-purple-600 font-medium mb-1">Vector DB</div>
                   <p className="text-lg font-bold text-purple-700 leading-tight">
                     {stats.image_index.vector_store || 'qdrant'}
@@ -129,7 +129,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
       </div>
 
       {/* Index Management Buttons */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-100 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-slate-800 flex items-center space-x-3">
             <Database className="w-5 h-5 text-sky-500" />
@@ -139,7 +139,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
 
         <div className="space-y-4">
           {/* Rebuild Section */}
-          <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
+          <div className="bg-sky-50 rounded-lg p-4 border border-sky-100">
             <h4 className="font-medium text-slate-800 mb-3 flex items-center space-x-2">
               <RefreshCw className="w-4 h-4 text-sky-600" />
               <span>Rebuild Indexes</span>
@@ -178,7 +178,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
           </div>
 
           {/* Delete Section */}
-          <div className="bg-red-50 rounded-xl p-4 border border-red-100">
+          <div className="bg-red-50 rounded-lg p-4 border border-red-100">
             <h4 className="font-medium text-slate-800 mb-3 flex items-center space-x-2">
               <Trash2 className="w-4 h-4 text-red-600" />
               <span>Clear Indexes</span>
@@ -207,7 +207,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
           </div>
 
           {/* Info Section */}
-          <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+          <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
             <p className="text-sm text-slate-600">
               <span className="font-semibold">Rebuild Text Index:</span> Re-processes documents → chunks → text embeddings (BM25 + Qdrant dense)
             </p>
@@ -223,7 +223,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
 
       {confirmType && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-2xl p-6">
+          <div className="w-full max-w-md bg-white rounded-xl border border-slate-200 shadow-xl p-6">
             <h4 className="text-lg font-semibold text-slate-900">
               {confirmType === 'text' ? 'Clear text index?' : 'Clear image index?'}
             </h4>
