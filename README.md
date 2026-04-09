@@ -7,57 +7,132 @@
 
 ## 🎯 Project Overview
 
-This capstone project develops an end-to-end system for processing, indexing, and querying educational content from university lectures. The system combines state-of-the-art techniques in speech recognition, optical character recognition, information retrieval, and language models to enable intelligent question-answering over lecture materials.
+This capstone builds an **educational content processing and Retrieval-Augmented Generation (RAG)** system: ingest multimodal lecture materials, align and structure them, index them for **text and visual** retrieval, and support **question answering with citations**, **lecture-aware summaries**, and **personalized learning** features behind a **modern web UI** and **production-style deployment** options.
 
-The project is organized into weekly development sprints, each focusing on specific components of the pipeline:
+The authoritative requirements baseline is **[`docs/requirements.md`](docs/requirements.md)** (Software Requirements Specification): **37** requirements in total—**22** functional (FR-001–FR-022 and extended FRs in that doc), **8** non-functional (NFR-001–NFR-008), and **7** technical (TR-001–TR-007). Highlights from the SRS scope:
 
-- **Document Acquisition**: Automated research paper downloading with intelligent metadata extraction
-- **Multimodal Processing**: Speech-to-text transcription and slide text extraction from lectures
-- **Information Retrieval**: Comparative evaluation of sparse, dense, and hybrid retrieval methods
-- **RAG Systems**: Implementation and benchmarking of multiple RAG frameworks
-- **Advanced Processing**: Docling-based multimodal document understanding for complex layouts
+- **Content processing**: ASR and timed exports (**FR-001**); documents, OCR, dual outputs (**FR-002**); spreadsheet merged cells and Markdown (**FR-003**, **FR-004**); images / VLM (**FR-005**); deduplication (**FR-006**); audio–slide alignment and temporal navigation (**FR-007**, **FR-008**).
+- **Retrieval & QA**: BM25, dense, hybrid (**FR-009**); vision–language retrieval (**FR-010**); query handling (**FR-011**); grounded answers (**FR-012**, **FR-013**); chat decomposition, strategy, and multi-search aggregation (**FR-014**).
+- **Product features**: file management and search UI (**FR-021**, **FR-022**); automated summaries and summary navigation (**FR-023**, **FR-024**); learning paths, assessment, and analytics (**FR-025–FR-027**).
+- **Non-functional**: latency and scale targets (**NFR-001–NFR-002**); availability, integrity, UX, accessibility, security, and privacy (**NFR-003–NFR-008**).
+- **Technical**: FastAPI + async APIs, React 18 + Vite + Tailwind, vector and metadata stores, external LLM/embedding services, Docker, and **cloud-ready** infrastructure (**TR-001–TR-007**).
+
+Research-week folders (`Week03*`, `Week05*`, `Week07*`) and **`Phase_2`** deliverables map to these requirements incrementally; **`Phase_2_FE_AI_Merge`** is the **integrated** app (Firebase UI, Qdrant/S3, optional **SageMaker**, **Terraform** for ECS/ALB/ECR).
 
 ---
 
 ## 🏗️ System Architecture
 
+The following view aligns the implementation shape with the SRS: multimodal **ingest → process → index → retrieve → generate**, plus **auth**, **persistence**, and optional **AWS** hosting.
+
+```mermaid
+flowchart TB
+  subgraph users [Users]
+    Learner[Learner / Instructor]
+  end
+
+  subgraph presentation [Presentation layer TR-002]
+    WebUI["React + Vite + Tailwind (FR-021/022)"]
+    Auth["Auth: Firebase / session (NFR-007)"]
+  end
+
+  subgraph api [API layer TR-001]
+    GW["FastAPI: REST, jobs, health"]
+  end
+
+  subgraph processing [Content processing FR-001 to FR-008]
+    Ingest["Ingest: media, PDFs, Office (FR-021)"]
+    Norm["Normalize, dedupe (FR-006)"]
+    ASR["ASR + timed exports (FR-001)"]
+    Doc["Layout, OCR, optional VLM (FR-002/005)"]
+    Sheet["Spreadsheets to MD (FR-003/004)"]
+    AVAlign["Audio–slide sync (FR-007/008)"]
+    Corpus["Corpus: MD + PDF refs"]
+  end
+
+  subgraph indexing [Indexing TR-003]
+    TextChunk["Text chunks + metadata"]
+    ImgChunk["Image pages for VL retrieval"]
+    Vec["Vector DB e.g. Qdrant"]
+    Sparse["Sparse e.g. BM25"]
+    Obj["Blobs: S3 or local (TR-004)"]
+  end
+
+  subgraph retrieval [Retrieval FR-009 to FR-011]
+    QProc["Query understanding"]
+    TRet["BM25 / dense / hybrid"]
+    VRet["Visual retrieval (FR-010)"]
+    Fuse["Fusion + ranking"]
+  end
+
+  subgraph compute_optional [Optional GPU TR-007]
+    SM["SageMaker: Docling, Whisper, ColQwen"]
+  end
+
+  subgraph generation [QA and learning FR-012 to FR-027]
+    RAG["Answers + citations (FR-012/013)"]
+    Chat["Chat orchestration (FR-014)"]
+    Sum["Summaries + nav (FR-023/024)"]
+    Learn["Paths, quiz, dashboard (FR-025-027)"]
+    LLM["LLMs / APIs (TR-004)"]
+  end
+
+  subgraph nfr [Ops NFR / TR-006–007]
+    Docker["Containers + health (TR-006)"]
+    AWS["AWS: ECS, ALB, ECR, ACM, SM"]
+    Obs["Logs + monitoring (NFR-003)"]
+  end
+
+  Learner --> WebUI
+  WebUI --> Auth
+  WebUI --> GW
+  Auth --> GW
+  GW --> Ingest
+  Ingest --> Norm
+  Norm --> ASR
+  Norm --> Doc
+  Norm --> Sheet
+  ASR --> AVAlign
+  Doc --> AVAlign
+  Sheet --> Corpus
+  AVAlign --> Corpus
+  Corpus --> TextChunk
+  Corpus --> ImgChunk
+  TextChunk --> Vec
+  TextChunk --> Sparse
+  ImgChunk --> Vec
+  Corpus --> Obj
+  GW --> QProc
+  QProc --> TRet
+  QProc --> VRet
+  TRet --> Fuse
+  VRet --> Fuse
+  Doc -. optional remote .-> SM
+  ASR -. optional remote .-> SM
+  VRet -. optional remote .-> SM
+  Fuse --> RAG
+  RAG --> LLM
+  Chat --> QProc
+  Chat --> RAG
+  RAG --> Sum
+  RAG --> Learn
+  GW --> Obs
+  GW --> Docker
+  GW --> AWS
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Input Sources                             │
-│  • Lecture Videos  • Slides/PDFs  • Research Papers         │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-         ┌───────────┴───────────┐
-         │                       │
-    ┌────▼────┐           ┌─────▼──────┐
-    │   ASR   │           │    OCR     │
-    │ (Audio) │           │  (Visual)  │
-    └────┬────┘           └─────┬──────┘
-         │                      │
-         └──────────┬───────────┘
-                    │
-            ┌───────▼────────┐
-            │   Text Corpus  │
-            └───────┬────────┘
-                    │
-         ┌──────────┴──────────┐
-         │                     │
-    ┌────▼─────┐        ┌─────▼──────┐
-    │ Retrieval│        │  Indexing  │
-    │ Systems  │        │  Pipeline  │
-    └────┬─────┘        └─────┬──────┘
-         │                    │
-         └──────────┬─────────┘
-                    │
-            ┌───────▼────────┐
-            │   RAG System   │
-            │  (LLM + RAG)   │
-            └───────┬────────┘
-                    │
-            ┌───────▼────────┐
-            │   Q&A Output   │
-            └────────────────┘
-```
+
+**Layer summary**
+
+| Layer | Role | SRS touchpoints |
+|--------|------|------------------|
+| Client | Uploads, search, summaries, dashboards, auth | FR-021–FR-022, FR-023–FR-027, NFR-005–NFR-008 |
+| API | Orchestration, RBAC hooks, integration | TR-001, NFR-003–NFR-004 |
+| Processing | ASR, OCR/VLM, spreadsheets, sync, corpus | FR-001–FR-008 |
+| Storage | Vectors, sparse index, blobs, metadata | TR-003, TR-004, NFR-004 |
+| Retrieval & generation | Hybrid + visual search, RAG, chat, LLM | FR-009–FR-014, TR-004 |
+| Deployment | Containers, cloud LB TLS, optional managed GPU | TR-006–TR-007, NFR-002–NFR-003 |
+
+For HTTPS and custom domains on AWS, see [`docs/deployment-alb-acm-custom-domain.md`](docs/deployment-alb-acm-custom-domain.md).
 
 ---
 
@@ -281,147 +356,100 @@ Modern web interface for the RAG pipeline with real-time interaction.
 - React Markdown with math support (KaTeX)
 - TailwindCSS for styling
 
+#### **Merged stack: FE + AI + AWS (`Phase_2_FE_AI_Merge/`)**
+
+Single tree that combines the production-style **FastAPI** backend (Qdrant, S3, optional SageMaker inference), the **React + Firebase** frontend from the FE track, **SageMaker** hosting packs (unified Docling + Whisper + ColQwen container and optional split endpoints), and **Terraform** for AWS: **ECR**, **ECS Fargate**, **Application Load Balancer** with optional **HTTPS** (ACM), auto scaling, and an optional **SageMaker endpoint** aligned with `sagemaker/unified`.
+
+| Area | Path | Documentation |
+|------|------|----------------|
+| Folder overview | `Phase_2_FE_AI_Merge/` | [`Phase_2_FE_AI_Merge/README.md`](Phase_2_FE_AI_Merge/README.md) |
+| Integration log | `Phase_2_FE_AI_Merge/MERGE_SUMMARY.md` | Merge checklist and features |
+| Terraform (ALB, ECS, ECR, SageMaker) | `Phase_2_FE_AI_Merge/terraform/` | [`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md) |
+| SageMaker build / deploy | `Phase_2_FE_AI_Merge/sagemaker/` | [`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md) |
+| HTTPS + custom domain runbook | `docs/deployment-alb-acm-custom-domain.md` | ACM validation, DNS, ALB listeners |
+
+Use **`Phase_2_FE_AI_Merge`** when you want the Firebase UI, cloud-ready backend, and reproducible AWS infra in one place; use **`Phase_2`** for the earlier split of `backend/` and `frontend/` only.
+
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
+Prerequisites follow **[`docs/requirements.md`](docs/requirements.md)** (TR-001–TR-005, NFR-005–NFR-006): **Python 3.9+**, **FastAPI** backend; **React 18+**, **Vite**, **Tailwind** frontend; **FFmpeg**, **Tesseract**, **Poppler** for media; **GPU** optional locally if you offload heavy inference to APIs or **SageMaker** ([`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)). **Docker** and **Terraform** are for packaging and cloud layout (TR-006–TR-007).
 
-- **Python**: 3.9+ (tested on 3.9, 3.10, 3.11)
-- **Node.js**: 16+ (for frontend)
-- **GPU**: CUDA-compatible (recommended for ASR/Dense retrieval)
-- **System Tools**:
-  - FFmpeg (audio/video processing)
-  - Tesseract OCR (slide text extraction)
-  - Poppler (PDF conversion)
+**Shell:** All commands below are **Windows PowerShell** (5.1 or 7+). From another shell, translate `Set-Location`/`Copy-Item`/`.\venv\Scripts\Activate.ps1` as needed. If script activation is blocked, run once: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` (or start Python via `.\venv\Scripts\python.exe` without activating).
 
-### Installation
+### Clone and base setup
 
-```bash
-# Clone repository
+```powershell
 git clone https://github.com/pdz1804/capstone-project.git
-cd capstone-project
-
-# Set up virtual environment
+Set-Location capstone-project
 python -m venv venv
-source venv/bin/activate  # Windows: .\venv\Scripts\activate
-
-# Install dependencies (example: Week0304 RAG Pipeline)
-cd Week0304_QPhu_RAG_Pipeline
-pip install -r requirements.txt
+.\venv\Scripts\Activate.ps1
 ```
 
-### Running Components
+### Recommended: merged app (`Phase_2_FE_AI_Merge/`)
 
-#### **Phase 1: Individual Components**
+Full UI (Firebase), Qdrant/S3-aware API, tests, **Terraform** and **SageMaker** docs—see [**`Phase_2_FE_AI_Merge/README.md`**](Phase_2_FE_AI_Merge/README.md).
 
-```bash
-# ASR/OCR Processing
-cd Week0506_Mkhoi_OCR_ASR/src
-python main.py asr --output-dir results/asr data/videos/*.mp4
+```powershell
+# Backend (see Phase_2_FE_AI_Merge/backend/README.md for uvicorn/install scripts)
+Set-Location Phase_2_FE_AI_Merge\backend
+pip install -r requirements.txt
+Copy-Item .env.example .env
+# Edit .env: keys, Qdrant, S3, SageMaker flags
 
-# Retrieval Evaluation
-cd Week0304_NKhoi_Retrieval
+# Frontend — new PowerShell window at the repository root, then:
+Set-Location Phase_2_FE_AI_Merge\frontend
+npm install
+Copy-Item .env.example .env
+npm run dev
+```
+
+**URLs (typical):** UI `http://localhost:5173` (or Vite default), API `http://localhost:8000`, docs `http://localhost:8000/docs`. Run the API with the command in `backend/README.md` (e.g. `uvicorn` on `app.main:app`).
+
+**Terraform (local validation only—no apply):**
+
+```powershell
+Set-Location Phase_2_FE_AI_Merge\terraform
+terraform init -backend=false
+terraform fmt -recursive
+terraform validate
+```
+
+### Classic Phase 2 tree (`Phase_2/`)
+
+```powershell
+# Terminal 1 — API (from repository root)
+Set-Location Phase_2\backend
+pip install -r requirements.txt
+Copy-Item .env.example .env
+Set-Location api
+python main.py
+
+# Terminal 2 — UI (from repository root)
+Set-Location Phase_2\frontend
+npm install
+npm run dev
+```
+
+### Research and pipeline folders (optional)
+
+```powershell
+Set-Location Week0506_Mkhoi_OCR_ASR\src
+python main.py asr --output-dir results\asr @(Get-ChildItem -Path "data\videos\*.mp4" | ForEach-Object { $_.FullName })
+
+Set-Location ..\..\Week0304_NKhoi_Retrieval
 jupyter notebook manual_bm25_dense_hybrid.ipynb
 
-# RAG Pipeline
-cd Week0304_QPhu_RAG_Pipeline
+Set-Location ..\Week0304_QPhu_RAG_Pipeline
 python setup_and_run.py
 
-# Production Document Processing (Week 07-09)
-cd Week070809_QPhu_Processor
-python src/pipeline.py input/ output/              # Full quality (VLM enabled)
-python src/pipeline.py input/ output/ --fast-mode  # Fast mode (3-5x faster)
+Set-Location ..\Week070809_QPhu_Processor
+python src\pipeline.py input\ output\
+# Optional: add --fast-mode where that script supports it
 ```
 
-#### **Phase 2: Production RAG System with Web UI**
-
-**Backend Setup:**
-
-```bash
-# Navigate to backend
-cd Phase_2/backend
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Set up environment
-cp .env.example .env
-# Edit .env and add: OPENAI_API_KEY="your-key-here"
-
-# Run FastAPI server
-cd api
-python main.py
-# Server runs at http://localhost:8000
-# API docs at http://localhost:8000/docs
-```
-
-**Frontend Setup:**
-
-```bash
-# Navigate to frontend (in a new terminal)
-cd Phase_2/frontend
-
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-# Frontend runs at http://localhost:5173
-```
-
-**Access the Application:**
-
-- Web UI: http://localhost:5173
-- API Documentation: http://localhost:8000/docs
-- API Endpoint: http://localhost:8000/api
-
-**Usage:**
-
-1. Upload documents via drag-and-drop or file picker
-2. Click "Process Documents" to run the pipeline
-3. Click "Build Index" to create retrieval indexes
-4. Enter queries in the search box for multimodal RAG responses
-
----
-
-## 📊 Key Results & Benchmarks
-
-### ASR Performance (Week 05-06)
-
-- **Whisper Large-v3**: Best accuracy for Vietnamese (WER: ~8%)
-- **Gemini 2.5 Flash**: Fastest API inference (<2s per minute of audio)
-- **Chunking Strategy**: 30-second chunks with 1-second overlap
-
-### Retrieval Performance (Week 03-04)
-
-| Method                     | nDCG@10          | Recall@10        | Inference Time (1000 queries) |
-| -------------------------- | ---------------- | ---------------- | ----------------------------- |
-| BM25 (manual)              | 0.0663           | 0.1133           | 44 minutes                    |
-| Dense (SBERT)              | **0.2411** | **0.3557** | 6 seconds                     |
-| Milvus (Week 05-06)        | 0.2411           | 0.3557           | **<1 second**           |
-| Pyserini BM25 (Week 05-06) | ~0.10            | ~0.18            | **~10 seconds**         |
-
-### RAG Framework Comparison (Week 03-04)
-
-- **LangChain**: Best for rapid prototyping, extensive ecosystem
-- **LlamaIndex**: Superior data ingestion, Python-native
-- **Manual**: Full control, minimal dependencies, optimal for research
-
-### Document Processing Performance (Week 07-09)
-
-| Mode                | VLM Enabled | Images/Tables Export | Relative Speed | Quality |
-| ------------------- | ----------- | -------------------- | -------------- | ------- |
-| Full (default)      | ✅ Yes      | ✅ Yes               | 1× (baseline) | Highest |
-| Balanced (--no-vlm) | ❌ No       | ✅ Yes               | ~2× faster    | High    |
-| Fast (--fast-mode)  | ❌ No       | ❌ No                | 3-5× faster   | Good    |
-
-**Pipeline Features**:
-
-- **Smart Caching**: Instant skip for already-processed files (100% speedup)
-- **Format Support**: 15+ formats including DOCX, PPTX, HTML, Images, Video, Audio
-- **Dual RAG Output**: Normalized PDFs (image retrieval) + Markdown (text search)
-- **Windows-Safe**: Automatic filename truncation for 260-char path limit
+Use `Set-Location <repoRoot>` first if you are not already at the repository root (replace `<repoRoot>` with your clone path, e.g. `D:\PDZ\BKU\Learning\LVTN\GD1\Code`).
 
 ---
 
@@ -447,21 +475,27 @@ npm run dev
 
 ## 📚 Documentation
 
-Each weekly component includes detailed READMEs with:
+**Authoritative specification**
 
-- Technical specifications and architecture
-- Installation and setup instructions
-- Usage examples and CLI documentation
-- Performance benchmarks and evaluation metrics
-- Troubleshooting guides and FAQs
+- **[`docs/requirements.md`](docs/requirements.md)** — Software Requirements Specification: functional (content, retrieval, QA/UI, summaries, personalization), non-functional (performance, scale, reliability, UX, security, privacy), technical (FastAPI, React/Vite/Tailwind, stores, integrations, Docker, cloud), constraints, and verification criteria.
 
-**Specialized Documentation**:
+**Architecture and deployment**
 
-- `DETAILED_PIPELINE_FLOWS.md` (Week0304 RAG): In-depth RAG architecture
-- `model comparison.md` (Week0506 ASR/OCR): Multi-model benchmarking
-- `asr rank.md`, `ocr rank.md`: Model-specific evaluations
-- `README.md` (Week070809 Processor): Complete pipeline documentation with CLI reference
-- `docs/ARCHITECTURE.md` (Week070809): Stage-by-stage processing flow diagrams
+- **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — Processor-oriented architecture and stage flows (aligned with Week 07–09 lineage).
+- **[`docs/deployment-alb-acm-custom-domain.md`](docs/deployment-alb-acm-custom-domain.md)** — ACM certificates, DNS validation, ALB HTTP→HTTPS, custom domains.
+
+**Merged production application (`Phase_2_FE_AI_Merge/`)**
+
+- **[`Phase_2_FE_AI_Merge/README.md`](Phase_2_FE_AI_Merge/README.md)** — Top-level map: frontend, backend, SageMaker pack, Terraform; local quick paths.
+- **[`Phase_2_FE_AI_Merge/MERGE_SUMMARY.md`](Phase_2_FE_AI_Merge/MERGE_SUMMARY.md)** — What was integrated from FE and AI service tracks.
+- **[`Phase_2_FE_AI_Merge/backend/README.md`](Phase_2_FE_AI_Merge/backend/README.md)** — FastAPI layout, Qdrant/BM25/hybrid/image retrieval, S3 vs local storage.
+- **[`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md)** — AWS resources (ECR, ECS, ALB, optional HTTPS, optional SageMaker) and safe Terraform checks.
+- **[`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)** — Unified container, ECR push, deploy/delete scripts, backend environment variables.
+
+**Research milestones and utilities**
+
+- READMEs inside **`Week0304_*`**, **`Week0506_*`**, **`Week070809_QPhu_Processor/`**, **`Phase_2/`**, and **`downloads/`** (datasets and paper references).
+- **`DETAILED_PIPELINE_FLOWS.md`**, **`Week0506_*/`** comparison markdowns, and other week-specific notes where present.
 
 ---
 
@@ -497,17 +531,27 @@ Copyright (c) 2025 Quang Phu, Ngoc Khoi, and Minh Khoi
 
 ## 🙏 Acknowledgments
 
-- **OpenAI**: Whisper ASR models
-- **Google**: Gemini API, BERT embeddings
-- **Hugging Face**: Transformers library, model hosting
-- **IBM**: Docling framework
-- **Pyserini/Anserini**: Lucene-based retrieval
-- **Milvus**: Vector database infrastructure
-- **LangChain & LlamaIndex**: RAG frameworks
+Open-source models, APIs, and platforms that this codebase builds on (see also TR-004–TR-005 and integration notes in [`docs/requirements.md`](docs/requirements.md)):
+
+- **OpenAI** — Whisper and LLM APIs used in ASR and generation experiments.
+- **Google** — Gemini (multimodal/API), **Firebase** (authentication in the merged frontend stack), and embedding-related tooling referenced in weekly work.
+- **Hugging Face** — `transformers`, model hubs, and pretrained checkpoints (e.g. ColQwen, sentence encoders).
+- **IBM** — **Docling** and related document-understanding components.
+- **Qdrant** — vector database used in the Phase 2 AI service and merge backend.
+- **Amazon Web Services** — **S3**, **SageMaker** real-time inference, and (via Terraform) **ECS**, **ECR**, **ALB**, **ACM** for optional cloud deployment.
+- **HashiCorp** — **Terraform** for infrastructure as code in `Phase_2_FE_AI_Merge/terraform/`.
+- **Pyserini / Anserini & Milvus** — retrieval stacks explored in research-week milestones.
+- **LangChain & LlamaIndex** — RAG framework comparisons (early-phase notebooks and prototypes).
+- **FFmpeg, Tesseract, Poppler** — media, OCR, and PDF tooling (TR-005).
+- **React, Vite, Tailwind CSS** — frontend stack (TR-002).
 
 ---
 
-**Last Updated**: November 23, 2025
-**Project Status**: Production Ready (Week 07-09 Pipeline)
-**Team**: MKhoi (ASR/OCR), NKhoi (Retrieval/Embeddings), QPhu (Pipeline/Integration)
-**Latest Release**: Week 07-09 Unified Processing Pipeline v1.0
+**Last Updated:** April 9, 2026
+
+**Project status:** Requirements are baselined in [`docs/requirements.md`](docs/requirements.md). The **Week 07–09** processor and **Phase 2** RAG+UI codepaths remain the research-to-product backbone; **`Phase_2_FE_AI_Merge/`** is the **integrated** Firebase UI + FastAPI + Qdrant/S3 stack with documented **SageMaker** hosting and **Terraform** for AWS. Feature completeness vs. the SRS is tracked per requirement in that document.
+
+**Team:** MKhoi (ASR/OCR and multimodal processing), NKhoi (retrieval systems and embeddings), QPhu (unified pipeline, Phase 2 backend/frontend integration, merge and deployment documentation).
+
+**Latest release:** Phase 2 **FE + AI merge** — production-oriented monorepo folder with **Terraform** (ECS, ALB, optional HTTPS, optional SageMaker endpoint) and **SageMaker** unified multimodal container docs; root README and architecture aligned with the **SRS**.
+

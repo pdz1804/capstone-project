@@ -32,15 +32,15 @@ ops/
 All server defaults now match `backend/config/default.yaml`:
 
 
-| Setting                   | Default    | Override env                           |
-| ------------------------- | ---------- | -------------------------------------- |
-| VLM (picture description) | **OFF**    | `DOCLING_ENABLE_VLM=true`              |
-| Image export              | **OFF**    | `DOCLING_EXPORT_IMAGES=true`           |
-| Table export              | **OFF**    | `DOCLING_EXPORT_TABLES=true`           |
-| OCR                       | ON         | `DOCLING_ENABLE_OCR=false`             |
-| OCR engine                | `rapidocr` | `DOCLING_OCR_ENGINE=tesseract|easyocr` |
-| Whisper model             | `base`     | `WHISPER_MODEL=small|medium|large`     |
-| ColQwen quantization      | `8bit`     | `COLQWEN_QUANTIZATION=4bit|none`       |
+| Setting                   | Default    | Override env                  |
+| ------------------------- | ---------- | ----------------------------- |
+| VLM (picture description) | **OFF**    | `DOCLING_ENABLE_VLM=true`     |
+| Image export              | **OFF**    | `DOCLING_EXPORT_IMAGES=true`  |
+| Table export              | **OFF**    | `DOCLING_EXPORT_TABLES=true`  |
+| OCR                       | ON         | `DOCLING_ENABLE_OCR=false`    |
+| OCR engine                | `rapidocr` | `DOCLING_OCR_ENGINE=tesseract |
+| Whisper model             | `base`     | `WHISPER_MODEL=small          |
+| ColQwen quantization      | `8bit`     | `COLQWEN_QUANTIZATION=4bit    |
 
 
 Enable VLM+image export only when you need richer multimodal understanding.

@@ -1,0 +1,104 @@
+# Terraform: ECS + ALB + SageMaker (Phase 2 FE / AI merge)
+
+Parent overview of this repo folder: [`../README.md`](../README.md).
+
+This directory defines AWS infrastructure aligned with **`Phase_2_FE_AI_Merge`**: ECR repos, IAM for ECS tasks, an Application Load Balancer (optional **HTTPS** via ACM), Fargate services with auto scaling, and an optional **SageMaker real-time endpoint** for the unified multimodal image (`sagemaker/unified`). Build and push the container separately; see `../sagemaker/README.md`.
+
+---
+
+## What gets created (high level)
+
+| Area | Resources |
+|------|-----------|
+| ECR | Backend, frontend, and (if enabled) unified SageMaker image repository |
+| IAM | ECS task execution + task roles; backend task role can invoke the SageMaker endpoint when enabled |
+| ALB | HTTP `:80`; HTTPS `:443` when `acm_certificate_arn` is set (HTTP then **301** redirects to HTTPS) |
+| ECS | Fargate cluster, backend + frontend services, CloudWatch log groups |
+| Auto Scaling | ECS service scaling (CPU, memory, ALB request count) |
+| SageMaker | Optional: execution role, model, endpoint config + endpoint, Application Auto Scaling on the variant |
+
+---
+
+## Prerequisites
+
+- [Terraform](https://www.terraform.io/downloads) `>= 1.0`
+- [AWS CLI](https://aws.amazon.com/cli/) (only if you later run `plan`/`apply` against a real/sandbox account)
+
+---
+
+## Configuration
+
+Copy the example variables file and edit values (do not commit secrets or real `terraform.tfvars` if your repo is public).
+
+```powershell
+cd "D:\PDZ\BKU\Learning\LVTN\GD1\Code\Phase_2_FE_AI_Merge\terraform"
+Copy-Item terraform.tfvars.example terraform.tfvars
+```
+
+Important variables:
+
+- **`acm_certificate_arn`** — ACM certificate in the **same region as the ALB**. Empty string = HTTP only on `:80`.
+- **`enable_sagemaker_endpoint`** — `false` if you only want ECS/ALB and will manage SageMaker elsewhere.
+- **`sagemaker_image_tag`** — Tag you pushed to the unified ECR repo (endpoint creation expects the image to exist).
+
+---
+
+## Safe local testing (no changes to AWS)
+
+These commands **do not** create, update, or destroy cloud resources. They only format/check configuration and validate syntax.
+
+From this `terraform` directory:
+
+```powershell
+# 1) Install providers modules (writes .terraform/ locally; no AWS API required for provider download)
+terraform init -backend=false
+
+# 2) Consistent formatting (optional but recommended)
+terraform fmt -recursive
+
+# 3) Fail CI-style if format would change anything
+terraform fmt -recursive -check
+
+# 4) Validate configuration (syntax + provider schema); uses init output only
+terraform validate
+```
+
+**Notes:**
+
+- Use **`-backend=false`** while you are not using a remote S3 backend so state stays local and you do not need bucket credentials for init.
+- **`terraform validate`** does **not** call the AWS APIs.
+
+---
+
+## `plan` and `apply` (read this before you run them)
+
+- **`terraform plan`** still **calls AWS** (for example default VPC, subnets, caller identity data sources). It does not apply changes, but it needs valid credentials and will read your account. **Do not run it against production until you intend to.**
+- **`terraform apply`** creates and bills real resources. **Do not run `apply` for now** unless you are deliberately using a dedicated sandbox account and accept cost and side effects.
+
+If you later use a sandbox:
+
+```powershell
+terraform init
+terraform plan -out=tfplan
+# Review the plan file, then only if intentional:
+# terraform apply tfplan
+```
+
+---
+
+## After a real deploy (reference only)
+
+Align the backend with SageMaker using the outputs / names from your `terraform.tfvars` (see `../sagemaker/README.md` for full env list). Example:
+
+```dotenv
+USE_AWS_SAGEMAKER_INFERENCE=true
+SAGEMAKER_ENDPOINT_NAME=<output sagemaker_endpoint_name>
+AWS_REGION=<same as var.aws_region>
+```
+
+---
+
+## Related docs
+
+- `../sagemaker/README.md` — build, push ECR, and endpoint smoke tests
+- Repository root `docs/deployment-alb-acm-custom-domain.md` — ACM + ALB HTTPS checklist

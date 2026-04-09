@@ -287,6 +287,10 @@ RESOURCES:
 
 ### 5. Documentation
 
+#### Custom domain, ACM, Hostinger DNS
+- **File:** `docs/deployment-alb-acm-custom-domain.md`
+- **Content:** ALB HTTPS listener, ACM multi-domain validation CNAMEs, apex + `www` to ALB DNS, checks and troubleshooting
+
 #### Main Deployment Guide
 - **File:** `DEPLOYMENT_GUIDE.md`
 - **Sections:**
@@ -519,6 +523,7 @@ Every step includes detailed logs:
 - [x] Phase_2/frontend/task-definition.json
 
 ### Documentation ✅
+- [x] docs/deployment-alb-acm-custom-domain.md (custom domain + ACM + ALB)
 - [x] DEPLOYMENT_GUIDE.md (comprehensive guide)
 - [x] Phase_2/terraform/README.md
 - [x] .github/workflows/README.md
