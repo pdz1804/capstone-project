@@ -1,0 +1,37 @@
+# AWS Configuration
+aws_region   = "us-west-2"
+environment  = "production"
+project_name = "rag-pipeline"
+
+# ALB: attach an ACM cert in the same region as the ALB for HTTPS (leave empty for HTTP-only).
+acm_certificate_arn = ""
+https_listener_ssl_policy = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+
+enable_alb_deletion_protection = false
+
+# Backend Service Configuration
+backend_desired_count  = 2
+backend_min_capacity   = 1
+backend_max_capacity   = 10
+backend_cpu_target     = 70
+backend_memory_target  = 80
+
+# Frontend Service Configuration
+frontend_desired_count = 2
+frontend_min_capacity  = 1
+frontend_max_capacity  = 5
+frontend_cpu_target    = 70
+frontend_memory_target = 80
+
+log_retention_days = 7
+
+# SageMaker unified endpoint (Phase_2_FE_AI_Merge/sagemaker/unified). Set enable_sagemaker_endpoint = false to skip.
+enable_sagemaker_endpoint     = true
+sagemaker_endpoint_name       = "" # default: "{project_name}-multimodal-rt"
+sagemaker_ecr_repository_name = "" # default: "{project_name}-multimodal-unified"
+sagemaker_image_tag           = "latest"
+sagemaker_instance_type       = "ml.g4dn.xlarge"
+sagemaker_initial_instance_count = 1
+sagemaker_autoscaling_min    = 1
+sagemaker_autoscaling_max    = 3
+sagemaker_target_invocations_per_instance = 2
