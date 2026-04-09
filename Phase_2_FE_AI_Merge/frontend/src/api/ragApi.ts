@@ -397,6 +397,89 @@ export async function postQuizResult(payload: {
   return data;
 }
 
+export type ChatSessionSummary = {
+  session_id: string;
+  user_id: string;
+  title: string;
+  pinned: boolean;
+  message_count: number;
+  created_at: string;
+  updated_at: string;
+  last_message_at?: string | null;
+  last_message_preview?: string | null;
+  last_message_role?: 'user' | 'assistant' | 'system' | null;
+};
+
+export type ChatSessionMessage = {
+  session_id: string;
+  message_id: string;
+  user_id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  created_at: string;
+  traces?: Array<Record<string, unknown>>;
+  suggestions?: string[];
+};
+
+export async function listChatSessions(params?: {
+  limit?: number;
+  cursor?: string | null;
+}): Promise<{ items: ChatSessionSummary[]; next_cursor?: string | null }> {
+  const { data } = await apiClient.get('/chat/sessions', {
+    params: {
+      limit: params?.limit ?? 20,
+      ...(params?.cursor ? { cursor: params.cursor } : {}),
+    },
+  });
+  return {
+    items: (data?.items || []) as ChatSessionSummary[],
+    next_cursor: (data?.next_cursor as string | undefined) || null,
+  };
+}
+
+export async function createChatSession(payload?: {
+  session_id?: string;
+  title?: string;
+  pinned?: boolean;
+}): Promise<{ item: ChatSessionSummary }> {
+  const { data } = await apiClient.post('/chat/sessions', payload || {});
+  return { item: data?.item as ChatSessionSummary };
+}
+
+export async function updateChatSession(
+  sessionId: string,
+  payload: { title?: string; pinned?: boolean }
+): Promise<{ item: ChatSessionSummary }> {
+  const { data } = await apiClient.patch(`/chat/sessions/${encodeURIComponent(sessionId)}`, payload);
+  return { item: data?.item as ChatSessionSummary };
+}
+
+export async function deleteChatSession(sessionId: string): Promise<{ deleted: boolean; session_id: string }> {
+  const { data } = await apiClient.delete(`/chat/sessions/${encodeURIComponent(sessionId)}`);
+  return data;
+}
+
+export async function listChatSessionMessages(
+  sessionId: string,
+  params?: {
+    limit?: number;
+    cursor?: string | null;
+    newest_first?: boolean;
+  }
+): Promise<{ items: ChatSessionMessage[]; next_cursor?: string | null }> {
+  const { data } = await apiClient.get(`/chat/sessions/${encodeURIComponent(sessionId)}/messages`, {
+    params: {
+      limit: params?.limit ?? 60,
+      newest_first: params?.newest_first ?? false,
+      ...(params?.cursor ? { cursor: params.cursor } : {}),
+    },
+  });
+  return {
+    items: (data?.items || []) as ChatSessionMessage[],
+    next_cursor: (data?.next_cursor as string | undefined) || null,
+  };
+}
+
 function normPath(s: string): string {
   return s.replace(/\\/g, '/').toLowerCase();
 }

@@ -192,7 +192,7 @@ export default function QuizView({ files, standalone = false, onComplete, initia
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-white rounded-[2.5rem] border border-slate-200 p-8 md:p-12 shadow-xl shadow-slate-200/50 flex-1 flex flex-col justify-center"
+            className="bg-white rounded-[2.5rem] border border-sky-100 p-8 md:p-12 shadow-[0_18px_36px_-28px_rgba(14,165,233,0.55)] flex-1 flex flex-col justify-center"
           >
             <div className="text-center mb-10">
               <div className="w-16 h-16 bg-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-sky-100">
@@ -423,7 +423,7 @@ export default function QuizView({ files, standalone = false, onComplete, initia
             key="results"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-[2.5rem] border border-slate-200 p-8 md:p-12 shadow-xl shadow-slate-200/50 flex-1 flex flex-col items-center justify-center text-center"
+            className="bg-white rounded-[2.5rem] border border-sky-100 p-8 md:p-12 shadow-[0_18px_36px_-28px_rgba(14,165,233,0.55)] flex-1 flex flex-col items-center justify-center text-center"
           >
             <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
               <Award className="w-10 h-10 text-emerald-600" />

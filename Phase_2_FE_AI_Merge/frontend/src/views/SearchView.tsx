@@ -214,14 +214,14 @@ export default function SearchView({ files }: SearchViewProps) {
 
   return (
     <div className="w-full h-full flex flex-col space-y-6 pb-12">
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-slate-200 shadow-sm shrink-0 space-y-2">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 border border-sky-100 shadow-[0_12px_26px_-22px_rgba(14,165,233,0.5)] shrink-0 space-y-2">
         <p className="text-xs text-slate-500">
           Retrieval + generation use your FastAPI backend <code className="bg-slate-100 px-1 rounded">POST /api/search</code>{' '}
           (Qdrant + configured LLM). Indexed sources in workspace: <strong>{totalFiles}</strong> input file(s) listed.
         </p>
       </div>
 
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-slate-200 shadow-sm shrink-0">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 border border-sky-100 shadow-[0_12px_26px_-22px_rgba(14,165,233,0.5)] shrink-0">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
             <MessageSquare className="w-5 h-5 fill-blue-600/20" />
@@ -230,7 +230,7 @@ export default function SearchView({ files }: SearchViewProps) {
           <button
             type="button"
             onClick={() => setShowAdvancedConfig((v) => !v)}
-            className="ml-auto text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+            className="ml-auto text-xs px-3 py-1.5 rounded-lg border border-sky-100 bg-sky-50/70 text-slate-700 hover:bg-sky-100/60"
           >
             {showAdvancedConfig ? 'Hide config' : 'Show config'}
           </button>
@@ -247,7 +247,7 @@ export default function SearchView({ files }: SearchViewProps) {
               <select
                 value={mode}
                 onChange={(e) => setMode(e.target.value as SearchMode)}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm"
               >
                 <option value="retrieval_only">Retrieval only</option>
                 <option value="retrieval_generation">Retrieval + generation</option>
@@ -258,7 +258,7 @@ export default function SearchView({ files }: SearchViewProps) {
               <select
                 value={scope}
                 onChange={(e) => setScope(e.target.value as SearchScope)}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm"
               >
                 <option value="text">Text index only</option>
                 <option value="image">Image index only</option>
@@ -271,7 +271,7 @@ export default function SearchView({ files }: SearchViewProps) {
                 value={retrieverType}
                 onChange={(e) => setRetrieverType(e.target.value as RetrieverType)}
                 disabled={scope === 'image'}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm disabled:opacity-50"
+                className="mt-1 w-full rounded-lg border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm disabled:opacity-50"
               >
                 <option value="hybrid">Hybrid</option>
                 <option value="dense">Dense (Qdrant)</option>
@@ -286,7 +286,7 @@ export default function SearchView({ files }: SearchViewProps) {
                 max={100}
                 value={topK}
                 onChange={(e) => setTopK(Math.max(1, Math.min(100, Number(e.target.value || 10))))}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm"
               />
             </label>
             <label className="text-xs text-slate-600 flex items-end gap-2 pb-2">
@@ -307,7 +307,7 @@ export default function SearchView({ files }: SearchViewProps) {
               <select
                 value={generationModel}
                 onChange={(e) => setGenerationModel(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm"
               >
                 {(modelOptions.length ? modelOptions : ['']).map((m) => (
                   <option key={m || 'default'} value={m}>
@@ -333,7 +333,7 @@ export default function SearchView({ files }: SearchViewProps) {
                 max={20}
                 value={imagesForGeneration}
                 onChange={(e) => setImagesForGeneration(Math.max(0, Math.min(20, Number(e.target.value || 5))))}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm"
               />
             </label>
           </div>
@@ -344,7 +344,7 @@ export default function SearchView({ files }: SearchViewProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Ask a question over your indexed documents…"
-              className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-lg min-h-[120px] resize-none"
+              className="w-full px-4 py-4 bg-sky-50/60 border border-sky-100 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all text-lg min-h-[120px] resize-none"
             />
           </div>
 
@@ -405,17 +405,17 @@ export default function SearchView({ files }: SearchViewProps) {
 
       {!isSearching && telemetry && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-2">
+          <div className="rounded-xl border border-sky-100 bg-white px-4 py-3 flex items-center gap-2 shadow-[0_10px_24px_-20px_rgba(14,165,233,0.45)]">
             <Clock3 className="w-4 h-4 text-sky-600" />
             <span className="text-sm text-slate-700">
               Retrieval: {(telemetry.steps_ms?.text_retrieval || 0) + (telemetry.steps_ms?.image_retrieval || 0)} ms
             </span>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-2">
+          <div className="rounded-xl border border-sky-100 bg-white px-4 py-3 flex items-center gap-2 shadow-[0_10px_24px_-20px_rgba(14,165,233,0.45)]">
             <Clock3 className="w-4 h-4 text-sky-600" />
             <span className="text-sm text-slate-700">Generation: {telemetry.steps_ms?.generation || 0} ms</span>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-2">
+          <div className="rounded-xl border border-sky-100 bg-white px-4 py-3 flex items-center gap-2 shadow-[0_10px_24px_-20px_rgba(14,165,233,0.45)]">
             <Sigma className="w-4 h-4 text-emerald-600" />
             <span className="text-sm text-slate-700">
               Tokens in/out: {telemetry.tokens?.input_total || 0} / {telemetry.tokens?.output_total || 0}
@@ -427,8 +427,8 @@ export default function SearchView({ files }: SearchViewProps) {
       {!isSearching && (answer != null || citations.length > 0) && (
         <div className="space-y-6">
           {answer != null && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2 bg-slate-50/50">
+            <div className="bg-white rounded-2xl border border-sky-100 shadow-[0_14px_28px_-22px_rgba(14,165,233,0.45)] overflow-hidden">
+              <div className="px-6 py-4 border-b border-sky-100 flex items-center gap-2 bg-sky-50/50">
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.5)]" />
                 <h3 className="font-bold text-slate-800 uppercase tracking-tight text-sm">Answer</h3>
               </div>
@@ -500,7 +500,7 @@ export default function SearchView({ files }: SearchViewProps) {
                   <div
                     id={cid || undefined}
                     key={`${c.key}-${cid}`}
-                    className={`rounded-xl border p-4 transition-all ${active ? 'border-blue-400 bg-blue-50/60' : 'border-slate-200 bg-white'}`}
+                    className={`rounded-xl border p-4 transition-all ${active ? 'border-sky-400 bg-sky-50/60' : 'border-sky-100 bg-white'}`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-semibold text-slate-800">
@@ -549,13 +549,13 @@ export default function SearchView({ files }: SearchViewProps) {
                             {imagePreviewLoading[cid] ? 'Loading...' : 'Load image'}
                           </button>
                         ) : (
-                          <img src={imagePreviewUrls[cid]} alt={c.source || 'citation image'} className="w-full max-h-80 object-contain rounded border border-slate-200 bg-slate-50" />
+                          <img src={imagePreviewUrls[cid]} alt={c.source || 'citation image'} className="w-full max-h-80 object-contain rounded border border-sky-100 bg-sky-50/50" />
                         )}
                       </div>
                     )}
                     <details className="mt-2">
                       <summary className="text-xs text-slate-500 cursor-pointer">Metadata</summary>
-                      <pre className="mt-2 text-[11px] bg-slate-50 border border-slate-200 rounded-lg p-2 overflow-auto">
+                      <pre className="mt-2 text-[11px] bg-sky-50/60 border border-sky-100 rounded-lg p-2 overflow-auto">
                         {JSON.stringify(metadataForDisplay, null, 2)}
                       </pre>
                     </details>

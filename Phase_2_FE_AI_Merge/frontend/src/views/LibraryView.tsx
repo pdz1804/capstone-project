@@ -475,8 +475,14 @@ export default function LibraryView({
     return '';
   };
 
+  const openPreviewInNewTab = () => {
+    const src = getPdfSrc() || previewUrl || (remotePreview.kind === 'blob' ? remotePreview.url : '');
+    if (!src) return;
+    window.open(src, '_blank', 'noopener,noreferrer');
+  };
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-12">
+    <div className="w-full max-w-[1720px] mx-auto space-y-7 pb-12 px-1 sm:px-2">
       {/* Upload/Pipeline/Index Control Section */}
       {controlMode === 'upload' && (
         <div
@@ -525,7 +531,7 @@ export default function LibraryView({
       )}
 
       {(controlMode === 'process' || controlMode === 'index') && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 ring-1 ring-slate-100">
+        <div className="bg-white rounded-2xl border border-sky-100 shadow-[0_16px_36px_-28px_rgba(14,165,233,0.55)] p-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="space-y-2 text-center md:text-left">
               <h3 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2 justify-center md:justify-start">
@@ -579,8 +585,8 @@ export default function LibraryView({
       )}
 
       {/* File List Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+      <div className="bg-white rounded-2xl border border-sky-100 shadow-[0_16px_36px_-28px_rgba(14,165,233,0.55)] overflow-hidden">
+        <div className="p-4 border-b border-sky-100 flex items-center justify-between bg-sky-50/40">
           <div className="flex items-center gap-4">
             <h3 className="text-lg font-semibold text-slate-900">Content Library</h3>
             {selectedFiles.length > 0 && (
@@ -604,7 +610,7 @@ export default function LibraryView({
                 placeholder="Search files..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 w-64"
+                className="pl-9 pr-4 py-2 border border-sky-100 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 w-64"
               />
             </div>
             <div className="flex bg-slate-100 p-1 rounded-lg">
@@ -652,7 +658,7 @@ export default function LibraryView({
         {viewMode === 'list' ? (
           <div className="overflow-x-auto min-h-[300px]">
             <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
+              <thead className="bg-sky-50/60 text-slate-500 font-medium border-b border-sky-100">
                 <tr>
                   <th className="px-6 py-4 w-12">
                     <input
@@ -685,7 +691,7 @@ export default function LibraryView({
                   </tr>
                 ) : (
                   filteredAndSortedFiles.map((file) => (
-                    <tr key={file.id} className={`hover:bg-slate-50/50 transition-colors group ${selectedFiles.includes(file.id) ? 'bg-sky-50/30' : ''}`}>
+                    <tr key={file.id} className={`hover:bg-sky-50/40 transition-colors group ${selectedFiles.includes(file.id) ? 'bg-sky-50/30' : ''}`}>
                       <td className="px-6 py-4">
                         <input
                           type="checkbox"
@@ -850,7 +856,7 @@ export default function LibraryView({
               </div>
             ) : (
               filteredAndSortedFiles.map((file) => (
-                <div key={file.id} className={`relative group border rounded-xl p-4 transition-all ${selectedFiles.includes(file.id) ? 'border-sky-500 bg-sky-50/30' : 'border-slate-200 hover:border-sky-300 hover:shadow-md bg-white'}`}>
+                <div key={file.id} className={`relative group border rounded-xl p-4 transition-all ${selectedFiles.includes(file.id) ? 'border-sky-500 bg-sky-50/30' : 'border-sky-100 hover:border-sky-300 hover:shadow-md bg-white'}`}>
                   <div className="absolute top-3 left-3 z-10">
                     <input
                       type="checkbox"
@@ -1001,8 +1007,8 @@ export default function LibraryView({
       {/* Preview Modal */}
       {previewFile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" onClick={() => setPreviewFile(null)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 border-b border-slate-200">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden border border-sky-100" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-sky-100 bg-sky-50/40">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-lg ${previewFile.type === 'video' ? 'bg-sky-100 text-sky-600' :
                   previewFile.type === 'document' ? 'bg-blue-100 text-blue-600' :
@@ -1026,19 +1032,21 @@ export default function LibraryView({
               <button
                 onClick={() => setPreviewFile(null)}
                 className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                aria-label="Close preview modal"
+                title="Close preview"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div
-              className={`flex-1 bg-slate-50 min-h-[400px] ${isPdfPreview
+              className={`flex-1 bg-sky-50/40 min-h-[420px] ${isPdfPreview
                 ? 'p-0 overflow-hidden'
                 : 'p-8 flex items-center justify-center overflow-y-auto'
                 }`}
             >
               {/* Preview Content */}
               {previewLoading ? (
-                <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg border border-slate-200 p-12 min-h-[320px] flex flex-col items-center justify-center text-center">
+                <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg border border-sky-100 p-12 min-h-[320px] flex flex-col items-center justify-center text-center">
                   <Loader2 className="w-8 h-8 animate-spin text-sky-600 mb-4" />
                   <p className="text-sm text-slate-600">Loading preview...</p>
                 </div>
@@ -1072,12 +1080,25 @@ export default function LibraryView({
               ) : isPdfPreview ? (
                 <div
                   ref={pdfContainerRef}
-                  className="w-full h-full min-h-[600px] max-h-[70vh] overflow-y-auto bg-slate-200 flex flex-col items-center p-4"
+                  className="w-full h-full min-h-[620px] max-h-[75vh] overflow-y-auto bg-sky-100/50 flex flex-col items-center p-5"
                 >
                   <Document
                     file={getPdfSrc()}
                     onLoadSuccess={({ numPages: pages }) => setNumPages(pages)}
-                    loading={<Loader2 className="w-8 h-8 animate-spin text-sky-600 my-12" />}
+                    onLoadError={() => setPreviewError('PDF preview failed to render. You can still open/download the original file.')}
+                    loading={
+                      <div className="w-full max-w-3xl rounded-2xl border border-sky-100 bg-white px-8 py-16 text-center shadow-sm">
+                        <Loader2 className="w-8 h-8 animate-spin text-sky-600 mx-auto mb-4" />
+                        <p className="text-sm text-slate-600">Loading PDF preview...</p>
+                        <button
+                          type="button"
+                          onClick={openPreviewInNewTab}
+                          className="mt-4 px-3 py-2 text-xs font-semibold rounded-lg border border-sky-200 text-sky-700 hover:bg-sky-50"
+                        >
+                          Open original in new tab
+                        </button>
+                      </div>
+                    }
                     className="flex flex-col items-center gap-4"
                   >
                     {Array.from({ length: numPages || 0 }, (_, index) => (
@@ -1162,7 +1183,14 @@ export default function LibraryView({
                 </div>
               )}
             </div>
-            <div className="p-4 border-t border-slate-200 bg-white flex justify-end gap-3">
+            <div className="p-4 border-t border-sky-100 bg-white flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={openPreviewInNewTab}
+                className="px-4 py-2 text-sm font-medium text-sky-700 bg-sky-50 border border-sky-200 rounded-lg hover:bg-sky-100 transition-colors"
+              >
+                Open Preview
+              </button>
               <button onClick={() => void handleDownload(previewFile)} className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors flex items-center gap-2">
                 <Download className="w-4 h-4" /> Download Original
               </button>
@@ -1183,6 +1211,8 @@ export default function LibraryView({
               <button
                 onClick={() => setMetadataFileName(null)}
                 className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
+                aria-label="Close metadata modal"
+                title="Close metadata"
               >
                 <X className="w-5 h-5" />
               </button>

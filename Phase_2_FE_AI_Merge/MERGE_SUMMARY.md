@@ -3,6 +3,19 @@
 **Date**: March 28, 2026  
 **Status**: ✅ **COMPLETE**
 
+## Addendum (April 2026)
+
+Post-merge updates now included in this workspace:
+
+- Chat assistant persistent history (sessions + messages) with DynamoDB-backed storage
+- Chat session operations: rename, pin/unpin, delete, paged list UI
+- Frontend compact chat history panel with history sync toggle
+- Backend runtime switch for chat agent:
+  - local Strands mode
+  - deployed Bedrock AgentCore runtime mode (runtime ARN invocation)
+
+See [`backend/docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.md`](backend/docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.md) for implementation details.
+
 ---
 
 ## What Was Merged

@@ -84,13 +84,14 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="max-w-7xl mx-auto space-y-10 pb-20 px-4"
+      className="w-full max-w-[1720px] mx-auto space-y-8 pb-14 px-1 sm:px-2"
     >
       {/* Premium Hero Section */}
       <motion.div
         variants={itemVariants}
-        className="relative overflow-hidden rounded-xl bg-blue-600 text-white shadow-lg p-8 lg:p-12 mb-12"
+        className="relative overflow-hidden rounded-2xl border border-sky-500/30 bg-sky-700 text-white shadow-[0_25px_60px_-38px_rgba(3,105,161,0.65)] p-8 lg:p-11"
       >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.14),transparent_30%)]" />
         <div className="relative z-10 max-w-2xl">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -125,7 +126,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
@@ -133,7 +134,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
               key={i}
               variants={itemVariants}
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between group h-full"
+              className="bg-white rounded-xl p-6 border border-sky-100 shadow-[0_14px_28px_-24px_rgba(14,165,233,0.55)] flex flex-col justify-between group h-full"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className={`p-3 rounded-lg ${stat.bg} ${stat.color} transition-colors`}>
@@ -152,7 +153,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Quick Actions */}
         <div className="lg:col-span-1 space-y-6">
           <div className="flex items-center justify-between px-2">
@@ -168,7 +169,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => onNavigate(action.view as ViewType)}
-                  className="w-full flex items-center gap-5 p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-200 hover:shadow-md text-left group transition-all"
+                  className="w-full flex items-center gap-5 p-4 bg-white border border-sky-100 rounded-xl shadow-[0_12px_24px_-22px_rgba(14,165,233,0.5)] hover:border-sky-200 hover:shadow-md text-left group transition-all"
                 >
                   <div className={`w-12 h-12 rounded-lg ${action.color} text-white flex items-center justify-center group-hover:scale-105 transition-transform`}>
                     <ActionIcon className="w-6 h-6" />
@@ -198,7 +199,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
 
           <motion.div
             variants={itemVariants}
-            className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+            className="bg-white rounded-xl border border-sky-100 shadow-[0_14px_30px_-24px_rgba(14,165,233,0.5)] overflow-hidden"
           >
             <div className="divide-y divide-slate-100">
               {recentActivity.length === 0 ? (

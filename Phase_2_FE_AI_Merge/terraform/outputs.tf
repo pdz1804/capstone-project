@@ -13,6 +13,31 @@ output "sagemaker_unified_ecr_repository_url" {
   value       = try(module.sagemaker_unified_ecr[0].repository_url, "")
 }
 
+output "agentcore_runtime_ecr_repository_url" {
+  description = "ECR repository URL for Bedrock AgentCore runtime image (empty if prep disabled)"
+  value       = try(module.agentcore_runtime_ecr[0].repository_url, "")
+}
+
+output "chatbot_sessions_table_name" {
+  description = "DynamoDB chat sessions table name (empty if disabled)"
+  value       = try(aws_dynamodb_table.chatbot_sessions[0].name, "")
+}
+
+output "chatbot_sessions_table_arn" {
+  description = "DynamoDB chat sessions table ARN (empty if disabled)"
+  value       = try(aws_dynamodb_table.chatbot_sessions[0].arn, "")
+}
+
+output "chatbot_messages_table_name" {
+  description = "DynamoDB chat messages table name (empty if disabled)"
+  value       = try(aws_dynamodb_table.chatbot_messages[0].name, "")
+}
+
+output "chatbot_messages_table_arn" {
+  description = "DynamoDB chat messages table ARN (empty if disabled)"
+  value       = try(aws_dynamodb_table.chatbot_messages[0].arn, "")
+}
+
 output "alb_dns_name" {
   description = "DNS name of the load balancer"
   value       = module.alb.alb_dns_name

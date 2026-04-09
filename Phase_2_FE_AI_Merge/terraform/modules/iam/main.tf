@@ -23,6 +23,12 @@ variable "sagemaker_invoke_endpoint_arns" {
   default     = []
 }
 
+variable "dynamodb_table_arns" {
+  description = "DynamoDB table ARNs the task may access for application persistence"
+  type        = list(string)
+  default     = []
+}
+
 variable "tags" {
   description = "Tags for IAM resources"
   type        = map(string)
@@ -145,6 +151,32 @@ resource "aws_iam_role_policy" "sagemaker_invoke_policy" {
   name   = "${var.task_name}-sagemaker-invoke-policy"
   role   = aws_iam_role.ecs_task_role.id
   policy = data.aws_iam_policy_document.sagemaker_invoke_policy[0].json
+}
+
+data "aws_iam_policy_document" "dynamodb_access_policy" {
+  count = length(var.dynamodb_table_arns) > 0 ? 1 : 0
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:Query",
+      "dynamodb:Scan",
+      "dynamodb:BatchWriteItem",
+      "dynamodb:BatchGetItem",
+    ]
+    resources = var.dynamodb_table_arns
+  }
+}
+
+resource "aws_iam_role_policy" "dynamodb_access_policy" {
+  count  = length(var.dynamodb_table_arns) > 0 ? 1 : 0
+  name   = "${var.task_name}-dynamodb-access-policy"
+  role   = aws_iam_role.ecs_task_role.id
+  policy = data.aws_iam_policy_document.dynamodb_access_policy[0].json
 }
 
 output "ecs_task_execution_role_arn" {

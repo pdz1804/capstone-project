@@ -35,3 +35,18 @@ sagemaker_initial_instance_count = 1
 sagemaker_autoscaling_min    = 1
 sagemaker_autoscaling_max    = 3
 sagemaker_target_invocations_per_instance = 2
+
+# Chat history persistence (DynamoDB)
+enable_chatbot_history_tables = true
+chatbot_sessions_table_name   = "chatbot-session"   # PK=user_id, SK=session_id
+chatbot_messages_table_name   = "chatbot-messages"  # PK=session_id, SK=message_id
+chatbot_history_ttl_enabled   = false
+chatbot_history_ttl_attribute_name = "expires_at"
+
+# Existing external tables (optional): attach IAM permissions for backend role.
+dynamodb_users_table_arn         = ""
+dynamodb_quiz_results_table_arn  = ""
+
+# Bedrock AgentCore runtime preparation
+enable_agentcore_runtime_prep      = true
+agentcore_runtime_ecr_repository_name = "" # default: "{project_name}-agentcore-runtime"

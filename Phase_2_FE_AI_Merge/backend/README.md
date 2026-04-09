@@ -8,6 +8,7 @@ app/
   services/            # Business logic: indexing, search, processing, insights
   repositories/        # Qdrant clients, BM25 persistence
   core/paths.py        # Paths + YAML merge with env
+agent/                 # Chat runtime adapters (local Strands vs Bedrock AgentCore runtime)
 src/                   # Legacy pipeline: processor, chunking, retrieval helpers, generation
 config/default.yaml    # Pipeline + Qdrant + inference settings
 ```
@@ -99,6 +100,17 @@ All **`/api/*`** routes (except where noted) respect the storage user from heade
 | GET | `/api/processed-file` | **`rel_path`** (required): path under **`processing/`** using forward slashes, e.g. `stage3_document_processed/MyDoc/MyDoc.md` or `.processing_cache.json`. No `..` or empty segments. | Raw bytes, **`Content-Type`** from file or object metadata, **`Content-Disposition: inline`**. **403** if path escapes processing tree or S3 key outside prefix; **404** missing; **413** if larger than **`MAX_PROCESSED_FILE_PREVIEW_BYTES`** (default 50MB). |
 | POST | `/api/upload` | `multipart/form-data`, field **`files`** (repeatable). | `{ "uploaded", "count", "files" }`. |
 | DELETE | `/api/files` | JSON **`{ "path": "<storage-relative or absolute path as returned by API>" }`**. | `{ "deleted": path }` or 404. |
+
+### Chat assistant and chat history
+
+| Method | Path | Query / body | Response / notes |
+|--------|------|--------------|------------------|
+| POST | `/api/chat/stream` | Body: `query`, optional `session_id`, optional `persona`, optional `education_description`. | SSE stream with `session`, `status`, `tool_trace`, `token`, `suggestions`, `done`. Persists messages when history is enabled/configured. |
+| GET | `/api/chat/sessions` | Query: `limit`, `cursor`. | Paged session list for current user. |
+| POST | `/api/chat/sessions` | Body: optional `session_id`, optional `title`, optional `pinned`. | Creates/ensures a chat session. |
+| PATCH | `/api/chat/sessions/{session_id}` | Body: `title` and/or `pinned`. | Rename and pin/unpin session metadata. |
+| DELETE | `/api/chat/sessions/{session_id}` | - | Deletes one session and all its messages. |
+| GET | `/api/chat/sessions/{session_id}/messages` | Query: `limit`, `cursor`, `newest_first`. | Paged message history for a session. |
 
 ### Pipeline, search, images
 
@@ -211,6 +223,26 @@ Set in **environment** (recommended) or `config/default.yaml` under `inference`:
 When `false`, ColQwen loads locally (GPU/CPU) via `colpali-engine`.
 
 Probe: `GET /api/system/inference`.
+
+## Chat runtime mode switch (local vs AgentCore)
+
+Use these backend env vars to control chat runtime mode:
+
+| Variable | Meaning |
+|----------|---------|
+| `CHAT_AGENT_RUNTIME` | `local` (default) or `agentcore-runtime`. |
+| `AGENTCORE_RUNTIME_ARN` | Required when `CHAT_AGENT_RUNTIME=agentcore-runtime`; deployed Bedrock AgentCore runtime ARN. |
+| `AGENTCORE_REGION` | Region for AgentCore memory/runtime calls (example: `us-west-2`). |
+| `AGENTCORE_MEMORY_ID` | Optional memory id for local Strands + AgentCore memory integration. |
+| `DYNAMODB_CHATBOT_SESSIONS_TABLE` | Chat session table name (default `chatbot-session`). |
+| `DYNAMODB_CHATBOT_MESSAGES_TABLE` | Chat message table name (default `chatbot-messages`). |
+
+AgentCore runtime packaging helpers are in `backend/agent/`:
+
+- `agentcore_runtime_entrypoint.py`
+- `requirements-agentcore-runtime.txt`
+
+For full details (API contract, PK/SK schema, frontend behavior), see [`docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.md`](docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.md).
 
 ## Docker
 

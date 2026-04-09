@@ -4,6 +4,15 @@ This folder is the **integrated production stack**: React UI with Firebase auth,
 
 For a detailed list of what was merged from earlier branches, see [`MERGE_SUMMARY.md`](MERGE_SUMMARY.md).
 
+## April 2026 updates
+
+- Chat assistant now supports persistent session history with rename, pin, delete, and paged session list UI.
+- Backend exposes dedicated chat history APIs and stores data in DynamoDB session/message tables.
+- Chat runtime supports environment-based switching between local Strands and deployed Bedrock AgentCore runtime using runtime ARN invocation.
+- Frontend chat history panel supports sync on/off and a compact Gemini-like session rail.
+
+See detailed backend notes in [`backend/docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.md`](backend/docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.md).
+
 ---
 
 ## Layout

@@ -45,8 +45,8 @@ class ErrorBoundary extends React.Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white rounded-xl shadow-lg border border-slate-200 p-8 text-center">
+        <div className="min-h-screen bg-sky-50 flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white rounded-xl shadow-[0_20px_40px_-30px_rgba(14,165,233,0.55)] border border-sky-100 p-8 text-center">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
@@ -55,7 +55,7 @@ class ErrorBoundary extends React.Component<Props, State> {
               {isFirestoreError ? "You might not have permission to perform this action." : errorMessage}
             </p>
             {isFirestoreError && (
-              <div className="bg-slate-50 rounded-lg p-4 mb-6 text-left overflow-auto max-h-40">
+              <div className="bg-sky-50/70 border border-sky-100 rounded-lg p-4 mb-6 text-left overflow-auto max-h-40">
                 <pre className="text-xs text-slate-500 font-mono">
                   {this.state.error?.message}
                 </pre>
