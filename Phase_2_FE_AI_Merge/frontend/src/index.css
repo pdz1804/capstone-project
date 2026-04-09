@@ -1,13 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply font-sans antialiased;
+    @apply font-sans antialiased bg-sky-50 text-slate-900;
   }
 }
 
@@ -23,4 +28,15 @@
 
 .animate-float-delayed {
   animation: float 6s ease-in-out 2s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-float,
+  .animate-float-delayed {
+    animation: none;
+  }
 }

@@ -5,12 +5,12 @@ import contextlib
 import io
 import json
 import logging
+import os
 import re
 import uuid
 from typing import Any, Dict, List
 
-from pydantic import BaseModel
-from pydantic import Field as PydanticField
+from agent.strands_chat_runtime import build_query_with_history, run_chat_agent
 
 
 @contextlib.contextmanager
@@ -28,32 +28,22 @@ def _suppress_pipeline_noise():
         _root.setLevel(_orig_level)
 
 
-class FollowUpSuggestions(BaseModel):
-    """Three concise follow-up questions the student would naturally ask next."""
-
-    question_1: str = PydanticField(
-        description="First follow-up question — explore a related concept or ask for clarification"
-    )
-    question_2: str = PydanticField(
-        description="Second follow-up question — go deeper or request an example"
-    )
-    question_3: str = PydanticField(
-        description="Third follow-up question — practical application or adjacent topic"
-    )
-
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
 from app.api.deps import storage_user_id
 from app.api.schemas import ChatStreamRequest
 from app.core.paths import merged_runtime_settings
+from app.services.chat_history_service import ChatHistoryService
 from app.services.search_orchestrator import SearchOrchestrator
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["chat"])
 
-MEM_ID = "memory_K2P_chat_assistant_stm-0nESTA48sz"
-AGENTCORE_REGION = "us-west-2"
+MEM_ID = (os.getenv("AGENTCORE_MEMORY_ID") or "memory_K2P_chat_assistant_stm-0nESTA48sz").strip()
+AGENTCORE_REGION = (os.getenv("AGENTCORE_REGION") or "us-west-2").strip()
+CHAT_AGENT_RUNTIME = (os.getenv("CHAT_AGENT_RUNTIME") or "local").strip().lower()
+AGENTCORE_RUNTIME_ARN = (os.getenv("AGENTCORE_RUNTIME_ARN") or "").strip()
 
 # Folder/file name fragments that indicate pipeline system artefacts — not learnable content.
 _SYSTEM_FOLDER_TOKENS = frozenset({
@@ -81,25 +71,11 @@ def _is_content_document(folder_name: str, display_name: str = "") -> bool:
         return False
     return True
 
-# Graceful import for AgentCore memory — works without the package installed
-HAS_AGENTCORE_MEMORY = False
-AgentCoreMemoryConfig = None  # type: ignore[assignment]
-AgentCoreMemorySessionManager = None  # type: ignore[assignment]
-
-try:
-    from bedrock_agentcore.memory.integrations.strands.config import (
-        AgentCoreMemoryConfig,
-    )
-    from bedrock_agentcore.memory.integrations.strands.session_manager import (
-        AgentCoreMemorySessionManager,
-    )
-    HAS_AGENTCORE_MEMORY = True
-    logger.info("AgentCore memory loaded from bedrock_agentcore")
-except ImportError:
-    logger.warning(
-        "AgentCore memory not available — "
-        "run: pip install 'bedrock-agentcore[strands-agents]' to enable cross-session memory."
-    )
+DEFAULT_SUGGESTIONS = [
+    "What documents do I have in my knowledge base?",
+    "Show me my quiz performance and learning analytics",
+    "Quiz me on the key topics from my lectures",
+]
 
 
 def _compact_text_rows(rows: List[Dict[str, Any]], limit: int = 6) -> str:
@@ -138,6 +114,13 @@ def _strip_raw_tool_markup(text: str) -> str:
     return cleaned
 
 
+def _get_chat_history_service() -> ChatHistoryService | None:
+    try:
+        return ChatHistoryService.from_env()
+    except Exception:
+        return None
+
+
 @router.post("/chat/stream")
 async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_user_id)):
     query = req.query.strip()
@@ -147,16 +130,44 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
     cfg = merged_runtime_settings()
     orch = SearchOrchestrator(cfg, user_id=user_id)
     session_id = req.session_id.strip() if req.session_id.strip() else str(uuid.uuid4())
+    preferred_persona = (req.persona or "").strip()
+    education_context = (req.education_description or "").strip()
+    history_svc = _get_chat_history_service()
+    prior_messages: list[dict[str, Any]] = []
+
+    if history_svc is not None:
+        try:
+            history_svc.ensure_session(
+                user_id=user_id,
+                session_id=session_id,
+                title=query,
+                pinned=False,
+            )
+            prior_messages = history_svc.list_recent_messages(
+                user_id=user_id,
+                session_id=session_id,
+                limit=8,
+            )
+            history_svc.put_message(
+                user_id=user_id,
+                session_id=session_id,
+                role="user",
+                content=query,
+            )
+        except Exception as history_err:
+            logger.warning("Chat history persistence unavailable for this request: %s", history_err)
+            history_svc = None
 
     async def event_stream():
         def emit(payload: Dict[str, Any]) -> str:
             return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
+        yield emit({"type": "session", "session_id": session_id})
         yield emit({"type": "status", "message": "Planning tool calls..."})
         try:
             tool_traces: List[Dict[str, Any]] = []
 
-            from strands import Agent, tool
+            from strands import tool
 
             # ── Tool 1: Text RAG ──────────────────────────────────────────────
             @tool
@@ -433,32 +444,36 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 "or any internal debug information in your response — only present clean educational content"
             )
 
-            if HAS_AGENTCORE_MEMORY and AgentCoreMemoryConfig and AgentCoreMemorySessionManager:
-                mem_cfg = AgentCoreMemoryConfig(
-                    memory_id=MEM_ID,
-                    session_id=session_id,
-                    actor_id=user_id,
+            profile_instructions: list[str] = []
+            if preferred_persona:
+                profile_instructions.append(
+                    f"Preferred response tone/persona: {preferred_persona[:120]}"
                 )
-                try:
-                    with AgentCoreMemorySessionManager(
-                        agentcore_memory_config=mem_cfg,
-                        region_name=AGENTCORE_REGION,
-                    ) as session_manager:
-                        agent = Agent(
-                            system_prompt=system_prompt,
-                            tools=all_tools,
-                            session_manager=session_manager,
-                        )
-                        out = await asyncio.to_thread(agent, query)
-                except Exception as mem_err:
-                    logger.warning("AgentCore memory failed (%s), falling back to stateless agent", mem_err)
-                    agent = Agent(system_prompt=system_prompt, tools=all_tools)
-                    out = await asyncio.to_thread(agent, query)
-            else:
-                agent = Agent(system_prompt=system_prompt, tools=all_tools)
-                out = await asyncio.to_thread(agent, query)
+            if education_context:
+                profile_instructions.append(
+                    f"Student education background/context: {education_context[:800]}"
+                )
+            if profile_instructions:
+                system_prompt = system_prompt + "\n\nUser profile guidance:\n- " + "\n- ".join(profile_instructions)
 
-            final_text = _strip_raw_tool_markup(str(out or "").strip()) or "No response generated."
+            agent_query = build_query_with_history(query=query, history_messages=prior_messages)
+            agent_result = await asyncio.to_thread(
+                run_chat_agent,
+                runtime_mode=CHAT_AGENT_RUNTIME,
+                query=agent_query,
+                system_prompt=system_prompt,
+                tools=all_tools,
+                user_id=user_id,
+                session_id=session_id,
+                memory_id=MEM_ID,
+                region=AGENTCORE_REGION,
+                runtime_arn=AGENTCORE_RUNTIME_ARN,
+            )
+
+            final_text = _strip_raw_tool_markup(str(agent_result.get("answer") or "").strip()) or "No response generated."
+            suggestions = [x for x in (agent_result.get("suggestions") or []) if isinstance(x, str) and x.strip()][:3]
+            if not suggestions:
+                suggestions = list(DEFAULT_SUGGESTIONS)
 
             for tr in tool_traces:
                 yield emit({"type": "tool_trace", "trace": tr})
@@ -470,34 +485,21 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 yield emit({"type": "token", "delta": f"{w}{suffix}"})
                 await asyncio.sleep(0.03)
 
-            yield emit({"type": "done"})
-
-            # Generate contextual follow-up suggestions via structured output
-            try:
-                _suggest_agent = Agent(
-                    system_prompt=(
-                        "You generate short, natural follow-up questions a student would ask next. "
-                        "Keep each question under 12 words. Be specific and educational."
+            if history_svc is not None:
+                try:
+                    history_svc.put_message(
+                        user_id=user_id,
+                        session_id=session_id,
+                        role="assistant",
+                        content=final_text,
+                        traces=tool_traces,
+                        suggestions=suggestions,
                     )
-                )
-                _suggest_prompt = (
-                    f"Student asked: {query}\n"
-                    f"Answer summary: {final_text[:600]}\n\n"
-                    "Generate 3 natural follow-up questions the student would ask next."
-                )
-                _suggest_result = await asyncio.to_thread(
-                    _suggest_agent,
-                    _suggest_prompt,
-                    structured_output_model=FollowUpSuggestions,
-                )
-                _sugg: FollowUpSuggestions | None = getattr(_suggest_result, "structured_output", None)
-                if _sugg:
-                    yield emit({
-                        "type": "suggestions",
-                        "questions": [_sugg.question_1, _sugg.question_2, _sugg.question_3],
-                    })
-            except Exception as _se:
-                logger.warning("Follow-up suggestions generation failed: %s", _se)
+                except Exception as history_err:
+                    logger.warning("Failed to persist assistant message: %s", history_err)
+
+            yield emit({"type": "suggestions", "questions": suggestions})
+            yield emit({"type": "done"})
 
         except Exception as e:
             logger.exception("chat stream failed")

@@ -3,13 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   LayoutDashboard,
   Database,
   BookOpen,
   TrendingUp,
-  Bell,
   LogOut,
   Loader2,
   ChevronDown,
@@ -17,25 +16,27 @@ import {
   Search,
   BarChart3,
   MessageSquare,
-  ChevronsLeft,
-  ChevronsRight,
   Menu,
-  Library,
   Play,
   Layers,
+  UserCircle2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from './lib/utils';
 import DashboardView from './views/DashboardView';
 import KnowledgeManagementView from './views/KnowledgeManagementView';
 import LectureView from './views/LectureView';
 import LearningPathView from './views/LearningPathView';
 import ChatAssistantView from './views/ChatAssistantView';
+import ProfileView from './views/ProfileView';
 import QuizView from './views/QuizView';
 import LoginView from './views/LoginView';
 import AppFooter from './components/AppFooter';
+import UserProfileModal from './components/UserProfileModal';
 import { authService } from './services/auth_service';
 import type { AuthUser } from './services/auth_service';
+import type { UserEntity } from './database/types';
 import {
   getFilesWithMetadata,
   getQuizResults,
@@ -43,8 +44,49 @@ import {
   postQuizResult,
 } from './api/ragApi';
 
-export type ViewType = 'dashboard' | 'knowledge' | 'lecture' | 'learning' | 'chat';
+export type ViewType = 'dashboard' | 'knowledge' | 'lecture' | 'learning' | 'chat' | 'profile';
 export type KnowledgeSubTab = 'dashboard' | 'upload' | 'run-pipeline' | 'build-index' | 'explorer';
+
+const VIEW_PATHS: Record<ViewType, string> = {
+  dashboard: '/dashboard',
+  knowledge: '/knowledge/dashboard',
+  lecture: '/lecture',
+  learning: '/learning',
+  chat: '/chat',
+  profile: '/profile',
+};
+
+const KNOWLEDGE_PATHS: Record<KnowledgeSubTab, string> = {
+  dashboard: '/knowledge/dashboard',
+  upload: '/knowledge/upload',
+  'run-pipeline': '/knowledge/run-pipeline',
+  'build-index': '/knowledge/build-index',
+  explorer: '/knowledge/explorer',
+};
+
+function routeToState(pathname: string): {
+  view: ViewType;
+  knowledgeSubTab: KnowledgeSubTab;
+  isKnown: boolean;
+} {
+  const clean = pathname.replace(/\/+$/, '') || '/';
+  if (clean === '/' || clean === '/dashboard') {
+    return { view: 'dashboard', knowledgeSubTab: 'dashboard', isKnown: true };
+  }
+  if (clean.startsWith('/knowledge')) {
+    const seg = clean.split('/')[2] || 'dashboard';
+    const valid: KnowledgeSubTab[] = ['dashboard', 'upload', 'run-pipeline', 'build-index', 'explorer'];
+    if (valid.includes(seg as KnowledgeSubTab)) {
+      return { view: 'knowledge', knowledgeSubTab: seg as KnowledgeSubTab, isKnown: true };
+    }
+    return { view: 'knowledge', knowledgeSubTab: 'dashboard', isKnown: false };
+  }
+  if (clean === '/lecture') return { view: 'lecture', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/learning') return { view: 'learning', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/chat') return { view: 'chat', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/profile') return { view: 'profile', knowledgeSubTab: 'dashboard', isKnown: true };
+  return { view: 'dashboard', knowledgeSubTab: 'dashboard', isKnown: false };
+}
 
 export interface FileItem {
   id: number;
@@ -79,15 +121,35 @@ export interface QuizResult {
 }
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<ViewType>('dashboard');
-  const [knowledgeSubTab, setKnowledgeSubTab] = useState<KnowledgeSubTab>('dashboard');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const routeState = useMemo(() => routeToState(location.pathname), [location.pathname]);
+  const currentView = routeState.view;
+  const knowledgeSubTab = routeState.knowledgeSubTab;
   const [isKnowledgeExpanded, setIsKnowledgeExpanded] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [profile, setProfile] = useState<UserEntity | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
 
   const [files, setFiles] = useState<FileItem[]>([]);
   const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
+
+  const navigateToView = useCallback((view: ViewType) => {
+    navigate(VIEW_PATHS[view]);
+    if (view === 'knowledge') {
+      setIsKnowledgeExpanded(true);
+    }
+  }, [navigate]);
+
+  const navigateToKnowledgeTab = useCallback((tab: KnowledgeSubTab) => {
+    navigate(KNOWLEDGE_PATHS[tab]);
+    setIsKnowledgeExpanded(true);
+  }, [navigate]);
 
   const refreshQuizResultsFromApi = useCallback(async () => {
     try {
@@ -140,6 +202,46 @@ export default function App() {
     }
   }, []);
 
+  const loadProfile = useCallback(async () => {
+    setProfileLoading(true);
+    setProfileError(null);
+    try {
+      const me = await authService.getMe();
+      setProfile(me);
+    } catch (e) {
+      console.error('Failed to load profile', e);
+      setProfileError('Unable to load your profile right now.');
+    } finally {
+      setProfileLoading(false);
+    }
+  }, []);
+
+  const handleSaveProfile = useCallback(async (payload: { displayName: string; persona: string; educationDescription: string }) => {
+    setProfileSaving(true);
+    setProfileError(null);
+    const isStudent = (profile?.role ?? 'student') === 'student';
+    try {
+      const updated = await authService.updateProfile({
+        displayName: isStudent ? undefined : (payload.displayName || undefined),
+        persona: payload.persona || undefined,
+        educationDescription: payload.educationDescription || undefined,
+      });
+      setProfile(updated);
+      setUser((prev) => (prev ? {
+        ...prev,
+        displayName: updated.displayName,
+        persona: updated.persona,
+        educationDescription: updated.educationDescription,
+      } : prev));
+      setIsProfileModalOpen(false);
+    } catch (e) {
+      console.error('Failed to save profile', e);
+      setProfileError('Could not save profile changes. Please try again.');
+    } finally {
+      setProfileSaving(false);
+    }
+  }, []);
+
   useEffect(() => {
     let active = true;
     const unsubscribe = authService.onAuthStateChanged((currentUser) => {
@@ -166,6 +268,18 @@ export default function App() {
     refreshFilesFromApi();
     refreshQuizResultsFromApi();
   }, [user?.uid, refreshFilesFromApi, refreshQuizResultsFromApi]);
+
+  useEffect(() => {
+    if (!isProfileModalOpen || !user) return;
+    void loadProfile();
+  }, [isProfileModalOpen, user?.uid, loadProfile]);
+
+  useEffect(() => {
+    if (!isAuthReady || !user) return;
+    if (!routeState.isKnown || location.pathname === '/') {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthReady, user?.uid, routeState.isKnown, location.pathname, navigate]);
 
   if (!isAuthReady) {
     return (
@@ -202,15 +316,16 @@ export default function App() {
   ] as const;
 
   return (
-    <div className="flex h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="relative flex h-screen overflow-hidden bg-slate-50 text-slate-900 font-sans">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_100%_0%,rgba(56,189,248,0.12),transparent_35%),radial-gradient(circle_at_0%_100%,rgba(14,165,233,0.08),transparent_40%)]" />
       {/* Sidebar */}
       <aside
         className={cn(
-          'bg-white border-r border-slate-200 flex flex-col shrink-0 transition-[width] duration-200 ease-out overflow-hidden',
+          'bg-white/95 border-r border-sky-100 flex flex-col shrink-0 transition-[width] duration-200 ease-out overflow-hidden backdrop-blur-sm',
           sidebarCollapsed ? 'w-[4.5rem]' : 'w-72'
         )}
       >
-        <div className={cn('border-b border-slate-200', sidebarCollapsed ? 'p-3 flex justify-center' : 'p-6')}>
+        <div className={cn('border-b border-sky-100', sidebarCollapsed ? 'p-3 flex justify-center' : 'p-6')}>
 
           <div className={cn('flex items-center gap-2', sidebarCollapsed && 'justify-center')}>
             <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center shrink-0">
@@ -222,12 +337,11 @@ export default function App() {
           </div>
           {!sidebarCollapsed && <p className="text-xs text-slate-500 mt-1">Educational RAG System</p>}
         </div>
-        <div className={cn("p-2 flex", sidebarCollapsed ? "justify-center" : "px-4 py-2 border-b border-slate-100")}>
+        <div className={cn("p-2 flex", sidebarCollapsed ? "justify-center" : "px-4 py-2 border-b border-sky-100")}>
           <button
             type="button"
             onClick={() => setSidebarCollapsed((c) => !c)}
-            className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors shrink-0"
-            aria-expanded={!sidebarCollapsed}
+            className="p-2 rounded-lg text-slate-500 hover:bg-sky-50 hover:text-sky-700 transition-colors shrink-0"
             aria-label={sidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'}
           >
             {<Menu className='w-5 h-5' />}
@@ -250,21 +364,20 @@ export default function App() {
                       if (currentView === item.id) {
                         setIsKnowledgeExpanded(!isKnowledgeExpanded);
                       } else {
-                        setCurrentView(item.id as ViewType);
-                        setIsKnowledgeExpanded(true);
+                        navigateToView(item.id as ViewType);
                       }
                     } else {
-                      setCurrentView(item.id as ViewType);
+                      navigateToView(item.id as ViewType);
                     }
                   }}
                   className={cn(
                     'w-full flex items-center rounded-lg text-sm font-medium transition-colors text-left',
                     sidebarCollapsed ? 'justify-center px-2 py-3' : 'justify-between px-3 py-2.5',
-                    isActive ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    isActive ? 'bg-sky-50 text-sky-700 border border-sky-100' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent'
                   )}
                 >
                   <div className={cn('flex items-center min-w-0', sidebarCollapsed ? '' : 'gap-3')}>
-                    <Icon className={cn('w-5 h-5 shrink-0', isActive ? 'text-blue-600' : 'text-slate-400')} />
+                    <Icon className={cn('w-5 h-5 shrink-0', isActive ? 'text-sky-600' : 'text-slate-400')} />
                     {!sidebarCollapsed && <span className="whitespace-nowrap truncate">{item.label}</span>}
                   </div>
                   {hasSubItems && !sidebarCollapsed && (
@@ -296,18 +409,17 @@ export default function App() {
                               key={sub.id}
                               title={sidebarCollapsed ? sub.label : undefined}
                               onClick={() => {
-                                setCurrentView(item.id as ViewType);
-                                setKnowledgeSubTab(sub.id as KnowledgeSubTab);
+                                navigateToKnowledgeTab(sub.id as KnowledgeSubTab);
                               }}
                               className={cn(
                                 "w-full flex items-center rounded-lg text-sm font-medium transition-colors text-left",
                                 sidebarCollapsed ? "justify-center px-2 py-2.5" : "gap-2 px-3 py-2",
                                 isSubActive
-                                  ? "bg-blue-50 text-blue-700"
+                                  ? "bg-sky-50 text-sky-700 border border-sky-100"
                                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                               )}
                             >
-                              <SubIcon className={cn("w-5 h-5 shrink-0", isSubActive ? "text-blue-600" : "text-slate-400")} />
+                              <SubIcon className={cn("w-5 h-5 shrink-0", isSubActive ? "text-sky-600" : "text-slate-400")} />
                               {!sidebarCollapsed && <span className="whitespace-nowrap">{sub.label}</span>}
                             </button>
                           );
@@ -321,7 +433,7 @@ export default function App() {
           })}
         </nav>
 
-        <div className={cn('border-t border-slate-200 space-y-1', sidebarCollapsed ? 'p-2' : 'p-4')}>
+        <div className={cn('border-t border-sky-100 space-y-1 bg-white/80', sidebarCollapsed ? 'p-2' : 'p-4')}>
           <button
             type="button"
             title={sidebarCollapsed ? 'Sign out' : undefined}
@@ -340,19 +452,24 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 shrink-0 gap-3">
+        <header className="h-16 bg-white/95 border-b border-sky-100 flex items-center justify-between px-4 sm:px-8 shrink-0 gap-3 backdrop-blur-sm">
           <div className="flex items-center gap-2 min-w-0">
             {/* <button
               type="button"
               onClick={() => setSidebarCollapsed((c) => !c)}
               className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors shrink-0"
-              aria-expanded={!sidebarCollapsed}
               aria-label={sidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'}
             >
               {sidebarCollapsed ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
             </button> */}
             <h1 className="text-lg font-semibold text-slate-800 truncate">
-              {navItems.find((i) => i.id === currentView)?.label || currentView}
+              {currentView === 'knowledge'
+                ? navItems
+                    .find((i) => i.id === 'knowledge')
+                    ?.subItems?.find((s) => s.id === knowledgeSubTab)?.label || 'Knowledge Management'
+                : currentView === 'profile'
+                  ? 'Profile'
+                  : navItems.find((i) => i.id === currentView)?.label || currentView}
             </h1>
           </div>
           <div className="flex items-center gap-4">
@@ -360,32 +477,38 @@ export default function App() {
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button> */}
-            <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
+            <Link
+              to="/profile"
+              className="flex items-center gap-3 pl-4 border-l border-sky-100 rounded-lg hover:bg-sky-50/70 pr-2 py-1.5 transition-colors"
+              title="Open detailed profile page"
+            >
               {user.photoURL ? (
-                <img src={user.photoURL} alt={user.displayName || 'User'} className="w-8 h-8 rounded-full border border-slate-200" referrerPolicy="no-referrer" />
+                <img src={user.photoURL} alt={user.displayName || 'User'} className="w-8 h-8 rounded-full border border-sky-100" referrerPolicy="no-referrer" />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-semibold text-sm">
                   {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
                 </div>
               )}
-              <div className="hidden md:block text-sm">
-                <p className="font-medium text-slate-700 leading-none">{user.displayName || 'User'}</p>
+              <div className="hidden md:block text-sm text-left">
+                <p className="font-semibold text-slate-700 leading-none">{user.displayName || 'User'}</p>
                 <p className="text-slate-500 text-xs mt-1 truncate max-w-[150px]">{user.email}</p>
               </div>
-            </div>
+              <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-sky-700">
+                <UserCircle2 className="w-3 h-3" />
+                Profile
+              </span>
+            </Link>
           </div>
         </header>
 
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-8 min-h-0">
-            {currentView === 'dashboard' && <DashboardView onNavigate={setCurrentView} user={user} files={files} />}
+          <div className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-6 xl:p-8 2xl:px-10 min-h-0">
+            {currentView === 'dashboard' && <DashboardView onNavigate={navigateToView} user={user} files={files} />}
             {currentView === 'knowledge' && (
               <KnowledgeManagementView
                 files={files}
                 setFiles={setFiles}
-                onNavigate={setCurrentView}
                 activeTab={knowledgeSubTab}
-                onTabChange={setKnowledgeSubTab}
                 onRefreshFiles={refreshFilesFromApi}
               />
             )}
@@ -394,10 +517,27 @@ export default function App() {
               <LearningPathView files={files} quizResults={quizResults} onQuizComplete={addQuizResult} />
             )}
             {currentView === 'chat' && <ChatAssistantView />}
+            {currentView === 'profile' && <ProfileView user={user} onEditProfile={() => setIsProfileModalOpen(true)} />}
           </div>
           <AppFooter />
         </div>
       </main>
+
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        profile={profile}
+        isLoading={profileLoading}
+        isSaving={profileSaving}
+        error={profileError}
+        canEditDisplayName={(profile?.role ?? 'student') !== 'student'}
+        onClose={() => {
+          setIsProfileModalOpen(false);
+          setProfileError(null);
+        }}
+        onSave={(payload) => {
+          void handleSaveProfile(payload);
+        }}
+      />
     </div>
   );
 }

@@ -8,6 +8,8 @@ export interface AuthUser {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
+  persona?: string | null;
+  educationDescription?: string | null;
 }
 
 const LOCAL_AUTH_TOKEN_KEY = 'bk_local_auth_token';
@@ -26,6 +28,8 @@ class AuthService {
       email: user.email,
       displayName: user.displayName,
       photoURL: user.photoURL,
+      persona: user.persona,
+      educationDescription: user.educationDescription,
     };
   }
 
@@ -113,7 +117,13 @@ class AuthService {
   }
 
   async updateProfile(data: UserUpdateDTO): Promise<UserEntity> {
-    return userRepo.updateMe(data);
+    const updated = await userRepo.updateMe(data);
+    const hasLocalToken = !!localStorage.getItem(LOCAL_AUTH_TOKEN_KEY);
+    if (hasLocalToken) {
+      localStorage.setItem(LOCAL_AUTH_USER_KEY, JSON.stringify(this.toAuthUser(updated)));
+      window.dispatchEvent(new Event(LOCAL_AUTH_EVENT));
+    }
+    return updated;
   }
 }
 

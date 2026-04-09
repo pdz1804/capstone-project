@@ -1,14 +1,12 @@
 import LibraryView from './LibraryView';
 import SearchView from './SearchView';
 import KnowledgeDashboardView from './KnowledgeDashboardView';
-import { FileItem, ViewType, KnowledgeSubTab } from '../App';
+import { FileItem, KnowledgeSubTab } from '../App';
 
 interface KnowledgeManagementViewProps {
   files: FileItem[];
   setFiles: React.Dispatch<React.SetStateAction<FileItem[]>>;
-  onNavigate: (view: ViewType) => void;
   activeTab: KnowledgeSubTab;
-  onTabChange?: (tab: KnowledgeSubTab) => void;
   onRefreshFiles: () => Promise<void>;
 }
 
@@ -42,11 +40,14 @@ export default function KnowledgeManagementView({
   };
 
   return (
-    <div className="h-full flex flex-col space-y-6">
-      <div className="shrink-0 px-1 py-1">
-        <div>
-          <h2 className="text-base font-semibold text-slate-900">{tabDescription[activeTab].title}</h2>
-          <p className="text-sm text-slate-600 mt-1">{tabDescription[activeTab].description}</p>
+    <div className="h-full flex flex-col space-y-5">
+      <div className="shrink-0">
+        <div className="relative overflow-hidden rounded-3xl border border-sky-100 bg-white px-6 py-5 shadow-[0_14px_30px_-24px_rgba(14,165,233,0.5)]">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.13),transparent_42%)]" />
+          <div className="relative">
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">{tabDescription[activeTab].title}</h2>
+            <p className="text-sm text-slate-600 mt-1 max-w-3xl">{tabDescription[activeTab].description}</p>
+          </div>
         </div>
       </div>
 

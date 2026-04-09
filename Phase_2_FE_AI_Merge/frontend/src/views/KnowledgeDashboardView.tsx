@@ -226,7 +226,7 @@ export default function KnowledgeDashboardView({ files }: KnowledgeDashboardView
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div key={i} className="bg-white p-6 rounded-2xl border border-sky-100 shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)] flex items-center gap-4">
             <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color}`}>
               <stat.icon className="w-6 h-6" />
             </div>
@@ -253,7 +253,7 @@ export default function KnowledgeDashboardView({ files }: KnowledgeDashboardView
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Pie Chart */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-6 rounded-2xl border border-sky-100 shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)]">
           <h3 className="text-lg font-semibold text-slate-900 mb-6">Content Distribution</h3>
           <div className="h-[300px] w-full">
             {pieData.length > 0 ? (
@@ -288,7 +288,7 @@ export default function KnowledgeDashboardView({ files }: KnowledgeDashboardView
         </div>
 
         {/* Bar Chart - File Status */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-6 rounded-2xl border border-sky-100 shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)]">
           <h3 className="text-lg font-semibold text-slate-900 mb-6">Indexing Status</h3>
           <div className="h-[300px] w-full">
             {files.length > 0 ? (
@@ -321,7 +321,7 @@ export default function KnowledgeDashboardView({ files }: KnowledgeDashboardView
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-6 rounded-2xl border border-sky-100 shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)]">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Files with Metadata</h3>
           <div className="space-y-2 max-h-80 overflow-y-auto">
             {filesMeta.length === 0 && <p className="text-sm text-slate-500">No files found.</p>}
@@ -358,7 +358,7 @@ export default function KnowledgeDashboardView({ files }: KnowledgeDashboardView
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-6 rounded-2xl border border-sky-100 shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)]">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Processed Artifacts by Selected File</h3>
           {!selectedFile && <p className="text-sm text-slate-500">Select a file from the left panel.</p>}
           {selectedFile && processedLoading && <p className="text-sm text-slate-500">Loading processed artifacts...</p>}

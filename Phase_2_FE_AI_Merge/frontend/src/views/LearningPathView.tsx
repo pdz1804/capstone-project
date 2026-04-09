@@ -33,6 +33,7 @@ import { cn } from '../lib/utils';
 import { ViewType, FileItem, QuizResult } from '../App';
 import QuizView from './QuizView';
 import { postRoadmap } from '../api/ragApi';
+import learningRobot from '../../robot_1.png';
 
 interface LearningPathViewProps {
   files: FileItem[];
@@ -153,55 +154,67 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="w-full max-w-[1720px] mx-auto space-y-7 px-1 sm:px-2">
       {/* Header & Tabs */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Personalized Learning</h2>
-          <p className="text-slate-500 mt-1">Track your progress and follow your customized roadmap.</p>
-        </div>
-        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
-          <button
-            onClick={() => {
-              setSelectedFileIdForQuiz(null);
-              setActiveTab('roadmap');
-            }}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'roadmap' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-          >
-            <Target className="w-4 h-4 inline-block mr-2" />
-            Roadmap
-          </button>
-          <button
-            onClick={() => setActiveTab('priority')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'priority' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-          >
-            <Compass className="w-4 h-4 inline-block mr-2" />
-            Learning Journey
-          </button>
-          <button
-            onClick={() => {
-              setSelectedFileIdForQuiz(null);
-              setActiveTab('quiz');
-            }}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'quiz' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-          >
-            <BrainCircuit className="w-4 h-4 inline-block mr-2" />
-            Quiz
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'analytics' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-          >
-            <BarChart3 className="w-4 h-4 inline-block mr-2" />
-            Analytics
-          </button>
+      <div className="relative overflow-hidden rounded-3xl border border-sky-100 bg-white p-5 sm:p-6 shadow-[0_18px_34px_-28px_rgba(14,165,233,0.6)]">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_10%,rgba(56,189,248,0.14),transparent_40%)]" />
+        <div className="relative grid grid-cols-1 xl:grid-cols-[1fr_auto_auto] xl:items-center gap-5 xl:gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Personalized Learning</h2>
+            <p className="text-slate-500 mt-1">Track your progress and follow your customized roadmap.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 bg-sky-50/70 border border-sky-100 p-1 rounded-xl w-full xl:w-auto xl:max-w-[640px]">
+            <button
+              onClick={() => {
+                setSelectedFileIdForQuiz(null);
+                setActiveTab('roadmap');
+              }}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'roadmap' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+            >
+              <Target className="w-4 h-4 inline-block mr-2" />
+              Roadmap
+            </button>
+            <button
+              onClick={() => setActiveTab('priority')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'priority' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+            >
+              <Compass className="w-4 h-4 inline-block mr-2" />
+              Learning Journey
+            </button>
+            <button
+              onClick={() => {
+                setSelectedFileIdForQuiz(null);
+                setActiveTab('quiz');
+              }}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'quiz' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+            >
+              <BrainCircuit className="w-4 h-4 inline-block mr-2" />
+              Quiz
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'analytics' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+            >
+              <BarChart3 className="w-4 h-4 inline-block mr-2" />
+              Analytics
+            </button>
+          </div>
+          <div className="hidden xl:flex items-center gap-3">
+            <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 to-white px-4 py-3 min-w-[190px] shadow-sm">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">AI Learning Companion</p>
+              <div className="flex items-center justify-between gap-3 mt-2">
+                <p className="text-xs text-slate-500 leading-5 max-w-[86px]">Adaptive roadmap and quiz guidance</p>
+                <img src={learningRobot} alt="AI learning companion" className="h-20 w-auto object-contain animate-float-delayed" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Content Area */}
       {(activeTab === 'roadmap' || activeTab === 'priority') && (
         <div className="space-y-8">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 space-y-6">
+          <div className="bg-white rounded-2xl border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)] p-8 space-y-6">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-sky-600" />
               <h3 className="text-lg font-semibold text-slate-900">AI learning roadmap</h3>
@@ -238,6 +251,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
                 <select
                   value={roadmapDocScope}
                   onChange={(e) => setRoadmapDocScope(e.target.value)}
+                  aria-label="Roadmap document scope"
                   className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 bg-white"
                 >
                   <option value="all">All processed documents</option>
@@ -266,7 +280,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
             )}
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+          <div className="bg-white rounded-2xl border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)] p-8">
             <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
               {activeTab === 'priority' ? <Compass className="w-5 h-5 text-sky-600" /> : <TrendingUp className="w-5 h-5 text-sky-600" />}
               {activeTab === 'priority' ? 'Learning Journey (Lowest Accuracy First)' : 'Roadmap'}
@@ -351,11 +365,11 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
         <div className="space-y-8">
           {/* Analytics Filter & Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm col-span-1 md:col-span-2 flex flex-col justify-center">
+            <div className="bg-white rounded-2xl p-6 border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)] col-span-1 md:col-span-2 flex flex-col justify-center">
               <h3 className="text-lg font-semibold text-slate-900">Performance Analytics</h3>
               <p className="text-sm text-slate-500">Track your progress across all knowledge sources</p>
             </div>
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div className="bg-white rounded-2xl p-6 border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)]">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Average Accuracy</span>
               <div className={cn(
                 "text-2xl font-bold",
@@ -364,7 +378,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
                 {averageAccuracy === null ? "Not Taken" : `${averageAccuracy}%`}
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div className="bg-white rounded-2xl p-6 border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)]">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Quizzes Taken</span>
               <div className="text-2xl font-bold text-slate-900">
                 {filteredResults.length}
@@ -372,7 +386,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="bg-white rounded-2xl p-6 border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h3 className="text-lg font-semibold text-slate-900">Filter View</h3>
               <p className="text-sm text-slate-500">Select a specific file to filter the charts below</p>
@@ -382,6 +396,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
               <select
                 value={filterFileId}
                 onChange={(e) => setFilterFileId(e.target.value)}
+                aria-label="Filter analytics by source file"
                 className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-sky-500/20"
               >
                 <option value="all">All Files</option>
@@ -393,7 +408,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div className="bg-white rounded-2xl border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)] p-6">
               <h3 className="text-lg font-semibold text-slate-900 mb-6">Performance Trend</h3>
               <div className="h-80 w-full">
                 {performanceData.length > 0 ? (
@@ -433,7 +448,7 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div className="bg-white rounded-2xl border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)] p-6">
               <h3 className="text-lg font-semibold text-slate-900 mb-6">Skill Matrix</h3>
               <div className="h-80 w-full">
                 <ResponsiveContainer width="100%" height="100%">

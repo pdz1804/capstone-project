@@ -1,0 +1,4 @@
+# Dependencies for deploying backend/agent/agentcore_runtime_entrypoint.py
+bedrock-agentcore
+strands-agents
+boto3

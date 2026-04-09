@@ -2,7 +2,7 @@
 
 Parent overview of this repo folder: [`../README.md`](../README.md).
 
-This directory defines AWS infrastructure aligned with **`Phase_2_FE_AI_Merge`**: ECR repos, IAM for ECS tasks, an Application Load Balancer (optional **HTTPS** via ACM), Fargate services with auto scaling, and an optional **SageMaker real-time endpoint** for the unified multimodal image (`sagemaker/unified`). Build and push the container separately; see `../sagemaker/README.md`.
+This directory defines AWS infrastructure aligned with **`Phase_2_FE_AI_Merge`**: ECR repos, IAM for ECS tasks, an Application Load Balancer (optional **HTTPS** via ACM), Fargate services with auto scaling, DynamoDB chat history tables, and an optional **SageMaker real-time endpoint** for the unified multimodal image (`sagemaker/unified`). Build and push the container separately; see `../sagemaker/README.md`.
 
 ---
 
@@ -16,6 +16,8 @@ This directory defines AWS infrastructure aligned with **`Phase_2_FE_AI_Merge`**
 | ECS | Fargate cluster, backend + frontend services, CloudWatch log groups |
 | Auto Scaling | ECS service scaling (CPU, memory, ALB request count) |
 | SageMaker | Optional: execution role, model, endpoint config + endpoint, Application Auto Scaling on the variant |
+| DynamoDB | Optional `chatbot-session` and `chatbot-messages` tables for persistent chat history |
+| AgentCore prep | Optional ECR repository for packaging Bedrock AgentCore runtime container |
 
 ---
 
@@ -40,6 +42,10 @@ Important variables:
 - **`acm_certificate_arn`** — ACM certificate in the **same region as the ALB**. Empty string = HTTP only on `:80`.
 - **`enable_sagemaker_endpoint`** — `false` if you only want ECS/ALB and will manage SageMaker elsewhere.
 - **`sagemaker_image_tag`** — Tag you pushed to the unified ECR repo (endpoint creation expects the image to exist).
+- **`enable_chatbot_history_tables`** — `true` creates DynamoDB chat tables using defaults:
+	- sessions table: `chatbot-session` (PK=`user_id`, SK=`session_id`)
+	- messages table: `chatbot-messages` (PK=`session_id`, SK=`message_id`)
+- **`enable_agentcore_runtime_prep`** — `true` creates an ECR repository for the future AgentCore runtime image.
 
 ---
 

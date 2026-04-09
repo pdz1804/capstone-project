@@ -10,6 +10,12 @@ interface StageInfo {
   };
 }
 
+type StageTone = {
+  card: string;
+  detail: string;
+  dot: string;
+};
+
 interface ProcessingPipelineProps {
   files: FileItem[];
   processingStats?: Record<string, any>;
@@ -24,8 +30,31 @@ const stageInfo: StageInfo = {
 
 export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, processingStats }) => {
   const [processedFilter, setProcessedFilter] = useState<string>('all');
-  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+  const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>({});
+
+  const stageTone: Record<'sky' | 'cyan' | 'blue' | 'indigo', StageTone> = {
+    sky: {
+      card: 'bg-sky-100 text-sky-700 border-sky-200',
+      detail: 'bg-sky-50 border-sky-200 text-sky-800',
+      dot: 'bg-sky-200',
+    },
+    cyan: {
+      card: 'bg-cyan-100 text-cyan-700 border-cyan-200',
+      detail: 'bg-cyan-50 border-cyan-200 text-cyan-800',
+      dot: 'bg-cyan-200',
+    },
+    blue: {
+      card: 'bg-blue-100 text-blue-700 border-blue-200',
+      detail: 'bg-blue-50 border-blue-200 text-blue-800',
+      dot: 'bg-blue-200',
+    },
+    indigo: {
+      card: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+      detail: 'bg-indigo-50 border-indigo-200 text-indigo-800',
+      dot: 'bg-indigo-200',
+    },
+  };
 
   // Group files by status
   const indexedFiles = files.filter(f => f.status === 'indexed');
@@ -68,7 +97,7 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
   return (
     <div className="space-y-6">
       {/* Stage Progress Visualization */}
-        <div className="bg-white rounded-xl shadow-sm border border-sky-100 p-6">
+      <div className="bg-white rounded-xl shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)] border border-sky-100 p-6">
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-slate-800">Processing Pipeline</h3>
           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
@@ -81,15 +110,10 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {Object.entries(stageInfo).map(([stageKey, info]) => {
             const count = stageCounts[stageKey] || 0;
-            const colorClasses = {
-              sky: 'bg-sky-100 text-sky-700 border-sky-200',
-              cyan: 'bg-cyan-100 text-cyan-700 border-cyan-200',
-              blue: 'bg-blue-100 text-blue-700 border-blue-200',
-              indigo: 'bg-sky-100 text-sky-700 border-sky-200',
-            };
+            const tone = stageTone[info.color];
 
             return (
-              <div key={stageKey} className={`${colorClasses[info.color]} border p-4 rounded-xl text-center relative`}>
+              <div key={stageKey} className={`${tone.card} border p-4 rounded-xl text-center relative`}>
                 <div className="text-3xl font-bold mb-1">{count}</div>
                 <div className="text-xs font-medium">{info.label}</div>
                 {info.step < 4 && (
@@ -115,7 +139,7 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
               key={filter.id}
               onClick={() => setProcessedFilter(filter.id)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${processedFilter === filter.id
-                  ? 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-sky-600 text-white shadow-sm'
                   : 'bg-white text-slate-600 border border-sky-100 hover:bg-sky-50'
                 }`}
             >
@@ -124,8 +148,8 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
           ))}
         </div>
 
-        {/* Master-Detail View */}
-        {filteredFiles.length > 0 ? (
+                        ? 'border-sky-400 bg-sky-50 ring-1 ring-sky-200 shadow-sm'
+                        : 'border-sky-100 bg-white hover:border-sky-200 hover:shadow-sm'
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Document List - Left Side */}
             <div className="lg:col-span-4 space-y-2 max-h-[min(560px,70vh)] overflow-y-auto pr-2">
@@ -167,8 +191,8 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
             {/* Document Details - Right Side */}
             <div className="lg:col-span-8 min-h-[320px]">
               {selectedFile ? (
-                <div className="space-y-5 bg-white p-6 rounded-lg border border-slate-200">
-                  <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                <div className="space-y-5 bg-white p-6 rounded-lg border border-sky-100 shadow-[0_10px_24px_-20px_rgba(14,165,233,0.45)]">
+                  <div className="flex items-center justify-between gap-2 border-b border-sky-100 pb-3">
                     <h4 className="text-lg font-bold text-slate-800 truncate">{selectedFile.name}</h4>
                     <span className="text-sm text-slate-500 shrink-0">{selectedFile.type.toUpperCase()}</span>
                   </div>
@@ -197,14 +221,14 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
                           key={stageKey}
                           onClick={() => toggleStage(stageKey)}
                           className={`w-full text-left p-3 rounded-lg border transition-all ${isProcessed
-                              ? `bg-${info.color}-50 border-${info.color}-200 text-${info.color}-800`
+                              ? stageTone[info.color].detail
                               : 'bg-slate-50 border-slate-200 text-slate-500'
                             }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               <div
-                                className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${isProcessed ? `bg-${info.color}-200` : 'bg-slate-200'
+                                className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${isProcessed ? stageTone[info.color].dot : 'bg-slate-200'
                                   }`}
                               >
                                 {isProcessed ? '✓' : '○'}
