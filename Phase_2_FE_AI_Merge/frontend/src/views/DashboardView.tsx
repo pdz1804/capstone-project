@@ -17,6 +17,7 @@ import {
   ArrowRight,
   ShieldCheck,
   FileCode,
+  BookOpen,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ViewType, FileItem } from '../App';
@@ -64,9 +65,9 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
   ];
 
   const quickActions = [
-    { id: 'search', label: 'Ask AI Assistant', desc: 'Query your knowledge base', icon: Search, color: 'bg-sky-600', view: 'chat' },
-    { id: 'upload', label: 'Import Content', desc: 'Add new lecture materials', icon: UploadCloud, color: 'bg-blue-600', view: 'knowledge' },
-    { id: 'learning', label: 'Study Roadmap', desc: 'View personalized path', icon: TrendingUp, color: 'bg-emerald-600', view: 'learning' },
+    { id: 'search', label: 'Ask AI Assistant', desc: 'Query your knowledge base', icon: Search, color: 'bg-cyan-600', view: 'chat' },
+    { id: 'upload', label: 'Import Content', desc: 'Add new lecture materials', icon: UploadCloud, color: 'bg-sky-600', view: 'knowledge' },
+    { id: 'lecture', label: 'Lecture Viewer', desc: 'Comprehensive material library', icon: BookOpen, color: 'bg-blue-600', view: 'lecture' },
   ];
 
   const recentActivity = files.slice(0, 5).map((f) => ({
@@ -117,7 +118,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
               onClick={() => onNavigate('knowledge')}
               className="px-6 py-3 bg-white/15 hover:bg-white/25 text-white rounded-lg font-bold text-sm transition-all border border-white/30 active:scale-95"
             >
-              Explore Library
+              Study Roadmap
             </button>
           </div>
         </div>
@@ -144,9 +145,6 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
                 <div className="flex items-baseline gap-2">
                   <p className="text-3xl font-black text-slate-900 tracking-tighter">{stat.value}</p>
-                  {i < 3 && <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
-                    <TrendingUp className="w-2.5 h-2.5" /> +1
-                  </span>}
                 </div>
               </div>
             </motion.div>
