@@ -159,3 +159,57 @@ variable "sagemaker_container_environment" {
   type        = map(string)
   default     = {}
 }
+
+variable "enable_chatbot_history_tables" {
+  description = "Create DynamoDB tables for chat sessions/messages history"
+  type        = bool
+  default     = true
+}
+
+variable "chatbot_sessions_table_name" {
+  description = "DynamoDB table name for chat sessions (PK=user_id, SK=session_id)"
+  type        = string
+  default     = "chatbot-session"
+}
+
+variable "chatbot_messages_table_name" {
+  description = "DynamoDB table name for chat messages (PK=session_id, SK=message_id)"
+  type        = string
+  default     = "chatbot-messages"
+}
+
+variable "chatbot_history_ttl_enabled" {
+  description = "Enable TTL on chatbot history tables"
+  type        = bool
+  default     = false
+}
+
+variable "chatbot_history_ttl_attribute_name" {
+  description = "TTL attribute name used when chatbot_history_ttl_enabled=true"
+  type        = string
+  default     = "expires_at"
+}
+
+variable "dynamodb_users_table_arn" {
+  description = "Optional existing users DynamoDB table ARN to grant backend access"
+  type        = string
+  default     = ""
+}
+
+variable "dynamodb_quiz_results_table_arn" {
+  description = "Optional existing quiz results DynamoDB table ARN to grant backend access"
+  type        = string
+  default     = ""
+}
+
+variable "enable_agentcore_runtime_prep" {
+  description = "Prepare infrastructure for Bedrock AgentCore runtime deployment (ECR repository)"
+  type        = bool
+  default     = true
+}
+
+variable "agentcore_runtime_ecr_repository_name" {
+  description = "Optional override for AgentCore runtime ECR repository name"
+  type        = string
+  default     = ""
+}

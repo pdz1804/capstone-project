@@ -29,6 +29,9 @@ def _item_to_response(item: dict[str, Any]) -> UserResponse:
         displayName=item.get("displayName"),
         role=item.get("role") or "student",
         photoURL=item.get("photoURL"),
+        persona=item.get("persona"),
+        educationDescription=item.get("educationDescription"),
+        authProvider=item.get("authProvider"),
         createdAt=_parse_dt(item.get("createdAt")) or datetime.now(timezone.utc),
         lastLogin=_parse_dt(item.get("lastLogin")),
     )
@@ -82,6 +85,8 @@ class DynamoUserRepository:
             "displayName": user_in.displayName,
             "role": user_in.role or "student",
             "photoURL": user_in.photoURL,
+            "persona": user_in.persona,
+            "educationDescription": user_in.educationDescription,
             "authProvider": user_in.authProvider,
             "passwordHash": user_in.passwordHash,
             "createdAt": now,

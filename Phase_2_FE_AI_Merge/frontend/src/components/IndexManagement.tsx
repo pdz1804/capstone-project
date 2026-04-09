@@ -47,7 +47,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
       {/* Index Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Text Index */}
-        <div className="bg-white rounded-xl shadow-sm border border-sky-100 p-6 hover:shadow-md hover:border-sky-200 transition-all">
+        <div className="bg-white rounded-xl shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)] border border-sky-100 p-6 hover:shadow-md hover:border-sky-200 transition-all">
           <div className="flex items-center space-x-4 mb-6">
             <div className="w-10 h-10 bg-sky-100 rounded-lg flex items-center justify-center">
               <FileText className="w-5 h-5 text-sky-600" />
@@ -86,7 +86,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
         </div>
 
         {/* Image Index */}
-        <div className="bg-white rounded-xl shadow-sm border border-sky-100 p-6 hover:shadow-md hover:border-sky-200 transition-all">
+        <div className="bg-white rounded-xl shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)] border border-sky-100 p-6 hover:shadow-md hover:border-sky-200 transition-all">
           <div className="flex items-center space-x-4 mb-6">
             <div className="w-10 h-10 bg-sky-100 rounded-lg flex items-center justify-center">
               <Image className="w-5 h-5 text-sky-600" />
@@ -129,7 +129,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
       </div>
 
       {/* Index Management Buttons */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+      <div className="bg-white rounded-xl shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)] border border-sky-100 p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-slate-800 flex items-center space-x-3">
             <Database className="w-5 h-5 text-sky-500" />
@@ -148,7 +148,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
               <button
                 onClick={() => handleAction(onRebuildText)}
                 disabled={loading}
-                className="px-4 py-2.5 bg-sky-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-sky-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="px-4 py-2.5 bg-sky-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-sky-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:-translate-y-px active:translate-y-0"
                 title="Rebuild text index only"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
@@ -158,7 +158,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
               <button
                 onClick={() => handleAction(onRebuildImage)}
                 disabled={loading}
-                className="px-4 py-2.5 bg-sky-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-sky-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="px-4 py-2.5 bg-cyan-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-cyan-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:-translate-y-px active:translate-y-0"
                 title="Rebuild image index only"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
@@ -168,7 +168,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
               <button
                 onClick={() => handleAction(onRebuildAll)}
                 disabled={loading}
-                className="px-4 py-2.5 bg-slate-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-slate-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="px-4 py-2.5 bg-slate-700 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-slate-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:-translate-y-px active:translate-y-0"
                 title="Rebuild all indexes"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
@@ -207,7 +207,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
           </div>
 
           {/* Info Section */}
-          <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+          <div className="bg-sky-50/50 rounded-lg p-4 border border-sky-100">
             <p className="text-sm text-slate-600">
               <span className="font-semibold">Rebuild Text Index:</span> Re-processes documents → chunks → text embeddings (BM25 + Qdrant dense)
             </p>
@@ -223,7 +223,7 @@ export const IndexManagement: React.FC<IndexManagementProps> = ({
 
       {confirmType && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white rounded-xl border border-slate-200 shadow-xl p-6">
+          <div className="w-full max-w-md bg-white rounded-xl border border-sky-100 shadow-xl p-6">
             <h4 className="text-lg font-semibold text-slate-900">
               {confirmType === 'text' ? 'Clear text index?' : 'Clear image index?'}
             </h4>

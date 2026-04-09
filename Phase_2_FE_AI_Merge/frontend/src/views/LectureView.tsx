@@ -27,6 +27,7 @@ import {
   postSummary,
   type ProcessedByFileResponse,
 } from '../api/ragApi';
+import lectureRobot from '../../robot_1.png';
 
 function scrollToElementForHashLink(href: string) {
   const id = href.startsWith('#') ? href.slice(1) : href;
@@ -513,9 +514,9 @@ export default function LectureView({ files = [] }: LectureViewProps) {
   };
 
   return (
-    <div className="h-full flex flex-col lg:flex-row gap-8 max-w-[1600px] mx-auto">
-      <div className="flex-1 flex flex-col gap-2 min-w-0">
-        <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col gap-6 w-full">
+    <div className="h-full w-full flex flex-col lg:flex-row gap-6 xl:gap-8 max-w-[1900px] mx-auto">
+      <div className="lg:flex-[1.35] flex flex-col gap-2 min-w-0">
+        <div className="bg-white rounded-[2rem] p-6 border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)] flex flex-col gap-6 w-full">
           <div className="flex items-start gap-4 shrink-0">
             <div className="w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center shadow-sm shrink-0">
               {selectedFile?.type === 'video' ? (
@@ -636,7 +637,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               </div>
             )}
             {selectedFile && selectedFile.type !== 'video' && inputPreviewLoading && (
-              <div className="shrink-0 flex flex-col items-center justify-center gap-2 py-10 border-b border-slate-100 bg-slate-50/50">
+              <div className="shrink-0 flex flex-col items-center justify-center gap-2 py-10 border-b border-sky-100 bg-sky-50/40">
                 <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
                 <p className="text-xs font-bold text-slate-500">Loading original file preview…</p>
               </div>
@@ -645,7 +646,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               <div className="shrink-0 px-4 py-3 border-b border-red-100 bg-red-50/80 text-sm text-red-700">{inputPreviewError}</div>
             )}
             {selectedFile && selectedFile.type !== 'video' && !inputPreviewLoading && inputPreview.kind === 'text' && (
-              <div className="flex-1 overflow-y-auto custom-scrollbar border-b border-slate-200 bg-slate-50/80 p-4">
+              <div className="flex-1 overflow-y-auto custom-scrollbar border-b border-sky-100 bg-sky-50/50 p-4">
                 {selectedFile.name.toLowerCase().endsWith('.md') ? (
                   <div className="prose prose-sm prose-slate max-w-none">
                     <ReactMarkdown remarkPlugins={[remarkGfm]} components={LECTURE_MARKDOWN_COMPONENTS}>
@@ -663,7 +664,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               selectedFile.type !== 'video' &&
               !inputPreviewLoading &&
               inputPreview.kind === 'office' && (
-                <div className="flex-1 border-b border-slate-200 bg-slate-100 flex flex-col">
+                <div className="flex-1 border-b border-sky-100 bg-sky-50/50 flex flex-col">
                   <iframe
                     title={`Office preview: ${selectedFile.name}`}
                     src={inputPreview.iframeSrc}
@@ -675,7 +676,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               selectedFile.type !== 'video' &&
               !inputPreviewLoading &&
               inputPreview.kind === 'html' && (
-                <div className="flex-1 border-b border-slate-200 bg-white">
+                <div className="flex-1 border-b border-sky-100 bg-white">
                   <iframe
                     title={`HTML preview: ${selectedFile.name}`}
                     srcDoc={inputPreview.content}
@@ -689,7 +690,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               !inputPreviewLoading &&
               inputPreview.kind === 'blob' &&
               (selectedFile.type === 'image' || inputPreview.mime.startsWith('image/')) && (
-                <div className="flex-1 bg-slate-100 border-b border-slate-200 flex items-center justify-center p-4">
+                <div className="flex-1 bg-sky-50/40 border-b border-sky-100 flex items-center justify-center p-4">
                   <img
                     src={inputPreview.url}
                     alt={selectedFile.name}
@@ -702,7 +703,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               !inputPreviewLoading &&
               inputPreview.kind === 'blob' &&
               (selectedFile.type === 'pdf' || inputPreview.mime === 'application/pdf') && (
-                <div className="flex-1 border-b border-slate-200 bg-slate-100 flex flex-col">
+                <div className="flex-1 border-b border-sky-100 bg-sky-50/50 flex flex-col">
                   <iframe
                     title={`PDF: ${selectedFile.name}`}
                     src={inputPreview.url}
@@ -715,7 +716,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               !inputPreviewLoading &&
               inputPreview.kind === 'blob' &&
               (selectedFile.type === 'audio' || inputPreview.mime.startsWith('audio/')) && (
-                <div className="shrink-0 px-6 py-5 border-b border-slate-200 bg-slate-50 flex-1 flex flex-col justify-center">
+                <div className="shrink-0 px-6 py-5 border-b border-sky-100 bg-sky-50/40 flex-1 flex flex-col justify-center">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Audio</p>
                   <audio src={inputPreview.url} controls className="w-full" />
                 </div>
@@ -730,7 +731,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               !inputPreview.mime.startsWith('image/') &&
               inputPreview.mime !== 'application/pdf' &&
               !inputPreview.mime.startsWith('audio/') && (
-                <div className="flex-1 px-6 py-5 border-b border-slate-200 bg-slate-50 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="flex-1 px-6 py-5 border-b border-sky-100 bg-sky-50/40 text-center flex flex-col items-center justify-center space-y-3">
                   <p className="text-sm text-slate-600">Inline preview is not available for this MIME type.</p>
                   <a
                     href={inputPreview.url}
@@ -806,13 +807,13 @@ export default function LectureView({ files = [] }: LectureViewProps) {
         )}
       </div>
 
-      <div className="flex-1 bg-white rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col h-[calc(100vh-10rem)] overflow-hidden">
-        <div className="flex items-center p-3 bg-slate-50/50 border-b border-slate-100 shrink-0">
+      <div className="w-full lg:max-w-[560px] xl:max-w-[620px] 2xl:max-w-[680px] bg-white rounded-[2.5rem] border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)] flex flex-col h-[calc(100vh-10rem)] overflow-hidden">
+        <div className="flex items-center p-3 bg-sky-50/50 border-b border-sky-100 shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('transcript')}
             className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 ${activeTab === 'transcript'
-              ? 'bg-white text-sky-600 shadow-sm border border-slate-200'
+              ? 'bg-white text-sky-600 shadow-sm border border-sky-100'
               : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
               }`}
           >
@@ -823,7 +824,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             type="button"
             onClick={() => setActiveTab('summary')}
             className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 ${activeTab === 'summary'
-              ? 'bg-white text-sky-600 shadow-sm border border-slate-200'
+              ? 'bg-white text-sky-600 shadow-sm border border-sky-100'
               : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
               }`}
           >
@@ -839,12 +840,12 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                 <p className="text-xs text-slate-500 font-medium leading-relaxed flex-1">
                   <strong>{scopeFile?.name || 'This file'}</strong> — switch between indexed chunks and full processed markdown.
                 </p>
-                <div className="flex rounded-2xl border border-slate-200 p-1 bg-slate-50 shrink-0">
+                <div className="flex rounded-2xl border border-sky-100 p-1 bg-sky-50/50 shrink-0">
                   <button
                     type="button"
                     onClick={() => setPassagesPane('chunks')}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${passagesPane === 'chunks'
-                      ? 'bg-white text-sky-600 shadow-sm border border-slate-100'
+                      ? 'bg-white text-sky-600 shadow-sm border border-sky-100'
                       : 'text-slate-500 hover:text-slate-700'
                       }`}
                   >
@@ -855,7 +856,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     type="button"
                     onClick={() => setPassagesPane('markdown')}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${passagesPane === 'markdown'
-                      ? 'bg-white text-sky-600 shadow-sm border border-slate-100'
+                      ? 'bg-white text-sky-600 shadow-sm border border-sky-100'
                       : 'text-slate-500 hover:text-slate-700'
                       }`}
                   >
@@ -875,7 +876,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     </div>
                   )}
                   {!processedMdLoading && processedMarkdown && (
-                    <div className="prose prose-sm prose-slate max-w-none text-slate-700 border border-slate-100 rounded-2xl p-4 bg-slate-50/50 max-h-[55vh] overflow-y-auto custom-scrollbar">
+                    <div className="prose prose-sm prose-slate max-w-none text-slate-700 border border-sky-100 rounded-2xl p-4 bg-sky-50/40 max-h-[55vh] overflow-y-auto custom-scrollbar">
                       <ReactMarkdown remarkPlugins={[remarkGfm]} components={LECTURE_MARKDOWN_COMPONENTS}>
                         {processedMarkdown}
                       </ReactMarkdown>
@@ -901,7 +902,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                       value={transcriptQuery}
                       onChange={(e) => setTranscriptQuery(e.target.value)}
                       placeholder="Filter passages…"
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-all shadow-inner"
+                      className="w-full pl-11 pr-4 py-3 bg-sky-50/50 border border-sky-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-all shadow-inner"
                     />
                   </div>
                   {transcriptLoading && (
@@ -937,7 +938,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                       return (
                         <div
                           key={`${scopeFile?.name}-${source}-${i}`}
-                          className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-sky-50/40 hover:border-sky-100 transition-all"
+                          className="p-4 rounded-2xl border border-sky-100 bg-white hover:bg-sky-50/40 hover:border-sky-200 transition-all"
                         >
                           {source && (
                             <p className="text-[10px] font-black text-sky-500 uppercase tracking-widest mb-2 truncate" title={source}>
@@ -959,11 +960,14 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             <div className="flex flex-col h-full">
               {!summaryMarkdown && !isGenerating ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-10 text-center m-6 bg-[#F8FAFC] rounded-[2rem] border border-slate-100 shadow-inner">
-                  <div className="w-20 h-20 bg-white text-sky-600 rounded-[1.5rem] flex items-center justify-center mb-6 shadow-xl shadow-sky-100/50">
-                    <Sparkles className="w-10 h-10" />
+                  <div className="relative mb-6">
+                    <img src={lectureRobot} alt="AI summary assistant" className="h-24 w-auto object-contain animate-float" />
+                    <div className="absolute -bottom-2 -right-2 w-9 h-9 bg-white text-sky-600 rounded-xl border border-sky-100 flex items-center justify-center shadow-md">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
                   </div>
                   <h3 className="text-xl font-black text-slate-900 mb-3 tracking-tight">Lecture insight</h3>
-                  <p className="text-sm text-slate-500 mb-6 max-w-xs font-medium leading-relaxed">
+                  <p className="text-sm text-slate-500 mb-6 max-w-md font-medium leading-relaxed">
                     Summary is generated from <strong>processed markdown</strong> (pipeline stage 3), like the standalone AI service.
                   </p>
                   {summaryError && (
@@ -1021,7 +1025,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   {summaryError && (
                     <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-4">{summaryError}</p>
                   )}
-                  <article className="border border-slate-100 rounded-2xl p-6 bg-slate-50/50">
+                  <article className="border border-sky-100 rounded-2xl p-6 bg-sky-50/40">
                     <div className="prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
                       <ReactMarkdown remarkPlugins={[remarkGfm]} components={LECTURE_MARKDOWN_COMPONENTS}>
                         {summaryMarkdown}

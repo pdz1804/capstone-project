@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -165,6 +165,14 @@ class InferenceProbeResponse(BaseModel):
 class ChatStreamRequest(BaseModel):
     query: str = Field(..., min_length=1, description="Natural language user message.")
     top_k: int = Field(8, ge=1, le=30, description="Default retrieval breadth for inline tools.")
+    persona: str | None = Field(
+        None,
+        description="Optional preferred assistant tone/persona configured by the user profile.",
+    )
+    education_description: str | None = Field(
+        None,
+        description="Optional user education background/context to personalize explanations.",
+    )
     session_id: str = Field(
         "",
         description=(
@@ -173,6 +181,64 @@ class ChatStreamRequest(BaseModel):
             "Regenerate on the client to start a fresh memory session (e.g. after Clear Chat)."
         ),
     )
+
+
+class ChatSessionCreateRequest(BaseModel):
+    session_id: str | None = Field(
+        None,
+        description="Optional client-provided session id. If omitted, server generates one.",
+    )
+    title: str | None = Field(
+        None,
+        max_length=120,
+        description="Optional custom title for this chat session.",
+    )
+    pinned: bool = Field(False, description="Whether to pin this chat session in the history list.")
+
+
+class ChatSessionUpdateRequest(BaseModel):
+    title: str | None = Field(None, max_length=120)
+    pinned: bool | None = None
+
+    @model_validator(mode="after")
+    def require_any_change(self):
+        if self.title is None and self.pinned is None:
+            raise ValueError("Provide title and/or pinned when updating a chat session.")
+        return self
+
+
+class ChatSessionItem(BaseModel):
+    session_id: str
+    user_id: str
+    title: str
+    pinned: bool
+    message_count: int
+    created_at: str
+    updated_at: str
+    last_message_at: str | None = None
+    last_message_preview: str | None = None
+    last_message_role: Literal["user", "assistant", "system"] | None = None
+
+
+class ChatSessionsListResponse(BaseModel):
+    items: list[ChatSessionItem]
+    next_cursor: str | None = None
+
+
+class ChatMessageItem(BaseModel):
+    session_id: str
+    message_id: str
+    user_id: str
+    role: Literal["user", "assistant", "system"]
+    content: str
+    created_at: str
+    traces: list[dict[str, Any]] = Field(default_factory=list)
+    suggestions: list[str] = Field(default_factory=list)
+
+
+class ChatMessagesListResponse(BaseModel):
+    items: list[ChatMessageItem]
+    next_cursor: str | None = None
 
 
 class QuizResultCreateRequest(BaseModel):

@@ -46,9 +46,20 @@ data "aws_subnets" "default" {
 locals {
   sagemaker_endpoint_effective_name = trimspace(var.sagemaker_endpoint_name) != "" ? var.sagemaker_endpoint_name : "${var.project_name}-multimodal-rt"
   sagemaker_ecr_repo_effective_name = trimspace(var.sagemaker_ecr_repository_name) != "" ? var.sagemaker_ecr_repository_name : "${var.project_name}-multimodal-unified"
+  agentcore_runtime_ecr_effective_name = trimspace(var.agentcore_runtime_ecr_repository_name) != "" ? var.agentcore_runtime_ecr_repository_name : "${var.project_name}-agentcore-runtime"
+  chatbot_sessions_table_effective_name = trimspace(var.chatbot_sessions_table_name) != "" ? var.chatbot_sessions_table_name : "chatbot-session"
+  chatbot_messages_table_effective_name = trimspace(var.chatbot_messages_table_name) != "" ? var.chatbot_messages_table_name : "chatbot-messages"
   sagemaker_invoke_arns = var.enable_sagemaker_endpoint ? [
     "arn:aws:sagemaker:${var.aws_region}:${data.aws_caller_identity.current.account_id}:endpoint/${local.sagemaker_endpoint_effective_name}"
   ] : []
+  backend_dynamodb_table_arns = compact(concat(
+    var.enable_chatbot_history_tables ? [
+      aws_dynamodb_table.chatbot_sessions[0].arn,
+      aws_dynamodb_table.chatbot_messages[0].arn
+    ] : [],
+    trimspace(var.dynamodb_users_table_arn) != "" ? [var.dynamodb_users_table_arn] : [],
+    trimspace(var.dynamodb_quiz_results_table_arn) != "" ? [var.dynamodb_quiz_results_table_arn] : []
+  ))
   sagemaker_default_env = merge(
     {
       AWS_REGION                     = var.aws_region
@@ -65,6 +76,76 @@ locals {
     },
     var.sagemaker_container_environment
   )
+}
+
+resource "aws_dynamodb_table" "chatbot_sessions" {
+  count = var.enable_chatbot_history_tables ? 1 : 0
+
+  name         = local.chatbot_sessions_table_effective_name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "user_id"
+  range_key    = "session_id"
+
+  attribute {
+    name = "user_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "session_id"
+    type = "S"
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+
+  dynamic "ttl" {
+    for_each = var.chatbot_history_ttl_enabled ? [1] : []
+    content {
+      attribute_name = var.chatbot_history_ttl_attribute_name
+      enabled        = true
+    }
+  }
+
+  tags = {
+    Service = "chatbot-sessions"
+  }
+}
+
+resource "aws_dynamodb_table" "chatbot_messages" {
+  count = var.enable_chatbot_history_tables ? 1 : 0
+
+  name         = local.chatbot_messages_table_effective_name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "session_id"
+  range_key    = "message_id"
+
+  attribute {
+    name = "session_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "message_id"
+    type = "S"
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+
+  dynamic "ttl" {
+    for_each = var.chatbot_history_ttl_enabled ? [1] : []
+    content {
+      attribute_name = var.chatbot_history_ttl_attribute_name
+      enabled        = true
+    }
+  }
+
+  tags = {
+    Service = "chatbot-messages"
+  }
 }
 
 module "backend_ecr" {
@@ -93,6 +174,20 @@ module "frontend_ecr" {
   }
 }
 
+module "agentcore_runtime_ecr" {
+  count  = var.enable_agentcore_runtime_prep ? 1 : 0
+  source = "./modules/ecr"
+
+  repository_name       = local.agentcore_runtime_ecr_effective_name
+  image_tag_mutability  = "MUTABLE"
+  scan_on_push          = true
+  image_retention_count = 10
+
+  tags = {
+    Service = "agentcore-runtime"
+  }
+}
+
 module "sagemaker_unified_ecr" {
   count  = var.enable_sagemaker_endpoint ? 1 : 0
   source = "./modules/ecr"
@@ -115,6 +210,7 @@ module "backend_iam" {
   s3_bucket_arns      = []
 
   sagemaker_invoke_endpoint_arns = local.sagemaker_invoke_arns
+  dynamodb_table_arns            = local.backend_dynamodb_table_arns
 
   tags = {
     Service = "backend"
@@ -128,6 +224,7 @@ module "frontend_iam" {
   ecr_repository_arns            = [module.frontend_ecr.repository_arn]
   s3_bucket_arns                 = []
   sagemaker_invoke_endpoint_arns = []
+  dynamodb_table_arns            = []
 
   tags = {
     Service = "frontend"

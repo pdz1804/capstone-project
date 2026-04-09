@@ -29,6 +29,12 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return user
 
+    def update_user_profile(self, uid: str, payload: UserUpdate) -> UserResponse:
+        updated = self.user_repo.update(uid, payload)
+        if not updated:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        return updated
+
     def sync_user(self, user_data: dict) -> UserResponse:
         uid = user_data.get("uid")
         existing = self.user_repo.get_by_id(uid)

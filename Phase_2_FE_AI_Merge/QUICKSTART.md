@@ -55,6 +55,16 @@ docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant:latest
 
 ---
 
+## New Chat Assistant Features (April 2026)
+
+- Persistent chat sessions with **rename / pin / delete**
+- Paged chat history list in the Chat Assistant sidebar
+- History sync toggle in UI (on/off)
+- Session-aware chat stream (`session_id`) with durable message storage
+- Runtime switch: local Strands agent or deployed Bedrock AgentCore runtime
+
+---
+
 ## Key Files Modified
 
 ### Backend
@@ -95,6 +105,16 @@ Click **"Sign in with Google"** button in the UI.
 - Enter query like "machine learning"
 - See text + image results
 
+### 5. Test Chat History
+
+- Open **Chat Assistant** view
+- Create a new chat and send a message
+- Rename the session, pin/unpin it, and delete one session
+- Verify history paging buttons (Prev/Next) when you have many sessions
+- Toggle history sync on/off and confirm behavior:
+        - **On**: session APIs are called and chat history persists
+        - **Off**: chat still works but history session APIs are skipped
+
 ---
 
 ## Configuration
@@ -118,6 +138,15 @@ FILE_STORAGE_BACKEND=local
 # Add to config/default.yaml:
 # processing.document.enable_vlm: true
 # processing.document.vlm_model: smolvlm
+
+# Chat runtime switch
+CHAT_AGENT_RUNTIME=local  # or: agentcore-runtime
+AGENTCORE_RUNTIME_ARN=arn:aws:bedrock-agentcore:...
+AGENTCORE_REGION=us-west-2
+
+# Chat history tables (DynamoDB)
+DYNAMODB_CHATBOT_SESSIONS_TABLE=chatbot-session
+DYNAMODB_CHATBOT_MESSAGES_TABLE=chatbot-messages
 ```
 
 ### Frontend Environment (`.env.local`, optional)
@@ -140,10 +169,11 @@ Backend (FastAPI)
         ├─ Upload: Store in S3 / local disk
         ├─ Process: Docling pipeline (OCR, VLM, ASR)
         ├─ Index: Text (BM25, embeddings) + Image (ColPali)
+        ├─ Chat: session stream + history APIs
         └─ Search: Hybrid retrieval
         ↓
 Qdrant Vector DB → semantic search
-DynamoDB → user profiles
+DynamoDB → user profiles + chat sessions/messages
 S3 → documents
 ```
 

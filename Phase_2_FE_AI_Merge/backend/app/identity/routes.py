@@ -5,7 +5,7 @@ from typing import List
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 
 from .firebase_auth import FirebaseAuthService
-from .schemas import AuthSessionResponse, LocalLoginRequest, LocalRegisterRequest, UserResponse
+from .schemas import AuthSessionResponse, LocalLoginRequest, LocalRegisterRequest, UserResponse, UserUpdate
 from .user_repository_dynamo import DynamoUserRepository
 from .user_service import UserService
 
@@ -79,6 +79,24 @@ def get_current_user(
 @users_router.get("/me", response_model=UserResponse)
 def get_me(user: UserResponse = Depends(get_current_user)):
     return user
+
+
+@users_router.patch("/me", response_model=UserResponse)
+def update_me(
+    body: UserUpdate,
+    user: UserResponse = Depends(get_current_user),
+    user_service: UserService = Depends(get_user_service),
+):
+    return user_service.update_user_profile(user.uid, body)
+
+
+@users_router.get("/{uid}", response_model=UserResponse)
+def get_user_by_id(
+    uid: str,
+    _user: UserResponse = Depends(get_current_user),
+    user_service: UserService = Depends(get_user_service),
+):
+    return user_service.get_user_profile(uid)
 
 
 @users_router.get("/", response_model=List[UserResponse])
