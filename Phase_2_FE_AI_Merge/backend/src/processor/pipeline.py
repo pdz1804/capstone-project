@@ -469,7 +469,17 @@ class DocumentProcessingPipeline:
             excel_stats = self._run_excel_processing()
             if excel_stats and excel_stats.get("processed_files", 0) > 0:
                 self.pipeline_stats["stages"]["excel_processing"] = excel_stats
-            
+
+            # Stage 3c: DOCX Processing (custom XML parser + heading-aware chunking)
+            docx_stats = self._run_docx_processing()
+            if docx_stats and docx_stats.get("processed_files", 0) > 0:
+                self.pipeline_stats["stages"]["docx_processing"] = docx_stats
+
+            # Stage 3d: PDF Processing (born-digital custom parser + heading-aware chunking)
+            pdf_stats = self._run_pdf_processing()
+            if pdf_stats and pdf_stats.get("processed_files", 0) > 0:
+                self.pipeline_stats["stages"]["pdf_processing"] = pdf_stats
+
             # Stage 4: Consolidation to RAG-ready format
             print("\n" + "="*80)
             print("STAGE 4: CONSOLIDATION (RAG-Ready)")
@@ -620,15 +630,41 @@ class DocumentProcessingPipeline:
             processed_basenames = set()  # Files already converted to PDF or MD
             
             # STEP 1: Always process normalized PDFs (highest priority - best quality)
+            # But skip PDFs whose source DOCX was handled by the custom parser
             normalized_pdf_dir = self.stage_dirs["normalized"] / "normalized_pdfs"
-            
+
             if normalized_pdf_dir.exists():
                 pdf_files = list(normalized_pdf_dir.glob("*.pdf"))
+
+                # Filter out PDFs from DOCX files handled by custom parser
+                docx_parsed_dir = self.stage_dirs["normalized"] / "docx_parsed"
+                if docx_parsed_dir.exists():
+                    custom_docx_stems = {
+                        p.stem for p in docx_parsed_dir.glob("*.json")
+                    }
+                    before_count = len(pdf_files)
+                    pdf_files = [f for f in pdf_files if f.stem not in custom_docx_stems]
+                    skipped = before_count - len(pdf_files)
+                    if skipped > 0:
+                        print(f"  ⏭ Skipping {skipped} normalized PDFs from DOCX (handled by custom parser)")
+
+                # Filter out born-digital PDFs handled by custom PDF parser
+                pdf_parsed_dir = self.stage_dirs["normalized"] / "pdf_parsed"
+                if pdf_parsed_dir.exists():
+                    custom_pdf_stems = {
+                        p.stem for p in pdf_parsed_dir.glob("*.json")
+                    }
+                    before_count = len(pdf_files)
+                    pdf_files = [f for f in pdf_files if f.stem not in custom_pdf_stems]
+                    skipped = before_count - len(pdf_files)
+                    if skipped > 0:
+                        print(f"  ⏭ Skipping {skipped} born-digital PDFs (handled by custom PDF parser)")
+
                 if pdf_files:
                     print(f"  → Adding {len(pdf_files)} normalized PDFs from: {normalized_pdf_dir}")
                     print(f"    (Converted DOCX/PPTX/HTML - best quality)")
-                    inputs_to_process.append(normalized_pdf_dir)
-                    
+                    inputs_to_process.append(("filtered", normalized_pdf_dir, pdf_files))
+
                     # Track base names to avoid duplicate processing
                     for pdf_file in pdf_files:
                         processed_basenames.add(pdf_file.stem)  # filename without extension
@@ -671,7 +707,37 @@ class DocumentProcessingPipeline:
                     skipped_excel = before_count - len(unique_originals)
                     if skipped_excel > 0:
                         print(f"  ⏭ Skipping {skipped_excel} Excel files (handled by custom parser)")
-                
+
+                # Skip DOCX files that were already parsed by our custom parser
+                docx_parsed_dir = self.stage_dirs["normalized"] / "docx_parsed"
+                if docx_parsed_dir.exists():
+                    custom_docx_stems = {
+                        p.stem for p in docx_parsed_dir.glob("*.json")
+                    }
+                    before_count = len(unique_originals)
+                    unique_originals = [
+                        f for f in unique_originals
+                        if not (f.suffix.lower() in ('.docx', '.doc') and f.stem in custom_docx_stems)
+                    ]
+                    skipped_docx = before_count - len(unique_originals)
+                    if skipped_docx > 0:
+                        print(f"  ⏭ Skipping {skipped_docx} DOCX files (handled by custom parser)")
+
+                # Skip born-digital PDFs already parsed by our custom parser
+                pdf_parsed_dir = self.stage_dirs["normalized"] / "pdf_parsed"
+                if pdf_parsed_dir.exists():
+                    custom_pdf_stems = {
+                        p.stem for p in pdf_parsed_dir.glob("*.json")
+                    }
+                    before_count = len(unique_originals)
+                    unique_originals = [
+                        f for f in unique_originals
+                        if not (f.suffix.lower() == '.pdf' and f.stem in custom_pdf_stems)
+                    ]
+                    skipped_pdf = before_count - len(unique_originals)
+                    if skipped_pdf > 0:
+                        print(f"  ⏭ Skipping {skipped_pdf} born-digital PDFs (handled by custom parser)")
+
                 if unique_originals:
                     print(f"  → Adding {len(unique_originals)} unique original files from: {originals_dir}")
                     print(f"    (Files NOT already converted to PDF/MD, Docling-supported formats only)")
@@ -777,10 +843,168 @@ class DocumentProcessingPipeline:
             print(f"ERROR: ✗ Document processing failed: {str(e)}")
             raise
     
+    def _run_docx_processing(self) -> Dict:
+        """
+        Run Stage 3c: DOCX Processing with custom XML parser.
+
+        Processes parsed DOCX JSON files from Stage 1 (docx_parsed/)
+        using DocxPreprocessor to produce RAG-ready output:
+          - {doc_id}/{doc_id}.md
+          - {doc_id}/docx_chunks.json
+          - {doc_id}/docx_manifest.json
+          - {doc_id}/images/
+
+        Output goes directly to stage4_rag_ready/.
+        """
+        docx_parsed_dir = self.stage_dirs["normalized"] / "docx_parsed"
+
+        if not docx_parsed_dir.exists():
+            return {"processed_files": 0, "total_files": 0}
+
+        json_files = [f for f in docx_parsed_dir.glob("*.json") if not f.name.startswith("_")]
+        if not json_files:
+            return {"processed_files": 0, "total_files": 0}
+
+        print("\n" + "="*80)
+        print("STAGE 3c: DOCX PROCESSING (Custom Parser + Heading-Aware Chunking)")
+        print("="*80)
+        print(f"Found {len(json_files)} parsed DOCX JSON file(s)")
+
+        from ..chunking.docx_preprocessor import DocxPreprocessor
+
+        stats = {"processed_files": 0, "failed_files": 0, "total_files": len(json_files), "total_chunks": 0}
+
+        for json_path in json_files:
+            try:
+                doc_id = json_path.stem
+
+                # Find the original docx file to pass as reference
+                original_docx = None
+                for ext in ('.docx', '.doc'):
+                    candidate = self.stage_dirs["normalized"] / "original_files" / f"{doc_id}{ext}"
+                    if candidate.exists():
+                        original_docx = candidate
+                        break
+
+                print(f"\n  Processing: {doc_id}")
+
+                preprocessor = DocxPreprocessor(
+                    output_dir=self.stage_dirs["rag_ready"],
+                    chunk_size=1000,
+                    chunk_overlap=200,
+                    max_table_chunk_size=2000,
+                )
+
+                result = preprocessor.process_docx_json(
+                    json_path=json_path,
+                    original_docx_path=original_docx,
+                    doc_id=doc_id,
+                )
+
+                num_chunks = result.get("num_chunks", 0)
+                stats["processed_files"] += 1
+                stats["total_chunks"] += num_chunks
+                print(f"  → ✓ {doc_id}: {num_chunks} chunks created")
+
+            except Exception as e:
+                print(f"  → ✗ Failed to process {json_path.name}: {e}")
+                stats["failed_files"] += 1
+
+        print(f"\n✓ DOCX processing complete: {stats['processed_files']}/{stats['total_files']} files")
+        print(f"  → Total chunks: {stats['total_chunks']}")
+        return stats
+
+    def _run_pdf_processing(self) -> Dict:
+        """
+        Run Stage 3d: PDF Processing (born-digital custom parser + heading-aware chunking).
+
+        Reads heading-tree JSON files written to pdf_parsed/ by Stage 1
+        (normalizer._parse_pdf_with_reader) and runs PdfPreprocessor to produce
+        RAG-ready output:
+          - {doc_id}/{doc_id}.md
+          - {doc_id}/pdf_chunks.json
+          - {doc_id}/pdf_manifest.json
+          - {doc_id}/images/
+
+        Output goes directly to stage4_rag_ready/.
+        """
+        pdf_parsed_dir = self.stage_dirs["normalized"] / "pdf_parsed"
+
+        if not pdf_parsed_dir.exists():
+            return {"processed_files": 0, "total_files": 0}
+
+        json_files = [f for f in pdf_parsed_dir.glob("*.json") if not f.name.startswith("_")]
+        if not json_files:
+            return {"processed_files": 0, "total_files": 0}
+
+        print("\n" + "="*80)
+        print("STAGE 3d: PDF PROCESSING (Born-Digital Custom Parser + Heading-Aware Chunking)")
+        print("="*80)
+        print(f"Found {len(json_files)} parsed PDF JSON file(s)")
+
+        from ..chunking.pdf_preprocessor import PdfPreprocessor
+
+        stats = {"processed_files": 0, "failed_files": 0, "total_files": len(json_files), "total_chunks": 0}
+
+        for json_path in json_files:
+            try:
+                doc_id = json_path.stem
+
+                # Find the original PDF file for metadata reference
+                original_pdf = None
+                for candidate_dir in [
+                    self.stage_dirs["normalized"] / "normalized_pdfs",
+                    self.stage_dirs["normalized"] / "original_files",
+                ]:
+                    candidate = candidate_dir / f"{doc_id}.pdf"
+                    if candidate.exists():
+                        original_pdf = candidate
+                        break
+
+                # Load classification metadata if available
+                import json as _json
+                pdf_classification = None
+                classification_path = (
+                    self.stage_dirs["normalized"] / "normalization_metadata"
+                    / f"{doc_id}_pdf_classification.json"
+                )
+                if classification_path.exists():
+                    with open(classification_path, "r", encoding="utf-8") as f:
+                        pdf_classification = _json.load(f)
+
+                print(f"\n  Processing: {doc_id}")
+
+                preprocessor = PdfPreprocessor(
+                    output_dir=self.stage_dirs["rag_ready"],
+                    chunk_size=1000,
+                    chunk_overlap=200,
+                    max_table_chunk_size=2000,
+                )
+
+                result = preprocessor.process_pdf_json(
+                    json_path=json_path,
+                    original_pdf_path=original_pdf,
+                    doc_id=doc_id,
+                    pdf_classification=pdf_classification,
+                )
+
+                num_chunks = result.get("num_chunks", 0)
+                stats["processed_files"] += 1
+                stats["total_chunks"] += num_chunks
+                print(f"  → ✓ {doc_id}: {num_chunks} chunks created")
+
+            except Exception as e:
+                print(f"  → ✗ Failed to process {json_path.name}: {e}")
+                stats["failed_files"] += 1
+
+        print(f"\n✓ PDF processing complete: {stats['processed_files']}/{stats['total_files']} files")
+        print(f"  → Total chunks: {stats['total_chunks']}")
+        return stats
+
     def _run_excel_processing(self) -> Dict:
         """
         Run Stage 3b: Excel Processing with custom XML parser.
-        
+
         Processes parsed Excel JSON files from Stage 1 (excel_parsed/)
         using the table-aware ExcelPreprocessor to produce RAG-ready output:
           - {doc_id}/excel_manifest.json
