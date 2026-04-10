@@ -70,6 +70,14 @@ except ImportError as e:
         PNG = "png"
         JPEG = "jpeg"
         AUDIO = "audio"
+        DOCX = "docx"
+        PPTX = "pptx"
+        XLSX = "xlsx"
+        HTML = "html"
+        MD = "md"
+        CSV = "csv"
+        ASCIIDOC = "asciidoc"
+        VTT = "vtt"
 
     class PipelineOptions:
         def __init__(self):
@@ -82,12 +90,15 @@ except ImportError:
     class OcrOptions:
         pass
     class TesseractOcrOptions:
+        kind = "tesserocr"
         def __init__(self, **kwargs):
             pass
     class EasyOcrOptions:
+        kind = "easyocr"
         def __init__(self, **kwargs):
             pass
     class RapidOcrOptions:
+        kind = "rapidocr"
         def __init__(self, **kwargs):
             pass
 
