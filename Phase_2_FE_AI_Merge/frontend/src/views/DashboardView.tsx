@@ -116,8 +116,8 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
               Start Chatting <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
-              onClick={() => onNavigate('learning')}
-              className="px-8 py-4 bg-sky-700/30 hover:bg-sky-700/50 backdrop-blur-md text-white rounded-2xl font-black text-sm uppercase tracking-wider transition-all border border-white/20 active:scale-95"
+              onClick={() => onNavigate('knowledge')}
+              className="px-6 py-3 bg-white/15 hover:bg-white/25 text-white rounded-lg font-bold text-sm transition-all border border-white/30 active:scale-95"
             >
               Study Roadmap
             </button>
