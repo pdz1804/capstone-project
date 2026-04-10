@@ -627,7 +627,7 @@ function App() {
                     <p className="text-slate-700 font-bold text-lg mb-2 group-hover:text-sky-700 transition-colors">Drop files here or click to upload</p>
                     <p className="text-sm text-slate-500 group-hover:text-slate-600 transition-colors">PDF, DOCX, PPTX, TXT, images, videos and more</p>
                   </div>
-                  <input id="file-upload" type="file" multiple onChange={handleUpload} className="hidden" accept=".pdf,.docx,.pptx,.txt,.md,.png,.jpg,.jpeg,.mp4,.avi,.mov" />
+                  <input id="file-upload" type="file" multiple onChange={handleUpload} className="hidden" accept=".pdf,.docx,.pptx,.txt,.md,.png,.jpg,.jpeg,.mp4,.avi,.mov,.xlsx,.doc,.xls,.ppt" />
                 </div>
               </label>
               
