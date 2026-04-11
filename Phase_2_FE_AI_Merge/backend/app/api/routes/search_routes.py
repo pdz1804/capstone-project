@@ -6,6 +6,7 @@ from urllib.parse import unquote
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
+from botocore.exceptions import ClientError
 
 from app.api.deps import storage_user_id
 from app.api.schemas import SearchRequest
@@ -26,7 +27,7 @@ def search(
     try:
         cfg = merged_runtime_settings()
         orch = SearchOrchestrator(cfg, user_id=user_id)
-        return orch.run(
+        result = orch.run(
             query=req.query,
             top_k=req.top_k,
             retriever_type=req.retriever_type,
@@ -37,6 +38,21 @@ def search(
             generation_model=req.generation_model,
             skip_reranker=req.skip_reranker,
         )
+        if isinstance(result, dict):
+            telemetry = result.get("telemetry") or {}
+            steps = telemetry.get("steps_ms") or {}
+            retrieval_cache = ((telemetry.get("cache") or {}).get("retrieval") or {})
+            logger.info(
+                "Search timings: user=%s retrieval_ms=%s generation_ms=%s total_ms=%s retrieval_cache_hit=%s mode=%s scope=%s",
+                user_id,
+                steps.get("retrieval_total", 0),
+                steps.get("generation", 0),
+                steps.get("total", 0),
+                retrieval_cache.get("hit", False),
+                result.get("mode", req.mode),
+                result.get("search_scope", req.search_scope),
+            )
+        return result
     except Exception as e:
         logger.exception("search")
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -101,7 +117,13 @@ def search_image_preview(
             raise HTTPException(status_code=400, detail="storage_uri preview requires S3 backend")
         if not storage.can_read_object(bucket, key):
             raise HTTPException(status_code=403, detail="Access denied for this storage_uri")
-        body, media_type = storage.read_object(bucket, key)
+        try:
+            body, media_type = storage.read_object(bucket, key)
+        except ClientError as e:
+            code = str((e.response or {}).get("Error", {}).get("Code", ""))
+            if code in ("NoSuchKey", "404", "NotFound"):
+                raise HTTPException(status_code=404, detail="storage_uri object not found") from e
+            raise
         filename = Path(key).name or "image"
     elif source_path:
         p = Path(unquote(source_path)).expanduser()
