@@ -84,6 +84,7 @@ class SearchOrchestrator:
 
         text_rows: List[Dict[str, Any]] = []
         image_rows: List[Dict[str, Any]] = []
+        retrieval_total_ms = 0
 
         if run_text and can_run_image:
             # Both branches active — run them in parallel.
@@ -113,6 +114,7 @@ class SearchOrchestrator:
             elapsed = int((perf_counter() - t_parallel) * 1000)
             step_ms["text_retrieval"] = elapsed
             step_ms["image_retrieval"] = elapsed
+            retrieval_total_ms = elapsed
         else:
             if run_text:
                 t_text = perf_counter()
@@ -133,6 +135,10 @@ class SearchOrchestrator:
                     step_ms["image_retrieval"] = int((perf_counter() - t_image) * 1000)
             else:
                 step_ms["image_retrieval"] = 0
+
+            retrieval_total_ms = int(step_ms.get("text_retrieval", 0)) + int(step_ms.get("image_retrieval", 0))
+
+        step_ms["retrieval_total"] = retrieval_total_ms
 
         result: Dict[str, Any] = {
             "query": query,

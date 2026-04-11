@@ -26,7 +26,67 @@ type CitationItem = {
   score?: number;
   metadata?: Record<string, unknown>;
   page?: number;
+  start_time?: number;
+  end_time?: number;
+  time_range_label?: string;
 };
+
+function formatSecondsToClock(seconds?: number): string {
+  if (typeof seconds !== 'number' || Number.isNaN(seconds) || seconds < 0) return '-';
+  const total = Math.round(seconds);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) {
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function getCitationTimeRange(citation: CitationItem): string {
+  const explicit = String(citation.time_range_label || '').trim();
+  if (explicit) return explicit;
+
+  const md = (citation.metadata || {}) as Record<string, unknown>;
+  const startRaw = citation.start_time ?? Number(md.start_time ?? NaN);
+  const endRaw = citation.end_time ?? Number(md.end_time ?? NaN);
+  const hasStart = typeof startRaw === 'number' && !Number.isNaN(startRaw);
+  const hasEnd = typeof endRaw === 'number' && !Number.isNaN(endRaw);
+  if (hasStart && hasEnd) return `${formatSecondsToClock(startRaw)} - ${formatSecondsToClock(endRaw)}`;
+  if (hasStart) return `from ${formatSecondsToClock(startRaw)}`;
+  if (hasEnd) return `until ${formatSecondsToClock(endRaw)}`;
+  return '';
+}
+
+function toDisplayDocName(raw: string): string {
+  const normalized = String(raw || '').trim().replace(/\\/g, '/');
+  if (!normalized) return '';
+  const last = normalized.split('/').pop() || normalized;
+  const clean = last.split('?')[0].split('#')[0];
+  return clean.replace(/\.[a-z0-9]{1,6}$/i, '');
+}
+
+function getCitationDisplayName(citation: CitationItem): string {
+  const md = (citation.metadata || {}) as Record<string, unknown>;
+  const docId = String(md.doc_id || '').trim();
+  if (docId) return docId;
+
+  const fromFilename = toDisplayDocName(String(citation.filename || ''));
+  if (fromFilename) return fromFilename;
+
+  const fromSource = toDisplayDocName(String(citation.source || citation.storage_uri || citation.source_path || ''));
+  if (fromSource) return fromSource;
+
+  return citation.type === 'text' ? 'chunk' : 'image';
+}
+
+function isLikelyMediaPath(value: string): boolean {
+  const v = String(value || '').toLowerCase();
+  if (!v) return false;
+  return ['.mp4', '.mov', '.mkv', '.webm', '.avi', '.mp3', '.wav', '.m4a', '.aac', '.flac', '.ogg'].some((ext) =>
+    v.includes(ext)
+  );
+}
 
 export default function SearchView({ files }: SearchViewProps) {
   const [query, setQuery] = useState('');
@@ -34,9 +94,12 @@ export default function SearchView({ files }: SearchViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [answer, setAnswer] = useState<string | null>(null);
   const [contents, setContents] = useState<Record<string, unknown>>({});
+  const [rawTextResults, setRawTextResults] = useState<Array<Record<string, unknown>>>([]);
+  const [rawImageResults, setRawImageResults] = useState<Array<Record<string, unknown>>>([]);
   const [selectedCitationId, setSelectedCitationId] = useState<string | null>(null);
   const [expandedChunkIds, setExpandedChunkIds] = useState<Record<string, boolean>>({});
   const [imagePreviewUrls, setImagePreviewUrls] = useState<Record<string, string>>({});
+  const [previewMediaTypes, setPreviewMediaTypes] = useState<Record<string, string>>({});
   const [imagePreviewLoading, setImagePreviewLoading] = useState<Record<string, boolean>>({});
   const [mode, setMode] = useState<SearchMode>('retrieval_generation');
   const [scope, setScope] = useState<SearchScope>('both');
@@ -114,9 +177,17 @@ export default function SearchView({ files }: SearchViewProps) {
     setIsSearching(true);
     setAnswer(null);
     setContents({});
+    setRawTextResults([]);
+    setRawImageResults([]);
     setSelectedCitationId(null);
     setExpandedChunkIds({});
     setTelemetry(null);
+    setImagePreviewUrls((prev) => {
+      Object.values(prev).forEach((u) => URL.revokeObjectURL(u));
+      return {};
+    });
+    setPreviewMediaTypes({});
+    setImagePreviewLoading({});
     saveRecentSearch(trimmed);
     try {
       const data = await searchRag({
@@ -132,6 +203,8 @@ export default function SearchView({ files }: SearchViewProps) {
       });
       setAnswer(data.answer || null);
       setContents((data.contents as Record<string, unknown>) || {});
+      setRawTextResults((data.text_results as Array<Record<string, unknown>>) || []);
+      setRawImageResults((data.image_results as Array<Record<string, unknown>>) || []);
       setTelemetry(data.telemetry || null);
     } catch (e: unknown) {
       const msg =
@@ -158,7 +231,7 @@ export default function SearchView({ files }: SearchViewProps) {
 
   const totalFiles = files.length;
   const citations: CitationItem[] = useMemo(() => {
-    const rows = Object.entries(contents || {}).map(([key, raw]) => {
+    const contentRows = Object.entries(contents || {}).map(([key, raw]) => {
       const c = (raw || {}) as Record<string, unknown>;
       return {
         key,
@@ -173,10 +246,57 @@ export default function SearchView({ files }: SearchViewProps) {
         score: Number(c.score || 0),
         metadata: (c.metadata || {}) as Record<string, unknown>,
         page: Number(c.page || 0),
+        start_time: c.start_time != null ? Number(c.start_time) : undefined,
+        end_time: c.end_time != null ? Number(c.end_time) : undefined,
+        time_range_label: String(c.time_range_label || ''),
       };
     });
-    return rows.sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
-  }, [contents]);
+    if (contentRows.length > 0) {
+      return contentRows.sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
+    }
+
+    const textRows: CitationItem[] = rawTextResults.map((raw, idx) => {
+      const c = (raw || {}) as Record<string, unknown>;
+      const md = (c.metadata || {}) as Record<string, unknown>;
+      return {
+        key: `[1.${idx + 1}]`,
+        id: String(c.id || `retrieval-text-${idx + 1}`),
+        type: 'text',
+        text: String(c.text || ''),
+        full_text: String(c.full_text || c.text || ''),
+        filename: String(md.doc_id || c.filename || c.source || ''),
+        source: String(c.source || ''),
+        source_path: String(c.source_path || md.original_file || ''),
+        storage_uri: String(c.storage_uri || md.storage_uri || ''),
+        score: Number(c.score || 0),
+        metadata: md,
+        page: Number(c.page || 0),
+        start_time: c.start_time != null ? Number(c.start_time) : undefined,
+        end_time: c.end_time != null ? Number(c.end_time) : undefined,
+        time_range_label: String(c.time_range_label || ''),
+      };
+    });
+
+    const imageRows: CitationItem[] = rawImageResults.map((raw, idx) => {
+      const c = (raw || {}) as Record<string, unknown>;
+      return {
+        key: `[2.${idx + 1}]`,
+        id: String(c.id || `retrieval-image-${idx + 1}`),
+        type: 'image',
+        text: String(c.text || ''),
+        full_text: String(c.full_text || c.text || ''),
+        filename: String(c.filename || c.source || ''),
+        source: String(c.source || ''),
+        source_path: String(c.source_path || ''),
+        storage_uri: String(c.storage_uri || ''),
+        score: Number(c.score || 0),
+        metadata: (c.metadata || {}) as Record<string, unknown>,
+        page: Number(c.page || 0),
+      };
+    });
+
+    return [...textRows, ...imageRows].sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
+  }, [contents, rawTextResults, rawImageResults]);
 
   const handleCitationClick = (href: string) => {
     const target = href.replace(/^#/, '');
@@ -191,20 +311,21 @@ export default function SearchView({ files }: SearchViewProps) {
     setExpandedChunkIds((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const loadImagePreview = async (row: Record<string, unknown>, key: string) => {
+  const loadSourcePreview = async (row: Record<string, unknown>, key: string) => {
     if (imagePreviewUrls[key] || imagePreviewLoading[key]) return;
     const storageUri = String(row.storage_uri || '');
     const sourcePath = String(row.source_path || '');
     const page = Number(row.page || 1);
     try {
       setImagePreviewLoading((prev) => ({ ...prev, [key]: true }));
-      const { body } = await getSearchImagePreview(
+      const { body, mediaType } = await getSearchImagePreview(
         storageUri || undefined,
         storageUri ? undefined : sourcePath || undefined,
         page,
       );
       const url = URL.createObjectURL(body);
       setImagePreviewUrls((prev) => ({ ...prev, [key]: url }));
+      setPreviewMediaTypes((prev) => ({ ...prev, [key]: mediaType || '' }));
     } catch {
       // keep quiet; user can still inspect metadata
     } finally {
@@ -408,7 +529,7 @@ export default function SearchView({ files }: SearchViewProps) {
           <div className="rounded-xl border border-sky-100 bg-white px-4 py-3 flex items-center gap-2 shadow-[0_10px_24px_-20px_rgba(14,165,233,0.45)]">
             <Clock3 className="w-4 h-4 text-sky-600" />
             <span className="text-sm text-slate-700">
-              Retrieval: {(telemetry.steps_ms?.text_retrieval || 0) + (telemetry.steps_ms?.image_retrieval || 0)} ms
+              Retrieval: {telemetry.steps_ms?.retrieval_total ?? ((telemetry.steps_ms?.text_retrieval || 0) + (telemetry.steps_ms?.image_retrieval || 0))} ms
             </span>
           </div>
           <div className="rounded-xl border border-sky-100 bg-white px-4 py-3 flex items-center gap-2 shadow-[0_10px_24px_-20px_rgba(14,165,233,0.45)]">
@@ -442,7 +563,6 @@ export default function SearchView({ files }: SearchViewProps) {
                     p: ({ children }) => <p className="text-base leading-7 text-slate-700 my-2">{children}</p>,
                     ul: ({ children }) => <ul className="list-disc pl-6 my-3 space-y-1">{children}</ul>,
                     ol: ({ children }) => <ol className="list-decimal pl-6 my-3 space-y-1">{children}</ol>,
-                    li: ({ children }) => <li className="text-base leading-7 text-slate-700">{children}</li>,
                     table: ({ children }) => <table className="w-full border-collapse text-sm my-4">{children}</table>,
                     th: ({ children }) => <th className="border border-slate-300 bg-slate-50 px-2 py-1 text-left">{children}</th>,
                     td: ({ children }) => <td className="border border-slate-300 px-2 py-1 align-top">{children}</td>,
@@ -486,6 +606,22 @@ export default function SearchView({ files }: SearchViewProps) {
                 const active = !!cid && selectedCitationId === cid;
                 const longText = c.full_text || c.text || '';
                 const expanded = !!expandedChunkIds[cid];
+                const timeRange = c.type === 'text' ? getCitationTimeRange(c) : '';
+                const md = (c.metadata || {}) as Record<string, unknown>;
+                const isMediaChunk = c.type === 'text' && String(md.document_type || '').toLowerCase() === 'media';
+                const mediaStorageUri = (() => {
+                  const original = String(md.original_storage_uri || '').trim();
+                  if (original) return original;
+                  const fallback = String(c.storage_uri || '').trim();
+                  return isLikelyMediaPath(fallback) ? fallback : '';
+                })();
+                const mediaSourcePath = String(md.preview_source_path || md.original_file || c.source_path || '');
+                const mediaFormat = String(md.original_file_format || '').toLowerCase();
+                const mediaStart = Number(c.start_time ?? Number(md.start_time ?? 0));
+                const mediaType = String(previewMediaTypes[cid] || '');
+                const isAudio = mediaType.startsWith('audio/') || ['mp3', 'wav', 'm4a', 'aac', 'flac', 'ogg'].includes(mediaFormat);
+                const isVideo = mediaType.startsWith('video/') || ['mp4', 'mov', 'mkv', 'webm', 'avi'].includes(mediaFormat);
+                const canLoadOriginalMedia = Boolean(mediaStorageUri || mediaSourcePath);
                 const metadataForDisplay =
                   c.metadata && Object.keys(c.metadata).length > 0
                     ? c.metadata
@@ -504,7 +640,7 @@ export default function SearchView({ files }: SearchViewProps) {
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-semibold text-slate-800">
-                        {c.key} · {c.type === 'text' ? (c.filename || c.source || 'chunk') : `${c.source || 'image'} (page ${c.page || '-'})`}
+                        {c.key} · {c.type === 'text' ? getCitationDisplayName(c) : `${getCitationDisplayName(c)} (page ${c.page || '-'})`}
                       </p>
                       {typeof c.score === 'number' && !Number.isNaN(c.score) && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
@@ -512,6 +648,12 @@ export default function SearchView({ files }: SearchViewProps) {
                         </span>
                       )}
                     </div>
+                    {timeRange && (
+                      <div className="mt-1 text-[11px] inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        <Clock3 className="w-3 h-3" />
+                        <span>{timeRange}</span>
+                      </div>
+                    )}
                     {c.type === 'text' ? (
                       <>
                         <p className="mt-2 text-sm text-slate-700">
@@ -527,6 +669,67 @@ export default function SearchView({ files }: SearchViewProps) {
                             {expanded ? 'Load less' : 'Load more...'}
                           </button>
                         )}
+                        {isMediaChunk && (
+                          <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/60 p-3">
+                            {!imagePreviewUrls[cid] ? (
+                              canLoadOriginalMedia ? (
+                              <button
+                                type="button"
+                                disabled={!!imagePreviewLoading[cid]}
+                                onClick={() =>
+                                  void loadSourcePreview(
+                                    {
+                                      storage_uri: mediaStorageUri,
+                                      source_path: mediaStorageUri ? '' : mediaSourcePath,
+                                      page: 1,
+                                    },
+                                    cid
+                                  )
+                                }
+                                className="text-xs px-2 py-1 rounded border border-amber-300 text-amber-800 bg-amber-100 hover:bg-amber-200 disabled:opacity-60"
+                              >
+                                {imagePreviewLoading[cid] ? 'Loading media...' : `Load original media${mediaStart > 0 ? ` @ ${formatSecondsToClock(mediaStart)}` : ''}`}
+                              </button>
+                              ) : (
+                                <p className="text-xs text-amber-800">Original media source is unavailable for this chunk in current index metadata.</p>
+                              )
+                            ) : isAudio ? (
+                              <audio
+                                controls
+                                preload="metadata"
+                                src={imagePreviewUrls[cid]}
+                                className="w-full"
+                                onLoadedMetadata={(e) => {
+                                  if (mediaStart > 0) {
+                                    try {
+                                      e.currentTarget.currentTime = mediaStart;
+                                    } catch {
+                                      // ignore seek failures on some formats
+                                    }
+                                  }
+                                }}
+                              />
+                            ) : isVideo ? (
+                              <video
+                                controls
+                                preload="metadata"
+                                src={imagePreviewUrls[cid]}
+                                className="w-full max-h-80 rounded border border-amber-200 bg-black"
+                                onLoadedMetadata={(e) => {
+                                  if (mediaStart > 0) {
+                                    try {
+                                      e.currentTarget.currentTime = mediaStart;
+                                    } catch {
+                                      // ignore seek failures on some formats
+                                    }
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <p className="text-xs text-amber-800">Original media loaded, but the browser cannot preview this media type inline.</p>
+                            )}
+                          </div>
+                        )}
                       </>
                     ) : (
                       <div className="mt-2">
@@ -535,7 +738,7 @@ export default function SearchView({ files }: SearchViewProps) {
                             type="button"
                             disabled={!!imagePreviewLoading[cid]}
                             onClick={() =>
-                              void loadImagePreview(
+                              void loadSourcePreview(
                                 {
                                   storage_uri: c.storage_uri,
                                   source_path: c.source_path,

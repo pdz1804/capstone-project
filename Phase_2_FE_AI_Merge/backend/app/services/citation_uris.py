@@ -42,6 +42,18 @@ def enrich_chunk_documents_storage_uris(
             meta["storage_uri"] = uri
             meta["storage_backend"] = "s3"
 
+        # For media transcript chunks, keep a canonical URI to the original uploaded media
+        # so clients can render/play the source file at chunk timestamps.
+        original_uri: Optional[str] = None
+        original_file = str(meta.get("original_file") or "").strip()
+        if original_file:
+            of = Path(original_file)
+            original_uri = storage.uri_for_local_under_input(of)
+            if not original_uri:
+                original_uri = storage.uri_for_local_under_processing(of)
+        if original_uri:
+            meta["original_storage_uri"] = original_uri
+
 
 def sanitize_metadata_for_api(meta: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -51,6 +63,9 @@ def sanitize_metadata_for_api(meta: Dict[str, Any]) -> Dict[str, Any]:
     out = dict(meta or {})
     su = str(out.get("storage_uri") or "").strip()
     if su:
+        # Keep a dedicated preview hint for local fallback rendering, but hide raw local path keys.
+        if out.get("original_file") and not out.get("preview_source_path"):
+            out["preview_source_path"] = out.get("original_file")
         out.pop("original_file", None)
         out.pop("source_path", None)
     return out
