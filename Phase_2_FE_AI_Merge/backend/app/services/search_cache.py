@@ -6,9 +6,11 @@ import hashlib
 import json
 import logging
 import os
+import time
 from dataclasses import dataclass
 from threading import Lock
 from typing import Any, Dict, Optional
+from urllib.parse import urlparse
 
 from redis import Redis
 from redis.exceptions import RedisError
@@ -24,6 +26,21 @@ def _bool_env(name: str, default: bool = False) -> bool:
     return raw.strip().lower() in ("1", "true", "yes", "on")
 
 
+def _is_probably_private_aws_cache_endpoint(redis_url: str) -> bool:
+    host = (urlparse(redis_url or "").hostname or "").strip().lower()
+    return bool(host.endswith(".cache.amazonaws.com"))
+
+
+def _is_running_in_aws_runtime() -> bool:
+    markers = (
+        "AWS_EXECUTION_ENV",
+        "AWS_LAMBDA_FUNCTION_NAME",
+        "ECS_CONTAINER_METADATA_URI",
+        "ECS_CONTAINER_METADATA_URI_V4",
+    )
+    return any((os.getenv(k) or "").strip() for k in markers)
+
+
 @dataclass(frozen=True)
 class SearchCacheConfig:
     enabled: bool = False
@@ -33,6 +50,8 @@ class SearchCacheConfig:
     redis_url: str = "redis://localhost:6379/0"
     redis_connect_timeout_seconds: float = 2.0
     redis_read_timeout_seconds: float = 2.0
+    redis_retry_cooldown_seconds: float = 30.0
+    allow_private_endpoint_local: bool = False
 
     @staticmethod
     def from_env() -> "SearchCacheConfig":
@@ -48,6 +67,10 @@ class SearchCacheConfig:
             redis_read_timeout_seconds=float(
                 os.getenv("SEARCH_CACHE_REDIS_READ_TIMEOUT_SECONDS", "2") or "2"
             ),
+            redis_retry_cooldown_seconds=float(
+                os.getenv("SEARCH_CACHE_REDIS_RETRY_COOLDOWN_SECONDS", "30") or "30"
+            ),
+            allow_private_endpoint_local=_bool_env("SEARCH_CACHE_ALLOW_PRIVATE_ENDPOINT_LOCAL", False),
         )
 
 
@@ -59,6 +82,8 @@ class SearchCacheClient:
         self._redis: Optional[Redis] = None
         self._lock = Lock()
         self._reported_disabled = False
+        self._next_connect_retry_at = 0.0
+        self._reported_unavailable = False
 
     def is_enabled(self) -> bool:
         return self.config.enabled and self.config.backend == "redis"
@@ -75,10 +100,31 @@ class SearchCacheClient:
             return None
         if self._redis is not None:
             return self._redis
+        if time.time() < self._next_connect_retry_at:
+            return None
 
         with self._lock:
             if self._redis is not None:
                 return self._redis
+            if time.time() < self._next_connect_retry_at:
+                return None
+            if (
+                _is_probably_private_aws_cache_endpoint(self.config.redis_url)
+                and not self.config.allow_private_endpoint_local
+                and not _is_running_in_aws_runtime()
+            ):
+                # ElastiCache Serverless endpoints are VPC-private; skip local retries unless explicitly allowed.
+                self._next_connect_retry_at = time.time() + max(
+                    10.0,
+                    float(self.config.redis_retry_cooldown_seconds),
+                )
+                if not self._reported_unavailable:
+                    logger.warning(
+                        "Search cache endpoint looks VPC-private (%s). Skipping connection outside AWS runtime; serving uncached responses.",
+                        self.config.redis_url,
+                    )
+                    self._reported_unavailable = True
+                return None
             try:
                 self._redis = Redis.from_url(
                     self.config.redis_url,
@@ -89,9 +135,18 @@ class SearchCacheClient:
                     decode_responses=False,
                 )
                 self._redis.ping()
+                self._next_connect_retry_at = 0.0
+                self._reported_unavailable = False
                 logger.info("Search cache connected: backend=redis url=%s", self.config.redis_url)
             except Exception as e:
-                logger.warning("Search cache unavailable (%s); caching disabled for this process", e)
+                self._next_connect_retry_at = time.time() + max(1.0, float(self.config.redis_retry_cooldown_seconds))
+                if not self._reported_unavailable:
+                    logger.warning(
+                        "Search cache unavailable (%s); retrying connection in %.0fs while serving uncached responses",
+                        e,
+                        max(1.0, float(self.config.redis_retry_cooldown_seconds)),
+                    )
+                    self._reported_unavailable = True
                 self._redis = None
             return self._redis
 

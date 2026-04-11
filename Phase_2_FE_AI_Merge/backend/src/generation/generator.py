@@ -21,6 +21,26 @@ from app.services.citation_uris import sanitize_metadata_for_api
 logger = logging.getLogger(__name__)
 
 
+def _bedrock_model_supports_vision(model_id: str) -> bool:
+    """Best-effort capability gate for Bedrock models in this app."""
+    mid = str(model_id or "").strip().lower()
+    if not mid:
+        return True
+    # Known text-only in our allowed set.
+    if mid.startswith("google.gemma"):
+        return False
+    return True
+
+
+def _looks_like_bedrock_payload_too_large(exc: Exception) -> bool:
+    msg = str(exc or "").lower()
+    return (
+        "length limit exceeded" in msg
+        or "failed to buffer the request body" in msg
+        or ("validationexception" in msg and "length" in msg)
+    )
+
+
 def _display_filename_from_source(source: str) -> str:
     """Basename for citations when ``source`` is a local path or ``s3://`` URI."""
     s = (source or "").strip().replace("\\", "/")
@@ -524,6 +544,18 @@ class RAGGenerator:
 
     def _call_bedrock(self, prompt: str, image_paths: Optional[List[str]] = None) -> str:
         rt = self._bedrock_runtime()
+        
+        def _invoke(content_payload: List[Dict[str, Any]]) -> str:
+            resp = rt.converse(
+                modelId=self.config.model_name,
+                messages=[{"role": "user", "content": content_payload}],
+                inferenceConfig={
+                    "maxTokens": int(self.config.max_tokens),
+                    "temperature": float(self.config.temperature),
+                },
+            )
+            return self._extract_converse_text(resp)
+
         content: List[Dict[str, Any]] = [{"text": prompt}]
         if image_paths:
             for img_path in image_paths:
@@ -535,15 +567,46 @@ class RAGGenerator:
                     content.append({"image": {"format": fmt, "source": {"bytes": data}}})
                 except Exception as e:
                     logger.warning("Bedrock: skip image %s: %s", img_path, e)
-        resp = rt.converse(
-            modelId=self.config.model_name,
-            messages=[{"role": "user", "content": content}],
-            inferenceConfig={
-                "maxTokens": int(self.config.max_tokens),
-                "temperature": float(self.config.temperature),
+
+        try:
+            return _invoke(content)
+        except Exception as e:
+            if image_paths and _looks_like_bedrock_payload_too_large(e):
+                logger.warning(
+                    "Bedrock vision payload too large; retrying without images (model=%s, images=%s)",
+                    self.config.model_name,
+                    len(image_paths),
+                )
+                return _invoke([{"text": prompt}])
+            raise
+
+    def _build_contents_payload(
+        self,
+        chunk_map: Dict[Tuple[int, int], Dict[str, Any]],
+        image_docs: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        return {
+            **{
+                f"[{k[0]}.{k[1]}]": {
+                    "type": "text",
+                    "text": v["text"][:200] + "..." if len(v["text"]) > 200 else v["text"],
+                    "full_text": v["text"],
+                    "filename": v["filename"],
+                    "score": v["score"],
+                    "id": f"chunk-{k[0]}-{k[1]}",
+                    "retrieval_info": v.get("retrieval_info", {}),
+                    "metadata": v.get("metadata", {}),
+                    "start_time": v.get("start_time"),
+                    "end_time": v.get("end_time"),
+                    "time_range_label": v.get("time_range_label", ""),
+                }
+                for k, v in chunk_map.items()
             },
-        )
-        return self._extract_converse_text(resp)
+            **{
+                f"[2.{idx}]": _image_citation_chunk(img_doc, idx)
+                for idx, img_doc in enumerate(image_docs, 1)
+            },
+        }
     
     def _call_llm(self, prompt: str, image_paths: List[str] = None) -> str:
         """Call the configured LLM, optionally with images."""
@@ -609,6 +672,16 @@ class RAGGenerator:
         
         logger.info(f"Retrieved docs: {len(retrieved_docs)} total, {len(text_docs)} text, {len(image_docs)} images, {len(embedded_image_paths)} embedded spreadsheet images")
         
+        allow_vision_inputs = not (
+            self.config.provider == "bedrock" and not _bedrock_model_supports_vision(self.config.model_name)
+        )
+        if image_docs and not allow_vision_inputs:
+            logger.info(
+                "Model %s is treated as text-only; skipping %s image inputs",
+                self.config.model_name,
+                len(image_docs),
+            )
+
         # Debug: log image doc info (all images). source_path is the local sync/cache path; storage_uri is canonical S3 when applicable.
         for i, img_doc in enumerate(image_docs):
             logger.info(
@@ -677,7 +750,7 @@ class RAGGenerator:
             logger.warning("Unsupported vision source type: %s", lp.suffix)
             return None, None, local_temp_files
 
-        if image_docs:
+        if image_docs and allow_vision_inputs:
             max_workers = min(4, len(image_docs))
             with ThreadPoolExecutor(max_workers=max_workers) as pool:
                 prepared = list(pool.map(_prepare_image_doc, image_docs))
@@ -749,11 +822,13 @@ CRITICAL FORMATTING RULES:
             answer = self._call_llm(prompt, image_paths if image_paths else None)
         except Exception as e:
             logger.error(f"LLM call failed: {e}")
+            files_payload = {v: k for k, v in file_map.items()}
+            contents_payload = self._build_contents_payload(chunk_map, image_docs)
             return {
                 "answer": f"Error generating answer: {str(e)}",
                 "citations": [],
-                "files": file_map,
-                "contents": chunk_map,
+                "files": files_payload,
+                "contents": contents_payload,
                 "error": str(e)
             }
         finally:
@@ -772,28 +847,7 @@ CRITICAL FORMATTING RULES:
             "num_sources": len(retrieved_docs),
             "num_images": len(image_paths),
             "files": {v: k for k, v in file_map.items()},  # file_number -> filename
-            "contents": {
-                **{
-                    f"[{k[0]}.{k[1]}]": {
-                        "type": "text",
-                        "text": v['text'][:200] + "..." if len(v['text']) > 200 else v['text'],
-                        "full_text": v['text'],
-                        "filename": v['filename'],
-                        "score": v['score'],
-                        "id": f"chunk-{k[0]}-{k[1]}",
-                        "retrieval_info": v.get('retrieval_info', {}),  # Include raw scores
-                        "metadata": v.get('metadata', {}),  # Include uniform metadata
-                        "start_time": v.get('start_time'),
-                        "end_time": v.get('end_time'),
-                        "time_range_label": v.get('time_range_label', ""),
-                    }
-                    for k, v in chunk_map.items()
-                },
-                **{
-                    f"[2.{idx}]": _image_citation_chunk(img_doc, idx)
-                    for idx, img_doc in enumerate(image_docs, 1)
-                }
-            },
+            "contents": self._build_contents_payload(chunk_map, image_docs),
             "retrieved_docs": retrieved_docs
         }
         

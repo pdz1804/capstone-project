@@ -279,3 +279,272 @@ Update rule:
 
 ### Validation
 - Targeted API + service cache tests pass in backend virtual environment.
+
+## 2026-04-11 - Knowledge Explorer Bedrock Model Selection + Answer Export Actions
+
+### Scope
+- Allow model selection for generation in Knowledge Explorer (Bedrock).
+- Keep Haiku 4.5 and add requested additional models.
+- Add two actions between generated answer and citations: copy answer and download rendered PDF.
+
+### Implemented
+1. Bedrock model allowlist and validation in backend:
+	- Added curated model list:
+	  - `us.anthropic.claude-haiku-4-5-20251001-v1:0`
+	  - `google.gemma-3-27b-it`
+	  - `anthropic.claude-sonnet-4-20250514-v1:0`
+	  - `anthropic.claude-sonnet-4-6`
+	  - `anthropic.claude-3-5-haiku-20241022-v1:0`
+	- `/api/search/generation-models` now returns this curated list (plus configured model deduped).
+	- `/api/search` rejects non-allowlisted `generation_model` overrides for Bedrock provider.
+	- File: `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+
+2. Knowledge Explorer UI model selection:
+	- Kept model selection in Knowledge Explorer (`SearchView`) and made it clearly visible whenever mode is `retrieval_generation`.
+	- File: `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`
+
+3. Answer action buttons (between answer and citations):
+	- Added `Copy answer` button (copies generated markdown text).
+	- Added `Download rendered PDF` button (exports rendered markdown view via browser print-to-PDF flow).
+	- Inserted immediately after answer panel and before citations section.
+	- File: `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`
+
+4. Test coverage:
+	- Added endpoint test for curated generation model list.
+	- Added validation test for rejecting unsupported generation model override.
+	- File: `Phase_2_FE_AI_Merge/backend/tests/api/test_generation_models_allowlist.py`
+
+5. Config comment update:
+	- Updated `.env` cache comment to reflect retrieval-chunk cache scope.
+	- File: `Phase_2_FE_AI_Merge/backend/.env`
+
+## 2026-04-11 - Bedrock Generation Crash Fix (Vision Payload / JSON Serialization)
+
+### Issue observed
+- `/api/search` returned HTTP 500 after Bedrock generation failure with logs showing:
+	- request body length exceeded during `Converse`
+	- followed by FastAPI serialization error `TypeError: unhashable type: 'list'`
+
+### Root cause
+1. Error response serialization bug:
+	- Generator error path returned raw `chunk_map` with tuple keys as `contents`.
+	- FastAPI JSON encoder converted tuple keys to lists internally, causing unhashable dict keys.
+
+2. Vision payload pressure on Bedrock:
+	- Models like `google.gemma-3-27b-it` are text-only for this app context and should not receive image bytes.
+	- Large image payloads can exceed request size limits.
+
+### Implemented
+1. JSON-safe error path in generator:
+	- Added shared `contents` serializer that always emits string keys (`[X.Y]`).
+	- Error path now returns same JSON-safe `files` and `contents` shape as success path.
+	- File: `Phase_2_FE_AI_Merge/backend/src/generation/generator.py`
+
+2. Bedrock vision guard + retry behavior:
+	- Added model capability gate to skip image preparation/attachments for text-only models (currently Gemma family).
+	- Added fallback retry in Bedrock call: if vision request fails due body length, retry once with text-only content.
+	- File: `Phase_2_FE_AI_Merge/backend/src/generation/generator.py`
+
+3. Allowlist alias compatibility:
+	- Expanded Knowledge Explorer Bedrock model allowlist to accept both global and `us.`-prefixed Anthropic IDs.
+	- File: `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+
+4. Tests:
+	- Added generator tests for JSON-safe error output and text-only model vision skip behavior.
+	- File: `Phase_2_FE_AI_Merge/backend/tests/services/test_generator_error_and_vision_guard.py`
+
+### Validation
+- Targeted tests passed:
+	- `tests/services/test_generator_error_and_vision_guard.py`
+	- `tests/api/test_generation_models_allowlist.py`
+	- `tests/api/test_search_cache.py`
+	- `tests/services/test_orchestrator_retrieval_cache.py`
+
+## 2026-04-11 - Chat Feedback System (Copy / Like / Dislike / Classification / Feedbacks Tab)
+
+### Scope
+- Add per-response copy, like, and dislike controls in Chat Assistant.
+- On dislike: show popup with default reasons + custom reason option.
+- Persist feedback in DynamoDB and run non-blocking Bedrock Haiku 4.5 analysis for category + suggested developer action.
+- Add new left-sidebar tab `Feedbacks` where each user can view their own feedback list and detail.
+- Ensure new implementation does not block core APIs.
+
+### Implemented
+1. Backend feedback persistence and APIs:
+	- Added DynamoDB feedback repository with table contract:
+	  - PK: `user_id` (String)
+	  - SK: `feedback_id` (String)
+	- Added feedback service and routes:
+	  - `POST /api/feedback` create feedback and schedule asynchronous analysis.
+	  - `GET /api/feedback` list current user's feedback.
+	  - `GET /api/feedback/{feedback_id}` get detail for one feedback.
+	- Files:
+	  - `Phase_2_FE_AI_Merge/backend/app/repositories/feedback_repository_dynamo.py`
+	  - `Phase_2_FE_AI_Merge/backend/app/services/feedback_service.py`
+	  - `Phase_2_FE_AI_Merge/backend/app/api/routes/feedback_routes.py`
+	  - `Phase_2_FE_AI_Merge/backend/app/api/schemas.py`
+	  - `Phase_2_FE_AI_Merge/backend/app/main.py`
+
+2. Non-blocking Bedrock classification (Haiku 4.5):
+	- Feedback submission returns immediately; analysis runs in background thread executor.
+	- Model output is parsed into:
+	  - category
+	  - sub_category
+	  - suggested_action
+	  - analysis_summary
+	- Categories aligned with requested analytics taxonomy:
+	  - Content Quality
+	  - Feature & Scope
+	  - Model Intelligence
+	  - Safety & Security
+	  - Uncategorized
+	  - User Experience
+
+3. Chat Assistant UI actions:
+	- Added response-level controls under assistant messages:
+	  - Copy
+	  - Like
+	  - Dislike
+	- Dislike opens modal with predefined reasons and optional custom text.
+	- Feedback payload includes user query + AI response + session/message identifiers when available.
+	- File: `Phase_2_FE_AI_Merge/frontend/src/views/ChatAssistantView.tsx`
+
+4. Feedbacks navigation and user view:
+	- Added new left nav item/tab: `Feedbacks`.
+	- Added `FeedbacksView` showing:
+	  - counts (total/like/dislike)
+	  - category filter
+	  - feedback table
+	  - detail panel (time, category, suggested action, query, response)
+	- Files:
+	  - `Phase_2_FE_AI_Merge/frontend/src/App.tsx`
+	  - `Phase_2_FE_AI_Merge/frontend/src/views/FeedbacksView.tsx`
+	  - `Phase_2_FE_AI_Merge/frontend/src/api/ragApi.ts`
+
+5. Redis timeout behavior improvement for no-blocking requirement:
+	- Added cache reconnect cooldown to avoid repeated per-request Redis timeout attempts when cache endpoint is unreachable.
+	- Service now serves uncached responses immediately during cooldown and retries later.
+	- File: `Phase_2_FE_AI_Merge/backend/app/services/search_cache.py`
+
+6. Environment/config updates:
+	- Added:
+	  - `DYNAMODB_FEEDBACK_TABLE`
+	  - `FEEDBACK_CLASSIFIER_MODEL`
+	  - `SEARCH_CACHE_REDIS_RETRY_COOLDOWN_SECONDS`
+	- Files:
+	  - `Phase_2_FE_AI_Merge/backend/.env`
+	  - `Phase_2_FE_AI_Merge/backend/.env.example`
+
+7. Tests:
+	- Added feedback route tests.
+	- Existing cache + model + generator tests kept passing.
+	- Files:
+	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_feedback_routes.py`
+	  - `Phase_2_FE_AI_Merge/backend/tests/services/test_generator_error_and_vision_guard.py`
+	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_generation_models_allowlist.py`
+	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_search_cache.py`
+	  - `Phase_2_FE_AI_Merge/backend/tests/services/test_orchestrator_retrieval_cache.py`
+
+### Validation
+- Backend targeted pytest suite passed (10 tests total).
+- Frontend changes compile at file-level diagnostics; repository-wide `npm run lint` still reports a pre-existing unrelated syntax issue in `frontend/src/components/ProcessingPipeline.tsx`.
+
+## 2026-04-11 - Feedback Detail Markdown UX + Chat Feedback Hydration + VPC Cache Endpoint Guard
+
+### Scope
+- Improve the `Feedbacks` detail preview because many fields contain markdown text.
+- Improve the perceived feedback interaction quality for copy/like/dislike actions in chat.
+- When loading an existing chat session, restore/show previously submitted feedback states for assistant messages.
+- Reflect deployment constraint: ElastiCache Serverless endpoint is private in VPC and often unreachable from local dev.
+
+### Implemented
+1. Feedback detail markdown rendering polish:
+	- Rendered `suggested_action`, `query`, and `response` as markdown (`react-markdown` + `remark-gfm` + `remark-breaks`) instead of plain text.
+	- Added styled content cards to improve readability for long responses and markdown headings/lists.
+	- File:
+	  - `Phase_2_FE_AI_Merge/frontend/src/views/FeedbacksView.tsx`
+
+2. Better copy/like/dislike interaction effects in chat:
+	- Added stronger visual states and transitions:
+	  - Copy: success/failure state with clearer label and icon feedback.
+	  - Like/Dislike: active highlighting, loading spinner while submitting, and post-submit `Saved` indicator.
+	- File:
+	  - `Phase_2_FE_AI_Merge/frontend/src/views/ChatAssistantView.tsx`
+
+3. Hydrate feedback when loading chat history:
+	- Added session-scoped feedback query support in backend and frontend API:
+	  - `GET /api/feedback?session_id=...`
+	- On `selectSession`, chat now fetches feedback for that session and maps vote state by `message_id` so existing reactions are visible when reopening the chat.
+	- Files:
+	  - `Phase_2_FE_AI_Merge/backend/app/api/routes/feedback_routes.py`
+	  - `Phase_2_FE_AI_Merge/backend/app/services/feedback_service.py`
+	  - `Phase_2_FE_AI_Merge/backend/app/repositories/feedback_repository_dynamo.py`
+	  - `Phase_2_FE_AI_Merge/frontend/src/api/ragApi.ts`
+	  - `Phase_2_FE_AI_Merge/frontend/src/views/ChatAssistantView.tsx`
+
+4. ElastiCache private endpoint guard for local runtime:
+	- Added cache client guard to avoid repeated timeout attempts when `SEARCH_CACHE_REDIS_URL` points to an AWS `.cache.amazonaws.com` endpoint while app is running outside AWS runtime.
+	- Continues serving uncached responses with clear warning, respecting non-blocking behavior.
+	- Added optional override env var comment:
+	  - `SEARCH_CACHE_ALLOW_PRIVATE_ENDPOINT_LOCAL`
+	- Files:
+	  - `Phase_2_FE_AI_Merge/backend/app/services/search_cache.py`
+	  - `Phase_2_FE_AI_Merge/backend/.env`
+	  - `Phase_2_FE_AI_Merge/backend/.env.example`
+
+5. Test compatibility update:
+	- Updated feedback route unit-test fake service signature to include `session_id` filter argument.
+	- File:
+	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_feedback_routes.py`
+
+### Validation
+- Diagnostics check on changed frontend/backend files: no errors found.
+
+## 2026-04-11 - General Feedback Composer in Feedbacks Tab
+
+### Scope
+- Add a new way for users to submit general feedback directly from the `Feedbacks` tab.
+- Let users optionally choose `Scope` from a list of app features.
+- Keep existing message-level like/dislike flow unchanged.
+
+### Implemented
+1. Backend feedback contract extended:
+	- Added support for `vote="general"`.
+	- Added optional fields: `scope`, `feedback_text`.
+	- For `general` feedback: `feedback_text` is required.
+	- For `like/dislike` feedback: `query` and `response` remain required.
+	- Files:
+	  - `Phase_2_FE_AI_Merge/backend/app/api/schemas.py`
+	  - `Phase_2_FE_AI_Merge/backend/app/api/routes/feedback_routes.py`
+
+2. Persistence/service support:
+	- Repository now stores and returns `scope` + `feedback_text`.
+	- Service create path and classifier prompt now include these fields.
+	- Files:
+	  - `Phase_2_FE_AI_Merge/backend/app/repositories/feedback_repository_dynamo.py`
+	  - `Phase_2_FE_AI_Merge/backend/app/services/feedback_service.py`
+
+3. Frontend API/types updated:
+	- `FeedbackVote` now includes `general`.
+	- `createFeedback` accepts optional `scope` and `feedback_text`.
+	- Files:
+	  - `Phase_2_FE_AI_Merge/frontend/src/api/ragApi.ts`
+
+4. Feedbacks tab UI composer:
+	- Added `Send General Feedback` section in `Feedbacks` tab.
+	- Includes:
+	  - optional scope dropdown (feature list)
+	  - general feedback textarea
+	  - submit button with success/error states
+	- Added `scope` display in list table and detail panel.
+	- Added `general` count card.
+	- File:
+	  - `Phase_2_FE_AI_Merge/frontend/src/views/FeedbacksView.tsx`
+
+5. Unit test update:
+	- Added coverage for creating `general` feedback payload.
+	- File:
+	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_feedback_routes.py`
+
+### Validation
+- Diagnostics check on changed files: no errors found.
