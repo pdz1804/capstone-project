@@ -36,6 +36,68 @@ from datetime import datetime
 
 from .chunker import ChunkingConfig, TextChunker
 
+# ── Formula-aware splitting helpers ──────────────────────────────────────────
+
+# Matches block display-math delimiters produced by docling_pdf_reader:
+#   $$\n<LaTeX body>\n$$
+# Inline formulas ($...$) are short and never span a split boundary,
+# so they don't need special handling.
+_FORMULA_RE = re.compile(r"\$\$\n.*?\n\$\$", re.DOTALL)
+_PLACEHOLDER_PREFIX = "\x00FORMULA_"
+_PLACEHOLDER_SUFFIX = "\x00"
+
+
+def _protect_formulas(text: str) -> Tuple[str, List[str]]:
+    """Replace every formula (block or inline) with a unique placeholder.
+
+    Returns the substituted text and an ordered list of original formula
+    strings so they can be restored later.
+    """
+    formulas: List[str] = []
+
+    def _replacer(m: re.Match) -> str:
+        idx = len(formulas)
+        formulas.append(m.group(0))
+        return f"{_PLACEHOLDER_PREFIX}{idx}{_PLACEHOLDER_SUFFIX}"
+
+    protected = _FORMULA_RE.sub(_replacer, text)  # only block $$...$$
+    return protected, formulas
+
+
+def _restore_formulas(text: str, formulas: List[str]) -> str:
+    """Substitute placeholders back to their original formula strings."""
+    def _replacer(m: re.Match) -> str:
+        idx = int(m.group(1))
+        return formulas[idx] if idx < len(formulas) else m.group(0)
+
+    pattern = re.compile(
+        re.escape(_PLACEHOLDER_PREFIX) + r"(\d+)" + re.escape(_PLACEHOLDER_SUFFIX)
+    )
+    return pattern.sub(_replacer, text)
+
+
+def _split_text_formula_aware(
+    splitter_fn,
+    text: str,
+) -> List[str]:
+    """Split *text* while keeping ``$\\n...\\n$`` formula blocks atomic.
+
+    Args:
+        splitter_fn: Callable that accepts a string and returns List[str].
+                     Typically ``TextChunker.split_text``.
+        text: The raw text that may contain block formulas.
+
+    Returns:
+        List of text chunks with formulas fully restored.
+    """
+    protected, formulas = _protect_formulas(text)
+    if not formulas:
+        # Fast-path: no formulas, skip all overhead
+        return splitter_fn(text)
+
+    raw_chunks = splitter_fn(protected)
+    return [_restore_formulas(c, formulas) for c in raw_chunks]
+
 logger = logging.getLogger(__name__)
 
 # ── Markers produced by docx_reader_v2 ───────────────────────────────────
@@ -305,8 +367,11 @@ class DocxTableChunker(TextChunker):
                         },
                     })
             else:
-                # Plain text segment — use parent recursive splitter
-                text_parts = super().split_text(seg["content"])
+                # Plain text segment — use formula-aware splitter so that
+                # $\n...\n$ blocks are never cut across chunk boundaries.
+                text_parts = _split_text_formula_aware(
+                    super().split_text, seg["content"]
+                )
                 for part in text_parts:
                     # Prepend heading context
                     ctx = f"[Section: {breadcrumb_str}]\n\n" if breadcrumb_str else ""

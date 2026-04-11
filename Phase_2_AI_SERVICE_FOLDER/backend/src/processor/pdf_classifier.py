@@ -1,15 +1,30 @@
 """
 PDF Classification Module
 
-Classifies PDFs as born-digital, scanned, or hybrid by analyzing
-page-level signals: text density, image coverage, font usage,
-structure tree presence, and producer metadata.
+Classifies PDFs as born-digital, scanned (with/without OCR), or hybrid
+by analysing **content-stream operators** — the actual drawing instructions
+inside each page — rather than pixel-level heuristics.
 
-Born-digital PDFs are routed to the custom pdf_reader parser.
-Scanned/hybrid PDFs continue through Docling's OCR+VLM pipeline.
+Key signals (ranked by reliability):
+
+1. **Content-stream operators**
+   - ``BT``/``ET`` + ``Tj``/``TJ`` with render-mode 0 → born-digital text
+   - Zero text operators, only ``q cm Do Q`` → scanned (no OCR)
+   - ``Tr 3`` (invisible text) → scanned with OCR overlay
+
+2. **Font analysis**
+   - Real font names with ``/FontFile`` → born-digital
+   - ``/GlyphLessFont`` or similar synthetic names → OCR font
+   - Zero fonts on page → no text layer at all
+
+3. **Global metadata** (tie-breakers)
+   - ``/StructTreeRoot`` → strong born-digital signal
+   - ``/Producer`` / ``/Creator`` keywords
+   - Table-of-contents bookmarks
 """
 
 import logging
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -20,6 +35,10 @@ import fitz  # pymupdf
 logger = logging.getLogger(__name__)
 
 
+# ---------------------------------------------------------------------------
+# Public enums & dataclass
+# ---------------------------------------------------------------------------
+
 class PdfType(Enum):
     BORN_DIGITAL = "born_digital"
     SCANNED = "scanned"
@@ -28,7 +47,8 @@ class PdfType(Enum):
 
 class PageType(Enum):
     BORN_DIGITAL = "born_digital"
-    SCANNED = "scanned"
+    SCANNED_NO_OCR = "scanned_no_ocr"
+    SCANNED_WITH_OCR = "scanned_with_ocr"
     UNCERTAIN = "uncertain"
 
 
@@ -43,14 +63,16 @@ class PdfClassification:
     page_count: int
 
 
-# Producer strings that indicate scanning origin
+# ---------------------------------------------------------------------------
+# Producer / creator keyword lists (tier-3 tie-breaker)
+# ---------------------------------------------------------------------------
+
 _SCANNER_PRODUCERS = [
     "scan", "fujitsu", "canon", "epson", "brother", "xerox",
     "konica", "ricoh", "sharp", "kodak", "panasonic",
     "scansnap", "paperstream", "twain",
 ]
 
-# Producer strings that indicate born-digital origin
 _DIGITAL_PRODUCERS = [
     "word", "latex", "pdflatex", "xelatex", "lualatex",
     "chrome", "firefox", "safari", "webkit",
@@ -58,39 +80,41 @@ _DIGITAL_PRODUCERS = [
     "libreoffice", "openoffice", "microsoft",
     "quartz", "cairo", "reportlab", "wkhtmltopdf",
     "prince", "weasyprint", "typst", "overleaf",
+    "canva", "ghostscript",
 ]
 
-# Minimum text characters per page to consider it "has text"
-_MIN_TEXT_CHARS = 50
-# Maximum text characters per page below which page is "text-sparse"
-_SPARSE_TEXT_CHARS = 20
-# Image coverage threshold above which page looks like a scan
-_HIGH_IMAGE_COVERAGE = 0.80
-# Image coverage threshold below which page looks born-digital
-_LOW_IMAGE_COVERAGE = 0.50
-# Percentage threshold for aggregating page classifications
+# Font base-names that indicate an OCR text layer
+_OCR_FONT_NAMES = [
+    "glyphlessFont", "invisible", "hiddenhocrtext",
+]
+
+# Majority-vote threshold
 _MAJORITY_THRESHOLD = 0.70
 
 
+# ---------------------------------------------------------------------------
+# Classifier
+# ---------------------------------------------------------------------------
+
 class PdfClassifier:
-    """Classify a PDF as born-digital, scanned, or hybrid."""
+    """Classify a PDF as born-digital, scanned, or hybrid using
+    content-stream operator analysis."""
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
     def classify(self, file_path: str | Path) -> PdfClassification:
-        """Classify a PDF file.
-
-        Args:
-            file_path: Path to the PDF file.
-
-        Returns:
-            PdfClassification with type, confidence, and diagnostic signals.
-        """
         file_path = Path(file_path)
         doc = fitz.open(str(file_path))
-
         try:
             return self._classify_document(doc)
         finally:
             doc.close()
+
+    # ------------------------------------------------------------------
+    # Document-level classification
+    # ------------------------------------------------------------------
 
     def _classify_document(self, doc: fitz.Document) -> PdfClassification:
         page_count = len(doc)
@@ -112,58 +136,27 @@ class PdfClassifier:
         has_toc = len(toc) > 0
         producer_signal = self._check_producer(doc)
 
-        # --- Sample pages ---
+        # --- Per-page content-stream analysis ---
         sample_indices = self._pick_sample_pages(page_count)
         page_results: List[Dict[str, Any]] = []
         page_types: List[PageType] = []
 
         for idx in sample_indices:
-            page = doc[idx]
-            result = self._analyze_page(page)
+            result = self._analyze_page(doc, idx)
             page_results.append(result)
             page_types.append(result["page_type"])
 
-        # --- Aggregate ---
-        born_count = sum(1 for t in page_types if t == PageType.BORN_DIGITAL)
-        scanned_count = sum(1 for t in page_types if t == PageType.SCANNED)
-        total_sampled = len(page_types)
+        # --- Aggregate page votes → initial type + confidence ---
+        born_ratio, scanned_ratio = self._compute_ratios(page_types)
+        pdf_type, confidence = self._majority_vote(born_ratio, scanned_ratio)
 
-        born_ratio = born_count / total_sampled
-        scanned_ratio = scanned_count / total_sampled
+        # --- Apply global-signal adjustments ---
+        pdf_type, confidence = self._apply_global_signals(
+            pdf_type, confidence, born_ratio,
+            has_structure_tree, has_toc, producer_signal,
+        )
 
-        # Start with page-level majority vote
-        if born_ratio >= _MAJORITY_THRESHOLD:
-            pdf_type = PdfType.BORN_DIGITAL
-            confidence = born_ratio
-        elif scanned_ratio >= _MAJORITY_THRESHOLD:
-            pdf_type = PdfType.SCANNED
-            confidence = scanned_ratio
-        else:
-            pdf_type = PdfType.HYBRID
-            confidence = max(born_ratio, scanned_ratio)
-
-        # --- Apply global signal adjustments ---
-
-        # Structure tree is a strong born-digital indicator
-        if has_structure_tree and pdf_type != PdfType.BORN_DIGITAL:
-            if born_ratio >= 0.4:
-                pdf_type = PdfType.BORN_DIGITAL
-                confidence = max(confidence, 0.75)
-
-        # ToC is a moderate born-digital indicator
-        if has_toc and pdf_type == PdfType.HYBRID:
-            pdf_type = PdfType.BORN_DIGITAL
-            confidence = max(confidence, 0.65)
-
-        # Producer metadata can tip uncertain cases
-        if producer_signal == "digital" and pdf_type == PdfType.HYBRID:
-            pdf_type = PdfType.BORN_DIGITAL
-            confidence = max(confidence, 0.60)
-        elif producer_signal == "scanner" and pdf_type == PdfType.HYBRID:
-            pdf_type = PdfType.SCANNED
-            confidence = max(confidence, 0.60)
-
-        # Build full page classification list (sampled pages only have results)
+        # Full page classification list
         full_page_classifications = ["unknown"] * page_count
         for i, idx in enumerate(sample_indices):
             full_page_classifications[idx] = page_types[i].value
@@ -190,104 +183,145 @@ class PdfClassifier:
             page_count=page_count,
         )
 
-    def _pick_sample_pages(self, page_count: int) -> List[int]:
-        """Pick representative pages to sample (max 5)."""
-        if page_count <= 5:
-            return list(range(page_count))
+    # ------------------------------------------------------------------
+    # Aggregation helpers
+    # ------------------------------------------------------------------
 
-        indices = set()
-        # First 3 pages
-        for i in range(min(3, page_count)):
-            indices.add(i)
-        # Middle page
-        indices.add(page_count // 2)
-        # Last page
-        indices.add(page_count - 1)
+    @staticmethod
+    def _compute_ratios(page_types: List[PageType]) -> tuple[float, float]:
+        total = len(page_types)
+        born = sum(1 for t in page_types if t == PageType.BORN_DIGITAL)
+        scanned = sum(
+            1 for t in page_types
+            if t in (PageType.SCANNED_NO_OCR, PageType.SCANNED_WITH_OCR)
+        )
+        return born / total, scanned / total
 
-        return sorted(indices)
+    @staticmethod
+    def _majority_vote(
+        born_ratio: float, scanned_ratio: float,
+    ) -> tuple[PdfType, float]:
+        if born_ratio >= _MAJORITY_THRESHOLD:
+            return PdfType.BORN_DIGITAL, born_ratio
+        if scanned_ratio >= _MAJORITY_THRESHOLD:
+            return PdfType.SCANNED, scanned_ratio
+        return PdfType.HYBRID, max(born_ratio, scanned_ratio)
 
-    def _analyze_page(self, page: fitz.Page) -> Dict[str, Any]:
-        """Analyze a single page and classify it."""
-        page_area = page.rect.width * page.rect.height
-        if page_area <= 0:
-            return {"page_type": PageType.UNCERTAIN, "text_chars": 0, "image_coverage": 0}
+    @staticmethod
+    def _apply_global_signals(
+        pdf_type: PdfType,
+        confidence: float,
+        born_ratio: float,
+        has_structure_tree: bool,
+        has_toc: bool,
+        producer_signal: str,
+    ) -> tuple[PdfType, float]:
+        if has_structure_tree and pdf_type != PdfType.BORN_DIGITAL and born_ratio >= 0.4:
+            return PdfType.BORN_DIGITAL, max(confidence, 0.75)
 
-        # --- Text analysis ---
-        text_dict = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)
-        total_chars = 0
-        font_names = set()
+        if pdf_type != PdfType.HYBRID:
+            return pdf_type, confidence
 
-        for block in text_dict.get("blocks", []):
-            if block.get("type") != 0:  # type 0 = text block
+        # Hybrid tie-breakers
+        if has_toc:
+            return PdfType.BORN_DIGITAL, max(confidence, 0.65)
+        if producer_signal == "digital":
+            return PdfType.BORN_DIGITAL, max(confidence, 0.60)
+        if producer_signal == "scanner":
+            return PdfType.SCANNED, max(confidence, 0.60)
+
+        return pdf_type, confidence
+
+    # ------------------------------------------------------------------
+    # Page-level content-stream analysis  (TIER 1 — definitive)
+    # ------------------------------------------------------------------
+
+    def _analyze_page(self, doc: fitz.Document, page_idx: int) -> Dict[str, Any]:
+        """Classify a single page by inspecting its content-stream operators."""
+        page = doc[page_idx]
+
+        # --- Parse content stream ---
+        text_ops = 0      # Tj + TJ count
+        bt_count = 0      # BT blocks
+        do_count = 0      # XObject paint (images / forms)
+        has_invisible_text = False  # Tr 3
+
+        for xref in page.get_contents():
+            stream = doc.xref_stream(xref)
+            if not stream:
                 continue
-            for line in block.get("lines", []):
-                for span in line.get("spans", []):
-                    text = span.get("text", "").strip()
-                    total_chars += len(text)
-                    if span.get("font"):
-                        font_names.add(span["font"])
+            raw = stream.decode("latin-1", errors="ignore")
 
-        # --- Image analysis ---
-        images = page.get_images(full=True)
-        image_area_total = 0.0
+            text_ops += len(re.findall(r"\bTj\b", raw))
+            text_ops += len(re.findall(r"\bTJ\b", raw))
+            bt_count += len(re.findall(r"\bBT\b", raw))
+            do_count += len(re.findall(r"\bDo\b", raw))
 
-        for img in images:
-            xref = img[0]
-            try:
-                # Get image bbox on the page
-                img_rects = page.get_image_rects(xref)
-                for rect in img_rects:
-                    image_area_total += rect.width * rect.height
-            except Exception:
-                # Fallback: use image dimensions from xref
-                try:
-                    w, h = img[2], img[3]  # width, height from get_images
-                    image_area_total += w * h * 0.5  # rough estimate
-                except Exception:
-                    pass
+            # Invisible-text render mode (mode 3)
+            if re.search(r"3\s+Tr\b", raw):
+                has_invisible_text = True
 
-        image_coverage = min(image_area_total / page_area, 1.0) if page_area > 0 else 0
+        # --- Font analysis (TIER 2) ---
+        fonts = page.get_fonts()
+        font_names = [f[3] for f in fonts]  # basefont name
+        has_ocr_font = any(
+            any(kw.lower() in name.lower() for kw in _OCR_FONT_NAMES)
+            for name in font_names
+        )
 
         # --- Classify page ---
-        if total_chars >= _MIN_TEXT_CHARS and image_coverage < _LOW_IMAGE_COVERAGE:
+        if text_ops == 0 and bt_count == 0 and len(fonts) == 0:
+            page_type = PageType.SCANNED_NO_OCR
+        elif has_invisible_text or has_ocr_font:
+            page_type = PageType.SCANNED_WITH_OCR
+        elif text_ops > 0:
             page_type = PageType.BORN_DIGITAL
-        elif total_chars < _SPARSE_TEXT_CHARS and image_coverage > _HIGH_IMAGE_COVERAGE:
-            page_type = PageType.SCANNED
-        elif total_chars >= _MIN_TEXT_CHARS:
-            # Has text but also high image coverage — likely born-digital with figures
+        elif bt_count > 0 and len(fonts) > 0:
+            # BT/ET blocks exist but no Tj/TJ — unusual but treat as born-digital
             page_type = PageType.BORN_DIGITAL
-        elif image_coverage > _HIGH_IMAGE_COVERAGE:
-            # Very high image coverage, sparse text — likely scanned with OCR layer
-            page_type = PageType.SCANNED
         else:
             page_type = PageType.UNCERTAIN
 
         return {
             "page_type": page_type,
-            "text_chars": total_chars,
-            "image_coverage": round(image_coverage, 3),
-            "font_count": len(font_names),
-            "fonts": list(font_names)[:10],
-            "image_count": len(images),
+            "text_ops": text_ops,
+            "bt_blocks": bt_count,
+            "do_ops": do_count,
+            "has_invisible_text": has_invisible_text,
+            "font_count": len(fonts),
+            "font_names": font_names[:10],
+            "has_ocr_font": has_ocr_font,
         }
 
+    # ------------------------------------------------------------------
+    # Sampling
+    # ------------------------------------------------------------------
+
+    def _pick_sample_pages(self, page_count: int) -> List[int]:
+        if page_count <= 5:
+            return list(range(page_count))
+        indices = set()
+        for i in range(min(3, page_count)):
+            indices.add(i)
+        indices.add(page_count // 2)
+        indices.add(page_count - 1)
+        return sorted(indices)
+
+    # ------------------------------------------------------------------
+    # Global metadata helpers (TIER 3 — tie-breakers)
+    # ------------------------------------------------------------------
+
     def _get_pdf_version(self, doc: fitz.Document) -> str:
-        """Extract PDF version from the header (e.g. '1.7')."""
         try:
-            # pymupdf exposes version info
-            # Try reading first bytes for %PDF-x.y
             first_bytes = doc.tobytes()[:20] if doc.page_count > 0 else b""
             if first_bytes.startswith(b"%PDF-"):
-                version_str = first_bytes[5:8].decode("ascii", errors="ignore")
-                return version_str.strip()
+                return first_bytes[5:8].decode("ascii", errors="ignore").strip()
         except Exception:
             pass
         return "unknown"
 
     def _has_structure_tree(self, doc: fitz.Document) -> bool:
-        """Check if the PDF has a structure tree (Tagged PDF)."""
         try:
-            # pymupdf: check catalog for MarkInfo or StructTreeRoot
             cat = doc.pdf_catalog()
             if cat > 0:
                 xref_str = doc.xref_object(cat)
@@ -297,10 +331,6 @@ class PdfClassifier:
         return False
 
     def _check_producer(self, doc: fitz.Document) -> str:
-        """Check producer/creator metadata for scan vs digital signals.
-
-        Returns: 'digital', 'scanner', or 'unknown'.
-        """
         producer = (doc.metadata.get("producer") or "").lower()
         creator = (doc.metadata.get("creator") or "").lower()
         combined = f"{producer} {creator}"
@@ -308,9 +338,7 @@ class PdfClassifier:
         for keyword in _SCANNER_PRODUCERS:
             if keyword in combined:
                 return "scanner"
-
         for keyword in _DIGITAL_PRODUCERS:
             if keyword in combined:
                 return "digital"
-
         return "unknown"

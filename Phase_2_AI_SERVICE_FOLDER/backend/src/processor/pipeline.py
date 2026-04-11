@@ -406,7 +406,7 @@ class DocumentProcessingPipeline:
             if docx_stats and docx_stats.get("processed_files", 0) > 0:
                 self.pipeline_stats["stages"]["docx_processing"] = docx_stats
 
-            # Stage 3d: PDF Processing (born-digital custom parser + heading-aware chunking)
+            # Stage 3d: PDF Processing (Docling unified parser + heading-aware chunking)
             pdf_stats = self._run_pdf_processing()
             if pdf_stats and pdf_stats.get("processed_files", 0) > 0:
                 self.pipeline_stats["stages"]["pdf_processing"] = pdf_stats
@@ -810,15 +810,18 @@ class DocumentProcessingPipeline:
 
     def _run_pdf_processing(self) -> Dict:
         """
-        Run Stage 3d: PDF Processing with custom born-digital parser.
+        Run Stage 3d: PDF Processing (Docling unified parser).
 
-        Processes parsed PDF JSON files from Stage 1 (pdf_parsed/)
-        using PdfPreprocessor to produce RAG-ready output:
+        Reads heading-tree JSON files written to pdf_parsed/ by Stage 1
+        (normalizer._copy_pdf → _parse_pdf_with_docling) and runs
+        PdfPreprocessor to produce RAG-ready output:
           - {doc_id}/{doc_id}.md
           - {doc_id}/pdf_chunks.json
           - {doc_id}/pdf_manifest.json
           - {doc_id}/images/
 
+        Born-digital PDFs are parsed with OCR disabled (fast path).
+        Scanned / hybrid PDFs are parsed with OCR enabled via Docling.
         Output goes directly to stage4_rag_ready/.
         """
         pdf_parsed_dir = self.stage_dirs["normalized"] / "pdf_parsed"

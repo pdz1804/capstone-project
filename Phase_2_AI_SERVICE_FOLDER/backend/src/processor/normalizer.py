@@ -777,17 +777,22 @@ class DocumentNormalizer:
     def _copy_pdf(self, file_path: Path, stem: str):
         """Classify and process PDF files.
 
-        Born-digital PDFs are parsed with the custom PDF reader into
-        ``pdf_parsed/{stem}.json`` (same heading-tree format as DOCX).
-        Scanned/hybrid PDFs are copied to ``normalized_pdfs/`` for
-        Docling processing.
+        All PDFs are parsed through Docling (unified path).
+        The classifier determines whether to skip OCR (born-digital)
+        or enable it (scanned / hybrid), then outputs the same
+        heading-tree JSON consumed by the chunker.
+
+        The PDF is also copied to ``normalized_pdfs/`` so Docling's
+        Stage-3 processor can generate page images if needed, but
+        born-digital/hybrid JSONs produced here are preferred by the
+        pipeline's deduplication logic.
         """
-        # Always copy to normalized_pdfs/ as Docling fallback
+        # Always copy to normalized_pdfs/ for Stage-3 compatibility
         if self.config.generate_pdf:
             dest = self.pdf_dir / f"{stem}.pdf"
             shutil.copy(file_path, dest)
 
-        # Classify the PDF
+        # --- Classify ---
         try:
             from .pdf_classifier import PdfClassifier, PdfType
             classifier = PdfClassifier()
@@ -795,10 +800,8 @@ class DocumentNormalizer:
 
             print(f"  PDF classified as: {classification.pdf_type.value} "
                   f"(confidence={classification.confidence:.2f}, "
-                  f"version={classification.pdf_version}, "
                   f"pages={classification.page_count})")
 
-            # Save classification metadata
             import json as _json
             meta_path = self.metadata_dir / f"{stem}_pdf_classification.json"
             meta = {
@@ -812,31 +815,50 @@ class DocumentNormalizer:
             with open(meta_path, "w", encoding="utf-8") as f:
                 _json.dump(meta, f, ensure_ascii=False, indent=2, default=str)
 
-            # Route based on classification
-            if classification.pdf_type == PdfType.BORN_DIGITAL:
-                self._parse_born_digital_pdf(file_path, stem)
-            else:
-                print(f"  -> Routing to Docling (copied to normalized_pdfs/)")
+            # Born-digital → skip OCR overhead; scanned/hybrid → enable OCR
+            skip_ocr = classification.pdf_type == PdfType.BORN_DIGITAL
+            self._parse_pdf_with_docling(file_path, stem, skip_ocr=skip_ocr)
 
         except Exception as e:
-            print(f"  WARNING: PDF classification failed ({e}), routing to Docling")
+            print(f"  WARNING: PDF classification failed ({e}), "
+                  "falling back to Docling with OCR enabled")
+            try:
+                self._parse_pdf_with_docling(file_path, stem, skip_ocr=False)
+            except Exception as e2:
+                print(f"  WARNING: Docling parse also failed ({e2}), "
+                      "file left in normalized_pdfs/ for Stage-3 Docling")
 
-    def _parse_born_digital_pdf(self, file_path: Path, stem: str):
-        """Parse a born-digital PDF using the custom PDF reader."""
+    def _parse_pdf_with_docling(self, file_path: Path, stem: str, *, skip_ocr: bool):
+        """Parse any PDF via Docling into heading-tree JSON.
+
+        Args:
+            file_path: Source PDF.
+            stem: Safe filename stem (used for output naming).
+            skip_ocr: When True OCR is disabled (born-digital fast path).
+        """
         import json as _json
-        from .pdf_reader import PdfParser
+        from .docling_pdf_reader import DoclingPdfParser, DoclingPdfConfig
 
         parsed_output_dir = self.pdf_parsed_dir / "_parsed" / stem
         parsed_output_dir.mkdir(parents=True, exist_ok=True)
 
-        parser = PdfParser()
-        tree = parser.parse(str(file_path), output_dir=str(parsed_output_dir))
+        config = DoclingPdfConfig(
+            enable_ocr=not skip_ocr,
+            extract_images=True,
+        )
+        parser = DoclingPdfParser(config)
+        tree = parser.parse(
+            str(file_path),
+            output_dir=str(parsed_output_dir),
+            skip_ocr=skip_ocr,
+        )
 
         out_json = self.pdf_parsed_dir / f"{stem}.json"
         with open(out_json, "w", encoding="utf-8") as f:
             _json.dump(tree, f, ensure_ascii=False, indent=2)
 
-        print(f"  -> Born-digital PDF parsed to JSON: {out_json.name} "
+        ocr_label = "no OCR" if skip_ocr else "with OCR"
+        print(f"  -> Docling PDF parsed ({ocr_label}): {out_json.name} "
               f"({len(tree)} top-level sections)")
     
     def _txt_to_md(self, file_path: Path, stem: str):

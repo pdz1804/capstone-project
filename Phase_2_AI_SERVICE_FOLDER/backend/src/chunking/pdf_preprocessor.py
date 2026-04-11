@@ -134,6 +134,9 @@ class PdfPreprocessor:
         image_paths = self._collect_and_copy_images(tree, doc_folder, parsed_images_dir)
         self._rewrite_image_paths(tree, doc_folder / "images")
 
+        # 2.5 Normalize LaTeX math delimiters for markdown compatibility
+        self._normalize_tree_math_delimiters(tree)
+
         # 3. Build combined Markdown
         md_content = self._build_markdown(tree, doc_id)
         md_path = doc_folder / f"{doc_id}.md"
@@ -224,6 +227,7 @@ class PdfPreprocessor:
                 parts.append(f"\n{'#' * md_level} {heading}\n")
 
             if content:
+                content = PdfPreprocessor._image_markers_to_md(content)
                 parts.append(content)
                 parts.append("")
 
@@ -234,6 +238,47 @@ class PdfPreprocessor:
                 parts.append(child_md)
 
         return "\n".join(parts)
+
+    @staticmethod
+    def _image_markers_to_md(text: str) -> str:
+        """Convert ``[START_IMAGE_PATH] path|hash [END_IMAGE_PATH]`` to ``![image](path)``."""
+        import re
+        def _replace(m):
+            inner = m.group(1).strip()
+            path_str = inner.split("|")[0].strip()
+            return f"![image]({path_str})"
+        return re.sub(
+            r"\[START_IMAGE_PATH\]\s*(.*?)\s*\[END_IMAGE_PATH\]",
+            _replace,
+            text,
+        )
+
+    @staticmethod
+    def _normalize_math_delimiters(text: str) -> str:
+        """Convert LaTeX delimiters from \(\), \[\] into $, $$ for markdown renderers."""
+        if not text:
+            return text
+
+        # Process display math first, then inline math.
+        normalized = re.sub(r"\\\[(.*?)\\\]", r"$$\1$$", text, flags=re.DOTALL)
+        normalized = re.sub(r"\\\((.*?)\\\)", r"$\1$", normalized, flags=re.DOTALL)
+        return normalized
+
+    @staticmethod
+    def _normalize_tree_math_delimiters(tree: List[Dict]) -> None:
+        """Apply math delimiter normalization to heading/content recursively."""
+        for node in tree:
+            heading = node.get("heading_text")
+            if isinstance(heading, str) and heading:
+                node["heading_text"] = PdfPreprocessor._normalize_math_delimiters(heading)
+
+            content = node.get("content")
+            if isinstance(content, str) and content:
+                node["content"] = PdfPreprocessor._normalize_math_delimiters(content)
+
+            children = node.get("children", [])
+            if children:
+                PdfPreprocessor._normalize_tree_math_delimiters(children)
 
     def _is_flat_tree(self, tree: List[Dict]) -> bool:
         if not tree:

@@ -848,7 +848,7 @@ class DocxParser(object):
         parent is exactly parent_level + 1 (and deeper children shift
         proportionally).
         4. Simulate Word/SharePoint chapter-restart caption numbering
-        (e.g. Table 3-1) for LibreOffice-converted DOCX where SEQ \s switch
+        (e.g. Table 3-1) for LibreOffice-converted DOCX where SEQ \\s switch
         is not materialized.
         """
         for node in nodes:
@@ -1469,6 +1469,32 @@ class DocxParser(object):
                 i += self._process_tbl_element(
                     children, i, stack, pending_drawing_ps, overlay_suppress_active
                 )
+                continue
+
+            if child.tag == create_ns(W_NS, "sdt"):
+                # Structured Document Tags (sdt) wrap tables/paragraphs (e.g. use-case
+                # scenario tables). Inline-process their sdtContent children so that
+                # tables immediately following a heading are not silently dropped.
+                self._flush_pending_drawing_ps(pending_drawing_ps, stack)
+                sdt_content = child.find(create_ns(W_NS, "sdtContent"))
+                if sdt_content is not None:
+                    sdt_children = list(sdt_content)
+                    sdt_j = 0
+                    while sdt_j < len(sdt_children):
+                        sdt_child = sdt_children[sdt_j]
+                        if sdt_child.tag == create_ns(W_NS, "tbl"):
+                            sdt_j += self._process_tbl_element(
+                                sdt_children, sdt_j, stack, pending_drawing_ps, overlay_suppress_active
+                            )
+                        elif sdt_child.tag == create_ns(W_NS, "p"):
+                            advance, overlay_suppress_active, overlay_suppress_level = self._process_p_element(
+                                sdt_children, sdt_j, stack, tree, pending_drawing_ps,
+                                overlay_suppress_active, overlay_suppress_level,
+                            )
+                            sdt_j += advance
+                        else:
+                            sdt_j += 1
+                i += 1
                 continue
 
             # Other elements: flush pending and move on
