@@ -74,8 +74,6 @@ def _attach_original_media_storage_uri(meta: Dict[str, Any], user_id: str | None
         return
 
     candidate = str(meta.get("original_file") or meta.get("preview_source_path") or "").strip()
-    if not candidate:
-        return
 
     try:
         storage = get_file_storage(user_id)
@@ -85,8 +83,30 @@ def _attach_original_media_storage_uri(meta: Dict[str, Any], user_id: str | None
     if not isinstance(storage, S3FileStorage):
         return
 
-    p = Path(candidate)
-    uri = storage.uri_for_local_under_input(p) or storage.uri_for_local_under_processing(p)
+    uri = None
+
+    # 1) Direct mapping from known local path when available
+    if candidate:
+        p = Path(candidate)
+        uri = storage.uri_for_local_under_input(p) or storage.uri_for_local_under_processing(p)
+
+    # 2) Deployed fallback for historical metadata with machine-local absolute paths
+    # Build a virtual input path from filename/doc_id and convert it to tenant input S3 URI.
+    if not uri:
+        name = ""
+        if candidate:
+            name = Path(candidate).name
+        if not name:
+            doc_id = str(meta.get("doc_id") or "").strip()
+            ext = str(meta.get("original_file_format") or "").strip().lstrip(".")
+            if doc_id and ext:
+                name = f"{doc_id}.{ext}"
+            elif doc_id:
+                name = doc_id
+        if name:
+            virtual_input = storage.local_input_dir / name
+            uri = storage.uri_for_local_under_input(virtual_input)
+
     if uri:
         meta["original_storage_uri"] = uri
 
