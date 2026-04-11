@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List
 
 from app.core.paths import qdrant_collection_names_for_user, workspace_paths_for_user
@@ -14,6 +16,8 @@ from app.repositories import (
     load_bm25_index,
     load_documents_snapshot,
 )
+from app.storage import get_file_storage
+from app.storage.service import S3FileStorage
 from app.services.citation_uris import canonical_document_source, sanitize_metadata_for_api
 
 logger = logging.getLogger(__name__)
@@ -29,6 +33,64 @@ def _min_max_normalize(scores: Dict[str, float]) -> Dict[str, float]:
     return {k: (v - lo) / (hi - lo) for k, v in scores.items()}
 
 
+def _coerce_time_seconds(value: Any) -> float | None:
+    try:
+        if value is None:
+            return None
+        return float(value)
+    except Exception:
+        return None
+
+
+def _format_time_mmss(seconds: float) -> str:
+    total = max(0, int(round(seconds)))
+    hours = total // 3600
+    minutes = (total % 3600) // 60
+    secs = total % 60
+    if hours > 0:
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+    return f"{minutes:02d}:{secs:02d}"
+
+
+def _extract_time_window_fields(meta: Dict[str, Any]) -> tuple[float | None, float | None, str]:
+    start = _coerce_time_seconds(meta.get("start_time"))
+    end = _coerce_time_seconds(meta.get("end_time"))
+    if start is None and end is None:
+        return None, None, ""
+    if start is not None and end is not None:
+        return start, end, f"{_format_time_mmss(start)} - {_format_time_mmss(end)}"
+    if start is not None:
+        return start, None, f"from {_format_time_mmss(start)}"
+    return None, end, f"until {_format_time_mmss(end)}"
+
+
+def _attach_original_media_storage_uri(meta: Dict[str, Any], user_id: str | None) -> None:
+    """Best-effort hydration for deployed media preview when historical indexes lack original_storage_uri."""
+    if not isinstance(meta, dict):
+        return
+    if str(meta.get("document_type") or "").lower() != "media":
+        return
+    if str(meta.get("original_storage_uri") or "").strip():
+        return
+
+    candidate = str(meta.get("original_file") or meta.get("preview_source_path") or "").strip()
+    if not candidate:
+        return
+
+    try:
+        storage = get_file_storage(user_id)
+    except Exception:
+        return
+
+    if not isinstance(storage, S3FileStorage):
+        return
+
+    p = Path(candidate)
+    uri = storage.uri_for_local_under_input(p) or storage.uri_for_local_under_processing(p)
+    if uri:
+        meta["original_storage_uri"] = uri
+
+
 def _load_doc_map_for_user(path: Path, user_id: str | None) -> Dict[str, Dict[str, Any]]:
     docs = load_documents_snapshot(path, user_id=user_id)
     out: Dict[str, Dict[str, Any]] = {}
@@ -40,6 +102,9 @@ def _load_doc_map_for_user(path: Path, user_id: str | None) -> Dict[str, Dict[st
 
 
 class TextSearchService:
+    _embedder_lock = threading.Lock()
+    _embedder_cache: Dict[str, Any] = {}
+
     def __init__(self, yaml_config: Dict[str, Any], user_id: str | None = None):
         self.cfg = yaml_config
         self._paths = workspace_paths_for_user(user_id)
@@ -72,10 +137,19 @@ class TextSearchService:
             on_disk_vectors=True,
         )
 
-    def _encode_query(self, query: str) -> tuple:
+    def _get_embedder(self):
         from sentence_transformers import SentenceTransformer
 
-        model = SentenceTransformer(self._embed_model)
+        with TextSearchService._embedder_lock:
+            cached = TextSearchService._embedder_cache.get(self._embed_model)
+            if cached is not None:
+                return cached
+            model = SentenceTransformer(self._embed_model)
+            TextSearchService._embedder_cache[self._embed_model] = model
+            return model
+
+    def _encode_query(self, query: str) -> tuple:
+        model = self._get_embedder()
         dim = model.get_sentence_embedding_dimension()
         vec = model.encode([query], show_progress_bar=False)[0].tolist()
         return vec, dim
@@ -94,11 +168,13 @@ class TextSearchService:
             base = doc_map.get(cid, {})
             full_text = base.get("text") or pl.get("text_preview") or ""
             meta_raw = dict(base.get("metadata") or {})
+            _attach_original_media_storage_uri(meta_raw, self._user_id)
             if pl.get("storage_uri"):
                 meta_raw["storage_uri"] = pl["storage_uri"]
                 meta_raw["storage_backend"] = pl.get("storage_backend", "s3")
             meta = sanitize_metadata_for_api(meta_raw)
             src = canonical_document_source(meta, str(base.get("source", pl.get("source", ""))))
+            start_t, end_t, time_label = _extract_time_window_fields(meta)
             results.append(
                 {
                     "id": cid,
@@ -109,6 +185,9 @@ class TextSearchService:
                     "rank": rank,
                     "metadata": meta,
                     "retrieval_type": "dense_qdrant",
+                    "start_time": start_t,
+                    "end_time": end_t,
+                    "time_range_label": time_label,
                 }
             )
         return results
@@ -124,14 +203,22 @@ class TextSearchService:
             r["text"] = full_text[:500] + ("..." if len(full_text) > 500 else "")
             r["retrieval_type"] = "bm25"
             m = dict(r.get("metadata") or {})
+            _attach_original_media_storage_uri(m, self._user_id)
             r["metadata"] = sanitize_metadata_for_api(m)
             r["source"] = canonical_document_source(r["metadata"], str(r.get("source", "")))
+            start_t, end_t, time_label = _extract_time_window_fields(r["metadata"])
+            r["start_time"] = start_t
+            r["end_time"] = end_t
+            r["time_range_label"] = time_label
         return rows
 
     def search_hybrid(self, query: str, top_k: int, skip_reranker: bool = False) -> List[Dict[str, Any]]:
         expand = max(top_k, int(top_k * 1.3))
-        bm = self.search_bm25(query, expand)
-        dn = self.search_dense(query, expand)
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            fut_bm = pool.submit(self.search_bm25, query, expand)
+            fut_dn = pool.submit(self.search_dense, query, expand)
+            bm = fut_bm.result()
+            dn = fut_dn.result()
         bm_scores = {str(r["id"]): float(r.get("score", 0.0)) for r in bm}
         dn_scores = {str(r["id"]): float(r.get("score", 0.0)) for r in dn}
         bm_norm = _min_max_normalize(bm_scores)
@@ -147,8 +234,11 @@ class TextSearchService:
         for rank, cid in enumerate(sorted_ids, start=1):
             base = doc_map.get(cid, {})
             full_text = base.get("text", "")
-            meta = sanitize_metadata_for_api(dict(base.get("metadata") or {}))
+            meta_raw = dict(base.get("metadata") or {})
+            _attach_original_media_storage_uri(meta_raw, self._user_id)
+            meta = sanitize_metadata_for_api(meta_raw)
             src = canonical_document_source(meta, str(base.get("source", "")))
+            start_t, end_t, time_label = _extract_time_window_fields(meta)
             out.append(
                 {
                     "id": cid,
@@ -163,6 +253,9 @@ class TextSearchService:
                         "bm25_score": bm_scores.get(cid),
                         "dense_score": dn_scores.get(cid),
                     },
+                    "start_time": start_t,
+                    "end_time": end_t,
+                    "time_range_label": time_label,
                 }
             )
         if self._reranker_model and out and not skip_reranker:
@@ -186,8 +279,13 @@ class TextSearchService:
             for x in reranked:
                 x["retrieval_type"] = "hybrid_qdrant_bm25_reranked"
                 xm = dict(x.get("metadata") or {})
+                _attach_original_media_storage_uri(xm, self._user_id)
                 x["metadata"] = sanitize_metadata_for_api(xm)
                 x["source"] = canonical_document_source(x["metadata"], str(x.get("source", "")))
+                start_t, end_t, time_label = _extract_time_window_fields(x["metadata"])
+                x["start_time"] = start_t
+                x["end_time"] = end_t
+                x["time_range_label"] = time_label
             return reranked
         return out
 

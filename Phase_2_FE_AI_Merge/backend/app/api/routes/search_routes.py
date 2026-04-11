@@ -105,12 +105,22 @@ def search_image_preview(
         filename = Path(key).name or "image"
     elif source_path:
         p = Path(unquote(source_path)).expanduser()
-        root = storage.processing_dir.resolve()
+        allowed_roots: List[Path] = []
+        for attr in ("processing_dir", "local_processing_dir", "input_dir", "local_input_dir"):
+            rp = getattr(storage, attr, None)
+            if isinstance(rp, Path):
+                try:
+                    allowed_roots.append(rp.resolve())
+                except Exception:
+                    continue
+        if not allowed_roots:
+            raise HTTPException(status_code=500, detail="No valid local preview roots configured")
         try:
             rp = p.resolve()
-            rp.relative_to(root)
+            if not any((rp == root or root in rp.parents) for root in allowed_roots):
+                raise ValueError("outside allowed roots")
         except Exception:
-            raise HTTPException(status_code=403, detail="source_path is outside processing workspace")
+            raise HTTPException(status_code=403, detail="source_path is outside local preview workspace")
         if not rp.exists() or not rp.is_file():
             raise HTTPException(status_code=404, detail="source_path not found")
         body = rp.read_bytes()

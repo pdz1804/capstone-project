@@ -8,8 +8,9 @@ with proper citation formatting.
 import os
 import json
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from dotenv import load_dotenv
 
@@ -29,6 +30,37 @@ def _display_filename_from_source(source: str) -> str:
         tail = s.rsplit("/", 1)[-1]
         return tail or "unknown"
     return Path(s).name if s else "unknown"
+
+
+def _format_time_hhmmss(seconds: float) -> str:
+    total = max(0, int(round(float(seconds))))
+    h = total // 3600
+    m = (total % 3600) // 60
+    s = total % 60
+    if h > 0:
+        return f"{h:02d}:{m:02d}:{s:02d}"
+    return f"{m:02d}:{s:02d}"
+
+
+def _coerce_time_seconds(value: Any) -> Optional[float]:
+    try:
+        if value is None:
+            return None
+        return float(value)
+    except Exception:
+        return None
+
+
+def _extract_time_window_label(metadata: Dict[str, Any]) -> Tuple[Optional[float], Optional[float], str]:
+    start = _coerce_time_seconds(metadata.get("start_time"))
+    end = _coerce_time_seconds(metadata.get("end_time"))
+    if start is None and end is None:
+        return None, None, ""
+    if start is not None and end is not None:
+        return start, end, f"{_format_time_hhmmss(start)} - {_format_time_hhmmss(end)}"
+    if start is not None:
+        return start, None, f"from {_format_time_hhmmss(start)}"
+    return None, end, f"until {_format_time_hhmmss(end)}"
 
 
 def _image_citation_chunk(img_doc: Dict[str, Any], idx: int) -> Dict[str, Any]:
@@ -98,10 +130,15 @@ IMPORTANT INSTRUCTIONS:
 2. Include inline citations as MARKDOWN HYPERLINKS using the format [X.Y](#chunk-X-Y) for text chunks or [X.Y](#image-X-Y) for images
    - Text chunks start from [1.1], [1.2], etc. and use anchor #chunk-1-1, #chunk-1-2, etc.
    - Image citations start from [2.1], [2.2], etc. and use anchor #image-2-1, #image-2-2, etc.
-3. If the context doesn't contain enough information, say so clearly
-4. Be concise but thorough
-5. **OUTPUT YOUR ANSWER IN MARKDOWN FORMAT**
-6. Ensure the final answer is clean, readable Markdown (proper headings, bullets, spacing, and tables).
+3. Citation placement rule: place citations at the END of the sentence they support, immediately before sentence punctuation if needed.
+    - Correct: "LifePak supports immune health [1.2](#chunk-1-2)."
+    - Correct: "Benefits include A, B, and C [1.2](#chunk-1-2), [1.4](#chunk-1-4)."
+    - Wrong: "LifePak [1.2](#chunk-1-2) supports immune health."
+4. Every factual claim sentence must end with at least one supporting citation. Do not put all citations only at paragraph end.
+5. If the context doesn't contain enough information, say so clearly
+6. Be concise but thorough
+7. **OUTPUT YOUR ANSWER IN MARKDOWN FORMAT**
+8. Ensure the final answer is clean, readable Markdown (proper headings, bullets, spacing, and tables).
 
 CRITICAL: MATHEMATICAL FORMULAS MUST USE DOLLAR SIGNS, NOT SQUARE BRACKETS
 - Citations use markdown hyperlinks: [1.6](#chunk-1-6) for text or [2.3](#image-2-3) for images
@@ -141,6 +178,7 @@ CRITICAL FORMATTING RULES:
 - Citations: Use markdown hyperlink format [X.Y](#chunk-X-Y) for text or [X.Y](#image-X-Y) for images
   - Text chunks: [1.1](#chunk-1-1), [1.2](#chunk-1-2), etc.
   - Images: [2.1](#image-2-1), [2.2](#image-2-2), etc.
+- Citation placement: each supporting sentence must end with citation link(s), not in the middle of the sentence.
 - Math formulas: MUST use $ for inline or $$ for block math (e.g., $V_q$ or $$\\text{{Score}} = ...$$)
 - NEVER mix them up: citations = markdown hyperlinks, math = dollar signs
 
@@ -311,6 +349,10 @@ class RAGGenerator:
                 # Format chunk with citation marker
                 text = chunk.get('text', '')
                 metadata = sanitize_metadata_for_api(dict(chunk.get('metadata') or {}))
+                start_t, end_t, time_label = _extract_time_window_label(metadata)
+                chunk_map[(file_number, chunk_idx)]['start_time'] = start_t
+                chunk_map[(file_number, chunk_idx)]['end_time'] = end_t
+                chunk_map[(file_number, chunk_idx)]['time_range_label'] = time_label
 
                 # Add context hints for spreadsheet / table chunks
                 context_hint = ""
@@ -320,6 +362,8 @@ class RAGGenerator:
                         context_hint += f" [Sheet: {sheet}]"
                     if metadata.get('is_table'):
                         context_hint += " [Table Data]"
+                if time_label:
+                    context_hint += f" [Time: {time_label}]"
 
                 context_parts.append(f"{citation_id} Source: {filename}{context_hint}\n{text}\n")
             
@@ -580,8 +624,9 @@ class RAGGenerator:
         image_paths = []
         image_descriptions = []
         temp_files = []  # Track temp files for cleanup
-        
-        for img_doc in image_docs:
+
+        def _prepare_image_doc(img_doc: Dict[str, Any]) -> Tuple[Optional[str], Optional[str], List[str]]:
+            local_temp_files: List[str] = []
             source_path = img_doc.get('source_path', '')
             page = img_doc.get('page', 1)
             source = img_doc.get('source', 'unknown')
@@ -590,13 +635,12 @@ class RAGGenerator:
             logger.debug("Processing image doc: %s, page %s, storage_uri=%s path=%s", source, page, storage_uri, source_path)
 
             local_file: Optional[str] = None
-            temp_download: Optional[str] = None
 
             if storage_user_id and storage_uri.startswith("s3://"):
                 temp_download = self._materialize_storage_uri_to_temp(storage_uri, storage_user_id)
                 if temp_download:
                     local_file = temp_download
-                    temp_files.append(temp_download)
+                    local_temp_files.append(temp_download)
 
             if not local_file and source_path:
                 source_path_obj = Path(source_path)
@@ -611,7 +655,7 @@ class RAGGenerator:
 
             if not local_file:
                 logger.warning("No local or S3-backed file for image doc (source=%s page=%s)", source, page)
-                continue
+                return None, None, local_temp_files
 
             lp = Path(local_file)
             canon = storage_uri or local_file
@@ -620,18 +664,29 @@ class RAGGenerator:
             if lp.suffix.lower() == ".pdf":
                 temp_img = self._render_pdf_page_to_image(str(lp), page)
                 if temp_img:
-                    image_paths.append(temp_img)
-                    temp_files.append(temp_img)
-                    image_descriptions.append(f"[Image {len(image_paths)}] Page {page} from {source}")
+                    local_temp_files.append(temp_img)
                     logger.info("Rendered PDF page %s for vision model", page)
-                else:
-                    logger.warning("Failed to render PDF page %s from %s", page, source)
-            elif lp.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"):
-                image_paths.append(str(lp))
-                image_descriptions.append(f"[Image {len(image_paths)}] {lp.name} from {source}")
+                    return temp_img, f"Page {page} from {source}", local_temp_files
+                logger.warning("Failed to render PDF page %s from %s", page, source)
+                return None, None, local_temp_files
+
+            if lp.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"):
                 logger.info("Attached raster %s for vision model", lp.name)
-            else:
-                logger.warning("Unsupported vision source type: %s", lp.suffix)
+                return str(lp), f"{lp.name} from {source}", local_temp_files
+
+            logger.warning("Unsupported vision source type: %s", lp.suffix)
+            return None, None, local_temp_files
+
+        if image_docs:
+            max_workers = min(4, len(image_docs))
+            with ThreadPoolExecutor(max_workers=max_workers) as pool:
+                prepared = list(pool.map(_prepare_image_doc, image_docs))
+            for path, desc, local_temps in prepared:
+                if local_temps:
+                    temp_files.extend(local_temps)
+                if path and desc:
+                    image_paths.append(path)
+                    image_descriptions.append(f"[Image {len(image_paths)}] {desc}")
         
         # Add embedded images from spreadsheet chunks
         for emb_img in embedded_image_paths:
@@ -727,7 +782,10 @@ CRITICAL FORMATTING RULES:
                         "score": v['score'],
                         "id": f"chunk-{k[0]}-{k[1]}",
                         "retrieval_info": v.get('retrieval_info', {}),  # Include raw scores
-                        "metadata": v.get('metadata', {})  # Include uniform metadata
+                        "metadata": v.get('metadata', {}),  # Include uniform metadata
+                        "start_time": v.get('start_time'),
+                        "end_time": v.get('end_time'),
+                        "time_range_label": v.get('time_range_label', ""),
                     }
                     for k, v in chunk_map.items()
                 },

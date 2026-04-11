@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import json
+import threading
 from typing import Any, Dict, List
 
 from app.core.paths import qdrant_collection_names_for_user, workspace_paths_for_user
@@ -13,6 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 class ImageSearchService:
+    _colqwen_lock = threading.Lock()
+    _colqwen_cache: Dict[str, ColQwenInferenceService] = {}
+
     def __init__(self, yaml_config: Dict[str, Any], user_id: str | None = None):
         self.cfg = yaml_config
         self._client = build_qdrant_client(yaml_config)
@@ -32,12 +37,25 @@ class ImageSearchService:
             embedding_dim=128,
             storage_quantization=quant,
         )
-        self._colqwen = ColQwenInferenceService(yaml_config)
+        cfg_key = json.dumps(yaml_config or {}, sort_keys=True, default=str)
+        with ImageSearchService._colqwen_lock:
+            cached = ImageSearchService._colqwen_cache.get(cfg_key)
+            if cached is None:
+                cached = ColQwenInferenceService(yaml_config)
+                ImageSearchService._colqwen_cache[cfg_key] = cached
+            self._colqwen = cached
+        self._collection_ready = False
+
+    def _ensure_collection_once(self) -> None:
+        if self._collection_ready:
+            return
+        self._repo.ensure_collection(recreate=False)
+        self._collection_ready = True
 
     def search(self, query: str, top_k: int) -> List[Dict[str, Any]]:
         qvec = self._colqwen.embed_query(query)
         # Ensure payload indexes (notably user_id) exist on pre-migration collections.
-        self._repo.ensure_collection(recreate=False)
+        self._ensure_collection_once()
         hits = self._repo.search(qvec, limit=top_k, user_id=self._user_id)
         results: List[Dict[str, Any]] = []
         for rank, hit in enumerate(hits, start=1):
