@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+import re
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List
@@ -64,6 +65,17 @@ def _extract_time_window_fields(meta: Dict[str, Any]) -> tuple[float | None, flo
     return None, end, f"until {_format_time_mmss(end)}"
 
 
+def _basename_from_any_path(value: str) -> str:
+    """Extract basename from Linux/Windows-like path strings regardless of runtime OS."""
+    raw = str(value or "").strip().strip('"').strip("'")
+    if not raw:
+        return ""
+    # Normalize separators then split; this handles C:\\... and /... styles.
+    normalized = raw.replace("\\", "/")
+    parts = [p for p in normalized.split("/") if p]
+    return parts[-1] if parts else ""
+
+
 def _attach_original_media_storage_uri(meta: Dict[str, Any], user_id: str | None) -> None:
     """Best-effort hydration for deployed media preview when historical indexes lack original_storage_uri."""
     if not isinstance(meta, dict):
@@ -95,7 +107,7 @@ def _attach_original_media_storage_uri(meta: Dict[str, Any], user_id: str | None
     if not uri:
         name = ""
         if candidate:
-            name = Path(candidate).name
+            name = _basename_from_any_path(candidate)
         if not name:
             doc_id = str(meta.get("doc_id") or "").strip()
             ext = str(meta.get("original_file_format") or "").strip().lstrip(".")
@@ -124,6 +136,8 @@ def _load_doc_map_for_user(path: Path, user_id: str | None) -> Dict[str, Dict[st
 class TextSearchService:
     _embedder_lock = threading.Lock()
     _embedder_cache: Dict[str, Any] = {}
+    _prepared_collections_lock = threading.Lock()
+    _prepared_collections: set[str] = set()
 
     def __init__(self, yaml_config: Dict[str, Any], user_id: str | None = None):
         self.cfg = yaml_config
@@ -157,6 +171,15 @@ class TextSearchService:
             on_disk_vectors=True,
         )
 
+    def _ensure_collection_once(self, repo: TextIndexRepository) -> None:
+        key = str(self._collection)
+        with TextSearchService._prepared_collections_lock:
+            if key in TextSearchService._prepared_collections:
+                return
+        repo.ensure_collection(recreate=False)
+        with TextSearchService._prepared_collections_lock:
+            TextSearchService._prepared_collections.add(key)
+
     def _get_embedder(self):
         from sentence_transformers import SentenceTransformer
 
@@ -178,7 +201,7 @@ class TextSearchService:
         vec, dim = self._encode_query(query)
         repo = self._repo(dim)
         # Ensure payload indexes (notably user_id) exist on pre-migration collections.
-        repo.ensure_collection(recreate=False)
+        self._ensure_collection_once(repo)
         raw = repo.search(vec, limit=top_k, user_id=self._user_id)
         doc_map = _load_doc_map_for_user(self._paths.documents_json_path, self._user_id)
         results: List[Dict[str, Any]] = []

@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 class ImageSearchService:
     _colqwen_lock = threading.Lock()
     _colqwen_cache: Dict[str, ColQwenInferenceService] = {}
+    _prepared_collections_lock = threading.Lock()
+    _prepared_collections: set[str] = set()
 
     def __init__(self, yaml_config: Dict[str, Any], user_id: str | None = None):
         self.cfg = yaml_config
@@ -37,6 +39,7 @@ class ImageSearchService:
             embedding_dim=128,
             storage_quantization=quant,
         )
+        self._collection_name = str(img_col)
         cfg_key = json.dumps(yaml_config or {}, sort_keys=True, default=str)
         with ImageSearchService._colqwen_lock:
             cached = ImageSearchService._colqwen_cache.get(cfg_key)
@@ -44,13 +47,13 @@ class ImageSearchService:
                 cached = ColQwenInferenceService(yaml_config)
                 ImageSearchService._colqwen_cache[cfg_key] = cached
             self._colqwen = cached
-        self._collection_ready = False
-
     def _ensure_collection_once(self) -> None:
-        if self._collection_ready:
-            return
+        with ImageSearchService._prepared_collections_lock:
+            if self._collection_name in ImageSearchService._prepared_collections:
+                return
         self._repo.ensure_collection(recreate=False)
-        self._collection_ready = True
+        with ImageSearchService._prepared_collections_lock:
+            ImageSearchService._prepared_collections.add(self._collection_name)
 
     def search(self, query: str, top_k: int) -> List[Dict[str, Any]]:
         qvec = self._colqwen.embed_query(query)
