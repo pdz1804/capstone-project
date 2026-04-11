@@ -92,3 +92,23 @@ Update rule:
 ### Validation
 - Frontend build passed (`vite build`).
 - Backend syntax compile passed for modified module.
+
+## 2026-04-11 - BM25 Media URI Resolution For Deployment
+
+### Issue observed
+- Retrieval-only media preview URL sometimes used `source_path=C:\...\input\*.mp4` on deployed domain, indicating missing/failed S3 URI hydration for some BM25 snapshot rows.
+
+### Root cause
+- BM25 documents are read from persisted `retrieval/documents` snapshot.
+- Older rows may contain machine-local `original_file`/`preview_source_path` paths that cannot be directly mapped to current runtime local roots.
+- In that case `original_storage_uri` was empty, and UI fell back to `source_path`.
+
+### Implemented
+1. Backend media URI fallback synthesis:
+	- If direct local->S3 mapping fails, infer original media URI using filename basename (or `doc_id` + `original_file_format`) under tenant input prefix.
+	- File: `Phase_2_FE_AI_Merge/backend/app/services/text_search_service.py`
+
+2. Frontend deployed guard:
+	- For media preview, only allow `source_path` fallback on localhost.
+	- On deployed hosts, rely on `storage_uri`/`original_storage_uri` only.
+	- File: `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`

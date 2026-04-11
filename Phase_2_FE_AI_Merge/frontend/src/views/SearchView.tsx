@@ -88,6 +88,11 @@ function isLikelyMediaPath(value: string): boolean {
   );
 }
 
+function isLocalHostRuntime(): boolean {
+  const host = (window?.location?.hostname || '').toLowerCase();
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+}
+
 export default function SearchView({ files }: SearchViewProps) {
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -680,7 +685,7 @@ export default function SearchView({ files }: SearchViewProps) {
                                   void loadSourcePreview(
                                     {
                                       storage_uri: mediaStorageUri,
-                                      source_path: mediaStorageUri ? '' : mediaSourcePath,
+                                      source_path: mediaStorageUri ? '' : (isLocalHostRuntime() ? mediaSourcePath : ''),
                                       page: 1,
                                     },
                                     cid
