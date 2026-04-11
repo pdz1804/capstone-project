@@ -23,6 +23,7 @@ from app.api.routes import (
     chat_history_routes,
     chat_routes,
     config_routes,
+    feedback_routes,
     files_routes,
     health_routes,
     images_routes,
@@ -79,6 +80,7 @@ app.include_router(insights_routes.router)
 app.include_router(quiz_routes.router)
 app.include_router(chat_routes.router)
 app.include_router(chat_history_routes.router)
+app.include_router(feedback_routes.router)
 app.include_router(identity_auth_router, prefix="/api")
 app.include_router(identity_users_router, prefix="/api")
 

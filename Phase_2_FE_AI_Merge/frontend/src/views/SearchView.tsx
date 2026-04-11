@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Search, MessageSquare, RefreshCw, Database, Clock3, Sigma } from 'lucide-react';
+import { Search, MessageSquare, RefreshCw, Database, Clock3, Sigma, Copy, FileDown } from 'lucide-react';
 import { FileItem } from '../App';
 import { getGenerationModels, getSearchImagePreview, searchRag } from '../api/ragApi';
 
@@ -116,6 +116,8 @@ export default function SearchView({ files }: SearchViewProps) {
   const [imagesForGeneration, setImagesForGeneration] = useState<number>(5);
   const [generationModel, setGenerationModel] = useState<string>('');
   const [modelOptions, setModelOptions] = useState<string[]>([]);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'ok' | 'err'>('idle');
+  const [isPreparingPdf, setIsPreparingPdf] = useState<boolean>(false);
   const [telemetry, setTelemetry] = useState<{
     steps_ms?: Record<string, number>;
     tokens?: {
@@ -124,6 +126,7 @@ export default function SearchView({ files }: SearchViewProps) {
     };
   } | null>(null);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const answerRenderRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('recentSearches');
@@ -187,6 +190,7 @@ export default function SearchView({ files }: SearchViewProps) {
     setSelectedCitationId(null);
     setExpandedChunkIds({});
     setTelemetry(null);
+    setCopyStatus('idle');
     setImagePreviewUrls((prev) => {
       Object.values(prev).forEach((u) => URL.revokeObjectURL(u));
       return {};
@@ -232,6 +236,66 @@ export default function SearchView({ files }: SearchViewProps) {
   const handleRecentSearchClick = (searchQuery: string) => {
     setQuery(searchQuery);
     void runSearch(searchQuery);
+  };
+
+  const handleCopyAnswer = async () => {
+    const text = String(answer || '').trim();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyStatus('ok');
+      window.setTimeout(() => setCopyStatus('idle'), 1800);
+    } catch {
+      setCopyStatus('err');
+      window.setTimeout(() => setCopyStatus('idle'), 2200);
+    }
+  };
+
+  const handleDownloadAnswerPdf = () => {
+    const rendered = answerRenderRef.current;
+    if (!rendered) return;
+    setIsPreparingPdf(true);
+    try {
+      const titleBase = (query || 'knowledge-explorer-answer').trim().slice(0, 80) || 'knowledge-explorer-answer';
+      const safeTitle = titleBase.replace(/[\\/:*?"<>|]+/g, '-');
+      const popup = window.open('', '_blank', 'width=960,height=720');
+      if (!popup) {
+        throw new Error('Popup blocked');
+      }
+      popup.document.open();
+      popup.document.write(`<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>${safeTitle}</title>
+    <style>
+      body { font-family: "Segoe UI", Arial, sans-serif; margin: 28px; color: #0f172a; }
+      h1,h2,h3 { color: #0f172a; margin: 14px 0 8px; }
+      p, li { line-height: 1.65; font-size: 14px; }
+      code { background: #f1f5f9; padding: 1px 4px; border-radius: 4px; }
+      pre { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; overflow: auto; }
+      table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+      th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; vertical-align: top; }
+      .meta { margin-bottom: 14px; font-size: 12px; color: #475569; }
+      @media print { body { margin: 16mm; } }
+    </style>
+  </head>
+  <body>
+    <h1>Knowledge Explorer Answer</h1>
+    <div class="meta">Query: ${query.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+    <div>${rendered.innerHTML}</div>
+  </body>
+</html>`);
+      popup.document.close();
+      popup.focus();
+      window.setTimeout(() => {
+        popup.print();
+      }, 180);
+    } catch {
+      setError('Could not open PDF export. Please allow popups and try again.');
+    } finally {
+      window.setTimeout(() => setIsPreparingPdf(false), 250);
+    }
   };
 
   const totalFiles = files.length;
@@ -426,14 +490,14 @@ export default function SearchView({ files }: SearchViewProps) {
             </label>
           </div>
         )}
-        {showAdvancedConfig && mode === 'retrieval_generation' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-            <label className="text-xs text-slate-600">
-              Generation model (AWS)
+        {mode === 'retrieval_generation' && (
+          <div className="mb-4 rounded-xl border border-sky-100 bg-sky-50/60 p-3">
+            <label className="text-xs text-slate-700 block">
+              Generation model (Bedrock - Knowledge Explorer)
               <select
                 value={generationModel}
                 onChange={(e) => setGenerationModel(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm"
               >
                 {(modelOptions.length ? modelOptions : ['']).map((m) => (
                   <option key={m || 'default'} value={m}>
@@ -442,6 +506,10 @@ export default function SearchView({ files }: SearchViewProps) {
                 ))}
               </select>
             </label>
+          </div>
+        )}
+        {showAdvancedConfig && mode === 'retrieval_generation' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
             <label className="text-xs text-slate-600 flex items-end gap-2 pb-2">
               <input
                 type="checkbox"
@@ -558,7 +626,7 @@ export default function SearchView({ files }: SearchViewProps) {
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.5)]" />
                 <h3 className="font-bold text-slate-800 uppercase tracking-tight text-sm">Answer</h3>
               </div>
-              <div className="p-8 prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
+              <div ref={answerRenderRef} className="p-8 prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
@@ -595,6 +663,28 @@ export default function SearchView({ files }: SearchViewProps) {
                   {answer}
                 </ReactMarkdown>
               </div>
+            </div>
+          )}
+
+          {answer != null && (
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => void handleCopyAnswer()}
+                className="inline-flex items-center gap-2 rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-50"
+              >
+                <Copy className="w-4 h-4" />
+                {copyStatus === 'ok' ? 'Copied' : copyStatus === 'err' ? 'Copy failed' : 'Copy answer'}
+              </button>
+              <button
+                type="button"
+                onClick={handleDownloadAnswerPdf}
+                disabled={isPreparingPdf}
+                className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-60"
+              >
+                <FileDown className="w-4 h-4" />
+                {isPreparingPdf ? 'Preparing PDF...' : 'Download rendered PDF'}
+              </button>
             </div>
           )}
 

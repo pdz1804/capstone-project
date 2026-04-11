@@ -421,6 +421,32 @@ export type ChatSessionMessage = {
   suggestions?: string[];
 };
 
+export type FeedbackVote = 'like' | 'dislike' | 'general';
+
+export type FeedbackItem = {
+  user_id: string;
+  feedback_id: string;
+  session_id?: string | null;
+  message_id?: string | null;
+  vote: FeedbackVote;
+  reason_code?: string | null;
+  reason_text?: string | null;
+  scope?: string | null;
+  feedback_text?: string | null;
+  query: string;
+  response: string;
+  category: string;
+  sub_category: string;
+  suggested_action: string;
+  analysis_summary: string;
+  classifier_model: string;
+  classification_status: string;
+  classification_error?: string | null;
+  created_at: string;
+  updated_at: string;
+  version?: number;
+};
+
 export async function listChatSessions(params?: {
   limit?: number;
   cursor?: string | null;
@@ -478,6 +504,46 @@ export async function listChatSessionMessages(
     items: (data?.items || []) as ChatSessionMessage[],
     next_cursor: (data?.next_cursor as string | undefined) || null,
   };
+}
+
+export async function createFeedback(payload: {
+  vote: FeedbackVote;
+  query?: string;
+  response?: string;
+  session_id?: string;
+  message_id?: string;
+  reason_code?: string;
+  reason_text?: string;
+  scope?: string;
+  feedback_text?: string;
+}): Promise<FeedbackItem> {
+  const { data } = await apiClient.post('/feedback', payload);
+  return data as FeedbackItem;
+}
+
+export async function listFeedback(params?: {
+  limit?: number;
+  cursor?: string | null;
+  category?: string;
+  session_id?: string;
+}): Promise<{ items: FeedbackItem[]; next_cursor?: string | null }> {
+  const { data } = await apiClient.get('/feedback', {
+    params: {
+      limit: params?.limit ?? 30,
+      ...(params?.cursor ? { cursor: params.cursor } : {}),
+      ...(params?.category ? { category: params.category } : {}),
+      ...(params?.session_id ? { session_id: params.session_id } : {}),
+    },
+  });
+  return {
+    items: (data?.items || []) as FeedbackItem[],
+    next_cursor: (data?.next_cursor as string | undefined) || null,
+  };
+}
+
+export async function getFeedback(feedbackId: string): Promise<FeedbackItem> {
+  const { data } = await apiClient.get(`/feedback/${encodeURIComponent(feedbackId)}`);
+  return data as FeedbackItem;
 }
 
 function normPath(s: string): string {

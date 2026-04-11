@@ -262,3 +262,44 @@ class QuizResultItem(BaseModel):
 
 class QuizResultsListResponse(BaseModel):
     items: list[QuizResultItem]
+
+
+class FeedbackCreateRequest(BaseModel):
+    vote: Literal["like", "dislike", "general"]
+    query: str | None = None
+    response: str | None = None
+    session_id: str | None = None
+    message_id: str | None = None
+    reason_code: str | None = None
+    reason_text: str | None = None
+    scope: str | None = None
+    feedback_text: str | None = None
+
+
+class FeedbackItem(BaseModel):
+    user_id: str
+    feedback_id: str
+    session_id: str | None = None
+    message_id: str | None = None
+    vote: Literal["like", "dislike", "general"]
+    reason_code: str | None = None
+    reason_text: str | None = None
+    scope: str | None = None
+    feedback_text: str | None = None
+    query: str
+    response: str
+    category: str = "Uncategorized"
+    sub_category: str = ""
+    suggested_action: str = ""
+    analysis_summary: str = ""
+    classifier_model: str = ""
+    classification_status: str = "pending"
+    classification_error: str | None = None
+    created_at: str
+    updated_at: str
+    version: int = 1
+
+
+class FeedbackListResponse(BaseModel):
+    items: list[FeedbackItem]
+    next_cursor: str | None = None

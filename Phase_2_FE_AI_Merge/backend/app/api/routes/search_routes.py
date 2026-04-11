@@ -19,6 +19,32 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["search"])
 
 
+BEDROCK_KNOWLEDGE_EXPLORER_MODELS: List[str] = [
+    "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "google.gemma-3-27b-it",
+    "anthropic.claude-sonnet-4-20250514-v1:0",
+    "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "anthropic.claude-sonnet-4-6",
+    "us.anthropic.claude-sonnet-4-6",
+    "anthropic.claude-3-5-haiku-20241022-v1:0",
+    "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+]
+
+
+def _bedrock_model_allowlist(configured_model: str) -> List[str]:
+    ordered: List[str] = []
+
+    def _add(mid: str) -> None:
+        m = str(mid or "").strip()
+        if m and m not in ordered:
+            ordered.append(m)
+
+    _add(configured_model)
+    for m in BEDROCK_KNOWLEDGE_EXPLORER_MODELS:
+        _add(m)
+    return ordered
+
+
 @router.post("/search")
 def search(
     req: SearchRequest,
@@ -26,6 +52,21 @@ def search(
 ):
     try:
         cfg = merged_runtime_settings()
+        gyaml = cfg.get("generation", {}) or {}
+        provider = str(gyaml.get("provider", "") or "").lower()
+        configured_model = str(gyaml.get("model", "") or "").strip()
+        requested_model = str(req.generation_model or "").strip()
+        if requested_model and provider == "bedrock":
+            allowlist = set(_bedrock_model_allowlist(configured_model))
+            if requested_model not in allowlist:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        "Unsupported generation_model for Knowledge Explorer. "
+                        f"Allowed: {', '.join(sorted(allowlist))}"
+                    ),
+                )
+
         orch = SearchOrchestrator(cfg, user_id=user_id)
         result = orch.run(
             query=req.query,
@@ -53,6 +94,8 @@ def search(
                 result.get("search_scope", req.search_scope),
             )
         return result
+    except HTTPException:
+        raise
     except Exception as e:
         logger.exception("search")
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -71,28 +114,12 @@ def list_generation_models() -> Dict[str, Any]:
             out["models"] = [configured_model]
         return out
 
-    try:
-        import boto3
-
-        region = (gyaml.get("bedrock_region") or None) or "us-east-1"
-        bedrock = boto3.client("bedrock", region_name=region)
-        resp = bedrock.list_foundation_models(byOutputModality="TEXT")
-        model_ids: List[str] = []
-        for item in resp.get("modelSummaries") or []:
-            mid = str(item.get("modelId") or "").strip()
-            if mid:
-                model_ids.append(mid)
-        model_ids = sorted(set(model_ids))
-        if configured_model and configured_model not in model_ids:
-            model_ids.insert(0, configured_model)
-        out.update({"region": region, "models": model_ids})
-        return out
-    except Exception as e:
-        logger.warning("list generation models failed: %s", e)
-        if configured_model:
-            out["models"] = [configured_model]
-        out["error"] = str(e)
-        return out
+    region = (gyaml.get("bedrock_region") or None) or "us-east-1"
+    out.update({
+        "region": region,
+        "models": _bedrock_model_allowlist(configured_model),
+    })
+    return out
 
 
 @router.get("/search/image-preview")

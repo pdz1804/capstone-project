@@ -29,6 +29,7 @@ import KnowledgeManagementView from './views/KnowledgeManagementView';
 import LectureView from './views/LectureView';
 import LearningPathView from './views/LearningPathView';
 import ChatAssistantView from './views/ChatAssistantView';
+import FeedbacksView from './views/FeedbacksView';
 import ProfileView from './views/ProfileView';
 import QuizView from './views/QuizView';
 import LoginView from './views/LoginView';
@@ -44,7 +45,7 @@ import {
   postQuizResult,
 } from './api/ragApi';
 
-export type ViewType = 'dashboard' | 'knowledge' | 'lecture' | 'learning' | 'chat' | 'profile';
+export type ViewType = 'dashboard' | 'knowledge' | 'lecture' | 'learning' | 'chat' | 'feedbacks' | 'profile';
 export type KnowledgeSubTab = 'dashboard' | 'upload' | 'run-pipeline' | 'build-index' | 'explorer';
 
 const VIEW_PATHS: Record<ViewType, string> = {
@@ -53,6 +54,7 @@ const VIEW_PATHS: Record<ViewType, string> = {
   lecture: '/lecture',
   learning: '/learning',
   chat: '/chat',
+  feedbacks: '/feedbacks',
   profile: '/profile',
 };
 
@@ -84,6 +86,7 @@ function routeToState(pathname: string): {
   if (clean === '/lecture') return { view: 'lecture', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/learning') return { view: 'learning', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/chat') return { view: 'chat', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/feedbacks') return { view: 'feedbacks', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/profile') return { view: 'profile', knowledgeSubTab: 'dashboard', isKnown: true };
   return { view: 'dashboard', knowledgeSubTab: 'dashboard', isKnown: false };
 }
@@ -313,6 +316,7 @@ export default function App() {
     { id: 'lecture', label: 'Lecture Viewer', icon: BookOpen },
     { id: 'learning', label: 'Learning Path', icon: TrendingUp },
     { id: 'chat', label: 'Chat Assistant', icon: MessageSquare },
+    { id: 'feedbacks', label: 'Feedbacks', icon: BarChart3 },
   ] as const;
 
   return (
@@ -517,6 +521,7 @@ export default function App() {
               <LearningPathView files={files} quizResults={quizResults} onQuizComplete={addQuizResult} />
             )}
             {currentView === 'chat' && <ChatAssistantView />}
+            {currentView === 'feedbacks' && <FeedbacksView />}
             {currentView === 'profile' && <ProfileView user={user} onEditProfile={() => setIsProfileModalOpen(true)} />}
           </div>
           <AppFooter />
