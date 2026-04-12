@@ -166,7 +166,7 @@ jobs:
       # Step 10: Build and push Docker image
       - name: Build and push Docker image
         id: docker_build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./Phase_2_FE_AI_Merge/frontend
           push: true
