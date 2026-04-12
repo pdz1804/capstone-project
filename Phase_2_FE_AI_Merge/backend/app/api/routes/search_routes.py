@@ -6,6 +6,7 @@ from urllib.parse import unquote
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
+from fastapi.responses import JSONResponse
 from botocore.exceptions import ClientError
 
 from app.api.deps import storage_user_id
@@ -83,6 +84,8 @@ def search(
             telemetry = result.get("telemetry") or {}
             steps = telemetry.get("steps_ms") or {}
             retrieval_cache = ((telemetry.get("cache") or {}).get("retrieval") or {})
+            tokens = telemetry.get("tokens") or {}
+            usage_model = str(((result.get("generation") or {}).get("model") or requested_model or configured_model or "")).strip()
             logger.info(
                 "Search timings: user=%s retrieval_ms=%s generation_ms=%s total_ms=%s retrieval_cache_hit=%s mode=%s scope=%s",
                 user_id,
@@ -92,6 +95,15 @@ def search(
                 retrieval_cache.get("hit", False),
                 result.get("mode", req.mode),
                 result.get("search_scope", req.search_scope),
+            )
+            return JSONResponse(
+                content=result,
+                headers={
+                    "X-Usage-Feature": "knowledge_explorer",
+                    "X-Usage-Model-Id": usage_model,
+                    "X-Usage-Token-In": str(int(tokens.get("input_total") or 0)),
+                    "X-Usage-Token-Out": str(int(tokens.get("output_total") or 0)),
+                },
             )
         return result
     except HTTPException:

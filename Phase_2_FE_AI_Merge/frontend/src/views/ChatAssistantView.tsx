@@ -134,7 +134,7 @@ function toUiMessage(row: ChatSessionMessage): Message {
     role: row.role === 'user' ? 'user' : 'assistant',
     content: row.content,
     timestamp: new Date(row.created_at || Date.now()),
-    traces: (row.traces || []) as ToolTrace[],
+    traces: (row.traces || []) as unknown as ToolTrace[],
     suggestions: row.suggestions || [],
   };
 }

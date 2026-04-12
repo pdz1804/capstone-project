@@ -288,6 +288,7 @@ class FeedbackItem(BaseModel):
     feedback_text: str | None = None
     query: str
     response: str
+    is_active: bool = True
     category: str = "Uncategorized"
     sub_category: str = ""
     suggested_action: str = ""

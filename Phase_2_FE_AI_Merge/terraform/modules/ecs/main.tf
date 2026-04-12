@@ -94,6 +94,35 @@ variable "frontend_task_role_arn" {
   default     = ""
 }
 
+variable "backend_environment" {
+  description = "Additional environment variables for backend container"
+  type        = map(string)
+  default     = {}
+}
+
+locals {
+  backend_default_environment = [
+    {
+      name  = "LOG_LEVEL"
+      value = "INFO"
+    },
+    {
+      name  = "ENVIRONMENT"
+      value = "production"
+    }
+  ]
+
+  backend_environment = concat(
+    local.backend_default_environment,
+    [
+      for key in sort(keys(var.backend_environment)) : {
+        name  = key
+        value = var.backend_environment[key]
+      }
+    ]
+  )
+}
+
 # Security group for ECS tasks
 resource "aws_security_group" "ecs_tasks" {
   name        = "${var.cluster_name}-ecs-tasks-sg"
@@ -196,16 +225,7 @@ resource "aws_ecs_task_definition" "backend" {
           "awslogs-stream-prefix" = "ecs"
         }
       }
-      environment = [
-        {
-          name  = "LOG_LEVEL"
-          value = "INFO"
-        },
-        {
-          name  = "ENVIRONMENT"
-          value = "production"
-        }
-      ]
+      environment = local.backend_environment
       # Health check
       healthCheck = {
         command     = ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${var.backend_config.port}/health')\" || exit 1"]

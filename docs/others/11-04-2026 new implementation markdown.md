@@ -5,6 +5,48 @@ This document is the running implementation log for new enhancements.
 Update rule:
 - Every new implementation must be appended to this file with date, scope, files changed, and validation notes.
 
+## 2026-04-11 - Terraform-Managed ElastiCache Serverless Wiring For ECS Backend Cache
+
+### Scope
+- Move ElastiCache Serverless configuration and ECS connectivity into `Phase_2_FE_AI_Merge/terraform` so cache networking is managed declaratively.
+- Ensure backend ECS task definition receives `SEARCH_CACHE_*` env vars directly from Terraform outputs.
+- Update related READMEs/docs to match the new infrastructure-managed flow.
+
+### Implemented
+1. Terraform: managed ElastiCache Serverless resources:
+	- Added dedicated cache security group and serverless cache resource in `main.tf`.
+	- Added SG ingress rule from ECS tasks SG to cache SG on TCP 6379.
+	- Cache endpoint URL now derived in Terraform local (`redis://` or `rediss://` via toggle).
+
+2. Terraform: backend ECS env injection:
+	- Extended ECS module with `backend_environment` map input.
+	- Backend task definition now merges default env with Terraform-provided cache env vars.
+	- Root module passes runtime cache env map (`SEARCH_CACHE_ENABLED`, URL, TTL, timeout, retry cooldown, prefix).
+
+3. Terraform: variable and output expansion:
+	- Added `search_cache_*` variables for engine, subnet placement, TLS URL scheme, and cache runtime knobs.
+	- Added outputs for cache name, endpoint, port, SG ID, and computed backend Redis URL.
+
+4. Documentation updates:
+	- Updated `Phase_2_FE_AI_Merge/terraform/README.md` with managed ECS->ElastiCache wiring details.
+	- Updated `Phase_2_FE_AI_Merge/README.md` to include ElastiCache Serverless in stack summary.
+	- Updated `docs/others/search-cache-redis-setup.md` to document Terraform-managed path and TLS `rediss://` usage.
+
+### Files changed
+- `Phase_2_FE_AI_Merge/terraform/main.tf`
+- `Phase_2_FE_AI_Merge/terraform/variables.tf`
+- `Phase_2_FE_AI_Merge/terraform/outputs.tf`
+- `Phase_2_FE_AI_Merge/terraform/terraform.tfvars.example`
+- `Phase_2_FE_AI_Merge/terraform/modules/ecs/main.tf`
+- `Phase_2_FE_AI_Merge/terraform/README.md`
+- `Phase_2_FE_AI_Merge/README.md`
+- `docs/others/search-cache-redis-setup.md`
+- `docs/others/11-04-2026 new implementation markdown.md`
+
+### Validation
+- `terraform fmt -recursive` ran in `Phase_2_FE_AI_Merge/terraform`.
+- `terraform init -backend=false` and `terraform validate` completed successfully.
+
 ## 2026-04-11 - Knowledge Explorer Enhancements (Phase_2_FE_AI_Merge)
 
 ### Scope

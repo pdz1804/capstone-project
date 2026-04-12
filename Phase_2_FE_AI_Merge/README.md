@@ -1,15 +1,29 @@
 # Phase 2 — Frontend + AI service (merged)
 
-This folder is the **integrated production stack**: React UI with Firebase auth, FastAPI RAG backend (Qdrant, S3, optional SageMaker for ColQwen / Docling / Whisper paths), unified **SageMaker** hosting assets, and **Terraform** for AWS (ECS Fargate, ALB, ECR, optional HTTPS).
+This folder is the **integrated production stack**: React UI with Firebase auth, FastAPI RAG backend (Qdrant, S3, optional SageMaker for ColQwen / Docling / Whisper paths), unified **SageMaker** hosting assets, and **Terraform** for AWS (ECS Fargate, ALB, ECR, ElastiCache Serverless search cache, optional HTTPS).
 
 For a detailed list of what was merged from earlier branches, see [`MERGE_SUMMARY.md`](MERGE_SUMMARY.md).
 
 ## April 2026 updates
 
+### Chat assistant and runtime
+
 - Chat assistant now supports persistent session history with rename, pin, delete, and paged session list UI.
 - Backend exposes dedicated chat history APIs and stores data in DynamoDB session/message tables.
 - Chat runtime supports environment-based switching between local Strands and deployed Bedrock AgentCore runtime using runtime ARN invocation.
 - Frontend chat history panel supports sync on/off and a compact Gemini-like session rail.
+
+### Admin observability and dashboard (implemented today)
+
+- Admin dashboard now uses one unified time range selector (`1h`, `3h`, `6h`, `12h`, `1d`, `7d`, `30d`, `90d`) to drive both query scope and trend charts.
+- Dashboard "Recent API Invocations" is intentionally compact (latest 8 rows) and includes a **Show all** action.
+- Added dedicated admin page at `/admin/invocations` with clean filtering UX:
+	- server-side filters: `days`, `limit`, `user_id`, `feature`, `model_id`
+	- local filters: keyword search, HTTP method, status family (`2xx/4xx/5xx`), and path contains.
+- Backend invocation telemetry pipeline was hardened for DynamoDB compatibility and reliability:
+	- recursive float to `Decimal` conversion before persistence
+	- async-safe background recorder to prevent unhandled task exceptions.
+- Telemetry policy is now strict: records are saved only when a valid non-default `X-User-Id` is present.
 
 See detailed backend notes in [`backend/docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.md`](backend/docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.md).
 
@@ -22,7 +36,7 @@ See detailed backend notes in [`backend/docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.
 | [`frontend/`](frontend/) | Vite + React app, Firebase Google login, API client |
 | [`backend/`](backend/) | FastAPI app (`app/`), processing pipeline (`src/`), tests, Docker |
 | [`sagemaker/`](sagemaker/) | Unified + split containers (Docling, Whisper, ColQwen), deploy/delete/test scripts |
-| [`terraform/`](terraform/) | ECR, IAM, ALB (HTTP + optional ACM HTTPS), ECS, autoscaling, optional SageMaker endpoint |
+| [`terraform/`](terraform/) | ECR, IAM, ALB (HTTP + optional ACM HTTPS), ECS, autoscaling, ElastiCache Serverless (search cache), optional SageMaker endpoint |
 | [`scripts/`](scripts/) | Helper scripts (e.g. local setup) |
 
 ---
@@ -47,7 +61,9 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 Copy-Item .env.example .env
-# Edit .env: keys, Firebase, AWS. Run API: see backend README, run_api.bat, or uvicorn.
+# Edit .env: keys, Firebase, AWS.
+# For admin observability endpoints, set DYNAMODB_APP_USAGE_TABLE.
+# Run API: see backend README, run_api.bat, or uvicorn.
 ```
 
 **Frontend**
@@ -72,7 +88,7 @@ pytest
 
 ## AWS: Terraform (infrastructure as code)
 
-Infra for this merge lives in [`terraform/`](terraform/). It provisions ECR repos, ECS Fargate services behind an ALB, optional **HTTPS** (ACM certificate ARN), and optionally a **SageMaker real-time endpoint** for the unified multimodal image.
+Infra for this merge lives in [`terraform/`](terraform/). It provisions ECR repos, ECS Fargate services behind an ALB, optional **HTTPS** (ACM certificate ARN), ElastiCache Serverless wiring for backend search cache, and optionally a **SageMaker real-time endpoint** for the unified multimodal image.
 
 - Full reference: [`terraform/README.md`](terraform/README.md) (variables, safe `fmt`/`validate`, warnings about `plan`/`apply`)
 

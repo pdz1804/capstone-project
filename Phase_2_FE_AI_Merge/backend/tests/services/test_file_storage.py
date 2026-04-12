@@ -188,7 +188,9 @@ def test_s3_storage_delete_validates_bucket_and_prefix():
     assert store.delete("s3://other/input/a.txt") is False
     assert store.delete("s3://mybucket/other/a.txt") is False
     assert store.delete("s3://mybucket/input/a.txt") is True
-    mock_client.delete_object.assert_called_once_with(Bucket="mybucket", Key="input/a.txt")
+    assert mock_client.delete_object.call_count == 2
+    mock_client.delete_object.assert_any_call(Bucket="mybucket", Key="input/a.txt.metadata.json")
+    mock_client.delete_object.assert_any_call(Bucket="mybucket", Key="input/a.txt")
 
 
 @pytest.mark.unit
@@ -212,11 +214,14 @@ def test_s3_storage_save_upload_puts_object():
     )
 
     row = store.save_upload("f.txt", b"data")
-    mock_client.put_object.assert_called_once()
-    call_kw = mock_client.put_object.call_args.kwargs
-    assert call_kw["Bucket"] == "b"
-    assert call_kw["Key"] == "in/f.txt"
-    assert call_kw["Body"] == b"data"
+    assert mock_client.put_object.call_count == 2
+    mock_client.put_object.assert_any_call(Bucket="b", Key="in/f.txt", Body=b"data")
+    sidecar_calls = [
+        c for c in mock_client.put_object.call_args_list if c.kwargs.get("Key") == "in/f.txt.metadata.json"
+    ]
+    assert len(sidecar_calls) == 1
+    assert sidecar_calls[0].kwargs["Bucket"] == "b"
+    assert sidecar_calls[0].kwargs["ContentType"] == "application/json"
     assert row["path"] == "s3://b/in/f.txt"
     assert row["name"] == "f.txt"
 

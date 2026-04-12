@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
+  Activity,
   LayoutDashboard,
   Database,
   BookOpen,
@@ -33,6 +34,11 @@ import FeedbacksView from './views/FeedbacksView';
 import ProfileView from './views/ProfileView';
 import QuizView from './views/QuizView';
 import LoginView from './views/LoginView';
+import AdminDashboardView from './views/AdminDashboardView';
+import AdminInvocationsView from './views/AdminInvocationsView';
+import AdminUsersManagementView from './views/AdminUsersManagementView';
+import AdminKnowledgeManagementView from './views/AdminKnowledgeManagementView';
+import AdminFeedbackManagementView from './views/AdminFeedbackManagementView';
 import AppFooter from './components/AppFooter';
 import UserProfileModal from './components/UserProfileModal';
 import { authService } from './services/auth_service';
@@ -45,7 +51,19 @@ import {
   postQuizResult,
 } from './api/ragApi';
 
-export type ViewType = 'dashboard' | 'knowledge' | 'lecture' | 'learning' | 'chat' | 'feedbacks' | 'profile';
+export type ViewType =
+  | 'dashboard'
+  | 'knowledge'
+  | 'lecture'
+  | 'learning'
+  | 'chat'
+  | 'feedbacks'
+  | 'profile'
+  | 'adminDashboard'
+  | 'adminInvocations'
+  | 'adminUsers'
+  | 'adminKnowledge'
+  | 'adminFeedback';
 export type KnowledgeSubTab = 'dashboard' | 'upload' | 'run-pipeline' | 'build-index' | 'explorer';
 
 const VIEW_PATHS: Record<ViewType, string> = {
@@ -56,6 +74,11 @@ const VIEW_PATHS: Record<ViewType, string> = {
   chat: '/chat',
   feedbacks: '/feedbacks',
   profile: '/profile',
+  adminDashboard: '/admin/dashboard',
+  adminInvocations: '/admin/invocations',
+  adminUsers: '/admin/users',
+  adminKnowledge: '/admin/knowledge',
+  adminFeedback: '/admin/feedback',
 };
 
 const KNOWLEDGE_PATHS: Record<KnowledgeSubTab, string> = {
@@ -88,6 +111,11 @@ function routeToState(pathname: string): {
   if (clean === '/chat') return { view: 'chat', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/feedbacks') return { view: 'feedbacks', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/profile') return { view: 'profile', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/dashboard') return { view: 'adminDashboard', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/invocations') return { view: 'adminInvocations', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/users') return { view: 'adminUsers', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/knowledge') return { view: 'adminKnowledge', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/feedback') return { view: 'adminFeedback', knowledgeSubTab: 'dashboard', isKnown: true };
   return { view: 'dashboard', knowledgeSubTab: 'dashboard', isKnown: false };
 }
 
@@ -135,6 +163,8 @@ export default function App() {
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [profile, setProfile] = useState<UserEntity | null>(null);
+  const [currentRole, setCurrentRole] = useState<'student' | 'admin' | 'instructor'>('student');
+  const [adminViewMode, setAdminViewMode] = useState<'admin' | 'user'>('admin');
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -266,10 +296,32 @@ export default function App() {
     if (!user) {
       setFiles([]);
       setQuizResults([]);
+      setProfile(null);
+      setCurrentRole('student');
       return;
     }
     refreshFilesFromApi();
     refreshQuizResultsFromApi();
+    void authService.getMe().then((me) => {
+      if ((me.isActive ?? true) === false) {
+        void authService.logout();
+        return;
+      }
+      setProfile(me);
+      setCurrentRole((me.role as any) || 'student');
+      setUser((prev) => (prev ? {
+        ...prev,
+        username: me.username,
+        role: me.role,
+        isActive: me.isActive,
+        displayName: me.displayName ?? prev.displayName,
+        persona: me.persona,
+        educationDescription: me.educationDescription,
+      } : prev));
+    }).catch((e) => {
+      console.error('Failed to resolve role profile', e);
+      setCurrentRole((user.role as any) || 'student');
+    });
   }, [user?.uid, refreshFilesFromApi, refreshQuizResultsFromApi]);
 
   useEffect(() => {
@@ -278,11 +330,30 @@ export default function App() {
   }, [isProfileModalOpen, user?.uid, loadProfile]);
 
   useEffect(() => {
-    if (!isAuthReady || !user) return;
-    if (!routeState.isKnown || location.pathname === '/') {
-      navigate('/dashboard', { replace: true });
+    // Non-admin accounts always stay in user view mode.
+    if (currentRole !== 'admin') {
+      setAdminViewMode('user');
     }
-  }, [isAuthReady, user?.uid, routeState.isKnown, location.pathname, navigate]);
+  }, [currentRole]);
+
+  const isAdminUser = currentRole === 'admin';
+  const isAdminView = isAdminUser && adminViewMode === 'admin';
+
+  useEffect(() => {
+    if (!isAuthReady || !user) return;
+    if (!isAdminView && location.pathname.startsWith('/admin')) {
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+    if (isAdminView && !location.pathname.startsWith('/admin') && location.pathname !== '/profile') {
+      navigate('/admin/dashboard', { replace: true });
+      return;
+    }
+
+    if (!routeState.isKnown || location.pathname === '/') {
+      navigate(isAdminView ? '/admin/dashboard' : '/dashboard', { replace: true });
+    }
+  }, [isAuthReady, user?.uid, routeState.isKnown, location.pathname, navigate, isAdminView]);
 
   if (!isAuthReady) {
     return (
@@ -299,7 +370,7 @@ export default function App() {
     return <LoginView />;
   }
 
-  const navItems = [
+  const studentNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     {
       id: 'knowledge',
@@ -318,6 +389,17 @@ export default function App() {
     { id: 'chat', label: 'Chat Assistant', icon: MessageSquare },
     { id: 'feedbacks', label: 'Feedbacks', icon: BarChart3 },
   ] as const;
+
+  const adminNavItems = [
+    { id: 'adminDashboard', label: 'Application Dashboard', icon: LayoutDashboard },
+    { id: 'adminInvocations', label: 'API Invocations', icon: Activity },
+    { id: 'adminUsers', label: 'User Management', icon: UserCircle2 },
+    { id: 'adminKnowledge', label: 'Knowledge Management', icon: Database },
+    { id: 'adminFeedback', label: 'Feedback Management', icon: BarChart3 },
+    { id: 'profile', label: 'Profile', icon: UserCircle2 },
+  ] as const;
+
+  const navItems = (isAdminView ? adminNavItems : studentNavItems) as ReadonlyArray<any>;
 
   return (
     <div className="relative flex h-screen overflow-hidden bg-slate-50 text-slate-900 font-sans">
@@ -467,8 +549,8 @@ export default function App() {
               {sidebarCollapsed ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
             </button> */}
             <h1 className="text-lg font-semibold text-slate-800 truncate">
-              {currentView === 'knowledge'
-                ? navItems
+              {currentView === 'knowledge' && !isAdminView
+                ? studentNavItems
                     .find((i) => i.id === 'knowledge')
                     ?.subItems?.find((s) => s.id === knowledgeSubTab)?.label || 'Knowledge Management'
                 : currentView === 'profile'
@@ -477,6 +559,37 @@ export default function App() {
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            {isAdminUser && (
+              <div className="inline-flex items-center rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+                <span className="px-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">View as</span>
+                <button
+                  type="button"
+                  onClick={() => setAdminViewMode('user')}
+                  className={cn(
+                    'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
+                    adminViewMode === 'user'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  )}
+                  aria-label="Switch to user view"
+                >
+                  User
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdminViewMode('admin')}
+                  className={cn(
+                    'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
+                    adminViewMode === 'admin'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  )}
+                  aria-label="Switch to admin view"
+                >
+                  Admin
+                </button>
+              </div>
+            )}
             {/* <button className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors relative">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
@@ -522,6 +635,11 @@ export default function App() {
             )}
             {currentView === 'chat' && <ChatAssistantView />}
             {currentView === 'feedbacks' && <FeedbacksView />}
+            {currentView === 'adminDashboard' && <AdminDashboardView />}
+            {currentView === 'adminInvocations' && <AdminInvocationsView />}
+            {currentView === 'adminUsers' && <AdminUsersManagementView />}
+            {currentView === 'adminKnowledge' && <AdminKnowledgeManagementView />}
+            {currentView === 'adminFeedback' && <AdminFeedbackManagementView />}
             {currentView === 'profile' && <ProfileView user={user} onEditProfile={() => setIsProfileModalOpen(true)} />}
           </div>
           <AppFooter />

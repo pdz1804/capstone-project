@@ -26,8 +26,10 @@ def _item_to_response(item: dict[str, Any]) -> UserResponse:
     return UserResponse(
         uid=item["uid"],
         email=item["email"],
+        username=item.get("username"),
         displayName=item.get("displayName"),
         role=item.get("role") or "student",
+        isActive=bool(item.get("isActive", True)),
         photoURL=item.get("photoURL"),
         persona=item.get("persona"),
         educationDescription=item.get("educationDescription"),
@@ -66,12 +68,43 @@ class DynamoUserRepository:
         norm = (email or "").strip().lower()
         if not norm:
             return None
-        r = self._table.scan(
-            FilterExpression=Attr("email").eq(norm),
-            Limit=1,
-        )
-        items = r.get("Items") or []
-        return items[0] if items else None
+        last_key = None
+        while True:
+            kwargs: dict[str, Any] = {
+                "FilterExpression": Attr("email").eq(norm),
+                "Limit": 200,
+            }
+            if last_key:
+                kwargs["ExclusiveStartKey"] = last_key
+            r = self._table.scan(**kwargs)
+            items = r.get("Items") or []
+            if items:
+                return items[0]
+            last_key = r.get("LastEvaluatedKey")
+            if not last_key:
+                break
+        return None
+
+    def get_item_by_username(self, username: str) -> Optional[dict[str, Any]]:
+        norm = (username or "").strip().lower()
+        if not norm:
+            return None
+        last_key = None
+        while True:
+            kwargs: dict[str, Any] = {
+                "FilterExpression": Attr("username").eq(norm),
+                "Limit": 200,
+            }
+            if last_key:
+                kwargs["ExclusiveStartKey"] = last_key
+            r = self._table.scan(**kwargs)
+            items = r.get("Items") or []
+            if items:
+                return items[0]
+            last_key = r.get("LastEvaluatedKey")
+            if not last_key:
+                break
+        return None
 
     def get_by_email(self, email: str) -> Optional[UserResponse]:
         item = self.get_item_by_email(email)
@@ -82,8 +115,10 @@ class DynamoUserRepository:
         item = {
             "uid": user_in.uid,
             "email": str(user_in.email).lower(),
+            "username": (str(user_in.username).strip().lower() if user_in.username else None),
             "displayName": user_in.displayName,
             "role": user_in.role or "student",
+            "isActive": bool(user_in.isActive),
             "photoURL": user_in.photoURL,
             "persona": user_in.persona,
             "educationDescription": user_in.educationDescription,
@@ -129,8 +164,44 @@ class DynamoUserRepository:
         )
         return self.get_by_id(uid)
 
+    def set_local_auth_credentials(self, uid: str, password_hash: str) -> Optional[UserResponse]:
+        existing = self.get_by_id(uid)
+        if not existing:
+            return None
+        self._table.update_item(
+            Key={"uid": uid},
+            UpdateExpression="SET #provider = :provider, #pwd = :pwd",
+            ExpressionAttributeNames={
+                "#provider": "authProvider",
+                "#pwd": "passwordHash",
+            },
+            ExpressionAttributeValues={
+                ":provider": "local",
+                ":pwd": password_hash,
+            },
+        )
+        return self.get_by_id(uid)
+
+    def delete(self, uid: str) -> bool:
+        existing = self.get_by_id(uid)
+        if not existing:
+            return False
+        self._table.delete_item(Key={"uid": uid})
+        return True
+
     def list(self, skip: int = 0, limit: int = 100) -> List[UserResponse]:
-        r = self._table.scan(Limit=limit + skip)
-        items = r.get("Items") or []
+        want = max(1, int(limit) + int(skip))
+        items: list[dict[str, Any]] = []
+        last_key = None
+        while len(items) < want:
+            kwargs: dict[str, Any] = {"Limit": min(1000, want)}
+            if last_key:
+                kwargs["ExclusiveStartKey"] = last_key
+            r = self._table.scan(**kwargs)
+            items.extend(r.get("Items") or [])
+            last_key = r.get("LastEvaluatedKey")
+            if not last_key:
+                break
+
         out = [_item_to_response(x) for x in items[skip : skip + limit]]
         return out

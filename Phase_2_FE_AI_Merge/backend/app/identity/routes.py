@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 
 from .firebase_auth import FirebaseAuthService
 from .schemas import AuthSessionResponse, LocalLoginRequest, LocalRegisterRequest, UserResponse, UserUpdate
@@ -76,6 +76,14 @@ def get_current_user(
     return user_service.get_user_profile(info["uid"])
 
 
+def get_current_admin(user: UserResponse = Depends(get_current_user)) -> UserResponse:
+    if (user.role or "").lower() != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role is required")
+    if not bool(user.isActive):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin account is deactivated")
+    return user
+
+
 @users_router.get("/me", response_model=UserResponse)
 def get_me(user: UserResponse = Depends(get_current_user)):
     return user
@@ -87,22 +95,42 @@ def update_me(
     user: UserResponse = Depends(get_current_user),
     user_service: UserService = Depends(get_user_service),
 ):
-    return user_service.update_user_profile(user.uid, body)
+    safe_update = UserUpdate(
+        username=body.username,
+        displayName=body.displayName,
+        photoURL=body.photoURL,
+        persona=body.persona,
+        educationDescription=body.educationDescription,
+        lastLogin=body.lastLogin,
+    )
+    return user_service.update_user_profile(user.uid, safe_update)
 
 
 @users_router.get("/{uid}", response_model=UserResponse)
 def get_user_by_id(
     uid: str,
-    _user: UserResponse = Depends(get_current_user),
+    user: UserResponse = Depends(get_current_user),
     user_service: UserService = Depends(get_user_service),
 ):
+    if (user.role or "").lower() != "admin" and user.uid != uid:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed to view this user")
     return user_service.get_user_profile(uid)
 
 
 @users_router.get("/", response_model=List[UserResponse])
 def list_users(
     user_service: UserService = Depends(get_user_service),
+    _admin: UserResponse = Depends(get_current_admin),
     skip: int = 0,
     limit: int = 100,
+    query: str | None = Query(None),
+    role: str | None = Query(None),
+    is_active: bool | None = Query(None),
 ):
-    return user_service.list_users(skip=skip, limit=limit)
+    return user_service.list_users(
+        skip=skip,
+        limit=limit,
+        query=query,
+        role=role,
+        is_active=is_active,
+    )

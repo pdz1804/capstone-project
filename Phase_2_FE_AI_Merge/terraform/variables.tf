@@ -196,10 +196,82 @@ variable "dynamodb_users_table_arn" {
   default     = ""
 }
 
+variable "dynamodb_users_table_name" {
+  description = "Optional users DynamoDB table name for backend env (DYNAMODB_USERS_TABLE)"
+  type        = string
+  default     = ""
+}
+
 variable "dynamodb_quiz_results_table_arn" {
   description = "Optional existing quiz results DynamoDB table ARN to grant backend access"
   type        = string
   default     = ""
+}
+
+variable "dynamodb_quiz_results_table_name" {
+  description = "Optional quiz results DynamoDB table name for backend env (DYNAMODB_QUIZ_RESULTS_TABLE)"
+  type        = string
+  default     = ""
+}
+
+variable "dynamodb_feedback_table_arn" {
+  description = "Optional existing feedback DynamoDB table ARN to grant backend access"
+  type        = string
+  default     = ""
+}
+
+variable "dynamodb_feedback_table_name" {
+  description = "Optional feedback DynamoDB table name for backend env (DYNAMODB_FEEDBACK_TABLE)"
+  type        = string
+  default     = ""
+}
+
+variable "dynamodb_app_usage_table_arn" {
+  description = "Optional existing app usage DynamoDB table ARN to grant backend access"
+  type        = string
+  default     = ""
+}
+
+variable "dynamodb_app_usage_table_name" {
+  description = "Optional app usage DynamoDB table name for backend env (DYNAMODB_APP_USAGE_TABLE)"
+  type        = string
+  default     = ""
+}
+
+variable "dynamodb_knowledge_table_arn" {
+  description = "Optional existing knowledge DynamoDB table ARN to grant backend access"
+  type        = string
+  default     = ""
+}
+
+variable "dynamodb_knowledge_table_name" {
+  description = "Optional knowledge DynamoDB table name for backend env (DYNAMODB_KNOWLEDGE_TABLE)"
+  type        = string
+  default     = ""
+}
+
+variable "enable_default_admin_bootstrap" {
+  description = "Enable backend startup bootstrap for default local admin account"
+  type        = bool
+  default     = true
+}
+
+variable "default_admin_username" {
+  description = "Default admin username for backend bootstrap"
+  type        = string
+  default     = "admin"
+}
+
+variable "default_admin_email" {
+  description = "Default admin email for backend bootstrap"
+  type        = string
+  default     = "admin@local.dev"
+}
+
+variable "default_admin_password" {
+  description = "Default admin password for backend bootstrap"
+  type        = string
+  default     = "quangphu1804"
 }
 
 variable "enable_agentcore_runtime_prep" {
@@ -212,4 +284,70 @@ variable "agentcore_runtime_ecr_repository_name" {
   description = "Optional override for AgentCore runtime ECR repository name"
   type        = string
   default     = ""
+}
+
+variable "enable_search_cache_serverless" {
+  description = "Create ElastiCache Serverless and wire backend cache env vars for ECS"
+  type        = bool
+  default     = true
+}
+
+variable "search_cache_serverless_name" {
+  description = "Optional ElastiCache Serverless cache name override. Default: {project_name}-cache"
+  type        = string
+  default     = ""
+}
+
+variable "search_cache_engine" {
+  description = "Engine for ElastiCache Serverless cache (redis or valkey depending on provider/account support)"
+  type        = string
+  default     = "redis"
+}
+
+variable "search_cache_major_engine_version" {
+  description = "Optional major engine version for ElastiCache Serverless"
+  type        = string
+  default     = ""
+}
+
+variable "search_cache_subnet_ids" {
+  description = "Optional subnet IDs for ElastiCache Serverless. Default uses up to three default VPC subnets"
+  type        = list(string)
+  default     = []
+}
+
+variable "search_cache_use_tls" {
+  description = "Use TLS redis URL (rediss://) when wiring SEARCH_CACHE_REDIS_URL into ECS backend"
+  type        = bool
+  default     = true
+}
+
+variable "search_cache_ttl_seconds" {
+  description = "SEARCH_CACHE_TTL_SECONDS value for backend runtime"
+  type        = number
+  default     = 600
+}
+
+variable "search_cache_key_prefix" {
+  description = "SEARCH_CACHE_KEY_PREFIX value for backend runtime"
+  type        = string
+  default     = "phase2:search:v1"
+}
+
+variable "search_cache_redis_connect_timeout_seconds" {
+  description = "SEARCH_CACHE_REDIS_CONNECT_TIMEOUT_SECONDS value for backend runtime"
+  type        = number
+  default     = 2
+}
+
+variable "search_cache_redis_read_timeout_seconds" {
+  description = "SEARCH_CACHE_REDIS_READ_TIMEOUT_SECONDS value for backend runtime"
+  type        = number
+  default     = 2
+}
+
+variable "search_cache_redis_retry_cooldown_seconds" {
+  description = "SEARCH_CACHE_REDIS_RETRY_COOLDOWN_SECONDS value for backend runtime"
+  type        = number
+  default     = 30
 }

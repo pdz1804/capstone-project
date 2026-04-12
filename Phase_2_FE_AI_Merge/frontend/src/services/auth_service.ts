@@ -6,8 +6,11 @@ import { onAuthStateChanged } from 'firebase/auth';
 export interface AuthUser {
   uid: string;
   email: string | null;
+  username?: string | null;
   displayName: string | null;
   photoURL: string | null;
+  role?: string | null;
+  isActive?: boolean;
   persona?: string | null;
   educationDescription?: string | null;
 }
@@ -26,8 +29,11 @@ class AuthService {
     return {
       uid: user.uid,
       email: user.email,
+      username: user.username || null,
       displayName: user.displayName,
       photoURL: user.photoURL,
+      role: user.role,
+      isActive: user.isActive ?? true,
       persona: user.persona,
       educationDescription: user.educationDescription,
     };
