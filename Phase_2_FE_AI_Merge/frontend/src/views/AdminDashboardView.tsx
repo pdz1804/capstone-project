@@ -3,6 +3,7 @@ import {
   Activity,
   Coins,
   Database,
+  DollarSign,
   Loader2,
   RefreshCw,
   Users,
@@ -11,6 +12,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -19,8 +21,10 @@ import {
   YAxis,
 } from 'recharts';
 import {
+  getAdminCostDashboard,
   getAdminDashboard,
   listAdminInvocations,
+  type AdminCostDashboardResponse,
   type AdminDashboardResponse,
   type AdminInvocationRecord,
 } from '../api/ragApi';
@@ -82,10 +86,22 @@ const DASHBOARD_RANGES: Record<DashboardRange, {
 
 const DASHBOARD_RANGE_OPTIONS: DashboardRange[] = ['1h', '3h', '6h', '12h', '1d', '7d', '30d', '90d'];
 
+const COST_STACK_COLORS = ['#0ea5e9', '#14b8a6', '#8b5cf6', '#f97316', '#84cc16', '#06b6d4'];
+
+function compactServiceLabel(service: string): string {
+  const s = String(service || '').trim();
+  if (!s) return 'Unknown';
+  if (s.length <= 28) return s;
+  return `${s.slice(0, 26)}...`;
+}
+
 export default function AdminDashboardView() {
   const navigate = useNavigate();
   const [selectedRange, setSelectedRange] = useState<DashboardRange>('1h');
+  const [activeTab, setActiveTab] = useState<'usage' | 'costs'>('usage');
+  const [serviceFilter, setServiceFilter] = useState<string>('ALL');
   const [dashboard, setDashboard] = useState<AdminDashboardResponse | null>(null);
+  const [costDashboard, setCostDashboard] = useState<AdminCostDashboardResponse | null>(null);
   const [invocations, setInvocations] = useState<AdminInvocationRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,12 +111,14 @@ export default function AdminDashboardView() {
     setLoading(true);
     setError(null);
     try {
-      const [dash, logs] = await Promise.all([
+      const [dash, logs, costs] = await Promise.all([
         getAdminDashboard(targetDays),
         listAdminInvocations({ days: targetDays, limit: 8 }),
+        getAdminCostDashboard(targetDays),
       ]);
       setDashboard(dash);
       setInvocations(logs.items || []);
+      setCostDashboard(costs);
     } catch (e: any) {
       setError(e?.response?.data?.detail || e?.message || 'Failed to load admin dashboard');
     } finally {
@@ -184,6 +202,134 @@ export default function AdminDashboardView() {
     coverage_percent: 0,
   };
 
+  const cloudCostSummary = costDashboard?.summary || {
+    total_cost_usd: 0,
+    avg_daily_cost_usd: 0,
+    services_count: 0,
+    records_count: 0,
+    latest_day: null,
+    latest_day_total_cost_usd: 0,
+    parse_errors: 0,
+  };
+
+  const hasCloudCostData = (costDashboard?.cost_by_day || []).length > 0;
+
+  const serviceOptions = useMemo(
+    () => ['ALL', ...(costDashboard?.service_options || [])],
+    [costDashboard],
+  );
+
+  useEffect(() => {
+    if (!serviceOptions.includes(serviceFilter)) {
+      setServiceFilter('ALL');
+    }
+  }, [serviceFilter, serviceOptions]);
+
+  const filteredDailyCloudCost = useMemo(() => {
+    const dayRows = costDashboard?.cost_by_day || [];
+    if (serviceFilter === 'ALL') {
+      return dayRows.map((x) => ({ day: x.day, cost_usd: Number(x.total_cost_usd || 0) }));
+    }
+    const byDay = new Map<string, number>();
+    for (const row of costDashboard?.cost_by_day_service || []) {
+      if (row.service !== serviceFilter) continue;
+      byDay.set(row.day, (byDay.get(row.day) || 0) + Number(row.cost_usd || 0));
+    }
+    return dayRows.map((x) => ({
+      day: x.day,
+      cost_usd: Number((byDay.get(x.day) || 0).toFixed(6)),
+    }));
+  }, [costDashboard, serviceFilter]);
+
+  const filteredServiceTotals = useMemo(() => {
+    const rows = costDashboard?.cost_by_service || [];
+    if (serviceFilter === 'ALL') return rows;
+    return rows.filter((x) => x.service === serviceFilter);
+  }, [costDashboard, serviceFilter]);
+
+  const latestDayBreakdown = useMemo(() => {
+    const rows = costDashboard?.latest_day_breakdown || [];
+    if (serviceFilter === 'ALL') return rows;
+    return rows.filter((x) => x.service === serviceFilter);
+  }, [costDashboard, serviceFilter]);
+
+  const topServiceCostRows = useMemo(
+    () => filteredServiceTotals.slice(0, 10).map((row) => ({
+      ...row,
+      service_short: compactServiceLabel(row.service),
+    })),
+    [filteredServiceTotals],
+  );
+
+  const dailyCloudCostStacked = useMemo(() => {
+    const dayRows = costDashboard?.cost_by_day || [];
+    const dayServiceRows = costDashboard?.cost_by_day_service || [];
+
+    if (dayRows.length === 0) {
+      return {
+        data: [] as Array<Record<string, string | number>>,
+        stackKeys: [] as string[],
+      };
+    }
+
+    const serviceTotals = new Map<string, number>();
+    const byDayService = new Map<string, number>();
+
+    for (const row of dayServiceRows) {
+      const day = String(row.day || '');
+      const service = String(row.service || 'Unknown Service');
+      const cost = Number(row.cost_usd || 0);
+      if (!day || cost <= 0) continue;
+      const k = `${day}|||${service}`;
+      byDayService.set(k, (byDayService.get(k) || 0) + cost);
+      serviceTotals.set(service, (serviceTotals.get(service) || 0) + cost);
+    }
+
+    const orderedServices = Array.from(serviceTotals.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([service]) => service);
+
+    const focusServices =
+      serviceFilter === 'ALL'
+        ? orderedServices.slice(0, 5)
+        : orderedServices.includes(serviceFilter)
+          ? [serviceFilter]
+          : [];
+
+    const data = dayRows.map((row) => {
+      const day = String(row.day || '');
+      const total = Number(row.total_cost_usd || 0);
+      let known = 0;
+
+      const out: Record<string, string | number> = {
+        day,
+        total_cost_usd: Number(total.toFixed(6)),
+      };
+
+      for (const service of focusServices) {
+        const value = Number((byDayService.get(`${day}|||${service}`) || 0).toFixed(6));
+        out[service] = value;
+        known += value;
+      }
+
+      const others = Math.max(0, Number((total - known).toFixed(6)));
+      if (others > 0 || focusServices.length === 0) {
+        out.Others = others;
+      }
+
+      return out;
+    });
+
+    const hasOthers = data.some((x) => Number(x.Others || 0) > 0);
+    return {
+      data,
+      stackKeys: [
+        ...focusServices,
+        ...(hasOthers ? ['Others'] : []),
+      ],
+    };
+  }, [costDashboard, serviceFilter]);
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-sky-100 bg-white p-5 shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)]">
@@ -216,314 +362,524 @@ export default function AdminDashboardView() {
         {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-sky-100 bg-white p-4">
-          <p className="text-xs text-slate-500">Total API requests</p>
-          <p className="mt-2 text-3xl font-black text-blue-700">{nf(summary.total_requests)}</p>
-          <Activity className="w-5 h-5 text-blue-500 mt-2" />
-        </div>
-        <div className="rounded-xl border border-sky-100 bg-white p-4">
-          <p className="text-xs text-slate-500">Unique users</p>
-          <p className="mt-2 text-3xl font-black text-emerald-700">{nf(summary.unique_users || 0)}</p>
-          <Users className="w-5 h-5 text-emerald-500 mt-2" />
-        </div>
-        <div className="rounded-xl border border-sky-100 bg-white p-4">
-          <p className="text-xs text-slate-500">Token in</p>
-          <p className="mt-2 text-3xl font-black text-indigo-700">{nf(summary.token_in)}</p>
-          <Database className="w-5 h-5 text-indigo-500 mt-2" />
-        </div>
-        <div className="rounded-xl border border-sky-100 bg-white p-4">
-          <p className="text-xs text-slate-500">Token out</p>
-          <p className="mt-2 text-3xl font-black text-violet-700">{nf(summary.token_out)}</p>
-          <Database className="w-5 h-5 text-violet-500 mt-2" />
-        </div>
-        <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-4">
-          <p className="text-xs text-slate-500">Estimated cost</p>
-          <p className="mt-2 text-3xl font-black text-amber-700">{usd(summary.estimated_cost_usd)}</p>
-          <Coins className="w-5 h-5 text-amber-500 mt-2" />
-        </div>
-        <div className="rounded-xl border border-rose-100 bg-rose-50/40 p-4">
-          <p className="text-xs text-slate-500">Error rate</p>
-          <p className="mt-2 text-3xl font-black text-rose-700">{(summary.error_rate_percent || 0).toFixed(2)}%</p>
-          <p className="mt-1 text-xs text-rose-700">{nf(summary.error_requests || 0)} failed calls</p>
-        </div>
-        <div className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-4">
-          <p className="text-xs text-slate-500">Avg latency</p>
-          <p className="mt-2 text-3xl font-black text-cyan-700">{nf(summary.avg_duration_ms || 0)} ms</p>
-          <p className="mt-1 text-xs text-cyan-700">Across all API invocations</p>
-        </div>
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
-          <p className="text-xs text-slate-500">Feedback coverage / chat</p>
-          <p className="mt-2 text-3xl font-black text-emerald-700">{(feedbackCoverage.coverage_percent || 0).toFixed(2)}%</p>
-          <p className="mt-1 text-xs text-emerald-700">
-            {nf(feedbackCoverage.feedback_requests)} feedback / {nf(feedbackCoverage.chat_requests)} chat
-          </p>
+      <div className="rounded-2xl border border-sky-100 bg-white p-2">
+        <div className="inline-flex rounded-xl bg-sky-50/70 p-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab('usage')}
+            className={`rounded-lg px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${activeTab === 'usage'
+              ? 'bg-white text-sky-700 border border-sky-100'
+              : 'text-slate-500 hover:text-slate-700'
+              }`}
+          >
+            Usage and Performance
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('costs')}
+            className={`rounded-lg px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${activeTab === 'costs'
+              ? 'bg-white text-sky-700 border border-sky-100'
+              : 'text-slate-500 hover:text-slate-700'
+              }`}
+          >
+            Costs and Billing
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">API Requests by Feature</h3>
-          {loading ? (
-            <div className="h-[300px] flex items-center justify-center text-slate-500">
-              <Loader2 className="w-5 h-5 animate-spin" />
+      {activeTab === 'usage' ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="rounded-xl border border-sky-100 bg-white p-4">
+              <p className="text-xs text-slate-500">Total API requests</p>
+              <p className="mt-2 text-3xl font-black text-blue-700">{nf(summary.total_requests)}</p>
+              <Activity className="w-5 h-5 text-blue-500 mt-2" />
             </div>
-          ) : featureChart.length === 0 ? (
-            <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={featureChart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="feature" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Bar dataKey="requests" fill="#2563eb" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-
-        <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">Token Usage Trend ({activeRange.title})</h3>
-          {loading ? (
-            <div className="h-[300px] flex items-center justify-center text-slate-500">
-              <Loader2 className="w-5 h-5 animate-spin" />
+            <div className="rounded-xl border border-sky-100 bg-white p-4">
+              <p className="text-xs text-slate-500">Unique users</p>
+              <p className="mt-2 text-3xl font-black text-emerald-700">{nf(summary.unique_users || 0)}</p>
+              <Users className="w-5 h-5 text-emerald-500 mt-2" />
             </div>
-          ) : tokenChart.length === 0 ? (
-            <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={tokenChart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Line type="monotone" dataKey="token_in" stroke="#1d4ed8" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="token_out" stroke="#7c3aed" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">API Requests Trend ({activeRange.title})</h3>
-          {loading ? (
-            <div className="h-[300px] flex items-center justify-center text-slate-500">
-              <Loader2 className="w-5 h-5 animate-spin" />
+            <div className="rounded-xl border border-sky-100 bg-white p-4">
+              <p className="text-xs text-slate-500">Token in</p>
+              <p className="mt-2 text-3xl font-black text-indigo-700">{nf(summary.token_in)}</p>
+              <Database className="w-5 h-5 text-indigo-500 mt-2" />
             </div>
-          ) : requestChart.length === 0 ? (
-            <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={requestChart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Line type="monotone" dataKey="requests" stroke="#0ea5e9" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-
-        <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">Active Users Trend ({activeRange.title})</h3>
-          {loading ? (
-            <div className="h-[300px] flex items-center justify-center text-slate-500">
-              <Loader2 className="w-5 h-5 animate-spin" />
+            <div className="rounded-xl border border-sky-100 bg-white p-4">
+              <p className="text-xs text-slate-500">Token out</p>
+              <p className="mt-2 text-3xl font-black text-violet-700">{nf(summary.token_out)}</p>
+              <Database className="w-5 h-5 text-violet-500 mt-2" />
             </div>
-          ) : activeUserChart.length === 0 ? (
-            <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={activeUserChart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Line type="monotone" dataKey="users" stroke="#16a34a" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">Top Users by API Requests</h3>
-          {loading ? (
-            <div className="h-[300px] flex items-center justify-center text-slate-500">
-              <Loader2 className="w-5 h-5 animate-spin" />
+            <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-4">
+              <p className="text-xs text-slate-500">Estimated LLM cost</p>
+              <p className="mt-2 text-3xl font-black text-amber-700">{usd(summary.estimated_cost_usd)}</p>
+              <Coins className="w-5 h-5 text-amber-500 mt-2" />
             </div>
-          ) : topUsersChart.length === 0 ? (
-            <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topUsersChart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="user_short" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Bar dataKey="requests" fill="#059669" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-
-        <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">Requests by HTTP Status</h3>
-          {loading ? (
-            <div className="h-[300px] flex items-center justify-center text-slate-500">
-              <Loader2 className="w-5 h-5 animate-spin" />
+            <div className="rounded-xl border border-rose-100 bg-rose-50/40 p-4">
+              <p className="text-xs text-slate-500">Error rate</p>
+              <p className="mt-2 text-3xl font-black text-rose-700">{(summary.error_rate_percent || 0).toFixed(2)}%</p>
+              <p className="mt-1 text-xs text-rose-700">{nf(summary.error_requests || 0)} failed calls</p>
             </div>
-          ) : statusChart.length === 0 ? (
-            <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={statusChart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="status_code" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Bar dataKey="requests" fill="#dc2626" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
-        <h3 className="text-sm font-bold text-slate-800 mb-3">Per-user API Request Detail</h3>
-        <table className="w-full text-sm">
-          <thead className="bg-sky-50/60 sticky top-0">
-            <tr>
-              <th className="px-2 py-2 text-left text-xs text-slate-600">User</th>
-              <th className="px-2 py-2 text-right text-xs text-slate-600">Requests</th>
-              <th className="px-2 py-2 text-right text-xs text-slate-600">Token In</th>
-              <th className="px-2 py-2 text-right text-xs text-slate-600">Token Out</th>
-              <th className="px-2 py-2 text-right text-xs text-slate-600">Cost</th>
-            </tr>
-          </thead>
-          <tbody>
-            {topUsers.map((u) => (
-              <tr key={u.user_id} className="border-b border-slate-100">
-                <td className="px-2 py-2 text-xs text-slate-700 break-all">{u.user_id || 'anonymous'}</td>
-                <td className="px-2 py-2 text-right text-xs">{nf(u.requests)}</td>
-                <td className="px-2 py-2 text-right text-xs">{nf(u.token_in)}</td>
-                <td className="px-2 py-2 text-right text-xs">{nf(u.token_out)}</td>
-                <td className="px-2 py-2 text-right text-xs font-semibold text-amber-700">{usd(u.estimated_cost_usd)}</td>
-              </tr>
-            ))}
-            {topUsers.length === 0 && (
-              <tr>
-                <td className="px-2 py-3 text-sm text-slate-500" colSpan={5}>No per-user usage found.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">Model Usage and Cost Estimation</h3>
-          <table className="w-full text-sm">
-            <thead className="bg-sky-50/60 sticky top-0">
-              <tr>
-                <th className="px-2 py-2 text-left text-xs text-slate-600">Model ID</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">Req</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">Token In</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">Token Out</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">Cost</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(dashboard?.model_usage || []).map((m) => (
-                <tr key={m.model_id} className="border-b border-slate-100">
-                  <td className="px-2 py-2 text-xs text-slate-700 break-all">{m.model_id}</td>
-                  <td className="px-2 py-2 text-right text-xs">{nf(m.requests)}</td>
-                  <td className="px-2 py-2 text-right text-xs">{nf(m.token_in)}</td>
-                  <td className="px-2 py-2 text-right text-xs">{nf(m.token_out)}</td>
-                  <td className="px-2 py-2 text-right text-xs font-semibold text-amber-700">{usd(m.estimated_cost_usd)}</td>
-                </tr>
-              ))}
-              {(dashboard?.model_usage || []).length === 0 && (
-                <tr>
-                  <td className="px-2 py-3 text-sm text-slate-500" colSpan={5}>No model usage found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <div>
-              <h3 className="text-sm font-bold text-slate-800">Recent API Invocations</h3>
-              <p className="text-[11px] text-slate-500">Showing latest 8 records</p>
+            <div className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-4">
+              <p className="text-xs text-slate-500">Avg latency</p>
+              <p className="mt-2 text-3xl font-black text-cyan-700">{nf(summary.avg_duration_ms || 0)} ms</p>
+              <p className="mt-1 text-xs text-cyan-700">Across all API invocations</p>
             </div>
-            <button
-              type="button"
-              onClick={() => navigate(`/admin/invocations?days=${activeRange.days}`)}
-              className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100"
-            >
-              Show all
-            </button>
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+              <p className="text-xs text-slate-500">Feedback coverage / chat</p>
+              <p className="mt-2 text-3xl font-black text-emerald-700">{(feedbackCoverage.coverage_percent || 0).toFixed(2)}%</p>
+              <p className="mt-1 text-xs text-emerald-700">
+                {nf(feedbackCoverage.feedback_requests)} feedback / {nf(feedbackCoverage.chat_requests)} chat
+              </p>
+            </div>
           </div>
-          <table className="w-full text-sm">
-            <thead className="bg-sky-50/60 sticky top-0">
-              <tr>
-                <th className="px-2 py-2 text-left text-xs text-slate-600">Time</th>
-                <th className="px-2 py-2 text-left text-xs text-slate-600">Feature</th>
-                <th className="px-2 py-2 text-left text-xs text-slate-600">Model</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">In</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">Out</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invocations.map((log) => (
-                <tr key={log.usage_id} className="border-b border-slate-100">
-                  <td className="px-2 py-2 text-xs text-slate-600">{new Date(log.invoked_at).toLocaleString()}</td>
-                  <td className="px-2 py-2 text-xs text-slate-700">{log.feature}</td>
-                  <td className="px-2 py-2 text-xs text-slate-700 break-all">{log.model_id || '-'}</td>
-                  <td className="px-2 py-2 text-right text-xs">{nf(log.token_in || 0)}</td>
-                  <td className="px-2 py-2 text-right text-xs">{nf(log.token_out || 0)}</td>
-                </tr>
-              ))}
-              {invocations.length === 0 && (
-                <tr>
-                  <td className="px-2 py-3 text-sm text-slate-500" colSpan={5}>No invocation logs found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
-        <h3 className="text-sm font-bold text-slate-800 mb-3">Pricing Catalog by Model ID</h3>
-        <table className="w-full text-sm">
-          <thead className="bg-sky-50/60">
-            <tr>
-              <th className="px-2 py-2 text-left text-xs text-slate-600">Model ID</th>
-              <th className="px-2 py-2 text-left text-xs text-slate-600">Display Name</th>
-              <th className="px-2 py-2 text-right text-xs text-slate-600">Input / 1M</th>
-              <th className="px-2 py-2 text-right text-xs text-slate-600">Output / 1M</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(dashboard?.pricing_catalog || []).map((p) => (
-              <tr key={p.model_id} className="border-b border-slate-100">
-                <td className="px-2 py-2 text-xs text-slate-700 break-all">{p.model_id}</td>
-                <td className="px-2 py-2 text-xs text-slate-700">{p.display_name}</td>
-                <td className="px-2 py-2 text-right text-xs">${p.input_price_per_million.toFixed(2)}</td>
-                <td className="px-2 py-2 text-right text-xs">${p.output_price_per_million.toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">API Requests by Feature</h3>
+              {loading ? (
+                <div className="h-[300px] flex items-center justify-center text-slate-500"><Loader2 className="w-5 h-5 animate-spin" /></div>
+              ) : featureChart.length === 0 ? (
+                <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={featureChart}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="feature" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip />
+                    <Bar dataKey="requests" fill="#2563eb" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+
+            <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">Token Usage Trend ({activeRange.title})</h3>
+              {loading ? (
+                <div className="h-[300px] flex items-center justify-center text-slate-500"><Loader2 className="w-5 h-5 animate-spin" /></div>
+              ) : tokenChart.length === 0 ? (
+                <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={tokenChart}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="token_in" stroke="#1d4ed8" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="token_out" stroke="#7c3aed" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">API Requests Trend ({activeRange.title})</h3>
+              {loading ? (
+                <div className="h-[300px] flex items-center justify-center text-slate-500"><Loader2 className="w-5 h-5 animate-spin" /></div>
+              ) : requestChart.length === 0 ? (
+                <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={requestChart}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="requests" stroke="#0ea5e9" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+
+            <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">Active Users Trend ({activeRange.title})</h3>
+              {loading ? (
+                <div className="h-[300px] flex items-center justify-center text-slate-500"><Loader2 className="w-5 h-5 animate-spin" /></div>
+              ) : activeUserChart.length === 0 ? (
+                <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={activeUserChart}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="users" stroke="#16a34a" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">Top Users by API Requests</h3>
+              {loading ? (
+                <div className="h-[300px] flex items-center justify-center text-slate-500"><Loader2 className="w-5 h-5 animate-spin" /></div>
+              ) : topUsersChart.length === 0 ? (
+                <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={topUsersChart}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="user_short" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip />
+                    <Bar dataKey="requests" fill="#059669" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+
+            <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">Requests by HTTP Status</h3>
+              {loading ? (
+                <div className="h-[300px] flex items-center justify-center text-slate-500"><Loader2 className="w-5 h-5 animate-spin" /></div>
+              ) : statusChart.length === 0 ? (
+                <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={statusChart}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="status_code" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip />
+                    <Bar dataKey="requests" fill="#dc2626" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+            <h3 className="text-sm font-bold text-slate-800 mb-3">Per-user API Request Detail</h3>
+            <table className="w-full text-sm">
+              <thead className="bg-sky-50/60 sticky top-0">
+                <tr>
+                  <th className="px-2 py-2 text-left text-xs text-slate-600">User</th>
+                  <th className="px-2 py-2 text-right text-xs text-slate-600">Requests</th>
+                  <th className="px-2 py-2 text-right text-xs text-slate-600">Token In</th>
+                  <th className="px-2 py-2 text-right text-xs text-slate-600">Token Out</th>
+                  <th className="px-2 py-2 text-right text-xs text-slate-600">Cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topUsers.map((u) => (
+                  <tr key={u.user_id} className="border-b border-slate-100">
+                    <td className="px-2 py-2 text-xs text-slate-700 break-all">{u.user_id || 'anonymous'}</td>
+                    <td className="px-2 py-2 text-right text-xs">{nf(u.requests)}</td>
+                    <td className="px-2 py-2 text-right text-xs">{nf(u.token_in)}</td>
+                    <td className="px-2 py-2 text-right text-xs">{nf(u.token_out)}</td>
+                    <td className="px-2 py-2 text-right text-xs font-semibold text-amber-700">{usd(u.estimated_cost_usd)}</td>
+                  </tr>
+                ))}
+                {topUsers.length === 0 && (
+                  <tr>
+                    <td className="px-2 py-3 text-sm text-slate-500" colSpan={5}>No per-user usage found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">Recent API Invocations</h3>
+                <p className="text-[11px] text-slate-500">Showing latest 8 records</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`/admin/invocations?days=${activeRange.days}`)}
+                className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100"
+              >
+                Show all
+              </button>
+            </div>
+            <table className="w-full text-sm">
+              <thead className="bg-sky-50/60 sticky top-0">
+                <tr>
+                  <th className="px-2 py-2 text-left text-xs text-slate-600">Time</th>
+                  <th className="px-2 py-2 text-left text-xs text-slate-600">Feature</th>
+                  <th className="px-2 py-2 text-left text-xs text-slate-600">Model</th>
+                  <th className="px-2 py-2 text-right text-xs text-slate-600">In</th>
+                  <th className="px-2 py-2 text-right text-xs text-slate-600">Out</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invocations.map((log) => (
+                  <tr key={log.usage_id} className="border-b border-slate-100">
+                    <td className="px-2 py-2 text-xs text-slate-600">{new Date(log.invoked_at).toLocaleString()}</td>
+                    <td className="px-2 py-2 text-xs text-slate-700">{log.feature}</td>
+                    <td className="px-2 py-2 text-xs text-slate-700 break-all">{log.model_id || '-'}</td>
+                    <td className="px-2 py-2 text-right text-xs">{nf(log.token_in || 0)}</td>
+                    <td className="px-2 py-2 text-right text-xs">{nf(log.token_out || 0)}</td>
+                  </tr>
+                ))}
+                {invocations.length === 0 && (
+                  <tr>
+                    <td className="px-2 py-3 text-sm text-slate-500" colSpan={5}>No invocation logs found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : (
+        <>
+          {costDashboard?.error && (
+            <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              Failed to load cloud cost report: {costDashboard.error}
+            </p>
+          )}
+
+          {!loading && !hasCloudCostData && !costDashboard?.error && (
+            <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              No cloud cost CSV data found. Configure AWS cost report source via `AWS_COST_REPORT_S3_BUCKET` and `AWS_COST_REPORT_S3_PREFIX`.
+            </p>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+              <p className="text-xs text-slate-500">Cloud cost ({activeRange.title})</p>
+              <p className="mt-2 text-3xl font-black text-emerald-700">{usd(cloudCostSummary.total_cost_usd)}</p>
+              <DollarSign className="w-5 h-5 text-emerald-500 mt-2" />
+            </div>
+            <div className="rounded-xl border border-sky-200 bg-sky-50/40 p-4">
+              <p className="text-xs text-slate-500">Latest day ({cloudCostSummary.latest_day || '-'})</p>
+              <p className="mt-2 text-3xl font-black text-sky-700">{usd(cloudCostSummary.latest_day_total_cost_usd)}</p>
+              <Coins className="w-5 h-5 text-sky-500 mt-2" />
+            </div>
+            <div className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-4">
+              <p className="text-xs text-slate-500">Average daily cloud cost</p>
+              <p className="mt-2 text-3xl font-black text-indigo-700">{usd(cloudCostSummary.avg_daily_cost_usd)}</p>
+              <Activity className="w-5 h-5 text-indigo-500 mt-2" />
+            </div>
+            <div className="rounded-xl border border-violet-200 bg-violet-50/40 p-4">
+              <p className="text-xs text-slate-500">Tracked services / rows</p>
+              <p className="mt-2 text-3xl font-black text-violet-700">{nf(cloudCostSummary.services_count)}</p>
+              <p className="mt-1 text-xs text-violet-700">{nf(cloudCostSummary.records_count)} records</p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-sky-100 bg-white p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-xs font-semibold text-slate-500">Filter by service</p>
+              <select
+                value={serviceFilter}
+                onChange={(e) => setServiceFilter(e.target.value)}
+                className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm min-w-[280px]"
+                title="Service filter"
+                aria-label="Service filter"
+              >
+                {serviceOptions.map((svc) => (
+                  <option key={svc} value={svc}>{svc === 'ALL' ? 'All services' : svc}</option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-500">Source: {costDashboard?.bucket || '-'} / {costDashboard?.prefix || 'detailed/'}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">
+                Daily Cloud Cost by Service ({serviceFilter === 'ALL' ? 'top services + Others' : `${serviceFilter} + Others`})
+              </h3>
+              <p className="text-[11px] text-slate-500 mb-3">
+                Stacked bars show per-day service split. Remaining cost is grouped as Others.
+              </p>
+              {loading ? (
+                <div className="h-[300px] flex items-center justify-center text-slate-500"><Loader2 className="w-5 h-5 animate-spin" /></div>
+              ) : dailyCloudCostStacked.data.length === 0 || dailyCloudCostStacked.stackKeys.length === 0 ? (
+                <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dailyCloudCostStacked.data}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      formatter={(v: any, name: any) => [usd(Number(v || 0)), compactServiceLabel(String(name || ''))]}
+                      labelFormatter={(label: any) => `Date: ${label}`}
+                    />
+                    <Legend
+                      verticalAlign="top"
+                      align="left"
+                      formatter={(value: any) => compactServiceLabel(String(value || ''))}
+                    />
+                    {dailyCloudCostStacked.stackKeys.map((k, idx) => (
+                      <Bar
+                        key={k}
+                        dataKey={k}
+                        stackId="daily-cost"
+                        fill={k === 'Others' ? '#94a3b8' : COST_STACK_COLORS[idx % COST_STACK_COLORS.length]}
+                      />
+                    ))}
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+
+            <div className="rounded-xl border border-sky-100 bg-white p-4 h-[360px]">
+              <h3 className="text-sm font-bold text-slate-800 mb-1">Top Services by Cloud Cost</h3>
+              <p className="text-[11px] text-slate-500 mb-3">Horizontal rank view for easier service-name reading.</p>
+              {loading ? (
+                <div className="h-[300px] flex items-center justify-center text-slate-500"><Loader2 className="w-5 h-5 animate-spin" /></div>
+              ) : topServiceCostRows.length === 0 ? (
+                <div className="h-[300px] flex items-center justify-center text-sm text-slate-500">No data</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    layout="vertical"
+                    data={topServiceCostRows}
+                    margin={{ top: 8, right: 20, left: 8, bottom: 8 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis
+                      type="number"
+                      tick={{ fill: '#64748b', fontSize: 11 }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={(v: any) => `$${Number(v || 0).toFixed(1)}`}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="service_short"
+                      width={180}
+                      tick={{ fill: '#64748b', fontSize: 11 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      formatter={(v: any) => usd(Number(v || 0))}
+                      labelFormatter={(_label: any, payload: any) => {
+                        const p = payload?.[0]?.payload;
+                        return String(p?.service || _label || 'Service');
+                      }}
+                    />
+                    <Bar dataKey="cost_usd" fill="#0284c7" radius={[0, 6, 6, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">Service Cost Totals ({activeRange.title})</h3>
+              <table className="w-full text-sm">
+                <thead className="bg-sky-50/60 sticky top-0">
+                  <tr>
+                    <th className="px-2 py-2 text-left text-xs text-slate-600">Service</th>
+                    <th className="px-2 py-2 text-right text-xs text-slate-600">Cost (USD)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredServiceTotals.map((row) => (
+                    <tr key={row.service} className="border-b border-slate-100">
+                      <td className="px-2 py-2 text-xs text-slate-700 break-all">{row.service}</td>
+                      <td className="px-2 py-2 text-right text-xs font-semibold text-emerald-700">{usd(row.cost_usd)}</td>
+                    </tr>
+                  ))}
+                  {filteredServiceTotals.length === 0 && (
+                    <tr>
+                      <td className="px-2 py-3 text-sm text-slate-500" colSpan={2}>No service cost rows found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">Latest Day Detailed Breakdown</h3>
+              <table className="w-full text-sm">
+                <thead className="bg-sky-50/60 sticky top-0">
+                  <tr>
+                    <th className="px-2 py-2 text-left text-xs text-slate-600">Service</th>
+                    <th className="px-2 py-2 text-left text-xs text-slate-600">Usage Type</th>
+                    <th className="px-2 py-2 text-right text-xs text-slate-600">Cost (USD)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {latestDayBreakdown.map((row, idx) => (
+                    <tr key={`${row.service}-${row.usage_type}-${idx}`} className="border-b border-slate-100">
+                      <td className="px-2 py-2 text-xs text-slate-700 break-all">{row.service}</td>
+                      <td className="px-2 py-2 text-xs text-slate-700 break-all">{row.usage_type}</td>
+                      <td className="px-2 py-2 text-right text-xs font-semibold text-emerald-700">{usd(row.cost_usd)}</td>
+                    </tr>
+                  ))}
+                  {latestDayBreakdown.length === 0 && (
+                    <tr>
+                      <td className="px-2 py-3 text-sm text-slate-500" colSpan={3}>No detailed rows for latest day.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">Model Usage and Cost Estimation</h3>
+              <table className="w-full text-sm">
+                <thead className="bg-sky-50/60 sticky top-0">
+                  <tr>
+                    <th className="px-2 py-2 text-left text-xs text-slate-600">Model ID</th>
+                    <th className="px-2 py-2 text-right text-xs text-slate-600">Req</th>
+                    <th className="px-2 py-2 text-right text-xs text-slate-600">Token In</th>
+                    <th className="px-2 py-2 text-right text-xs text-slate-600">Token Out</th>
+                    <th className="px-2 py-2 text-right text-xs text-slate-600">Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(dashboard?.model_usage || []).map((m) => (
+                    <tr key={m.model_id} className="border-b border-slate-100">
+                      <td className="px-2 py-2 text-xs text-slate-700 break-all">{m.model_id}</td>
+                      <td className="px-2 py-2 text-right text-xs">{nf(m.requests)}</td>
+                      <td className="px-2 py-2 text-right text-xs">{nf(m.token_in)}</td>
+                      <td className="px-2 py-2 text-right text-xs">{nf(m.token_out)}</td>
+                      <td className="px-2 py-2 text-right text-xs font-semibold text-amber-700">{usd(m.estimated_cost_usd)}</td>
+                    </tr>
+                  ))}
+                  {(dashboard?.model_usage || []).length === 0 && (
+                    <tr>
+                      <td className="px-2 py-3 text-sm text-slate-500" colSpan={5}>No model usage found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+              <h3 className="text-sm font-bold text-slate-800 mb-3">Pricing Catalog by Model ID</h3>
+              <table className="w-full text-sm">
+                <thead className="bg-sky-50/60 sticky top-0">
+                  <tr>
+                    <th className="px-2 py-2 text-left text-xs text-slate-600">Model ID</th>
+                    <th className="px-2 py-2 text-left text-xs text-slate-600">Display Name</th>
+                    <th className="px-2 py-2 text-right text-xs text-slate-600">Input / 1M</th>
+                    <th className="px-2 py-2 text-right text-xs text-slate-600">Output / 1M</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(dashboard?.pricing_catalog || []).map((p) => (
+                    <tr key={p.model_id} className="border-b border-slate-100">
+                      <td className="px-2 py-2 text-xs text-slate-700 break-all">{p.model_id}</td>
+                      <td className="px-2 py-2 text-xs text-slate-700">{p.display_name}</td>
+                      <td className="px-2 py-2 text-right text-xs">${p.input_price_per_million.toFixed(2)}</td>
+                      <td className="px-2 py-2 text-right text-xs">${p.output_price_per_million.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

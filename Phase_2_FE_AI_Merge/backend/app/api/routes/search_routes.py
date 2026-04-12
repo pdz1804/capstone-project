@@ -23,12 +23,8 @@ router = APIRouter(prefix="/api", tags=["search"])
 BEDROCK_KNOWLEDGE_EXPLORER_MODELS: List[str] = [
     "us.anthropic.claude-haiku-4-5-20251001-v1:0",
     "google.gemma-3-27b-it",
-    "anthropic.claude-sonnet-4-20250514-v1:0",
     "us.anthropic.claude-sonnet-4-20250514-v1:0",
-    "anthropic.claude-sonnet-4-6",
     "us.anthropic.claude-sonnet-4-6",
-    "anthropic.claude-3-5-haiku-20241022-v1:0",
-    "us.anthropic.claude-3-5-haiku-20241022-v1:0",
 ]
 
 

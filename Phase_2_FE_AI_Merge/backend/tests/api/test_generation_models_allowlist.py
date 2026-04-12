@@ -26,9 +26,12 @@ def test_generation_models_endpoint_returns_curated_bedrock_allowlist(client: Te
     assert body.get("region") == "us-west-2"
     assert "us.anthropic.claude-haiku-4-5-20251001-v1:0" in models
     assert "google.gemma-3-27b-it" in models
-    assert "anthropic.claude-sonnet-4-20250514-v1:0" in models
-    assert "anthropic.claude-sonnet-4-6" in models
-    assert "anthropic.claude-3-5-haiku-20241022-v1:0" in models
+    assert "us.anthropic.claude-sonnet-4-20250514-v1:0" in models
+    assert "us.anthropic.claude-sonnet-4-6" in models
+    assert "anthropic.claude-sonnet-4-20250514-v1:0" not in models
+    assert "anthropic.claude-sonnet-4-6" not in models
+    assert "anthropic.claude-3-5-haiku-20241022-v1:0" not in models
+    assert "us.anthropic.claude-3-5-haiku-20241022-v1:0" not in models
 
 
 @pytest.mark.unit

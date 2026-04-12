@@ -502,6 +502,27 @@ export type AdminDashboardResponse = {
   }>;
 };
 
+export type AdminCostDashboardResponse = {
+  days: number;
+  bucket?: string;
+  prefix?: string;
+  summary: {
+    total_cost_usd: number;
+    avg_daily_cost_usd: number;
+    services_count: number;
+    records_count: number;
+    latest_day?: string | null;
+    latest_day_total_cost_usd: number;
+    parse_errors?: number;
+  };
+  cost_by_day: Array<{ day: string; total_cost_usd: number }>;
+  cost_by_service: Array<{ service: string; cost_usd: number }>;
+  cost_by_day_service: Array<{ day: string; service: string; cost_usd: number }>;
+  latest_day_breakdown: Array<{ service: string; usage_type: string; cost_usd: number }>;
+  service_options: string[];
+  error?: string | null;
+};
+
 export type AdminInvocationRecord = {
   usage_id: string;
   method: string;
@@ -747,6 +768,16 @@ function extToFileType(fileName: string, extFromApi: string): FileItem['type'] {
 export async function getAdminDashboard(days = 30): Promise<AdminDashboardResponse> {
   const { data } = await apiClient.get('/admin/dashboard', { params: { days } });
   return data as AdminDashboardResponse;
+}
+
+export async function getAdminCostDashboard(days = 30, service?: string): Promise<AdminCostDashboardResponse> {
+  const { data } = await apiClient.get('/admin/costs', {
+    params: {
+      days,
+      ...(service ? { service } : {}),
+    },
+  });
+  return data as AdminCostDashboardResponse;
 }
 
 export async function listAdminInvocations(params?: {

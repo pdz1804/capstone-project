@@ -26,22 +26,10 @@ MODEL_PRICES: List[ModelPrice] = [
         output_price_per_million=5.00,
     ),
     ModelPrice(
-        model_id="anthropic.claude-sonnet-4-20250514-v1:0",
-        display_name="Claude Sonnet 4",
-        input_price_per_million=3.00,
-        output_price_per_million=15.00,
-    ),
-    ModelPrice(
         model_id="us.anthropic.claude-sonnet-4-20250514-v1:0",
         display_name="Claude Sonnet 4",
         input_price_per_million=3.00,
         output_price_per_million=15.00,
-    ),
-    ModelPrice(
-        model_id="anthropic.claude-sonnet-4-6",
-        display_name="Claude Sonnet 4.6",
-        input_price_per_million=3.30,
-        output_price_per_million=16.50,
     ),
     ModelPrice(
         model_id="us.anthropic.claude-sonnet-4-6",
