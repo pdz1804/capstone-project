@@ -8,6 +8,9 @@ import {
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { listAdminInvocations, type AdminInvocationRecord } from '../api/ragApi';
+import { userRepo } from '../repositories/user_repository';
+import type { UserEntity } from '../database/types';
+import { adminRowClass, adminUi } from '../lib/adminUi';
 
 function nf(n: number): string {
   return new Intl.NumberFormat('en-US').format(n || 0);
@@ -61,6 +64,7 @@ export default function AdminInvocationsView() {
   const [keyword, setKeyword] = useState('');
 
   const [items, setItems] = useState<AdminInvocationRecord[]>([]);
+  const [users, setUsers] = useState<UserEntity[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -92,9 +96,34 @@ export default function AdminInvocationsView() {
   };
 
   useEffect(() => {
-    void load();
+    void Promise.all([
+      load(),
+      userRepo.listAdminUsers({ limit: 1000 }).then((res) => setUsers(res.items || [])).catch(() => setUsers([])),
+    ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const userMap = useMemo(() => {
+    const m = new Map<string, UserEntity>();
+    for (const u of users) m.set(u.uid, u);
+    return m;
+  }, [users]);
+
+  const userOptions = useMemo(() => {
+    const arr = [...users];
+    arr.sort((a, b) => {
+      const an = (a.displayName || a.username || a.email || '').toLowerCase();
+      const bn = (b.displayName || b.username || b.email || '').toLowerCase();
+      return an.localeCompare(bn);
+    });
+    return arr;
+  }, [users]);
+
+  const userLabel = (uid: string): string => {
+    const u = userMap.get(uid);
+    if (!u) return 'Unknown user';
+    return u.displayName || u.username || u.email || 'Unknown user';
+  };
 
   const featureOptions = useMemo(
     () => Array.from(new Set(items.map((x) => x.feature).filter((x) => !!x))).slice(0, 200),
@@ -136,7 +165,7 @@ export default function AdminInvocationsView() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-sky-100 bg-white p-4">
+      <div className={adminUi.panel}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-widest text-sky-600">Admin</p>
@@ -147,14 +176,14 @@ export default function AdminInvocationsView() {
             <button
               type="button"
               onClick={() => navigate('/admin/dashboard')}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              className={`inline-flex items-center gap-2 ${adminUi.buttonSoft}`}
             >
               <ArrowLeft className="w-4 h-4" /> Dashboard
             </button>
             <button
               type="button"
               onClick={() => void load()}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              className={`inline-flex items-center gap-2 ${adminUi.buttonSoft}`}
             >
               <RefreshCw className="w-4 h-4" /> Refresh
             </button>
@@ -165,7 +194,7 @@ export default function AdminInvocationsView() {
           <select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            className={adminUi.select}
             title="Time window"
             aria-label="Time window"
           >
@@ -180,7 +209,7 @@ export default function AdminInvocationsView() {
           <select
             value={limit}
             onChange={(e) => setLimit(Number(e.target.value))}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            className={adminUi.select}
             title="Load limit"
             aria-label="Load limit"
           >
@@ -190,43 +219,49 @@ export default function AdminInvocationsView() {
             <option value={5000}>Load 5000 rows</option>
           </select>
 
-          <input
+          <select
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
-            placeholder="Filter user_id"
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-          />
+            className={adminUi.select}
+            title="User filter"
+            aria-label="User filter"
+          >
+            <option value="">All users</option>
+            {userOptions.map((u) => (
+              <option key={u.uid} value={u.uid}>{u.displayName || u.username || u.email || 'Unknown user'}</option>
+            ))}
+          </select>
 
-          <input
+          <select
             value={feature}
             onChange={(e) => setFeature(e.target.value)}
-            placeholder="Filter feature"
-            list="feature-options"
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-          />
-          <datalist id="feature-options">
+            className={adminUi.select}
+            title="Feature filter"
+            aria-label="Feature filter"
+          >
+            <option value="">All features</option>
             {featureOptions.map((f) => (
-              <option key={f} value={f} />
+              <option key={f} value={f}>{f}</option>
             ))}
-          </datalist>
+          </select>
 
-          <input
+          <select
             value={modelId}
             onChange={(e) => setModelId(e.target.value)}
-            placeholder="Filter model_id"
-            list="model-options"
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-          />
-          <datalist id="model-options">
+            className={adminUi.select}
+            title="Model filter"
+            aria-label="Model filter"
+          >
+            <option value="">All models</option>
             {modelOptions.map((m) => (
-              <option key={m} value={m} />
+              <option key={m} value={m}>{m}</option>
             ))}
-          </datalist>
+          </select>
 
           <button
             type="button"
             onClick={() => void load()}
-            className="rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+            className={adminUi.buttonPrimary}
           >
             Apply server filters
           </button>
@@ -239,7 +274,7 @@ export default function AdminInvocationsView() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="Quick search: usage_id, user, feature, path, model, status"
-              className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-sm"
+              className={`w-full pl-9 pr-3 ${adminUi.input}`}
             />
           </div>
 
@@ -247,13 +282,13 @@ export default function AdminInvocationsView() {
             value={pathFilter}
             onChange={(e) => setPathFilter(e.target.value)}
             placeholder="Path contains (e.g. /api/search)"
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            className={adminUi.input}
           />
 
           <select
             value={methodFilter}
             onChange={(e) => setMethodFilter(e.target.value as MethodFilter)}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            className={adminUi.select}
             title="Method filter"
             aria-label="Method filter"
           >
@@ -269,7 +304,7 @@ export default function AdminInvocationsView() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            className={adminUi.select}
             title="Status filter"
             aria-label="Status filter"
           >
@@ -289,7 +324,7 @@ export default function AdminInvocationsView() {
               setPathFilter('');
               setKeyword('');
             }}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            className={`inline-flex items-center gap-2 ${adminUi.buttonSubtle}`}
           >
             <X className="w-4 h-4" /> Clear local filters
           </button>
@@ -298,39 +333,39 @@ export default function AdminInvocationsView() {
         {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
       </div>
 
-      <div className="rounded-xl border border-sky-100 bg-white overflow-auto">
+      <div className={adminUi.tableShell}>
         {loading ? (
           <div className="p-6 text-slate-500 flex items-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin" /> Loading invocation logs...
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-sky-50/60">
+          <table className={adminUi.table}>
+            <thead className={adminUi.thead}>
               <tr>
-                <th className="px-2 py-2 text-left text-xs text-slate-600">Time</th>
-                <th className="px-2 py-2 text-left text-xs text-slate-600">Method / Path</th>
-                <th className="px-2 py-2 text-left text-xs text-slate-600">Feature</th>
-                <th className="px-2 py-2 text-left text-xs text-slate-600">User</th>
-                <th className="px-2 py-2 text-left text-xs text-slate-600">Model</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">Status</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">Latency</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">In</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">Out</th>
-                <th className="px-2 py-2 text-right text-xs text-slate-600">Cost</th>
+                <th className={adminUi.th}>Time</th>
+                <th className={adminUi.th}>Method / Path</th>
+                <th className={adminUi.th}>Feature</th>
+                <th className={adminUi.th}>User</th>
+                <th className={adminUi.th}>Model</th>
+                <th className={adminUi.thRight}>Status</th>
+                <th className={adminUi.thRight}>Latency</th>
+                <th className={adminUi.thRight}>In</th>
+                <th className={adminUi.thRight}>Out</th>
+                <th className={adminUi.thRight}>Cost</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((row) => (
-                <tr key={row.usage_id} className="border-b border-slate-100 hover:bg-slate-50/60">
-                  <td className="px-2 py-2 text-xs text-slate-600 whitespace-nowrap">{fmtDate(row.invoked_at)}</td>
-                  <td className="px-2 py-2 text-xs text-slate-700">
+              {filtered.map((row, idx) => (
+                <tr key={row.usage_id} className={adminRowClass(idx)}>
+                  <td className={`${adminUi.td} whitespace-nowrap text-slate-600`}>{fmtDate(row.invoked_at)}</td>
+                  <td className={adminUi.td}>
                     <p className="font-semibold text-slate-800">{row.method}</p>
                     <p className="text-[11px] text-slate-500" title={row.path}>{compact(row.path, 38)}</p>
                   </td>
-                  <td className="px-2 py-2 text-xs text-slate-700">{row.feature || '-'}</td>
-                  <td className="px-2 py-2 text-xs text-slate-700" title={row.user_id}>{compact(row.user_id, 24)}</td>
-                  <td className="px-2 py-2 text-xs text-slate-700" title={row.model_id || '-'}>{compact(row.model_id || '-', 24)}</td>
-                  <td className="px-2 py-2 text-right text-xs">
+                  <td className={adminUi.td}>{row.feature || '-'}</td>
+                  <td className={adminUi.td}><span className="font-semibold text-slate-800">{userLabel(row.user_id)}</span></td>
+                  <td className={adminUi.td} title={row.model_id || '-'}>{compact(row.model_id || '-', 24)}</td>
+                  <td className={adminUi.tdRight}>
                     <span
                       className={[
                         'rounded-full px-2 py-0.5',
@@ -344,15 +379,15 @@ export default function AdminInvocationsView() {
                       {row.status_code}
                     </span>
                   </td>
-                  <td className="px-2 py-2 text-right text-xs">{nf(row.duration_ms)} ms</td>
-                  <td className="px-2 py-2 text-right text-xs">{nf(row.token_in)}</td>
-                  <td className="px-2 py-2 text-right text-xs">{nf(row.token_out)}</td>
-                  <td className="px-2 py-2 text-right text-xs font-semibold text-amber-700">{usd(row.estimated_cost_usd)}</td>
+                  <td className={adminUi.tdRight}>{nf(row.duration_ms)} ms</td>
+                  <td className={adminUi.tdRight}>{nf(row.token_in)}</td>
+                  <td className={adminUi.tdRight}>{nf(row.token_out)}</td>
+                  <td className={`${adminUi.tdRight} font-semibold text-amber-700`}>{usd(row.estimated_cost_usd)}</td>
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="px-3 py-5 text-sm text-slate-500">
+                  <td colSpan={10} className="px-3 py-6 text-sm text-slate-500 text-center">
                     No invocation logs match the current filters.
                   </td>
                 </tr>

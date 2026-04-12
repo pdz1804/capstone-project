@@ -18,6 +18,7 @@ import {
 } from '../api/ragApi';
 import type { UserEntity } from '../database/types';
 import { userRepo } from '../repositories/user_repository';
+import { adminRowClass, adminUi, statusBadgeClass, typeBadgeClass } from '../lib/adminUi';
 
 function nf(n: number): string {
   return new Intl.NumberFormat('en-US').format(n || 0);
@@ -115,8 +116,8 @@ export default function AdminKnowledgeManagementView() {
 
   const userLabel = (uid: string): string => {
     const u = userMap.get(uid);
-    if (!u) return uid;
-    return u.displayName || u.username || u.email || uid;
+    if (!u) return 'Unknown user';
+    return u.displayName || u.username || u.email || 'Unknown user';
   };
 
   const pick = async (knowledgeId: string) => {
@@ -194,7 +195,7 @@ export default function AdminKnowledgeManagementView() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-sky-100 bg-white p-4">
+      <div className={adminUi.panel}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-widest text-sky-600">Admin</p>
@@ -205,14 +206,14 @@ export default function AdminKnowledgeManagementView() {
             <button
               type="button"
               onClick={() => void syncAdminKnowledge().then(() => load(false))}
-              className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 hover:bg-emerald-100"
+              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
             >
               <Database className="w-4 h-4" /> Sync from storage
             </button>
             <button
               type="button"
               onClick={() => void load(false)}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              className={`inline-flex items-center gap-2 ${adminUi.buttonSoft}`}
             >
               <RefreshCw className="w-4 h-4" /> Refresh
             </button>
@@ -226,13 +227,13 @@ export default function AdminKnowledgeManagementView() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="search title/path/user/id"
-              className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-sm"
+              className={`w-full pl-9 pr-3 ${adminUi.input}`}
             />
           </div>
           <select
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            className={adminUi.select}
             title="User filter"
             aria-label="User filter"
             disabled={usersLoading}
@@ -240,11 +241,11 @@ export default function AdminKnowledgeManagementView() {
             <option value="">All users</option>
             {userOptions.map((u) => (
               <option key={u.uid} value={u.uid}>
-                {`${u.displayName || u.username || u.email || u.uid} (${u.uid})`}
+                {u.displayName || u.username || u.email || 'Unknown user'}
               </option>
             ))}
           </select>
-          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm" title="Type filter" aria-label="Type filter">
+          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className={adminUi.select} title="Type filter" aria-label="Type filter">
             <option value="">All types</option>
             <option value="document">document</option>
             <option value="video">video</option>
@@ -253,7 +254,7 @@ export default function AdminKnowledgeManagementView() {
             <option value="spreadsheet">spreadsheet</option>
             <option value="other">other</option>
           </select>
-          <select value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm" title="Activation filter" aria-label="Activation filter">
+          <select value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)} className={adminUi.select} title="Activation filter" aria-label="Activation filter">
             <option value="all">All status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
@@ -264,7 +265,7 @@ export default function AdminKnowledgeManagementView() {
           <button
             type="button"
             onClick={() => void load(false)}
-            className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            className={adminUi.buttonSubtle}
           >
             Apply filters
           </button>
@@ -274,52 +275,50 @@ export default function AdminKnowledgeManagementView() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-4 min-h-[420px]">
-        <div className="rounded-xl border border-sky-100 bg-white overflow-auto">
+        <div className={adminUi.tableShell}>
           {loading ? (
             <div className="p-6 text-slate-500 flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" /> Loading knowledge records...
             </div>
           ) : (
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-sky-50/60">
+            <table className={adminUi.table}>
+              <thead className={adminUi.thead}>
                 <tr>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">Knowledge</th>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">Uploaded</th>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">User</th>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">Type</th>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">Status</th>
-                  <th className="px-2 py-2 text-right text-xs text-slate-600">Actions</th>
+                  <th className={adminUi.th}>Knowledge</th>
+                  <th className={adminUi.th}>Uploaded</th>
+                  <th className={adminUi.th}>User</th>
+                  <th className={adminUi.th}>Type</th>
+                  <th className={adminUi.th}>Status</th>
+                  <th className={adminUi.thRight}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((k) => (
-                  <tr key={k.knowledge_id} className="border-b border-slate-100 hover:bg-slate-50/60">
-                    <td className="px-2 py-2">
+                {filtered.map((k, idx) => (
+                  <tr key={k.knowledge_id} className={adminRowClass(idx)}>
+                    <td className={adminUi.td}>
                       <p className="text-xs font-semibold text-slate-800">{k.title}</p>
-                      <p className="text-[11px] text-slate-500 break-all">{k.source_path || '-'}</p>
                     </td>
-                    <td className="px-2 py-2 text-xs text-slate-700">{fmtDate(k.created_at)}</td>
-                    <td className="px-2 py-2 text-xs text-slate-700">
-                      <p>{userLabel(k.user_id)}</p>
-                      <p className="text-[11px] text-slate-500">{k.user_id}</p>
+                    <td className={adminUi.td}>{fmtDate(k.created_at)}</td>
+                    <td className={adminUi.td}>
+                      <p className="font-semibold text-slate-800">{userLabel(k.user_id)}</p>
                     </td>
-                    <td className="px-2 py-2 text-xs text-slate-700">{k.knowledge_type}</td>
-                    <td className="px-2 py-2 text-xs">
+                    <td className={adminUi.td}><span className={typeBadgeClass(k.knowledge_type)}>{k.knowledge_type || 'other'}</span></td>
+                    <td className={adminUi.td}>
                       <div className="flex flex-wrap gap-1">
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-slate-700">{k.status}</span>
+                        <span className={statusBadgeClass(k.status)}>{k.status || 'unknown'}</span>
                         {k.is_active ? (
-                          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">active</span>
+                          <span className={statusBadgeClass('active')}>active</span>
                         ) : (
-                          <span className="rounded-full bg-rose-100 px-2 py-0.5 text-rose-700">inactive</span>
+                          <span className={statusBadgeClass('inactive')}>inactive</span>
                         )}
                       </div>
                     </td>
-                    <td className="px-2 py-2 text-right">
+                    <td className={adminUi.tdRight}>
                       <div className="inline-flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => void pick(k.knowledge_id)}
-                          className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] text-sky-700 hover:bg-sky-100"
+                          className="rounded-lg border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] font-semibold text-sky-700 hover:bg-sky-100"
                         >
                           Detail
                         </button>
@@ -408,20 +407,20 @@ export default function AdminKnowledgeManagementView() {
                 <textarea
                   value={editableTags}
                   onChange={(e) => setEditableTags(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                  className={`w-full ${adminUi.input}`}
                   placeholder="tags (comma separated)"
                 />
                 <textarea
                   value={editableNotes}
                   onChange={(e) => setEditableNotes(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                  className={`w-full ${adminUi.input}`}
                   placeholder="notes"
                 />
                 <button
                   type="button"
                   onClick={() => void saveItem()}
                   disabled={saving}
-                  className="w-full rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
+                  className={`w-full ${adminUi.buttonPrimary}`}
                 >
                   Save tags and notes
                 </button>
