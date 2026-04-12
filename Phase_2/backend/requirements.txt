@@ -3,7 +3,7 @@
 
 transformers==4.57.3
 peft==0.14.0
-sentence-transformers==3.0.1
+sentence-transformers==5.4.0
 accelerate>=0.30.0
 huggingface-hub>=0.23.0
 
