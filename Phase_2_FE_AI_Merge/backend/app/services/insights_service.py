@@ -14,6 +14,15 @@ from app.services.processed_markdown_service import (
 logger = logging.getLogger(__name__)
 
 
+def _estimate_tokens(text: str) -> int:
+    return max(1, int(len((text or "").strip()) / 4))
+
+
+def _generation_model_id(cfg: Dict[str, Any]) -> str:
+    gyaml = cfg.get("generation", {}) or {}
+    return str(gyaml.get("model", "gpt-4o-mini"))
+
+
 def _generator(cfg: Dict[str, Any]):
     from src.generation.generator import GenerationConfig, RAGGenerator
 
@@ -98,6 +107,11 @@ class InsightsService:
             "document_id": doc,
             "tone": tone,
             "target_length": target_length,
+            "usage": {
+                "model_id": _generation_model_id(self.cfg),
+                "token_in": _estimate_tokens(prompt),
+                "token_out": _estimate_tokens(raw or ""),
+            },
         }
 
     def _llm_plain(self, prompt: str) -> str:
@@ -159,6 +173,11 @@ class InsightsService:
                 "document_id": doc,
                 "question_style": question_style,
                 "include_explanations": include_explanations,
+                "usage": {
+                    "model_id": _generation_model_id(self.cfg),
+                    "token_in": _estimate_tokens(prompt),
+                    "token_out": _estimate_tokens(text or ""),
+                },
             }
         except Exception:
             return {
@@ -167,6 +186,11 @@ class InsightsService:
                 "topic": topic,
                 "document_id": doc,
                 "question_style": question_style,
+                "usage": {
+                    "model_id": _generation_model_id(self.cfg),
+                    "token_in": _estimate_tokens(prompt),
+                    "token_out": _estimate_tokens(text or ""),
+                },
             }
 
     def learning_roadmap(
@@ -197,7 +221,16 @@ class InsightsService:
             "Use markdown.\n\n"
             f"CONTENT:\n{ctx[:80000]}"
         )
-        return {"roadmap": self._llm_plain(prompt) or "", "document_id": doc}
+        roadmap = self._llm_plain(prompt) or ""
+        return {
+            "roadmap": roadmap,
+            "document_id": doc,
+            "usage": {
+                "model_id": _generation_model_id(self.cfg),
+                "token_in": _estimate_tokens(prompt),
+                "token_out": _estimate_tokens(roadmap),
+            },
+        }
 
     def analytics_placeholder(self) -> Dict[str, Any]:
         """FR-020: requires session store — schema only for now."""

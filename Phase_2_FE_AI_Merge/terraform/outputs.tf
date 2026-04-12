@@ -118,6 +118,31 @@ output "sagemaker_execution_role_arn" {
   value       = try(module.sagemaker_unified[0].execution_role_arn, "")
 }
 
+output "search_cache_serverless_name" {
+  description = "ElastiCache Serverless cache name (empty if disabled)"
+  value       = try(aws_elasticache_serverless_cache.search_cache[0].name, "")
+}
+
+output "search_cache_endpoint" {
+  description = "ElastiCache Serverless endpoint address (empty if disabled)"
+  value       = try(aws_elasticache_serverless_cache.search_cache[0].endpoint[0].address, "")
+}
+
+output "search_cache_port" {
+  description = "ElastiCache Serverless endpoint port (0 if disabled)"
+  value       = try(aws_elasticache_serverless_cache.search_cache[0].endpoint[0].port, 0)
+}
+
+output "search_cache_security_group_id" {
+  description = "Security group ID attached to ElastiCache Serverless cache (empty if disabled)"
+  value       = try(aws_security_group.search_cache[0].id, "")
+}
+
+output "backend_search_cache_redis_url" {
+  description = "SEARCH_CACHE_REDIS_URL value injected into ECS backend task"
+  value       = local.search_cache_redis_url
+}
+
 output "aws_region" {
   description = "AWS region"
   value       = var.aws_region

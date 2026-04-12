@@ -42,6 +42,7 @@ class FeedbackService:
         cursor: str | None = None,
         category: str | None = None,
         session_id: str | None = None,
+        is_active: bool | None = True,
     ) -> Tuple[List[Dict[str, Any]], str | None]:
         return self.repo.list_feedback(
             user_id=user_id,
@@ -49,10 +50,36 @@ class FeedbackService:
             cursor=cursor,
             category=category,
             session_id=session_id,
+            is_active=is_active,
         )
 
     def get_for_user(self, *, user_id: str, feedback_id: str) -> Dict[str, Any] | None:
         return self.repo.get_feedback(user_id=user_id, feedback_id=feedback_id)
+
+    def list_all(
+        self,
+        *,
+        limit: int = 500,
+        user_id: str | None = None,
+        category: str | None = None,
+        vote: str | None = None,
+        is_active: bool | None = None,
+        query: str | None = None,
+    ) -> List[Dict[str, Any]]:
+        return self.repo.list_feedback_all(
+            limit=limit,
+            user_id=user_id,
+            category=category,
+            vote=vote,
+            is_active=is_active,
+            query=query,
+        )
+
+    def update_feedback_admin(self, *, user_id: str, feedback_id: str, data: Dict[str, Any]) -> Dict[str, Any] | None:
+        return self.repo.update_feedback_admin(user_id=user_id, feedback_id=feedback_id, data=data)
+
+    def delete_feedback(self, *, user_id: str, feedback_id: str) -> bool:
+        return self.repo.delete_feedback(user_id=user_id, feedback_id=feedback_id)
 
     def create_for_user(
         self,

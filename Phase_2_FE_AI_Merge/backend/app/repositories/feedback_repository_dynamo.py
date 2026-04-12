@@ -85,6 +85,7 @@ class DynamoFeedbackRepository:
             "vote": str(vote),
             "query": str(query),
             "response": str(response),
+            "is_active": True,
             "created_at": now,
             "updated_at": now,
             "classification_status": "pending",
@@ -125,6 +126,7 @@ class DynamoFeedbackRepository:
         cursor: str | None = None,
         category: str | None = None,
         session_id: str | None = None,
+        is_active: bool | None = True,
     ) -> Tuple[List[Dict[str, Any]], str | None]:
         query_args: Dict[str, Any] = {
             "KeyConditionExpression": "user_id = :uid",
@@ -147,8 +149,63 @@ class DynamoFeedbackRepository:
         if wanted_session:
             items = [x for x in items if str(x.get("session_id") or "") == wanted_session]
 
+        if is_active is not None:
+            items = [x for x in items if bool(x.get("is_active", True)) == bool(is_active)]
+
         next_cursor = _encode_cursor(r.get("LastEvaluatedKey"))
         return items, next_cursor
+
+    def list_feedback_all(
+        self,
+        *,
+        limit: int = 500,
+        user_id: str | None = None,
+        category: str | None = None,
+        vote: str | None = None,
+        is_active: bool | None = None,
+        query: str | None = None,
+    ) -> List[Dict[str, Any]]:
+        items: List[Dict[str, Any]] = []
+        last_key = None
+        while True:
+            kwargs: Dict[str, Any] = {"Limit": min(max(limit, 1), 1000)}
+            if last_key:
+                kwargs["ExclusiveStartKey"] = last_key
+            resp = self._table.scan(**kwargs)
+            items.extend(self._normalize_item(x) for x in (resp.get("Items") or []))
+            if len(items) >= limit:
+                break
+            last_key = resp.get("LastEvaluatedKey")
+            if not last_key:
+                break
+
+        user_q = (user_id or "").strip().lower()
+        category_q = (category or "").strip().lower()
+        vote_q = (vote or "").strip().lower()
+        text_q = (query or "").strip().lower()
+
+        if user_q:
+            items = [x for x in items if str(x.get("user_id") or "").lower() == user_q]
+        if category_q:
+            items = [x for x in items if str(x.get("category") or "").lower() == category_q]
+        if vote_q:
+            items = [x for x in items if str(x.get("vote") or "").lower() == vote_q]
+        if is_active is not None:
+            items = [x for x in items if bool(x.get("is_active", True)) == bool(is_active)]
+        if text_q:
+            items = [
+                x
+                for x in items
+                if text_q in str(x.get("query") or "").lower()
+                or text_q in str(x.get("response") or "").lower()
+                or text_q in str(x.get("feedback_text") or "").lower()
+                or text_q in str(x.get("reason_text") or "").lower()
+                or text_q in str(x.get("feedback_id") or "").lower()
+                or text_q in str(x.get("user_id") or "").lower()
+            ]
+
+        items.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
+        return items[:limit]
 
     def update_analysis(
         self,
@@ -203,6 +260,43 @@ class DynamoFeedbackRepository:
         )
         return self.get_feedback(user_id=user_id, feedback_id=feedback_id)
 
+    def update_feedback_admin(self, *, user_id: str, feedback_id: str, data: Dict[str, Any]) -> Dict[str, Any] | None:
+        current = self.get_feedback(user_id=user_id, feedback_id=feedback_id)
+        if not current:
+            return None
+
+        clean = {k: v for k, v in data.items() if v is not None}
+        if not clean:
+            return current
+
+        expr_names: Dict[str, str] = {"#updated": "updated_at"}
+        expr_vals: Dict[str, Any] = {":updated": _iso_now()}
+        sets = ["#updated = :updated"]
+
+        idx = 0
+        for k, v in clean.items():
+            nk = f"#f{idx}"
+            vk = f":v{idx}"
+            idx += 1
+            expr_names[nk] = k
+            expr_vals[vk] = v
+            sets.append(f"{nk} = {vk}")
+
+        self._table.update_item(
+            Key={"user_id": user_id, "feedback_id": feedback_id},
+            UpdateExpression="SET " + ", ".join(sets),
+            ExpressionAttributeNames=expr_names,
+            ExpressionAttributeValues=expr_vals,
+        )
+        return self.get_feedback(user_id=user_id, feedback_id=feedback_id)
+
+    def delete_feedback(self, *, user_id: str, feedback_id: str) -> bool:
+        current = self.get_feedback(user_id=user_id, feedback_id=feedback_id)
+        if not current:
+            return False
+        self._table.delete_item(Key={"user_id": user_id, "feedback_id": feedback_id})
+        return True
+
     def _normalize_item(self, item: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "user_id": str(item.get("user_id") or ""),
@@ -216,6 +310,7 @@ class DynamoFeedbackRepository:
             "feedback_text": str(item.get("feedback_text") or "") or None,
             "query": str(item.get("query") or ""),
             "response": str(item.get("response") or ""),
+            "is_active": bool(item.get("is_active", True)),
             "category": str(item.get("category") or "Uncategorized"),
             "sub_category": str(item.get("sub_category") or ""),
             "suggested_action": str(item.get("suggested_action") or ""),

@@ -56,6 +56,72 @@ export class UserRepository {
     const response = await apiClient.post('/auth/login-local', payload);
     return response.data;
   }
+
+  async listAdminUsers(params?: {
+    skip?: number;
+    limit?: number;
+    query?: string;
+    role?: string;
+    is_active?: boolean;
+    include_usage?: boolean;
+    usage_days?: number;
+  }): Promise<{ items: UserEntity[]; count: number }> {
+    const response = await apiClient.get('/admin/users', {
+      params: {
+        skip: params?.skip ?? 0,
+        limit: params?.limit ?? 100,
+        ...(params?.query ? { query: params.query } : {}),
+        ...(params?.role ? { role: params.role } : {}),
+        ...(typeof params?.is_active === 'boolean' ? { is_active: params.is_active } : {}),
+        ...(typeof params?.include_usage === 'boolean' ? { include_usage: params.include_usage } : {}),
+        ...(params?.usage_days ? { usage_days: params.usage_days } : {}),
+      },
+    });
+    return response.data;
+  }
+
+  async createAdminUser(payload: {
+    email: string;
+    password: string;
+    username?: string;
+    displayName?: string;
+    role?: string;
+  }): Promise<UserEntity> {
+    const response = await apiClient.post('/admin/users', payload);
+    return response.data;
+  }
+
+  async getAdminUser(uid: string): Promise<UserEntity & { usage_summary?: Record<string, unknown> }> {
+    const response = await apiClient.get(`/admin/users/${encodeURIComponent(uid)}`);
+    return response.data;
+  }
+
+  async updateAdminUser(uid: string, payload: UserUpdateDTO): Promise<UserEntity> {
+    const response = await apiClient.patch(`/admin/users/${encodeURIComponent(uid)}`, payload);
+    return response.data;
+  }
+
+  async deactivateAdminUser(uid: string): Promise<UserEntity> {
+    const response = await apiClient.post(`/admin/users/${encodeURIComponent(uid)}/deactivate`);
+    return response.data;
+  }
+
+  async activateAdminUser(uid: string): Promise<UserEntity> {
+    const response = await apiClient.post(`/admin/users/${encodeURIComponent(uid)}/activate`);
+    return response.data;
+  }
+
+  async deleteAdminUser(uid: string): Promise<{ deleted: boolean; uid: string }> {
+    const response = await apiClient.delete(`/admin/users/${encodeURIComponent(uid)}`);
+    return response.data;
+  }
+
+  async getAdminUserUsageSummary(uid: string, days = 30): Promise<Record<string, unknown>> {
+    const response = await apiClient.get(`/admin/users/${encodeURIComponent(uid)}/usage-summary`, {
+      params: { days },
+    });
+    return response.data;
+  }
 }
 
 export const userRepo = new UserRepository();

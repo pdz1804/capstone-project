@@ -37,6 +37,7 @@ def list_feedback(
         cursor=cursor,
         category=category,
         session_id=session_id,
+        is_active=True,
     )
     return FeedbackListResponse(items=[FeedbackItem.model_validate(x) for x in items], next_cursor=next_cursor)
 
@@ -50,7 +51,7 @@ def get_feedback(
     if svc is None:
         raise HTTPException(status_code=503, detail="Feedback persistence is not configured.")
     item = svc.get_for_user(user_id=user_id, feedback_id=feedback_id)
-    if not item:
+    if not item or not bool(item.get("is_active", True)):
         raise HTTPException(status_code=404, detail="Feedback not found.")
     return FeedbackItem.model_validate(item)
 

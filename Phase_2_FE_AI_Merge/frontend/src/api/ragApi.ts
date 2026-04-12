@@ -435,6 +435,7 @@ export type FeedbackItem = {
   feedback_text?: string | null;
   query: string;
   response: string;
+  is_active?: boolean;
   category: string;
   sub_category: string;
   suggested_action: string;
@@ -445,6 +446,90 @@ export type FeedbackItem = {
   created_at: string;
   updated_at: string;
   version?: number;
+};
+
+export type AdminUsageSummary = {
+  total_requests: number;
+  unique_users?: number;
+  token_in: number;
+  token_out: number;
+  estimated_cost_usd: number;
+  avg_duration_ms?: number;
+  error_requests?: number;
+  error_rate_percent?: number;
+  requests_by_feature?: Array<{ feature: string; requests: number }>;
+};
+
+export type AdminDashboardResponse = {
+  days: number;
+  summary: AdminUsageSummary;
+  feedback_coverage?: {
+    chat_requests: number;
+    feedback_requests: number;
+    coverage_ratio: number;
+    coverage_percent: number;
+  };
+  requests_by_feature: Array<{ feature: string; requests: number }>;
+  requests_by_day: Array<{ day: string; requests: number }>;
+  requests_by_hour?: Array<{ hour: string; requests: number }>;
+  active_users_by_day?: Array<{ day: string; users: number }>;
+  active_users_by_hour?: Array<{ hour: string; users: number }>;
+  tokens_by_day: Array<{ day: string; token_in: number; token_out: number }>;
+  tokens_by_hour?: Array<{ hour: string; token_in: number; token_out: number }>;
+  requests_by_status?: Array<{ status_code: string; requests: number }>;
+  requests_by_user?: Array<{
+    user_id: string;
+    requests: number;
+    token_in: number;
+    token_out: number;
+    estimated_cost_usd: number;
+  }>;
+  model_usage: Array<{
+    model_id: string;
+    display_name: string;
+    requests: number;
+    token_in: number;
+    token_out: number;
+    estimated_cost_usd: number;
+    input_price_per_million?: number | null;
+    output_price_per_million?: number | null;
+  }>;
+  pricing_catalog: Array<{
+    model_id: string;
+    display_name: string;
+    input_price_per_million: number;
+    output_price_per_million: number;
+  }>;
+};
+
+export type AdminInvocationRecord = {
+  usage_id: string;
+  method: string;
+  path: string;
+  feature: string;
+  status_code: number;
+  duration_ms: number;
+  user_id: string;
+  model_id?: string;
+  token_in: number;
+  token_out: number;
+  estimated_cost_usd: number;
+  invoked_at: string;
+};
+
+export type AdminKnowledgeItem = {
+  knowledge_id: string;
+  user_id: string;
+  title: string;
+  source_path?: string;
+  knowledge_type: string;
+  status: string;
+  is_active: boolean;
+  tags?: string[];
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  usage_summary?: AdminUsageSummary;
 };
 
 export async function listChatSessions(params?: {
@@ -657,4 +742,207 @@ function extToFileType(fileName: string, extFromApi: string): FileItem['type'] {
   if (ext === '.pdf') return 'pdf';
   if (['.xlsx', '.xls', '.csv', '.xlsm'].includes(ext)) return 'spreadsheet';
   return 'document';
+}
+
+export async function getAdminDashboard(days = 30): Promise<AdminDashboardResponse> {
+  const { data } = await apiClient.get('/admin/dashboard', { params: { days } });
+  return data as AdminDashboardResponse;
+}
+
+export async function listAdminInvocations(params?: {
+  days?: number;
+  user_id?: string;
+  feature?: string;
+  model_id?: string;
+  limit?: number;
+}): Promise<{ items: AdminInvocationRecord[]; count: number }> {
+  const { data } = await apiClient.get('/admin/invocations', {
+    params: {
+      days: params?.days ?? 30,
+      limit: params?.limit ?? 300,
+      ...(params?.user_id ? { user_id: params.user_id } : {}),
+      ...(params?.feature ? { feature: params.feature } : {}),
+      ...(params?.model_id ? { model_id: params.model_id } : {}),
+    },
+  });
+  return {
+    items: (data?.items || []) as AdminInvocationRecord[],
+    count: Number(data?.count || 0),
+  };
+}
+
+export async function syncAdminKnowledge(): Promise<{ synced: number; users: number }> {
+  const { data } = await apiClient.post('/admin/knowledge/sync');
+  return data;
+}
+
+export async function listAdminKnowledge(params?: {
+  query?: string;
+  user_id?: string;
+  knowledge_type?: string;
+  is_active?: boolean;
+  limit?: number;
+  sync_with_storage?: boolean;
+  include_usage?: boolean;
+  usage_days?: number;
+}): Promise<{ items: AdminKnowledgeItem[]; count: number }> {
+  const { data } = await apiClient.get('/admin/knowledge', {
+    params: {
+      limit: params?.limit ?? 1000,
+      sync_with_storage: params?.sync_with_storage ?? false,
+      include_usage: params?.include_usage ?? false,
+      usage_days: params?.usage_days ?? 30,
+      ...(params?.query ? { query: params.query } : {}),
+      ...(params?.user_id ? { user_id: params.user_id } : {}),
+      ...(params?.knowledge_type ? { knowledge_type: params.knowledge_type } : {}),
+      ...(typeof params?.is_active === 'boolean' ? { is_active: params.is_active } : {}),
+    },
+  });
+  return {
+    items: (data?.items || []) as AdminKnowledgeItem[],
+    count: Number(data?.count || 0),
+  };
+}
+
+export async function getAdminKnowledge(knowledgeId: string): Promise<AdminKnowledgeItem> {
+  const { data } = await apiClient.get(`/admin/knowledge/${encodeURIComponent(knowledgeId)}`);
+  return data as AdminKnowledgeItem;
+}
+
+export async function createAdminKnowledge(payload: {
+  user_id: string;
+  title: string;
+  source_path?: string;
+  knowledge_type?: string;
+  status?: string;
+  is_active?: boolean;
+  tags?: string[];
+  notes?: string;
+}): Promise<AdminKnowledgeItem> {
+  const { data } = await apiClient.post('/admin/knowledge', payload);
+  return data as AdminKnowledgeItem;
+}
+
+export async function updateAdminKnowledge(
+  knowledgeId: string,
+  payload: Partial<{
+    title: string;
+    source_path: string;
+    knowledge_type: string;
+    status: string;
+    is_active: boolean;
+    tags: string[];
+    notes: string;
+  }>
+): Promise<AdminKnowledgeItem> {
+  const { data } = await apiClient.patch(`/admin/knowledge/${encodeURIComponent(knowledgeId)}`, payload);
+  return data as AdminKnowledgeItem;
+}
+
+export async function deactivateAdminKnowledge(knowledgeId: string): Promise<AdminKnowledgeItem> {
+  const { data } = await apiClient.post(`/admin/knowledge/${encodeURIComponent(knowledgeId)}/deactivate`);
+  return data as AdminKnowledgeItem;
+}
+
+export async function activateAdminKnowledge(knowledgeId: string): Promise<AdminKnowledgeItem> {
+  const { data } = await apiClient.post(`/admin/knowledge/${encodeURIComponent(knowledgeId)}/activate`);
+  return data as AdminKnowledgeItem;
+}
+
+export async function deleteAdminKnowledge(knowledgeId: string): Promise<{
+  deleted: boolean;
+  knowledge_id: string;
+  source_path?: string;
+  user_id?: string;
+  removed_text_vectors?: number;
+  removed_image_vectors?: number;
+}> {
+  const { data } = await apiClient.delete(`/admin/knowledge/${encodeURIComponent(knowledgeId)}`);
+  return data;
+}
+
+export async function listAdminFeedback(params?: {
+  limit?: number;
+  user_id?: string;
+  category?: string;
+  vote?: string;
+  is_active?: boolean;
+  query?: string;
+  include_usage?: boolean;
+  usage_days?: number;
+}): Promise<{ items: FeedbackItem[]; count: number }> {
+  const { data } = await apiClient.get('/admin/feedback', {
+    params: {
+      limit: params?.limit ?? 500,
+      include_usage: params?.include_usage ?? true,
+      usage_days: params?.usage_days ?? 30,
+      ...(params?.user_id ? { user_id: params.user_id } : {}),
+      ...(params?.category ? { category: params.category } : {}),
+      ...(params?.vote ? { vote: params.vote } : {}),
+      ...(typeof params?.is_active === 'boolean' ? { is_active: params.is_active } : {}),
+      ...(params?.query ? { query: params.query } : {}),
+    },
+  });
+  return {
+    items: (data?.items || []) as FeedbackItem[],
+    count: Number(data?.count || 0),
+  };
+}
+
+export async function getAdminFeedback(userId: string, feedbackId: string): Promise<FeedbackItem & { usage_summary?: AdminUsageSummary }> {
+  const { data } = await apiClient.get(`/admin/feedback/${encodeURIComponent(userId)}/${encodeURIComponent(feedbackId)}`);
+  return data;
+}
+
+export async function createAdminFeedback(payload: {
+  user_id: string;
+  vote: FeedbackVote;
+  query?: string;
+  response?: string;
+  session_id?: string;
+  message_id?: string;
+  reason_code?: string;
+  reason_text?: string;
+  scope?: string;
+  feedback_text?: string;
+}): Promise<FeedbackItem> {
+  const { data } = await apiClient.post('/admin/feedback', payload);
+  return data as FeedbackItem;
+}
+
+export async function updateAdminFeedback(
+  userId: string,
+  feedbackId: string,
+  payload: Partial<{
+    category: string;
+    sub_category: string;
+    suggested_action: string;
+    analysis_summary: string;
+    reason_code: string;
+    reason_text: string;
+    scope: string;
+    feedback_text: string;
+    is_active: boolean;
+  }>
+): Promise<FeedbackItem> {
+  const { data } = await apiClient.patch(
+    `/admin/feedback/${encodeURIComponent(userId)}/${encodeURIComponent(feedbackId)}`,
+    payload,
+  );
+  return data as FeedbackItem;
+}
+
+export async function deactivateAdminFeedback(userId: string, feedbackId: string): Promise<FeedbackItem> {
+  const { data } = await apiClient.post(`/admin/feedback/${encodeURIComponent(userId)}/${encodeURIComponent(feedbackId)}/deactivate`);
+  return data as FeedbackItem;
+}
+
+export async function activateAdminFeedback(userId: string, feedbackId: string): Promise<FeedbackItem> {
+  const { data } = await apiClient.post(`/admin/feedback/${encodeURIComponent(userId)}/${encodeURIComponent(feedbackId)}/activate`);
+  return data as FeedbackItem;
+}
+
+export async function deleteAdminFeedback(userId: string, feedbackId: string): Promise<{ deleted: boolean }> {
+  const { data } = await apiClient.delete(`/admin/feedback/${encodeURIComponent(userId)}/${encodeURIComponent(feedbackId)}`);
+  return data;
 }

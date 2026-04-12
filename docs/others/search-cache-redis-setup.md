@@ -65,6 +65,13 @@ SEARCH_CACHE_REDIS_URL=redis://redis:6379/0
 
 ## AWS ElastiCache (Redis) for Deployment
 
+If you deploy via `Phase_2_FE_AI_Merge/terraform`, the recommended path is to let Terraform create and wire ElastiCache Serverless automatically (`enable_search_cache_serverless=true`).
+
+Terraform wiring now manages:
+- ElastiCache Serverless cache + cache security group
+- Ingress rule from ECS task SG to cache SG on TCP 6379
+- Backend ECS env vars (`SEARCH_CACHE_*`), including computed `SEARCH_CACHE_REDIS_URL`
+
 Use Redis endpoint from ElastiCache in `SEARCH_CACHE_REDIS_URL`:
 
 ```dotenv
@@ -74,6 +81,12 @@ SEARCH_CACHE_TTL_SECONDS=600
 SEARCH_CACHE_REDIS_URL=redis://<elasticache-primary-endpoint>:6379/0
 SEARCH_CACHE_REDIS_CONNECT_TIMEOUT_SECONDS=2
 SEARCH_CACHE_REDIS_READ_TIMEOUT_SECONDS=2
+```
+
+For ElastiCache Serverless with TLS enabled, prefer:
+
+```dotenv
+SEARCH_CACHE_REDIS_URL=rediss://<elasticache-serverless-endpoint>:6379/0
 ```
 
 Recommended deployment notes:

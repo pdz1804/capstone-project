@@ -11,12 +11,14 @@ class _FakeFeedbackService:
         self.items = []
         self.scheduled = []
 
-    def list_for_user(self, *, user_id, limit=30, cursor=None, category=None, session_id=None):
+    def list_for_user(self, *, user_id, limit=30, cursor=None, category=None, session_id=None, is_active=True):
         rows = [x for x in self.items if x.get("user_id") == user_id]
         if category:
             rows = [x for x in rows if (x.get("category") or "").lower() == str(category).lower()]
         if session_id:
             rows = [x for x in rows if (x.get("session_id") or "") == session_id]
+        if is_active is not None:
+            rows = [x for x in rows if bool(x.get("is_active", True)) == bool(is_active)]
         return rows[:limit], None
 
     def get_for_user(self, *, user_id, feedback_id):
@@ -94,6 +96,7 @@ def test_list_feedback_returns_user_items(client: TestClient):
             "reason_text": None,
             "query": "Q1",
             "response": "A1",
+            "is_active": True,
             "category": "Content Quality",
             "sub_category": "Good",
             "suggested_action": "",

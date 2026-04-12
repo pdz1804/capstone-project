@@ -28,6 +28,10 @@ import {
   Radar,
   Legend
 } from 'recharts';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
+import type { Components } from 'react-markdown';
 
 import { cn } from '../lib/utils';
 import { ViewType, FileItem, QuizResult } from '../App';
@@ -40,6 +44,27 @@ interface LearningPathViewProps {
   quizResults: QuizResult[];
   onQuizComplete: (score: number, total: number, fileId: number | null) => void;
 }
+
+const ROADMAP_MARKDOWN_COMPONENTS: Components = {
+  h1: ({ children }) => <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-3">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-xl font-semibold text-slate-900 mt-4 mb-2">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-lg font-semibold text-slate-900 mt-4 mb-2">{children}</h3>,
+  p: ({ children }) => <p className="text-sm leading-7 text-slate-700 my-2">{children}</p>,
+  ul: ({ children }) => <ul className="list-disc pl-5 my-3 space-y-1">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal pl-5 my-3 space-y-1">{children}</ol>,
+  li: ({ children }) => <li className="text-sm leading-7 text-slate-700">{children}</li>,
+  table: ({ children }) => <table className="w-full border-collapse text-sm my-4">{children}</table>,
+  th: ({ children }) => <th className="border border-slate-300 bg-slate-50 px-2 py-1 text-left">{children}</th>,
+  td: ({ children }) => <td className="border border-slate-300 px-2 py-1 align-top">{children}</td>,
+  a: ({ href, children }) => {
+    const link = String(href || '');
+    return (
+      <a href={link} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900 underline underline-offset-2">
+        {children}
+      </a>
+    );
+  },
+};
 
 export default function LearningPathView({ files, quizResults, onQuizComplete }: LearningPathViewProps) {
   const [activeTab, setActiveTab] = useState<'roadmap' | 'priority' | 'analytics' | 'quiz'>('roadmap');
@@ -274,8 +299,10 @@ export default function LearningPathView({ files, quizResults, onQuizComplete }:
             </div>
             {roadmapError && <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-4">{roadmapError}</p>}
             {aiRoadmapText && (
-              <article className="text-sm text-slate-700 whitespace-pre-wrap border border-slate-100 rounded-xl p-6 bg-slate-50/80 max-h-96 overflow-y-auto">
-                {aiRoadmapText}
+              <article className="border border-slate-100 rounded-xl p-6 bg-slate-50/80 max-h-96 overflow-y-auto">
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={ROADMAP_MARKDOWN_COMPONENTS}>
+                  {aiRoadmapText}
+                </ReactMarkdown>
               </article>
             )}
           </div>
