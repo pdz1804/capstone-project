@@ -9,6 +9,7 @@ from app.identity.routes import get_current_admin, get_user_service
 from app.identity.schemas import UserResponse, UserUpdate
 from app.identity.user_service import UserService
 from app.services.app_usage_service import AppUsageService, MODEL_PRICES
+from app.services.cost_report_service import CostReportService
 from app.services.feedback_service import FeedbackService
 from app.services.knowledge_service import KnowledgeService
 
@@ -23,6 +24,13 @@ def get_usage_service() -> AppUsageService | None:
 def get_feedback_service() -> FeedbackService | None:
     try:
         return FeedbackService.from_env()
+    except Exception:
+        return None
+
+
+def get_cost_report_service() -> CostReportService | None:
+    try:
+        return CostReportService.from_env_optional()
     except Exception:
         return None
 
@@ -160,6 +168,26 @@ def list_invocations(
         return {"items": [], "count": 0}
     rows = usage_svc.list_usage(days=days, user_id=user_id, feature=feature, model_id=model_id, limit=limit)
     return {"items": rows, "count": len(rows)}
+
+
+@router.get("/costs")
+def get_admin_costs(
+    days: int = Query(30, ge=1, le=365),
+    service: str | None = Query(None),
+    _admin: UserResponse = Depends(get_current_admin),
+    cost_svc: CostReportService | None = Depends(get_cost_report_service),
+):
+    if cost_svc is None:
+        return CostReportService.empty_dashboard(days=days)
+    try:
+        return cost_svc.dashboard_summary(days=days, service_filter=service)
+    except Exception as e:
+        return CostReportService.empty_dashboard(
+            days=days,
+            bucket=cost_svc.bucket,
+            prefix=cost_svc.prefix,
+            error=str(e),
+        )
 
 
 @router.get("/users")
