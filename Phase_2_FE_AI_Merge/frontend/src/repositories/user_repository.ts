@@ -66,10 +66,12 @@ export class UserRepository {
     include_usage?: boolean;
     usage_days?: number;
   }): Promise<{ items: UserEntity[]; count: number }> {
+    const safeSkip = Math.max(0, Number(params?.skip ?? 0));
+    const safeLimit = Math.max(1, Math.min(1000, Number(params?.limit ?? 100)));
     const response = await apiClient.get('/admin/users', {
       params: {
-        skip: params?.skip ?? 0,
-        limit: params?.limit ?? 100,
+        skip: safeSkip,
+        limit: safeLimit,
         ...(params?.query ? { query: params.query } : {}),
         ...(params?.role ? { role: params.role } : {}),
         ...(typeof params?.is_active === 'boolean' ? { is_active: params.is_active } : {}),

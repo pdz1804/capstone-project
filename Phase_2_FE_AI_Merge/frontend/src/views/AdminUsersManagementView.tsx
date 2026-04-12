@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { userRepo } from '../repositories/user_repository';
 import type { UserEntity } from '../database/types';
+import { adminRowClass, adminUi, roleBadgeClass, statusBadgeClass } from '../lib/adminUi';
 
 function nf(n: number): string {
   return new Intl.NumberFormat('en-US').format(n || 0);
@@ -173,7 +174,7 @@ export default function AdminUsersManagementView() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-sky-100 bg-white p-4">
+      <div className={adminUi.panel}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-widest text-sky-600">Admin</p>
@@ -184,14 +185,14 @@ export default function AdminUsersManagementView() {
             <button
               type="button"
               onClick={() => setShowCreate((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700"
+              className={`inline-flex items-center gap-2 ${adminUi.buttonPrimary}`}
             >
               <Plus className="w-4 h-4" /> New user
             </button>
             <button
               type="button"
               onClick={() => void loadUsers()}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              className={`inline-flex items-center gap-2 ${adminUi.buttonSoft}`}
             >
               <RefreshCw className="w-4 h-4" /> Refresh
             </button>
@@ -204,30 +205,30 @@ export default function AdminUsersManagementView() {
               value={createForm.email}
               onChange={(e) => setCreateForm((s) => ({ ...s, email: e.target.value }))}
               placeholder="email"
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              className={adminUi.input}
             />
             <input
               value={createForm.password}
               onChange={(e) => setCreateForm((s) => ({ ...s, password: e.target.value }))}
               placeholder="password"
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              className={adminUi.input}
             />
             <input
               value={createForm.username}
               onChange={(e) => setCreateForm((s) => ({ ...s, username: e.target.value }))}
               placeholder="username (optional)"
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              className={adminUi.input}
             />
             <input
               value={createForm.displayName}
               onChange={(e) => setCreateForm((s) => ({ ...s, displayName: e.target.value }))}
               placeholder="display name"
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              className={adminUi.input}
             />
             <select
               value={createForm.role}
               onChange={(e) => setCreateForm((s) => ({ ...s, role: e.target.value }))}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              className={adminUi.select}
               title="Role"
               aria-label="Role"
             >
@@ -239,7 +240,7 @@ export default function AdminUsersManagementView() {
               type="button"
               onClick={() => void createUser()}
               disabled={saving || !createForm.email || !createForm.password}
-              className="rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
+              className={adminUi.buttonPrimary}
             >
               Create
             </button>
@@ -253,16 +254,16 @@ export default function AdminUsersManagementView() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="search uid/email/name"
-              className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-sm"
+              className={`w-full pl-9 pr-3 ${adminUi.input}`}
             />
           </div>
-          <select value={role} onChange={(e) => setRole(e.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm" title="Role filter" aria-label="Role filter">
+          <select value={role} onChange={(e) => setRole(e.target.value)} className={adminUi.select} title="Role filter" aria-label="Role filter">
             <option value="">All roles</option>
             <option value="student">student</option>
             <option value="instructor">instructor</option>
             <option value="admin">admin</option>
           </select>
-          <select value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm" title="Activation filter" aria-label="Activation filter">
+          <select value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)} className={adminUi.select} title="Activation filter" aria-label="Activation filter">
             <option value="all">All status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
@@ -270,7 +271,7 @@ export default function AdminUsersManagementView() {
           <button
             type="button"
             onClick={() => void loadUsers()}
-            className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            className={adminUi.buttonSubtle}
           >
             Apply filters
           </button>
@@ -280,42 +281,42 @@ export default function AdminUsersManagementView() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-4 min-h-[420px]">
-        <div className="rounded-xl border border-sky-100 bg-white overflow-auto">
+        <div className={adminUi.tableShell}>
           {loading ? (
             <div className="p-6 text-slate-500 flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" /> Loading users...
             </div>
           ) : (
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-sky-50/60">
+            <table className={adminUi.table}>
+              <thead className={adminUi.thead}>
                 <tr>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">User</th>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">Role</th>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">Status</th>
-                  <th className="px-2 py-2 text-right text-xs text-slate-600">Actions</th>
+                  <th className={adminUi.th}>User</th>
+                  <th className={adminUi.th}>Role</th>
+                  <th className={adminUi.th}>Status</th>
+                  <th className={adminUi.thRight}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((u) => (
-                  <tr key={u.uid} className="border-b border-slate-100 hover:bg-slate-50/60">
-                    <td className="px-2 py-2">
+                {filtered.map((u, idx) => (
+                  <tr key={u.uid} className={adminRowClass(idx)}>
+                    <td className={adminUi.td}>
                       <p className="text-xs font-semibold text-slate-800">{u.displayName || u.username || u.email}</p>
                       <p className="text-[11px] text-slate-500">{u.email}</p>
                     </td>
-                    <td className="px-2 py-2 text-xs">{u.role}</td>
-                    <td className="px-2 py-2 text-xs">
+                    <td className={adminUi.td}><span className={roleBadgeClass(u.role)}>{u.role || 'student'}</span></td>
+                    <td className={adminUi.td}>
                       {(u.isActive ?? true) ? (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">active</span>
+                        <span className={statusBadgeClass('active')}>active</span>
                       ) : (
-                        <span className="rounded-full bg-rose-100 px-2 py-0.5 text-rose-700">inactive</span>
+                        <span className={statusBadgeClass('inactive')}>inactive</span>
                       )}
                     </td>
-                    <td className="px-2 py-2 text-right">
+                    <td className={adminUi.tdRight}>
                       <div className="inline-flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => void loadDetail(u.uid)}
-                          className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] text-sky-700 hover:bg-sky-100"
+                          className="rounded-lg border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] font-semibold text-sky-700 hover:bg-sky-100"
                         >
                           Detail
                         </button>
@@ -443,7 +444,7 @@ export default function AdminUsersManagementView() {
                     type="button"
                     onClick={() => void saveUser()}
                     disabled={saving}
-                    className="rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
+                    className={adminUi.buttonPrimary}
                   >
                     Save changes
                   </button>

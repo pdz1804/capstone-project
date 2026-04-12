@@ -29,6 +29,9 @@ import {
   type AdminInvocationRecord,
 } from '../api/ragApi';
 import { useNavigate } from 'react-router-dom';
+import { userRepo } from '../repositories/user_repository';
+import type { UserEntity } from '../database/types';
+import { adminRowClass, adminUi } from '../lib/adminUi';
 
 function nf(n: number): string {
   return new Intl.NumberFormat('en-US').format(n || 0);
@@ -102,6 +105,7 @@ export default function AdminDashboardView() {
   const [serviceFilter, setServiceFilter] = useState<string>('ALL');
   const [dashboard, setDashboard] = useState<AdminDashboardResponse | null>(null);
   const [costDashboard, setCostDashboard] = useState<AdminCostDashboardResponse | null>(null);
+  const [users, setUsers] = useState<UserEntity[]>([]);
   const [invocations, setInvocations] = useState<AdminInvocationRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -111,14 +115,38 @@ export default function AdminDashboardView() {
     setLoading(true);
     setError(null);
     try {
-      const [dash, logs, costs] = await Promise.all([
+      const [dashRes, logsRes, costsRes] = await Promise.allSettled([
         getAdminDashboard(targetDays),
         listAdminInvocations({ days: targetDays, limit: 8 }),
         getAdminCostDashboard(targetDays),
       ]);
-      setDashboard(dash);
-      setInvocations(logs.items || []);
-      setCostDashboard(costs);
+
+      const failedSources: string[] = [];
+
+      if (dashRes.status === 'fulfilled') {
+        setDashboard(dashRes.value);
+      } else {
+        setDashboard(null);
+        failedSources.push('usage dashboard');
+      }
+
+      if (logsRes.status === 'fulfilled') {
+        setInvocations(logsRes.value.items || []);
+      } else {
+        setInvocations([]);
+        failedSources.push('invocations');
+      }
+
+      if (costsRes.status === 'fulfilled') {
+        setCostDashboard(costsRes.value);
+      } else {
+        setCostDashboard(null);
+        failedSources.push('cost dashboard');
+      }
+
+      if (failedSources.length > 0) {
+        setError(`Some admin data sources failed: ${failedSources.join(', ')}`);
+      }
     } catch (e: any) {
       setError(e?.response?.data?.detail || e?.message || 'Failed to load admin dashboard');
     } finally {
@@ -130,6 +158,24 @@ export default function AdminDashboardView() {
     void load(activeRange.days);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRange.days]);
+
+  useEffect(() => {
+    void userRepo.listAdminUsers({ limit: 1000 })
+      .then((res) => setUsers(res.items || []))
+      .catch(() => setUsers([]));
+  }, []);
+
+  const userMap = useMemo(() => {
+    const m = new Map<string, UserEntity>();
+    for (const u of users) m.set(u.uid, u);
+    return m;
+  }, [users]);
+
+  const userLabel = (uid: string): string => {
+    const u = userMap.get(uid);
+    if (!u) return 'Unknown user';
+    return u.displayName || u.username || u.email || 'Unknown user';
+  };
 
   const featureChart = useMemo(
     () => (dashboard?.requests_by_feature || []).slice(0, 12),
@@ -180,8 +226,8 @@ export default function AdminDashboardView() {
   );
 
   const topUsersChart = useMemo(
-    () => topUsers.map((x) => ({ ...x, user_short: compactUserId(x.user_id) })),
-    [topUsers],
+    () => topUsers.map((x) => ({ ...x, user_short: compactUserId(userLabel(x.user_id || 'anonymous')) })),
+    [topUsers, userMap],
   );
 
   const summary = dashboard?.summary || {
@@ -332,7 +378,7 @@ export default function AdminDashboardView() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-sky-100 bg-white p-5 shadow-[0_16px_30px_-24px_rgba(14,165,233,0.5)]">
+      <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-r from-transparent via-slate-50/60 to-sky-50/55 p-5 shadow-none">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-widest text-sky-600">Admin Dashboard</p>
@@ -342,7 +388,7 @@ export default function AdminDashboardView() {
             <select
               value={selectedRange}
               onChange={(e) => setSelectedRange(e.target.value as DashboardRange)}
-              className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm"
+              className={adminUi.select}
               title="Dashboard range"
               aria-label="Dashboard range"
             >
@@ -353,7 +399,7 @@ export default function AdminDashboardView() {
             <button
               type="button"
               onClick={() => void load(activeRange.days)}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              className={`inline-flex items-center gap-2 ${adminUi.buttonSoft}`}
             >
               <RefreshCw className="w-4 h-4" /> Refresh
             </button>
@@ -362,8 +408,8 @@ export default function AdminDashboardView() {
         {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
       </div>
 
-      <div className="rounded-2xl border border-sky-100 bg-white p-2">
-        <div className="inline-flex rounded-xl bg-sky-50/70 p-1">
+      <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-r from-transparent via-slate-50/55 to-sky-50/45 p-2">
+        <div className="inline-flex rounded-xl bg-slate-100/90 p-1">
           <button
             type="button"
             onClick={() => setActiveTab('usage')}
@@ -555,38 +601,38 @@ export default function AdminDashboardView() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+          <div className={`${adminUi.tableShell} p-4`}>
             <h3 className="text-sm font-bold text-slate-800 mb-3">Per-user API Request Detail</h3>
-            <table className="w-full text-sm">
-              <thead className="bg-sky-50/60 sticky top-0">
+            <table className={adminUi.table}>
+              <thead className={adminUi.thead}>
                 <tr>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">User</th>
-                  <th className="px-2 py-2 text-right text-xs text-slate-600">Requests</th>
-                  <th className="px-2 py-2 text-right text-xs text-slate-600">Token In</th>
-                  <th className="px-2 py-2 text-right text-xs text-slate-600">Token Out</th>
-                  <th className="px-2 py-2 text-right text-xs text-slate-600">Cost</th>
+                  <th className={adminUi.th}>User</th>
+                  <th className={adminUi.thRight}>Requests</th>
+                  <th className={adminUi.thRight}>Token In</th>
+                  <th className={adminUi.thRight}>Token Out</th>
+                  <th className={adminUi.thRight}>Cost</th>
                 </tr>
               </thead>
               <tbody>
-                {topUsers.map((u) => (
-                  <tr key={u.user_id} className="border-b border-slate-100">
-                    <td className="px-2 py-2 text-xs text-slate-700 break-all">{u.user_id || 'anonymous'}</td>
-                    <td className="px-2 py-2 text-right text-xs">{nf(u.requests)}</td>
-                    <td className="px-2 py-2 text-right text-xs">{nf(u.token_in)}</td>
-                    <td className="px-2 py-2 text-right text-xs">{nf(u.token_out)}</td>
-                    <td className="px-2 py-2 text-right text-xs font-semibold text-amber-700">{usd(u.estimated_cost_usd)}</td>
+                {topUsers.map((u, idx) => (
+                  <tr key={u.user_id} className={adminRowClass(idx)}>
+                    <td className={`${adminUi.td} break-all`} title={u.user_id || 'anonymous'}>{userLabel(u.user_id || 'anonymous')}</td>
+                    <td className={adminUi.tdRight}>{nf(u.requests)}</td>
+                    <td className={adminUi.tdRight}>{nf(u.token_in)}</td>
+                    <td className={adminUi.tdRight}>{nf(u.token_out)}</td>
+                    <td className={`${adminUi.tdRight} font-semibold text-amber-700`}>{usd(u.estimated_cost_usd)}</td>
                   </tr>
                 ))}
                 {topUsers.length === 0 && (
                   <tr>
-                    <td className="px-2 py-3 text-sm text-slate-500" colSpan={5}>No per-user usage found.</td>
+                    <td className="px-3 py-6 text-sm text-slate-500 text-center" colSpan={5}>No per-user usage found.</td>
                   </tr>
                 )}
               </tbody>
             </table>
           </div>
 
-          <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+          <div className={`${adminUi.tableShell} p-4`}>
             <div className="mb-3 flex items-center justify-between gap-2">
               <div>
                 <h3 className="text-sm font-bold text-slate-800">Recent API Invocations</h3>
@@ -600,29 +646,29 @@ export default function AdminDashboardView() {
                 Show all
               </button>
             </div>
-            <table className="w-full text-sm">
-              <thead className="bg-sky-50/60 sticky top-0">
+            <table className={adminUi.table}>
+              <thead className={adminUi.thead}>
                 <tr>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">Time</th>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">Feature</th>
-                  <th className="px-2 py-2 text-left text-xs text-slate-600">Model</th>
-                  <th className="px-2 py-2 text-right text-xs text-slate-600">In</th>
-                  <th className="px-2 py-2 text-right text-xs text-slate-600">Out</th>
+                  <th className={adminUi.th}>Time</th>
+                  <th className={adminUi.th}>Feature</th>
+                  <th className={adminUi.th}>Model</th>
+                  <th className={adminUi.thRight}>In</th>
+                  <th className={adminUi.thRight}>Out</th>
                 </tr>
               </thead>
               <tbody>
-                {invocations.map((log) => (
-                  <tr key={log.usage_id} className="border-b border-slate-100">
-                    <td className="px-2 py-2 text-xs text-slate-600">{new Date(log.invoked_at).toLocaleString()}</td>
-                    <td className="px-2 py-2 text-xs text-slate-700">{log.feature}</td>
-                    <td className="px-2 py-2 text-xs text-slate-700 break-all">{log.model_id || '-'}</td>
-                    <td className="px-2 py-2 text-right text-xs">{nf(log.token_in || 0)}</td>
-                    <td className="px-2 py-2 text-right text-xs">{nf(log.token_out || 0)}</td>
+                {invocations.map((log, idx) => (
+                  <tr key={log.usage_id} className={adminRowClass(idx)}>
+                    <td className={`${adminUi.td} text-slate-600`}>{new Date(log.invoked_at).toLocaleString()}</td>
+                    <td className={adminUi.td}>{log.feature}</td>
+                    <td className={`${adminUi.td} break-all`}>{log.model_id || '-'}</td>
+                    <td className={adminUi.tdRight}>{nf(log.token_in || 0)}</td>
+                    <td className={adminUi.tdRight}>{nf(log.token_out || 0)}</td>
                   </tr>
                 ))}
                 {invocations.length === 0 && (
                   <tr>
-                    <td className="px-2 py-3 text-sm text-slate-500" colSpan={5}>No invocation logs found.</td>
+                    <td className="px-3 py-6 text-sm text-slate-500 text-center" colSpan={5}>No invocation logs found.</td>
                   </tr>
                 )}
               </tbody>
@@ -672,7 +718,7 @@ export default function AdminDashboardView() {
               <select
                 value={serviceFilter}
                 onChange={(e) => setServiceFilter(e.target.value)}
-                className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm min-w-[280px]"
+                className={`${adminUi.select} min-w-[280px]`}
                 title="Service filter"
                 aria-label="Service filter"
               >
@@ -769,52 +815,52 @@ export default function AdminDashboardView() {
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+            <div className={`${adminUi.tableShell} p-4`}>
               <h3 className="text-sm font-bold text-slate-800 mb-3">Service Cost Totals ({activeRange.title})</h3>
-              <table className="w-full text-sm">
-                <thead className="bg-sky-50/60 sticky top-0">
+              <table className={adminUi.table}>
+                <thead className={adminUi.thead}>
                   <tr>
-                    <th className="px-2 py-2 text-left text-xs text-slate-600">Service</th>
-                    <th className="px-2 py-2 text-right text-xs text-slate-600">Cost (USD)</th>
+                    <th className={adminUi.th}>Service</th>
+                    <th className={adminUi.thRight}>Cost (USD)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredServiceTotals.map((row) => (
-                    <tr key={row.service} className="border-b border-slate-100">
-                      <td className="px-2 py-2 text-xs text-slate-700 break-all">{row.service}</td>
-                      <td className="px-2 py-2 text-right text-xs font-semibold text-emerald-700">{usd(row.cost_usd)}</td>
+                  {filteredServiceTotals.map((row, idx) => (
+                    <tr key={row.service} className={adminRowClass(idx)}>
+                      <td className={`${adminUi.td} break-all`}>{row.service}</td>
+                      <td className={`${adminUi.tdRight} font-semibold text-emerald-700`}>{usd(row.cost_usd)}</td>
                     </tr>
                   ))}
                   {filteredServiceTotals.length === 0 && (
                     <tr>
-                      <td className="px-2 py-3 text-sm text-slate-500" colSpan={2}>No service cost rows found.</td>
+                      <td className="px-3 py-6 text-sm text-slate-500 text-center" colSpan={2}>No service cost rows found.</td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
 
-            <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+            <div className={`${adminUi.tableShell} p-4`}>
               <h3 className="text-sm font-bold text-slate-800 mb-3">Latest Day Detailed Breakdown</h3>
-              <table className="w-full text-sm">
-                <thead className="bg-sky-50/60 sticky top-0">
+              <table className={adminUi.table}>
+                <thead className={adminUi.thead}>
                   <tr>
-                    <th className="px-2 py-2 text-left text-xs text-slate-600">Service</th>
-                    <th className="px-2 py-2 text-left text-xs text-slate-600">Usage Type</th>
-                    <th className="px-2 py-2 text-right text-xs text-slate-600">Cost (USD)</th>
+                    <th className={adminUi.th}>Service</th>
+                    <th className={adminUi.th}>Usage Type</th>
+                    <th className={adminUi.thRight}>Cost (USD)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {latestDayBreakdown.map((row, idx) => (
-                    <tr key={`${row.service}-${row.usage_type}-${idx}`} className="border-b border-slate-100">
-                      <td className="px-2 py-2 text-xs text-slate-700 break-all">{row.service}</td>
-                      <td className="px-2 py-2 text-xs text-slate-700 break-all">{row.usage_type}</td>
-                      <td className="px-2 py-2 text-right text-xs font-semibold text-emerald-700">{usd(row.cost_usd)}</td>
+                    <tr key={`${row.service}-${row.usage_type}-${idx}`} className={adminRowClass(idx)}>
+                      <td className={`${adminUi.td} break-all`}>{row.service}</td>
+                      <td className={`${adminUi.td} break-all`}>{row.usage_type}</td>
+                      <td className={`${adminUi.tdRight} font-semibold text-emerald-700`}>{usd(row.cost_usd)}</td>
                     </tr>
                   ))}
                   {latestDayBreakdown.length === 0 && (
                     <tr>
-                      <td className="px-2 py-3 text-sm text-slate-500" colSpan={3}>No detailed rows for latest day.</td>
+                      <td className="px-3 py-6 text-sm text-slate-500 text-center" colSpan={3}>No detailed rows for latest day.</td>
                     </tr>
                   )}
                 </tbody>
@@ -823,55 +869,55 @@ export default function AdminDashboardView() {
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+            <div className={`${adminUi.tableShell} p-4`}>
               <h3 className="text-sm font-bold text-slate-800 mb-3">Model Usage and Cost Estimation</h3>
-              <table className="w-full text-sm">
-                <thead className="bg-sky-50/60 sticky top-0">
+              <table className={adminUi.table}>
+                <thead className={adminUi.thead}>
                   <tr>
-                    <th className="px-2 py-2 text-left text-xs text-slate-600">Model ID</th>
-                    <th className="px-2 py-2 text-right text-xs text-slate-600">Req</th>
-                    <th className="px-2 py-2 text-right text-xs text-slate-600">Token In</th>
-                    <th className="px-2 py-2 text-right text-xs text-slate-600">Token Out</th>
-                    <th className="px-2 py-2 text-right text-xs text-slate-600">Cost</th>
+                    <th className={adminUi.th}>Model ID</th>
+                    <th className={adminUi.thRight}>Req</th>
+                    <th className={adminUi.thRight}>Token In</th>
+                    <th className={adminUi.thRight}>Token Out</th>
+                    <th className={adminUi.thRight}>Cost</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(dashboard?.model_usage || []).map((m) => (
-                    <tr key={m.model_id} className="border-b border-slate-100">
-                      <td className="px-2 py-2 text-xs text-slate-700 break-all">{m.model_id}</td>
-                      <td className="px-2 py-2 text-right text-xs">{nf(m.requests)}</td>
-                      <td className="px-2 py-2 text-right text-xs">{nf(m.token_in)}</td>
-                      <td className="px-2 py-2 text-right text-xs">{nf(m.token_out)}</td>
-                      <td className="px-2 py-2 text-right text-xs font-semibold text-amber-700">{usd(m.estimated_cost_usd)}</td>
+                  {(dashboard?.model_usage || []).map((m, idx) => (
+                    <tr key={m.model_id} className={adminRowClass(idx)}>
+                      <td className={`${adminUi.td} break-all`}>{m.model_id}</td>
+                      <td className={adminUi.tdRight}>{nf(m.requests)}</td>
+                      <td className={adminUi.tdRight}>{nf(m.token_in)}</td>
+                      <td className={adminUi.tdRight}>{nf(m.token_out)}</td>
+                      <td className={`${adminUi.tdRight} font-semibold text-amber-700`}>{usd(m.estimated_cost_usd)}</td>
                     </tr>
                   ))}
                   {(dashboard?.model_usage || []).length === 0 && (
                     <tr>
-                      <td className="px-2 py-3 text-sm text-slate-500" colSpan={5}>No model usage found.</td>
+                      <td className="px-3 py-6 text-sm text-slate-500 text-center" colSpan={5}>No model usage found.</td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
 
-            <div className="rounded-xl border border-sky-100 bg-white p-4 overflow-auto">
+            <div className={`${adminUi.tableShell} p-4`}>
               <h3 className="text-sm font-bold text-slate-800 mb-3">Pricing Catalog by Model ID</h3>
-              <table className="w-full text-sm">
-                <thead className="bg-sky-50/60 sticky top-0">
+              <table className={adminUi.table}>
+                <thead className={adminUi.thead}>
                   <tr>
-                    <th className="px-2 py-2 text-left text-xs text-slate-600">Model ID</th>
-                    <th className="px-2 py-2 text-left text-xs text-slate-600">Display Name</th>
-                    <th className="px-2 py-2 text-right text-xs text-slate-600">Input / 1M</th>
-                    <th className="px-2 py-2 text-right text-xs text-slate-600">Output / 1M</th>
+                    <th className={adminUi.th}>Model ID</th>
+                    <th className={adminUi.th}>Display Name</th>
+                    <th className={adminUi.thRight}>Input / 1M</th>
+                    <th className={adminUi.thRight}>Output / 1M</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(dashboard?.pricing_catalog || []).map((p) => (
-                    <tr key={p.model_id} className="border-b border-slate-100">
-                      <td className="px-2 py-2 text-xs text-slate-700 break-all">{p.model_id}</td>
-                      <td className="px-2 py-2 text-xs text-slate-700">{p.display_name}</td>
-                      <td className="px-2 py-2 text-right text-xs">${p.input_price_per_million.toFixed(2)}</td>
-                      <td className="px-2 py-2 text-right text-xs">${p.output_price_per_million.toFixed(2)}</td>
+                  {(dashboard?.pricing_catalog || []).map((p, idx) => (
+                    <tr key={p.model_id} className={adminRowClass(idx)}>
+                      <td className={`${adminUi.td} break-all`}>{p.model_id}</td>
+                      <td className={adminUi.td}>{p.display_name}</td>
+                      <td className={adminUi.tdRight}>${p.input_price_per_million.toFixed(2)}</td>
+                      <td className={adminUi.tdRight}>${p.output_price_per_million.toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
