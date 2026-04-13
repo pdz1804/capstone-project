@@ -11,6 +11,7 @@ import { listAdminInvocations, type AdminInvocationRecord } from '../api/ragApi'
 import { userRepo } from '../repositories/user_repository';
 import type { UserEntity } from '../database/types';
 import { adminRowClass, adminUi } from '../lib/adminUi';
+import { AdminSortHeader, AdminTablePagination, type SortDirection } from '../components/admin/AdminTableControls';
 
 function nf(n: number): string {
   return new Intl.NumberFormat('en-US').format(n || 0);
@@ -33,7 +34,6 @@ function compact(v: string, max = 26): string {
 }
 
 const DAY_OPTIONS = [1, 7, 30, 90, 180, 365] as const;
-const LIMIT_OPTIONS = [100, 300, 1000, 5000] as const;
 
 type StatusFilter = 'all' | '2xx' | '4xx' | '5xx';
 type MethodFilter = 'ALL' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
@@ -43,17 +43,11 @@ function normalizeDays(v: number): number {
   return 30;
 }
 
-function normalizeLimit(v: number): number {
-  if (LIMIT_OPTIONS.includes(v as (typeof LIMIT_OPTIONS)[number])) return v;
-  return 1000;
-}
-
 export default function AdminInvocationsView() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [days, setDays] = useState<number>(() => normalizeDays(Number(searchParams.get('days') || 30)));
-  const [limit, setLimit] = useState<number>(() => normalizeLimit(Number(searchParams.get('limit') || 1000)));
   const [userId, setUserId] = useState<string>(() => searchParams.get('user_id') || '');
   const [feature, setFeature] = useState<string>(() => searchParams.get('feature') || '');
   const [modelId, setModelId] = useState<string>(() => searchParams.get('model_id') || '');
@@ -68,13 +62,19 @@ export default function AdminInvocationsView() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [sortKey, setSortKey] = useState<
+    'time' | 'methodPath' | 'feature' | 'user' | 'model' | 'status' | 'latency' | 'in' | 'out' | 'cost'
+  >('time');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
   const load = async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await listAdminInvocations({
         days,
-        limit,
         user_id: userId || undefined,
         feature: feature || undefined,
         model_id: modelId || undefined,
@@ -83,7 +83,6 @@ export default function AdminInvocationsView() {
 
       const nextParams = new URLSearchParams();
       nextParams.set('days', String(days));
-      nextParams.set('limit', String(limit));
       if (userId) nextParams.set('user_id', userId);
       if (feature) nextParams.set('feature', feature);
       if (modelId) nextParams.set('model_id', modelId);
@@ -98,7 +97,7 @@ export default function AdminInvocationsView() {
   useEffect(() => {
     void Promise.all([
       load(),
-      userRepo.listAdminUsers({ limit: 1000 }).then((res) => setUsers(res.items || [])).catch(() => setUsers([])),
+      userRepo.listAdminUsers().then((res) => setUsers(res.items || [])).catch(() => setUsers([])),
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -163,6 +162,63 @@ export default function AdminInvocationsView() {
     });
   }, [items, keyword, methodFilter, pathFilter, statusFilter]);
 
+  const sorted = useMemo(() => {
+    const rows = [...filtered];
+    rows.sort((a, b) => {
+      let compare = 0;
+      if (sortKey === 'time') compare = new Date(a.invoked_at || 0).getTime() - new Date(b.invoked_at || 0).getTime();
+      if (sortKey === 'methodPath') {
+        const aText = `${String(a.method || '').toUpperCase()} ${String(a.path || '').toLowerCase()}`;
+        const bText = `${String(b.method || '').toUpperCase()} ${String(b.path || '').toLowerCase()}`;
+        compare = aText.localeCompare(bText);
+      }
+      if (sortKey === 'feature') compare = String(a.feature || '').toLowerCase().localeCompare(String(b.feature || '').toLowerCase());
+      if (sortKey === 'user') compare = userLabel(a.user_id).toLowerCase().localeCompare(userLabel(b.user_id).toLowerCase());
+      if (sortKey === 'model') compare = String(a.model_id || '').toLowerCase().localeCompare(String(b.model_id || '').toLowerCase());
+      if (sortKey === 'status') compare = Number(a.status_code || 0) - Number(b.status_code || 0);
+      if (sortKey === 'latency') compare = Number(a.duration_ms || 0) - Number(b.duration_ms || 0);
+      if (sortKey === 'in') compare = Number(a.token_in || 0) - Number(b.token_in || 0);
+      if (sortKey === 'out') compare = Number(a.token_out || 0) - Number(b.token_out || 0);
+      if (sortKey === 'cost') compare = Number(a.estimated_cost_usd || 0) - Number(b.estimated_cost_usd || 0);
+      return sortDirection === 'asc' ? compare : -compare;
+    });
+    return rows;
+  }, [filtered, sortDirection, sortKey]);
+
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(sorted.length / Math.max(1, pageSize))), [pageSize, sorted.length]);
+
+  useEffect(() => {
+    setPage((current) => Math.min(Math.max(1, current), totalPages));
+  }, [totalPages]);
+
+  const paged = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return sorted.slice(start, start + pageSize);
+  }, [page, pageSize, sorted]);
+
+  const setSort = (
+    next:
+      | 'time'
+      | 'methodPath'
+      | 'feature'
+      | 'user'
+      | 'model'
+      | 'status'
+      | 'latency'
+      | 'in'
+      | 'out'
+      | 'cost',
+    defaultDirection: SortDirection = 'asc',
+  ) => {
+    setPage(1);
+    if (sortKey === next) {
+      setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
+    setSortKey(next);
+    setSortDirection(defaultDirection);
+  };
+
   return (
     <div className="space-y-4">
       <div className={adminUi.panel}>
@@ -190,7 +246,7 @@ export default function AdminInvocationsView() {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-2">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-2">
           <select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
@@ -204,19 +260,6 @@ export default function AdminInvocationsView() {
             <option value={90}>Last 90 days</option>
             <option value={180}>Last 180 days</option>
             <option value={365}>Last 365 days</option>
-          </select>
-
-          <select
-            value={limit}
-            onChange={(e) => setLimit(Number(e.target.value))}
-            className={adminUi.select}
-            title="Load limit"
-            aria-label="Load limit"
-          >
-            <option value={100}>Load 100 rows</option>
-            <option value={300}>Load 300 rows</option>
-            <option value={1000}>Load 1000 rows</option>
-            <option value={5000}>Load 5000 rows</option>
           </select>
 
           <select
@@ -339,61 +382,151 @@ export default function AdminInvocationsView() {
             <Loader2 className="w-4 h-4 animate-spin" /> Loading invocation logs...
           </div>
         ) : (
-          <table className={adminUi.table}>
-            <thead className={adminUi.thead}>
-              <tr>
-                <th className={adminUi.th}>Time</th>
-                <th className={adminUi.th}>Method / Path</th>
-                <th className={adminUi.th}>Feature</th>
-                <th className={adminUi.th}>User</th>
-                <th className={adminUi.th}>Model</th>
-                <th className={adminUi.thRight}>Status</th>
-                <th className={adminUi.thRight}>Latency</th>
-                <th className={adminUi.thRight}>In</th>
-                <th className={adminUi.thRight}>Out</th>
-                <th className={adminUi.thRight}>Cost</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row, idx) => (
-                <tr key={row.usage_id} className={adminRowClass(idx)}>
-                  <td className={`${adminUi.td} whitespace-nowrap text-slate-600`}>{fmtDate(row.invoked_at)}</td>
-                  <td className={adminUi.td}>
-                    <p className="font-semibold text-slate-800">{row.method}</p>
-                    <p className="text-[11px] text-slate-500" title={row.path}>{compact(row.path, 38)}</p>
-                  </td>
-                  <td className={adminUi.td}>{row.feature || '-'}</td>
-                  <td className={adminUi.td}><span className="font-semibold text-slate-800">{userLabel(row.user_id)}</span></td>
-                  <td className={adminUi.td} title={row.model_id || '-'}>{compact(row.model_id || '-', 24)}</td>
-                  <td className={adminUi.tdRight}>
-                    <span
-                      className={[
-                        'rounded-full px-2 py-0.5',
-                        row.status_code >= 200 && row.status_code < 300
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : row.status_code >= 500
-                            ? 'bg-rose-100 text-rose-700'
-                            : 'bg-amber-100 text-amber-700',
-                      ].join(' ')}
-                    >
-                      {row.status_code}
-                    </span>
-                  </td>
-                  <td className={adminUi.tdRight}>{nf(row.duration_ms)} ms</td>
-                  <td className={adminUi.tdRight}>{nf(row.token_in)}</td>
-                  <td className={adminUi.tdRight}>{nf(row.token_out)}</td>
-                  <td className={`${adminUi.tdRight} font-semibold text-amber-700`}>{usd(row.estimated_cost_usd)}</td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
+          <>
+            <table className={adminUi.table}>
+              <thead className={adminUi.thead}>
                 <tr>
-                  <td colSpan={10} className="px-3 py-6 text-sm text-slate-500 text-center">
-                    No invocation logs match the current filters.
-                  </td>
+                  <th className={adminUi.th}>
+                    <AdminSortHeader
+                      label="Time"
+                      active={sortKey === 'time'}
+                      direction={sortDirection}
+                      onClick={() => setSort('time', 'desc')}
+                    />
+                  </th>
+                  <th className={adminUi.th}>
+                    <AdminSortHeader
+                      label="Method / Path"
+                      active={sortKey === 'methodPath'}
+                      direction={sortDirection}
+                      onClick={() => setSort('methodPath', 'asc')}
+                    />
+                  </th>
+                  <th className={adminUi.th}>
+                    <AdminSortHeader
+                      label="Feature"
+                      active={sortKey === 'feature'}
+                      direction={sortDirection}
+                      onClick={() => setSort('feature', 'asc')}
+                    />
+                  </th>
+                  <th className={adminUi.th}>
+                    <AdminSortHeader
+                      label="User"
+                      active={sortKey === 'user'}
+                      direction={sortDirection}
+                      onClick={() => setSort('user', 'asc')}
+                    />
+                  </th>
+                  <th className={adminUi.th}>
+                    <AdminSortHeader
+                      label="Model"
+                      active={sortKey === 'model'}
+                      direction={sortDirection}
+                      onClick={() => setSort('model', 'asc')}
+                    />
+                  </th>
+                  <th className={adminUi.thRight}>
+                    <AdminSortHeader
+                      label="Status"
+                      active={sortKey === 'status'}
+                      direction={sortDirection}
+                      onClick={() => setSort('status', 'desc')}
+                      align="right"
+                    />
+                  </th>
+                  <th className={adminUi.thRight}>
+                    <AdminSortHeader
+                      label="Latency"
+                      active={sortKey === 'latency'}
+                      direction={sortDirection}
+                      onClick={() => setSort('latency', 'desc')}
+                      align="right"
+                    />
+                  </th>
+                  <th className={adminUi.thRight}>
+                    <AdminSortHeader
+                      label="In"
+                      active={sortKey === 'in'}
+                      direction={sortDirection}
+                      onClick={() => setSort('in', 'desc')}
+                      align="right"
+                    />
+                  </th>
+                  <th className={adminUi.thRight}>
+                    <AdminSortHeader
+                      label="Out"
+                      active={sortKey === 'out'}
+                      direction={sortDirection}
+                      onClick={() => setSort('out', 'desc')}
+                      align="right"
+                    />
+                  </th>
+                  <th className={adminUi.thRight}>
+                    <AdminSortHeader
+                      label="Cost"
+                      active={sortKey === 'cost'}
+                      direction={sortDirection}
+                      onClick={() => setSort('cost', 'desc')}
+                      align="right"
+                    />
+                  </th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paged.map((row, idx) => (
+                  <tr key={row.usage_id} className={adminRowClass((page - 1) * pageSize + idx)}>
+                    <td className={`${adminUi.td} whitespace-nowrap text-slate-600`}>{fmtDate(row.invoked_at)}</td>
+                    <td className={adminUi.td}>
+                      <p className="font-semibold text-slate-800">{row.method}</p>
+                      <p className="text-[11px] text-slate-500" title={row.path}>{compact(row.path, 38)}</p>
+                    </td>
+                    <td className={adminUi.td}>{row.feature || '-'}</td>
+                    <td className={adminUi.td}><span className="font-semibold text-slate-800">{userLabel(row.user_id)}</span></td>
+                    <td className={adminUi.td} title={row.model_id || '-'}>{compact(row.model_id || '-', 24)}</td>
+                    <td className={adminUi.tdRight}>
+                      <span
+                        className={[
+                          'rounded-full px-2 py-0.5',
+                          row.status_code >= 200 && row.status_code < 300
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : row.status_code >= 500
+                              ? 'bg-rose-100 text-rose-700'
+                              : 'bg-amber-100 text-amber-700',
+                        ].join(' ')}
+                      >
+                        {row.status_code}
+                      </span>
+                    </td>
+                    <td className={adminUi.tdRight}>{nf(row.duration_ms)} ms</td>
+                    <td className={adminUi.tdRight}>{nf(row.token_in)}</td>
+                    <td className={adminUi.tdRight}>{nf(row.token_out)}</td>
+                    <td className={`${adminUi.tdRight} font-semibold text-amber-700`}>{usd(row.estimated_cost_usd)}</td>
+                  </tr>
+                ))}
+                {sorted.length === 0 && (
+                  <tr>
+                    <td colSpan={10} className="px-3 py-6 text-sm text-slate-500 text-center">
+                      No invocation logs match the current filters.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <div className="border-t border-slate-100 px-3 py-2">
+              <AdminTablePagination
+                page={page}
+                pageSize={pageSize}
+                totalItems={sorted.length}
+                onPageChange={(next) => setPage(Math.min(Math.max(1, next), totalPages))}
+                onPageSizeChange={(nextSize) => {
+                  setPageSize(nextSize);
+                  setPage(1);
+                }}
+                itemLabel="invocations"
+              />
+            </div>
+          </>
         )}
       </div>
     </div>

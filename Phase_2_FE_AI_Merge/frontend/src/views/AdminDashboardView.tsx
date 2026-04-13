@@ -160,7 +160,7 @@ export default function AdminDashboardView() {
   }, [activeRange.days]);
 
   useEffect(() => {
-    void userRepo.listAdminUsers({ limit: 1000 })
+    void userRepo.listAdminUsers()
       .then((res) => setUsers(res.items || []))
       .catch(() => setUsers([]));
   }, []);

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from heapq import heappush, heapreplace
 from math import isfinite
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
@@ -76,7 +77,7 @@ class DynamoAppUsageRepository:
         model_id: str | None = None,
         start_epoch: int | None = None,
         end_epoch: int | None = None,
-        limit: int = 5000,
+        limit: int | None = 5000,
     ) -> List[Dict[str, Any]]:
         scan_kwargs: Dict[str, Any] = {}
         filt = None
@@ -99,19 +100,45 @@ class DynamoAppUsageRepository:
         if filt is not None:
             scan_kwargs["FilterExpression"] = filt
 
+        limit_n: int | None
+        if limit is None:
+            limit_n = None
+        else:
+            try:
+                limit_n = max(1, int(limit))
+            except Exception:
+                limit_n = None
+
         rows: List[Dict[str, Any]] = []
+        top_rows: List[tuple[int, int, Dict[str, Any]]] = []
+        seq = 0
         last_key = None
         while True:
             if last_key:
                 scan_kwargs["ExclusiveStartKey"] = last_key
             resp = self._table.scan(**scan_kwargs)
-            items = resp.get("Items") or []
-            rows.extend(_normalize_value(x) for x in items)
-            if len(rows) >= limit:
-                break
+            items = [_normalize_value(x) for x in (resp.get("Items") or [])]
+
+            if limit_n is None:
+                rows.extend(items)
+            else:
+                for item in items:
+                    seq += 1
+                    epoch = int(item.get("invoked_at_epoch") or 0)
+                    entry = (epoch, seq, item)
+                    if len(top_rows) < limit_n:
+                        heappush(top_rows, entry)
+                    elif epoch > top_rows[0][0]:
+                        heapreplace(top_rows, entry)
+
             last_key = resp.get("LastEvaluatedKey")
             if not last_key:
                 break
 
+        if limit_n is not None:
+            rows = [x[2] for x in top_rows]
+
         rows.sort(key=lambda x: int(x.get("invoked_at_epoch") or 0), reverse=True)
-        return rows[:limit]
+        if limit_n is None:
+            return rows
+        return rows[:limit_n]

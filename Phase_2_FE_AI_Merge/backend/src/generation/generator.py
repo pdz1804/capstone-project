@@ -7,6 +7,7 @@ with proper citation formatting.
 
 import os
 import json
+import re
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -39,6 +40,33 @@ def _looks_like_bedrock_payload_too_large(exc: Exception) -> bool:
         or "failed to buffer the request body" in msg
         or ("validationexception" in msg and "length" in msg)
     )
+
+
+_MATH_BLOCK_DELIMITER_RE = re.compile(r"\\\[(.+?)\\\]", re.DOTALL)
+_MATH_INLINE_DELIMITER_RE = re.compile(r"\\\((.+?)\\\)")
+
+
+def _normalize_math_delimiters(answer: str) -> str:
+    """Normalize \(\), \[\] delimiters to markdown math $/$$ for renderer compatibility."""
+    text = str(answer or "")
+    if not text:
+        return text
+
+    def _block_repl(match: re.Match[str]) -> str:
+        expr = (match.group(1) or "").strip()
+        if not expr:
+            return ""
+        return f"$$\n{expr}\n$$"
+
+    def _inline_repl(match: re.Match[str]) -> str:
+        expr = (match.group(1) or "").strip()
+        if not expr:
+            return ""
+        return f"${expr}$"
+
+    text = _MATH_BLOCK_DELIMITER_RE.sub(_block_repl, text)
+    text = _MATH_INLINE_DELIMITER_RE.sub(_inline_repl, text)
+    return text
 
 
 def _display_filename_from_source(source: str) -> str:
@@ -820,6 +848,7 @@ CRITICAL FORMATTING RULES:
         logger.info(f"Generating answer for query: {query[:50]}... (with {len(image_paths)} images)")
         try:
             answer = self._call_llm(prompt, image_paths if image_paths else None)
+            answer = _normalize_math_delimiters(answer)
         except Exception as e:
             logger.error(f"LLM call failed: {e}")
             files_payload = {v: k for k, v in file_map.items()}

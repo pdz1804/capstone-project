@@ -59,7 +59,7 @@ class FeedbackService:
     def list_all(
         self,
         *,
-        limit: int = 500,
+        limit: int | None = 500,
         user_id: str | None = None,
         category: str | None = None,
         vote: str | None = None,

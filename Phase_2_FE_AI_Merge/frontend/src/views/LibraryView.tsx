@@ -84,7 +84,7 @@ export default function LibraryView({
     | { kind: 'blob'; url: string; mime: string }
     | { kind: 'text'; content: string }
     | { kind: 'html'; content: string }
-    | { kind: 'office'; iframeSrc: string }
+    | { kind: 'office'; iframeSrc: string; sourceUrl: string }
   >({ kind: 'none' });
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -148,12 +148,13 @@ export default function LibraryView({
           const officeExt = ['.ppt', '.pptx', '.xls', '.xlsx', '.doc', '.docx'];
 
           if (officeExt.includes(ext)) {
-            const u = await getInputFileUrl(previewFile.name, 900);
+            const u = await getInputFileUrl(previewFile.name, 900, { viewer: 'office' });
             if (cancelled) return;
             if (!u?.url) throw new Error('Office preview URL is not available for this file.');
             setRemotePreview({
               kind: 'office',
               iframeSrc: `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(u.url)}`,
+              sourceUrl: u.url,
             });
             return;
           }
@@ -476,6 +477,10 @@ export default function LibraryView({
   };
 
   const openPreviewInNewTab = () => {
+    if (remotePreview.kind === 'office') {
+      window.open(remotePreview.sourceUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
     const src = getPdfSrc() || previewUrl || (remotePreview.kind === 'blob' ? remotePreview.url : '');
     if (!src) return;
     window.open(src, '_blank', 'noopener,noreferrer');
@@ -1130,6 +1135,17 @@ export default function LibraryView({
                 </div>
               ) : remotePreview.kind === 'office' ? (
                 <div className="w-full h-full min-h-[600px] max-h-[70vh] overflow-hidden bg-white rounded-xl shadow-lg border border-slate-200">
+                  <div className="px-4 py-2 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between gap-3">
+                    <p className="text-xs text-slate-500">Office online preview</p>
+                    <a
+                      href={remotePreview.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-semibold text-sky-700 hover:text-sky-800"
+                    >
+                      Open original file
+                    </a>
+                  </div>
                   <iframe
                     title={`Office: ${previewFile.name}`}
                     src={remotePreview.iframeSrc}

@@ -20,6 +20,7 @@ from app.repositories import (
 from app.storage import get_file_storage
 from app.storage.service import S3FileStorage
 from app.services.citation_uris import canonical_document_source, sanitize_metadata_for_api
+from app.services.search_cache import get_search_cache_client
 
 logger = logging.getLogger(__name__)
 
@@ -136,8 +137,15 @@ def _load_doc_map_for_user(path: Path, user_id: str | None) -> Dict[str, Dict[st
 class TextSearchService:
     _embedder_lock = threading.Lock()
     _embedder_cache: Dict[str, Any] = {}
+    _reranker_lock = threading.Lock()
+    _reranker_cache: Dict[str, Any] = {}
+    _reranker_inference_lock = threading.Lock()
     _prepared_collections_lock = threading.Lock()
     _prepared_collections: set[str] = set()
+    _doc_map_lock = threading.Lock()
+    _doc_map_cache: Dict[str, tuple[float, int, Dict[str, Dict[str, Any]]]] = {}
+    _bm25_lock = threading.Lock()
+    _bm25_cache: Dict[str, tuple[float, int, Any]] = {}
 
     def __init__(self, yaml_config: Dict[str, Any], user_id: str | None = None):
         self.cfg = yaml_config
@@ -156,10 +164,9 @@ class TextSearchService:
         self._text_quant = q.get("text_storage_quantization", "scalar")
         self._embed_model = tr.get("embedding_model", "all-MiniLM-L6-v2")
         self._alpha = float(inf.get("hybrid_alpha", 0.5))
+        # NOTE: Reranker is intentionally disabled globally to cut retrieval latency.
+        # Keep reranker implementation in codebase for fast rollback if needed.
         self._reranker_model = None
-        rr = tr.get("reranker", {}) or {}
-        if rr.get("enabled") and rr.get("model"):
-            self._reranker_model = rr["model"]
 
     def _repo(self, dim: int) -> TextIndexRepository:
         return TextIndexRepository(
@@ -176,9 +183,18 @@ class TextSearchService:
         with TextSearchService._prepared_collections_lock:
             if key in TextSearchService._prepared_collections:
                 return
-        repo.ensure_collection(recreate=False)
+
+        cache = get_search_cache_client()
+        marker_key = f"text:{key}"
+        if cache.marker_exists(marker_key):
+            with TextSearchService._prepared_collections_lock:
+                TextSearchService._prepared_collections.add(key)
+            return
+
+        repo.ensure_collection(recreate=False, search_only_indexes=True)
         with TextSearchService._prepared_collections_lock:
             TextSearchService._prepared_collections.add(key)
+        cache.set_marker(marker_key)
 
     def _get_embedder(self):
         from sentence_transformers import SentenceTransformer
@@ -191,11 +207,57 @@ class TextSearchService:
             TextSearchService._embedder_cache[self._embed_model] = model
             return model
 
+    def _get_reranker(self):
+        model_name = str(self._reranker_model or "").strip()
+        if not model_name:
+            return None
+        with TextSearchService._reranker_lock:
+            cached = TextSearchService._reranker_cache.get(model_name)
+            if cached is not None:
+                return cached
+            from src.retrieval.rag_retrievers import CrossEncoderReranker
+
+            cached = CrossEncoderReranker(model_name)
+            TextSearchService._reranker_cache[model_name] = cached
+            return cached
+
     def _encode_query(self, query: str) -> tuple:
         model = self._get_embedder()
         dim = model.get_sentence_embedding_dimension()
         vec = model.encode([query], show_progress_bar=False)[0].tolist()
         return vec, dim
+
+    @staticmethod
+    def _stat_signature(path: Path) -> tuple[float, int]:
+        try:
+            st = path.stat()
+            return float(st.st_mtime), int(st.st_size)
+        except Exception:
+            return 0.0, 0
+
+    def _get_doc_map_cached(self) -> Dict[str, Dict[str, Any]]:
+        cache_key = f"{self._paths.user_id}:{self._paths.documents_json_path.as_posix()}"
+        mtime, size = self._stat_signature(self._paths.documents_json_path)
+        with TextSearchService._doc_map_lock:
+            cached = TextSearchService._doc_map_cache.get(cache_key)
+            if cached and cached[0] == mtime and cached[1] == size:
+                return cached[2]
+        doc_map = _load_doc_map_for_user(self._paths.documents_json_path, self._user_id)
+        with TextSearchService._doc_map_lock:
+            TextSearchService._doc_map_cache[cache_key] = (mtime, size, doc_map)
+        return doc_map
+
+    def _get_bm25_cached(self):
+        cache_key = f"{self._paths.user_id}:{self._paths.bm25_pickle_path.as_posix()}"
+        mtime, size = self._stat_signature(self._paths.bm25_pickle_path)
+        with TextSearchService._bm25_lock:
+            cached = TextSearchService._bm25_cache.get(cache_key)
+            if cached and cached[0] == mtime and cached[1] == size:
+                return cached[2]
+        data = load_bm25_index(self._paths.bm25_pickle_path, user_id=self._user_id)
+        with TextSearchService._bm25_lock:
+            TextSearchService._bm25_cache[cache_key] = (mtime, size, data)
+        return data
 
     def search_dense(self, query: str, top_k: int) -> List[Dict[str, Any]]:
         vec, dim = self._encode_query(query)
@@ -203,7 +265,7 @@ class TextSearchService:
         # Ensure payload indexes (notably user_id) exist on pre-migration collections.
         self._ensure_collection_once(repo)
         raw = repo.search(vec, limit=top_k, user_id=self._user_id)
-        doc_map = _load_doc_map_for_user(self._paths.documents_json_path, self._user_id)
+        doc_map = self._get_doc_map_cached()
         results: List[Dict[str, Any]] = []
         for rank, hit in enumerate(raw, start=1):
             pl = hit.get("payload") or {}
@@ -236,7 +298,7 @@ class TextSearchService:
         return results
 
     def search_bm25(self, query: str, top_k: int) -> List[Dict[str, Any]]:
-        data = load_bm25_index(self._paths.bm25_pickle_path, user_id=self._user_id)
+        data = self._get_bm25_cached()
         if not data:
             return []
         rows = bm25_search(data, query, top_k)
@@ -256,7 +318,9 @@ class TextSearchService:
         return rows
 
     def search_hybrid(self, query: str, top_k: int, skip_reranker: bool = False) -> List[Dict[str, Any]]:
-        expand = max(top_k, int(top_k * 1.3))
+        # Reranker is globally disabled for performance. Ignore caller/config flag.
+        skip_reranker = True
+        expand = max(top_k, int(top_k * 1.15))
         with ThreadPoolExecutor(max_workers=2) as pool:
             fut_bm = pool.submit(self.search_bm25, query, expand)
             fut_dn = pool.submit(self.search_dense, query, expand)
@@ -272,7 +336,7 @@ class TextSearchService:
                 cid, 0.0
             )
         sorted_ids = sorted(combined.keys(), key=lambda x: combined[x], reverse=True)[:top_k]
-        doc_map = _load_doc_map_for_user(self._paths.documents_json_path, self._user_id)
+        doc_map = self._get_doc_map_cached()
         out: List[Dict[str, Any]] = []
         for rank, cid in enumerate(sorted_ids, start=1):
             base = doc_map.get(cid, {})
@@ -302,9 +366,9 @@ class TextSearchService:
                 }
             )
         if self._reranker_model and out and not skip_reranker:
-            from src.retrieval.rag_retrievers import CrossEncoderReranker
-
-            ce = CrossEncoderReranker(self._reranker_model)
+            ce = self._get_reranker()
+            if ce is None:
+                return out
             # pass fuller text for rerank
             full_docs = []
             for r in out:
@@ -318,7 +382,8 @@ class TextSearchService:
                         "score": r["score"],
                     }
                 )
-            reranked = ce.rerank(query, full_docs, top_k)
+            with TextSearchService._reranker_inference_lock:
+                reranked = ce.rerank(query, full_docs, top_k)
             for x in reranked:
                 x["retrieval_type"] = "hybrid_qdrant_bm25_reranked"
                 xm = dict(x.get("metadata") or {})

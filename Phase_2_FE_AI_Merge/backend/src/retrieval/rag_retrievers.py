@@ -584,11 +584,8 @@ class CrossEncoderReranker:
             
             all_scores.extend(scores)
             
-            # Cleanup
+            # Cleanup temporary tensors; avoid forcing GC/CUDA cache flush per batch.
             del inputs, outputs, logits
-            if self.device == 'cuda':
-                torch.cuda.empty_cache()
-            gc.collect()
         
         logger.info(f"✔️  Scoring complete: {len(all_scores)} documents scored")
         

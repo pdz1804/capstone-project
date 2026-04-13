@@ -160,7 +160,7 @@ def list_invocations(
     user_id: str | None = Query(None),
     feature: str | None = Query(None),
     model_id: str | None = Query(None),
-    limit: int = Query(300, ge=1, le=5000),
+    limit: int | None = Query(None, ge=1, le=50000),
     _admin: UserResponse = Depends(get_current_admin),
     usage_svc: AppUsageService | None = Depends(get_usage_service),
 ):
@@ -193,7 +193,7 @@ def get_admin_costs(
 @router.get("/users")
 def list_users_admin(
     skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    limit: int | None = Query(None, ge=1, le=50000),
     query: str | None = Query(None),
     role: str | None = Query(None),
     is_active: bool | None = Query(None),
@@ -315,7 +315,7 @@ def sync_knowledge_admin(
     if knowledge_svc is None:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Knowledge persistence is not configured")
 
-    users = user_service.list_users(skip=0, limit=5000)
+    users = user_service.list_users(skip=0, limit=None)
     synced = knowledge_svc.sync_input_files_for_users([u.uid for u in users])
     return {"synced": synced, "users": len(users)}
 
@@ -326,7 +326,7 @@ def list_knowledge_admin(
     user_id: str | None = Query(None),
     knowledge_type: str | None = Query(None),
     is_active: bool | None = Query(None),
-    limit: int = Query(1000, ge=1, le=5000),
+    limit: int | None = Query(None, ge=1, le=50000),
     sync_with_storage: bool = Query(False),
     include_usage: bool = Query(False),
     usage_days: int = Query(30, ge=1, le=365),
@@ -339,7 +339,7 @@ def list_knowledge_admin(
         return {"items": [], "count": 0}
 
     if sync_with_storage:
-        users = user_service.list_users(skip=0, limit=5000)
+        users = user_service.list_users(skip=0, limit=None)
         knowledge_svc.sync_input_files_for_users([u.uid for u in users])
 
     known_user_ids = [user_id] if user_id else None
@@ -451,7 +451,7 @@ def delete_knowledge_admin(
 
 @router.get("/feedback")
 def list_feedback_admin(
-    limit: int = Query(500, ge=1, le=5000),
+    limit: int | None = Query(None, ge=1, le=50000),
     user_id: str | None = Query(None),
     category: str | None = Query(None),
     vote: str | None = Query(None),

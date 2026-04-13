@@ -19,6 +19,7 @@ import {
 import { userRepo } from '../repositories/user_repository';
 import type { UserEntity } from '../database/types';
 import { adminRowClass, adminUi, categoryBadgeClass, statusBadgeClass, voteBadgeClass } from '../lib/adminUi';
+import { AdminSortHeader, AdminTablePagination, type SortDirection } from '../components/admin/AdminTableControls';
 
 function nf(n: number): string {
   return new Intl.NumberFormat('en-US').format(n || 0);
@@ -50,6 +51,11 @@ export default function AdminFeedbackManagementView() {
     feedback_text: '',
   });
 
+  const [sortKey, setSortKey] = useState<'time' | 'user' | 'vote' | 'category' | 'status'>('time');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
   const load = async () => {
     setLoading(true);
     setError(null);
@@ -61,7 +67,6 @@ export default function AdminFeedbackManagementView() {
         vote: vote || undefined,
         is_active: activeFilter === 'all' ? undefined : activeFilter === 'active',
         include_usage: true,
-        limit: 1000,
       });
       setItems(data.items || []);
     } catch (e: any) {
@@ -74,7 +79,7 @@ export default function AdminFeedbackManagementView() {
   const loadUsers = async () => {
     setUsersLoading(true);
     try {
-      const data = await userRepo.listAdminUsers({ limit: 1000 });
+      const data = await userRepo.listAdminUsers();
       setUsers(data.items || []);
     } catch {
       setUsers([]);
@@ -126,6 +131,54 @@ export default function AdminFeedbackManagementView() {
     const u = userMap.get(uid);
     if (!u) return 'Unknown user';
     return u.displayName || u.username || u.email || 'Unknown user';
+  };
+
+  const sorted = useMemo(() => {
+    const rows = [...filtered];
+    rows.sort((a, b) => {
+      let compare = 0;
+      if (sortKey === 'time') {
+        compare = new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+      }
+      if (sortKey === 'user') {
+        compare = userLabel(a.user_id).toLowerCase().localeCompare(userLabel(b.user_id).toLowerCase());
+      }
+      if (sortKey === 'vote') {
+        compare = String(a.vote || '').toLowerCase().localeCompare(String(b.vote || '').toLowerCase());
+      }
+      if (sortKey === 'category') {
+        compare = String(a.category || '').toLowerCase().localeCompare(String(b.category || '').toLowerCase());
+      }
+      if (sortKey === 'status') {
+        compare = Number(a.is_active ?? true) - Number(b.is_active ?? true);
+      }
+      return sortDirection === 'asc' ? compare : -compare;
+    });
+    return rows;
+  }, [filtered, sortDirection, sortKey]);
+
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(sorted.length / Math.max(1, pageSize))), [pageSize, sorted.length]);
+
+  useEffect(() => {
+    setPage((current) => Math.min(Math.max(1, current), totalPages));
+  }, [totalPages]);
+
+  const paged = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return sorted.slice(start, start + pageSize);
+  }, [page, pageSize, sorted]);
+
+  const setSort = (
+    next: 'time' | 'user' | 'vote' | 'category' | 'status',
+    defaultDirection: SortDirection = 'asc',
+  ) => {
+    setPage(1);
+    if (sortKey === next) {
+      setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
+    setSortKey(next);
+    setSortDirection(defaultDirection);
   };
 
   const pick = async (item: FeedbackItem) => {
@@ -374,58 +427,108 @@ export default function AdminFeedbackManagementView() {
               <Loader2 className="w-4 h-4 animate-spin" /> Loading feedback records...
             </div>
           ) : (
-            <table className={adminUi.table}>
-              <thead className={adminUi.thead}>
-                <tr>
-                  <th className={adminUi.th}>Time</th>
-                  <th className={adminUi.th}>User</th>
-                  <th className={adminUi.th}>Vote</th>
-                  <th className={adminUi.th}>Category</th>
-                  <th className={adminUi.th}>Status</th>
-                  <th className={adminUi.thRight}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((f, idx) => (
-                  <tr key={`${f.user_id}:${f.feedback_id}`} className={adminRowClass(idx)}>
-                    <td className={`${adminUi.td} text-slate-600`}>{new Date(f.created_at).toLocaleString()}</td>
-                    <td className={adminUi.td}><span className="font-semibold text-slate-800">{userLabel(f.user_id)}</span></td>
-                    <td className={adminUi.td}><span className={voteBadgeClass(f.vote)}>{f.vote || 'general'}</span></td>
-                    <td className={adminUi.td}><span className={categoryBadgeClass(f.category)}>{f.category || 'Uncategorized'}</span></td>
-                    <td className={adminUi.td}><span className={statusBadgeClass((f.is_active ?? true) ? 'active' : 'inactive')}>{(f.is_active ?? true) ? 'active' : 'inactive'}</span></td>
-                    <td className={adminUi.tdRight}>
-                      <div className="inline-flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => void pick(f)}
-                          className="rounded-lg border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] font-semibold text-sky-700 hover:bg-sky-100"
-                        >
-                          Detail
-                        </button>
-                        {(f.is_active ?? true) ? (
-                          <button type="button" onClick={() => void deactivate(f)} className="rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] text-rose-700 hover:bg-rose-100">Deactivate</button>
-                        ) : (
-                          <button type="button" onClick={() => void activate(f)} className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] text-emerald-700 hover:bg-emerald-100">Activate</button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => void remove(f)}
-                          className="rounded-md border border-slate-200 bg-slate-50 p-1.5 text-slate-700 hover:bg-slate-100"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
+            <>
+              <table className={adminUi.table}>
+                <thead className={adminUi.thead}>
                   <tr>
-                    <td colSpan={6} className="px-2 py-4 text-sm text-slate-500">No feedback records found.</td>
+                    <th className={adminUi.th}>
+                      <AdminSortHeader
+                        label="Time"
+                        active={sortKey === 'time'}
+                        direction={sortDirection}
+                        onClick={() => setSort('time', 'desc')}
+                      />
+                    </th>
+                    <th className={adminUi.th}>
+                      <AdminSortHeader
+                        label="User"
+                        active={sortKey === 'user'}
+                        direction={sortDirection}
+                        onClick={() => setSort('user', 'asc')}
+                      />
+                    </th>
+                    <th className={adminUi.th}>
+                      <AdminSortHeader
+                        label="Vote"
+                        active={sortKey === 'vote'}
+                        direction={sortDirection}
+                        onClick={() => setSort('vote', 'asc')}
+                      />
+                    </th>
+                    <th className={adminUi.th}>
+                      <AdminSortHeader
+                        label="Category"
+                        active={sortKey === 'category'}
+                        direction={sortDirection}
+                        onClick={() => setSort('category', 'asc')}
+                      />
+                    </th>
+                    <th className={adminUi.th}>
+                      <AdminSortHeader
+                        label="Status"
+                        active={sortKey === 'status'}
+                        direction={sortDirection}
+                        onClick={() => setSort('status', 'desc')}
+                      />
+                    </th>
+                    <th className={adminUi.thRight}>Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {paged.map((f, idx) => (
+                    <tr key={`${f.user_id}:${f.feedback_id}`} className={adminRowClass((page - 1) * pageSize + idx)}>
+                      <td className={`${adminUi.td} text-slate-600`}>{new Date(f.created_at).toLocaleString()}</td>
+                      <td className={adminUi.td}><span className="font-semibold text-slate-800">{userLabel(f.user_id)}</span></td>
+                      <td className={adminUi.td}><span className={voteBadgeClass(f.vote)}>{f.vote || 'general'}</span></td>
+                      <td className={adminUi.td}><span className={categoryBadgeClass(f.category)}>{f.category || 'Uncategorized'}</span></td>
+                      <td className={adminUi.td}><span className={statusBadgeClass((f.is_active ?? true) ? 'active' : 'inactive')}>{(f.is_active ?? true) ? 'active' : 'inactive'}</span></td>
+                      <td className={adminUi.tdRight}>
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => void pick(f)}
+                            className="rounded-lg border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] font-semibold text-sky-700 hover:bg-sky-100"
+                          >
+                            Detail
+                          </button>
+                          {(f.is_active ?? true) ? (
+                            <button type="button" onClick={() => void deactivate(f)} className="rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] text-rose-700 hover:bg-rose-100">Deactivate</button>
+                          ) : (
+                            <button type="button" onClick={() => void activate(f)} className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] text-emerald-700 hover:bg-emerald-100">Activate</button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => void remove(f)}
+                            className="rounded-md border border-slate-200 bg-slate-50 p-1.5 text-slate-700 hover:bg-slate-100"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {sorted.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-2 py-4 text-sm text-slate-500">No feedback records found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              <div className="border-t border-slate-100 px-3 py-2">
+                <AdminTablePagination
+                  page={page}
+                  pageSize={pageSize}
+                  totalItems={sorted.length}
+                  onPageChange={(next) => setPage(Math.min(Math.max(1, next), totalPages))}
+                  onPageSizeChange={(nextSize) => {
+                    setPageSize(nextSize);
+                    setPage(1);
+                  }}
+                  itemLabel="feedback records"
+                />
+              </div>
+            </>
           )}
         </div>
 

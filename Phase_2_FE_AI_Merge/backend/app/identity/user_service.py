@@ -86,14 +86,20 @@ class UserService:
     def list_users(
         self,
         skip: int = 0,
-        limit: int = 100,
+        limit: int | None = 100,
         query: str | None = None,
         role: str | None = None,
         is_active: bool | None = None,
     ) -> List[UserResponse]:
-        rows = self.user_repo.list(skip=0, limit=10000)
+        skip_n = max(0, int(skip))
+        limit_n = None if limit is None else max(1, int(limit))
         q = (query or "").strip().lower()
         role_q = (role or "").strip().lower()
+
+        if not q and not role_q and is_active is None:
+            return self.user_repo.list(skip=skip_n, limit=limit_n)
+
+        rows = self.user_repo.list(skip=0, limit=None)
 
         if q:
             rows = [
@@ -110,7 +116,9 @@ class UserService:
             rows = [x for x in rows if bool(x.isActive) == bool(is_active)]
 
         rows.sort(key=lambda x: (x.createdAt.isoformat() if x.createdAt else ""), reverse=True)
-        return rows[skip : skip + limit]
+        if limit_n is None:
+            return rows[skip_n:]
+        return rows[skip_n : skip_n + limit_n]
 
     def create_user_by_admin(
         self,
@@ -176,7 +184,7 @@ class UserService:
         now = datetime.now(timezone.utc)
         password_hash = self.local_auth.hash_password(default_password)
 
-        all_users = self.user_repo.list(skip=0, limit=10000)
+        all_users = self.user_repo.list(skip=0, limit=None)
         exact_email_users = [u for u in all_users if str(u.email or "").strip().lower() == default_email]
         exact_email_users.sort(key=lambda u: (u.createdAt.isoformat() if u.createdAt else ""))
 
@@ -209,7 +217,7 @@ class UserService:
 
         keep_uid = keep_user.uid
 
-        all_users = self.user_repo.list(skip=0, limit=10000)
+        all_users = self.user_repo.list(skip=0, limit=None)
         for user in all_users:
             if user.uid == keep_uid:
                 continue

@@ -74,7 +74,8 @@ def search(
             mode=req.mode,
             search_scope=req.search_scope,
             generation_model=req.generation_model,
-            skip_reranker=req.skip_reranker,
+            # Reranker is disabled globally for latency optimization.
+            skip_reranker=True,
         )
         if isinstance(result, dict):
             telemetry = result.get("telemetry") or {}

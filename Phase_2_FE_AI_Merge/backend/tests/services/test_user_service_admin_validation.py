@@ -55,6 +55,8 @@ class _FakeUserRepo:
 
     def list(self, skip: int = 0, limit: int = 100):
         rows = list(self.users.values())
+        if limit is None:
+            return rows[skip:]
         return rows[skip: skip + limit]
 
     def create(self, user_in: UserCreate):

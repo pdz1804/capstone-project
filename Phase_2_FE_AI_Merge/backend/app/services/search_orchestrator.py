@@ -79,6 +79,8 @@ class SearchOrchestrator:
         generation_model: str | None = None,
         skip_reranker: bool = False,
     ) -> Dict[str, Any]:
+        # Force-disable reranker globally to optimize retrieval latency.
+        skip_reranker = True
         t0 = perf_counter()
         step_ms: Dict[str, int] = {}
         scope = (search_scope or "both").strip().lower()
