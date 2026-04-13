@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { Search, MessageSquare, RefreshCw, Database, Clock3, Sigma, Copy, FileDown } from 'lucide-react';
 import { FileItem } from '../App';
 import { getGenerationModels, getSearchImagePreview, searchRag } from '../api/ragApi';
@@ -30,6 +32,9 @@ type CitationItem = {
   end_time?: number;
   time_range_label?: string;
 };
+
+const SEARCH_REMARK_PLUGINS = [remarkGfm, remarkMath];
+const SEARCH_REHYPE_PLUGINS = [rehypeKatex];
 
 function formatSecondsToClock(seconds?: number): string {
   if (typeof seconds !== 'number' || Number.isNaN(seconds) || seconds < 0) return '-';
@@ -110,7 +115,6 @@ export default function SearchView({ files }: SearchViewProps) {
   const [scope, setScope] = useState<SearchScope>('both');
   const [retrieverType, setRetrieverType] = useState<RetrieverType>('hybrid');
   const [topK, setTopK] = useState<number>(10);
-  const [skipReranker, setSkipReranker] = useState<boolean>(true);
   const [showAdvancedConfig, setShowAdvancedConfig] = useState<boolean>(false);
   const [includeImagesForGeneration, setIncludeImagesForGeneration] = useState<boolean>(true);
   const [imagesForGeneration, setImagesForGeneration] = useState<number>(5);
@@ -208,7 +212,6 @@ export default function SearchView({ files }: SearchViewProps) {
         mode,
         search_scope: showAdvancedConfig ? scope : 'text',
         generation_model: mode === 'retrieval_generation' ? generationModel || null : null,
-        skip_reranker: showAdvancedConfig ? skipReranker : true,
       });
       setAnswer(data.answer || null);
       setContents((data.contents as Record<string, unknown>) || {});
@@ -427,7 +430,7 @@ export default function SearchView({ files }: SearchViewProps) {
         </div>
         {!showAdvancedConfig && (
           <div className="mb-4 rounded-xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-sm text-sky-800">
-            Default for students: <strong>Text retrieval</strong> + <strong>Hybrid</strong> + <strong>Top K = 10</strong> + <strong>Skip reranker</strong>.
+            Default for students: <strong>Text retrieval</strong> + <strong>Hybrid</strong> + <strong>Top K = 10</strong>.
           </div>
         )}
         {showAdvancedConfig && (
@@ -478,15 +481,6 @@ export default function SearchView({ files }: SearchViewProps) {
                 onChange={(e) => setTopK(Math.max(1, Math.min(100, Number(e.target.value || 10))))}
                 className="mt-1 w-full rounded-lg border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm"
               />
-            </label>
-            <label className="text-xs text-slate-600 flex items-end gap-2 pb-2">
-              <input
-                type="checkbox"
-                checked={skipReranker}
-                onChange={(e) => setSkipReranker(e.target.checked)}
-                className="rounded border-slate-300"
-              />
-              Skip reranker
             </label>
           </div>
         )}
@@ -628,7 +622,8 @@ export default function SearchView({ files }: SearchViewProps) {
               </div>
               <div ref={answerRenderRef} className="p-8 prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
                 <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
+                  remarkPlugins={SEARCH_REMARK_PLUGINS}
+                  rehypePlugins={SEARCH_REHYPE_PLUGINS}
                   components={{
                     h1: ({ children }) => <h1 className="text-3xl font-bold text-slate-900 mt-2 mb-4">{children}</h1>,
                     h2: ({ children }) => <h2 className="text-2xl font-semibold text-slate-900 mt-6 mb-3">{children}</h2>,

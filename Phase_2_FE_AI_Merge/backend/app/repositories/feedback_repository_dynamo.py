@@ -158,23 +158,30 @@ class DynamoFeedbackRepository:
     def list_feedback_all(
         self,
         *,
-        limit: int = 500,
+        limit: int | None = 500,
         user_id: str | None = None,
         category: str | None = None,
         vote: str | None = None,
         is_active: bool | None = None,
         query: str | None = None,
     ) -> List[Dict[str, Any]]:
+        limit_n: int | None
+        if limit is None:
+            limit_n = None
+        else:
+            try:
+                limit_n = max(1, int(limit))
+            except Exception:
+                limit_n = None
+
         items: List[Dict[str, Any]] = []
         last_key = None
         while True:
-            kwargs: Dict[str, Any] = {"Limit": min(max(limit, 1), 1000)}
+            kwargs: Dict[str, Any] = {"Limit": 1000}
             if last_key:
                 kwargs["ExclusiveStartKey"] = last_key
             resp = self._table.scan(**kwargs)
             items.extend(self._normalize_item(x) for x in (resp.get("Items") or []))
-            if len(items) >= limit:
-                break
             last_key = resp.get("LastEvaluatedKey")
             if not last_key:
                 break
@@ -205,7 +212,9 @@ class DynamoFeedbackRepository:
             ]
 
         items.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
-        return items[:limit]
+        if limit_n is None:
+            return items
+        return items[:limit_n]
 
     def update_analysis(
         self,

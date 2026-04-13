@@ -27,7 +27,10 @@ from app.repositories import (
     save_bm25_index,
     save_documents_snapshot,
 )
-from app.services.processed_documents_service import build_processed_documents_snapshot
+from app.services.processed_documents_service import (
+    build_processed_documents_snapshot,
+    invalidate_processed_documents_snapshot_cache,
+)
 from app.services.file_metadata_service import FileMetadataService
 from app.storage import get_file_storage
 from app.storage.service import S3FileStorage, parse_s3_uri
@@ -725,6 +728,7 @@ def get_input_file_url(
         description="Exact input file name to generate a temporary public URL (S3 backend only).",
     ),
     expires_in: int = Query(900, ge=60, le=3600, description="URL TTL in seconds."),
+    viewer: str | None = Query(None, description="Optional viewer optimization (e.g., office)."),
     user_id: str = Depends(storage_user_id),
 ) -> Dict[str, Any]:
     """
@@ -754,22 +758,32 @@ def get_input_file_url(
         raise HTTPException(status_code=403, detail="Object not in your input prefix")
 
     try:
-        cd = f"inline; filename*=UTF-8''{urllib.parse.quote(safe_name)}"
+        viewer_mode = str(viewer or "").strip().lower()
+        office_compatible = viewer_mode == "office"
         guessed_type = mimetypes.guess_type(safe_name)[0]
         params: Dict[str, Any] = {
             "Bucket": bucket,
             "Key": key,
-            "ResponseContentDisposition": cd,
         }
-        # Force browser-inline rendering for known previewable files (especially PDFs).
-        if guessed_type:
-            params["ResponseContentType"] = guessed_type
+
+        if not office_compatible:
+            cd = f"inline; filename*=UTF-8''{urllib.parse.quote(safe_name)}"
+            params["ResponseContentDisposition"] = cd
+            # Force browser-inline rendering for known previewable files (especially PDFs).
+            if guessed_type:
+                params["ResponseContentType"] = guessed_type
+
         url = storage._client.generate_presigned_url(
             "get_object",
             Params=params,
             ExpiresIn=expires_in,
         )
-        return {"url": url, "mode": "presigned_s3", "expires_in": expires_in}
+        return {
+            "url": url,
+            "mode": "presigned_s3",
+            "expires_in": expires_in,
+            "viewer": viewer_mode or None,
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not generate presigned URL: {e}") from e
 
@@ -791,6 +805,7 @@ async def upload(
             file_rows.append(row)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e)) from e
+    invalidate_processed_documents_snapshot_cache(user_id)
     return {"uploaded": uploaded, "count": len(uploaded), "files": file_rows}
 
 
@@ -865,6 +880,8 @@ def delete_file(
         )
         if not any_removed and not any_index_removed:
             raise HTTPException(status_code=404, detail="File not found")
+
+        invalidate_processed_documents_snapshot_cache(user_id)
 
         return {
             "deleted": raw_path,

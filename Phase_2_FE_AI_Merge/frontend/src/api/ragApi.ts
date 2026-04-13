@@ -226,12 +226,14 @@ export async function getInputFile(fileName: string): Promise<{ body: Blob; medi
 
 export async function getInputFileUrl(
   fileName: string,
-  expiresIn = 900
-): Promise<{ url?: string | null; mode?: string; reason?: string; expires_in?: number }> {
+  expiresIn = 900,
+  options?: { viewer?: 'office' }
+): Promise<{ url?: string | null; mode?: string; reason?: string; expires_in?: number; viewer?: string | null }> {
   const { data } = await apiClient.get('/input-file-url', {
     params: {
       file_name: fileName,
       expires_in: expiresIn,
+      ...(options?.viewer ? { viewer: options.viewer } : {}),
     },
   });
   return data;
@@ -275,7 +277,6 @@ export async function searchRag(body: {
   mode?: 'retrieval_only' | 'retrieval_generation';
   search_scope?: 'text' | 'image' | 'both';
   generation_model?: string | null;
-  skip_reranker?: boolean;
 }): Promise<{
   query: string;
   text_results: Array<Record<string, unknown>>;
@@ -303,7 +304,8 @@ export async function searchRag(body: {
     mode: body.mode ?? 'retrieval_generation',
     search_scope: body.search_scope ?? 'both',
     generation_model: body.generation_model ?? null,
-    skip_reranker: body.skip_reranker ?? false,
+    // Reranker is disabled globally on backend for latency.
+    skip_reranker: true,
   });
   return data;
 }
@@ -787,14 +789,18 @@ export async function listAdminInvocations(params?: {
   model_id?: string;
   limit?: number;
 }): Promise<{ items: AdminInvocationRecord[]; count: number }> {
+  const queryParams: Record<string, unknown> = {
+    days: params?.days ?? 30,
+    ...(params?.user_id ? { user_id: params.user_id } : {}),
+    ...(params?.feature ? { feature: params.feature } : {}),
+    ...(params?.model_id ? { model_id: params.model_id } : {}),
+  };
+  if (typeof params?.limit === 'number' && Number.isFinite(params.limit)) {
+    queryParams.limit = Math.max(1, Math.floor(params.limit));
+  }
+
   const { data } = await apiClient.get('/admin/invocations', {
-    params: {
-      days: params?.days ?? 30,
-      limit: params?.limit ?? 300,
-      ...(params?.user_id ? { user_id: params.user_id } : {}),
-      ...(params?.feature ? { feature: params.feature } : {}),
-      ...(params?.model_id ? { model_id: params.model_id } : {}),
-    },
+    params: queryParams,
   });
   return {
     items: (data?.items || []) as AdminInvocationRecord[],
@@ -817,17 +823,21 @@ export async function listAdminKnowledge(params?: {
   include_usage?: boolean;
   usage_days?: number;
 }): Promise<{ items: AdminKnowledgeItem[]; count: number }> {
+  const queryParams: Record<string, unknown> = {
+    sync_with_storage: params?.sync_with_storage ?? false,
+    include_usage: params?.include_usage ?? false,
+    usage_days: params?.usage_days ?? 30,
+    ...(params?.query ? { query: params.query } : {}),
+    ...(params?.user_id ? { user_id: params.user_id } : {}),
+    ...(params?.knowledge_type ? { knowledge_type: params.knowledge_type } : {}),
+    ...(typeof params?.is_active === 'boolean' ? { is_active: params.is_active } : {}),
+  };
+  if (typeof params?.limit === 'number' && Number.isFinite(params.limit)) {
+    queryParams.limit = Math.max(1, Math.floor(params.limit));
+  }
+
   const { data } = await apiClient.get('/admin/knowledge', {
-    params: {
-      limit: params?.limit ?? 1000,
-      sync_with_storage: params?.sync_with_storage ?? false,
-      include_usage: params?.include_usage ?? false,
-      usage_days: params?.usage_days ?? 30,
-      ...(params?.query ? { query: params.query } : {}),
-      ...(params?.user_id ? { user_id: params.user_id } : {}),
-      ...(params?.knowledge_type ? { knowledge_type: params.knowledge_type } : {}),
-      ...(typeof params?.is_active === 'boolean' ? { is_active: params.is_active } : {}),
-    },
+    params: queryParams,
   });
   return {
     items: (data?.items || []) as AdminKnowledgeItem[],
@@ -902,17 +912,21 @@ export async function listAdminFeedback(params?: {
   include_usage?: boolean;
   usage_days?: number;
 }): Promise<{ items: FeedbackItem[]; count: number }> {
+  const queryParams: Record<string, unknown> = {
+    include_usage: params?.include_usage ?? true,
+    usage_days: params?.usage_days ?? 30,
+    ...(params?.user_id ? { user_id: params.user_id } : {}),
+    ...(params?.category ? { category: params.category } : {}),
+    ...(params?.vote ? { vote: params.vote } : {}),
+    ...(typeof params?.is_active === 'boolean' ? { is_active: params.is_active } : {}),
+    ...(params?.query ? { query: params.query } : {}),
+  };
+  if (typeof params?.limit === 'number' && Number.isFinite(params.limit)) {
+    queryParams.limit = Math.max(1, Math.floor(params.limit));
+  }
+
   const { data } = await apiClient.get('/admin/feedback', {
-    params: {
-      limit: params?.limit ?? 500,
-      include_usage: params?.include_usage ?? true,
-      usage_days: params?.usage_days ?? 30,
-      ...(params?.user_id ? { user_id: params.user_id } : {}),
-      ...(params?.category ? { category: params.category } : {}),
-      ...(params?.vote ? { vote: params.vote } : {}),
-      ...(typeof params?.is_active === 'boolean' ? { is_active: params.is_active } : {}),
-      ...(params?.query ? { query: params.query } : {}),
-    },
+    params: queryParams,
   });
   return {
     items: (data?.items || []) as FeedbackItem[],

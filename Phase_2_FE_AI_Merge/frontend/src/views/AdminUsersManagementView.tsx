@@ -12,6 +12,7 @@ import {
 import { userRepo } from '../repositories/user_repository';
 import type { UserEntity } from '../database/types';
 import { adminRowClass, adminUi, roleBadgeClass, statusBadgeClass } from '../lib/adminUi';
+import { AdminSortHeader, AdminTablePagination, type SortDirection } from '../components/admin/AdminTableControls';
 
 function nf(n: number): string {
   return new Intl.NumberFormat('en-US').format(n || 0);
@@ -31,6 +32,12 @@ type Editable = {
 };
 
 type UserDetail = UserEntity & { usage_summary?: Record<string, unknown> };
+
+type UserSortKey = 'user' | 'email' | 'role' | 'status';
+
+function userDisplayName(user: UserEntity): string {
+  return (user.displayName || user.username || user.email || user.uid || '').toLowerCase();
+}
 
 export default function AdminUsersManagementView() {
   const [users, setUsers] = useState<UserEntity[]>([]);
@@ -55,12 +62,16 @@ export default function AdminUsersManagementView() {
     role: 'student',
   });
 
+  const [sortKey, setSortKey] = useState<UserSortKey>('user');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
   const loadUsers = async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await userRepo.listAdminUsers({
-        limit: 1000,
         query: query || undefined,
         role: role || undefined,
         is_active: activeFilter === 'all' ? undefined : activeFilter === 'active',
@@ -81,6 +92,40 @@ export default function AdminUsersManagementView() {
   }, []);
 
   const filtered = useMemo(() => users, [users]);
+
+  const sorted = useMemo(() => {
+    const rows = [...filtered];
+    rows.sort((a, b) => {
+      let compare = 0;
+      if (sortKey === 'user') compare = userDisplayName(a).localeCompare(userDisplayName(b));
+      if (sortKey === 'email') compare = String(a.email || '').toLowerCase().localeCompare(String(b.email || '').toLowerCase());
+      if (sortKey === 'role') compare = String(a.role || '').toLowerCase().localeCompare(String(b.role || '').toLowerCase());
+      if (sortKey === 'status') compare = Number(a.isActive ?? true) - Number(b.isActive ?? true);
+      return sortDirection === 'asc' ? compare : -compare;
+    });
+    return rows;
+  }, [filtered, sortDirection, sortKey]);
+
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(sorted.length / Math.max(1, pageSize))), [pageSize, sorted.length]);
+
+  useEffect(() => {
+    setPage((current) => Math.min(Math.max(1, current), totalPages));
+  }, [totalPages]);
+
+  const paged = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return sorted.slice(start, start + pageSize);
+  }, [page, pageSize, sorted]);
+
+  const setSort = (next: UserSortKey, defaultDirection: SortDirection = 'asc') => {
+    setPage(1);
+    if (sortKey === next) {
+      setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
+    setSortKey(next);
+    setSortDirection(defaultDirection);
+  };
 
   const loadDetail = async (uid: string) => {
     try {
@@ -287,77 +332,123 @@ export default function AdminUsersManagementView() {
               <Loader2 className="w-4 h-4 animate-spin" /> Loading users...
             </div>
           ) : (
-            <table className={adminUi.table}>
-              <thead className={adminUi.thead}>
-                <tr>
-                  <th className={adminUi.th}>User</th>
-                  <th className={adminUi.th}>Role</th>
-                  <th className={adminUi.th}>Status</th>
-                  <th className={adminUi.thRight}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((u, idx) => (
-                  <tr key={u.uid} className={adminRowClass(idx)}>
-                    <td className={adminUi.td}>
-                      <p className="text-xs font-semibold text-slate-800">{u.displayName || u.username || u.email}</p>
-                      <p className="text-[11px] text-slate-500">{u.email}</p>
-                    </td>
-                    <td className={adminUi.td}><span className={roleBadgeClass(u.role)}>{u.role || 'student'}</span></td>
-                    <td className={adminUi.td}>
-                      {(u.isActive ?? true) ? (
-                        <span className={statusBadgeClass('active')}>active</span>
-                      ) : (
-                        <span className={statusBadgeClass('inactive')}>inactive</span>
-                      )}
-                    </td>
-                    <td className={adminUi.tdRight}>
-                      <div className="inline-flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => void loadDetail(u.uid)}
-                          className="rounded-lg border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] font-semibold text-sky-700 hover:bg-sky-100"
-                        >
-                          Detail
-                        </button>
-                        {(u.isActive ?? true) ? (
-                          <button
-                            type="button"
-                            onClick={() => void deactivate(u.uid)}
-                            className="rounded-md border border-rose-200 bg-rose-50 p-1.5 text-rose-700 hover:bg-rose-100"
-                            title="Deactivate"
-                          >
-                            <UserMinus className="w-3.5 h-3.5" />
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => void activate(u.uid)}
-                            className="rounded-md border border-emerald-200 bg-emerald-50 p-1.5 text-emerald-700 hover:bg-emerald-100"
-                            title="Activate"
-                          >
-                            <UserCheck className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => void removeUser(u.uid)}
-                          className="rounded-md border border-slate-200 bg-slate-50 p-1.5 text-slate-700 hover:bg-slate-100"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
+            <>
+              <table className={adminUi.table}>
+                <thead className={adminUi.thead}>
                   <tr>
-                    <td colSpan={4} className="px-2 py-4 text-sm text-slate-500">No users found.</td>
+                    <th className={adminUi.th}>
+                      <AdminSortHeader
+                        label="User"
+                        active={sortKey === 'user'}
+                        direction={sortDirection}
+                        onClick={() => setSort('user', 'asc')}
+                      />
+                    </th>
+                    <th className={adminUi.th}>
+                      <AdminSortHeader
+                        label="Role"
+                        active={sortKey === 'role'}
+                        direction={sortDirection}
+                        onClick={() => setSort('role', 'asc')}
+                      />
+                    </th>
+                    <th className={adminUi.th}>
+                      <AdminSortHeader
+                        label="Status"
+                        active={sortKey === 'status'}
+                        direction={sortDirection}
+                        onClick={() => setSort('status', 'desc')}
+                      />
+                    </th>
+                    <th className={adminUi.thRight}>
+                      <AdminSortHeader
+                        label="Email"
+                        active={sortKey === 'email'}
+                        direction={sortDirection}
+                        onClick={() => setSort('email', 'asc')}
+                        align="right"
+                      />
+                    </th>
+                    <th className={adminUi.thRight}>Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {paged.map((u, idx) => (
+                    <tr key={u.uid} className={adminRowClass((page - 1) * pageSize + idx)}>
+                      <td className={adminUi.td}>
+                        <p className="text-xs font-semibold text-slate-800">{u.displayName || u.username || u.email}</p>
+                        <p className="text-[11px] text-slate-500">{u.uid}</p>
+                      </td>
+                      <td className={adminUi.td}><span className={roleBadgeClass(u.role)}>{u.role || 'student'}</span></td>
+                      <td className={adminUi.td}>
+                        {(u.isActive ?? true) ? (
+                          <span className={statusBadgeClass('active')}>active</span>
+                        ) : (
+                          <span className={statusBadgeClass('inactive')}>inactive</span>
+                        )}
+                      </td>
+                      <td className={`${adminUi.tdRight} text-slate-600`}>{u.email}</td>
+                      <td className={adminUi.tdRight}>
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => void loadDetail(u.uid)}
+                            className="rounded-lg border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] font-semibold text-sky-700 hover:bg-sky-100"
+                          >
+                            Detail
+                          </button>
+                          {(u.isActive ?? true) ? (
+                            <button
+                              type="button"
+                              onClick={() => void deactivate(u.uid)}
+                              className="rounded-md border border-rose-200 bg-rose-50 p-1.5 text-rose-700 hover:bg-rose-100"
+                              title="Deactivate"
+                            >
+                              <UserMinus className="w-3.5 h-3.5" />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => void activate(u.uid)}
+                              className="rounded-md border border-emerald-200 bg-emerald-50 p-1.5 text-emerald-700 hover:bg-emerald-100"
+                              title="Activate"
+                            >
+                              <UserCheck className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => void removeUser(u.uid)}
+                            className="rounded-md border border-slate-200 bg-slate-50 p-1.5 text-slate-700 hover:bg-slate-100"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {sorted.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-2 py-4 text-sm text-slate-500">No users found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              <div className="border-t border-slate-100 px-3 py-2">
+                <AdminTablePagination
+                  page={page}
+                  pageSize={pageSize}
+                  totalItems={sorted.length}
+                  onPageChange={(next) => setPage(Math.min(Math.max(1, next), totalPages))}
+                  onPageSizeChange={(nextSize) => {
+                    setPageSize(nextSize);
+                    setPage(1);
+                  }}
+                  itemLabel="users"
+                />
+              </div>
+            </>
           )}
         </div>
 

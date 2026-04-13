@@ -84,7 +84,31 @@ class ImageIndexRepository:
                     raise RuntimeError(msg) from last_err
                 logger.warning(msg)
 
-    def ensure_collection(self, recreate: bool = False) -> None:
+    def _ensure_search_payload_indexes(self) -> None:
+        # Search path only requires tenant filter index; other indexes are primarily for management workflows.
+        from qdrant_client.models import PayloadSchemaType
+
+        field_name = "user_id"
+        field_schema = PayloadSchemaType.KEYWORD
+        ok = False
+        attempts = [field_schema, "keyword"]
+        last_err: Exception | None = None
+        for schema in attempts:
+            try:
+                self.client.create_payload_index(
+                    collection_name=self.collection_name,
+                    field_name=field_name,
+                    field_schema=schema,
+                )
+                ok = True
+                break
+            except Exception as e:
+                last_err = e
+        if not ok:
+            msg = f"Failed to create payload index '{field_name}' on {self.collection_name}: {last_err}"
+            raise RuntimeError(msg) from last_err
+
+    def ensure_collection(self, recreate: bool = False, *, search_only_indexes: bool = False) -> None:
         from qdrant_client.models import (
             Distance,
             MultiVectorComparator,
@@ -97,7 +121,10 @@ class ImageIndexRepository:
             if recreate:
                 self.client.delete_collection(self.collection_name)
             else:
-                self._ensure_payload_indexes()
+                if search_only_indexes:
+                    self._ensure_search_payload_indexes()
+                else:
+                    self._ensure_payload_indexes()
                 return
         params = VectorParams(
             size=self.embedding_dim,
@@ -110,7 +137,10 @@ class ImageIndexRepository:
             collection_name=self.collection_name,
             vectors_config={self.vector_name: params},
         )
-        self._ensure_payload_indexes()
+        if search_only_indexes:
+            self._ensure_search_payload_indexes()
+        else:
+            self._ensure_payload_indexes()
 
     def upsert_pages(
         self,

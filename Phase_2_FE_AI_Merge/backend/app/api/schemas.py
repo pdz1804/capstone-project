@@ -30,7 +30,7 @@ class SearchRequest(BaseModel):
     )
     skip_reranker: bool = Field(
         True,
-        description="If true, bypass cross-encoder reranking even when enabled in config.",
+        description="Deprecated: reranker is globally disabled for latency optimization; this flag is ignored.",
     )
 
 

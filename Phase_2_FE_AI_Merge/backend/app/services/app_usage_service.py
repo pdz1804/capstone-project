@@ -199,7 +199,7 @@ class AppUsageService:
         user_id: str | None = None,
         feature: str | None = None,
         model_id: str | None = None,
-        limit: int = 5000,
+        limit: int | None = None,
     ) -> List[Dict[str, Any]]:
         end = _utc_now()
         start = end - timedelta(days=max(1, min(days, 365)))
@@ -213,7 +213,7 @@ class AppUsageService:
         )
 
     def user_usage_summary(self, user_id: str, days: int = 30) -> Dict[str, Any]:
-        rows = self.list_usage(days=days, user_id=user_id, limit=5000)
+        rows = self.list_usage(days=days, user_id=user_id, limit=None)
         total_requests = len(rows)
         token_in = sum(_safe_int(x.get("token_in"), 0) for x in rows)
         token_out = sum(_safe_int(x.get("token_out"), 0) for x in rows)
@@ -237,7 +237,7 @@ class AppUsageService:
         }
 
     def dashboard_summary(self, days: int = 30) -> Dict[str, Any]:
-        rows = self.list_usage(days=days, limit=20000)
+        rows = self.list_usage(days=days, limit=None)
 
         total_requests = len(rows)
         token_in = sum(_safe_int(x.get("token_in"), 0) for x in rows)

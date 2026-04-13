@@ -119,7 +119,7 @@ class DynamoKnowledgeRepository:
         knowledge_type: str | None = None,
         is_active: bool | None = None,
         query: str | None = None,
-        limit: int = 1000,
+        limit: int | None = 1000,
     ) -> List[Dict[str, Any]]:
         scan_kwargs: Dict[str, Any] = {}
         filt = None
@@ -138,6 +138,15 @@ class DynamoKnowledgeRepository:
         if filt is not None:
             scan_kwargs["FilterExpression"] = filt
 
+        limit_n: int | None
+        if limit is None:
+            limit_n = None
+        else:
+            try:
+                limit_n = max(1, int(limit))
+            except Exception:
+                limit_n = None
+
         rows: List[Dict[str, Any]] = []
         last_key = None
         while True:
@@ -146,8 +155,6 @@ class DynamoKnowledgeRepository:
             resp = self._table.scan(**scan_kwargs)
             items = [_normalize_value(x) for x in (resp.get("Items") or [])]
             rows.extend(items)
-            if len(rows) >= limit:
-                break
             last_key = resp.get("LastEvaluatedKey")
             if not last_key:
                 break
@@ -163,4 +170,6 @@ class DynamoKnowledgeRepository:
             ]
 
         rows.sort(key=lambda x: str(x.get("updated_at") or ""), reverse=True)
-        return rows[:limit]
+        if limit_n is None:
+            return rows
+        return rows[:limit_n]

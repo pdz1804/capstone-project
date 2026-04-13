@@ -189,12 +189,29 @@ class DynamoUserRepository:
         self._table.delete_item(Key={"uid": uid})
         return True
 
-    def list(self, skip: int = 0, limit: int = 100) -> List[UserResponse]:
-        want = max(1, int(limit) + int(skip))
+    def list(self, skip: int = 0, limit: int | None = 100) -> List[UserResponse]:
+        skip_n = max(0, int(skip))
+
+        if limit is None:
+            items: list[dict[str, Any]] = []
+            last_key = None
+            while True:
+                kwargs: dict[str, Any] = {"Limit": 1000}
+                if last_key:
+                    kwargs["ExclusiveStartKey"] = last_key
+                r = self._table.scan(**kwargs)
+                items.extend(r.get("Items") or [])
+                last_key = r.get("LastEvaluatedKey")
+                if not last_key:
+                    break
+            return [_item_to_response(x) for x in items[skip_n:]]
+
+        limit_n = max(1, int(limit))
+        want = max(1, limit_n + skip_n)
         items: list[dict[str, Any]] = []
         last_key = None
         while len(items) < want:
-            kwargs: dict[str, Any] = {"Limit": min(1000, want)}
+            kwargs: dict[str, Any] = {"Limit": min(1000, max(1, want - len(items)))}
             if last_key:
                 kwargs["ExclusiveStartKey"] = last_key
             r = self._table.scan(**kwargs)
@@ -203,5 +220,5 @@ class DynamoUserRepository:
             if not last_key:
                 break
 
-        out = [_item_to_response(x) for x in items[skip : skip + limit]]
+        out = [_item_to_response(x) for x in items[skip_n : skip_n + limit_n]]
         return out

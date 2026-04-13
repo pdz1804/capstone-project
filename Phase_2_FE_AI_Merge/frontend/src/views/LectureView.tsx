@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import type { Components } from 'react-markdown';
 import { FileItem } from '../App';
 import {
@@ -69,6 +71,9 @@ const LECTURE_MARKDOWN_COMPONENTS: Components = {
     );
   },
 };
+
+const LECTURE_REMARK_PLUGINS = [remarkGfm, remarkMath];
+const LECTURE_REHYPE_PLUGINS = [rehypeKatex];
 
 type InputPreviewState =
   | { kind: 'none' }
@@ -247,7 +252,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
           }
         }
         if (officeExt.includes(ext)) {
-          const u = await getInputFileUrl(selectedFile.name, 900);
+          const u = await getInputFileUrl(selectedFile.name, 900, { viewer: 'office' });
           if (gen !== inputFetchGen.current) return;
           if (u?.url) {
             setInputPreview({
@@ -643,8 +648,6 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             </p>
             <div
               className="border border-slate-200 rounded-2xl bg-slate-50/60 max-h-52 overflow-y-auto shadow-inner custom-scrollbar"
-              role="listbox"
-              aria-label="Uploaded files"
             >
               {files.length === 0 ? (
                 <p className="p-4 text-sm text-slate-500 text-center">
@@ -669,8 +672,6 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                       <li key={file.id}>
                         <button
                           type="button"
-                          role="option"
-                          aria-selected={active}
                           onClick={() => setSelectedFileId(file.id)}
                           className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-start gap-3 ${active
                             ? 'bg-sky-50 border-l-4 border-l-sky-600 font-semibold text-slate-900'
@@ -730,7 +731,11 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               <div className="flex-1 overflow-y-auto custom-scrollbar border-b border-sky-100 bg-sky-50/50 p-4">
                 {selectedFile.name.toLowerCase().endsWith('.md') ? (
                   <div className="prose prose-sm prose-slate max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={LECTURE_MARKDOWN_COMPONENTS}>
+                    <ReactMarkdown
+                      remarkPlugins={LECTURE_REMARK_PLUGINS}
+                      rehypePlugins={LECTURE_REHYPE_PLUGINS}
+                      components={LECTURE_MARKDOWN_COMPONENTS}
+                    >
                       {inputPreview.content}
                     </ReactMarkdown>
                   </div>
@@ -746,6 +751,17 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               !inputPreviewLoading &&
               inputPreview.kind === 'office' && (
                 <div className="flex-1 border-b border-sky-100 bg-sky-50/50 flex flex-col">
+                  <div className="shrink-0 px-4 py-2 border-b border-sky-100 bg-white/70 flex items-center justify-between gap-3">
+                    <p className="text-[11px] text-slate-500 truncate">Office online preview</p>
+                    <a
+                      href={inputPreview.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] font-semibold text-sky-700 hover:text-sky-800"
+                    >
+                      Open original file
+                    </a>
+                  </div>
                   <iframe
                     title={`Office preview: ${selectedFile.name}`}
                     src={inputPreview.iframeSrc}
@@ -842,7 +858,11 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Processed markdown</p>
                     <div className="prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={LECTURE_MARKDOWN_COMPONENTS}>
+                      <ReactMarkdown
+                        remarkPlugins={LECTURE_REMARK_PLUGINS}
+                        rehypePlugins={LECTURE_REHYPE_PLUGINS}
+                        components={LECTURE_MARKDOWN_COMPONENTS}
+                      >
                         {processedMarkdown}
                       </ReactMarkdown>
                     </div>
@@ -857,7 +877,11 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   <div className="py-8 px-2">
                     <FileText className="w-12 h-12 text-slate-200 mx-auto mb-4" />
                     <div className="prose prose-sm prose-slate max-w-none text-center text-slate-600">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={LECTURE_MARKDOWN_COMPONENTS}>
+                      <ReactMarkdown
+                        remarkPlugins={LECTURE_REMARK_PLUGINS}
+                        rehypePlugins={LECTURE_REHYPE_PLUGINS}
+                        components={LECTURE_MARKDOWN_COMPONENTS}
+                      >
                         {processedMdNotice}
                       </ReactMarkdown>
                     </div>
@@ -958,14 +982,22 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   )}
                   {!processedMdLoading && processedMarkdown && (
                     <div className="prose prose-sm prose-slate max-w-none text-slate-700 border border-sky-100 rounded-2xl p-4 bg-sky-50/40 max-h-[55vh] overflow-y-auto custom-scrollbar">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={LECTURE_MARKDOWN_COMPONENTS}>
+                      <ReactMarkdown
+                        remarkPlugins={LECTURE_REMARK_PLUGINS}
+                        rehypePlugins={LECTURE_REHYPE_PLUGINS}
+                        components={LECTURE_MARKDOWN_COMPONENTS}
+                      >
                         {processedMarkdown}
                       </ReactMarkdown>
                     </div>
                   )}
                   {!processedMdLoading && !processedMarkdown && processedMdNotice && (
                     <div className="prose prose-sm prose-slate max-w-none text-slate-600 border border-slate-100 rounded-2xl p-4 bg-amber-50/40">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={LECTURE_MARKDOWN_COMPONENTS}>
+                      <ReactMarkdown
+                        remarkPlugins={LECTURE_REMARK_PLUGINS}
+                        rehypePlugins={LECTURE_REHYPE_PLUGINS}
+                        components={LECTURE_MARKDOWN_COMPONENTS}
+                      >
                         {processedMdNotice}
                       </ReactMarkdown>
                     </div>
@@ -1160,7 +1192,11 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   )}
                   <article ref={summaryRenderRef} className="border border-sky-100 rounded-2xl p-6 bg-sky-50/40">
                     <div className="prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={LECTURE_MARKDOWN_COMPONENTS}>
+                      <ReactMarkdown
+                        remarkPlugins={LECTURE_REMARK_PLUGINS}
+                        rehypePlugins={LECTURE_REHYPE_PLUGINS}
+                        components={LECTURE_MARKDOWN_COMPONENTS}
+                      >
                         {summaryMarkdown}
                       </ReactMarkdown>
                     </div>

@@ -10,6 +10,7 @@ from typing import Any, Dict, List
 from app.core.paths import qdrant_collection_names_for_user, workspace_paths_for_user
 from app.repositories import ImageIndexRepository, build_qdrant_client
 from app.services.colqwen_inference import ColQwenInferenceService
+from app.services.search_cache import get_search_cache_client
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +52,18 @@ class ImageSearchService:
         with ImageSearchService._prepared_collections_lock:
             if self._collection_name in ImageSearchService._prepared_collections:
                 return
-        self._repo.ensure_collection(recreate=False)
+
+        cache = get_search_cache_client()
+        marker_key = f"image:{self._collection_name}"
+        if cache.marker_exists(marker_key):
+            with ImageSearchService._prepared_collections_lock:
+                ImageSearchService._prepared_collections.add(self._collection_name)
+            return
+
+        self._repo.ensure_collection(recreate=False, search_only_indexes=True)
         with ImageSearchService._prepared_collections_lock:
             ImageSearchService._prepared_collections.add(self._collection_name)
+        cache.set_marker(marker_key)
 
     def search(self, query: str, top_k: int) -> List[Dict[str, Any]]:
         qvec = self._colqwen.embed_query(query)

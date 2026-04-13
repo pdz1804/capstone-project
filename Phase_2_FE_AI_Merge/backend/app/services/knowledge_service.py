@@ -281,9 +281,19 @@ class KnowledgeService:
             "removed_image_vectors": removed_image,
         }
 
-    def _scan_uploaded_rows(self, user_ids: Optional[List[str]] = None, limit: int = 1000) -> List[Dict[str, Any]]:
+    def _scan_uploaded_rows(self, user_ids: Optional[List[str]] = None, limit: int | None = 1000) -> List[Dict[str, Any]]:
         discovered_users = self._discover_storage_users(user_ids)
         by_id: Dict[str, Dict[str, Any]] = {}
+        limit_n: int | None
+        if limit is None:
+            limit_n = None
+        else:
+            try:
+                limit_n = max(1, int(limit))
+            except Exception:
+                limit_n = None
+
+        scan_cap = (limit_n * 5) if limit_n is not None else None
 
         for uid in discovered_users:
             try:
@@ -320,17 +330,19 @@ class KnowledgeService:
                 }
                 by_id[item["knowledge_id"]] = item
 
-                if len(by_id) >= limit * 5:
+                if scan_cap is not None and len(by_id) >= scan_cap:
                     break
 
-            if len(by_id) >= limit * 5:
+            if scan_cap is not None and len(by_id) >= scan_cap:
                 break
 
         out = list(by_id.values())
         out.sort(key=lambda x: str(x.get("updated_at") or ""), reverse=True)
         type(self)._cached_rows_by_id = {str(x.get("knowledge_id") or ""): x for x in out if str(x.get("knowledge_id") or "")}
         type(self)._cached_rows_at = time.time()
-        return out[: max(1, limit)]
+        if limit_n is None:
+            return out
+        return out[:limit_n]
 
     def _find_uploaded_row(self, knowledge_id: str) -> Dict[str, Any] | None:
         now = time.time()
@@ -556,12 +568,13 @@ class KnowledgeService:
         knowledge_type: str | None = None,
         is_active: bool | None = None,
         query: str | None = None,
-        limit: int = 1000,
+        limit: int | None = 1000,
     ) -> List[Dict[str, Any]]:
         if self._is_storage_only():
             user_filter = sanitize_storage_user_id(user_id) if user_id else None
             scan_users = [user_filter] if user_filter else known_user_ids
-            rows = self._scan_uploaded_rows(user_ids=scan_users, limit=max(limit, 5000))
+            scan_limit = None if limit is None else max(limit, 5000)
+            rows = self._scan_uploaded_rows(user_ids=scan_users, limit=scan_limit)
             q = (query or "").strip().lower()
             ktype = (knowledge_type or "").strip().lower()
 
@@ -581,6 +594,8 @@ class KnowledgeService:
                     or q in str(x.get("knowledge_id") or "").lower()
                 ]
             rows.sort(key=lambda x: str(x.get("updated_at") or ""), reverse=True)
+            if limit is None:
+                return rows
             return rows[:limit]
 
         if self.repo is None:

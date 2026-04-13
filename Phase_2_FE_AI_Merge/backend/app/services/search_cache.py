@@ -51,6 +51,7 @@ class SearchCacheConfig:
     redis_connect_timeout_seconds: float = 2.0
     redis_read_timeout_seconds: float = 2.0
     redis_retry_cooldown_seconds: float = 30.0
+    qdrant_setup_ttl_seconds: int = 3600
     allow_private_endpoint_local: bool = False
 
     @staticmethod
@@ -69,6 +70,10 @@ class SearchCacheConfig:
             ),
             redis_retry_cooldown_seconds=float(
                 os.getenv("SEARCH_CACHE_REDIS_RETRY_COOLDOWN_SECONDS", "30") or "30"
+            ),
+            qdrant_setup_ttl_seconds=max(
+                60,
+                int(os.getenv("SEARCH_CACHE_QDRANT_SETUP_TTL_SECONDS", "3600") or "3600"),
             ),
             allow_private_endpoint_local=_bool_env("SEARCH_CACHE_ALLOW_PRIVATE_ENDPOINT_LOCAL", False),
         )
@@ -161,6 +166,11 @@ class SearchCacheClient:
         digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
         return f"{self.config.key_prefix}:{digest}"
 
+    def _build_marker_key(self, namespace: str, marker: str) -> str:
+        ns = (namespace or "marker").strip().lower()
+        mk = (marker or "").strip().lower()
+        return f"{self.config.key_prefix}:{ns}:marker:{mk}"
+
     def get(
         self,
         user_id: str,
@@ -206,6 +216,35 @@ class SearchCacheClient:
             return True
         except (RedisError, TypeError, ValueError) as e:
             logger.warning("Search cache write failed: %s", e)
+            return False
+
+    def marker_exists(self, marker: str, namespace: str = "qdrant_setup") -> bool:
+        client = self._redis_client()
+        if client is None:
+            return False
+        key = self._build_marker_key(namespace, marker)
+        try:
+            return bool(client.exists(key))
+        except RedisError as e:
+            logger.warning("Search cache marker exists check failed: %s", e)
+            return False
+
+    def set_marker(
+        self,
+        marker: str,
+        namespace: str = "qdrant_setup",
+        ttl_seconds: Optional[int] = None,
+    ) -> bool:
+        client = self._redis_client()
+        if client is None:
+            return False
+        key = self._build_marker_key(namespace, marker)
+        ttl = max(60, int(ttl_seconds or self.config.qdrant_setup_ttl_seconds))
+        try:
+            client.setex(key, ttl, b"1")
+            return True
+        except RedisError as e:
+            logger.warning("Search cache marker write failed: %s", e)
             return False
 
 
