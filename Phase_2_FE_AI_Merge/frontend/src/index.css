@@ -1,9 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Sora", "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Segoe UI", "Tahoma", "Arial", sans-serif;
+  --font-display: "Segoe UI", "Trebuchet MS", "Arial", sans-serif;
 }
 
 @layer base {

@@ -20,7 +20,9 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { authService } from '../services/auth_service';
 import AppFooter from '../components/AppFooter';
-import robotHero from '../../robot_2.png';
+
+const robotHeroSrc = '/hero-robot-800.jpg';
+const robotHeroSrcSet = '/hero-robot-480.jpg 480w, /hero-robot-800.jpg 800w';
 
 type AuthMode = 'login' | 'register';
 
@@ -198,7 +200,7 @@ export default function LoginView() {
                 type="button"
                 onClick={() => scrollToSection(link.id)}
                 className={`px-4 py-2 text-sm rounded-full transition-colors cursor-pointer ${
-                  activeSection === link.id ? 'bg-sky-600 text-white' : 'text-slate-600 hover:bg-sky-50'
+                  activeSection === link.id ? 'bg-sky-700 text-white' : 'text-slate-700 hover:bg-sky-50'
                 }`}
               >
                 {link.label}
@@ -217,7 +219,7 @@ export default function LoginView() {
             <button
               type="button"
               onClick={() => jumpToAuth('register')}
-              className="px-4 py-2 rounded-lg bg-sky-600 text-white text-sm font-semibold hover:bg-sky-700 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg bg-sky-700 text-white text-sm font-semibold hover:bg-sky-800 transition-colors cursor-pointer"
             >
               Register
             </button>
@@ -254,7 +256,7 @@ export default function LoginView() {
                 <button
                   type="button"
                   onClick={() => jumpToAuth('register')}
-                  className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-6 py-3 text-white font-semibold hover:bg-sky-700 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-sky-700 px-6 py-3 text-white font-semibold hover:bg-sky-800 transition-colors cursor-pointer"
                 >
                   Start for Free
                   <ArrowRight className="w-4 h-4" />
@@ -287,16 +289,27 @@ export default function LoginView() {
             >
               <div className="rounded-3xl border border-sky-100 bg-white p-5 sm:p-8 shadow-[0_35px_80px_-45px_rgba(2,132,199,0.5)]">
                 <div className="rounded-2xl bg-sky-50 border border-sky-100 p-4 sm:p-8 overflow-hidden">
-                  <img src={robotHero} alt="BK-MInD learning assistant" className="w-full h-auto max-h-[500px] object-contain mx-auto animate-float" />
+                  <img
+                    src={robotHeroSrc}
+                    srcSet={robotHeroSrcSet}
+                    sizes="(max-width: 768px) 90vw, 532px"
+                    width={800}
+                    height={800}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                    alt="BK-MInD learning assistant"
+                    className="w-full h-auto max-h-[500px] object-contain mx-auto animate-float"
+                  />
                 </div>
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="rounded-xl border border-sky-100 bg-sky-50 p-4">
                     <p className="text-sm font-semibold text-slate-800">AI Assistant</p>
-                    <p className="text-xs text-slate-500 mt-1">Context-aware Q&A for lecture content</p>
+                    <p className="text-xs text-slate-600 mt-1">Context-aware Q&A for lecture content</p>
                   </div>
                   <div className="rounded-xl border border-sky-100 bg-sky-50 p-4">
                     <p className="text-sm font-semibold text-slate-800">Smart Citation</p>
-                    <p className="text-xs text-slate-500 mt-1">Clear source citations for every response</p>
+                    <p className="text-xs text-slate-600 mt-1">Clear source citations for every response</p>
                   </div>
                 </div>
               </div>
@@ -436,7 +449,7 @@ export default function LoginView() {
                     </span>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-slate-900 truncate" title={item.name}>{item.name}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{item.role}</p>
+                      <p className="text-xs text-slate-600 mt-0.5">{item.role}</p>
                     </div>
                     <span className="ml-auto rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
                       {idx === 1 ? 'Lecturer' : 'Learner'}
@@ -499,7 +512,7 @@ export default function LoginView() {
                   type="button"
                   onClick={() => setAuthMode('login')}
                   className={`py-2.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    authMode === 'login' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                    authMode === 'login' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-800'
                   }`}
                 >
                   <span className="inline-flex items-center gap-2">
@@ -511,7 +524,7 @@ export default function LoginView() {
                   type="button"
                   onClick={() => setAuthMode('register')}
                   className={`py-2.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    authMode === 'register' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                    authMode === 'register' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-800'
                   }`}
                 >
                   <span className="inline-flex items-center gap-2">
@@ -598,12 +611,12 @@ export default function LoginView() {
                   void handleLocalRegister();
                 }}
                 disabled={isLoading || !email || !password || (authMode === 'register' && !displayName.trim())}
-                className="mt-4 w-full rounded-xl bg-sky-600 py-3 text-sm font-semibold text-white hover:bg-sky-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mt-4 w-full rounded-xl bg-sky-700 py-3 text-sm font-semibold text-white hover:bg-sky-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {authMode === 'login' ? 'Sign in with app account' : 'Create new account'}
               </button>
 
-              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-500">
+              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-600">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                 Login data is protected and handled securely.
               </div>

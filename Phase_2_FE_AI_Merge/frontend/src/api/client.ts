@@ -1,9 +1,23 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-import { auth } from '../firebase';
 
 const BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 const LOCAL_AUTH_TOKEN_KEY = 'bk_local_auth_token';
 const LOCAL_AUTH_UID_KEY = 'bk_local_auth_uid';
+const GOOGLE_AUTH_HINT_KEY = 'bk_google_auth_hint';
+
+let firebaseAuthPromise: Promise<any | null> | null = null;
+
+const getFirebaseAuthIfNeeded = async (): Promise<any | null> => {
+  if (localStorage.getItem(GOOGLE_AUTH_HINT_KEY) !== '1') {
+    return null;
+  }
+  if (!firebaseAuthPromise) {
+    firebaseAuthPromise = import('../firebase')
+      .then((mod) => mod.auth)
+      .catch(() => null);
+  }
+  return firebaseAuthPromise;
+};
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -15,7 +29,8 @@ const apiClient: AxiosInstance = axios.create({
 // Interceptor: Firebase ID token + per-user storage (must match backend X-User-Id / workspace)
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const user = auth.currentUser;
+    const auth = await getFirebaseAuthIfNeeded();
+    const user = auth?.currentUser;
     if (user) {
       const token = await user.getIdToken();
       config.headers.Authorization = `Bearer ${token}`;
