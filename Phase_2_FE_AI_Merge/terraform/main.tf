@@ -50,6 +50,7 @@ locals {
   chatbot_sessions_table_effective_name = trimspace(var.chatbot_sessions_table_name) != "" ? var.chatbot_sessions_table_name : "chatbot-session"
   chatbot_messages_table_effective_name = trimspace(var.chatbot_messages_table_name) != "" ? var.chatbot_messages_table_name : "chatbot-messages"
   search_cache_serverless_name          = trimspace(var.search_cache_serverless_name) != "" ? var.search_cache_serverless_name : "${var.project_name}-cache"
+  waf_effective_name                    = trimspace(var.waf_name) != "" ? var.waf_name : "${var.project_name}-waf"
   sagemaker_invoke_arns = var.enable_sagemaker_endpoint ? [
     "arn:aws:sagemaker:${var.aws_region}:${data.aws_caller_identity.current.account_id}:endpoint/${local.sagemaker_endpoint_effective_name}"
   ] : []
@@ -318,6 +319,23 @@ module "alb" {
   tags = {
     Service = "load-balancer"
   }
+}
+
+module "waf" {
+  count  = var.enable_waf ? 1 : 0
+  source = "./modules/waf"
+
+  waf_name                          = local.waf_effective_name
+  alb_arn                           = module.alb.alb_arn
+  rate_limit_requests_per_5_minutes = var.waf_rate_limit_requests_per_5_minutes
+  enable_logging                    = var.waf_enable_logging
+  log_retention_days                = var.waf_log_retention_days
+
+  tags = {
+    Service = "waf"
+  }
+
+  depends_on = [module.alb]
 }
 
 module "ecs" {

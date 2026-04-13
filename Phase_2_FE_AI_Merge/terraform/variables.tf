@@ -351,3 +351,33 @@ variable "search_cache_redis_retry_cooldown_seconds" {
   type        = number
   default     = 30
 }
+
+variable "enable_waf" {
+  description = "Enable AWS WAFv2 Web ACL and associate it with the ALB"
+  type        = bool
+  default     = false
+}
+
+variable "waf_name" {
+  description = "Optional WAF Web ACL name override. Default: {project_name}-waf"
+  type        = string
+  default     = ""
+}
+
+variable "waf_rate_limit_requests_per_5_minutes" {
+  description = "Rate limit threshold per IP for RateLimitRule"
+  type        = number
+  default     = 2000
+}
+
+variable "waf_enable_logging" {
+  description = "Enable CloudWatch logging for WAF"
+  type        = bool
+  default     = true
+}
+
+variable "waf_log_retention_days" {
+  description = "CloudWatch log retention for WAF logs"
+  type        = number
+  default     = 30
+}

@@ -9,6 +9,14 @@ https_listener_ssl_policy = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
 enable_alb_deletion_protection = false
 
+# WAF (5-rule baseline): RateLimit + SQLi + KnownBadInputs + CommonRuleSet + IPReputation.
+# If you already created this manually in AWS, import resources before apply.
+enable_waf = true
+waf_name   = "rag-pipeline-waf"
+waf_rate_limit_requests_per_5_minutes = 2000
+waf_enable_logging = true
+waf_log_retention_days = 30
+
 # Backend Service Configuration
 backend_desired_count  = 2
 backend_min_capacity   = 1

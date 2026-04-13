@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import {
   Activity,
   LayoutDashboard,
@@ -25,20 +25,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from './lib/utils';
-import DashboardView from './views/DashboardView';
-import KnowledgeManagementView from './views/KnowledgeManagementView';
-import LectureView from './views/LectureView';
-import LearningPathView from './views/LearningPathView';
-import ChatAssistantView from './views/ChatAssistantView';
-import FeedbacksView from './views/FeedbacksView';
-import ProfileView from './views/ProfileView';
-import QuizView from './views/QuizView';
 import LoginView from './views/LoginView';
-import AdminDashboardView from './views/AdminDashboardView';
-import AdminInvocationsView from './views/AdminInvocationsView';
-import AdminUsersManagementView from './views/AdminUsersManagementView';
-import AdminKnowledgeManagementView from './views/AdminKnowledgeManagementView';
-import AdminFeedbackManagementView from './views/AdminFeedbackManagementView';
 import AppFooter from './components/AppFooter';
 import UserProfileModal from './components/UserProfileModal';
 import { authService } from './services/auth_service';
@@ -88,6 +75,19 @@ const KNOWLEDGE_PATHS: Record<KnowledgeSubTab, string> = {
   'build-index': '/knowledge/build-index',
   explorer: '/knowledge/explorer',
 };
+
+const DashboardView = lazy(() => import('./views/DashboardView'));
+const KnowledgeManagementView = lazy(() => import('./views/KnowledgeManagementView'));
+const LectureView = lazy(() => import('./views/LectureView'));
+const LearningPathView = lazy(() => import('./views/LearningPathView'));
+const ChatAssistantView = lazy(() => import('./views/ChatAssistantView'));
+const FeedbacksView = lazy(() => import('./views/FeedbacksView'));
+const ProfileView = lazy(() => import('./views/ProfileView'));
+const AdminDashboardView = lazy(() => import('./views/AdminDashboardView'));
+const AdminInvocationsView = lazy(() => import('./views/AdminInvocationsView'));
+const AdminUsersManagementView = lazy(() => import('./views/AdminUsersManagementView'));
+const AdminKnowledgeManagementView = lazy(() => import('./views/AdminKnowledgeManagementView'));
+const AdminFeedbackManagementView = lazy(() => import('./views/AdminFeedbackManagementView'));
 
 function routeToState(pathname: string): {
   view: ViewType;
@@ -400,6 +400,11 @@ export default function App() {
   ] as const;
 
   const navItems = (isAdminView ? adminNavItems : studentNavItems) as ReadonlyArray<any>;
+  const viewLoadingFallback = (
+    <div className="h-full w-full flex items-center justify-center">
+      <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+    </div>
+  );
 
   return (
     <div className="relative flex h-screen overflow-hidden bg-slate-50 text-slate-900 font-sans">
@@ -620,27 +625,29 @@ export default function App() {
 
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <div className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-6 xl:p-8 2xl:px-10 min-h-0">
-            {currentView === 'dashboard' && <DashboardView onNavigate={navigateToView} user={user} files={files} />}
-            {currentView === 'knowledge' && (
-              <KnowledgeManagementView
-                files={files}
-                setFiles={setFiles}
-                activeTab={knowledgeSubTab}
-                onRefreshFiles={refreshFilesFromApi}
-              />
-            )}
-            {currentView === 'lecture' && <LectureView files={files} />}
-            {currentView === 'learning' && (
-              <LearningPathView files={files} quizResults={quizResults} onQuizComplete={addQuizResult} />
-            )}
-            {currentView === 'chat' && <ChatAssistantView />}
-            {currentView === 'feedbacks' && <FeedbacksView />}
-            {currentView === 'adminDashboard' && <AdminDashboardView />}
-            {currentView === 'adminInvocations' && <AdminInvocationsView />}
-            {currentView === 'adminUsers' && <AdminUsersManagementView />}
-            {currentView === 'adminKnowledge' && <AdminKnowledgeManagementView />}
-            {currentView === 'adminFeedback' && <AdminFeedbackManagementView />}
-            {currentView === 'profile' && <ProfileView user={user} onEditProfile={() => setIsProfileModalOpen(true)} />}
+            <Suspense fallback={viewLoadingFallback}>
+              {currentView === 'dashboard' && <DashboardView onNavigate={navigateToView} user={user} files={files} />}
+              {currentView === 'knowledge' && (
+                <KnowledgeManagementView
+                  files={files}
+                  setFiles={setFiles}
+                  activeTab={knowledgeSubTab}
+                  onRefreshFiles={refreshFilesFromApi}
+                />
+              )}
+              {currentView === 'lecture' && <LectureView files={files} />}
+              {currentView === 'learning' && (
+                <LearningPathView files={files} quizResults={quizResults} onQuizComplete={addQuizResult} />
+              )}
+              {currentView === 'chat' && <ChatAssistantView />}
+              {currentView === 'feedbacks' && <FeedbacksView />}
+              {currentView === 'adminDashboard' && <AdminDashboardView />}
+              {currentView === 'adminInvocations' && <AdminInvocationsView />}
+              {currentView === 'adminUsers' && <AdminUsersManagementView />}
+              {currentView === 'adminKnowledge' && <AdminKnowledgeManagementView />}
+              {currentView === 'adminFeedback' && <AdminFeedbackManagementView />}
+              {currentView === 'profile' && <ProfileView user={user} onEditProfile={() => setIsProfileModalOpen(true)} />}
+            </Suspense>
           </div>
           <AppFooter />
         </div>

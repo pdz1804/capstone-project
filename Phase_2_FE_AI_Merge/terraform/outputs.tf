@@ -58,6 +58,26 @@ output "alb_https_enabled" {
   value       = module.alb.https_enabled
 }
 
+output "waf_web_acl_id" {
+  description = "WAF Web ACL ID (empty when WAF is disabled)"
+  value       = try(module.waf[0].web_acl_id, "")
+}
+
+output "waf_web_acl_arn" {
+  description = "WAF Web ACL ARN (empty when WAF is disabled)"
+  value       = try(module.waf[0].web_acl_arn, "")
+}
+
+output "waf_web_acl_name" {
+  description = "WAF Web ACL name (empty when WAF is disabled)"
+  value       = try(module.waf[0].web_acl_name, "")
+}
+
+output "waf_log_group_name" {
+  description = "CloudWatch log group used by WAF (empty when disabled)"
+  value       = try(module.waf[0].waf_log_group_name, "")
+}
+
 output "ecs_cluster_name" {
   description = "ECS cluster name"
   value       = module.ecs.cluster_name
