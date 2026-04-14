@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from time import perf_counter
 from pathlib import Path
@@ -79,8 +80,10 @@ class SearchOrchestrator:
         generation_model: str | None = None,
         skip_reranker: bool = False,
     ) -> Dict[str, Any]:
-        # Force-disable reranker globally to optimize retrieval latency.
-        skip_reranker = True
+        # Reranker can be controlled via config or parameter; default to enabled if not explicitly disabled
+        # To skip reranking, set SKIP_RERANKER=true or pass skip_reranker=True
+        config_skip_reranker = os.getenv("SKIP_RERANKER", "true").lower() in ("true", "1", "yes")
+        skip_reranker = skip_reranker or config_skip_reranker
         t0 = perf_counter()
         step_ms: Dict[str, int] = {}
         scope = (search_scope or "both").strip().lower()
@@ -144,18 +147,23 @@ class SearchOrchestrator:
                 return ImageSearchService(self.cfg, user_id=self._user_id).search(query, top_k)
 
             t_parallel = perf_counter()
+            search_timeout_seconds = int(os.getenv("SEARCH_PARALLEL_TIMEOUT_SECONDS", "30"))
             with ThreadPoolExecutor(max_workers=2) as pool:
                 fut_t = pool.submit(_fetch_text)
                 fut_i = pool.submit(_fetch_images)
-                for fut in as_completed([fut_t, fut_i]):
+                for fut in as_completed([fut_t, fut_i], timeout=search_timeout_seconds):
                     if fut is fut_t:
                         try:
-                            text_rows = fut.result()
+                            text_rows = fut.result(timeout=1)
+                        except TimeoutError:
+                            logger.warning("Text search timeout after %d seconds", search_timeout_seconds)
                         except Exception as e:
                             logger.exception("Text search failed: %s", e)
                     else:
                         try:
-                            image_rows = fut.result()
+                            image_rows = fut.result(timeout=1)
+                        except TimeoutError:
+                            logger.warning("Image search timeout after %d seconds", search_timeout_seconds)
                         except Exception as e:
                             logger.exception("Image search failed: %s", e)
             elapsed = int((perf_counter() - t_parallel) * 1000)

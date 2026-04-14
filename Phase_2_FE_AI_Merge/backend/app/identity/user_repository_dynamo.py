@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 from datetime import datetime, timezone
 from typing import Any, List, Optional
@@ -7,6 +8,11 @@ from typing import Any, List, Optional
 from boto3.dynamodb.conditions import Attr
 
 from .schemas import UserCreate, UserUpdate, UserResponse
+
+logger = logging.getLogger(__name__)
+
+# Pagination limits to prevent timeouts on large scans
+MAX_SCAN_ITERATIONS = 50  # Stop after scanning 50 pages (~10k items at 200 per page)
 
 
 def _iso_now() -> str:
@@ -69,7 +75,9 @@ class DynamoUserRepository:
         if not norm:
             return None
         last_key = None
-        while True:
+        iterations = 0
+        while iterations < MAX_SCAN_ITERATIONS:
+            iterations += 1
             kwargs: dict[str, Any] = {
                 "FilterExpression": Attr("email").eq(norm),
                 "Limit": 200,
@@ -83,6 +91,8 @@ class DynamoUserRepository:
             last_key = r.get("LastEvaluatedKey")
             if not last_key:
                 break
+        if iterations >= MAX_SCAN_ITERATIONS:
+            logger.warning(f"get_item_by_email scan hit max iterations ({MAX_SCAN_ITERATIONS}) for email pattern")
         return None
 
     def get_item_by_username(self, username: str) -> Optional[dict[str, Any]]:
@@ -90,7 +100,9 @@ class DynamoUserRepository:
         if not norm:
             return None
         last_key = None
-        while True:
+        iterations = 0
+        while iterations < MAX_SCAN_ITERATIONS:
+            iterations += 1
             kwargs: dict[str, Any] = {
                 "FilterExpression": Attr("username").eq(norm),
                 "Limit": 200,
@@ -104,6 +116,8 @@ class DynamoUserRepository:
             last_key = r.get("LastEvaluatedKey")
             if not last_key:
                 break
+        if iterations >= MAX_SCAN_ITERATIONS:
+            logger.warning(f"get_item_by_username scan hit max iterations ({MAX_SCAN_ITERATIONS}) for username pattern")
         return None
 
     def get_by_email(self, email: str) -> Optional[UserResponse]:
