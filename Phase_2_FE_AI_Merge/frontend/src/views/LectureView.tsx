@@ -239,6 +239,9 @@ export default function LectureView({ files = [] }: LectureViewProps) {
         const nameLower = selectedFile.name.toLowerCase();
         const ext = nameLower.includes('.') ? nameLower.slice(nameLower.lastIndexOf('.')) : '';
         const officeExt = ['.ppt', '.pptx', '.xls', '.xlsx', '.doc', '.docx'];
+        const wordExt = ['.doc', '.docx'];
+        const officeViewerExt = ['.ppt', '.pptx', '.xls', '.xlsx'];
+
         if (ext === '.pdf' || selectedFile.type === 'pdf') {
           const u = await getInputFileUrl(selectedFile.name, 900);
           if (gen !== inputFetchGen.current) return;
@@ -251,7 +254,55 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             return;
           }
         }
-        if (officeExt.includes(ext)) {
+
+        // For Word files: try processed PDF first, then fallback to markdown
+        if (wordExt.includes(ext)) {
+          try {
+            const data = await getProcessedByFile(selectedFile.name);
+            if (gen !== inputFetchGen.current) return;
+
+            // Look for PDF in processed stages
+            const stageOrder = ['stage3_document_processed', 'stage4_rag_ready'] as const;
+            let pdfPath: string | null = null;
+
+            for (const st of stageOrder) {
+              const block = data.stages.find((s) => s.stage === st);
+              const rows = (block?.files || []) as Array<{ name?: string; relative_path?: string }>;
+              const pdf = rows.find((r) => /\.pdf$/i.test(String(r.name || '')));
+              if (pdf) {
+                pdfPath = String(pdf.relative_path || '').trim();
+                break;
+              }
+            }
+
+            if (pdfPath) {
+              const { body, mediaType } = await getProcessedFile(pdfPath);
+              if (gen !== inputFetchGen.current) return;
+              const coerced = coerceBlobForPreview(body, selectedFile.name, mediaType);
+              const objectUrl = URL.createObjectURL(coerced);
+              if (gen !== inputFetchGen.current) {
+                URL.revokeObjectURL(objectUrl);
+                return;
+              }
+              inputBlobUrlRef.current = objectUrl;
+              setInputPreview({
+                kind: 'blob',
+                url: objectUrl,
+                mime: 'application/pdf',
+              });
+              return;
+            }
+          } catch (e) {
+            console.warn('Failed to load processed PDF for Word file:', e);
+          }
+
+          // No processed PDF found - set preview to 'none' to trigger markdown fallback
+          setInputPreview({ kind: 'none' });
+          return;
+        }
+
+        // For PowerPoint/Excel: use Microsoft Office Online viewer
+        if (officeViewerExt.includes(ext)) {
           const u = await getInputFileUrl(selectedFile.name, 900, { viewer: 'office' });
           if (gen !== inputFetchGen.current) return;
           if (u?.url) {

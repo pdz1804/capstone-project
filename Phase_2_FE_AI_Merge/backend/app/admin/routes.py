@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import threading
 from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -15,6 +16,7 @@ from app.services.knowledge_service import KnowledgeService
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 _KNOWLEDGE_SERVICE_SINGLETON: KnowledgeService | None = None
+_KNOWLEDGE_SERVICE_LOCK = threading.Lock()
 
 
 def get_usage_service() -> AppUsageService | None:
@@ -36,10 +38,17 @@ def get_cost_report_service() -> CostReportService | None:
 
 
 def get_knowledge_service() -> KnowledgeService | None:
+    """Thread-safe singleton getter for KnowledgeService using double-checked locking."""
     global _KNOWLEDGE_SERVICE_SINGLETON
-    if _KNOWLEDGE_SERVICE_SINGLETON is None:
-        _KNOWLEDGE_SERVICE_SINGLETON = KnowledgeService.from_env_optional()
-    return _KNOWLEDGE_SERVICE_SINGLETON
+    # First check without lock (fast path)
+    if _KNOWLEDGE_SERVICE_SINGLETON is not None:
+        return _KNOWLEDGE_SERVICE_SINGLETON
+
+    # Second check with lock (slow path)
+    with _KNOWLEDGE_SERVICE_LOCK:
+        if _KNOWLEDGE_SERVICE_SINGLETON is None:
+            _KNOWLEDGE_SERVICE_SINGLETON = KnowledgeService.from_env_optional()
+        return _KNOWLEDGE_SERVICE_SINGLETON
 
 
 class AdminUserCreateRequest(BaseModel):
