@@ -244,9 +244,13 @@ AgentCore runtime packaging helpers are in `backend/agent/`:
 
 For full details (API contract, PK/SK schema, frontend behavior), see [`docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.md`](docs/CHAT_ASSISTANT_HISTORY_AND_RUNTIME.md).
 
+## Run locally
+pip install -r requirements.txt
+python run_api.py       # Main entrypoint
+
 ## Docker
 
 ```bash
 docker build -t phase2-ai-backend .
-docker run -p 5000:5000 --env-file .env phase2-ai-backend
+docker run -p 5001:5000 --env-file .env phase2-ai-backend
 ```
