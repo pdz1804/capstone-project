@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List
 
+from app.core.qdrant_errors import is_qdrant_unreachable
 from app.core.paths import qdrant_collection_names_for_user, workspace_paths_for_user
 from app.repositories import (
     TextIndexRepository,
@@ -36,6 +37,25 @@ def _load_doc_map_for_user(path: Path, user_id: str | None) -> Dict[str, Dict[st
         cid = str(d.get("id", ""))
         if cid:
             out[cid] = d
+    return out
+
+
+def _bm25_fallback_rows(
+    rows: List[Dict[str, Any]],
+    top_k: int,
+    fallback_reason: str,
+) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    for rank, row in enumerate(rows[:top_k], start=1):
+        item = dict(row)
+        item["rank"] = rank
+        item["retrieval_type"] = "hybrid_bm25_fallback_qdrant_unavailable"
+        info = dict(item.get("retrieval_info") or {})
+        info["bm25_score"] = float(item.get("score", 0.0))
+        info["dense_score"] = None
+        info["fallback_reason"] = fallback_reason
+        item["retrieval_info"] = info
+        out.append(item)
     return out
 
 
@@ -131,7 +151,17 @@ class TextSearchService:
     def search_hybrid(self, query: str, top_k: int, skip_reranker: bool = False) -> List[Dict[str, Any]]:
         expand = max(top_k, int(top_k * 1.3))
         bm = self.search_bm25(query, expand)
-        dn = self.search_dense(query, expand)
+        try:
+            dn = self.search_dense(query, expand)
+        except Exception as e:
+            if not is_qdrant_unreachable(e):
+                raise
+            logger.warning("Hybrid search: dense Qdrant branch unavailable, falling back to BM25: %s", e)
+            return _bm25_fallback_rows(
+                bm,
+                top_k=top_k,
+                fallback_reason=f"{type(e).__name__}: {e}",
+            )
         bm_scores = {str(r["id"]): float(r.get("score", 0.0)) for r in bm}
         dn_scores = {str(r["id"]): float(r.get("score", 0.0)) for r in dn}
         bm_norm = _min_max_normalize(bm_scores)

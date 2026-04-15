@@ -10,6 +10,7 @@ from fastapi.responses import Response
 from app.api.deps import storage_user_id
 from app.api.schemas import SearchRequest
 from app.core.paths import merged_runtime_settings
+from app.core.qdrant_errors import is_qdrant_unreachable, qdrant_setup_hint
 from app.services.search_orchestrator import SearchOrchestrator
 from app.storage import get_file_storage
 from app.storage.service import S3FileStorage, parse_s3_uri
@@ -23,8 +24,8 @@ def search(
     req: SearchRequest,
     user_id: str = Depends(storage_user_id),
 ):
+    cfg = merged_runtime_settings()
     try:
-        cfg = merged_runtime_settings()
         orch = SearchOrchestrator(cfg, user_id=user_id)
         return orch.run(
             query=req.query,
@@ -38,6 +39,15 @@ def search(
             skip_reranker=req.skip_reranker,
         )
     except Exception as e:
+        if is_qdrant_unreachable(e):
+            logger.warning("search: Qdrant unreachable: %s", e)
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    f"Cannot connect to Qdrant. {qdrant_setup_hint(cfg)} "
+                    f"Underlying: {type(e).__name__}: {e}"
+                ),
+            ) from e
         logger.exception("search")
         raise HTTPException(status_code=500, detail=str(e)) from e
 

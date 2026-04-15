@@ -836,7 +836,7 @@ class DocumentNormalizer:
     def _parse_pdf_with_reader(self, file_path: Path, stem: str):
         """Parse a born-digital PDF into heading-tree JSON using pdf_reader.py."""
         import json as _json
-        from .pdf_reader import PdfParser
+        from .pdf_reader_pymupdf import PdfParser
 
         parsed_output_dir = self.pdf_parsed_dir / "_parsed" / stem
         parsed_output_dir.mkdir(parents=True, exist_ok=True)

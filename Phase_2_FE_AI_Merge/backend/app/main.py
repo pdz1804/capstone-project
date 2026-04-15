@@ -43,7 +43,9 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=True)
+    # In containers, runtime env vars from `docker run --env-file` should win over
+    # the baked-in `.env` copied into the image.
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
     ensure_data_dirs("default")
     logger.info("AI service startup")
     yield
