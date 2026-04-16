@@ -57,7 +57,7 @@ interface ToolTrace {
 
 const LOCAL_AUTH_TOKEN_KEY = 'bk_local_auth_token';
 const LOCAL_AUTH_UID_KEY = 'bk_local_auth_uid';
-const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || '/api';
 const CHAT_SESSIONS_PAGE_SIZE = 10;
 const CHAT_HISTORY_ENABLED_KEY = 'bk_chat_history_enabled';
 

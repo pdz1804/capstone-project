@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import { Search, MessageSquare, RefreshCw, Database, Clock3, Sigma } from 'lucide-react';
 import { FileItem } from '../App';
@@ -178,6 +179,14 @@ export default function SearchView({ files }: SearchViewProps) {
     return rows.sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
   }, [contents]);
 
+  const citationsById = useMemo(() => {
+    const map: Record<string, CitationItem> = {};
+    citations.forEach((item) => {
+      if (item.id) map[item.id] = item;
+    });
+    return map;
+  }, [citations]);
+
   const handleCitationClick = (href: string) => {
     const target = href.replace(/^#/, '');
     setSelectedCitationId(target);
@@ -211,6 +220,53 @@ export default function SearchView({ files }: SearchViewProps) {
       setImagePreviewLoading((prev) => ({ ...prev, [key]: false }));
     }
   };
+
+  function AnswerImage({ src, alt }: { src?: string; alt?: string }) {
+    const rawSrc = String(src || '');
+    const citationId = rawSrc.startsWith('#image-') ? rawSrc.slice(1) : '';
+    const citation = citationId ? citationsById[citationId] : undefined;
+    const previewUrl = citationId ? imagePreviewUrls[citationId] : '';
+    const isLoading = citationId ? imagePreviewLoading[citationId] : false;
+
+    useEffect(() => {
+      if (!citationId || !citation || previewUrl || isLoading) return;
+      void loadImagePreview(
+        {
+          storage_uri: citation.storage_uri,
+          source_path: citation.source_path,
+          page: citation.page,
+        },
+        citationId
+      );
+    }, [citation, citationId, isLoading, previewUrl]);
+
+    if (citationId) {
+      if (previewUrl) {
+        return (
+          <img
+            src={previewUrl}
+            alt={alt || citation?.source || 'answer image'}
+            className="w-full max-h-[28rem] object-contain rounded-xl border border-sky-100 bg-sky-50/50 my-3"
+          />
+        );
+      }
+      return (
+        <div className="my-3 rounded-xl border border-sky-100 bg-sky-50/50 px-4 py-3 text-sm text-slate-500">
+          {isLoading ? 'Loading cited image…' : 'Image preview unavailable.'}
+        </div>
+      );
+    }
+
+    if (!rawSrc) return null;
+
+    return (
+      <img
+        src={rawSrc}
+        alt={alt || 'answer image'}
+        className="w-full max-h-[28rem] object-contain rounded-xl border border-sky-100 bg-sky-50/50 my-3"
+      />
+    );
+  }
 
   return (
     <div className="w-full h-full flex flex-col space-y-6 pb-12">
@@ -434,7 +490,7 @@ export default function SearchView({ files }: SearchViewProps) {
               </div>
               <div className="p-8 prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
                 <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
+                  remarkPlugins={[remarkGfm, remarkBreaks]}
                   components={{
                     h1: ({ children }) => <h1 className="text-3xl font-bold text-slate-900 mt-2 mb-4">{children}</h1>,
                     h2: ({ children }) => <h2 className="text-2xl font-semibold text-slate-900 mt-6 mb-3">{children}</h2>,
@@ -446,6 +502,7 @@ export default function SearchView({ files }: SearchViewProps) {
                     table: ({ children }) => <table className="w-full border-collapse text-sm my-4">{children}</table>,
                     th: ({ children }) => <th className="border border-slate-300 bg-slate-50 px-2 py-1 text-left">{children}</th>,
                     td: ({ children }) => <td className="border border-slate-300 px-2 py-1 align-top">{children}</td>,
+                    img: ({ src, alt }) => <AnswerImage src={typeof src === 'string' ? src : undefined} alt={alt} />,
                     a: ({ href, children }) => {
                       const link = String(href || '');
                       if (link.startsWith('#')) {

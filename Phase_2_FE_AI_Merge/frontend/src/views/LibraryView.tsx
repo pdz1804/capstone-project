@@ -94,7 +94,13 @@ export default function LibraryView({
   const [pipelineMode, setPipelineMode] = useState<'standard' | 'fast'>('standard');
   const [pipelineBusy, setPipelineBusy] = useState<'idle' | 'process' | 'index'>('idle');
   const [uploadBusy, setUploadBusy] = useState(false);
+  const pipelineBusyRef = useRef<'idle' | 'process' | 'index'>('idle');
   const pdfContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const setPipelineBusySafe = (next: 'idle' | 'process' | 'index') => {
+    pipelineBusyRef.current = next;
+    setPipelineBusy(next);
+  };
 
   useEffect(() => {
     const updateWidth = () => {
@@ -308,7 +314,8 @@ export default function LibraryView({
   };
 
   const handleRunProcess = async () => {
-    setPipelineBusy('process');
+    if (pipelineBusyRef.current !== 'idle') return;
+    setPipelineBusySafe('process');
     try {
       const selectedPaths = files
         .filter((f) => selectedFiles.includes(f.id))
@@ -320,12 +327,13 @@ export default function LibraryView({
       console.error(e);
       alert(e instanceof Error ? e.message : 'Process failed');
     } finally {
-      setPipelineBusy('idle');
+      setPipelineBusySafe('idle');
     }
   };
 
   const handleRunIndex = async () => {
-    setPipelineBusy('index');
+    if (pipelineBusyRef.current !== 'idle') return;
+    setPipelineBusySafe('index');
     try {
       let selectedRows = files.filter((f) => selectedFiles.includes(f.id));
       // Fallback to currently rendered rows if list ids drift after refresh/sort.
@@ -346,7 +354,7 @@ export default function LibraryView({
       console.error(e);
       alert(e instanceof Error ? e.message : 'Index failed');
     } finally {
-      setPipelineBusy('idle');
+      setPipelineBusySafe('idle');
     }
   };
 
