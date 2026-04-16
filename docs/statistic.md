@@ -3,9 +3,9 @@
 ### 1. Use Cases Statistics
 
 #### 1.1 Use Case Summary
-- **Total Use Cases**: 10
+- **Total Use Cases**: 11
 - **Core RAG System Use Cases**: 4 (UC-001 through UC-004)
-- **Extended Learning Features Use Cases**: 6 (UC-005 through UC-010)
+- **Extended Learning Features Use Cases**: 7 (UC-005 through UC-011)
 
 #### 1.2 Use Case Priority Ranking
 
@@ -13,19 +13,20 @@
 1. **UC-001: Upload and Process Educational Content** - Foundation for all other features
 2. **UC-002: Search Educational Content** - Primary user interaction
 3. **UC-003: Generate Answer with Citations** - Core value proposition
+4. **UC-011: Manage Chat Sessions and History** - Persistent interaction support
 
 **Priority 2 - Essential Learning Features**:
-4. **UC-005: Generate Automated Lecture Summary** - High-value educational feature
-5. **UC-008: Generate Personalized Learning Path** - Key differentiation feature
-6. **UC-009: Take Adaptive Assessment** - Learning analytics foundation
+5. **UC-005: Generate Automated Lecture Summary** - High-value educational feature
+6. **UC-008: Generate Personalized Learning Path** - Key differentiation feature
+7. **UC-009: Take Adaptive Assessment** - Learning analytics foundation
 
 **Priority 3 - Enhanced User Experience**:
-7. **UC-006: Navigate and Interact with Summary** - Summary interaction
-8. **UC-010: View Learning Dashboard** - Analytics and progress tracking
-9. **UC-007: Create Custom Summary** - Advanced personalization
+8. **UC-006: Navigate and Interact with Summary** - Summary interaction
+9. **UC-010: View Learning Dashboard** - Analytics and progress tracking
+10. **UC-007: Create Custom Summary** - Advanced personalization
 
 **Priority 4 - System Management**:
-10. **UC-004: Manage Processing Pipeline** - Administrative function
+11. **UC-004: Manage Processing Pipeline** - Administrative function
 
 #### 1.3 Use Case Complexity Analysis
 - **Low Complexity**: UC-004 (System Administration)
@@ -37,24 +38,25 @@
 ### 2. Requirements Statistics
 
 #### 2.1 Functional Requirements Breakdown
-- **Total Functional Requirements**: 20 (FR-001 through FR-020)
+- **Total Functional Requirements**: 26 (FR-001 through FR-033)
 
 **By Category**:
-- **Content Processing**: 8 requirements (FR-001 through FR-008)
-- **Information Retrieval**: 3 requirements (FR-009 through FR-011)
-- **Question Answering**: 2 requirements (FR-012 through FR-013)
-- **User Interface**: 2 requirements (FR-014 through FR-015)
-- **Lecture Summary**: 2 requirements (FR-016 through FR-017)
-- **Personalization**: 3 requirements (FR-018 through FR-020)
+- **Content Processing**: 10 requirements (FR-001 through FR-008, FR-028, FR-033)
+- **Information Retrieval**: 4 requirements (FR-009 through FR-011, FR-029)
+- **Question Answering**: 5 requirements (FR-012 through FR-014, FR-030, FR-031)
+- **User Interface**: 2 requirements (FR-021 through FR-022)
+- **Lecture Summary**: 2 requirements (FR-023 through FR-024)
+- **Personalization**: 3 requirements (FR-025 through FR-026, FR-032)
 
 #### 2.2 Non-Functional Requirements Breakdown
-- **Total Non-Functional Requirements**: 8 (NFR-001 through NFR-008)
+- **Total Non-Functional Requirements**: 10 (NFR-001 through NFR-010)
 
 **By Category**:
 - **Performance**: 2 requirements (NFR-001 through NFR-002)
-- **Reliability**: 2 requirements (NFR-003 through NFR-004)
+- **Reliability & Integrity**: 2 requirements (NFR-003 through NFR-004)
 - **Usability**: 2 requirements (NFR-005 through NFR-006)
-- **Security**: 2 requirements (NFR-007 through NFR-008)
+- **Security & Privacy**: 2 requirements (NFR-007 through NFR-008)
+- **Operational & Quality**: 2 requirements (NFR-009 through NFR-010)
 
 #### 2.3 Technical Requirements Breakdown
 - **Total Technical Requirements**: 7 (TR-001 through TR-007)
@@ -169,22 +171,22 @@
 
 ### 5. Implementation Priority Matrix
 
-#### 5.1 Phase 1 - Core Foundation (MVP)
-**Use Cases**: UC-001, UC-002, UC-003, UC-004
-**Functional Requirements**: FR-001 through FR-015
+#### 5.1 Phase 1 - Core Foundation (MVP) [COMPLETE]
+**Use Cases**: UC-001, UC-002, UC-003, UC-004, UC-011
+**Functional Requirements**: FR-001 through FR-015, FR-030, FR-031
 **Non-Functional Requirements**: NFR-001 through NFR-008
 **Technical Requirements**: TR-001 through TR-007
-**AI/Software Ratio**: 5 AI / 20 Software
+**AI/Software Ratio**: 7 AI / 22 Software
 
-#### 5.2 Phase 2 - Learning Enhancement
-**Use Cases**: UC-005, UC-006, UC-007
-**Functional Requirements**: FR-016 through FR-017
-**AI/Software Ratio**: 2 AI / 0 Software
+#### 5.2 Phase 2 - Learning & Cloud Enhancement [COMPLETE]
+**Use Cases**: UC-005, UC-006, UC-007, UC-010
+**Functional Requirements**: FR-016 through FR-017, FR-028, FR-029
+**AI/Software Ratio**: 4 AI / 2 Software
 
-#### 5.3 Phase 3 - Personalization
-**Use Cases**: UC-008, UC-009, UC-010
-**Functional Requirements**: FR-018 through FR-020
-**AI/Software Ratio**: 3 AI / 0 Software
+#### 5.3 Phase 3 - Personalization & Scaling [IN PROGRESS]
+**Use Cases**: UC-008, UC-009
+**Functional Requirements**: FR-018 through FR-020, FR-032
+**AI/Software Ratio**: 3 AI / 1 Software
 
 ---
 
@@ -222,8 +224,8 @@
 
 ---
 
-**Generated**: March 2026
+**Generated**: April 2026
 **Scope**: Educational Content Processing & RAG System
-**Total Requirements**: 35 (20 Functional + 8 Non-Functional + 7 Technical)
-**AI Requirements**: 12 (34% of total)
-**Software Requirements**: 23 (66% of total)
+**Total Requirements**: 43 (26 Functional + 10 Non-Functional + 7 Technical)
+**AI Requirements**: 17 (40% of total)
+**Software Requirements**: 26 (60% of total)

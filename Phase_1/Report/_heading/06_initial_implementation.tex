@@ -1,4 +1,4 @@
-\chapter{Initial Implementation}
+\chapter{Implementation}
 
 \textbf{Phase 1 Scope and Objectives:} This chapter presents the initial implementation phase of the MRAG system. In Phase 1, the primary focus is on \textbf{establishing and validating the core system architecture}, including the data processing pipeline, embedding strategies, and retrieval mechanisms. The implementation prioritizes architectural feasibility and functional correctness. Advanced considerations such as production-grade application development, optimized database storage solutions, and comprehensive system optimization are deliberately deferred to Phase 2. This phased approach allows for iterative refinement based on empirical evaluation of the foundational architecture before committing to infrastructure-level optimizations.
 
@@ -341,16 +341,243 @@ Scores from both retrievers are combined using Min-Max normalization and a weigh
 
 
 
-% \section{Database Storage}
-% To maintain portability and reduce infrastructure overhead, the system utilizes a \textbf{File-System Based Artifact Store} rather than a traditional relational database. The \texttt{output} directory serves as the database, structured as follows:
+\section{Database Schema and Storage}
+The system implementation requires a robust schema design to manage user interactions, documents, and vector representations. We utilize a dual-database approach, leveraging \textbf{Amazon DynamoDB} for persistent metadata and conversational state, and \textbf{Qdrant} for high-performance vector retrieval.
 
-% \begin{itemize}
-%     \item \textbf{Processed Data}: \texttt{output/processing/} stores the intermediate extraction results in JSON and Markdown.
-%     \item \textbf{Text Indices}: \texttt{output/retrieval/} contains the BM25 pickle files (\texttt{.pkl}) and FAISS binary indices (\texttt{.bin}) for text search.
-%     \item \textbf{Image Indices}: \texttt{output/image\_retrieval/} stores the ColQwen tensor indices and metadata.
-%     \item \textbf{Metadata Store}: JSON files (e.g., \texttt{documents.json}, \texttt{image\_index\_meta.json}) act as the catalog, linking vector IDs back to the original source filenames and page numbers.
-% \end{itemize}
+\subsection{Schema Property Definitions}
+Before detailing the specific collection structures, we define the properties utilized within our schema tables to ensure technical clarity.
 
-% This approach allows the API to perform lightweight status checks by simply reading metadata files (as implemented in the \texttt{/api/status} endpoint), avoiding the need to load heavy models just to check system health.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Property} & \textbf{Description} & \textbf{Note} \\
+        \midrule
+        Field & Name of the attribute in the database & Mandatory. \\
+        Type & The technical data format & String, Boolean, Enum, or Vector. \\
+        Description & Purpose of the field within the system & Context for the specific attribute. \\
+        Note & Structural role or indexing constraint & e.g., Primary Key, Partition Key, Sort Key. \\
+        \midrule
+        Dim & The length of the embedding vector & Mandatory for dense vector fields. \\
+        Distance & The distance calculation for retrieval & Mandatory for vector indices (e.g., Cosine). \\
+        \bottomrule
+    \end{tabular}
+    \caption{Schema properties used in implementation documentation}
+    \label{tab:schema_props}
+\end{table}
+
+\subsection{Vector Storage (Qdrant)}
+To support our Hybrid + Multimodal retrieval strategy, we segregate embeddings into dedicated Qdrant collections. Each collection is distinctly configured with dimensions and distance metrics tailored to the deployed embedding model architecture.
+
+\textbf{Collection: \texttt{edu\_text\_chunks}}
+Stores granular textual chunks extracted from structured Markdown documents. It utilizes a hybrid search approach, combining sparse keyword indexing with the following dense vector configuration.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
+        \toprule
+        \textbf{Vector Name} & \textbf{Dim} & \textbf{Distance} & \textbf{Description} \\
+        \midrule
+        text & 384 & Cosine & Main text embeddings representing chunk semantics (e.g., via \texttt{all-MiniLM-L6-v2}). \\
+        \bottomrule
+    \end{tabular}
+    \caption{Text Vector Collection Properties}
+    \label{tab:qdrant_text}
+\end{table}
+
+Each indexed text chunk retains critical metadata necessary for strict multi-tenant filtering and file attribution during generative retrieval:
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        point\_id & UUID & Primary Key. Unique identifier mapped to the vector. \\
+        \midrule
+        chunk\_id & String & Unique string identifier for the block. \\
+        user\_id & String & Tenancy boundary identifier. \\
+        source & String & Original filename. \\
+        text\_preview & String & Truncated preview of the chunk. \\
+        storage\_uri & String & Cloud location of the chunk artifact. \\
+        storage\_backend & String & Storage system (e.g., s3). \\
+        \bottomrule
+    \end{tabular}
+    \caption{Text Collection Schema Structure}
+    \label{tab:qdrant_text_schema}
+\end{table}
+
+\textbf{Collection: \texttt{edu\_image\_pages}}
+Dedicated to storing high-order visual layouts. It leverages a unique multi-vector representation generated directly from the ColQwen vision-language model, enabling direct visual similarity searches against original PDF structures.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
+        \toprule
+        \textbf{Vector Name} & \textbf{Dim} & \textbf{Distance} & \textbf{Description} \\
+        \midrule
+        colpali\_multivec & 128 & Dot & Multi-vector representations of visual page elements for ColQwen processing. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Image Vector Collection Properties}
+    \label{tab:qdrant_image}
+\end{table}
+
+The visual index maintains geometric representations (height/width) alongside S3 references, allowing the orchestration layer to securely retrieve the original page images for multimodal language models:
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        point\_id & UUID & Primary Key. Unique identifier mapped to the vector. \\
+        \midrule
+        user\_id & String & Tenancy boundary identifier. \\
+        source & String & Original document name. \\
+        source\_path & String & Absolute physical path of document. \\
+        page & Integer & The structural page number. \\
+        total\_pages & Integer & The total length of the PDF. \\
+        image\_width & Integer & Pixel width of the page boundary. \\
+        image\_height & Integer & Pixel height of the page boundary. \\
+        storage\_uri & String & Cloud location of the rasterized image. \\
+        storage\_backend & String & Storage system (e.g., s3). \\
+        \bottomrule
+    \end{tabular}
+    \caption{Image Collection Schema Structure}
+    \label{tab:qdrant_image_schema}
+\end{table}
+
+\subsection{Metadata and State Schemas}
+Stateful operations are handled across two managed cloud services: DynamoDB for high-throughput chat logging, and Firebase (Firestore) for secure identity and profile management. The following tables outline the primary schemas:
+
+\textbf{Chatbot Sessions Table}
+We developed an optimized schema to organize chat histories per user.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        user\_id & String & Partition Key. Identifies the owner of the chat. \\
+        session\_id & String & Sort Key. Unique identifier for the chat session. \\
+        \midrule
+        title & String & Short text describing the session context. \\
+        pinned & Boolean & Indicates whether the user has pinned this chat. \\
+        message\_count & Integer & Total number of messages exchanged in this session. \\
+        updated\_at & String (ISO) & Timestamp of the last conversational interaction. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Chatbot Sessions Schema}
+    \label{tab:chat_sessions}
+\end{table}
+
+\textbf{Chatbot Messages Table}
+Stores individual conversational turns (prompts and AI responses).
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        session\_id & String & Partition Key. Link to the parent chat session. \\
+        message\_id & String & Sort Key. Unique identifier for the message. \\
+        \midrule
+        role & String & Identifier for sender: \texttt{user}, \texttt{assistant}, or \texttt{system}. \\
+        content & String & The Markdown body of the message. \\
+        created\_at & String (ISO) & Timestamp identifying the message sequence. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Chatbot Messages Schema}
+    \label{tab:chat_messages}
+\end{table}
+
+\textbf{User Profile Table (Firestore)}
+While conversational data resides in AWS, core authentication layers and user profiles are synchronized securely via Google Firebase. The profile information is critical as it passes user context into the final LLM prompt (e.g., tailoring responses to a university student versus a middle schooler).
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        uid & String & Primary Key. Unique identifier generated and linked to Firebase Auth. \\
+        \midrule
+        email & String & User's registered email address. \\
+        displayName & String & The user's visible display name. \\
+        role & Enum & Role definition: \texttt{student}, \texttt{admin}, or \texttt{instructor}. \\
+        persona & String & Selected AI persona trait (e.g., Socratic, Direct) to guide the LLM's conversational tone. \\
+        educationDescription & String & Academic background provided by the user to adapt explanation complexity. \\
+        \bottomrule
+    \end{tabular}
+    \caption{User Profile Schema}
+    \label{tab:user_profiles}
+\end{table}
+
+
+\section{Core API Services}
+The core API, built with FastAPI, serves as the communication backend between the frontend UI, the RAG orchestration logic, and the databases.
+
+\subsection{Search and Generation Endpoint [\texttt{POST} \texttt{/api/search/chat}]}
+
+Executes hybrid searches and utilizes local/cloud LLMs to generate contextual answers.
+\begin{itemize}
+    \item \textbf{query}: Natural language query (e.g., ``Summarize the data fetching section'').
+    \item \textbf{top\_k} (optional, default=10): Parameter restricting the document candidate pool size.
+    \item \textbf{retriever\_type} (optional, default=``hybrid''): Specifies the search logic (bm25, dense, or hybrid).
+    \item \textbf{mode}: Controls the operation (\texttt{retrieval\_only} vs. \texttt{retrieval\_generation}).
+\end{itemize}
+
+\textbf{Processing steps:}
+\begin{enumerate}
+    \item \textbf{Input Validation}: Ensure the query parameters are well-formed and session tokens valid.
+    \item \textbf{Hybrid Search}: Execute parallel searches against the Text Collection (combining dense vector cosine similarity with BM25 keyword matching) and the Image Collection (via ColQwen embedding).
+    \item \textbf{Prompt Augmentation}: Format the retrieved markdown chunks and visual contexts into an enhanced LLM prompt.
+    \item \textbf{Response Generation}: Forward the contextually enriched prompt to the generation provider (e.g., local Ollama or AWS Bedrock) and stream the JSON response back to the client.
+    \item \textbf{History Synchronization}: Asynchronously log the interaction into the DynamoDB Chatbot Messages table for persistence.
+\end{enumerate}
+
+\subsection{Data Processing Endpoint [\texttt{POST} \texttt{/api/files/process}]}
+
+Initiates the document normalization and structural extraction pipeline.
+\begin{itemize}
+    \item \textbf{selected\_paths}: Target input files.
+    \item \textbf{mode}: ``standard'' (full multimodal) or ``fast'' (text-only).
+\end{itemize}
+
+\subsection{Indexing Endpoint [\texttt{POST} \texttt{/api/pipeline/index}]}
+
+Vectorizes processed artifacts (Markdown strings and physical PDF pages) and pushes them into Qdrant storage.
+\begin{itemize}
+    \item \textbf{mode}: Setting to ``fast'' restricts indexing to Text Collection only to reduce computational overhead if visual diagrams are unneeded.
+\end{itemize}
+
+\section{System Configurations and Modular Architecture}
+
+To ensure scalability and adaptability, the backend architecture introduces several configuration modalities that dictate how machine learning operations, multi-tenancy, and file storage are managed.
+
+\subsection{Multi-tenant Architecture and Asset Management}
+The system is designed from the ground up to support isolation across multiple concurrent users.
+\begin{itemize}
+    \item \textbf{Tenant Isolation}: HTTP requests utilize an \texttt{X-User-Id} header to logically isolate data. Qdrant vector collections remain shared but are partitioned using payload filtering by \texttt{user\_id}.
+    \item \textbf{Storage Backend (Local vs. S3)}: The system supports two primary storage modes dictated by environmental variables (\texttt{FILE\_STORAGE\_BACKEND}). Small-scale deployments can utilize local filesystem storage (\texttt{backend/input} and \texttt{backend/output}), while production environments seamlessly switch to \textbf{Amazon S3}. When operating in S3 mode, files are logically isolated using key prefixes (e.g., \texttt{users/<user\_id>/...}).
+\end{itemize}
+
+\subsection{Inference and Compute Scalability}
+The system architecture cleanly decouples the application layer from the heavy inference processing logic.
+\begin{itemize}
+    \item \textbf{Local Inference}: By default, models such as ColQwen and embedding transformers are loaded locally via GPU/CPU (\texttt{colpali-engine}).
+    \item \textbf{AWS SageMaker Integration}: For production-grade scalability, the backend can delegate inference tasks to AWS SageMaker endpoints (\texttt{USE\_AWS\_SAGEMAKER\_INFERENCE=true}). This strategy mitigates API host bottlenecking during intensive tasks like multimodal embedding generation.
+\end{itemize}
+
+\subsection{Chat Runtime Environments}
+Conversational capabilities are adaptable to different operational frameworks based on the \texttt{CHAT\_AGENT\_RUNTIME} flag:
+\begin{itemize}
+    \item \textbf{Local Runtime}: The default mode utilizes local logic to handle conversational intelligence.
+    \item \textbf{AgentCore Runtime}: Administrators can configure the backend to interact with a deployed AWS Bedrock AgentCore environment. This integrates seamlessly with the DynamoDB session tracking schemas.
+\end{itemize}
+
+\subsection{Educational Insights API}
+Beyond core Retrieval-Augmented Generation, the system leverages the pipeline's high-fidelity Markdown structural outputs to offer specialized analytical endpoints (under \texttt{/api/insights/*}):
+\begin{itemize}
+    \item \textbf{Summary Generation [\texttt{POST} \texttt{/api/insights/summary}]}: Generates targeted abstracts with customizable depth, length, and organizational tone based on extracted documents.
+    \item \textbf{Multiple Choice Questions [\texttt{POST} \texttt{/api/insights/mcq}]}: Synthesizes quizzes dynamically (including correct answers and rationales) geared toward testing specific proficiency levels.
+    \item \textbf{Learning Roadmap [\texttt{POST} \texttt{/api/insights/learning-roadmap}]}: Formulates personalized, step-by-step educational guides tailored to the user's specific goals and professional profile.
+\end{itemize}
 
 \newpage
