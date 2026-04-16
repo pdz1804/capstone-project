@@ -731,16 +731,62 @@ class DocxParser(object):
         self._image_cache_by_hash: Dict[str, str] = {}
 
 
+    @staticmethod
+    def _detect_and_convert_doc(path: Path, temp_dir: Path) -> Path:
+        """Convert legacy .doc format to .docx using LibreOffice.
+
+        Returns the path to the converted .docx file inside *temp_dir*.
+        The caller is responsible for cleaning up *temp_dir*.
+        """
+        result = subprocess.run(
+            ["libreoffice", "--headless", "--convert-to", "docx",
+             "--outdir", str(temp_dir), str(path)],
+            capture_output=True, text=True, timeout=120,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"LibreOffice .doc→.docx conversion failed: {result.stderr}")
+        converted = temp_dir / (path.stem + ".docx")
+        if not converted.exists():
+            raise FileNotFoundError(f"Converted file not found: {converted}")
+        return converted
+
     def extract_docx_text(
         self,
         docx_path: str,
         output_dir: Optional[str] = None,
     ) -> List[dict]:
         """
-        Extract content from a DOCX file.
+        Extract content from a DOCX (or legacy .doc) file.
 
-        Returns a hierarchical tree structure with headings and content.
+        If the input is a .doc file, it is first converted to .docx via
+        LibreOffice, then parsed normally.  Returns a hierarchical tree
+        structure with headings and content.
         """
+        original_path = Path(docx_path)
+        temp_dir_obj = None
+
+        # Legacy .doc → convert to .docx first
+        if original_path.suffix.lower() == ".doc":
+            temp_dir_obj = Path(tempfile.mkdtemp(prefix="doc2docx_"))
+            try:
+                converted = self._detect_and_convert_doc(original_path, temp_dir_obj)
+                docx_path = str(converted)
+            except Exception:
+                shutil.rmtree(temp_dir_obj, ignore_errors=True)
+                raise
+
+        try:
+            return self._extract_docx_text_inner(docx_path, output_dir)
+        finally:
+            if temp_dir_obj is not None:
+                shutil.rmtree(temp_dir_obj, ignore_errors=True)
+
+    def _extract_docx_text_inner(
+        self,
+        docx_path: str,
+        output_dir: Optional[str] = None,
+    ) -> List[dict]:
+        """Core extraction logic for a .docx file (already in OOXML format)."""
         try:
             with zipfile.ZipFile(docx_path, 'r') as docx_zip:
                 document_xml = docx_zip.read(DOCX_DOC_XML)
@@ -2528,6 +2574,29 @@ class DocxParser(object):
             return full_text
 
     @staticmethod
+    def _apply_list_level_prefix(
+        full_text: str,
+        num_id: Optional[str],
+        ilvl: Optional[str],
+        heading_level: Optional[int],
+    ) -> str:
+        """Prefix nested list items with tabs based on Word ``ilvl``.
+
+        Level 0 is left unchanged. Level 1 => ``\t``, level 2 => ``\t\t``, etc.
+        Headings are excluded so heading text is not indented accidentally when a
+        document style also carries numbering metadata.
+        """
+        if heading_level or not full_text or not num_id or ilvl is None:
+            return full_text
+        try:
+            level = int(ilvl)
+        except (TypeError, ValueError):
+            return full_text
+        if level <= 0:
+            return full_text
+        return ("\t" * level) + full_text
+
+    @staticmethod
     def _finalize_heading_output(full_text: str, heading_level: Optional[int]) -> Tuple[Optional[int], Optional[str]]:
         """Return the final (heading_level, heading_text), demoting version-marker-only headings.
 
@@ -2586,6 +2655,7 @@ class DocxParser(object):
 
         num_id, ilvl = self._resolve_para_numpr(ppr)
         full_text = self._apply_numbering_to_text(full_text, num_id, ilvl, heading_level, skip_numbering)
+        full_text = self._apply_list_level_prefix(full_text, num_id, ilvl, heading_level)
 
         heading_level, heading_text = self._finalize_heading_output(full_text, heading_level)
 

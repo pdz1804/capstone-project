@@ -29,7 +29,10 @@ import json
 import logging
 import os
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
 import zipfile
 from copy import deepcopy
 from pathlib import Path
@@ -85,8 +88,8 @@ TABLE_START_MARKER = "[START_TABLE]"
 TABLE_END_MARKER = "[END_TABLE]"
 CHART_START_MARKER = "[START_CHART]"
 CHART_END_MARKER = "[END_CHART]"
-IMAGE_START_MARKER = "[START_IMAGE]"
-IMAGE_END_MARKER   = "[END_IMAGE]"
+IMAGE_START_MARKER = "[START_IMAGE_PATH]"
+IMAGE_END_MARKER   = "[END_IMAGE_PATH]"
 SHAPE_START_MARKER = "[START_SHAPE]"
 SHAPE_END_MARKER   = "[END_SHAPE]"
 DIAGRAM_START_MARKER = "[START_DIAGRAM]"
@@ -782,7 +785,7 @@ def _parse_table_xml(table_xml_path: Path) -> Dict[str, Any]:
 #
 # Object types we handle:
 #   - sp     (shape)     → [START_SHAPE]text///PresetType[END_SHAPE]
-#   - pic    (picture)   → [START_IMAGE]path/to/media[END_IMAGE]
+#   - pic    (picture)   → [START_IMAGE_PATH]path/to/media[END_IMAGE_PATH]
 #   - cxnSp  (connector) → ignored (visual-only lines/arrows)
 #   - grpSp  (group)     → [START_DIAGRAM]title///…shapes…[END_DIAGRAM]
 #
@@ -1526,7 +1529,7 @@ def _format_drawing_object(obj: Dict[str, Any]) -> str:
 
     if kind == "image":
         path = obj.get("image_path", "")
-        return f"{IMAGE_START_MARKER}{path}{IMAGE_END_MARKER}"
+        return f"{IMAGE_START_MARKER} {path} {IMAGE_END_MARKER}"
 
     elif kind == "shape":
         text = obj.get("text", "").strip()
@@ -2508,6 +2511,25 @@ def build_workbook_output(
 # §12  Process a single Excel file end-to-end
 # ──────────────────────────────────────────────────────────────────────
 
+def _detect_and_convert_xls(path: Path, temp_dir: Path) -> Path:
+    """Convert legacy .xls or .xlsm to .xlsx using LibreOffice.
+
+    Returns the path to the converted .xlsx file inside *temp_dir*.
+    The caller is responsible for cleaning up *temp_dir*.
+    """
+    result = subprocess.run(
+        ["libreoffice", "--headless", "--convert-to", "xlsx",
+         "--outdir", str(temp_dir), str(path)],
+        capture_output=True, text=True, timeout=120,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"LibreOffice .xls/.xlsm→.xlsx conversion failed: {result.stderr}")
+    converted = temp_dir / (path.stem + ".xlsx")
+    if not converted.exists():
+        raise FileNotFoundError(f"Converted file not found: {converted}")
+    return converted
+
+
 def process_excel_file(
     excel_path: Path,
     output_dir: Path = OUTPUT_DIR,
@@ -2516,30 +2538,53 @@ def process_excel_file(
     """
     Full pipeline: unzip → resolve shared strings → parse → write JSON.
     Returns the output JSON path.
+
+    Supports legacy .xls and .xlsm files by converting them to .xlsx via
+    LibreOffice before processing.
     """
-    log.info("=" * 70)
-    log.info("Processing: %s", excel_path.name)
-    log.info("=" * 70)
+    excel_path = Path(excel_path)
+    temp_dir_obj = None
 
-    # Step 1: Unzip
-    parsed_dir = unzip_excel(excel_path, parsed_parent)
+    # Legacy .xls / .xlsm → convert to .xlsx first
+    if excel_path.suffix.lower() in (".xls", ".xlsm"):
+        temp_dir_obj = Path(tempfile.mkdtemp(prefix="xls2xlsx_"))
+        try:
+            converted = _detect_and_convert_xls(excel_path, temp_dir_obj)
+            original_stem = excel_path.stem
+            excel_path = converted
+        except Exception:
+            shutil.rmtree(temp_dir_obj, ignore_errors=True)
+            raise
+    else:
+        original_stem = excel_path.stem
 
-    # Step 2: Resolve shared strings
-    shared_values = resolve_shared_strings(parsed_dir)
+    try:
+        log.info("=" * 70)
+        log.info("Processing: %s", excel_path.name)
+        log.info("=" * 70)
 
-    # Step 3: Build linear output
-    result = build_workbook_output(
-        parsed_dir, shared_values, source_filename=excel_path.name
-    )
+        # Step 1: Unzip
+        parsed_dir = unzip_excel(excel_path, parsed_parent)
 
-    # Step 4: Write JSON
-    output_dir.mkdir(parents=True, exist_ok=True)
-    out_path = output_dir / (excel_path.stem + ".json")
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False, indent=2, default=str)
+        # Step 2: Resolve shared strings
+        shared_values = resolve_shared_strings(parsed_dir)
 
-    log.info("Output written to: %s", out_path)
-    return out_path
+        # Step 3: Build linear output
+        result = build_workbook_output(
+            parsed_dir, shared_values, source_filename=excel_path.name
+        )
+
+        # Step 4: Write JSON (use original stem so output name matches input)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        out_path = output_dir / (original_stem + ".json")
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(result, f, ensure_ascii=False, indent=2, default=str)
+
+        log.info("Output written to: %s", out_path)
+        return out_path
+    finally:
+        if temp_dir_obj is not None:
+            shutil.rmtree(temp_dir_obj, ignore_errors=True)
 
 
 # ──────────────────────────────────────────────────────────────────────

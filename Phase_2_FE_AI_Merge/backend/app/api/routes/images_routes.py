@@ -1,4 +1,5 @@
 import logging
+import mimetypes
 import os
 from io import BytesIO
 from pathlib import Path
@@ -8,12 +9,24 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 
 from app.api.deps import storage_user_id
+from app.api.routes.files_routes import _read_processing_file_bytes, _sanitize_processing_rel_path
 from app.core.paths import workspace_paths_for_user
 from app.storage import get_file_storage
 from app.storage.service import S3FileStorage, parse_s3_uri
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["images"])
+
+
+def _processing_rel_path_from_legacy_local_path(path: str) -> str | None:
+    normalized = str(path or "").replace("\\", "/")
+    marker = "/output/processing/"
+    if marker not in normalized:
+        return None
+    rel = normalized.split(marker, 1)[1].lstrip("/")
+    if not rel:
+        return None
+    return _sanitize_processing_rel_path(rel)
 
 
 @router.get("/image")
@@ -42,9 +55,26 @@ def get_image(
         return StreamingResponse(BytesIO(body), media_type=media)
 
     p = Path(path)
-    if not p.exists():
-        raise HTTPException(status_code=404, detail="Image not found")
-    return FileResponse(str(p), media_type="image/jpeg")
+    if p.exists():
+        media = mimetypes.guess_type(str(p))[0] or "application/octet-stream"
+        return FileResponse(str(p), media_type=media)
+
+    path_str = str(path or "")
+    alt_path: Path | None = None
+    if path_str.startswith("/private/var/"):
+        alt_path = Path(path_str.replace("/private/var/", "/var/", 1))
+    elif path_str.startswith("/var/"):
+        alt_path = Path(path_str.replace("/var/", "/private/var/", 1))
+    if alt_path and alt_path.exists():
+        media = mimetypes.guess_type(str(alt_path))[0] or "application/octet-stream"
+        return FileResponse(str(alt_path), media_type=media)
+
+    rel_posix = _processing_rel_path_from_legacy_local_path(path_str)
+    if rel_posix:
+        body, media = _read_processing_file_bytes(user_id, rel_posix)
+        return StreamingResponse(BytesIO(body), media_type=media)
+
+    raise HTTPException(status_code=404, detail="Image not found")
 
 
 @router.get("/pdf-page-image")

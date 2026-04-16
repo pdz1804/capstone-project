@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 from app.core.paths import BACKEND_ROOT
 from app.services.processed_markdown_service import (
@@ -79,7 +79,6 @@ class InsightsService:
                     )
                 ),
             }
-        g = _generator(self.cfg)
         length_hint = {
             "short": "Keep the summary concise (roughly 2–4 short sections).",
             "medium": "Aim for balanced coverage (several sections with bullets).",
@@ -99,7 +98,17 @@ class InsightsService:
             "Produce a structured markdown summary with headings, bullet points, and cite file names from the content when useful.\n\n"
             f"CONTENT (processed document markdown from the pipeline, not search snippets):\n{ctx[:120000]}"
         )
-        raw = g._call_llm(prompt)
+        raw, error = self._llm_text_or_error(prompt)
+        if error:
+            return {
+                "summary": "",
+                "error": error,
+                "depth": depth,
+                "focus_query": q or None,
+                "document_id": doc,
+                "tone": tone,
+                "target_length": target_length,
+            }
         return {
             "summary": (raw or "").strip(),
             "depth": depth,
@@ -114,12 +123,21 @@ class InsightsService:
             },
         }
 
-    def _llm_plain(self, prompt: str) -> str:
+    def _llm_text_or_error(
+        self,
+        prompt: str,
+        generator=None,
+    ) -> Tuple[str, str | None]:
         try:
-            return (_generator(self.cfg)._call_llm(prompt) or "").strip()
+            gen = generator or _generator(self.cfg)
+            return (gen._call_llm(prompt) or "").strip(), None
         except Exception as e:
             logger.warning("LLM call failed: %s", e)
-            return ""
+            return "", str(e)
+
+    def _llm_plain(self, prompt: str) -> str:
+        text, _ = self._llm_text_or_error(prompt)
+        return text
 
     def mcq_quiz(
         self,
@@ -155,7 +173,17 @@ class InsightsService:
             "Use only the processed document markdown below. Return a JSON array.\n\n"
             f"CONTENT:\n{ctx[:100000]}"
         )
-        text = self._llm_plain(prompt)
+        text, error = self._llm_text_or_error(prompt)
+        if error:
+            return {
+                "questions": [],
+                "error": error,
+                "topic": topic,
+                "difficulty": difficulty,
+                "document_id": doc,
+                "question_style": question_style,
+                "include_explanations": include_explanations,
+            }
         try:
             import json
 
