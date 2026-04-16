@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import logging
+import os
+import time
 from datetime import timezone
 from pathlib import Path
+from threading import Lock
 from typing import Any, Dict, List, Set
 
 from app.core.paths import workspace_paths_for_user
@@ -23,6 +26,63 @@ STAGE_SET = frozenset(STAGE_ORDER)
 
 _DOC_ROOT_SENTINEL = "__root__"
 _SHARED_SENTINEL = "__pipeline_shared__"
+
+_SNAPSHOT_CACHE_TTL_SECONDS = max(
+    0.0,
+    float(os.getenv("PROCESSED_SNAPSHOT_CACHE_TTL_SECONDS", "8") or "8"),
+)
+_SNAPSHOT_CACHE: Dict[tuple[str, bool, str], tuple[float, Dict[str, Any]]] = {}
+_SNAPSHOT_CACHE_LOCK = Lock()
+
+
+def invalidate_processed_documents_snapshot_cache(user_id: str | None = None) -> None:
+    with _SNAPSHOT_CACHE_LOCK:
+        if user_id is None:
+            _SNAPSHOT_CACHE.clear()
+            return
+        target = str(user_id or "").strip()
+        for key in list(_SNAPSHOT_CACHE.keys()):
+            if key[0] == target:
+                _SNAPSHOT_CACHE.pop(key, None)
+
+
+def _snapshot_scope(user_id: str, paths: Any, storage: Any) -> str:
+    uid = str(user_id or "").strip()
+    if isinstance(storage, S3FileStorage):
+        bucket = str(getattr(storage, "processed_bucket", "") or "")
+        prefix = str(getattr(storage, "processing_prefix", "") or "")
+        backend = str(getattr(storage, "backend_name", "") or "s3")
+        return f"{uid}|{backend}|{bucket}|{prefix}"
+    proc_dir = getattr(paths, "processing_dir", "")
+    try:
+        proc_key = str(Path(proc_dir).resolve()).lower()
+    except Exception:
+        proc_key = str(proc_dir)
+    backend = str(getattr(storage, "backend_name", "") or "local")
+    return f"{uid}|{backend}|{proc_key}"
+
+
+def _get_cached_snapshot(user_id: str, include_preview: bool, scope: str) -> Dict[str, Any] | None:
+    if _SNAPSHOT_CACHE_TTL_SECONDS <= 0:
+        return None
+    key = (str(user_id or "").strip(), bool(include_preview), str(scope or ""))
+    with _SNAPSHOT_CACHE_LOCK:
+        row = _SNAPSHOT_CACHE.get(key)
+        if not row:
+            return None
+        cached_at, payload = row
+        if (time.time() - cached_at) > _SNAPSHOT_CACHE_TTL_SECONDS:
+            _SNAPSHOT_CACHE.pop(key, None)
+            return None
+        return payload
+
+
+def _store_cached_snapshot(user_id: str, include_preview: bool, scope: str, payload: Dict[str, Any]) -> None:
+    if _SNAPSHOT_CACHE_TTL_SECONDS <= 0:
+        return
+    key = (str(user_id or "").strip(), bool(include_preview), str(scope or ""))
+    with _SNAPSHOT_CACHE_LOCK:
+        _SNAPSHOT_CACHE[key] = (time.time(), payload)
 
 
 def _file_row(
@@ -185,6 +245,11 @@ def build_processed_documents_snapshot(user_id: str, *, include_preview: bool = 
     """
     paths = workspace_paths_for_user(user_id)
     storage = get_file_storage(user_id)
+    scope = _snapshot_scope(user_id, paths, storage)
+
+    cached = _get_cached_snapshot(user_id, include_preview, scope)
+    if cached is not None:
+        return cached
 
     if isinstance(storage, S3FileStorage):
         entries = _collect_s3(storage, include_preview)
@@ -271,7 +336,7 @@ def build_processed_documents_snapshot(user_id: str, *, include_preview: bool = 
     # Folders discovered only from stage3/stage4 paths (excludes shared/metadata-only bucket).
     named_document_folders = len(doc_list)
 
-    return {
+    payload = {
         "input_file_count": len(input_rows),
         "artifact_count": artifact_count,
         "document_count": document_group_count,
@@ -293,3 +358,5 @@ def build_processed_documents_snapshot(user_id: str, *, include_preview: bool = 
             ),
         },
     }
+    _store_cached_snapshot(user_id, include_preview, scope, payload)
+    return payload

@@ -110,13 +110,15 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
 
           <div className="flex flex-wrap gap-4">
             <button
+              type="button"
               onClick={() => onNavigate('chat' as ViewType)}
               className="px-6 py-3 bg-white text-blue-600 rounded-lg font-bold text-sm hover:bg-blue-50 transition-all active:scale-95 flex items-center gap-2 group"
             >
               Start Chatting <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
-              onClick={() => onNavigate('knowledge')}
+              type="button"
+              onClick={() => onNavigate('learning')}
               className="px-6 py-3 bg-white/15 hover:bg-white/25 text-white rounded-lg font-bold text-sm transition-all border border-white/30 active:scale-95"
             >
               Study Roadmap

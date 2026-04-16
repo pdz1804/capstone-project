@@ -9,6 +9,14 @@ https_listener_ssl_policy = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
 enable_alb_deletion_protection = false
 
+# WAF (5-rule baseline): RateLimit + SQLi + KnownBadInputs + CommonRuleSet + IPReputation.
+# If you already created this manually in AWS, import resources before apply.
+enable_waf = true
+waf_name   = "rag-pipeline-waf"
+waf_rate_limit_requests_per_5_minutes = 2000
+waf_enable_logging = true
+waf_log_retention_days = 30
+
 # Backend Service Configuration
 backend_desired_count  = 2
 backend_min_capacity   = 1
@@ -24,6 +32,19 @@ frontend_cpu_target    = 70
 frontend_memory_target = 80
 
 log_retention_days = 7
+
+# Search cache (ElastiCache Serverless) for backend retrieval cache
+enable_search_cache_serverless = true
+search_cache_serverless_name   = "" # default: "{project_name}-cache"
+search_cache_engine            = "redis" # set "valkey" if your provider/account supports it
+search_cache_major_engine_version = ""
+search_cache_subnet_ids        = [] # optional explicit private subnet IDs; default picks up to 3 default VPC subnets
+search_cache_use_tls           = true
+search_cache_ttl_seconds       = 600
+search_cache_key_prefix        = "phase2:search:v1"
+search_cache_redis_connect_timeout_seconds = 2
+search_cache_redis_read_timeout_seconds    = 2
+search_cache_redis_retry_cooldown_seconds  = 30
 
 # SageMaker unified endpoint (Phase_2_FE_AI_Merge/sagemaker/unified). Set enable_sagemaker_endpoint = false to skip.
 enable_sagemaker_endpoint     = true
@@ -46,6 +67,22 @@ chatbot_history_ttl_attribute_name = "expires_at"
 # Existing external tables (optional): attach IAM permissions for backend role.
 dynamodb_users_table_arn         = ""
 dynamodb_quiz_results_table_arn  = ""
+dynamodb_feedback_table_arn      = ""
+dynamodb_app_usage_table_arn     = ""
+dynamodb_knowledge_table_arn     = ""
+
+# Optional table names injected into backend runtime env
+dynamodb_users_table_name         = ""
+dynamodb_quiz_results_table_name  = ""
+dynamodb_feedback_table_name      = ""
+dynamodb_app_usage_table_name     = ""
+dynamodb_knowledge_table_name     = ""
+
+# Default admin bootstrap (local account)
+enable_default_admin_bootstrap = true
+default_admin_username         = "admin"
+default_admin_email            = "admin@local.dev"
+default_admin_password         = "quangphu1804"
 
 # Bedrock AgentCore runtime preparation
 enable_agentcore_runtime_prep      = true

@@ -8,8 +8,10 @@ from pydantic import BaseModel, EmailStr
 
 class UserBase(BaseModel):
     email: EmailStr
+    username: Optional[str] = None
     displayName: Optional[str] = None
     role: str = "student"
+    isActive: bool = True
     photoURL: Optional[str] = None
     persona: Optional[str] = None
     educationDescription: Optional[str] = None
@@ -22,8 +24,10 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
+    username: Optional[str] = None
     displayName: Optional[str] = None
     role: Optional[str] = None
+    isActive: Optional[bool] = None
     photoURL: Optional[str] = None
     persona: Optional[str] = None
     educationDescription: Optional[str] = None
@@ -43,11 +47,13 @@ class UserResponse(UserBase):
 class LocalRegisterRequest(BaseModel):
     email: EmailStr
     password: str
+    username: Optional[str] = None
     displayName: Optional[str] = None
+    role: str = "student"
 
 
 class LocalLoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 

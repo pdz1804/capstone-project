@@ -99,6 +99,8 @@ class LocalFileStorage(FileStorageService):
         if self.input_dir.exists():
             for f in self.input_dir.rglob("*"):
                 if f.is_file() and not f.name.startswith("."):
+                    if f.name.endswith(".metadata.json"):
+                        continue
                     rows.append(self._file_info_path(f))
         return rows
 

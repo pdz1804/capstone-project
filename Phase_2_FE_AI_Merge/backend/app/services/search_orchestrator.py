@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from time import perf_counter
 from pathlib import Path
@@ -11,6 +12,7 @@ from typing import Any, Dict, List
 from app.core.paths import BACKEND_ROOT, workspace_paths_for_user
 from app.services.citation_uris import canonical_document_source, sanitize_metadata_for_api
 from app.repositories import load_documents_snapshot
+from app.services.search_cache import get_search_cache_client
 from app.services.image_search_service import ImageSearchService
 from app.services.text_search_service import TextSearchService
 
@@ -32,6 +34,10 @@ def _image_enabled(cfg: Dict[str, Any]) -> bool:
 def _estimate_tokens(text: str) -> int:
     # Lightweight approximation for telemetry when provider token usage is unavailable.
     return max(1, int(len((text or "").strip()) / 4))
+
+
+def _cache_user_key(user_id: str | None) -> str:
+    return str(user_id or "anonymous")
 
 
 def _expand_text_for_generation(rows: List[Dict[str, Any]], user_id: str | None) -> List[Dict[str, Any]]:
@@ -74,18 +80,63 @@ class SearchOrchestrator:
         generation_model: str | None = None,
         skip_reranker: bool = False,
     ) -> Dict[str, Any]:
+        # Reranker can be controlled via config or parameter; default to enabled if not explicitly disabled
+        # To skip reranking, set SKIP_RERANKER=true or pass skip_reranker=True
+        config_skip_reranker = os.getenv("SKIP_RERANKER", "true").lower() in ("true", "1", "yes")
+        skip_reranker = skip_reranker or config_skip_reranker
         t0 = perf_counter()
         step_ms: Dict[str, int] = {}
         scope = (search_scope or "both").strip().lower()
         run_generation = (mode or "retrieval_generation").strip().lower() == "retrieval_generation"
 
+        def _log_timings(kind: str) -> None:
+            logger.info(
+                "Search orchestrator timing: user=%s mode=%s scope=%s retrieval_ms=%s generation_ms=%s total_ms=%s retrieval_cache_hit=%s kind=%s",
+                self._user_id,
+                "retrieval_generation" if run_generation else "retrieval_only",
+                scope if scope in ("text", "image", "both") else "both",
+                step_ms.get("retrieval_total", 0),
+                step_ms.get("generation", 0),
+                step_ms.get("total", 0),
+                retrieval_cache_hit,
+                kind,
+            )
+
         run_text = scope in ("text", "both")
         can_run_image = scope in ("image", "both") and include_images and _image_enabled(self.cfg)
 
+        retrieval_cache_payload: Dict[str, Any] = {
+            "query": query,
+            "top_k": top_k,
+            "retriever_type": retriever_type,
+            "search_scope": scope,
+            "include_images": bool(include_images),
+            "skip_reranker": bool(skip_reranker),
+            "run_text": bool(run_text),
+            "can_run_image": bool(can_run_image),
+        }
+        cache_client = get_search_cache_client()
+        cache_user = _cache_user_key(self._user_id)
+        cached_retrieval = cache_client.get(cache_user, retrieval_cache_payload, namespace="retrieval")
+        retrieval_cache_hit = False
+        retrieval_cache_write_ok: bool | None = None
+
         text_rows: List[Dict[str, Any]] = []
         image_rows: List[Dict[str, Any]] = []
+        retrieval_total_ms = 0
 
-        if run_text and can_run_image:
+        if isinstance(cached_retrieval, dict):
+            cached_text = cached_retrieval.get("text_results")
+            cached_images = cached_retrieval.get("image_results")
+            if isinstance(cached_text, list) and isinstance(cached_images, list):
+                text_rows = cached_text
+                image_rows = cached_images
+                retrieval_cache_hit = True
+                step_ms["text_retrieval"] = 0
+                step_ms["image_retrieval"] = 0
+                retrieval_total_ms = 0
+
+        if not retrieval_cache_hit and run_text and can_run_image:
             # Both branches active — run them in parallel.
             def _fetch_text() -> List[Dict[str, Any]]:
                 return TextSearchService(self.cfg, user_id=self._user_id).search(
@@ -96,24 +147,30 @@ class SearchOrchestrator:
                 return ImageSearchService(self.cfg, user_id=self._user_id).search(query, top_k)
 
             t_parallel = perf_counter()
+            search_timeout_seconds = int(os.getenv("SEARCH_PARALLEL_TIMEOUT_SECONDS", "30"))
             with ThreadPoolExecutor(max_workers=2) as pool:
                 fut_t = pool.submit(_fetch_text)
                 fut_i = pool.submit(_fetch_images)
-                for fut in as_completed([fut_t, fut_i]):
+                for fut in as_completed([fut_t, fut_i], timeout=search_timeout_seconds):
                     if fut is fut_t:
                         try:
-                            text_rows = fut.result()
+                            text_rows = fut.result(timeout=1)
+                        except TimeoutError:
+                            logger.warning("Text search timeout after %d seconds", search_timeout_seconds)
                         except Exception as e:
                             logger.exception("Text search failed: %s", e)
                     else:
                         try:
-                            image_rows = fut.result()
+                            image_rows = fut.result(timeout=1)
+                        except TimeoutError:
+                            logger.warning("Image search timeout after %d seconds", search_timeout_seconds)
                         except Exception as e:
                             logger.exception("Image search failed: %s", e)
             elapsed = int((perf_counter() - t_parallel) * 1000)
             step_ms["text_retrieval"] = elapsed
             step_ms["image_retrieval"] = elapsed
-        else:
+            retrieval_total_ms = elapsed
+        elif not retrieval_cache_hit:
             if run_text:
                 t_text = perf_counter()
                 text_rows = TextSearchService(self.cfg, user_id=self._user_id).search(
@@ -134,6 +191,18 @@ class SearchOrchestrator:
             else:
                 step_ms["image_retrieval"] = 0
 
+            retrieval_total_ms = int(step_ms.get("text_retrieval", 0)) + int(step_ms.get("image_retrieval", 0))
+
+        if not retrieval_cache_hit:
+            retrieval_cache_write_ok = cache_client.set(
+                cache_user,
+                retrieval_cache_payload,
+                {"text_results": text_rows, "image_results": image_rows},
+                namespace="retrieval",
+            )
+
+        step_ms["retrieval_total"] = retrieval_total_ms
+
         result: Dict[str, Any] = {
             "query": query,
             "text_results": text_rows,
@@ -144,6 +213,15 @@ class SearchOrchestrator:
             "telemetry": {
                 "steps_ms": step_ms,
                 "tokens": {"input_total": 0, "output_total": 0, "provider_reported": False},
+                "cache": {
+                    "retrieval": {
+                        "enabled": cache_client.is_enabled(),
+                        "hit": retrieval_cache_hit,
+                        "backend": "redis" if cache_client.is_enabled() else "none",
+                        "ttl_seconds": cache_client.config.ttl_seconds,
+                        "write_ok": retrieval_cache_write_ok,
+                    }
+                },
             },
             "retrieval_config": {
                 "retriever_type": retriever_type,
@@ -154,11 +232,13 @@ class SearchOrchestrator:
 
         if not run_generation or not _generation_enabled(self.cfg):
             step_ms["total"] = int((perf_counter() - t0) * 1000)
+            _log_timings("retrieval_only_or_generation_disabled")
             return result
 
         if not text_rows and not image_rows:
             step_ms["generation"] = 0
             step_ms["total"] = int((perf_counter() - t0) * 1000)
+            _log_timings("no_results_for_generation")
             return result
 
         try:
@@ -206,4 +286,5 @@ class SearchOrchestrator:
             step_ms["generation"] = step_ms.get("generation", 0)
 
         step_ms["total"] = int((perf_counter() - t0) * 1000)
+        _log_timings("completed")
         return result

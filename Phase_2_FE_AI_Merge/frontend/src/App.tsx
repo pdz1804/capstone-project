@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import {
+  Activity,
   LayoutDashboard,
   Database,
   BookOpen,
@@ -24,13 +25,6 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from './lib/utils';
-import DashboardView from './views/DashboardView';
-import KnowledgeManagementView from './views/KnowledgeManagementView';
-import LectureView from './views/LectureView';
-import LearningPathView from './views/LearningPathView';
-import ChatAssistantView from './views/ChatAssistantView';
-import ProfileView from './views/ProfileView';
-import QuizView from './views/QuizView';
 import LoginView from './views/LoginView';
 import AppFooter from './components/AppFooter';
 import UserProfileModal from './components/UserProfileModal';
@@ -44,7 +38,19 @@ import {
   postQuizResult,
 } from './api/ragApi';
 
-export type ViewType = 'dashboard' | 'knowledge' | 'lecture' | 'learning' | 'chat' | 'profile';
+export type ViewType =
+  | 'dashboard'
+  | 'knowledge'
+  | 'lecture'
+  | 'learning'
+  | 'chat'
+  | 'feedbacks'
+  | 'profile'
+  | 'adminDashboard'
+  | 'adminInvocations'
+  | 'adminUsers'
+  | 'adminKnowledge'
+  | 'adminFeedback';
 export type KnowledgeSubTab = 'dashboard' | 'upload' | 'run-pipeline' | 'build-index' | 'explorer';
 
 const VIEW_PATHS: Record<ViewType, string> = {
@@ -53,7 +59,13 @@ const VIEW_PATHS: Record<ViewType, string> = {
   lecture: '/lecture',
   learning: '/learning',
   chat: '/chat',
+  feedbacks: '/feedbacks',
   profile: '/profile',
+  adminDashboard: '/admin/dashboard',
+  adminInvocations: '/admin/invocations',
+  adminUsers: '/admin/users',
+  adminKnowledge: '/admin/knowledge',
+  adminFeedback: '/admin/feedback',
 };
 
 const KNOWLEDGE_PATHS: Record<KnowledgeSubTab, string> = {
@@ -63,6 +75,19 @@ const KNOWLEDGE_PATHS: Record<KnowledgeSubTab, string> = {
   'build-index': '/knowledge/build-index',
   explorer: '/knowledge/explorer',
 };
+
+const DashboardView = lazy(() => import('./views/DashboardView'));
+const KnowledgeManagementView = lazy(() => import('./views/KnowledgeManagementView'));
+const LectureView = lazy(() => import('./views/LectureView'));
+const LearningPathView = lazy(() => import('./views/LearningPathView'));
+const ChatAssistantView = lazy(() => import('./views/ChatAssistantView'));
+const FeedbacksView = lazy(() => import('./views/FeedbacksView'));
+const ProfileView = lazy(() => import('./views/ProfileView'));
+const AdminDashboardView = lazy(() => import('./views/AdminDashboardView'));
+const AdminInvocationsView = lazy(() => import('./views/AdminInvocationsView'));
+const AdminUsersManagementView = lazy(() => import('./views/AdminUsersManagementView'));
+const AdminKnowledgeManagementView = lazy(() => import('./views/AdminKnowledgeManagementView'));
+const AdminFeedbackManagementView = lazy(() => import('./views/AdminFeedbackManagementView'));
 
 function routeToState(pathname: string): {
   view: ViewType;
@@ -84,7 +109,13 @@ function routeToState(pathname: string): {
   if (clean === '/lecture') return { view: 'lecture', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/learning') return { view: 'learning', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/chat') return { view: 'chat', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/feedbacks') return { view: 'feedbacks', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/profile') return { view: 'profile', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/dashboard') return { view: 'adminDashboard', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/invocations') return { view: 'adminInvocations', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/users') return { view: 'adminUsers', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/knowledge') return { view: 'adminKnowledge', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/feedback') return { view: 'adminFeedback', knowledgeSubTab: 'dashboard', isKnown: true };
   return { view: 'dashboard', knowledgeSubTab: 'dashboard', isKnown: false };
 }
 
@@ -132,6 +163,8 @@ export default function App() {
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [profile, setProfile] = useState<UserEntity | null>(null);
+  const [currentRole, setCurrentRole] = useState<'student' | 'admin' | 'instructor'>('student');
+  const [adminViewMode, setAdminViewMode] = useState<'admin' | 'user'>('admin');
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -263,10 +296,32 @@ export default function App() {
     if (!user) {
       setFiles([]);
       setQuizResults([]);
+      setProfile(null);
+      setCurrentRole('student');
       return;
     }
     refreshFilesFromApi();
     refreshQuizResultsFromApi();
+    void authService.getMe().then((me) => {
+      if ((me.isActive ?? true) === false) {
+        void authService.logout();
+        return;
+      }
+      setProfile(me);
+      setCurrentRole((me.role as any) || 'student');
+      setUser((prev) => (prev ? {
+        ...prev,
+        username: me.username,
+        role: me.role,
+        isActive: me.isActive,
+        displayName: me.displayName ?? prev.displayName,
+        persona: me.persona,
+        educationDescription: me.educationDescription,
+      } : prev));
+    }).catch((e) => {
+      console.error('Failed to resolve role profile', e);
+      setCurrentRole((user.role as any) || 'student');
+    });
   }, [user?.uid, refreshFilesFromApi, refreshQuizResultsFromApi]);
 
   useEffect(() => {
@@ -275,11 +330,30 @@ export default function App() {
   }, [isProfileModalOpen, user?.uid, loadProfile]);
 
   useEffect(() => {
-    if (!isAuthReady || !user) return;
-    if (!routeState.isKnown || location.pathname === '/') {
-      navigate('/dashboard', { replace: true });
+    // Non-admin accounts always stay in user view mode.
+    if (currentRole !== 'admin') {
+      setAdminViewMode('user');
     }
-  }, [isAuthReady, user?.uid, routeState.isKnown, location.pathname, navigate]);
+  }, [currentRole]);
+
+  const isAdminUser = currentRole === 'admin';
+  const isAdminView = isAdminUser && adminViewMode === 'admin';
+
+  useEffect(() => {
+    if (!isAuthReady || !user) return;
+    if (!isAdminView && location.pathname.startsWith('/admin')) {
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+    if (isAdminView && !location.pathname.startsWith('/admin') && location.pathname !== '/profile') {
+      navigate('/admin/dashboard', { replace: true });
+      return;
+    }
+
+    if (!routeState.isKnown || location.pathname === '/') {
+      navigate(isAdminView ? '/admin/dashboard' : '/dashboard', { replace: true });
+    }
+  }, [isAuthReady, user?.uid, routeState.isKnown, location.pathname, navigate, isAdminView]);
 
   if (!isAuthReady) {
     return (
@@ -296,7 +370,7 @@ export default function App() {
     return <LoginView />;
   }
 
-  const navItems = [
+  const studentNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     {
       id: 'knowledge',
@@ -313,7 +387,24 @@ export default function App() {
     { id: 'lecture', label: 'Lecture Viewer', icon: BookOpen },
     { id: 'learning', label: 'Learning Path', icon: TrendingUp },
     { id: 'chat', label: 'Chat Assistant', icon: MessageSquare },
+    { id: 'feedbacks', label: 'Feedbacks', icon: BarChart3 },
   ] as const;
+
+  const adminNavItems = [
+    { id: 'adminDashboard', label: 'Application Dashboard', icon: LayoutDashboard },
+    { id: 'adminInvocations', label: 'API Invocations', icon: Activity },
+    { id: 'adminUsers', label: 'User Management', icon: UserCircle2 },
+    { id: 'adminKnowledge', label: 'Knowledge Management', icon: Database },
+    { id: 'adminFeedback', label: 'Feedback Management', icon: BarChart3 },
+    { id: 'profile', label: 'Profile', icon: UserCircle2 },
+  ] as const;
+
+  const navItems = (isAdminView ? adminNavItems : studentNavItems) as ReadonlyArray<any>;
+  const viewLoadingFallback = (
+    <div className="h-full w-full flex items-center justify-center">
+      <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+    </div>
+  );
 
   return (
     <div className="relative flex h-screen overflow-hidden bg-slate-50 text-slate-900 font-sans">
@@ -463,8 +554,8 @@ export default function App() {
               {sidebarCollapsed ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
             </button> */}
             <h1 className="text-lg font-semibold text-slate-800 truncate">
-              {currentView === 'knowledge'
-                ? navItems
+              {currentView === 'knowledge' && !isAdminView
+                ? studentNavItems
                     .find((i) => i.id === 'knowledge')
                     ?.subItems?.find((s) => s.id === knowledgeSubTab)?.label || 'Knowledge Management'
                 : currentView === 'profile'
@@ -473,6 +564,37 @@ export default function App() {
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            {isAdminUser && (
+              <div className="inline-flex items-center rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+                <span className="px-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">View as</span>
+                <button
+                  type="button"
+                  onClick={() => setAdminViewMode('user')}
+                  className={cn(
+                    'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
+                    adminViewMode === 'user'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  )}
+                  aria-label="Switch to user view"
+                >
+                  User
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdminViewMode('admin')}
+                  className={cn(
+                    'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
+                    adminViewMode === 'admin'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  )}
+                  aria-label="Switch to admin view"
+                >
+                  Admin
+                </button>
+              </div>
+            )}
             {/* <button className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors relative">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
@@ -503,21 +625,29 @@ export default function App() {
 
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <div className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-6 xl:p-8 2xl:px-10 min-h-0">
-            {currentView === 'dashboard' && <DashboardView onNavigate={navigateToView} user={user} files={files} />}
-            {currentView === 'knowledge' && (
-              <KnowledgeManagementView
-                files={files}
-                setFiles={setFiles}
-                activeTab={knowledgeSubTab}
-                onRefreshFiles={refreshFilesFromApi}
-              />
-            )}
-            {currentView === 'lecture' && <LectureView files={files} />}
-            {currentView === 'learning' && (
-              <LearningPathView files={files} quizResults={quizResults} onQuizComplete={addQuizResult} />
-            )}
-            {currentView === 'chat' && <ChatAssistantView />}
-            {currentView === 'profile' && <ProfileView user={user} onEditProfile={() => setIsProfileModalOpen(true)} />}
+            <Suspense fallback={viewLoadingFallback}>
+              {currentView === 'dashboard' && <DashboardView onNavigate={navigateToView} user={user} files={files} />}
+              {currentView === 'knowledge' && (
+                <KnowledgeManagementView
+                  files={files}
+                  setFiles={setFiles}
+                  activeTab={knowledgeSubTab}
+                  onRefreshFiles={refreshFilesFromApi}
+                />
+              )}
+              {currentView === 'lecture' && <LectureView files={files} />}
+              {currentView === 'learning' && (
+                <LearningPathView files={files} quizResults={quizResults} onQuizComplete={addQuizResult} />
+              )}
+              {currentView === 'chat' && <ChatAssistantView />}
+              {currentView === 'feedbacks' && <FeedbacksView />}
+              {currentView === 'adminDashboard' && <AdminDashboardView />}
+              {currentView === 'adminInvocations' && <AdminInvocationsView />}
+              {currentView === 'adminUsers' && <AdminUsersManagementView />}
+              {currentView === 'adminKnowledge' && <AdminKnowledgeManagementView />}
+              {currentView === 'adminFeedback' && <AdminFeedbackManagementView />}
+              {currentView === 'profile' && <ProfileView user={user} onEditProfile={() => setIsProfileModalOpen(true)} />}
+            </Suspense>
           </div>
           <AppFooter />
         </div>

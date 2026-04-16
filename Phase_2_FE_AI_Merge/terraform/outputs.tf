@@ -58,6 +58,26 @@ output "alb_https_enabled" {
   value       = module.alb.https_enabled
 }
 
+output "waf_web_acl_id" {
+  description = "WAF Web ACL ID (empty when WAF is disabled)"
+  value       = try(module.waf[0].web_acl_id, "")
+}
+
+output "waf_web_acl_arn" {
+  description = "WAF Web ACL ARN (empty when WAF is disabled)"
+  value       = try(module.waf[0].web_acl_arn, "")
+}
+
+output "waf_web_acl_name" {
+  description = "WAF Web ACL name (empty when WAF is disabled)"
+  value       = try(module.waf[0].web_acl_name, "")
+}
+
+output "waf_log_group_name" {
+  description = "CloudWatch log group used by WAF (empty when disabled)"
+  value       = try(module.waf[0].waf_log_group_name, "")
+}
+
 output "ecs_cluster_name" {
   description = "ECS cluster name"
   value       = module.ecs.cluster_name
@@ -116,6 +136,31 @@ output "sagemaker_endpoint_arn" {
 output "sagemaker_execution_role_arn" {
   description = "SageMaker execution role ARN (empty if disabled)"
   value       = try(module.sagemaker_unified[0].execution_role_arn, "")
+}
+
+output "search_cache_serverless_name" {
+  description = "ElastiCache Serverless cache name (empty if disabled)"
+  value       = try(aws_elasticache_serverless_cache.search_cache[0].name, "")
+}
+
+output "search_cache_endpoint" {
+  description = "ElastiCache Serverless endpoint address (empty if disabled)"
+  value       = try(aws_elasticache_serverless_cache.search_cache[0].endpoint[0].address, "")
+}
+
+output "search_cache_port" {
+  description = "ElastiCache Serverless endpoint port (0 if disabled)"
+  value       = try(aws_elasticache_serverless_cache.search_cache[0].endpoint[0].port, 0)
+}
+
+output "search_cache_security_group_id" {
+  description = "Security group ID attached to ElastiCache Serverless cache (empty if disabled)"
+  value       = try(aws_security_group.search_cache[0].id, "")
+}
+
+output "backend_search_cache_redis_url" {
+  description = "SEARCH_CACHE_REDIS_URL value injected into ECS backend task"
+  value       = local.search_cache_redis_url
 }
 
 output "aws_region" {

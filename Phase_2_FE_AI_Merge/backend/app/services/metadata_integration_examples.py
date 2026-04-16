@@ -5,8 +5,11 @@ This module demonstrates how to integrate the metadata service throughout
 your RAG pipeline for comprehensive file tracking.
 """
 
+import logging
 from pathlib import Path
 from app.services.file_metadata_service import FileMetadataService
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -28,36 +31,36 @@ def process_document_with_metadata_tracking(file_path: str, user_id: str):
         metadata_svc.update_status(file_path, status="processing")
         
         # Stage 1: Normalize
-        print(f"Stage 1: Normalizing {Path(file_path).name}")
+        logger.info(f"Stage 1: Normalizing {Path(file_path).name}")
         process_document(file_path, stage="normalize")
         metadata_svc.mark_stage_complete(file_path, "normalize")
         
         # Stage 2: Extract Media
-        print(f"Stage 2: Extracting media from {Path(file_path).name}")
+        logger.info(f"Stage 2: Extracting media from {Path(file_path).name}")
         process_document(file_path, stage="extract_media")
         metadata_svc.mark_stage_complete(file_path, "extract_media")
         
         # Stage 3: Docling (OCR, VLM, ASR)
-        print(f"Stage 3: Running Docling on {Path(file_path).name}")
+        logger.info(f"Stage 3: Running Docling on {Path(file_path).name}")
         process_document(file_path, stage="docling")
         metadata_svc.mark_stage_complete(file_path, "docling")
         
         # Stage 4: Chunking
-        print(f"Stage 4: Chunking {Path(file_path).name}")
+        logger.info(f"Stage 4: Chunking {Path(file_path).name}")
         process_document(file_path, stage="chunking")
         metadata_svc.mark_stage_complete(file_path, "chunking")
         
         # Stage 5: Indexing
-        print(f"Stage 5: Indexing {Path(file_path).name}")
+        logger.info(f"Stage 5: Indexing {Path(file_path).name}")
         process_document(file_path, stage="indexing")
         metadata_svc.mark_stage_complete(file_path, "indexing")
         
         # Mark as complete
         metadata_svc.mark_complete(file_path)
-        print(f"✓ Successfully processed {Path(file_path).name}")
+        logger.info(f"Successfully processed {Path(file_path).name}")
         
     except Exception as e:
-        print(f"✗ Error processing {Path(file_path).name}: {e}")
+        logger.error(f"Error processing {Path(file_path).name}: {e}")
         metadata_svc.mark_failed(
             file_path,
             error_message=str(e),
@@ -85,37 +88,31 @@ def batch_process_with_stats(directory: str):
     # Get all pending files
     pending_files = metadata_svc.list_file_metadata(dir_path, status_filter="pending")
     
-    print(f"\nProcessing {len(pending_files)} pending files...")
+    logger.info(f"Processing {len(pending_files)} pending files")
     
     processed_count = 0
     failed_count = 0
     
     for metadata in pending_files:
         try:
-            print(f"\n[{processed_count + failed_count + 1}/{len(pending_files)}] Processing: {metadata.original_filename}")
+            logger.info(f"[{processed_count + failed_count + 1}/{len(pending_files)}] Processing: {metadata.original_filename}")
             process_document_with_metadata_tracking(metadata.file_path, metadata.user_id)
             processed_count += 1
         except Exception as e:
-            print(f"  ✗ Failed: {e}")
+            logger.warning(f"Failed: {e}")
             failed_count += 1
     
     # Generate stats
     stats = metadata_svc.get_processing_stats(dir_path)
     
-    print("\n" + "="*60)
-    print("BATCH PROCESSING SUMMARY")
-    print("="*60)
-    print(f"Total files processed: {processed_count}")
-    print(f"Total files failed: {failed_count}")
-    print(f"\nAll files in directory:")
-    print(f"  Pending:   {stats['by_status']['pending']}")
-    print(f"  Processing: {stats['by_status']['processing']}")
-    print(f"  Completed: {stats['by_status']['completed']}")
-    print(f"  Failed:    {stats['by_status']['failed']}")
-    print(f"\nTotal size: {stats['total_size_bytes'] / (1024*1024):.2f} MB")
-    if stats['average_processing_time_seconds']:
-        print(f"Avg processing time: {stats['average_processing_time_seconds']:.1f}s")
-    print("="*60 + "\n")
+    summary = (
+        f"BATCH PROCESSING SUMMARY - Processed: {processed_count}, Failed: {failed_count} | "
+        f"Directory: Pending={stats['by_status']['pending']}, Processing={stats['by_status']['processing']}, "
+        f"Completed={stats['by_status']['completed']}, Failed={stats['by_status']['failed']} | "
+        f"Total size: {stats['total_size_bytes'] / (1024*1024):.2f} MB | "
+        f"Avg time: {stats['average_processing_time_seconds']:.1f}s" if stats['average_processing_time_seconds'] else "N/A"
+    )
+    logger.info(summary)
     
     return stats
 
@@ -208,29 +205,28 @@ def retry_failed_files(directory: str, max_retries: int = 3):
     # Get all failed files
     failed_files = metadata_svc.list_file_metadata(dir_path, status_filter="failed")
     
-    print(f"\nRetrying {len(failed_files)} failed files (max {max_retries} attempts)...\n")
+    logger.info(f"Retrying {len(failed_files)} failed files (max {max_retries} attempts)")
     
     recovered = 0
     still_failed = 0
     
     for metadata in failed_files:
-        print(f"Retrying: {metadata.original_filename}")
-        print(f"  Previous error: {metadata.error_message}")
+        logger.info(f"Retrying: {metadata.original_filename} (previous error: {metadata.error_message})")
         
         for attempt in range(1, max_retries + 1):
             try:
-                print(f"  Attempt {attempt}/{max_retries}...")
+                logger.debug(f"Attempt {attempt}/{max_retries}")
                 process_document_with_metadata_tracking(
                     metadata.file_path,
                     metadata.user_id
                 )
-                print(f"  ✓ Recovered!")
+                logger.info(f"File recovered successfully")
                 recovered += 1
                 break
             except Exception as e:
-                print(f"  ✗ Attempt {attempt} failed: {e}")
+                logger.warning(f"Attempt {attempt} failed: {e}")
                 if attempt == max_retries:
-                    print(f"  ✗ Max retries exceeded")
+                    logger.error(f"Max retries exceeded for {metadata.original_filename}")
                     still_failed += 1
     
     print(f"\nRetry Summary: {recovered} recovered, {still_failed} still failing\n")
@@ -276,12 +272,10 @@ def health_check(directory: str) -> bool:
         issues.append(f"High storage usage: {total_size:.1f} GB")
     
     if issues:
-        print("⚠ Health Check Issues:")
-        for issue in issues:
-            print(f"  - {issue}")
+        logger.warning(f"Health Check Issues: {'; '.join(issues)}")
         return False
     else:
-        print("✓ All health checks passed")
+        logger.info("All health checks passed")
         return True
 
 
@@ -330,7 +324,7 @@ def export_metadata_report(directory: str, output_file: str):
                 'error_message': metadata.error_message or '',
             })
     
-    print(f"✓ Report exported to {output_file}")
+    logger.info(f"Report exported to {output_file}")
 
 
 # ============================================================================
@@ -357,4 +351,4 @@ if __name__ == "__main__":
     # Example 6: Export report
     # export_metadata_report("/data/workspace/input", "metadata_report.csv")
     
-    print("Metadata integration examples loaded")
+    logger.info("Metadata integration examples loaded")

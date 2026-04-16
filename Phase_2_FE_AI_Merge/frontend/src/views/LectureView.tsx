@@ -4,6 +4,8 @@ import {
   Search,
   MessageSquare,
   Sparkles,
+  Copy,
+  FileDown,
   Loader2,
   RefreshCw,
   Video,
@@ -16,6 +18,8 @@ import {
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import type { Components } from 'react-markdown';
 import { FileItem } from '../App';
 import {
@@ -197,6 +201,9 @@ function getLectureMarkdownComponents(markdownSourcePath?: string | null): Compo
   };
 }
 
+const LECTURE_REMARK_PLUGINS = [remarkGfm, remarkMath];
+const LECTURE_REHYPE_PLUGINS = [rehypeKatex];
+
 type InputPreviewState =
   | { kind: 'none' }
   | { kind: 'blob'; url: string; mime: string }
@@ -233,6 +240,16 @@ const FOCUS_QUERY: Record<'general' | 'formulas' | 'definitions', string> = {
   formulas: 'Emphasize formulas, equations, and mathematical reasoning.',
   definitions: 'Emphasize definitions, terminology, and precise meanings.',
 };
+
+type SummaryPersona = 'neutral' | 'teacher' | 'friendly' | 'concise' | 'exam_coach';
+
+const SUMMARY_PERSONA_OPTIONS: Array<{ value: SummaryPersona; label: string }> = [
+  { value: 'neutral', label: 'Neutral' },
+  { value: 'teacher', label: 'Teacher / Explainer' },
+  { value: 'friendly', label: 'Friendly Coach' },
+  { value: 'concise', label: 'Concise Reviewer' },
+  { value: 'exam_coach', label: 'Exam Coach' },
+];
 
 export default function LectureView({ files = [] }: LectureViewProps) {
   const [activeTab, setActiveTab] = useState<'transcript' | 'summary'>('summary');
@@ -351,6 +368,9 @@ export default function LectureView({ files = [] }: LectureViewProps) {
         const nameLower = selectedFile.name.toLowerCase();
         const ext = nameLower.includes('.') ? nameLower.slice(nameLower.lastIndexOf('.')) : '';
         const officeExt = ['.ppt', '.pptx', '.xls', '.xlsx', '.doc', '.docx'];
+        const wordExt = ['.doc', '.docx'];
+        const officeViewerExt = ['.ppt', '.pptx', '.xls', '.xlsx'];
+
         if (ext === '.pdf' || selectedFile.type === 'pdf') {
           const u = await getInputFileUrl(selectedFile.name, 900);
           if (gen !== inputFetchGen.current) return;
@@ -363,8 +383,56 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             return;
           }
         }
-        if (officeExt.includes(ext)) {
-          const u = await getInputFileUrl(selectedFile.name, 900);
+
+        // For Word files: try processed PDF first, then fallback to markdown
+        if (wordExt.includes(ext)) {
+          try {
+            const data = await getProcessedByFile(selectedFile.name);
+            if (gen !== inputFetchGen.current) return;
+
+            // Look for PDF in processed stages
+            const stageOrder = ['stage3_document_processed', 'stage4_rag_ready'] as const;
+            let pdfPath: string | null = null;
+
+            for (const st of stageOrder) {
+              const block = data.stages.find((s) => s.stage === st);
+              const rows = (block?.files || []) as Array<{ name?: string; relative_path?: string }>;
+              const pdf = rows.find((r) => /\.pdf$/i.test(String(r.name || '')));
+              if (pdf) {
+                pdfPath = String(pdf.relative_path || '').trim();
+                break;
+              }
+            }
+
+            if (pdfPath) {
+              const { body, mediaType } = await getProcessedFile(pdfPath);
+              if (gen !== inputFetchGen.current) return;
+              const coerced = coerceBlobForPreview(body, selectedFile.name, mediaType);
+              const objectUrl = URL.createObjectURL(coerced);
+              if (gen !== inputFetchGen.current) {
+                URL.revokeObjectURL(objectUrl);
+                return;
+              }
+              inputBlobUrlRef.current = objectUrl;
+              setInputPreview({
+                kind: 'blob',
+                url: objectUrl,
+                mime: 'application/pdf',
+              });
+              return;
+            }
+          } catch (e) {
+            console.warn('Failed to load processed PDF for Word file:', e);
+          }
+
+          // No processed PDF found - set preview to 'none' to trigger markdown fallback
+          setInputPreview({ kind: 'none' });
+          return;
+        }
+
+        // For PowerPoint/Excel: use Microsoft Office Online viewer
+        if (officeViewerExt.includes(ext)) {
+          const u = await getInputFileUrl(selectedFile.name, 900, { viewer: 'office' });
           if (gen !== inputFetchGen.current) return;
           if (u?.url) {
             setInputPreview({
@@ -546,14 +614,19 @@ export default function LectureView({ files = [] }: LectureViewProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [summaryLength, setSummaryLength] = useState<'brief' | 'detailed' | 'comprehensive'>('detailed');
   const [summaryFocus, setSummaryFocus] = useState<'general' | 'formulas' | 'definitions'>('general');
+  const [summaryPersona, setSummaryPersona] = useState<SummaryPersona>('neutral');
   const [summaryMarkdown, setSummaryMarkdown] = useState<string | null>(null);
   const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [summaryCopyStatus, setSummaryCopyStatus] = useState<'idle' | 'ok' | 'err'>('idle');
+  const [isPreparingSummaryPdf, setIsPreparingSummaryPdf] = useState(false);
+  const summaryRenderRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setSummaryMarkdown(null);
     setSummaryError(null);
     setIsGenerating(false);
     setPassagesPane('chunks');
+    setSummaryCopyStatus('idle');
   }, [selectedFileId]);
 
   const [transcriptQuery, setTranscriptQuery] = useState('');
@@ -624,7 +697,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
         focus_query: FOCUS_QUERY[summaryFocus],
         depth: summaryLength,
         document_id: scopeFile?.documentFolder ?? null,
-        tone: 'neutral',
+        tone: summaryPersona,
         target_length: LENGTH_MAP[summaryLength],
       });
       if (res.error) {
@@ -645,6 +718,70 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       setSummaryError(e instanceof Error ? e.message : 'Summary request failed');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleCopySummary = async () => {
+    const text = String(summaryMarkdown || '').trim();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setSummaryCopyStatus('ok');
+      window.setTimeout(() => setSummaryCopyStatus('idle'), 1800);
+    } catch {
+      setSummaryCopyStatus('err');
+      window.setTimeout(() => setSummaryCopyStatus('idle'), 2200);
+    }
+  };
+
+  const handleDownloadSummaryPdf = () => {
+    const rendered = summaryRenderRef.current;
+    const text = String(summaryMarkdown || '').trim();
+    if (!rendered || !text) return;
+    setIsPreparingSummaryPdf(true);
+    try {
+      const base = (scopeFile?.name || 'lecture-summary').trim().slice(0, 80) || 'lecture-summary';
+      const safeTitle = base.replace(/[\\/:*?"<>|]+/g, '-');
+      const popup = window.open('', '_blank', 'width=960,height=720');
+      if (!popup) {
+        throw new Error('Popup blocked');
+      }
+      popup.document.open();
+      popup.document.write(`<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>${safeTitle}</title>
+    <style>
+      body { font-family: "Segoe UI", Arial, sans-serif; margin: 28px; color: #0f172a; }
+      h1,h2,h3 { color: #0f172a; margin: 14px 0 8px; }
+      p, li { line-height: 1.65; font-size: 14px; }
+      code { background: #f1f5f9; padding: 1px 4px; border-radius: 4px; }
+      pre { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; overflow: auto; }
+      table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+      th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; vertical-align: top; }
+      .meta { margin-bottom: 14px; font-size: 12px; color: #475569; }
+      @media print { body { margin: 16mm; } }
+    </style>
+  </head>
+  <body>
+    <h1>AI Lecture Summary</h1>
+    <div class="meta">
+      File: ${(scopeFile?.name || 'N/A').replace(/</g, '&lt;').replace(/>/g, '&gt;')}<br/>
+      Length: ${summaryLength} | Persona: ${summaryPersona.replace('_', ' ')}
+    </div>
+    <div>${rendered.innerHTML}</div>
+  </body>
+</html>`);
+      popup.document.close();
+      popup.focus();
+      window.setTimeout(() => {
+        popup.print();
+      }, 180);
+    } catch {
+      setSummaryError('Could not open PDF export. Please allow popups and try again.');
+    } finally {
+      window.setTimeout(() => setIsPreparingSummaryPdf(false), 250);
     }
   };
 
@@ -697,8 +834,6 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             </p>
             <div
               className="border border-slate-200 rounded-2xl bg-slate-50/60 max-h-52 overflow-y-auto shadow-inner custom-scrollbar"
-              role="listbox"
-              aria-label="Uploaded files"
             >
               {files.length === 0 ? (
                 <p className="p-4 text-sm text-slate-500 text-center">
@@ -723,8 +858,6 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                       <li key={file.id}>
                         <button
                           type="button"
-                          role="option"
-                          aria-selected={active}
                           onClick={() => setSelectedFileId(file.id)}
                           className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-start gap-3 ${active
                             ? 'bg-sky-50 border-l-4 border-l-sky-600 font-semibold text-slate-900'
@@ -800,6 +933,17 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               !inputPreviewLoading &&
               inputPreview.kind === 'office' && (
                 <div className="flex-1 border-b border-sky-100 bg-sky-50/50 flex flex-col">
+                  <div className="shrink-0 px-4 py-2 border-b border-sky-100 bg-white/70 flex items-center justify-between gap-3">
+                    <p className="text-[11px] text-slate-500 truncate">Office online preview</p>
+                    <a
+                      href={inputPreview.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] font-semibold text-sky-700 hover:text-sky-800"
+                    >
+                      Open original file
+                    </a>
+                  </div>
                   <iframe
                     title={`Office preview: ${selectedFile.name}`}
                     src={inputPreview.iframeSrc}
@@ -1115,6 +1259,38 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                         Scoped to document folder: <strong>{scopeFile.documentFolder || '—'}</strong> ({scopeFile.name})
                       </p>
                     )}
+
+                    <div className="grid grid-cols-1 gap-3">
+                      <label className="text-xs text-slate-600 font-semibold">
+                        Summary length
+                        <select
+                          value={summaryLength}
+                          onChange={(e) => setSummaryLength(e.target.value as 'brief' | 'detailed' | 'comprehensive')}
+                          className="mt-1 w-full rounded-xl border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm"
+                          title="Summary length"
+                          aria-label="Summary length"
+                        >
+                          <option value="brief">Brief</option>
+                          <option value="detailed">Detailed</option>
+                          <option value="comprehensive">Comprehensive</option>
+                        </select>
+                      </label>
+
+                      <label className="text-xs text-slate-600 font-semibold">
+                        Persona
+                        <select
+                          value={summaryPersona}
+                          onChange={(e) => setSummaryPersona(e.target.value as SummaryPersona)}
+                          className="mt-1 w-full rounded-xl border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm"
+                          title="Summary persona"
+                          aria-label="Summary persona"
+                        >
+                          {SUMMARY_PERSONA_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
                   </div>
 
                   <button
@@ -1144,23 +1320,43 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     <div>
                       <h3 className="font-black text-slate-900 text-xl tracking-tight">Summary</h3>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">From processed materials</p>
+                      <p className="text-[11px] text-slate-500 mt-1">Length: {summaryLength} · Persona: {summaryPersona.replace('_', ' ')}</p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSummaryMarkdown(null);
-                        setSummaryError(null);
-                      }}
-                      className="p-2 text-sky-600 hover:bg-sky-50 rounded-xl transition-all border border-transparent hover:border-sky-100"
-                      title="New summary"
-                    >
-                      <RefreshCw className="w-5 h-5" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => void handleCopySummary()}
+                        className="inline-flex items-center gap-2 rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-50"
+                      >
+                        <Copy className="w-4 h-4" />
+                        {summaryCopyStatus === 'ok' ? 'Copied' : summaryCopyStatus === 'err' ? 'Copy failed' : 'Copy'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleDownloadSummaryPdf}
+                        disabled={isPreparingSummaryPdf}
+                        className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-60"
+                      >
+                        <FileDown className="w-4 h-4" />
+                        {isPreparingSummaryPdf ? 'Preparing PDF...' : 'Download rendered PDF'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSummaryMarkdown(null);
+                          setSummaryError(null);
+                        }}
+                        className="p-2 text-sky-600 hover:bg-sky-50 rounded-xl transition-all border border-transparent hover:border-sky-100"
+                        title="New summary"
+                      >
+                        <RefreshCw className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
                   {summaryError && (
                     <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-4">{summaryError}</p>
                   )}
-                  <article className="border border-sky-100 rounded-2xl p-6 bg-sky-50/40">
+                  <article ref={summaryRenderRef} className="border border-sky-100 rounded-2xl p-6 bg-sky-50/40">
                     <div className="prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
                       <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={inputMarkdownComponents}>
                         {summaryMarkdown}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lambda Conversion Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #2c3e50; }
+        .info { background: #ecf0f1; padding: 20px; border-radius: 5px; }
+        ul { line-height: 1.8; }
+    </style>
+</head>
+<body>
+    <h1>AWS Lambda LibreOffice Conversion Test</h1>
+
+    <div class="info">
+        <h2>Test Information</h2>
+        <ul>
+            <li><strong>Function:</strong> office-to-pdf-converter</li>
+            <li><strong>Region:</strong> us-west-2</li>
+            <li><strong>LibreOffice Version:</strong> 26.2.2</li>
+            <li><strong>Test Date:</strong> April 15, 2026</li>
+        </ul>
+    </div>
+
+    <h2>Features Tested</h2>
+    <ol>
+        <li>HTML to PDF conversion</li>
+        <li>Text formatting preservation</li>
+        <li>List rendering</li>
+        <li>Styled content boxes</li>
+    </ol>
+
+    <h2>Expected Result</h2>
+    <p>
+        This HTML file should be converted to PDF via AWS Lambda using LibreOffice 26.2.
+        The conversion typically takes 3-5 seconds (or ~45 seconds on first cold start).
+    </p>
+
+    <h2>Success Indicators</h2>
+    <ul>
+        <li>✓ Backend logs show "Lambda FORCED mode"</li>
+        <li>✓ Backend logs show "Invoking office-to-pdf-converter"</li>
+        <li>✓ Backend logs show "Lambda PDF created"</li>
+        <li>✓ PDF file is generated and viewable</li>
+    </ul>
+
+    <p><em>If you can read this in a PDF, the Lambda conversion worked successfully!</em></p>
+</body>
+</html>

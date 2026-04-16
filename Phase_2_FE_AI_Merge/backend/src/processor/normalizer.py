@@ -19,6 +19,7 @@ Output Formats:
 import os
 import json
 import shutil
+import base64
 from pathlib import Path
 from typing import Dict, List, Optional, Union, Tuple
 from dataclasses import dataclass
@@ -406,48 +407,192 @@ class DocumentNormalizer:
     
     # Convert docx to pdf using libreoffice
     def _docx_to_pdf_libreoffice(self, file_path: Path, stem: str) -> bool:
-        """Convert DOCX/PPTX to PDF using LibreOffice (best quality, preserves images)."""
+        """Convert office-like files to PDF.
+
+        Conversion order:
+        1) AWS Lambda LibreOffice (when enabled)
+        2) Local LibreOffice binary
+        """
         # Use safe stem to avoid Windows path length issues
         pdf_path = self.pdf_dir / f"{stem}.pdf"
-        
+
+        print(f"    [LibreOffice] Converting {file_path.name} to PDF...")
+
+        try:
+            if self._should_use_lambda_office_pdf_conversion():
+                print("    → Trying AWS Lambda LibreOffice conversion...")
+                if self._office_to_pdf_lambda(file_path, pdf_path):
+                    print("    ✓ AWS Lambda conversion successful")
+                    return True
+                print("    ✗ AWS Lambda conversion failed; trying local LibreOffice...")
+
+            print("    → Trying local LibreOffice...")
+            return self._office_to_pdf_local(file_path, pdf_path)
+
+        except Exception as e:
+            print(f"    ✗ LibreOffice error: {e}")
+            return False
+
+    def _should_use_lambda_office_pdf_conversion(self) -> bool:
+        """Decide if Office->PDF should be delegated to Lambda."""
+        mode = os.getenv("OFFICE_PDF_CONVERTER_MODE", "auto").strip().lower()
+        if mode not in {"auto", "local", "lambda"}:
+            mode = "auto"
+
+        fn_name = os.getenv("OFFICE_PDF_LAMBDA_FUNCTION_NAME", "").strip()
+        if not fn_name:
+            print(f"    [Lambda] Disabled: OFFICE_PDF_LAMBDA_FUNCTION_NAME not set")
+            return False
+
+        if mode == "lambda":
+            print(f"    [Lambda] FORCED mode: will use Lambda ({fn_name})")
+            return True
+        if mode == "local":
+            print(f"    [Lambda] LOCAL mode: will use local LibreOffice")
+            return False
+
+        # Auto mode: use Lambda when running deployed cloud workload.
+        storage_backend = os.getenv("FILE_STORAGE_BACKEND", "").strip().lower()
+        in_cloud_runtime = bool(
+            os.getenv("AWS_EXECUTION_ENV")
+            or os.getenv("ECS_CONTAINER_METADATA_URI")
+            or os.getenv("ECS_CONTAINER_METADATA_URI_V4")
+        )
+        use_lambda = storage_backend == "s3" or in_cloud_runtime
+        print(f"    [Lambda] AUTO mode: storage={storage_backend}, in_cloud={in_cloud_runtime}, use_lambda={use_lambda}")
+        return use_lambda
+
+    def _office_to_pdf_lambda(self, file_path: Path, pdf_path: Path) -> bool:
+        """Convert a file to PDF by invoking an AWS Lambda function.
+
+        Expected Lambda response shape:
+        {
+          "ok": true,
+          "pdf_base64": "<base64-encoded-pdf-bytes>"
+        }
+        """
+        fn_name = os.getenv("OFFICE_PDF_LAMBDA_FUNCTION_NAME", "").strip()
+        if not fn_name:
+            print("    ✗ Lambda function name not configured")
+            return False
+
+        region = (
+            os.getenv("OFFICE_PDF_LAMBDA_REGION", "").strip()
+            or os.getenv("AWS_REGION", "").strip()
+            or None
+        )
+
+        print(f"    [Lambda] Function: {fn_name}, Region: {region}")
+
+        try:
+            import boto3
+        except Exception:
+            print("    ✗ boto3 is not available; cannot invoke Lambda converter")
+            return False
+
+        try:
+            file_bytes = file_path.read_bytes()
+            file_size_kb = len(file_bytes) / 1024
+            print(f"    [Lambda] Encoding file: {file_path.name} ({file_size_kb:.1f} KB)")
+
+            payload = {
+                "operation": "convert-to-pdf",
+                "filename": file_path.name,
+                "extension": file_path.suffix.lower(),
+                "content_base64": base64.b64encode(file_bytes).decode("ascii"),
+            }
+
+            print(f"    [Lambda] Invoking {fn_name}...")
+            client = boto3.client("lambda", region_name=region)
+            response = client.invoke(
+                FunctionName=fn_name,
+                InvocationType="RequestResponse",
+                Payload=json.dumps(payload).encode("utf-8"),
+            )
+
+            status_code = response.get("StatusCode", 0)
+            print(f"    [Lambda] Response StatusCode: {status_code}")
+
+            if int(status_code) != 200:
+                print(f"    ✗ Lambda invoke failed, StatusCode={status_code}")
+                return False
+
+            raw = response.get("Payload").read() if response.get("Payload") else b"{}"
+            body = json.loads(raw.decode("utf-8") or "{}")
+
+            # Support API Gateway style payload from Lambda handlers.
+            if isinstance(body, dict) and isinstance(body.get("body"), str):
+                try:
+                    body = json.loads(body["body"])
+                except Exception:
+                    pass
+
+            if isinstance(body, dict) and body.get("ok") is False:
+                error = body.get('error', 'unknown error')
+                print(f"    ✗ Lambda converter returned error: {error}")
+                return False
+
+            pdf_b64 = None
+            if isinstance(body, dict):
+                pdf_b64 = body.get("pdf_base64") or body.get("pdfBase64")
+                if not pdf_b64 and isinstance(body.get("data"), dict):
+                    pdf_b64 = body["data"].get("pdf_base64") or body["data"].get("pdfBase64")
+
+            if not pdf_b64:
+                print("    ✗ Lambda converter response missing pdf_base64")
+                print(f"    [Lambda] Response body keys: {list(body.keys()) if isinstance(body, dict) else 'not a dict'}")
+                return False
+
+            print(f"    [Lambda] Decoding PDF response...")
+            pdf_bytes = base64.b64decode(pdf_b64)
+            pdf_path.write_bytes(pdf_bytes)
+
+            pdf_size_kb = len(pdf_bytes) / 1024
+            print(f"    ✓ Lambda PDF created: {pdf_path.name} ({pdf_size_kb:.1f} KB)")
+
+            return pdf_path.exists() and pdf_path.stat().st_size > 0
+
+        except Exception as e:
+            print(f"    ✗ Lambda converter error: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+    def _office_to_pdf_local(self, file_path: Path, pdf_path: Path) -> bool:
+        """Convert office-like files to PDF using a local LibreOffice binary."""
         try:
             import subprocess
             import sys
-            
-            # Try platform-specific LibreOffice paths
+
             if sys.platform == 'win32':
                 soffice_paths = [
                     r"C:\Program Files\LibreOffice\program\soffice.exe",
                     r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
                 ]
-            elif sys.platform == 'darwin':  # macOS
+            elif sys.platform == 'darwin':
                 soffice_paths = [
                     "/Applications/LibreOffice.app/Contents/MacOS/soffice",
                 ]
-            else:  # Linux and other Unix-like systems
+            else:
                 soffice_paths = [
                     "/usr/bin/soffice",
                     "/usr/local/bin/soffice",
-                    "soffice",  # Try PATH
+                    "soffice",
                 ]
-            
-            # Find LibreOffice by checking if executable exists
-            # Note: We check file existence instead of running --version because
-            # soffice.exe --version can hang with window suppression flags
+
             soffice = None
             for path in soffice_paths:
-                if Path(path).exists():
+                if path == "soffice" or Path(path).exists():
                     soffice = path
                     break
-            
+
             if not soffice:
                 print("    ✗ LibreOffice not found in system")
                 print("    ℹ Install LibreOffice from: https://www.libreoffice.org/download/")
                 return False
-            
+
             print(f"    ✓ Found LibreOffice: {soffice}")
-            
-            # Convert using LibreOffice with window suppression
+
             cmd = [
                 soffice,
                 "--headless",
@@ -455,34 +600,30 @@ class DocumentNormalizer:
                 "--outdir", str(self.pdf_dir),
                 str(file_path)
             ]
-            
-            # Configure subprocess to hide window on Windows
+
             conversion_kwargs = {'capture_output': True, 'timeout': 60}
-            
+
             if sys.platform == 'win32':
-                # Use STARTUPINFO with SW_HIDE to prevent console window
                 startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 startupinfo.wShowWindow = subprocess.SW_HIDE
-                
                 conversion_kwargs['startupinfo'] = startupinfo
                 conversion_kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
-            
-            result = subprocess.run(cmd, **conversion_kwargs)
-            
-            # LibreOffice outputs with original filename, rename if needed
+
+            subprocess.run(cmd, **conversion_kwargs)
+
             output_pdf = self.pdf_dir / f"{file_path.stem}.pdf"
             if output_pdf.exists() and output_pdf != pdf_path:
                 output_pdf.rename(pdf_path)
-            
+
             if pdf_path.exists():
                 return True
-            else:
-                print(f"    ✗ LibreOffice conversion failed (output not found)")
-                return False
-            
+
+            print("    ✗ LibreOffice conversion failed (output not found)")
+            return False
+
         except Exception as e:
-            print(f"    ✗ LibreOffice error: {e}")
+            print(f"    ✗ LibreOffice local conversion error: {e}")
             return False
     
     # Fallback PDF conversion using ReportLab (text-only)
@@ -635,78 +776,17 @@ class DocumentNormalizer:
             raise
     
     def _html_to_pdf_libreoffice(self, file_path: Path, stem: str) -> bool:
-        """Convert HTML to PDF using LibreOffice (preserves layout, images, CSS styling)."""
+        """Convert HTML to PDF (Lambda first when enabled, then local LibreOffice)."""
         # Use safe stem to avoid Windows path length issues
         pdf_path = self.pdf_dir / f"{stem}.pdf"
-        
-        try:
-            import subprocess
-            import sys
-            
-            # Try platform-specific LibreOffice paths
-            if sys.platform == 'win32':
-                soffice_paths = [
-                    r"C:\Program Files\LibreOffice\program\soffice.exe",
-                    r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
-                ]
-            elif sys.platform == 'darwin':  # macOS
-                soffice_paths = [
-                    "/Applications/LibreOffice.app/Contents/MacOS/soffice",
-                ]
-            else:  # Linux and other Unix-like systems
-                soffice_paths = [
-                    "/usr/bin/soffice",
-                    "/usr/local/bin/soffice",
-                    "soffice",  # Try PATH
-                ]
-            
-            # Find LibreOffice
-            soffice = None
-            for path in soffice_paths:
-                if Path(path).exists():
-                    soffice = path
-                    break
-            
-            if not soffice:
-                return False
-            
-            print(f"    ✓ Found LibreOffice for HTML: {soffice}")
-            
-            # Convert HTML to PDF using LibreOffice with window suppression
-            cmd = [
-                soffice,
-                "--headless",
-                "--convert-to", "pdf",
-                "--outdir", str(self.pdf_dir),
-                str(file_path)
-            ]
-            
-            # Configure subprocess to hide window on Windows
-            conversion_kwargs = {'capture_output': True, 'timeout': 60}
-            
-            if sys.platform == 'win32':
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                startupinfo.wShowWindow = subprocess.SW_HIDE
-                
-                conversion_kwargs['startupinfo'] = startupinfo
-                conversion_kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
-            
-            result = subprocess.run(cmd, **conversion_kwargs)
-            
-            # LibreOffice outputs with original filename, rename to safe name if needed
-            output_pdf = self.pdf_dir / f"{file_path.stem}.pdf"
-            if output_pdf.exists() and output_pdf != pdf_path:
-                output_pdf.rename(pdf_path)
-            
-            if pdf_path.exists():
+
+        if self._should_use_lambda_office_pdf_conversion():
+            print("    → Trying AWS Lambda LibreOffice conversion for HTML...")
+            if self._office_to_pdf_lambda(file_path, pdf_path):
                 return True
-            else:
-                return False
-        
-        except Exception as e:
-            print(f"    ✗ LibreOffice HTML conversion failed: {str(e)}")
-            return False
+            print("    ✗ AWS Lambda HTML conversion failed; trying local LibreOffice...")
+
+        return self._office_to_pdf_local(file_path, pdf_path)
     
     # ======================== Excel Normalization ========================
     

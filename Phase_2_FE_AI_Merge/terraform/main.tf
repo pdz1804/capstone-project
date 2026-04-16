@@ -44,11 +44,13 @@ data "aws_subnets" "default" {
 }
 
 locals {
-  sagemaker_endpoint_effective_name = trimspace(var.sagemaker_endpoint_name) != "" ? var.sagemaker_endpoint_name : "${var.project_name}-multimodal-rt"
-  sagemaker_ecr_repo_effective_name = trimspace(var.sagemaker_ecr_repository_name) != "" ? var.sagemaker_ecr_repository_name : "${var.project_name}-multimodal-unified"
-  agentcore_runtime_ecr_effective_name = trimspace(var.agentcore_runtime_ecr_repository_name) != "" ? var.agentcore_runtime_ecr_repository_name : "${var.project_name}-agentcore-runtime"
+  sagemaker_endpoint_effective_name     = trimspace(var.sagemaker_endpoint_name) != "" ? var.sagemaker_endpoint_name : "${var.project_name}-multimodal-rt"
+  sagemaker_ecr_repo_effective_name     = trimspace(var.sagemaker_ecr_repository_name) != "" ? var.sagemaker_ecr_repository_name : "${var.project_name}-multimodal-unified"
+  agentcore_runtime_ecr_effective_name  = trimspace(var.agentcore_runtime_ecr_repository_name) != "" ? var.agentcore_runtime_ecr_repository_name : "${var.project_name}-agentcore-runtime"
   chatbot_sessions_table_effective_name = trimspace(var.chatbot_sessions_table_name) != "" ? var.chatbot_sessions_table_name : "chatbot-session"
   chatbot_messages_table_effective_name = trimspace(var.chatbot_messages_table_name) != "" ? var.chatbot_messages_table_name : "chatbot-messages"
+  search_cache_serverless_name          = trimspace(var.search_cache_serverless_name) != "" ? var.search_cache_serverless_name : "${var.project_name}-cache"
+  waf_effective_name                    = trimspace(var.waf_name) != "" ? var.waf_name : "${var.project_name}-waf"
   sagemaker_invoke_arns = var.enable_sagemaker_endpoint ? [
     "arn:aws:sagemaker:${var.aws_region}:${data.aws_caller_identity.current.account_id}:endpoint/${local.sagemaker_endpoint_effective_name}"
   ] : []
@@ -58,7 +60,10 @@ locals {
       aws_dynamodb_table.chatbot_messages[0].arn
     ] : [],
     trimspace(var.dynamodb_users_table_arn) != "" ? [var.dynamodb_users_table_arn] : [],
-    trimspace(var.dynamodb_quiz_results_table_arn) != "" ? [var.dynamodb_quiz_results_table_arn] : []
+    trimspace(var.dynamodb_quiz_results_table_arn) != "" ? [var.dynamodb_quiz_results_table_arn] : [],
+    trimspace(var.dynamodb_feedback_table_arn) != "" ? [var.dynamodb_feedback_table_arn] : [],
+    trimspace(var.dynamodb_app_usage_table_arn) != "" ? [var.dynamodb_app_usage_table_arn] : [],
+    trimspace(var.dynamodb_knowledge_table_arn) != "" ? [var.dynamodb_knowledge_table_arn] : []
   ))
   sagemaker_default_env = merge(
     {
@@ -76,6 +81,74 @@ locals {
     },
     var.sagemaker_container_environment
   )
+
+  search_cache_subnet_ids = length(var.search_cache_subnet_ids) > 0 ? var.search_cache_subnet_ids : slice(
+    sort(data.aws_subnets.default.ids),
+    0,
+    min(3, length(data.aws_subnets.default.ids))
+  )
+  search_cache_scheme = var.search_cache_use_tls ? "rediss" : "redis"
+  search_cache_redis_url = var.enable_search_cache_serverless ? format(
+    "%s://%s:%d/0",
+    local.search_cache_scheme,
+    aws_elasticache_serverless_cache.search_cache[0].endpoint[0].address,
+    aws_elasticache_serverless_cache.search_cache[0].endpoint[0].port
+  ) : ""
+  backend_runtime_env = merge(
+    {
+      AWS_REGION                     = var.aws_region
+      ENABLE_DEFAULT_ADMIN_BOOTSTRAP = tostring(var.enable_default_admin_bootstrap)
+      DEFAULT_ADMIN_USERNAME         = var.default_admin_username
+      DEFAULT_ADMIN_EMAIL            = var.default_admin_email
+      DEFAULT_ADMIN_PASSWORD         = var.default_admin_password
+    },
+    trimspace(var.dynamodb_users_table_name) != "" ? { DYNAMODB_USERS_TABLE = var.dynamodb_users_table_name } : {},
+    trimspace(var.dynamodb_quiz_results_table_name) != "" ? { DYNAMODB_QUIZ_RESULTS_TABLE = var.dynamodb_quiz_results_table_name } : {},
+    trimspace(var.dynamodb_feedback_table_name) != "" ? { DYNAMODB_FEEDBACK_TABLE = var.dynamodb_feedback_table_name } : {},
+    trimspace(var.dynamodb_app_usage_table_name) != "" ? { DYNAMODB_APP_USAGE_TABLE = var.dynamodb_app_usage_table_name } : {},
+    trimspace(var.dynamodb_knowledge_table_name) != "" ? { DYNAMODB_KNOWLEDGE_TABLE = var.dynamodb_knowledge_table_name } : {},
+    var.enable_search_cache_serverless ? {
+      SEARCH_CACHE_ENABLED                       = "true"
+      SEARCH_CACHE_BACKEND                       = "redis"
+      SEARCH_CACHE_TTL_SECONDS                   = tostring(var.search_cache_ttl_seconds)
+      SEARCH_CACHE_KEY_PREFIX                    = var.search_cache_key_prefix
+      SEARCH_CACHE_REDIS_URL                     = local.search_cache_redis_url
+      SEARCH_CACHE_REDIS_CONNECT_TIMEOUT_SECONDS = tostring(var.search_cache_redis_connect_timeout_seconds)
+      SEARCH_CACHE_REDIS_READ_TIMEOUT_SECONDS    = tostring(var.search_cache_redis_read_timeout_seconds)
+      SEARCH_CACHE_REDIS_RETRY_COOLDOWN_SECONDS  = tostring(var.search_cache_redis_retry_cooldown_seconds)
+      } : {
+      SEARCH_CACHE_ENABLED = "false"
+    }
+  )
+}
+
+resource "aws_security_group" "search_cache" {
+  count = var.enable_search_cache_serverless ? 1 : 0
+
+  name        = "${var.project_name}-cache-sg"
+  description = "Security group for ElastiCache Serverless search cache"
+  vpc_id      = data.aws_vpc.default.id
+
+  tags = {
+    Service = "search-cache"
+    Name    = "${var.project_name}-cache-sg"
+  }
+}
+
+resource "aws_elasticache_serverless_cache" "search_cache" {
+  count = var.enable_search_cache_serverless ? 1 : 0
+
+  name                 = local.search_cache_serverless_name
+  description          = "Serverless cache for retrieval search cache"
+  engine               = var.search_cache_engine
+  major_engine_version = trimspace(var.search_cache_major_engine_version) != "" ? var.search_cache_major_engine_version : null
+  security_group_ids   = [aws_security_group.search_cache[0].id]
+  subnet_ids           = local.search_cache_subnet_ids
+
+  tags = {
+    Service = "search-cache"
+    Name    = local.search_cache_serverless_name
+  }
 }
 
 resource "aws_dynamodb_table" "chatbot_sessions" {
@@ -248,6 +321,23 @@ module "alb" {
   }
 }
 
+module "waf" {
+  count  = var.enable_waf ? 1 : 0
+  source = "./modules/waf"
+
+  waf_name                          = local.waf_effective_name
+  alb_arn                           = module.alb.alb_arn
+  rate_limit_requests_per_5_minutes = var.waf_rate_limit_requests_per_5_minutes
+  enable_logging                    = var.waf_enable_logging
+  log_retention_days                = var.waf_log_retention_days
+
+  tags = {
+    Service = "waf"
+  }
+
+  depends_on = [module.alb]
+}
+
 module "ecs" {
   source = "./modules/ecs"
 
@@ -265,6 +355,7 @@ module "ecs" {
 
   frontend_task_execution_role_arn = module.frontend_iam.ecs_task_execution_role_arn
   frontend_task_role_arn           = module.frontend_iam.ecs_task_role_arn
+  backend_environment              = local.backend_runtime_env
 
   backend_config = {
     name           = "backend"
@@ -299,8 +390,21 @@ module "ecs" {
   depends_on = [
     module.alb,
     module.backend_iam,
-    module.frontend_iam
+    module.frontend_iam,
+    aws_elasticache_serverless_cache.search_cache
   ]
+}
+
+resource "aws_security_group_rule" "search_cache_ingress_from_ecs" {
+  count = var.enable_search_cache_serverless ? 1 : 0
+
+  type                     = "ingress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.search_cache[0].id
+  source_security_group_id = module.ecs.ecs_tasks_security_group_id
+  description              = "Allow ECS tasks to connect to ElastiCache Serverless on 6379"
 }
 
 module "sagemaker_unified" {

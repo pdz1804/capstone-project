@@ -1,4 +1,4 @@
-# Phase 2 AI Service — Backend
+# Phase 2 FE AI Merge — Backend
 
 ## Architecture
 
@@ -27,50 +27,41 @@ Set `FILE_STORAGE_BACKEND` in `.env` (see `.env.example`).
 
 Per-user isolation: HTTP header **`X-User-Id`**. S3 keys default to `users/<id>/...` under your configured prefixes (`S3_USER_ISOLATION=true`).
 
-## Install dependencies into `myenv` (recommended for this repo)
+## Install dependencies (recommended: `backend/.venv`)
 
-Your project venv is expected at **`Code/myenv`** (same level as `Phase_2_AI_SERVICE_FOLDER`), matching paths like `Code\myenv\Lib\site-packages`.
-
-**PowerShell** (from `Phase_2_AI_SERVICE_FOLDER/backend`):
+From this backend folder:
 
 ```powershell
-.\install_requirements.ps1
+Set-Location "D:\PDZ\BKU\Learning\LVTN\GD1\Code\Phase_2_FE_AI_Merge\backend"
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 ```
 
-**CMD**:
+If you already use a root venv at `Code/.venv`, activate it first, then install with `python -m pip install -r requirements.txt`.
 
-```bat
-install_requirements.bat
-```
-
-**Manual one-liner** (adjust drive/path if your `Code` folder differs):
-
-```powershell
-& "D:\PDZ\BKU\Learning\LVTN\GD1\Code\myenv\Scripts\python.exe" -m pip install -r requirements.txt
-```
-
-If `myenv` lives elsewhere, set **`MYENV_PYTHON`** to that `python.exe`, then run `install_requirements.ps1` again.
-
-Always prefer **`python -m pip`** for the venv you intend — avoid a global `pip` that points at another Python.
+Always prefer **`python -m pip`** for the exact venv you intend to use.
 
 ## Run locally
 
 ```powershell
-cd Phase_2_AI_SERVICE_FOLDER\backend
-# Activate myenv first (from Code folder):
-..\..\myenv\Scripts\Activate.ps1
+Set-Location "D:\PDZ\BKU\Learning\LVTN\GD1\Code\Phase_2_FE_AI_Merge\backend"
+.\.venv\Scripts\Activate.ps1
+Copy-Item .env.example .env
+# Fill keys and runtime variables before first run.
 python run_api.py
 ```
 
 Or without activating, run the API with the full interpreter:
 
 ```powershell
-& "..\..\myenv\Scripts\python.exe" run_api.py
+& ".\.venv\Scripts\python.exe" run_api.py
 ```
 
 ```bash
 cd backend
-copy .env.example .env            # fill OPENAI_API_KEY, Qdrant, optional SageMaker
+cp .env.example .env
+# fill OPENAI_API_KEY, Qdrant, and optional SageMaker / Bedrock values
 ```
 
 Open `http://localhost:5000/docs` for OpenAPI.
@@ -136,9 +127,30 @@ These routes build LLM context from **processed pipeline markdown** (`processing
 
 OpenAPI at **`/docs`** remains authoritative for exact schemas and trying requests.
 
+## Admin observability and usage telemetry (April 2026)
+
+The admin dashboard and invocation explorer are backed by DynamoDB usage telemetry.
+
+### Admin APIs
+
+| Method | Path | Query / notes |
+|--------|------|----------------|
+| GET | `/api/admin/dashboard` | Query: `days` (1..365). Returns summary cards and day/hour trend series used by admin charts. |
+| GET | `/api/admin/invocations` | Query: `days`, `user_id`, `feature`, `model_id`, `limit` (1..5000). Returns invocation rows for admin filtering. |
+
+If `DYNAMODB_APP_USAGE_TABLE` is not configured, these endpoints return safe empty payloads instead of failing.
+
+### Telemetry write rules
+
+- A usage row is persisted only when request header `X-User-Id` is present and valid (non-empty, non-default placeholder).
+- Requests without a valid user id are skipped for usage telemetry.
+- CORS preflight (`OPTIONS`) traffic is not persisted as usage telemetry.
+- Numeric values are normalized for DynamoDB (`float` to `Decimal`) before write.
+- Background persistence is async-safe; failures are caught and logged so API responses are not broken.
+
 ## Unit tests
 
-Tests live under `tests/` (`api/` for route smoke tests with mocks, `services/` for core settings, Qdrant factory, ColQwen inference flags). Run from **`backend`** using the same **`myenv`** interpreter as install.
+Tests live under `tests/` (`api/` for route smoke tests with mocks, `services/` for core settings, Qdrant factory, ColQwen inference flags). Run from **`backend`** using the same active venv you used for install.
 
 **PowerShell**
 
@@ -155,7 +167,7 @@ run_tests.bat
 **Manual**
 
 ```powershell
-& "..\..\myenv\Scripts\python.exe" -m pytest tests\ -v
+python -m pytest tests\ -v
 ```
 
 Optional: `pytest -m unit` (markers in `pytest.ini`). Pass extra pytest args to the scripts, e.g. `.\run_tests.ps1 tests\services -q`.

@@ -4,6 +4,8 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Copy,
+  Loader2,
   MessageSquare,
   PanelLeftClose,
   PanelLeftOpen,
@@ -13,6 +15,8 @@ import {
   Plus,
   Send,
   Sparkles,
+  ThumbsDown,
+  ThumbsUp,
   Trash2,
   User,
   X,
@@ -27,8 +31,10 @@ import { auth } from '../firebase';
 import chatRobot from '../../robot_1.png';
 import { authService } from '../services/auth_service';
 import {
+  createFeedback,
   createChatSession,
   deleteChatSession,
+  listFeedback,
   listChatSessionMessages,
   listChatSessions,
   type ChatSessionMessage,
@@ -54,6 +60,15 @@ interface ToolTrace {
   result_count: number;
   result_preview: string;
 }
+
+type FeedbackVote = 'like' | 'dislike';
+
+type FeedbackState = {
+  vote?: FeedbackVote;
+  submitting?: boolean;
+  error?: string;
+  saved_at?: number;
+};
 
 const LOCAL_AUTH_TOKEN_KEY = 'bk_local_auth_token';
 const LOCAL_AUTH_UID_KEY = 'bk_local_auth_uid';
@@ -94,6 +109,16 @@ const DEFAULT_SUGGESTIONS = [
   "Quiz me on the key topics from my lectures",
 ];
 
+const DISLIKE_REASONS: Array<{ code: string; label: string }> = [
+  { code: 'incorrect_answer', label: 'Incorrect answer' },
+  { code: 'insufficient_information', label: 'Insufficient information' },
+  { code: 'not_relevant', label: 'Not relevant to my question' },
+  { code: 'too_short', label: 'Too short / low detail' },
+  { code: 'hallucination', label: 'Hallucination / made-up content' },
+  { code: 'unsafe_content', label: 'Safety issue / sensitive output' },
+  { code: 'other', label: 'Other (write custom reason)' },
+];
+
 function welcomeMessage(text: string): Message {
   return {
     id: `assistant-welcome-${Date.now()}`,
@@ -109,7 +134,7 @@ function toUiMessage(row: ChatSessionMessage): Message {
     role: row.role === 'user' ? 'user' : 'assistant',
     content: row.content,
     timestamp: new Date(row.created_at || Date.now()),
-    traces: (row.traces || []) as ToolTrace[],
+    traces: (row.traces || []) as unknown as ToolTrace[],
     suggestions: row.suggestions || [],
   };
 }
@@ -134,6 +159,22 @@ export default function ChatAssistantView() {
   const [isLoading, setIsLoading] = useState(false);
   const [traceJsonOpen, setTraceJsonOpen] = useState<Record<string, boolean>>({});
   const [assistantStatus, setAssistantStatus] = useState<string>('');
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [copyErrorMessageId, setCopyErrorMessageId] = useState<string | null>(null);
+  const [feedbackByMessageId, setFeedbackByMessageId] = useState<Record<string, FeedbackState>>({});
+  const [dislikeModal, setDislikeModal] = useState<{
+    open: boolean;
+    messageId: string;
+    query: string;
+    response: string;
+  }>({
+    open: false,
+    messageId: '',
+    query: '',
+    response: '',
+  });
+  const [dislikeReasonCode, setDislikeReasonCode] = useState<string>('incorrect_answer');
+  const [dislikeReasonText, setDislikeReasonText] = useState<string>('');
   const [profileContext, setProfileContext] = useState<{ persona: string; educationDescription: string }>({
     persona: '',
     educationDescription: '',
@@ -217,6 +258,7 @@ export default function ChatAssistantView() {
       const rows = res.items || [];
       const mapped = rows.map(toUiMessage);
       setSessionId(sid);
+      void hydrateFeedbackForSession(sid, mapped);
       if (mapped.length > 0) {
         setMessages(mapped);
         const lastAssistantWithSuggestions = [...rows]
@@ -234,6 +276,7 @@ export default function ChatAssistantView() {
     } catch (e) {
       console.error('Failed to load chat messages', e);
       setMessages([welcomeMessage('Could not load chat history. You can still start a new message now.')]);
+      setFeedbackByMessageId({});
       setSuggestions(DEFAULT_SUGGESTIONS);
       setSessionId(sid);
     } finally {
@@ -246,6 +289,7 @@ export default function ChatAssistantView() {
     if (!historyEnabled) {
       setSessionId(newSessionId());
       setMessages([welcomeMessage('New chat started. What would you like to learn now?')]);
+      setFeedbackByMessageId({});
       setSuggestions(DEFAULT_SUGGESTIONS);
       setInput('');
       setAssistantStatus('');
@@ -261,6 +305,7 @@ export default function ChatAssistantView() {
       });
       setSessionId(created.item.session_id);
       setMessages([welcomeMessage('New chat started. What would you like to learn now?')]);
+      setFeedbackByMessageId({});
       setSuggestions(DEFAULT_SUGGESTIONS);
       setInput('');
       setAssistantStatus('');
@@ -270,6 +315,7 @@ export default function ChatAssistantView() {
       const fallbackId = newSessionId();
       setSessionId(fallbackId);
       setMessages([welcomeMessage('New chat started. What would you like to learn now?')]);
+      setFeedbackByMessageId({});
       setSuggestions(DEFAULT_SUGGESTIONS);
     }
   };
@@ -552,6 +598,120 @@ export default function ChatAssistantView() {
     }
   };
 
+  const previousUserQueryForIndex = (assistantIndex: number): string => {
+    for (let i = assistantIndex - 1; i >= 0; i -= 1) {
+      if (messages[i].role === 'user') {
+        return messages[i].content;
+      }
+    }
+    return '';
+  };
+
+  const hydrateFeedbackForSession = async (sid: string, rows: Message[]) => {
+    const messageIds = new Set(
+      rows
+        .filter((m) => m.role === 'assistant' && !m.id.startsWith('assistant-welcome-'))
+        .map((m) => m.id)
+    );
+    if (!messageIds.size) {
+      setFeedbackByMessageId({});
+      return;
+    }
+
+    try {
+      const data = await listFeedback({ limit: 200, session_id: sid });
+      const next: Record<string, FeedbackState> = {};
+      for (const item of data.items || []) {
+        const mid = String(item.message_id || '').trim();
+        if (!mid || !messageIds.has(mid) || next[mid]) continue;
+        const vote = item.vote === 'like' || item.vote === 'dislike' ? item.vote : undefined;
+        if (!vote) continue;
+        next[mid] = {
+          vote,
+          submitting: false,
+          error: undefined,
+        };
+      }
+      setFeedbackByMessageId(next);
+    } catch {
+      // Keep chat usable even if feedback lookup fails.
+      setFeedbackByMessageId({});
+    }
+  };
+
+  const copyAssistantMessage = async (messageId: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text || '');
+      setCopyErrorMessageId((prev) => (prev === messageId ? null : prev));
+      setCopiedMessageId(messageId);
+      window.setTimeout(() => setCopiedMessageId((prev) => (prev === messageId ? null : prev)), 1400);
+    } catch {
+      setCopiedMessageId((prev) => (prev === messageId ? null : prev));
+      setCopyErrorMessageId(messageId);
+      window.setTimeout(() => setCopyErrorMessageId((prev) => (prev === messageId ? null : prev)), 1600);
+    }
+  };
+
+  const submitFeedback = async (
+    messageId: string,
+    vote: FeedbackVote,
+    queryText: string,
+    responseText: string,
+    reasonCode?: string,
+    reasonText?: string,
+  ) => {
+    setFeedbackByMessageId((prev) => ({
+      ...prev,
+      [messageId]: { ...(prev[messageId] || {}), submitting: true, error: undefined },
+    }));
+    try {
+      await createFeedback({
+        vote,
+        query: queryText || 'N/A',
+        response: responseText || 'N/A',
+        session_id: sessionId || undefined,
+        message_id: messageId || undefined,
+        reason_code: reasonCode,
+        reason_text: reasonText,
+      });
+      setFeedbackByMessageId((prev) => ({
+        ...prev,
+        [messageId]: { vote, submitting: false, error: undefined, saved_at: Date.now() },
+      }));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Failed to submit feedback';
+      setFeedbackByMessageId((prev) => ({
+        ...prev,
+        [messageId]: { ...(prev[messageId] || {}), submitting: false, error: msg },
+      }));
+    }
+  };
+
+  const openDislikeModal = (messageId: string, queryText: string, responseText: string) => {
+    setDislikeReasonCode('incorrect_answer');
+    setDislikeReasonText('');
+    setDislikeModal({
+      open: true,
+      messageId,
+      query: queryText,
+      response: responseText,
+    });
+  };
+
+  const submitDislike = async () => {
+    if (!dislikeModal.open || !dislikeModal.messageId) return;
+    const reasonText = dislikeReasonCode === 'other' ? dislikeReasonText.trim() : dislikeReasonText.trim() || undefined;
+    await submitFeedback(
+      dislikeModal.messageId,
+      'dislike',
+      dislikeModal.query,
+      dislikeModal.response,
+      dislikeReasonCode,
+      reasonText,
+    );
+    setDislikeModal({ open: false, messageId: '', query: '', response: '' });
+  };
+
 
   return (
     <div className={cn(
@@ -799,7 +959,7 @@ export default function ChatAssistantView() {
               </div>
             </motion.div>
           )}
-          {messages.map((message) => (
+          {messages.map((message, messageIndex) => (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -872,6 +1032,83 @@ export default function ChatAssistantView() {
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter px-2">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
+                {message.role === 'assistant' && !message.id.startsWith('assistant-welcome-') && (
+                  <div className="mt-1 px-2 flex items-center gap-2 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => void copyAssistantMessage(message.id, message.content)}
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-md border px-2 py-1 transition-all duration-200 active:scale-95',
+                        copiedMessageId === message.id
+                          ? 'border-sky-300 bg-sky-50 text-sky-700'
+                          : copyErrorMessageId === message.id
+                            ? 'border-rose-300 bg-rose-50 text-rose-700'
+                            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300',
+                      )}
+                    >
+                      {copiedMessageId === message.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copiedMessageId === message.id ? 'Copied' : copyErrorMessageId === message.id ? 'Copy failed' : 'Copy'}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!!feedbackByMessageId[message.id]?.submitting}
+                      onClick={() =>
+                        void submitFeedback(
+                          message.id,
+                          'like',
+                          previousUserQueryForIndex(messageIndex),
+                          message.content,
+                          'helpful',
+                        )
+                      }
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-md border px-2 py-1 transition-all duration-200 active:scale-95 disabled:opacity-60',
+                        feedbackByMessageId[message.id]?.vote === 'like'
+                          ? 'border-emerald-300 bg-emerald-50 text-emerald-700 shadow-[0_0_0_2px_rgba(16,185,129,0.12)]'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300',
+                      )}
+                    >
+                      {feedbackByMessageId[message.id]?.submitting ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <ThumbsUp className="w-3.5 h-3.5" />
+                      )}
+                      {feedbackByMessageId[message.id]?.vote === 'like' ? 'Liked' : 'Like'}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!!feedbackByMessageId[message.id]?.submitting}
+                      onClick={() =>
+                        openDislikeModal(
+                          message.id,
+                          previousUserQueryForIndex(messageIndex),
+                          message.content,
+                        )
+                      }
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-md border px-2 py-1 transition-all duration-200 active:scale-95 disabled:opacity-60',
+                        feedbackByMessageId[message.id]?.vote === 'dislike'
+                          ? 'border-rose-300 bg-rose-50 text-rose-700 shadow-[0_0_0_2px_rgba(244,63,94,0.12)]'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300',
+                      )}
+                    >
+                      {feedbackByMessageId[message.id]?.submitting ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <ThumbsDown className="w-3.5 h-3.5" />
+                      )}
+                      {feedbackByMessageId[message.id]?.vote === 'dislike' ? 'Disliked' : 'Dislike'}
+                    </button>
+                    {!!feedbackByMessageId[message.id]?.saved_at && !feedbackByMessageId[message.id]?.error && (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-emerald-700">
+                        <Check className="w-3.5 h-3.5" /> Saved
+                      </span>
+                    )}
+                    {!!feedbackByMessageId[message.id]?.error && (
+                      <span className="text-rose-600">{feedbackByMessageId[message.id]?.error}</span>
+                    )}
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
@@ -928,6 +1165,60 @@ export default function ChatAssistantView() {
           </form>
         </div>
       </div>
+
+      {dislikeModal.open && (
+        <div className="fixed inset-0 z-50 bg-slate-900/45 backdrop-blur-[1px] flex items-center justify-center p-4">
+          <div className="w-full max-w-xl rounded-2xl border border-sky-100 bg-white p-5 shadow-2xl">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <h3 className="text-base font-bold text-slate-900">Tell us why this response was not good</h3>
+              <button
+                type="button"
+                onClick={() => setDislikeModal({ open: false, messageId: '', query: '', response: '' })}
+                title="Close dialog"
+                aria-label="Close dialog"
+                className="rounded-md p-1 text-slate-500 hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              {DISLIKE_REASONS.map((r) => (
+                <label key={r.code} className="flex items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="radio"
+                    name="dislike-reason"
+                    checked={dislikeReasonCode === r.code}
+                    onChange={() => setDislikeReasonCode(r.code)}
+                  />
+                  <span>{r.label}</span>
+                </label>
+              ))}
+            </div>
+            <textarea
+              value={dislikeReasonText}
+              onChange={(e) => setDislikeReasonText(e.target.value)}
+              placeholder={dislikeReasonCode === 'other' ? 'Please write your reason...' : 'Optional additional details...'}
+              className="mt-3 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm min-h-[90px]"
+            />
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setDislikeModal({ open: false, messageId: '', query: '', response: '' })}
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void submitDislike()}
+                className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100"
+              >
+                Submit feedback
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

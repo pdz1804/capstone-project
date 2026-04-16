@@ -7,9 +7,11 @@ with proper citation formatting.
 
 import os
 import json
+import re
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from dotenv import load_dotenv
 
@@ -40,6 +42,51 @@ def _aws_credentials_configured() -> bool:
 def _looks_like_bedrock_model(model_name: str) -> bool:
     model = (model_name or "").strip().lower()
     return model.startswith(("us.", "eu.", "apac.")) or "anthropic.claude" in model
+def _bedrock_model_supports_vision(model_id: str) -> bool:
+    """Best-effort capability gate for Bedrock models in this app."""
+    mid = str(model_id or "").strip().lower()
+    if not mid:
+        return True
+    # Known text-only in our allowed set.
+    if mid.startswith("google.gemma"):
+        return False
+    return True
+
+
+def _looks_like_bedrock_payload_too_large(exc: Exception) -> bool:
+    msg = str(exc or "").lower()
+    return (
+        "length limit exceeded" in msg
+        or "failed to buffer the request body" in msg
+        or ("validationexception" in msg and "length" in msg)
+    )
+
+
+_MATH_BLOCK_DELIMITER_RE = re.compile(r"\\\[(.+?)\\\]", re.DOTALL)
+_MATH_INLINE_DELIMITER_RE = re.compile(r"\\\((.+?)\\\)")
+
+
+def _normalize_math_delimiters(answer: str) -> str:
+    """Normalize \(\), \[\] delimiters to markdown math $/$$ for renderer compatibility."""
+    text = str(answer or "")
+    if not text:
+        return text
+
+    def _block_repl(match: re.Match[str]) -> str:
+        expr = (match.group(1) or "").strip()
+        if not expr:
+            return ""
+        return f"$$\n{expr}\n$$"
+
+    def _inline_repl(match: re.Match[str]) -> str:
+        expr = (match.group(1) or "").strip()
+        if not expr:
+            return ""
+        return f"${expr}$"
+
+    text = _MATH_BLOCK_DELIMITER_RE.sub(_block_repl, text)
+    text = _MATH_INLINE_DELIMITER_RE.sub(_inline_repl, text)
+    return text
 
 
 def _display_filename_from_source(source: str) -> str:
@@ -51,6 +98,37 @@ def _display_filename_from_source(source: str) -> str:
         tail = s.rsplit("/", 1)[-1]
         return tail or "unknown"
     return Path(s).name if s else "unknown"
+
+
+def _format_time_hhmmss(seconds: float) -> str:
+    total = max(0, int(round(float(seconds))))
+    h = total // 3600
+    m = (total % 3600) // 60
+    s = total % 60
+    if h > 0:
+        return f"{h:02d}:{m:02d}:{s:02d}"
+    return f"{m:02d}:{s:02d}"
+
+
+def _coerce_time_seconds(value: Any) -> Optional[float]:
+    try:
+        if value is None:
+            return None
+        return float(value)
+    except Exception:
+        return None
+
+
+def _extract_time_window_label(metadata: Dict[str, Any]) -> Tuple[Optional[float], Optional[float], str]:
+    start = _coerce_time_seconds(metadata.get("start_time"))
+    end = _coerce_time_seconds(metadata.get("end_time"))
+    if start is None and end is None:
+        return None, None, ""
+    if start is not None and end is not None:
+        return start, end, f"{_format_time_hhmmss(start)} - {_format_time_hhmmss(end)}"
+    if start is not None:
+        return start, None, f"from {_format_time_hhmmss(start)}"
+    return None, end, f"until {_format_time_hhmmss(end)}"
 
 
 def _image_citation_chunk(img_doc: Dict[str, Any], idx: int) -> Dict[str, Any]:
@@ -129,10 +207,15 @@ IMPORTANT INSTRUCTIONS:
 2. Include inline citations as MARKDOWN HYPERLINKS using the format [X.Y](#chunk-X-Y) for text chunks or [X.Y](#image-X-Y) for images
    - Text chunks start from [1.1], [1.2], etc. and use anchor #chunk-1-1, #chunk-1-2, etc.
    - Image citations start from [2.1], [2.2], etc. and use anchor #image-2-1, #image-2-2, etc.
-3. If the context doesn't contain enough information, say so clearly
-4. Be concise but thorough
-5. **OUTPUT YOUR ANSWER IN MARKDOWN FORMAT**
-6. Ensure the final answer is clean, readable Markdown (proper headings, bullets, spacing, and tables).
+3. Citation placement rule: place citations at the END of the sentence they support, immediately before sentence punctuation if needed.
+    - Correct: "LifePak supports immune health [1.2](#chunk-1-2)."
+    - Correct: "Benefits include A, B, and C [1.2](#chunk-1-2), [1.4](#chunk-1-4)."
+    - Wrong: "LifePak [1.2](#chunk-1-2) supports immune health."
+4. Every factual claim sentence must end with at least one supporting citation. Do not put all citations only at paragraph end.
+5. If the context doesn't contain enough information, say so clearly
+6. Be concise but thorough
+7. **OUTPUT YOUR ANSWER IN MARKDOWN FORMAT**
+8. Ensure the final answer is clean, readable Markdown (proper headings, bullets, spacing, and tables).
 
 CRITICAL: MATHEMATICAL FORMULAS MUST USE DOLLAR SIGNS, NOT SQUARE BRACKETS
 - Citations use markdown hyperlinks: [1.6](#chunk-1-6) for text or [2.3](#image-2-3) for images
@@ -172,6 +255,7 @@ CRITICAL FORMATTING RULES:
 - Citations: Use markdown hyperlink format [X.Y](#chunk-X-Y) for text or [X.Y](#image-X-Y) for images
   - Text chunks: [1.1](#chunk-1-1), [1.2](#chunk-1-2), etc.
   - Images: [2.1](#image-2-1), [2.2](#image-2-2), etc.
+- Citation placement: each supporting sentence must end with citation link(s), not in the middle of the sentence.
 - Math formulas: MUST use $ for inline or $$ for block math (e.g., $V_q$ or $$\\text{{Score}} = ...$$)
 - NEVER mix them up: citations = markdown hyperlinks, math = dollar signs
 
@@ -342,6 +426,10 @@ class RAGGenerator:
                 # Format chunk with citation marker
                 text = chunk.get('text', '')
                 metadata = sanitize_metadata_for_api(dict(chunk.get('metadata') or {}))
+                start_t, end_t, time_label = _extract_time_window_label(metadata)
+                chunk_map[(file_number, chunk_idx)]['start_time'] = start_t
+                chunk_map[(file_number, chunk_idx)]['end_time'] = end_t
+                chunk_map[(file_number, chunk_idx)]['time_range_label'] = time_label
 
                 # Add context hints for spreadsheet / table chunks
                 context_hint = ""
@@ -351,6 +439,8 @@ class RAGGenerator:
                         context_hint += f" [Sheet: {sheet}]"
                     if metadata.get('is_table'):
                         context_hint += " [Table Data]"
+                if time_label:
+                    context_hint += f" [Time: {time_label}]"
 
                 context_parts.append(f"{citation_id} Source: {filename}{context_hint}\n{text}\n")
             
@@ -510,40 +600,70 @@ class RAGGenerator:
         return "".join(parts).strip()
 
     def _call_bedrock(self, prompt: str, image_paths: Optional[List[str]] = None) -> str:
-        try:
-            from botocore.exceptions import NoCredentialsError
-        except Exception:  # pragma: no cover - botocore is available in runtime, but keep fallback safe
-            NoCredentialsError = None  # type: ignore[assignment]
-
-        try:
-            rt = self._bedrock_runtime()
-            content: List[Dict[str, Any]] = [{"text": prompt}]
-            if image_paths:
-                for img_path in image_paths:
-                    try:
-                        p = Path(img_path)
-                        data = p.read_bytes()
-                        ext = p.suffix.lower()
-                        fmt = "png" if ext == ".png" else "jpeg"
-                        content.append({"image": {"format": fmt, "source": {"bytes": data}}})
-                    except Exception as e:
-                        logger.warning("Bedrock: skip image %s: %s", img_path, e)
+        rt = self._bedrock_runtime()
+        
+        def _invoke(content_payload: List[Dict[str, Any]]) -> str:
             resp = rt.converse(
                 modelId=self.config.model_name,
-                messages=[{"role": "user", "content": content}],
+                messages=[{"role": "user", "content": content_payload}],
                 inferenceConfig={
                     "maxTokens": int(self.config.max_tokens),
                     "temperature": float(self.config.temperature),
                 },
             )
             return self._extract_converse_text(resp)
+
+        content: List[Dict[str, Any]] = [{"text": prompt}]
+        if image_paths:
+            for img_path in image_paths:
+                try:
+                    p = Path(img_path)
+                    data = p.read_bytes()
+                    ext = p.suffix.lower()
+                    fmt = "png" if ext == ".png" else "jpeg"
+                    content.append({"image": {"format": fmt, "source": {"bytes": data}}})
+                except Exception as e:
+                    logger.warning("Bedrock: skip image %s: %s", img_path, e)
+
+        try:
+            return _invoke(content)
         except Exception as e:
-            if NoCredentialsError is not None and isinstance(e, NoCredentialsError):
-                raise RuntimeError(
-                    "Amazon Bedrock is configured for generation, but no AWS credentials were found. "
-                    "Set AWS credentials or switch GENERATION_PROVIDER to openai."
-                ) from e
+            if image_paths and _looks_like_bedrock_payload_too_large(e):
+                logger.warning(
+                    "Bedrock vision payload too large; retrying without images (model=%s, images=%s)",
+                    self.config.model_name,
+                    len(image_paths),
+                )
+                return _invoke([{"text": prompt}])
             raise
+
+    def _build_contents_payload(
+        self,
+        chunk_map: Dict[Tuple[int, int], Dict[str, Any]],
+        image_docs: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        return {
+            **{
+                f"[{k[0]}.{k[1]}]": {
+                    "type": "text",
+                    "text": v["text"][:200] + "..." if len(v["text"]) > 200 else v["text"],
+                    "full_text": v["text"],
+                    "filename": v["filename"],
+                    "score": v["score"],
+                    "id": f"chunk-{k[0]}-{k[1]}",
+                    "retrieval_info": v.get("retrieval_info", {}),
+                    "metadata": v.get("metadata", {}),
+                    "start_time": v.get("start_time"),
+                    "end_time": v.get("end_time"),
+                    "time_range_label": v.get("time_range_label", ""),
+                }
+                for k, v in chunk_map.items()
+            },
+            **{
+                f"[2.{idx}]": _image_citation_chunk(img_doc, idx)
+                for idx, img_doc in enumerate(image_docs, 1)
+            },
+        }
     
     def _call_llm(self, prompt: str, image_paths: List[str] = None) -> str:
         """Call the configured LLM, optionally with images."""
@@ -609,6 +729,16 @@ class RAGGenerator:
         
         logger.info(f"Retrieved docs: {len(retrieved_docs)} total, {len(text_docs)} text, {len(image_docs)} images, {len(embedded_image_paths)} embedded spreadsheet images")
         
+        allow_vision_inputs = not (
+            self.config.provider == "bedrock" and not _bedrock_model_supports_vision(self.config.model_name)
+        )
+        if image_docs and not allow_vision_inputs:
+            logger.info(
+                "Model %s is treated as text-only; skipping %s image inputs",
+                self.config.model_name,
+                len(image_docs),
+            )
+
         # Debug: log image doc info (all images). source_path is the local sync/cache path; storage_uri is canonical S3 when applicable.
         for i, img_doc in enumerate(image_docs):
             logger.info(
@@ -624,8 +754,9 @@ class RAGGenerator:
         image_paths = []
         image_descriptions = []
         temp_files = []  # Track temp files for cleanup
-        
-        for img_doc in image_docs:
+
+        def _prepare_image_doc(img_doc: Dict[str, Any]) -> Tuple[Optional[str], Optional[str], List[str]]:
+            local_temp_files: List[str] = []
             source_path = img_doc.get('source_path', '')
             page = img_doc.get('page', 1)
             source = img_doc.get('source', 'unknown')
@@ -634,13 +765,12 @@ class RAGGenerator:
             logger.debug("Processing image doc: %s, page %s, storage_uri=%s path=%s", source, page, storage_uri, source_path)
 
             local_file: Optional[str] = None
-            temp_download: Optional[str] = None
 
             if storage_user_id and storage_uri.startswith("s3://"):
                 temp_download = self._materialize_storage_uri_to_temp(storage_uri, storage_user_id)
                 if temp_download:
                     local_file = temp_download
-                    temp_files.append(temp_download)
+                    local_temp_files.append(temp_download)
 
             if not local_file and source_path:
                 source_path_obj = Path(source_path)
@@ -655,7 +785,7 @@ class RAGGenerator:
 
             if not local_file:
                 logger.warning("No local or S3-backed file for image doc (source=%s page=%s)", source, page)
-                continue
+                return None, None, local_temp_files
 
             lp = Path(local_file)
             canon = storage_uri or local_file
@@ -664,18 +794,29 @@ class RAGGenerator:
             if lp.suffix.lower() == ".pdf":
                 temp_img = self._render_pdf_page_to_image(str(lp), page)
                 if temp_img:
-                    image_paths.append(temp_img)
-                    temp_files.append(temp_img)
-                    image_descriptions.append(f"[Image {len(image_paths)}] Page {page} from {source}")
+                    local_temp_files.append(temp_img)
                     logger.info("Rendered PDF page %s for vision model", page)
-                else:
-                    logger.warning("Failed to render PDF page %s from %s", page, source)
-            elif lp.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"):
-                image_paths.append(str(lp))
-                image_descriptions.append(f"[Image {len(image_paths)}] {lp.name} from {source}")
+                    return temp_img, f"Page {page} from {source}", local_temp_files
+                logger.warning("Failed to render PDF page %s from %s", page, source)
+                return None, None, local_temp_files
+
+            if lp.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"):
                 logger.info("Attached raster %s for vision model", lp.name)
-            else:
-                logger.warning("Unsupported vision source type: %s", lp.suffix)
+                return str(lp), f"{lp.name} from {source}", local_temp_files
+
+            logger.warning("Unsupported vision source type: %s", lp.suffix)
+            return None, None, local_temp_files
+
+        if image_docs and allow_vision_inputs:
+            max_workers = min(4, len(image_docs))
+            with ThreadPoolExecutor(max_workers=max_workers) as pool:
+                prepared = list(pool.map(_prepare_image_doc, image_docs))
+            for path, desc, local_temps in prepared:
+                if local_temps:
+                    temp_files.extend(local_temps)
+                if path and desc:
+                    image_paths.append(path)
+                    image_descriptions.append(f"[Image {len(image_paths)}] {desc}")
         
         # Add embedded images from spreadsheet chunks
         for emb_img in embedded_image_paths:
@@ -736,13 +877,16 @@ CRITICAL FORMATTING RULES:
         logger.info(f"Generating answer for query: {query[:50]}... (with {len(image_paths)} images)")
         try:
             answer = self._call_llm(prompt, image_paths if image_paths else None)
+            answer = _normalize_math_delimiters(answer)
         except Exception as e:
             logger.error(f"LLM call failed: {e}")
+            files_payload = {v: k for k, v in file_map.items()}
+            contents_payload = self._build_contents_payload(chunk_map, image_docs)
             return {
                 "answer": f"Error generating answer: {str(e)}",
                 "citations": [],
-                "files": file_map,
-                "contents": chunk_map,
+                "files": files_payload,
+                "contents": contents_payload,
                 "error": str(e)
             }
         finally:
@@ -761,25 +905,7 @@ CRITICAL FORMATTING RULES:
             "num_sources": len(retrieved_docs),
             "num_images": len(image_paths),
             "files": {v: k for k, v in file_map.items()},  # file_number -> filename
-            "contents": {
-                **{
-                    f"[{k[0]}.{k[1]}]": {
-                        "type": "text",
-                        "text": v['text'][:200] + "..." if len(v['text']) > 200 else v['text'],
-                        "full_text": v['text'],
-                        "filename": v['filename'],
-                        "score": v['score'],
-                        "id": f"chunk-{k[0]}-{k[1]}",
-                        "retrieval_info": v.get('retrieval_info', {}),  # Include raw scores
-                        "metadata": v.get('metadata', {})  # Include uniform metadata
-                    }
-                    for k, v in chunk_map.items()
-                },
-                **{
-                    f"[2.{idx}]": _image_citation_chunk(img_doc, idx)
-                    for idx, img_doc in enumerate(image_docs, 1)
-                }
-            },
+            "contents": self._build_contents_payload(chunk_map, image_docs),
             "retrieved_docs": retrieved_docs
         }
         

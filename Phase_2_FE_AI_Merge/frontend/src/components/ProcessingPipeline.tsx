@@ -148,8 +148,7 @@ export const ProcessingPipeline: React.FC<ProcessingPipelineProps> = ({ files, p
           ))}
         </div>
 
-                        ? 'border-sky-400 bg-sky-50 ring-1 ring-sky-200 shadow-sm'
-                        : 'border-sky-100 bg-white hover:border-sky-200 hover:shadow-sm'
+        {filteredFiles.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Document List - Left Side */}
             <div className="lg:col-span-4 space-y-2 max-h-[min(560px,70vh)] overflow-y-auto pr-2">
