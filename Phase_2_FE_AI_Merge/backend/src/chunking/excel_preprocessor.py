@@ -23,7 +23,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-from .excel_chunker import ExcelTableChunker, ExcelChunkingConfig, IMAGE_PATTERN
+from .excel_chunker import ExcelTableChunker, ExcelChunkingConfig
 
 logger = logging.getLogger(__name__)
 
@@ -197,14 +197,14 @@ class ExcelPreprocessor:
         self, sheets: List[Dict], doc_folder: Path
     ) -> List[str]:
         """
-        Find all ``[START_IMAGE]...[END_IMAGE]`` paths across sheets,
-        copy the image files into ``doc_folder/images/``, and return the
-        list of (original) image paths found.
+        Find all Excel image paths across sheets, copy the image files into
+        ``doc_folder/images/``, and return the list of original image paths
+        found.
         """
         all_image_paths: List[str] = []
         for sheet in sheets:
             content = sheet.get("content", "")
-            all_image_paths.extend(IMAGE_PATTERN.findall(content))
+            all_image_paths.extend(self.chunker._extract_image_paths(content))
 
         if not all_image_paths:
             return []

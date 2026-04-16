@@ -68,6 +68,10 @@ class PipelineConfig:
     # Merged runtime (default.yaml + env) for optional SageMaker Docling in Stage 3.
     runtime_yaml: Optional[Dict[str, Any]] = None
 
+    # V2 unified document processor (opt-in). When set, Stage 3 uses
+    # DocumentProcessorV2 instead of the original Docling-only path.
+    document_config_v2: Optional[Any] = None  # Optional[ProcessingConfigV2]
+
     def __post_init__(self):
         """Initialize sub-configs if not provided."""
         if self.normalizer_config is None:
@@ -456,13 +460,18 @@ class DocumentProcessingPipeline:
             # Stage 3: Document Processing
             if self.config.enable_document_processing:
                 print("\n" + "="*80)
-                print("STAGE 3: DOCUMENT PROCESSING (Docling)")
-                print("="*80)
-                if should_use_sagemaker_docling(self.config.runtime_yaml):
-                    print("  → Docling backend: SageMaker endpoint (see config processing.document / inference)")
+                if self.config.document_config_v2 is not None:
+                    print("STAGE 3: DOCUMENT PROCESSING (V2 Unified Router)")
+                    print("="*80)
+                    doc_stats = self._run_document_processing_v2()
                 else:
-                    print("  → Docling backend: local (in-process Docling)")
-                doc_stats = self._run_document_processing()
+                    print("STAGE 3: DOCUMENT PROCESSING (Docling)")
+                    print("="*80)
+                    if should_use_sagemaker_docling(self.config.runtime_yaml):
+                        print("  → Docling backend: SageMaker endpoint (see config processing.document / inference)")
+                    else:
+                        print("  → Docling backend: local (in-process Docling)")
+                    doc_stats = self._run_document_processing()
                 self.pipeline_stats["stages"]["document_processing"] = doc_stats
             
             # Stage 3b: Excel Processing (custom XML parser + table-aware chunking)
@@ -843,6 +852,63 @@ class DocumentProcessingPipeline:
             print(f"ERROR: ✗ Document processing failed: {str(e)}")
             raise
     
+    def _run_document_processing_v2(self) -> Dict:
+        """Run Stage 3 via the unified V2 router (DocumentProcessorV2).
+
+        V2 handles routing internally — all candidate files go through a
+        single entry point and are dispatched to the optimal reader.
+        """
+        from .document_processor_v2 import DocumentProcessorV2
+
+        print("Processing documents with V2 unified router...")
+        v2_config = self.config.document_config_v2
+
+        try:
+            # Collect all candidate files from normalised outputs
+            candidate_files: List[Path] = []
+
+            normalized_pdf_dir = self.stage_dirs["normalized"] / "normalized_pdfs"
+            if normalized_pdf_dir.exists():
+                candidate_files.extend(sorted(normalized_pdf_dir.glob("*.pdf")))
+
+            normalized_md_dir = self.stage_dirs["normalized"] / "normalized_markdown"
+            if normalized_md_dir.exists():
+                candidate_files.extend(sorted(normalized_md_dir.glob("*.md")))
+
+            originals_dir = self.stage_dirs["normalized"] / "original_files"
+            if originals_dir.exists():
+                processed_stems = {f.stem for f in candidate_files}
+                for fp in sorted(originals_dir.iterdir()):
+                    if fp.is_file() and fp.stem not in processed_stems:
+                        candidate_files.append(fp)
+
+            if not candidate_files:
+                print("WARNING: No inputs found for V2 document processing")
+                return {"processed_files": 0, "total_files": 0}
+
+            processor = DocumentProcessorV2(
+                input_dir=self.stage_dirs["normalized"],
+                output_dir=self.stage_dirs["final_processed"],
+                config=v2_config,
+            )
+
+            # Filter to supported formats only
+            supported = [f for f in candidate_files if processor.is_supported_format(f)]
+            print(f"  → {len(supported)} files to process via V2 router")
+
+            stats = processor.process_batch(supported)
+
+            print(f"\n✓ V2 processing complete: {stats.get('processed_files', 0)}/{stats.get('total_files', 0)} files")
+            return {
+                "processed_files": stats.get("processed_files", 0),
+                "failed_files": stats.get("failed_files", 0),
+                "total_files": stats.get("total_files", 0),
+            }
+
+        except Exception as e:
+            print(f"ERROR: ✗ V2 document processing failed: {e}")
+            raise
+
     def _run_docx_processing(self) -> Dict:
         """
         Run Stage 3c: DOCX Processing with custom XML parser.

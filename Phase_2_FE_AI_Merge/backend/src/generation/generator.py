@@ -22,6 +22,26 @@ from app.services.citation_uris import sanitize_metadata_for_api
 logger = logging.getLogger(__name__)
 
 
+def _env_has_value(name: str) -> bool:
+    return bool(str(os.getenv(name, "") or "").strip())
+
+
+def _aws_credentials_configured() -> bool:
+    return any(
+        _env_has_value(name)
+        for name in (
+            "AWS_ACCESS_KEY_ID",
+            "AWS_PROFILE",
+            "AWS_WEB_IDENTITY_TOKEN_FILE",
+            "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI",
+            "AWS_CONTAINER_CREDENTIALS_FULL_URI",
+        )
+    )
+
+
+def _looks_like_bedrock_model(model_name: str) -> bool:
+    model = (model_name or "").strip().lower()
+    return model.startswith(("us.", "eu.", "apac.")) or "anthropic.claude" in model
 def _bedrock_model_supports_vision(model_id: str) -> bool:
     """Best-effort capability gate for Bedrock models in this app."""
     mid = str(model_id or "").strip().lower()
@@ -162,6 +182,15 @@ class GenerationConfig:
     
     def __post_init__(self):
         # Load API key from environment if not provided
+        if self.provider == "bedrock" and _env_has_value("OPENAI_API_KEY") and not _aws_credentials_configured():
+            logger.warning(
+                "Generation provider configured as Bedrock, but AWS credentials are unavailable; "
+                "falling back to OpenAI because OPENAI_API_KEY is set."
+            )
+            self.provider = "openai"
+            if not self.model_name or _looks_like_bedrock_model(self.model_name):
+                self.model_name = "gpt-4o-mini"
+
         if self.api_key is None:
             if self.provider == "openai":
                 self.api_key = os.getenv("OPENAI_API_KEY")
@@ -949,4 +978,3 @@ def create_generator(
         enable_citations=enable_citations
     )
     return RAGGenerator(config)
-
