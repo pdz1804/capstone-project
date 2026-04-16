@@ -51,9 +51,9 @@ audioread
 openai-whisper
 
 # PyTorch — ColPali-compatible CUDA 12.8 stack (cp311 win_amd64)
-torch==2.8.0+cu128
-torchvision==0.23.0+cu128
-torchaudio==2.8.0+cu128
+# torch==2.8.0+cu128
+# torchvision==0.23.0+cu128
+# torchaudio==2.8.0+cu128
 opencv-python
 
 pytesseract
