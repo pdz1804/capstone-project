@@ -321,12 +321,11 @@ class DocumentNormalizer:
     # ======================== DOCX Normalization ========================
     
     def _normalize_docx(self, file_path: Path, stem: str):
-        """Parse DOCX files using the custom XML-based DocxParser.
+        """Normalize DOCX files with both parser and PDF conversion.
 
-        Produces a structured JSON in docx_parsed/ that preserves the heading
-        hierarchy, table content, and image paths.  The JSON is consumed later
-        by _run_docx_processing() in the pipeline via DocxPreprocessor.
-        Falls back to LibreOffice PDF conversion if the custom parser fails.
+        Produces structured JSON in docx_parsed/ for heading-aware chunking,
+        and also attempts PDF normalization via LibreOffice (same behavior
+        pattern as PPTX) for visual preview parity.
         """
         try:
             from .docx_reader_v2 import DocxParser
@@ -340,6 +339,22 @@ class DocumentNormalizer:
                 _json.dump(tree, fh, ensure_ascii=False, indent=2)
 
             print(f"  → ✓ DOCX parsed to JSON: {out_json.name}")
+
+            # Always attempt DOCX -> PDF normalization (parity with PPTX flow).
+            if self.config.generate_pdf:
+                print("  → Trying LibreOffice for DOCX to PDF conversion...")
+                if not self._docx_to_pdf_libreoffice(file_path, stem):
+                    # Fallback to ReportLab text-only PDF if python-docx is available.
+                    if PYTHON_DOCX_AVAILABLE:
+                        try:
+                            doc = Document(file_path)
+                            self._docx_to_pdf(doc, stem)
+                        except Exception as e2:
+                            print(f"  → ✗ DOCX PDF fallback failed: {e2}")
+                    else:
+                        print("WARNING: python-docx not available, DOCX PDF fallback skipped")
+                else:
+                    print("  → ✓ LibreOffice conversion successful (images preserved)")
 
         except Exception as e:
             print(f"  → ✗ Custom DOCX parser failed: {e}")

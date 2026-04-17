@@ -3,28 +3,17 @@ downloads/
 data/
 AGENTS.md
 *.hf_cache/
-Phase_1/Week0506_QPhu_Processor/output/
-Phase_1/Week0506_QPhu_Processor/final_input/
-Phase_1/Week0506_QPhu_Processor/final_output/
-Phase_1/Week0506_QPhu_Processor/test_single_pdf.py
-Phase_1/Week070809_QPhu_Processor/output/
-Phase_1/Week070809_QPhu_Processor/output-1/
-Phase_1/Week070809_QPhu_Processor/final_input/
-Phase_1/Week070809_QPhu_Processor/final_output/
-Phase_1/Week070809_QPhu_Processor/test_single_pdf.py
-Phase_1/Week070809_QPhu_Processor/input-simple-1/
-Phase_1/Week070809_QPhu_Processor/output-simple-1/
-Phase_1/Week070809_QPhu_Processor/input-simple-2/
-Phase_1/Week070809_QPhu_Processor/output-simple-2/
-Phase_1/Week070809_QPhu_Processor/input-simple-3/
-Phase_1/Week070809_QPhu_Processor/output-simple-3/
-Phase_1/Week091011-Merge/input/
-Phase_1/Week091011-Merge/output/
-Phase_1/Week091011-Merge/ms_marco_val/
+Phase_1/
+Phase_2/
+Phase_2_AI_SERVICE_FOLDER/
+Phase_2_PDZ_001_Test_Media_RAG/
+Phase_2_PDZ_002_Model_Deploy/
+Phase_2_PDZ_003_Test_Qdrant_Cloud/
 HK251-DAGD1-244.pdf
+myenv/
+.venv/
 .agent/
 CLAUDE.md
-graphify-out/
 
 # Phase 2 - Ignore large datasets and outputs
 Phase_2/backend/ms_marco_val/

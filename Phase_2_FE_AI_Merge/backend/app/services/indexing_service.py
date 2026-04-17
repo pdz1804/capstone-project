@@ -127,6 +127,10 @@ def _is_image_file_name(name: str) -> bool:
     return n.endswith((".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"))
 
 
+def _stage1_normalized_pdf_path(paths: WorkspacePaths, doc_id: str) -> Path:
+    return paths.processing_dir / "stage1_normalized" / "normalized_pdfs" / f"{doc_id}.pdf"
+
+
 def _doc_matches_selection(doc: Dict[str, Any], selected_name_set: Set[str], selected_stem_set: Set[str]) -> bool:
     meta = doc.get("metadata") if isinstance(doc.get("metadata"), dict) else {}
     candidates = [
@@ -405,6 +409,34 @@ class IndexingService:
             _write_image_sidecar(self._paths, 0)
             return {"status": "ok", "pages": 0, "message": "No Stage 4 document folders for image indexing."}
 
+        def _resolve_pdf_for_doc(doc: Path) -> Path | None:
+            """Prefer stage4 PDF; fallback to stage1 normalized PDF (download from S3 if needed)."""
+            stage4_pdfs = list(doc.glob("*.pdf"))
+            if stage4_pdfs:
+                return stage4_pdfs[0]
+
+            stage1_pdf = _stage1_normalized_pdf_path(self._paths, doc.name)
+            if stage1_pdf.exists():
+                return stage1_pdf
+
+            if isinstance(storage, S3FileStorage):
+                rel = f"stage1_normalized/normalized_pdfs/{doc.name}.pdf"
+                key = storage._key_processing(rel)
+                try:
+                    storage._client.head_object(Bucket=storage.processed_bucket, Key=key)
+                except Exception:
+                    return None
+                stage1_pdf.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    storage._client.download_file(storage.processed_bucket, key, str(stage1_pdf))
+                except Exception:
+                    return None
+                if stage1_pdf.exists() and stage1_pdf.stat().st_size > 0:
+                    logger.info("Using stage1 normalized PDF fallback for image indexing: %s", stage1_pdf.name)
+                    return stage1_pdf
+
+            return None
+
         all_ids: List[str] = []
         all_vecs: List[List[List[float]]] = []
         all_payloads: List[Dict[str, Any]] = []
@@ -425,9 +457,8 @@ class IndexingService:
 
         storage = get_file_storage(self._paths.user_id)
         for doc in doc_folders:
-            pdf_files = list(doc.glob("*.pdf"))
-            if pdf_files:
-                pdf_path = pdf_files[0]
+            pdf_path = _resolve_pdf_for_doc(doc)
+            if pdf_path is not None:
                 try:
                     pages = convert_from_path(str(pdf_path), dpi=dpi)
                 except Exception as e:

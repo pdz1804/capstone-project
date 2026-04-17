@@ -2,6 +2,7 @@ import json
 import logging
 import mimetypes
 import os
+import time
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
@@ -39,6 +40,18 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["files"])
 
 _MAX_PROCESSED_FILE_BYTES = int(os.getenv("MAX_PROCESSED_FILE_PREVIEW_BYTES", str(50 * 1024 * 1024)))
+_GENERIC_BINARY_MIME_TYPES = {
+    "application/octet-stream",
+    "binary/octet-stream",
+    "application/binary",
+    "application/download",
+    "application/x-download",
+    "application/force-download",
+}
+_FILES_WITH_METADATA_INDEX_PROBE_TTL_SECONDS = float(
+    os.getenv("FILES_WITH_METADATA_INDEX_PROBE_TTL_SECONDS", "10")
+)
+_files_with_metadata_index_probe_cache: Dict[str, Tuple[float, set[str], set[str]]] = {}
 
 
 def _file_stem(name: str) -> str:
@@ -148,9 +161,12 @@ def _remove_document_indexes(user_id: str, file_name: str, document_id: str | No
         save_bm25_index(kept_docs, paths.bm25_pickle_path, user_id=paths.user_id)
 
     name_l = (file_name or "").strip().lower()
+    name_orig = (file_name or "").strip()
     stem_l = _file_stem(file_name)
+    stem_orig = Path(name_orig).stem
     safe_l = _normalizer_safe_stem(file_name)
-    image_sources = {s for s in (name_l, stem_l, safe_l, doc_id_norm) if s}
+    doc_id_orig = (document_id or "").strip()
+    image_sources = {s for s in (name_l, name_orig, stem_l, stem_orig, safe_l, doc_id_norm, doc_id_orig) if s}
     removed_image_points = 0
     for source_value in image_sources:
         removed_image_points += int(image_repo.delete_by_source(source_value, user_id=paths.user_id))
@@ -195,6 +211,60 @@ def _as_float(v: Any, default: float = 0.0) -> float:
         return default
 
 
+def _prefer_preview_content_type(raw_content_type: str | None, guessed_type: str | None) -> str | None:
+    """Prefer guessed MIME for generic binary content types to improve inline browser preview."""
+    raw = (raw_content_type or "").split(";")[0].strip().lower()
+    guessed = (guessed_type or "").split(";")[0].strip().lower()
+    if raw and raw not in _GENERIC_BINARY_MIME_TYPES:
+        return raw
+    if guessed:
+        return guessed
+    return raw or None
+
+
+def _probe_live_index_sources_with_cache(user_id: str, cfg: Dict[str, Any]) -> Tuple[set[str], set[str]]:
+    """Return (text_sources, image_sources) from live Qdrant payloads with short TTL caching."""
+    now = time.monotonic()
+    ttl = max(1.0, float(_FILES_WITH_METADATA_INDEX_PROBE_TTL_SECONDS))
+    cached = _files_with_metadata_index_probe_cache.get(user_id)
+    if cached and (now - float(cached[0])) <= ttl:
+        return set(cached[1]), set(cached[2])
+
+    paths = workspace_paths_for_user(user_id)
+    q = cfg.get("qdrant", {}) or {}
+    text_col, img_col = qdrant_collection_names_for_user(
+        q.get("text_collection", "edu_text_chunks"),
+        q.get("image_collection", "edu_image_pages"),
+        paths.user_id,
+    )
+    client = build_qdrant_client(cfg)
+
+    ir = ImageIndexRepository(
+        client,
+        collection_name=img_col,
+        vector_name=q.get("image_vector_name", "colpali_multivec"),
+        storage_quantization=q.get("image_storage_quantization", "scalar"),
+    )
+    indexed_image_sources = ir.list_sources(user_id=paths.user_id)
+
+    tr = TextIndexRepository(
+        client,
+        collection_name=text_col,
+        vector_name=q.get("text_vector_name", "text"),
+        vector_size=384,
+        storage_quantization=q.get("text_storage_quantization", "scalar"),
+        on_disk_vectors=True,
+    )
+    indexed_text_sources = tr.list_sources(user_id=paths.user_id)
+
+    _files_with_metadata_index_probe_cache[user_id] = (
+        now,
+        set(indexed_text_sources),
+        set(indexed_image_sources),
+    )
+    return indexed_text_sources, indexed_image_sources
+
+
 def _sanitize_processing_rel_path(raw: str) -> str:
     s = (raw or "").strip().replace("\\", "/").lstrip("/")
     if not s or len(s) > 2048:
@@ -236,7 +306,7 @@ def _read_processing_file_bytes(user_id: str, rel_posix: str) -> Tuple[bytes, st
             if code in ("404", "NoSuchKey", "NotFound"):
                 raise HTTPException(status_code=404, detail="File not found") from e
             raise HTTPException(status_code=500, detail=str(e)) from e
-        media = (ct or "").split(";")[0].strip() or default_media
+        media = _prefer_preview_content_type(ct, default_media) or default_media
         return body, media
 
     root = paths.processing_dir.resolve()
@@ -266,20 +336,8 @@ def _read_input_file_bytes(user_id: str, file_name: str) -> Tuple[bytes, str]:
     default_media = guessed or "application/octet-stream"
 
     if isinstance(storage, S3FileStorage):
-        rows = storage.list_input_files()
-        match = next((r for r in rows if str(r.get("name") or "") == file_name), None)
-        if not match:
-            raise HTTPException(status_code=404, detail="File not found")
-        uri = str(match.get("path") or "")
-        parsed = storage.parse_s3_uri(uri) if hasattr(storage, "parse_s3_uri") else None
-        if parsed is None:
-            # fallback to module helper
-            from app.storage.service import parse_s3_uri as _parse_s3_uri
-
-            parsed = _parse_s3_uri(uri)
-        if not parsed:
-            raise HTTPException(status_code=400, detail="Invalid input file URI")
-        bucket, key = parsed
+        bucket = storage.originals_bucket
+        key = storage._key_input(file_name)
         if not storage.can_read_object(bucket, key):
             raise HTTPException(status_code=403, detail="Object not in your input prefix")
         try:
@@ -287,8 +345,27 @@ def _read_input_file_bytes(user_id: str, file_name: str) -> Tuple[bytes, str]:
         except ClientError as e:
             code = e.response.get("Error", {}).get("Code", "")
             if code in ("404", "NoSuchKey", "NotFound"):
-                raise HTTPException(status_code=404, detail="File not found") from e
-            raise HTTPException(status_code=500, detail=str(e)) from e
+                # Backward-compatible fallback for legacy/moved objects.
+                rows = storage.list_input_files()
+                match = next((r for r in rows if str(r.get("name") or "") == file_name), None)
+                if not match:
+                    raise HTTPException(status_code=404, detail="File not found") from e
+                uri = str(match.get("path") or "")
+                parsed = parse_s3_uri(uri)
+                if not parsed:
+                    raise HTTPException(status_code=400, detail="Invalid input file URI")
+                bucket, key = parsed
+                if not storage.can_read_object(bucket, key):
+                    raise HTTPException(status_code=403, detail="Object not in your input prefix")
+                try:
+                    head = storage._client.head_object(Bucket=bucket, Key=key)
+                except ClientError as ee:
+                    sub_code = ee.response.get("Error", {}).get("Code", "")
+                    if sub_code in ("404", "NoSuchKey", "NotFound"):
+                        raise HTTPException(status_code=404, detail="File not found") from ee
+                    raise HTTPException(status_code=500, detail=str(ee)) from ee
+            else:
+                raise HTTPException(status_code=500, detail=str(e)) from e
         sz = int(head.get("ContentLength") or 0)
         if sz > _MAX_PROCESSED_FILE_BYTES:
             raise HTTPException(
@@ -302,7 +379,7 @@ def _read_input_file_bytes(user_id: str, file_name: str) -> Tuple[bytes, str]:
             if code in ("404", "NoSuchKey", "NotFound"):
                 raise HTTPException(status_code=404, detail="File not found") from e
             raise HTTPException(status_code=500, detail=str(e)) from e
-        media = (ct or "").split(";")[0].strip() or default_media
+        media = _prefer_preview_content_type(ct, default_media) or default_media
         return body, media
 
     # local input
@@ -406,39 +483,22 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
     stage_totals = processed_snapshot.get("stage_totals") or {}
     # Performance: avoid nested call to /api/files(quick=false), which rescans processed tree
     # and may trigger repeated Qdrant index ensure/count requests.
+    cfg = merged_runtime_settings()
+    paths = workspace_paths_for_user(user_id)
+
     text_sources: List[str] = []
     indexed_text_sources: set[str] = set()
     indexed_image_sources: set[str] = set()
-    try:
-        from app.repositories import ImageIndexRepository, TextIndexRepository, build_qdrant_client, load_documents_snapshot
 
-        cfg = merged_runtime_settings()
-        paths = workspace_paths_for_user(user_id)
+    try:
         doc_snapshot = load_documents_snapshot(paths.documents_json_path, user_id=paths.user_id)
         text_sources = [str(d.get("source") or "") for d in doc_snapshot if str(d.get("source") or "").strip()]
+    except Exception:
+        # Keep endpoint resilient and return metadata even if snapshot probes fail.
+        pass
 
-        q = cfg.get("qdrant", {}) or {}
-        _, img_col = qdrant_collection_names_for_user(
-            q.get("text_collection", "edu_text_chunks"),
-            q.get("image_collection", "edu_image_pages"),
-            paths.user_id,
-        )
-        ir = ImageIndexRepository(
-            build_qdrant_client(cfg),
-            collection_name=img_col,
-            vector_name=q.get("image_vector_name", "colpali_multivec"),
-            storage_quantization=q.get("image_storage_quantization", "scalar"),
-        )
-        indexed_image_sources = ir.list_sources(user_id=paths.user_id)
-        tr = TextIndexRepository(
-            build_qdrant_client(cfg),
-            collection_name=text_col,
-            vector_name=q.get("text_vector_name", "text"),
-            vector_size=384,  # not used by list_sources/scroll; repository init requires a size
-            storage_quantization=q.get("text_storage_quantization", "scalar"),
-            on_disk_vectors=True,
-        )
-        indexed_text_sources = tr.list_sources(user_id=paths.user_id)
+    try:
+        indexed_text_sources, indexed_image_sources = _probe_live_index_sources_with_cache(user_id, cfg)
     except Exception:
         # Keep endpoint resilient and return metadata even if index probes fail.
         pass
@@ -744,34 +804,59 @@ def get_input_file_url(
     if not isinstance(storage, S3FileStorage):
         return {"url": None, "mode": "not_available", "reason": "Presigned URL is available only for S3 storage."}
 
-    rows = storage.list_input_files()
-    row = next((r for r in rows if str(r.get("name") or "") == safe_name), None)
-    if not row:
-        raise HTTPException(status_code=404, detail="File not found")
-
-    uri = str(row.get("path") or "")
-    parsed = parse_s3_uri(uri)
-    if not parsed:
-        raise HTTPException(status_code=400, detail="Invalid input file URI")
-    bucket, key = parsed
+    bucket = storage.originals_bucket
+    key = storage._key_input(safe_name)
     if not storage.can_read_object(bucket, key):
         raise HTTPException(status_code=403, detail="Object not in your input prefix")
+
+    guessed_type = mimetypes.guess_type(safe_name)[0]
+    content_type = _prefer_preview_content_type(None, guessed_type)
+    try:
+        head = storage._client.head_object(Bucket=bucket, Key=key)
+        content_type = _prefer_preview_content_type(head.get("ContentType"), guessed_type)
+    except ClientError as e:
+        code = e.response.get("Error", {}).get("Code", "")
+        if code in ("404", "NoSuchKey", "NotFound"):
+            # Backward-compatible fallback for legacy/moved objects.
+            rows = storage.list_input_files()
+            row = next((r for r in rows if str(r.get("name") or "") == safe_name), None)
+            if not row:
+                raise HTTPException(status_code=404, detail="File not found") from e
+            uri = str(row.get("path") or "")
+            parsed = parse_s3_uri(uri)
+            if not parsed:
+                raise HTTPException(status_code=400, detail="Invalid input file URI")
+            bucket, key = parsed
+            if not storage.can_read_object(bucket, key):
+                raise HTTPException(status_code=403, detail="Object not in your input prefix")
+            try:
+                head = storage._client.head_object(Bucket=bucket, Key=key)
+                content_type = _prefer_preview_content_type(head.get("ContentType"), guessed_type)
+            except ClientError as ee:
+                sub_code = ee.response.get("Error", {}).get("Code", "")
+                if sub_code in ("404", "NoSuchKey", "NotFound"):
+                    raise HTTPException(status_code=404, detail="File not found") from ee
+                raise HTTPException(status_code=500, detail=str(ee)) from ee
+        else:
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
     try:
         viewer_mode = str(viewer or "").strip().lower()
         office_compatible = viewer_mode == "office"
-        guessed_type = mimetypes.guess_type(safe_name)[0]
         params: Dict[str, Any] = {
             "Bucket": bucket,
             "Key": key,
         }
 
+        # Force browser/embedded-viewer renderable type when object metadata is generic.
+        if content_type:
+            params["ResponseContentType"] = content_type
+        elif guessed_type:
+            params["ResponseContentType"] = guessed_type
+
         if not office_compatible:
             cd = f"inline; filename*=UTF-8''{urllib.parse.quote(safe_name)}"
             params["ResponseContentDisposition"] = cd
-            # Force browser-inline rendering for known previewable files (especially PDFs).
-            if guessed_type:
-                params["ResponseContentType"] = guessed_type
 
         url = storage._client.generate_presigned_url(
             "get_object",
@@ -783,6 +868,7 @@ def get_input_file_url(
             "mode": "presigned_s3",
             "expires_in": expires_in,
             "viewer": viewer_mode or None,
+            "content_type": content_type,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not generate presigned URL: {e}") from e

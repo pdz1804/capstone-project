@@ -57,6 +57,7 @@ export default function AdminKnowledgeManagementView() {
   const [editableTags, setEditableTags] = useState('');
   const [editableNotes, setEditableNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const initializedRef = useRef(false);
 
   const [sortKey, setSortKey] = useState<KnowledgeSortKey>('uploaded');
@@ -64,15 +65,24 @@ export default function AdminKnowledgeManagementView() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
+  const mounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const loadUsers = async () => {
     setUsersLoading(true);
     try {
       const data = await userRepo.listAdminUsers();
+      if (!mounted.current) return;
       setUsers(data.items || []);
     } catch {
+      if (!mounted.current) return;
       setUsers([]);
     } finally {
-      setUsersLoading(false);
+      if (mounted.current) setUsersLoading(false);
     }
   };
 
@@ -88,11 +98,15 @@ export default function AdminKnowledgeManagementView() {
         sync_with_storage: sync,
         include_usage: false,
       });
+
+      if (!mounted.current) return;
+
       setItems(data.items || []);
     } catch (e: any) {
+      if (!mounted.current) return;
       setError(e?.response?.data?.detail || e?.message || 'Failed to load knowledge data');
     } finally {
-      setLoading(false);
+      if (mounted.current) setLoading(false);
     }
   };
 
@@ -235,6 +249,7 @@ export default function AdminKnowledgeManagementView() {
 
   const remove = async (knowledgeId: string) => {
     if (!window.confirm('Remove this uploaded file completely? This deletes source file, sidecar metadata, and attempts index cleanup.')) return;
+    setDeletingId(knowledgeId);
     try {
       const result = await deleteAdminKnowledge(knowledgeId);
       await load(false);
@@ -244,6 +259,8 @@ export default function AdminKnowledgeManagementView() {
       window.alert(`Removed file successfully. Qdrant cleanup: text=${removedText}, image=${removedImage}`);
     } catch (e: any) {
       setError(e?.response?.data?.detail || e?.message || 'Failed to remove knowledge item');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -420,10 +437,19 @@ export default function AdminKnowledgeManagementView() {
                           <button
                             type="button"
                             onClick={() => void remove(k.knowledge_id)}
-                            className="rounded-md border border-slate-200 bg-slate-50 p-1.5 text-slate-700 hover:bg-slate-100"
-                            title="Delete"
+                            disabled={deletingId === k.knowledge_id}
+                            className={`rounded-md border p-1.5 transition-all ${
+                              deletingId === k.knowledge_id
+                                ? 'border-amber-300 bg-amber-100 text-amber-600 cursor-wait'
+                                : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                            }`}
+                            title={deletingId === k.knowledge_id ? 'Deleting...' : 'Delete'}
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            {deletingId === k.knowledge_id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-3.5 h-3.5" />
+                            )}
                           </button>
                         </div>
                       </td>

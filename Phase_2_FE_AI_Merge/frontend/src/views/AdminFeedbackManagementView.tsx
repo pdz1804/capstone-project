@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import {
   Loader2,
   Plus,
@@ -56,6 +56,13 @@ export default function AdminFeedbackManagementView() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
+  const mounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const load = async () => {
     setLoading(true);
     setError(null);
@@ -68,11 +75,13 @@ export default function AdminFeedbackManagementView() {
         is_active: activeFilter === 'all' ? undefined : activeFilter === 'active',
         include_usage: true,
       });
+      if (!mounted.current) return;
       setItems(data.items || []);
     } catch (e: any) {
+      if (!mounted.current) return;
       setError(e?.response?.data?.detail || e?.message || 'Failed to load feedback records');
     } finally {
-      setLoading(false);
+      if (mounted.current) setLoading(false);
     }
   };
 
@@ -80,11 +89,13 @@ export default function AdminFeedbackManagementView() {
     setUsersLoading(true);
     try {
       const data = await userRepo.listAdminUsers();
+      if (!mounted.current) return;
       setUsers(data.items || []);
     } catch {
+      if (!mounted.current) return;
       setUsers([]);
     } finally {
-      setUsersLoading(false);
+      if (mounted.current) setUsersLoading(false);
     }
   };
 
