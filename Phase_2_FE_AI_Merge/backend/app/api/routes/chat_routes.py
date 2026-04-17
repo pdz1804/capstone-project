@@ -319,7 +319,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                                 if fname and _is_content_document(fname):
                                     sources.add(fname)
                         if not sources:
-                            return "No documents found. Upload files and run Process + Build Index in Knowledge Management."
+                            return "No documents found. Upload files and run **Run Pipeline** + **Build Index** in Knowledge Management. Your documents need to be in **Indexed** status to be available for search and insights tools."
                         lines = [f"**Indexed Files** ({len(sources)}):"]
                         for s in sorted(sources)[:20]:
                             lines.append(f"- {s}")

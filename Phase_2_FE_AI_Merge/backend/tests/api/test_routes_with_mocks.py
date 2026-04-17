@@ -33,6 +33,24 @@ def test_search_mocked(client: TestClient):
 
 
 @pytest.mark.unit
+def test_search_qdrant_unreachable_returns_503(client: TestClient):
+    with patch("app.api.routes.search_routes.SearchOrchestrator") as MockOrch:
+        MockOrch.return_value.run.side_effect = RuntimeError("[Errno 99] Cannot assign requested address")
+        r = client.post(
+            "/api/search",
+            json={
+                "query": "test query",
+                "top_k": 5,
+                "retriever_type": "dense",
+                "include_images": False,
+                "images_for_generation": 0,
+            },
+        )
+    assert r.status_code == 503
+    assert "Cannot connect to Qdrant" in r.json()["detail"]
+
+
+@pytest.mark.unit
 def test_process_mocked(client: TestClient):
     with patch("app.api.routes.pipeline_routes.run_processing") as mock_run:
         mock_run.return_value = {"status": "ok", "stages": []}

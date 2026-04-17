@@ -11,6 +11,7 @@ from .media_processor import MediaProcessor, MediaProcessorConfig
 from .document_processor import MultimodalDocumentProcessor, ProcessingConfig
 from .consolidator import Stage4Consolidator, ConsolidatorConfig
 from .xlsx_reader_v2 import process_excel_file
+from .document_processor_v2 import DocumentProcessorV2, ProcessingConfigV2
 from .chunk_enhancer import (
     ChunkEnhancement,
     FrameMetadata,
@@ -34,5 +35,7 @@ __all__ = [
     "FrameMetadata",
     "ChunkDescriptionGenerator",
     "FrameMetadataBuilder",
-    "EnhancedChunkProcessor"
+    "EnhancedChunkProcessor",
+    "DocumentProcessorV2",
+    "ProcessingConfigV2"
 ]

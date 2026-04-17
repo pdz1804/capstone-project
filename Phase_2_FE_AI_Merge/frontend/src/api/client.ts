@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
-const BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || '/api';
 const LOCAL_AUTH_TOKEN_KEY = 'bk_local_auth_token';
 const LOCAL_AUTH_UID_KEY = 'bk_local_auth_uid';
 const GOOGLE_AUTH_HINT_KEY = 'bk_google_auth_hint';

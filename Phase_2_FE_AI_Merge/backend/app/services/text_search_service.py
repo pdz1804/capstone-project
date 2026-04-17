@@ -9,6 +9,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List
 
+from app.core.qdrant_errors import is_qdrant_unreachable
 from app.core.paths import qdrant_collection_names_for_user, workspace_paths_for_user
 from app.repositories import (
     TextIndexRepository,
@@ -131,6 +132,25 @@ def _load_doc_map_for_user(path: Path, user_id: str | None) -> Dict[str, Dict[st
         cid = str(d.get("id", ""))
         if cid:
             out[cid] = d
+    return out
+
+
+def _bm25_fallback_rows(
+    rows: List[Dict[str, Any]],
+    top_k: int,
+    fallback_reason: str,
+) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    for rank, row in enumerate(rows[:top_k], start=1):
+        item = dict(row)
+        item["rank"] = rank
+        item["retrieval_type"] = "hybrid_bm25_fallback_qdrant_unavailable"
+        info = dict(item.get("retrieval_info") or {})
+        info["bm25_score"] = float(item.get("score", 0.0))
+        info["dense_score"] = None
+        info["fallback_reason"] = fallback_reason
+        item["retrieval_info"] = info
+        out.append(item)
     return out
 
 

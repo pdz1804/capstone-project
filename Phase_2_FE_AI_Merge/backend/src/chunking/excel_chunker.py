@@ -4,8 +4,9 @@ Table-Aware Chunking for Excel/Spreadsheet Documents
 Extends the base TextChunker to handle structured content from parsed Excel files:
 - Detects [START_TABLE]...[END_TABLE] markers and keeps tables intact or splits
   them row-by-row while repeating the Markdown header in every chunk.
-- Detects [START_IMAGE]...[END_IMAGE] markers and extracts image paths for
-  multimodal RAG integration.
+- Detects image markers from both legacy [START_IMAGE]...[END_IMAGE] and
+  unified [START_IMAGE_PATH]...[END_IMAGE_PATH] forms for multimodal RAG
+  integration.
 - Preserves sheet-level metadata (sheet_name) through the chunking pipeline.
 - **Table-aware parsing**: parses markdown tables into structured TableBlock/Row/Cell
   objects, then serializes each row as key-value text for better embeddings.
@@ -27,12 +28,15 @@ logger = logging.getLogger(__name__)
 # Markers consistent with xlsx_reader_v2.py / docx_reader.py
 TABLE_START_MARKER = "[START_TABLE]"
 TABLE_END_MARKER = "[END_TABLE]"
-IMAGE_START_MARKER = "[START_IMAGE]"
-IMAGE_END_MARKER = "[END_IMAGE]"
+IMAGE_START_MARKER = "[START_IMAGE_PATH]"
+IMAGE_END_MARKER = "[END_IMAGE_PATH]"
+LEGACY_IMAGE_START_MARKER = "[START_IMAGE]"
+LEGACY_IMAGE_END_MARKER = "[END_IMAGE]"
 
 # Regex to find image markers
 IMAGE_PATTERN = re.compile(
-    r"\[START_IMAGE\](.*?)\[END_IMAGE\]", re.DOTALL
+    r"\[(?:START_IMAGE_PATH|START_IMAGE)\]\s*(.*?)\s*\[(?:END_IMAGE_PATH|END_IMAGE)\]",
+    re.DOTALL,
 )
 
 # Regex to extract markdown links: [text](url)
@@ -287,7 +291,7 @@ class ExcelChunkingConfig(ChunkingConfig):
     # (up to max_table_chunk_size). Beyond that, split by rows.
     prefer_whole_tables: bool = True
 
-    # Whether to extract image paths from [START_IMAGE]...[END_IMAGE] markers
+    # Whether to extract image paths from Excel image markers
     extract_images: bool = True
 
     # Maximum rows per table chunk when splitting large tables
@@ -426,8 +430,13 @@ class ExcelTableChunker(TextChunker):
 
     @staticmethod
     def _extract_image_paths(text: str) -> List[str]:
-        """Return all image file paths found in [START_IMAGE]...[END_IMAGE] markers."""
-        return IMAGE_PATTERN.findall(text)
+        """Return all image file paths found in legacy or unified image markers."""
+        image_paths: List[str] = []
+        for marker_value in IMAGE_PATTERN.findall(text):
+            image_path = str(marker_value or "").split("|", 1)[0].strip()
+            if image_path:
+                image_paths.append(image_path)
+        return image_paths
 
     # ------------------------------------------------------------------
     # split_text — kept for backward compat (used by non-Excel paths)

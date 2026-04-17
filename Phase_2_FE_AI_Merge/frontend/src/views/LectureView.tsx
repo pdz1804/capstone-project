@@ -16,6 +16,7 @@ import {
   ScrollText,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -31,7 +32,10 @@ import {
   postSummary,
   type ProcessedByFileResponse,
 } from '../api/ragApi';
+import apiClient from '../api/client';
 import lectureRobot from '../../robot_1.png';
+
+const MARKDOWN_REMARK_PLUGINS = [remarkGfm, remarkBreaks];
 
 function scrollToElementForHashLink(href: string) {
   const id = href.startsWith('#') ? href.slice(1) : href;
@@ -40,7 +44,124 @@ function scrollToElementForHashLink(href: string) {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-const LECTURE_MARKDOWN_COMPONENTS: Components = {
+function normalizePosixPath(path: string): string {
+  const isAbsolute = path.startsWith('/');
+  const parts = path.split('/').filter(Boolean);
+  const normalized: string[] = [];
+  parts.forEach((part) => {
+    if (part === '.') return;
+    if (part === '..') {
+      if (normalized.length > 0) normalized.pop();
+      return;
+    }
+    normalized.push(part);
+  });
+  return `${isAbsolute ? '/' : ''}${normalized.join('/')}`;
+}
+
+function resolveMarkdownImageSrc(src: string, markdownSourcePath?: string | null): string {
+  const raw = String(src || '').trim();
+  if (!raw) return raw;
+
+  if (
+    raw.startsWith('data:') ||
+    raw.startsWith('blob:') ||
+    raw.startsWith('http://') ||
+    raw.startsWith('https://') ||
+    raw.startsWith('/api/')
+  ) {
+    return raw;
+  }
+
+  if (raw.startsWith('s3://') || raw.startsWith('/')) {
+    return `/api/image?path=${encodeURIComponent(raw)}`;
+  }
+
+  const baseDir = markdownSourcePath?.includes('/')
+    ? markdownSourcePath.slice(0, markdownSourcePath.lastIndexOf('/'))
+    : '';
+  const relPath = normalizePosixPath(baseDir ? `${baseDir}/${raw}` : raw);
+  return `/api/processed-file?rel_path=${encodeURIComponent(relPath)}`;
+}
+
+function preprocessMarkdown(text: string, markdownSourcePath?: string | null): string {
+  const toMarkdownImage = (_match: string, rawValue: string) => {
+    const imagePath = String(rawValue || '')
+      .split('|')[0]
+      ?.trim();
+    if (!imagePath) return '';
+    return `![image](${resolveMarkdownImageSrc(imagePath, markdownSourcePath)})`;
+  };
+
+  return text
+    .replace(/\[START_IMAGE_PATH\]\s*(.*?)\s*\[END_IMAGE_PATH\]/gs, toMarkdownImage)
+    .replace(/\[START_IMAGE\]\s*(.*?)\s*\[END_IMAGE\]/gs, toMarkdownImage)
+    .replace(/\[START_TABLE_CONTENT\]/g, '')
+    .replace(/\[END_TABLE_CONTENT\]/g, '')
+    .replace(/\[START_TABLE\]/g, '')
+    .replace(/\[END_TABLE\]/g, '')
+    .replace(/\[START_(CHART|SHAPE|DIAGRAM)\][\s\S]*?\[END_\1\]/g, '');
+}
+
+function AuthImage({ src, alt, markdownSourcePath }: { src?: string; alt?: string; markdownSourcePath?: string | null }) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const resolvedSrc = typeof src === 'string' ? resolveMarkdownImageSrc(src, markdownSourcePath) : undefined;
+  const isApiImage = typeof resolvedSrc === 'string' && resolvedSrc.includes('/api/image?');
+  const isProcessedFile = typeof resolvedSrc === 'string' && resolvedSrc.includes('/api/processed-file?');
+  const path = isApiImage ? new URLSearchParams(resolvedSrc.split('?')[1] ?? '').get('path') : null;
+  const relPath = isProcessedFile ? new URLSearchParams(resolvedSrc.split('?')[1] ?? '').get('rel_path') : null;
+
+  useEffect(() => {
+    setBlobUrl(null);
+    setLoadFailed(false);
+    if (!path && !relPath) return;
+
+    let canceled = false;
+    let objectUrl = '';
+
+    void apiClient
+      .get(path ? '/image' : '/processed-file', {
+        params: path ? { path } : { rel_path: relPath },
+        responseType: 'blob',
+      })
+      .then(({ data }) => {
+        if (canceled) return;
+        objectUrl = URL.createObjectURL(data);
+        setBlobUrl(objectUrl);
+      })
+      .catch(() => {
+        if (!canceled) setLoadFailed(true);
+      });
+
+    return () => {
+      canceled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [path, relPath]);
+
+  if (!resolvedSrc) return null;
+
+  if (!path && !relPath) {
+    return <img src={resolvedSrc} alt={alt ?? 'image'} className="max-w-full h-auto rounded-lg my-2 border border-slate-100" />;
+  }
+
+  if (!blobUrl) {
+    if (loadFailed) {
+      return (
+        <span className="inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
+          Image could not be loaded
+        </span>
+      );
+    }
+    return <span className="inline-block w-20 h-10 bg-slate-100 animate-pulse rounded" />;
+  }
+
+  return <img src={blobUrl} alt={alt ?? 'image'} className="max-w-full h-auto rounded-lg my-2 border border-slate-100" />;
+}
+
+function getLectureMarkdownComponents(markdownSourcePath?: string | null): Components {
+  return {
   h1: ({ children }) => <h1 className="text-3xl font-bold text-slate-900 mt-2 mb-4">{children}</h1>,
   h2: ({ children }) => <h2 className="text-2xl font-semibold text-slate-900 mt-6 mb-3">{children}</h2>,
   h3: ({ children }) => <h3 className="text-xl font-semibold text-slate-900 mt-5 mb-2">{children}</h3>,
@@ -51,6 +172,13 @@ const LECTURE_MARKDOWN_COMPONENTS: Components = {
   table: ({ children }) => <table className="w-full border-collapse text-sm my-4">{children}</table>,
   th: ({ children }) => <th className="border border-slate-300 bg-slate-50 px-2 py-1 text-left">{children}</th>,
   td: ({ children }) => <td className="border border-slate-300 px-2 py-1 align-top">{children}</td>,
+  img: ({ src, alt }) => (
+    <AuthImage
+      src={typeof src === 'string' ? src : undefined}
+      alt={alt}
+      markdownSourcePath={markdownSourcePath}
+    />
+  ),
   a: ({ href, children }) => {
     const link = String(href || '');
     if (link.startsWith('#')) {
@@ -70,7 +198,8 @@ const LECTURE_MARKDOWN_COMPONENTS: Components = {
       </a>
     );
   },
-};
+  };
+}
 
 const LECTURE_REMARK_PLUGINS = [remarkGfm, remarkMath];
 const LECTURE_REHYPE_PLUGINS = [rehypeKatex];
@@ -400,6 +529,12 @@ export default function LectureView({ files = [] }: LectureViewProps) {
   const [processedMdSourcePath, setProcessedMdSourcePath] = useState<string | null>(null);
   const [processedMdNotice, setProcessedMdNotice] = useState<string | null>(null);
 
+  const inputMarkdownComponents = useMemo(() => getLectureMarkdownComponents(null), []);
+  const processedMarkdownComponents = useMemo(
+    () => getLectureMarkdownComponents(processedMdSourcePath),
+    [processedMdSourcePath]
+  );
+
   const hasOriginalPreviewInMain =
     selectedFile?.type === 'video'
       ? !!videoUrl
@@ -456,7 +591,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             ? Number((e as { response?: { status?: number } }).response?.status)
             : 0;
         if (status === 404) {
-          setProcessedMdNotice('No processed artifacts for this file yet. Run **Process** in Knowledge Management, then refresh.');
+          setProcessedMdNotice('No processed artifacts for this file yet. Click **Run Pipeline** in Knowledge Management, wait until the status turns from **Uploaded** to **Processed**.');
         } else {
           const msg =
             e && typeof e === 'object' && 'response' in e
@@ -573,7 +708,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       const body = (res.summary || '').trim();
       if (!body) {
         setSummaryMarkdown(null);
-        setSummaryError('Empty summary. Run **Process** on your materials so stage-3 markdown exists, then try again.');
+        setSummaryError('Empty summary. Your files need to be in **Processed** status. Click on **Run Pipeline** in Knowledge Management, then try again.');
         return;
       }
       setSummaryMarkdown(body);
@@ -782,11 +917,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               <div className="flex-1 overflow-y-auto custom-scrollbar border-b border-sky-100 bg-sky-50/50 p-4">
                 {selectedFile.name.toLowerCase().endsWith('.md') ? (
                   <div className="prose prose-sm prose-slate max-w-none">
-                    <ReactMarkdown
-                      remarkPlugins={LECTURE_REMARK_PLUGINS}
-                      rehypePlugins={LECTURE_REHYPE_PLUGINS}
-                      components={LECTURE_MARKDOWN_COMPONENTS}
-                    >
+                    <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={inputMarkdownComponents}>
                       {inputPreview.content}
                     </ReactMarkdown>
                   </div>
@@ -909,12 +1040,8 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Processed markdown</p>
                     <div className="prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
-                      <ReactMarkdown
-                        remarkPlugins={LECTURE_REMARK_PLUGINS}
-                        rehypePlugins={LECTURE_REHYPE_PLUGINS}
-                        components={LECTURE_MARKDOWN_COMPONENTS}
-                      >
-                        {processedMarkdown}
+                      <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={processedMarkdownComponents}>
+                        {preprocessMarkdown(processedMarkdown, processedMdSourcePath)}
                       </ReactMarkdown>
                     </div>
                     {processedMdSourcePath && (
@@ -928,11 +1055,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   <div className="py-8 px-2">
                     <FileText className="w-12 h-12 text-slate-200 mx-auto mb-4" />
                     <div className="prose prose-sm prose-slate max-w-none text-center text-slate-600">
-                      <ReactMarkdown
-                        remarkPlugins={LECTURE_REMARK_PLUGINS}
-                        rehypePlugins={LECTURE_REHYPE_PLUGINS}
-                        components={LECTURE_MARKDOWN_COMPONENTS}
-                      >
+                      <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={inputMarkdownComponents}>
                         {processedMdNotice}
                       </ReactMarkdown>
                     </div>
@@ -1033,22 +1156,14 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   )}
                   {!processedMdLoading && processedMarkdown && (
                     <div className="prose prose-sm prose-slate max-w-none text-slate-700 border border-sky-100 rounded-2xl p-4 bg-sky-50/40 max-h-[55vh] overflow-y-auto custom-scrollbar">
-                      <ReactMarkdown
-                        remarkPlugins={LECTURE_REMARK_PLUGINS}
-                        rehypePlugins={LECTURE_REHYPE_PLUGINS}
-                        components={LECTURE_MARKDOWN_COMPONENTS}
-                      >
-                        {processedMarkdown}
+                      <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={processedMarkdownComponents}>
+                        {preprocessMarkdown(processedMarkdown, processedMdSourcePath)}
                       </ReactMarkdown>
                     </div>
                   )}
                   {!processedMdLoading && !processedMarkdown && processedMdNotice && (
                     <div className="prose prose-sm prose-slate max-w-none text-slate-600 border border-slate-100 rounded-2xl p-4 bg-amber-50/40">
-                      <ReactMarkdown
-                        remarkPlugins={LECTURE_REMARK_PLUGINS}
-                        rehypePlugins={LECTURE_REHYPE_PLUGINS}
-                        components={LECTURE_MARKDOWN_COMPONENTS}
-                      >
+                      <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={inputMarkdownComponents}>
                         {processedMdNotice}
                       </ReactMarkdown>
                     </div>
@@ -1243,11 +1358,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   )}
                   <article ref={summaryRenderRef} className="border border-sky-100 rounded-2xl p-6 bg-sky-50/40">
                     <div className="prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
-                      <ReactMarkdown
-                        remarkPlugins={LECTURE_REMARK_PLUGINS}
-                        rehypePlugins={LECTURE_REHYPE_PLUGINS}
-                        components={LECTURE_MARKDOWN_COMPONENTS}
-                      >
+                      <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={inputMarkdownComponents}>
                         {summaryMarkdown}
                       </ReactMarkdown>
                     </div>

@@ -12,6 +12,7 @@ from botocore.exceptions import ClientError
 from app.api.deps import storage_user_id
 from app.api.schemas import SearchRequest
 from app.core.paths import merged_runtime_settings
+from app.core.qdrant_errors import is_qdrant_unreachable, qdrant_setup_hint
 from app.services.search_orchestrator import SearchOrchestrator
 from app.storage import get_file_storage
 from app.storage.service import S3FileStorage, parse_s3_uri
@@ -47,23 +48,8 @@ def search(
     req: SearchRequest,
     user_id: str = Depends(storage_user_id),
 ):
+    cfg = merged_runtime_settings()
     try:
-        cfg = merged_runtime_settings()
-        gyaml = cfg.get("generation", {}) or {}
-        provider = str(gyaml.get("provider", "") or "").lower()
-        configured_model = str(gyaml.get("model", "") or "").strip()
-        requested_model = str(req.generation_model or "").strip()
-        if requested_model and provider == "bedrock":
-            allowlist = set(_bedrock_model_allowlist(configured_model))
-            if requested_model not in allowlist:
-                raise HTTPException(
-                    status_code=400,
-                    detail=(
-                        "Unsupported generation_model for Knowledge Explorer. "
-                        f"Allowed: {', '.join(sorted(allowlist))}"
-                    ),
-                )
-
         orch = SearchOrchestrator(cfg, user_id=user_id)
         result = orch.run(
             query=req.query,
@@ -106,6 +92,15 @@ def search(
     except HTTPException:
         raise
     except Exception as e:
+        if is_qdrant_unreachable(e):
+            logger.warning("search: Qdrant unreachable: %s", e)
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    f"Cannot connect to Qdrant. {qdrant_setup_hint(cfg)} "
+                    f"Underlying: {type(e).__name__}: {e}"
+                ),
+            ) from e
         logger.exception("search")
         raise HTTPException(status_code=500, detail=str(e)) from e
 

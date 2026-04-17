@@ -38,10 +38,6 @@ from .chunker import ChunkingConfig, TextChunker
 
 # ── Formula-aware splitting helpers ──────────────────────────────────────────
 
-# Matches block display-math delimiters produced by docling_pdf_reader:
-#   $$\n<LaTeX body>\n$$
-# Inline formulas ($...$) are short and never span a split boundary,
-# so they don't need special handling.
 _FORMULA_RE = re.compile(r"\$\$\n.*?\n\$\$", re.DOTALL)
 _PLACEHOLDER_PREFIX = "\x00FORMULA_"
 _PLACEHOLDER_SUFFIX = "\x00"
