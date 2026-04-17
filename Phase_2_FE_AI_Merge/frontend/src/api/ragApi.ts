@@ -228,7 +228,7 @@ export async function getInputFileUrl(
   fileName: string,
   expiresIn = 900,
   options?: { viewer?: 'office' }
-): Promise<{ url?: string | null; mode?: string; reason?: string; expires_in?: number; viewer?: string | null }> {
+): Promise<{ url?: string | null; mode?: string; reason?: string; expires_in?: number; viewer?: string | null; content_type?: string | null }> {
   const { data } = await apiClient.get('/input-file-url', {
     params: {
       file_name: fileName,

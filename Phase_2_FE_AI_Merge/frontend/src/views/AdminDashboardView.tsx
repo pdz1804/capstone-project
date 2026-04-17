@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import {
   Activity,
   Coins,
@@ -111,6 +111,13 @@ export default function AdminDashboardView() {
   const [error, setError] = useState<string | null>(null);
   const activeRange = DASHBOARD_RANGES[selectedRange];
 
+  const mounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const load = async (targetDays: number) => {
     setLoading(true);
     setError(null);
@@ -120,6 +127,8 @@ export default function AdminDashboardView() {
         listAdminInvocations({ days: targetDays, limit: 8 }),
         getAdminCostDashboard(targetDays),
       ]);
+      
+      if (!mounted.current) return;
 
       const failedSources: string[] = [];
 
@@ -148,9 +157,12 @@ export default function AdminDashboardView() {
         setError(`Some admin data sources failed: ${failedSources.join(', ')}`);
       }
     } catch (e: any) {
+      if (!mounted.current) return;
       setError(e?.response?.data?.detail || e?.message || 'Failed to load admin dashboard');
     } finally {
-      setLoading(false);
+      if (mounted.current) {
+        setLoading(false);
+      }
     }
   };
 

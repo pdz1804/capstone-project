@@ -367,7 +367,6 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       try {
         const nameLower = selectedFile.name.toLowerCase();
         const ext = nameLower.includes('.') ? nameLower.slice(nameLower.lastIndexOf('.')) : '';
-        const officeExt = ['.ppt', '.pptx', '.xls', '.xlsx', '.doc', '.docx'];
         const wordExt = ['.doc', '.docx'];
         const officeViewerExt = ['.ppt', '.pptx', '.xls', '.xlsx'];
 
@@ -384,14 +383,29 @@ export default function LectureView({ files = [] }: LectureViewProps) {
           }
         }
 
-        // For Word files: try processed PDF first, then fallback to markdown
+        // For Word files: prefer original Office preview, then fallback to processed PDF.
         if (wordExt.includes(ext)) {
+          try {
+            const u = await getInputFileUrl(selectedFile.name, 900, { viewer: 'office' });
+            if (gen !== inputFetchGen.current) return;
+            if (u?.url) {
+              setInputPreview({
+                kind: 'office',
+                iframeSrc: `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(u.url)}`,
+                sourceUrl: u.url,
+              });
+              return;
+            }
+          } catch {
+            // Fall through to processed-PDF fallback.
+          }
+
           try {
             const data = await getProcessedByFile(selectedFile.name);
             if (gen !== inputFetchGen.current) return;
 
-            // Look for PDF in processed stages
-            const stageOrder = ['stage3_document_processed', 'stage4_rag_ready'] as const;
+            // Look for PDF in processed stages (include stage1 normalized fallback).
+            const stageOrder = ['stage3_document_processed', 'stage4_rag_ready', 'stage1_normalized'] as const;
             let pdfPath: string | null = null;
 
             for (const st of stageOrder) {
@@ -425,7 +439,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             console.warn('Failed to load processed PDF for Word file:', e);
           }
 
-          // No processed PDF found - set preview to 'none' to trigger markdown fallback
+          // No Office preview or processed PDF found - trigger markdown fallback.
           setInputPreview({ kind: 'none' });
           return;
         }
