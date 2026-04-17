@@ -240,22 +240,24 @@ RAG is chosen because it offers the optimal balance of accuracy, cost-efficiency
 \subsection{Software Dependencies}
 
 \begin{itemize}
-    \item \textbf{Python}: Version 3.10 or higher.
-    \item \textbf{Core Libraries}:
+    \item \textbf{Core Frameworks}:
     \begin{itemize}
-        \item FastAPI for the REST API framework.
-        \item PyTorch for deep learning model inference.
-        \item FAISS for efficient vector similarity search.
-        \item BM25Okapi for sparse text retrieval.
-        \item Pillow and OpenCV for image processing.
-        \item PyMuPDF (fitz) for PDF document handling.
+        \item \textbf{Frontend}: React 19 with Tailwind 4.1 for high-performance UI components.
+        \item \textbf{Backend}: FastAPI for the asynchronous REST API framework.
+        \item \textbf{Database}: Qdrant Cloud for vector storage with payload isolation; Amazon DynamoDB for chat persistence.
+    \end{itemize}
+    \item \textbf{AI Processing Engines}:
+    \begin{itemize}
+        \item \textbf{Docling}: Document understanding framework for structural analysis.
+        \item \textbf{Whisper Large-v3}: High-fidelity ASR for multi-language transcription.
+        \item \textbf{SmolVLM-256M}: Vision-Language Model for OCR-alternative page understanding.
+        \item \textbf{ColQwen2.5-v1.0}: Late-interaction visual retrieval engine.
     \end{itemize}
     \item \textbf{Model Weights}:
     \begin{itemize}
-        \item \texttt{all-MiniLM-L6-v2} embedding model (384-dimensional, $\sim$30MB).
-        \item \texttt{bge-large} cross-encoder for reranking ($\sim$500MB).
-        \item ColQwen2 vision-language model for visual retrieval ($\sim$5GB).
-        \item LLM backbone (e.g., GPT-4 API or local model such as Mixtral, Qwen, or Llama 2) for generation.
+        \item \texttt{all-MiniLM-L6-v2} (Standard) or \texttt{BGE-M3} (Advanced) for text embeddings.
+        \item \texttt{bge-reranker-large} for second-stage candidate refinement.
+        \item LLM backbone: Supporting Claude 3.5 Sonnet (via Bedrock) or GPT-4o.
     \end{itemize}
 \end{itemize}
 
@@ -526,7 +528,7 @@ The high-level architecture is composed of four logical layers:
 Several design choices distinguish this architecture from traditional RAG systems:
 
 \begin{itemize}
-    \item \textbf{Local-First Storage}: Unlike cloud-native solutions (Pinecone, Milvus), the system stores all artifacts locally, ensuring data privacy and compliance with institutional policies. This file-system-based approach enables portability and eliminates external dependencies.
+    \item \textbf{Hybrid Cloud Storage}: The system utilizes a dual-layer storage strategy where Amazon S3 acts as the canonical source for all documents and artifacts, while a local file-system serves as a high-speed processing cache. This ensures data durability and cloud scalability without sacrificing low-latency processing during document ingestion.
     
     \item \textbf{Dual-Mode Retrieval}: By maintaining separate text and visual indices, the system overcomes the fundamental limitation of text-only RAG, which fails when critical information is encoded in charts, diagrams, or tables that OCR cannot accurately represent.
     
