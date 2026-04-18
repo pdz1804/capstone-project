@@ -1047,4 +1047,53 @@ Conversational capabilities are adaptable to different operational frameworks ba
 \end{itemize}
 
 
+\section{System Deployment}
+
+The system is deployed as a cloud-native application on a hybrid multi-cloud infrastructure, leveraging the scalability of AWS services alongside specialized vector and database backends. This deployment model ensures high availability, multi-tenant isolation, and high-performance processing of multimodal assets.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/28-Deployment Diagram_v3.png}
+    \caption[System Deployment Architecture]{System Deployment Architecture Diagram.}
+    \label{fig:deployment_diagram}
+\end{figure}
+
+The deployment architecture integrates several key cloud components:
+\begin{itemize}
+    \item \textbf{AWS Ecosystem}: The core compute and storage backbone, utilizing S3 for object storage and DynamoDB for stateful metadata.
+    \item \textbf{GPU Offloading}: Heavy visual embedding tasks are delegated to specific GPU instances to maintain low-latency responses in the Interface Layer.
+    \item \textbf{Vector Persistence (Qdrant Cloud)}: A managed vector database provides low-latency similarity search across distributed text and image collections.
+\end{itemize}
+
+\subsection{CI/CD Pipeline (GitHub Actions)}
+
+The system implements a fully automated \textbf{Continuous Integration and Continuous Deployment (CI/CD)} pipeline using \textbf{GitHub Actions}. This ensures that every code change is validated, containerized, and deployed with minimal manual intervention.
+
+The pipeline is triggered automatically upon a code push to the \texttt{main} or \texttt{develop} branches. It consists of two primary stages:
+\begin{enumerate}
+    \item \textbf{Build and Push}: The workflow checks out the repository, configures AWS credentials via OIDC, and logs into the container registry. It then builds the application container and pushes it to the registry.
+    \item \textbf{Deployment}: Once the image is pushed, the workflow updates the task definition in the orchestration service and triggers a rolling update to the active cluster.
+\end{enumerate}
+
+\subsection{Containerization and Orchestration}
+
+To ensure environment parity across development and production, the system utilizes a modern containerization stack built on Docker and AWS managed services.
+
+\textbf{1. Containerization (Docker)}
+
+The backend and frontend applications are packaged as light-weight \textbf{Docker} containers. This approach encapsulates all system dependencies, library versions, and configurations, ensuring that the application behavior is consistent regardless of the underlying host environment.
+
+\textbf{2. Registry (Amazon ECR)}
+
+All built images are versioned and stored in \textbf{Amazon Elastic Container Registry (ECR)}. The system utilizes specific tagging strategies (using the GitHub Commit SHA) to allow for precise rollbacks and auditability of the deployed versions.
+
+\textbf{3. Orchestration (Amazon ECS)}
+
+The runtime environment is managed by \textbf{Amazon Elastic Container Service (ECS)}. 
+\begin{itemize}
+    \item \textbf{Cluster Management}: Services are deployed into a managed cluster (\texttt{rag-pipeline-cluster}) that handles service discovery and health monitoring.
+    \item \textbf{Task Definitions}: These define the CPU and memory requirements for each service, as well as the environment variables needed for the RAG pipeline to connect to its various cloud backends.
+    \item \textbf{High Availability}: ECS ensures that the desired number of containers are always running, automatically restarting any tasks that fail their health checks.
+\end{itemize}
+
 \newpage
