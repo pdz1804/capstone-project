@@ -1,0 +1,90 @@
+\chapter{Introduction}
+
+\section{Motivations}
+
+Modern educational environments present two fundamental challenges related to information processing and retrieval. First, students conducting self-directed learning face the task of navigating distributed multimodal educational resources across multiple platforms. These resources include video lectures, interactive tutorials, research papers, and technical documentation. The process of locating and organizing these resources requires substantial time investment. Furthermore, students must perform manual information synthesis across different modalities—for instance, connecting conceptual explanations from video content with related textual materials. This manual synthesis process creates high cognitive load and represents a barrier to efficient learning \cite{bib01, bib02}.
+
+This information management challenge exists at institutional levels as well. At HCMUT, the volume of educational content continues to expand across multiple formats including lecture videos, audio recordings, presentation slides, and text documents. Traditional text-based processing methods for this content present limitations. These methods typically rely on transcript generation, which introduces transcription errors and removes important contextual information present in visual components such as diagrams and mathematical notation, as well as auditory elements including speaker emphasis and intonation patterns.
+
+Recent developments in Multimodal Large Language Models (MLLMs) provide potential solutions to these challenges. Models and applications such as NotebookLM and Google's Gemini 2.5 Flash demonstrate capabilities for processing and reasoning across text, image, and audio modalities \footnote{\url{https://blog.google/technology/ai/notebooklm-google-ai/}}. These advances suggest the feasibility of developing educational systems that can process lecture materials across multiple modalities without information loss. This technical foundation motivates our investigation into integrating Retrieval-Augmented Generation (RAG) techniques with multimodal representation learning for educational applications. The proposed system aims to address both institutional content management needs at HCMUT and the broader requirements of self-directed multimodal learning.\section{Objectives}
+
+The primary objective of this project is to design and implement a web-based system that enables students to search, summarize, and study lecture materials through a MRAG pipeline. The proposed system aims to:
+
+\begin{itemize}
+    \item Integrate textual, visual, and audio information from lecture videos, slides, and documents into a unified retrieval system. 
+    \item Apply OCR and Automatic Speech Recognition (ASR) to extract text from slides and audio content, enabling content indexing and retrieval.
+    \item Employ a hybrid retrieval mechanism that combines sparse and dense embeddings with cross-modal verification for reliable and accurate information retrieval.
+    \item Utilize an LLM to ground retrieved evidence and generate coherent, contextually accurate responses.
+    \item Provide personalized study tools, including lecture summarization and study roadmap generation, to improve review efficiency and exam readiness.
+\end{itemize}
+
+Through these objectives, the system aims to enhance accessibility and understanding of complex lecture content, serving as an intelligent assistant that bridges multimodal information with adaptive learning.
+
+\section{Scope}
+
+This project focuses on the development of a prototype system that processes lecture-related multimodal data and supports retrieval, summarization, and study roadmap generation. The scope includes:
+
+\begin{itemize}
+    \item Data ingestion from multiple sources such as videos, slides, and documents.
+    \item Extraction of textual and visual information through OCR and ASR techniques.
+    \item Construction of a multimodal retrieval pipeline using both dense and sparse embeddings.
+    \item Deployment of a RAG-based reasoning layer powered by an LLM.
+    \item Design of a frontend web interface that allows students to search for relevant content and receive summaries or study guidance.
+\end{itemize}
+
+The project does not aim to develop new models from scratch but rather focuses on integrating existing multimodal models and retrieval techniques into a cohesive and practical educational application.
+
+\section{Challenges and Solutions}
+
+The development of a multimodal RAG system for educational content presents both theoretical and technical challenges. This section outlines the key challenges and briefly discusses how existing research and our approach address them. Detailed discussions of related work and our methodologies are presented in Chapters 3 and 4, respectively.
+
+\subsection*{Theoretical Challenges}
+
+The theoretical challenges stem from the need to understand and integrate multiple concepts:
+
+\begin{itemize}
+    \item \textbf{RAG Adaptation to Multimodal Contexts:} Traditional RAG systems focus on text-only retrieval, but educational content spans text, images, audio, and video. Research has explored multimodal retrieval through models like M2HF and systems like NotebookLM. Our approach employs a dual-stream indexing architecture that processes text and visual content through separate pathways, enabling parallel retrieval across modalities.
+    
+    \item \textbf{Retrieval Techniques and Reranking:} Selecting appropriate retrieval methods requires balancing recall, precision, and efficiency. Related work demonstrates that hybrid sparse-dense retrieval outperforms single methods~\cite{luan2021sparse_dense}, while cross-attentional rerankers capture subtle distinctions. We evaluate multiple retrieval strategies and employ hybrid retrieval combined with reranking for optimal performance.
+    
+    \item \textbf{Vision-Language Models:} Extracting semantic meaning from visual content requires sophisticated vision-language alignment. Models like PolyViLT and ColPali extend retrieval paradigms to visual domains. We integrate late-interaction visual models that preserve spatial and semantic nuances, enabling retrieval based on visual content even without descriptive text.
+    
+    \item \textbf{OCR and ASR Integration:} Extracting information from diverse formats requires robust OCR and ASR systems. Frameworks like Docling combine multiple OCR engines with Vision-Language Models. We employ a multi-stage processing pipeline that normalizes heterogeneous formats and extracts textual and visual information while preserving document structure.
+    
+    \item \textbf{Modality Fusion:} Effectively combining information from different modalities requires choosing appropriate fusion strategies. Research explores early fusion, late fusion, and hybrid approaches. Our architecture implements a hybrid strategy that maintains separate indices during indexing and performs parallel retrieval with result aggregation during query execution.
+\end{itemize}
+
+\subsection*{Technical Challenges}
+
+The technical challenges involve implementing and optimizing these concepts into a robust system:
+
+\begin{itemize}
+    \item \textbf{Integration of Heterogeneous Modules:} Coordinating diverse processing modules (OCR, ASR, visual embedding, text embedding) requires careful orchestration. We design a unified pipeline that handles different input formats and produces standardized artifacts for consistent downstream processing.
+    
+    \item \textbf{Data Synchronization:} Maintaining consistency between text chunks, visual pages, and metadata is essential for accurate citation. We implement comprehensive metadata schemas that enable precise provenance tracking and citation generation.
+    
+    \item \textbf{Technology Selection:} Selecting suitable models and frameworks requires balancing performance, cost, and computational constraints. Through systematic experimentation, we evaluate multiple configurations to determine optimal choices for our specific use case.
+    
+    \item \textbf{Efficient Cross-Modal Retrieval:} Managing parallel retrieval while minimizing latency requires efficient indexing structures. We implement parallel retrieval with optimized indexing and just-in-time processing to balance efficiency and accuracy.
+    
+    \item \textbf{System Deployment:} Deploying with considerations for scalability, privacy, and institutional requirements presents operational challenges. We adopt a local-first architecture that ensures data privacy while supporting modular scaling and containerized deployment.
+\end{itemize}
+
+Addressing these challenges through careful integration of established techniques and systematic experimentation enables the development of a functional MRAG system that supports real-world educational use cases. The detailed methodologies, experimental results, and architectural decisions are presented in subsequent chapters.
+
+\section{Structure of the Report}
+
+The remainder of this report is organized as follows:
+
+\begin{itemize}
+    \item \textbf{Chapter 1: Introduction} – Provides background, motivations, objectives, scope, challenges and solutions, and the structure of the report.
+    \item \textbf{Chapter 2: Preliminaries} – Presents foundational knowledge, key theories, and tools relevant to multimodal retrieval and LLMs.
+    \item \textbf{Chapter 3: Related Work} – Reviews existing literature and prior systems related to MRAG, OCR, ASR, and visual-language integration.
+    \item \textbf{Chapter 4: Our Approach} – Describes the proposed architecture, system design, and methodologies for integrating multimodal retrieval and reasoning.
+    \item \textbf{Chapter 5: Implementation} – Details the technical setup, multi-tenant cloud-native architecture, and database schemas.
+    \item \textbf{Chapter 6: Evaluation Methods} – Defines the metrics, datasets, and procedures used to evaluate system performance.
+    \item \textbf{Chapter 7: Conclusion} – Summarizes achievements and outlines long-term development strategies.
+\end{itemize}
+
+\newpage
+

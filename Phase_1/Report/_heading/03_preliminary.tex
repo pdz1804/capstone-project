@@ -71,20 +71,12 @@ Another major milestone is the rise of self-supervised learning and large-scale 
 
 Datasets and benchmarks play a central role in evaluating ASR progress. LibriSpeech has become the primary benchmark for reporting performance~\cite{panayotov2015librispeech}, while datasets such as Switchboard~\cite{switchboard1992}, TED-LIUM~\cite{rousseau2012tedlium}, and Mozilla's Common Voice provide additional testbeds across different domains and languages~\cite{ardila2020commonvoice}. Evaluation typically relies on Word Error Rate (WER) and Character Error Rate (CER), with WER remaining the most widely used metric for system comparison.
 
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
-It measures the difference between the reference transcription and the hypothesis transcription produced by the system. WER is computed as
-=======
 These metrics measure the difference between the reference transcription and the hypothesis transcription produced by the system. Word Error Rate (WER) is computed as
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 
 \begin{equation*}
     \text{WER} = \frac{S + D + I}{N}
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
-\end{equation*}
-=======
     \label{eq:wer}
-\end{equation}
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
+\end{equation*}
 
 where:
 \begin{itemize}
@@ -96,12 +88,6 @@ where:
 
 Character Error Rate (CER) applies the same formulation at the character level:
 
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
-Despite advances, practical deployment of ASR introduces further challenges. Many systems still integrate external language models or employ shallow fusion during decoding to improve accuracy. Streaming requirements necessitate architectures tailored for low-latency inference, such as transducer models or streaming variants of attention mechanisms. On-device ASR applications also demand model compression, quantization, and lightweight designs to meet computational and memory constraints.
-
-Robustness, fairness, and safety remain open challenges in the field. ASR systems continue to struggle with noise, accents, microphone variability, and domain shifts. Although large-scale pretraining and data augmentation mitigate some issues, performance disparities persist for underrepresented languages and accents. Furthermore, large ASR models can generate hallucinated transcriptions that appear plausible but are incorrect, necessitating confidence estimation and caution in safety-critical applications.
-
-=======
 \begin{equation}
     \text{CER} = \frac{S + D + I}{N}
     \label{eq:cer}
@@ -115,7 +101,6 @@ Despite advances, practical deployment of ASR introduces further challenges. Man
 
 Robustness, fairness, and safety remain open challenges in the field. ASR systems continue to struggle with noise, accents, microphone variability, and domain shifts. Although large-scale pretraining and data augmentation mitigate some issues, performance disparities persist for underrepresented languages and accents. Furthermore, large ASR models can generate hallucinated transcriptions that appear plausible but are incorrect, necessitating confidence estimation and caution in safety-critical applications.
 
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 Emerging directions in ASR research include the development of multilingual and code-switching systems, efficient streaming attention mechanisms for real-time transcription, privacy-preserving and on-device solutions, and the integration of diarization and alignment for richer transcription outputs. These efforts align with the broader trend toward building general-purpose, reliable, and accessible speech recognition technologies.
 
 ASR has advanced from early GMM–HMM systems to end-to-end neural architectures that leverage transformers, conformers, and self-supervised pretraining. While remarkable improvements have been achieved in accuracy and efficiency, challenges in robustness, fairness, and real-time deployment remain pressing. Future progress will likely depend on scaling laws, architectural innovations, and greater diversity in datasets and evaluation methodologies, ensuring that ASR systems become more equitable, reliable, and widely applicable.
@@ -139,11 +124,7 @@ Conventional OCR pipelines were typically divided into sequential stages: segmen
 
 The introduction of deep learning fundamentally transformed OCR research and practice. Convolutional Neural Networks (CNNs) proved especially effective for character recognition by learning spatial features directly from image data, eliminating the reliance on hand-crafted feature engineering \cite{lecun1998gradient}. Recurrent Neural Networks (RNNs) and their variants, particularly Long Short-Term Memory (LSTM) networks, enabled sequence modeling that supported recognition without explicit segmentation, addressing a key limitation of traditional systems \cite{graves2009novel}. Furthermore, the development of Connectionist Temporal Classification (CTC) provided alignment-free recognition of sequential text, significantly improving end-to-end performance \cite{graves2006ctc}. More recently, transformer-based architectures such as TrOCR have established the state of the art, offering robust recognition across a wide range of scripts and environmental conditions \cite{li2023trocr}.
 
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
-With advances in deep learning, end-to-end models such as CRNN and Transformer-based architectures directly learn visual-to-text mappings from raw images \cite{shi2016crnn, baek2019deep, li2021trocr}. These models estimate the output text sequence by maximizing the conditional probability given the input image
-=======
 With advances in deep learning, end-to-end models such as CRNN and Transformer-based architectures directly learn visual-to-text mappings from raw images \cite{shi2016crnn, baek2019whatiswrong, li2021trocr}. These models estimate the output text sequence by maximizing the conditional probability given the input image
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 
 \begin{equation*}
     \hat{Y} = \arg\max_{Y} P(Y|X)
@@ -153,7 +134,6 @@ where $X$ denotes the input image and $Y$ is the predicted text sequence.
 
 Although OCR has significantly improved, challenges remain, including handwritten documents, low resolution images, domain-specific noise, multilingual text, and complex page layouts. These challenges motivate continued research toward more robust recognition models.
 
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
 To evaluate OCR performance, character-level edit distance is widely used. The Character Error Rate (CER) is defined as
 
 \begin{equation*}
@@ -167,9 +147,7 @@ where $S$, $D$, and $I$ are the number of substitutions, deletions, and insertio
 \end{equation*}
 
 Lower CER and WER values indicate better recognition performance, thus motivating improvements in model architecture, data augmentation, and domain adaptation.
-=======
 To evaluate OCR performance, both Character Error Rate (CER) and Word Error Rate (WER) are commonly used (see Section~\ref{sec:asr}, Equations~\ref{eq:cer} and~\ref{eq:wer} for definitions). CER is particularly useful for character-level recognition tasks, while WER provides word-level evaluation. Lower CER and WER values indicate better recognition performance, thus motivating improvements in model architecture, data augmentation, and domain adaptation.
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 
 In addition to scanned documents, OCR research has increasingly focused on scene text recognition (STR), which addresses the challenges of extracting text embedded within natural images. Unlike structured documents, STR involves handling irregular backgrounds, distortions, and varying lighting conditions. To meet these challenges, recent methods have combined object detection frameworks such as Faster R-CNN and YOLO with recognition pipelines, thereby improving both localization and recognition accuracy. This integration has enabled OCR systems to achieve strong performance in real-world applications, where text often appears in unconstrained environments \cite{baek2019whatiswrong}.
 
@@ -180,10 +158,7 @@ Despite remarkable progress, OCR continues to face several challenges that limit
 OCR has undergone a profound transformation, evolving from rigid template-based recognition to flexible, data-driven deep learning and transformer-based systems. These advancements have enabled robust performance across a wide range of domains, from structured documents to complex natural scenes. As OCR continues to underpin automation, accessibility, and large-scale digitization efforts, ongoing research is likely to focus on improving its robustness, adaptability, and inclusivity. Future developments will ensure that OCR remains an indispensable technology in bridging the gap between visual and textual information.
 
 \section{Transformer}
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
-=======
 \label{sec:transformer}
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 The Transformer model described in this section is based on the architecture proposed in \emph{Attention Is All You Need}~\cite{vaswani2017attention}.
 The Transformer architecture, introduced by Vaswani et al. in 2017, revolutionized sequence modeling by relying entirely on self-attention mechanisms, dispensing with recurrent and convolutional structures. This design enabled efficient parallelization during training and excelled at capturing long-range dependencies, leading to state-of-the-art performance in natural language processing tasks such as machine translation, text generation, and language understanding.
 
@@ -227,18 +202,12 @@ Self-attention computes an output for each position by mapping a query vector to
 
 
 Similarity between queries and keys is computed via the dot product $QK^{T}$, followed by a softmax to obtain attention weights. Because large values can destabilize gradients when the dimensionality $d_{K}$ is high, the dot products are scaled by $\sqrt{d_{K}}$
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
-\[
-=======
 \begin{equation}
 \label{eq:attention}
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 \mathrm{Attention}(Q, K, V)
 = \mathrm{softmax}\left( \frac{QK^{T}}{\sqrt{d_{K}}} \right) V.
 \end{equation}
 
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
-=======
 where:
 \begin{itemize}
     \item $Q \in \mathbb{R}^{T_q \times d}$ are query vectors representing what information to look for;
@@ -248,7 +217,6 @@ where:
     \item $T_q, T_k$ are the sequence lengths for queries and keys respectively.
 \end{itemize}
 
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 Instead of performing a single attention operation, the Transformer projects queries, keys, and values into $h$ subspaces using learned linear transformations. Attention is computed independently in each head
 \[
 \text{head}_{i} = \mathrm{Attention}(QW_i^{Q},\, KW_i^{K},\, VW_i^{V}).
@@ -266,11 +234,7 @@ This mechanism allows the model to capture multiple types of relationships simul
 
 For specific data types and stages within retrieval pipelines, more specialized architectures are necessary. In the context of video, which inherently combine visual frames, audio signals, motion dynamics, and transcripts generated through ASR, reliance on purely visual encoders such as CLIP fails to exploit the full range of available modalities. To address this limitation, the Multi-level Multi-modal Hybrid Fusion (M2HF) model has been proposed. This model integrates three complementary mechanisms. It first applies multi-stream feature extraction in order to capture representations from visual, audio, motion, and ASR-text channels. It then employs attentional fusion, where attention blocks are used to generate enriched cross-modal features, such as audio-guided visual representations, rather than relying on naive concatenation. Finally, it implements multi-level fusion strategies, combining modalities at both the feature level and the decision level, thereby producing richer and more informative retrieval signals~\cite{liu2022m2hf}.
 
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
-Cross-attentional models constitute another important development, particularly in the reranking stage of retrieval pipelines. Unlike dual-encoder architectures, which encode queries and documents independently, cross-attentional models such as BERT-based cross-encoders compute deep, token-level interactions between queries and documents. This capacity allows them to capture fine-grained semantic distinctions, such as differentiating between "a slide explaining photosynthesis" and "a slide merely mentioning photosynthesis." Their ability to model these nuanced relationships has consistently led to state-of-the-art performance in reranking tasks. However, these gains come at the cost of high computational complexity, which renders such models impractical for large-scale, first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}. Instead, their most effective application lies in second-stage reranking, where they refine a smaller set of candidate results returned by a more efficient retrieval mechanism\footnote{\url{https://www.pinecone.io/learn/series/rag/rerankers/}}. The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}\footnote{\url{https://magazine.sebastianraschka.com/p/understanding-multimodal-llms}}.
-=======
 Cross-attentional models constitute another important development, particularly in the reranking stage of retrieval pipelines. Unlike dual-encoder architectures, which encode queries and documents independently, cross-attentional models such as BERT-based cross-encoders compute deep, token-level interactions between queries and documents. This capacity allows them to capture fine-grained semantic distinctions, such as differentiating between ``a slide explaining photosynthesis'' and ``a slide merely mentioning photosynthesis''. Their ability to model these nuanced relationships has consistently led to state-of-the-art performance in reranking tasks. However, these gains come at the cost of high computational complexity, which renders such models impractical for large-scale, first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}. Instead, their most effective application lies in second-stage reranking, where they refine a smaller set of candidate results returned by a more efficient retrieval mechanism\footnote{\url{https://www.pinecone.io/learn/series/rag/rerankers/}}. The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}\footnote{\url{https://magazine.sebastianraschka.com/p/understanding-multimodal-llms}}.
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 
 \begin{figure}[h!]
     \centering
@@ -279,27 +243,21 @@ Cross-attentional models constitute another important development, particularly 
     \label{fig:Cross-attention}
 \end{figure}
 
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
 Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$
 
 \begin{equation*}
     \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^{T}}{\sqrt{d_k}}\right)V
 \end{equation*}
-=======
+
 Cross-attention uses the same attention mechanism defined in Section~\ref{sec:transformer} (Equation~\ref{eq:attention}), but with a key difference: queries come from one sequence (the target modality, e.g., decoder text embeddings) while keys and values come from a different sequence (the source modality, e.g., encoder speech/image features). This allows the model to attend across different modalities or sequences, enabling information flow from source to target. 
 
 Formally, for cross-attention:
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 
 \begin{itemize}
     \item $Q \in \mathbb{R}^{T_q \times d}$ are queries from the target modality (e.g., decoder text embeddings);
     \item $K, V \in \mathbb{R}^{T_k \times d}$ are keys and values from the source modality (e.g., encoder speech/image features);
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
     \item $d_k$ is the dimension of the key vectors;
     \item $T_q, T_k$ are token lengths for target and source sequences.
-=======
-    \item $T_q, T_k$ are token lengths for target and source sequences respectively.
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 \end{itemize}
 
 Multimodal fusion via dual attention for two modalities $A$ and $B$, cross-attention is computed independently:
@@ -375,7 +333,7 @@ Open-domain question answering prior to RAG largely followed a retrieve-then-rea
 REALM introduced end-to-end differentiable retrieval during pretraining so that a masked-LM objective could backpropagate through a large document index, demonstrating that external, updateable knowledge could be learned and consulted by the LM at scale~\cite{realm2020}. Shortly afterward, RAG combined a dense retriever (DPR) with a sequence-to-sequence generator (BART), training the entire model so that gradients update both retriever and generator. This ``general-purpose fine-tuning recipe'' showed that a medium-sized LM augmented with learned retrieval can outperform substantially larger parametric-only models on knowledge-intensive tasks~\cite{lewis2020rag}.
 
 \textbf{2021--2022: Stronger Retrievers, Multi-Document Reasoning, and Lighter Readers.}
-Dense retrieval advanced on several fronts: RocketQA introduced denoised hard negatives and cross-batch training \cite{rocketqa2021}; RocketQAv2 refined knowledge distillation from cross-encoders to bi-encoders for latency-aware quality \cite{rocketqa2_2021}. Retriever-specific pretraining (Condenser) made language-model pretraining explicitly serve dense retrieval \cite{condenser2021}, while unsupervised contrastive pretraining (Contriever) yielded robust, domain-transferable retrievers without labels \cite{contriever2021}. Scaling T5 dual encoders (GTR) further improved zero-shot transfer \cite{gtr2021}. Beyond bi-encoders, late-interaction architectures (ColBERTv2) compressed token-level matching to make interaction models practical at scale, often used as a re-ranking stage \cite{colbertv2_2021}. In sparse-dense hybrids, SPLADE and SPLADE-v2 showed that learned sparsity pairs naturally with dense vectors; hybrid fusion became a ``default'' for out-of-distribution robustness \cite{splade2021, spladev2_2021}.
+Dense retrieval advanced on several fronts: RocketQA introduced denoised hard negatives and cross-batch training \cite{rocketqa2021}; RocketQAv2 refined knowledge distillation from cross-encoders to bi-encoders for latency-aware quality \cite{rocketqa2_2021}. Retriever-specific pretraining (Condenser) made language-model pretraining explicitly serve dense retrieval \cite{condenser2021}, while unsupervised contrastive pretraining (Contriever) yielded robust, domain-transferable retrievers without labels \cite{contriever2021}. Scaling T5 dual encoders (GTR) further improved zero-shot transfer \cite{gtr2021}. Beyond bi-encoders, late-interaction architectures (ColBERTv2) compressed token-level matching to make interaction models practical at scale, often used as a re-ranking stage \cite{colbertv2_2021}. In sparse-dense hybrids, SPLADE and SPLADE-v2 showed that learned sparsity pairs naturally with dense vectors; hybrid fusion became a ``default'' for out-of-distribution robustness \cite{splade2021, formal2021splade}.
 
 At the same time, RAG pipelines learned to retrieve multiple supporting documents: EMDR pushed learning signals across the retrieve$\rightarrow$read boundary with an EM-style objective \cite{emdr2021}, and MDR operationalized multi-hop chains of evidence for compositional questions \cite{mdr2020}. On the reader side, Fusion-in-Decoder (FiD) became a standard for fusing many passages, while KG-FiD injected graph structure and GNN-based re-ranking to pass only high-value evidence to the decoder \cite{fid2020,kgfid2021}. FiD-Light then reduces context while constraining encoder$\rightarrow$decoder flow and source-aware re-ranking, improving the accuracy–latency Pareto frontier \cite{fidlight2022}. Retrieval-on-the-fly matured via RETRO, which matched the quality of a model roughly $25\times$ larger by consulting a massive index during generation, reinforcing the promise of semi-parametric scaling \cite{retro2021}.
 
@@ -436,11 +394,7 @@ Sparse retrieval models represent the classical approach to information retrieva
 
 Dense retrieval emerged with the advent of deep learning, employing models to learn low-dimensional, dense vector representations that capture semantic meaning~\cite{karpukhin2020dense}. This approach, often implemented as a dual encoder, maps queries and documents into a shared embedding space where semantic similarity corresponds to vector proximity, typically measured by inner product. Models like BERT-based DPR and SPECTER2 (for scientific documents) are trained to encode contextual information, allowing them to excel at semantic matching even when keywords differ~\cite{singh2022scirepeval}. These dense vectors can be indexed for efficient large-scale retrieval using Approximate Nearest Neighbor Search (ANNS) algorithms, with graph-based methods like Hierarchical Navigable Small World (HNSW) being particularly effective~\cite{malkov2016efficient}. While powerful for semantic understanding, dense models can lack the precision needed for exact term matching. Furthermore, theoretical and empirical analyses show that the capacity of fixed-length dense encoders can be limited, with performance potentially degrading as document length increases. This is because longer documents introduce smaller normalized margins between relevant and non-relevant items, requiring a larger encoding dimension to maintain fidelity with sparse models~\cite{formal2021splade}.
 
-<<<<<<< HEAD:Phase_1/Report/_heading/03_preliminary.tex
-To leverage the complementary strengths of both paradigms, hybrid retrieval has become a widespread and effective practice, particularly in systems like RAG~\cite{li2020rag}. The core idea is to fuse sparse and dense signals to enhance both effectiveness and robustness~\cite{formal2021splade, karpukhin2020dense}. A simple yet effective approach is to linearly combine the scores from separate sparse and dense retrievers. Another common strategy is the two-route method, where sparse and dense searches are conducted separately and the results are merged. However, this increases system complexity and can compromise accuracy, as the top hybrid results may not be in the top-k results of either individual system. A more advanced approach is to build a unified index for concatenated dense-sparse hybrid vectors. This presents two key challenges: (1) the significant difference in data distribution between dense and sparse vectors makes it difficult to combine them optimally, potentially hurting accuracy; and (2) the high dimensionality and computational cost of sparse vectors can degrade retrieval efficiency. To address this, recent work proposes methods like distribution alignment (using pre-sampling to determine optimal fusion weights) and an adaptive two-stage computation strategy (initially using only dense distances for coarse search and later refining with hybrid distances) to improve both accuracy and speed~\cite{iida2022unsupervised}.
-=======
 To leverage the complementary strengths of both paradigms, hybrid retrieval has become a widespread and effective practice, particularly in systems like RAG~\cite{lewis2020rag}. The core idea is to fuse sparse and dense signals to enhance both effectiveness and robustness~\cite{formal2021splade, karpukhin2020dense}. A simple yet effective approach is to linearly combine the scores from separate sparse and dense retrievers. Another common strategy is the two-route method, where sparse and dense searches are conducted separately and the results are merged. However, this increases system complexity and can compromise accuracy, as the top hybrid results may not be in the top-k results of either individual system. A more advanced approach is to build a unified index for concatenated dense-sparse hybrid vectors. This presents two key challenges: (1) the significant difference in data distribution between dense and sparse vectors makes it difficult to combine them optimally, potentially hurting accuracy; and (2) the high dimensionality and computational cost of sparse vectors can degrade retrieval efficiency. To address this, recent work proposes methods like distribution alignment (using pre-sampling to determine optimal fusion weights) and an adaptive two-stage computation strategy (initially using only dense distances for coarse search and later refining with hybrid distances) to improve both accuracy and speed~\cite{iida2022unsupervised}.
->>>>>>> origin/main:Report/_heading/03_preliminary.tex
 
 Once embeddings have been generated, the retrieval module identifies and returns the most relevant
 documents for a given query. In a RAG pipeline, this step is essential because it supplies the language

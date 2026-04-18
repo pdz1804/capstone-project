@@ -6,9 +6,9 @@
 
 ### Use Case Statistics
 
-**Total Use Cases**: 10
+**Total Use Cases**: 11
 - **Core RAG System**: 4 (UC-001 through UC-004) 
-- **Extended Learning Features**: 6 (UC-005 through UC-010)
+- **Extended Learning Features**: 7 (UC-005 through UC-011)
 
 **Priority Distribution**:
 - **Priority 1 (Critical)**: 3 use cases - Core functionality
@@ -56,18 +56,21 @@ This document describes the primary use cases and detailed scenarios for the Edu
 
 **Main Flow**:
 
-1. User accesses the web interface
-2. User selects files for upload (drag-and-drop or file picker)
-3. System validates file formats and sizes
-4. Files are uploaded to temporary storage
-5. Processing pipeline is triggered automatically
-6. System processes files through 4-stage pipeline:
-   - Stage 1: Format normalization
-   - Stage 2: Media processing (ASR/OCR)
-   - Stage 3: Document understanding (VLM)
-   - Stage 4: RAG-ready consolidation
-7. Results are stored and indexed
-8. User receives completion notification
+1. User accesses the web interface.
+2. User selects files for upload or processing.
+3. System validates file formats and hashes for deduplication.
+4. **Stage 0 - Input Preparation**:
+   - Local Mode: Pipeline uses local input directory.
+   - Cloud Mode: System synchronizes `S3_ORIGINALS_BUCKET` to local temp workspace.
+5. **Stage 1 - Normalization**: LibO/ReportLab convert Office/Docs to PDF; custom XML parser handles Excel (Stage 3b).
+6. **Stage 2 - Media Processing**: FFmpeg extracts audio; Whisper (Large-v3/Tiny) transcribes.
+7. **Stage 3 - Document Understanding**: Docling (Local/SageMaker) processes layout and tables.
+8. **Stage 3b - Excel Specialized**: Tabular data extracted directly to markdown/JSON chunks.
+9. **Stage 4 - Consolidation & Publishing**:
+   - Artifacts consolidated into `stage4_rag_ready` structure.
+   - Cloud Mode: Artifacts published to `S3_PROCESSED_BUCKET` under user-isolated prefix.
+10. **Indexing**: Resulting chunks upserted to Qdrant Cloud (shared collection) with `user_id` payload.
+11. User receives completion notification.
 
 **Alternative Flows**:
 
@@ -107,13 +110,13 @@ This document describes the primary use cases and detailed scenarios for the Edu
 **Main Flow**:
 
 1. User enters natural language query in search interface
-2. System analyzes query and determines retrieval strategy
-3. Retrieval engine searches across multiple indexes:
-   - Text retrieval (BM25/Dense/Hybrid)
-   - Visual retrieval (if applicable)
-4. Results are ranked and filtered
-5. Top results are displayed with relevance scores
-6. User can refine search or select specific results
+2. System analyzes query and determines retrieval strategy (includes `user_id` context)
+3. Retrieval engine searches across multiple indexes with payload-level tenant isolation:
+   - Text retrieval (BM25 + Dense Hybrid) filtered by `user_id`
+   - Visual retrieval (ColQwen multivectors) filtered by `user_id`
+4. Results are fused and reranked.
+5. Top results are displayed with relevance scores and image previews.
+6. User can refine search or select specific results.
 
 **Alternative Flows**:
 
@@ -426,30 +429,10 @@ This document describes the primary use cases and detailed scenarios for the Edu
 **Main Flow**:
 
 1. Student clicks "Generate Learning Path" button
-2. System analyzes student data:
-   - **Query Analysis**: Topics searched, question patterns
-   - **Assessment History**: Scores by topic/concept
-   - **Time Spent**: How long spent on each concept
-   - **Engagement**: Viewed materials, annotations, exports
-   - **Weakness Detection**: Concepts with <70% accuracy
-   - **Strength Identification**: Concepts with >85% accuracy
-3. System performs:
-   - **Gap Analysis**: Identifies missing prerequisites
-   - **Progression Mapping**: Determines optimal sequence
-   - **Milestone Planning**: Sets achievable checkpoints
-   - **Difficulty Adaptation**: Adjusts difficulty curve
-4. System generates personalized path with:
-   - **Review Phase**: 3-5 prerequisite topics needing review
-   - **Core Learning**: 8-12 main topics aligned with goals
-   - **Practice Phase**: Targeted exercises for weak areas
-   - **Advanced Phase**: Challenge materials for interests
-5. System presents:
-   - Visual roadmap showing progression
-   - Time estimates for each phase
-   - Recommended pace (weekly goals)
-   - Related resources for each topic
-6. Student accepts and saves learning path
-7. System sets up tracking and progress monitoring
+2. System analyzes student profile (level, background) and goals.
+3. System identifies prerequisite concepts and ordered topics from processed document content.
+4. System generates personalized roadmap with review, core, and practice phases.
+5. Student accepts and saves learning path for review.
 
 **Alternative Flows**:
 
@@ -491,41 +474,11 @@ This document describes the primary use cases and detailed scenarios for the Edu
 **Main Flow**:
 
 1. Student accesses "Practice Assessment" section
-2. Student selects topic or full course
-3. System presents options:
-   - **Timed**: 30/60/90 minute assessment
-   - **Untimed**: Self-paced assessment
-   - **Difficulty**: Basic/Intermediate/Advanced start level
-4. Student starts assessment:
-   - Question 1 (Medium difficulty): Student gets correct
-   - Question 2 (Medium difficulty): Student gets correct
-   - Question 3 (Hard difficulty): Student gets incorrect
-   - Question 4 (Hard difficulty): Student gets correct
-   - Question 5 (Very Hard difficulty): Student gets incorrect
-   - System identifies student is primarily comfortable with core topics
-5. System adapts:
-   - Next question (Hard difficulty): Student gets incorrect
-   - System downgrades to Medium
-   - Presents 2 more Medium questions (both correct)
-   - Problem area identified: Advanced topic variant
-6. Assessment continues 15-20 questions (adaptive length)
-7. Student completes with performance:
-   - Overall: 75% (12/16 correct)
-   - By Topic:
-     - Core Concepts: 90%
-     - Algorithm Implementation: 70%
-     - Complexity Analysis: 60%
-     - Advanced Optimization: 40%
-8. System generates report with:
-   - Concept-level breakdown
-   - Identified weak areas (Complexity Analysis, Advanced Optimization)
-   - Incorrectly answered questions with explanations
-   - Related lecture timestamps for each mistake
-9. System provides recommendations:
-   - "Review: Complexity Analysis [Lecture 7, 00:15:30]"
-   - "Practice: 5 additional problems on Big-O notation"
-   - "Advanced: Try optimization techniques once complexity is solid"
-10. Student views recommendations and selects resources to study
+2. Student selects topic and difficulty level.
+3. System generates a set of MCQ questions from lecture content.
+4. Student completes assessment and submits answers.
+5. System grades assessment and provides scores and explanations.
+6. Student views recommendations based on performance.
 
 **Alternative Flows**:
 
@@ -542,97 +495,45 @@ This document describes the primary use cases and detailed scenarios for the Edu
 
 ---
 
-#### 3.6 Use Case: View Learning Dashboard and Progress Analytics
+#### 3.6 Use Case: Learning Analytics & Dashboard
 
-**UC-010: Monitor Progress and View Personalized Analytics Dashboard**
+**UC-010: View Learning Dashboard**
 
 **Primary Actor**: Student
-**Secondary Actors**: Analytics Engine, Learning Analytics Service
+**Secondary Actors**: Analytics Engine, Database
 
-**Description**: Student accesses personalized dashboard showing learning progress, strength/weakness visualization, and data-driven recommendations.
-
-**Preconditions**:
-
-- Student has been using system for multiple sessions
-- Learning path is active
-- Multiple assessments completed
-- Analytics data is available
-
-**Postconditions**:
-
-- Student understands current learning status
-- Student identifies areas needing focus
-- Student receives Next Steps recommendation
+**Description**: Student views a centralized dashboard showing learning progress, strengths/weaknesses, and engagement metrics.
 
 **Main Flow**:
+1. Student accesses Dashboard from navigation menu.
+2. System loads student profile and learning history from DynamoDB.
+3. Dashboard displays:
+   - Topic mastery percentages.
+   - Engagement time across documents.
+   - Quiz performance trends.
+   - Recommended next steps.
 
-1. Student opens "Learning Dashboard"
-2. Dashboard displays multiple views:
+---
 
-   **A. Progress Overview**:
+#### 3.7 Use Case: Chat Sessions and History
 
-   - Learning Path: "Completed: 6/18 topics (33%)"
-   - Time Invested: "Last 7 days: 12 hours"
-   - Pace: "On track for completion in 3 weeks"
-   - Motivation: Daily streak (5 days), achievement badges
+**UC-011: Manage Chat Sessions and History**
 
-   **B. Strength/Weakness Matrix**:
+**Primary Actor**: Student
+**Secondary Actors**: DynamoDB, Chat Assistant
 
-   - Visual grid showing topic mastery levels
-   - Green (Mastered >85%), Yellow (Competent 70-85%), Red (Needs Review <70%)
-   - Topics:
-     - Fundamentals: Green
-     - Core Algorithms: Yellow
-     - Data Structures: Yellow
-     - Advanced Optimization: Red
-     - Practical Implementation: Yellow
+**Description**: Student manages persistent chat sessions, enabling history retrieval and organizational operations.
 
-   **C. Learning Curve Over Time**:
-
-   - Line graph showing assessment scores over 4 weeks
-   - Trend: Upward with 2% weekly improvement
-   - Milestone markers ("Completed DP module", "Mastered Sorting")
-   - Relative performance vs. recommended path
-
-   **D. Time Allocation Pie Chart**:
-
-   - How time spent (Lectures 40%, Practice 35%, Assessments 15%, Review 10%)
-   - Recommendation: Increase practice to 45%
-
-   **E. Concept Dependency Map**:
-
-   - Prerequisite relationships shown
-   - Mastered concepts highlighted
-   - "Blockers" identified (unsolved prerequisites for next topics)
-   - Current blocker: "Complexity Analysis" blocks "Advanced Optimization"
-3. Student clicks "Weak Areas"
-4. System shows:
-
-   - **Complexity Analysis**: 60% average, 3 failed questions
-   - Recommended: Re-read notes, 4 new practice problems, 10-min refresher video
-   - Estimated time: 30 minutes
-5. Student clicks "Suggested Next Step"
-6. System recommends:
-
-   - Based on mastery: Ready for Graph Algorithms
-   - Based on time: 45 min learning window available today
-   - Recommended: "20-min Graph Algorithms intro + 25-min practice"
-7. Student clicks "Follow Recommendation"
-8. System loads recommended materials
-
-**Alternative Flows**:
-
-- **Cohort Comparison**: See anonymous peer stats (opt-in)
-- **Instructor View**: Student shares dashboard with instructor
-- **Export Report**: Student generates PDF progress report
-- **Goal Adjustment**: Student modifies learning goal, path regenerates
-- **Historical View**: Compare against previous weeks/months
-
-**Exceptions**:
-
-- Insufficient assessment data
-- No active learning path
-- Analytics engine unavailable
+**Main Flow**:
+1. Student opens Chat interface.
+2. System loads previous chat sessions from DynamoDB (pinned first, then by date).
+3. Student can:
+   - Start a new session.
+   - Rename an existing session.
+   - Pin/Unpin a chat for quick access.
+   - Delete a session.
+   - Toggle "History Sync" on/off.
+4. System synchronizes changes to DynamoDB.
 
 ---
 
@@ -798,7 +699,35 @@ This document describes the primary use cases and detailed scenarios for the Edu
 
 ---
 
-#### 5.1 Scenario: Student Summarizes Complex Algorithm Lecture
+#### 4.5 Scenario: Cloud-Native Processing (S3 + SageMaker)
+
+**Scenario S-011: Processing Large Scale Dataset in Cloud Mode**
+
+**Context**: An administrator triggers processing for a collection of 100+ documents stored in an S3 bucket.
+
+**Steps**:
+
+1. **Preparation**: System identifies `FILE_STORAGE_BACKEND=s3`.
+2. **Stage 0 - Input Sync**: System downloads originals from `S3_ORIGINALS_BUCKET` to per-user local temp workspace.
+3. **Stage 1 - Normalization**: Converts Office docs to PDFs; extracts Excel XML to JSON.
+4. **Stage 2 - Media Processing**: Offloads ASR to SageMaker Whisper (`transcribe-audio`).
+5. **Stage 3 - Cloud Document Processing**: Offloads heavy Docling tasks to SageMaker Docling (`process-document`).
+6. **Stage 3b - Excel Parsing**: Local XML-to-markdown conversion preserves merged cell semantic units.
+7. **Stage 4 - Consolidation**: Assembles `transcript_chunks.json`, `excel_chunks.json`, and markdown outputs.
+8. **Publishing**: Uploads `stage4_rag_ready` artifacts back to `S3_PROCESSED_BUCKET`.
+9. **Cloud Indexing**:
+   - Upserts vectors to Qdrant Cloud with `user_id` payload filtering.
+   - Persists BM25 sidecars (`bm25_index.pkl`) as pickle files in S3 `retrieval/` prefix.
+
+**Expected Results**:
+
+- Distributed processing with zero leakage between user workspaces.
+- All processed artifacts available for cross-session retrieval.
+- Multi-tenant isolation verified at the vector point level.
+
+---
+
+### 5.1 Scenario: Student Summarizes Complex Algorithm Lecture
 
 **Scenario S-005: Generating Standard Summary of Dynamic Programming Lecture**
 
@@ -1017,9 +946,10 @@ flowchart TD
     ASR --> Stage3[Stage 3: Docling Processing]
     Frame --> VLM[VLM Analysis]
     OCR --> Layout[Layout Analysis]
-  
+    
     VLM --> Stage3
-    Layout --> Stage3
+    Layout --> Stage2b[Stage 3b: Excel Parsing]
+    Stage2b --> Stage3
   
     Stage3 --> Stage4[Stage 4: Consolidation]
     Stage4 --> Index[Build Indexes]
@@ -1364,19 +1294,20 @@ graph TB
 
 #### 7.2 Extended Actor-Use Case Matrix
 
-| Actor                 | UC-001    | UC-002    | UC-003    | UC-004    | UC-005    | UC-006    | UC-007    | UC-008    | UC-009    | UC-010    |
-| --------------------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- |
-| Student/Researcher    | Primary   | Primary   | Primary   | -         | Primary   | Primary   | Primary   | Primary   | Primary   | Primary   |
-| System Administrator  | -         | -         | -         | Primary   | -         | -         | -         | -         | -         | Secondary |
-| Processing Pipeline   | Secondary | Secondary | Secondary | Secondary | -         | -         | -         | -         | -         | -         |
-| LLM Service           | -         | -         | Secondary | -         | -         | -         | -         | -         | -         | -         |
-| Retrieval Engine      | -         | Secondary | Secondary | -         | -         | Secondary | -         | -         | -         | -         |
-| Summarization Engine  | -         | -         | -         | -         | Secondary | -         | Secondary | -         | -         | -         |
-| Recommendation Engine | -         | -         | -         | -         | -         | -         | -         | Secondary | Secondary | -         |
-| Assessment Engine     | -         | -         | -         | -         | -         | -         | -         | -         | Secondary | -         |
-| Analytics Engine      | -         | -         | -         | -         | -         | -         | -         | -         | -         | Secondary |
-| Knowledge Graph       | -         | -         | -         | -         | -         | -         | Secondary | Secondary | -         | -         |
-| Learning Analytics    | -         | -         | -         | -         | -         | -         | -         | -         | -         | Secondary |
+| Actor                 | UC-001    | UC-002    | UC-003    | UC-004    | UC-005    | UC-006    | UC-007    | UC-008    | UC-009    | UC-010    | UC-011    |
+| --------------------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- |
+| Student/Researcher    | Primary   | Primary   | Primary   | -         | Primary   | Primary   | Primary   | Primary   | Primary   | Primary   | Primary   |
+| System Administrator  | -         | -         | -         | Primary   | -         | -         | -         | -         | -         | Secondary | -         |
+| Processing Pipeline   | Secondary | Secondary | Secondary | Secondary | -         | -         | -         | -         | -         | -         | -         |
+| LLM Service           | -         | -         | Secondary | -         | -         | -         | -         | -         | -         | -         | Secondary |
+| Retrieval Engine      | -         | Secondary | Secondary | -         | -         | Secondary | -         | -         | -         | -         | -         |
+| Summarization Engine  | -         | -         | -         | -         | Secondary | -         | Secondary | -         | -         | -         | -         |
+| Recommendation Engine | -         | -         | -         | -         | -         | -         | -         | Secondary | Secondary | -         | -         |
+| Assessment Engine     | -         | -         | -         | -         | -         | -         | -         | -         | Secondary | -         | -         |
+| Analytics Engine      | -         | -         | -         | -         | -         | -         | -         | -         | -         | Secondary | -         |
+| Knowledge Graph       | -         | -         | -         | -         | -         | -         | Secondary | Secondary | -         | -         | -         |
+| Learning Analytics    | -         | -         | -         | -         | -         | -         | -         | -         | -         | Secondary | -         |
+
 
 ---
 
