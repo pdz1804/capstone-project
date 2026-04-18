@@ -22,6 +22,12 @@ variable "enable_alb_deletion_protection" {
   default     = false
 }
 
+variable "alb_idle_timeout_seconds" {
+  description = "ALB idle timeout in seconds for long-running API requests"
+  type        = number
+  default     = 1800
+}
+
 variable "acm_certificate_arn" {
   description = "ACM certificate ARN (same region as ALB). When set, ALB serves HTTPS on 443 and HTTP redirects to HTTPS."
   type        = string

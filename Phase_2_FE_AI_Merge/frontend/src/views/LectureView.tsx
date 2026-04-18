@@ -37,6 +37,42 @@ import lectureRobot from '../../robot_1.png';
 
 const MARKDOWN_REMARK_PLUGINS = [remarkGfm, remarkBreaks];
 
+const PREVIEW_MIME_BY_EXT: Record<string, string> = {
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.mov': 'video/quicktime',
+  '.avi': 'video/x-msvideo',
+  '.mkv': 'video/x-matroska',
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
+  '.aac': 'audio/aac',
+  '.m4a': 'audio/mp4',
+  '.flac': 'audio/flac',
+  '.ogg': 'audio/ogg',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.bmp': 'image/bmp',
+  '.pdf': 'application/pdf',
+};
+
+function fileExtension(name: string): string {
+  const n = String(name || '').toLowerCase();
+  return n.includes('.') ? n.slice(n.lastIndexOf('.')) : '';
+}
+
+function guessPreviewMime(name: string, fallback = 'application/octet-stream'): string {
+  return PREVIEW_MIME_BY_EXT[fileExtension(name)] || fallback;
+}
+
+function isRequestCanceled(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const e = error as { name?: string; code?: string };
+  return e.name === 'CanceledError' || e.name === 'AbortError' || e.code === 'ERR_CANCELED';
+}
+
 function scrollToElementForHashLink(href: string) {
   const id = href.startsWith('#') ? href.slice(1) : href;
   if (!id) return;
@@ -106,6 +142,8 @@ function preprocessMarkdown(text: string, markdownSourcePath?: string | null): s
 function AuthImage({ src, alt, markdownSourcePath }: { src?: string; alt?: string; markdownSourcePath?: string | null }) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [isNearViewport, setIsNearViewport] = useState(false);
+  const anchorRef = useRef<HTMLSpanElement | null>(null);
   const resolvedSrc = typeof src === 'string' ? resolveMarkdownImageSrc(src, markdownSourcePath) : undefined;
   const isApiImage = typeof resolvedSrc === 'string' && resolvedSrc.includes('/api/image?');
   const isProcessedFile = typeof resolvedSrc === 'string' && resolvedSrc.includes('/api/processed-file?');
@@ -113,51 +151,94 @@ function AuthImage({ src, alt, markdownSourcePath }: { src?: string; alt?: strin
   const relPath = isProcessedFile ? new URLSearchParams(resolvedSrc.split('?')[1] ?? '').get('rel_path') : null;
 
   useEffect(() => {
+    setIsNearViewport(false);
+  }, [path, relPath]);
+
+  useEffect(() => {
+    if (isNearViewport) return;
+    const node = anchorRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setIsNearViewport(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setIsNearViewport(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '320px 0px' },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [isNearViewport]);
+
+  useEffect(() => {
     setBlobUrl(null);
     setLoadFailed(false);
-    if (!path && !relPath) return;
+    if ((!path && !relPath) || !isNearViewport) return;
 
-    let canceled = false;
+    const controller = new AbortController();
     let objectUrl = '';
 
     void apiClient
       .get(path ? '/image' : '/processed-file', {
         params: path ? { path } : { rel_path: relPath },
         responseType: 'blob',
+        signal: controller.signal,
       })
       .then(({ data }) => {
-        if (canceled) return;
+        if (controller.signal.aborted) return;
         objectUrl = URL.createObjectURL(data);
         setBlobUrl(objectUrl);
       })
-      .catch(() => {
-        if (!canceled) setLoadFailed(true);
+      .catch((error) => {
+        if (!controller.signal.aborted && !isRequestCanceled(error)) {
+          setLoadFailed(true);
+        }
       });
 
     return () => {
-      canceled = true;
+      controller.abort();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [path, relPath]);
+  }, [path, relPath, isNearViewport]);
 
   if (!resolvedSrc) return null;
 
   if (!path && !relPath) {
-    return <img src={resolvedSrc} alt={alt ?? 'image'} className="max-w-full h-auto rounded-lg my-2 border border-slate-100" />;
+    return (
+      <img
+        src={resolvedSrc}
+        alt={alt ?? 'image'}
+        loading="lazy"
+        decoding="async"
+        className="max-w-full h-auto rounded-lg my-2 border border-slate-100"
+      />
+    );
   }
 
   if (!blobUrl) {
     if (loadFailed) {
       return (
-        <span className="inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
+        <span ref={anchorRef} className="inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
           Image could not be loaded
         </span>
       );
     }
-    return <span className="inline-block w-20 h-10 bg-slate-100 animate-pulse rounded" />;
+    return <span ref={anchorRef} className="inline-block w-20 h-10 bg-slate-100 animate-pulse rounded" />;
   }
 
-  return <img src={blobUrl} alt={alt ?? 'image'} className="max-w-full h-auto rounded-lg my-2 border border-slate-100" />;
+  return (
+    <img
+      src={blobUrl}
+      alt={alt ?? 'image'}
+      loading="lazy"
+      decoding="async"
+      className="max-w-full h-auto rounded-lg my-2 border border-slate-100"
+    />
+  );
 }
 
 function getLectureMarkdownComponents(markdownSourcePath?: string | null): Components {
@@ -210,6 +291,12 @@ type InputPreviewState =
   | { kind: 'text'; content: string }
   | { kind: 'html'; content: string }
   | { kind: 'office'; iframeSrc: string; sourceUrl: string };
+
+type ProcessedMarkdownCacheEntry = {
+  markdown: string | null;
+  sourcePath: string | null;
+  notice: string | null;
+};
 
 function pickPrimaryProcessedMarkdownRelPath(data: ProcessedByFileResponse): string | null {
   const stageOrder = ['stage3_document_processed', 'stage4_rag_ready'] as const;
@@ -273,6 +360,16 @@ export default function LectureView({ files = [] }: LectureViewProps) {
   const selectedFile = files.find((f) => f.id === selectedFileId);
   const scopeFile = selectedFile ?? files[0];
 
+  const processedByFileCacheRef = useRef<Map<string, ProcessedByFileResponse>>(new Map());
+  const processedMarkdownCacheRef = useRef<Map<string, ProcessedMarkdownCacheEntry>>(new Map());
+  const chunksCacheRef = useRef<Map<string, Array<Record<string, unknown>>>>(new Map());
+
+  useEffect(() => {
+    processedByFileCacheRef.current.clear();
+    processedMarkdownCacheRef.current.clear();
+    chunksCacheRef.current.clear();
+  }, [files]);
+
   const videoFetchGen = useRef(0);
   const videoBlobUrlRef = useRef<string | null>(null);
 
@@ -295,6 +392,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
     }
 
     const gen = ++videoFetchGen.current;
+    const controller = new AbortController();
 
     void (async () => {
       try {
@@ -309,7 +407,24 @@ export default function LectureView({ files = [] }: LectureViewProps) {
           setVideoUrl(u);
           return;
         }
-        const { body, mediaType } = await getInputFile(selectedFile.name);
+
+        try {
+          const direct = await getInputFileUrl(selectedFile.name, 900, {
+            signal: controller.signal,
+          });
+          if (gen !== videoFetchGen.current || controller.signal.aborted) return;
+          if (direct?.url) {
+            revokeAndClear();
+            setVideoUrl(direct.url);
+            return;
+          }
+        } catch (error) {
+          if (isRequestCanceled(error) || controller.signal.aborted) return;
+        }
+
+        const { body, mediaType } = await getInputFile(selectedFile.name, {
+          signal: controller.signal,
+        });
         if (gen !== videoFetchGen.current) return;
         const coerced = coerceBlobForPreview(body, selectedFile.name, mediaType);
         const u = URL.createObjectURL(coerced);
@@ -320,13 +435,15 @@ export default function LectureView({ files = [] }: LectureViewProps) {
         revokeAndClear();
         videoBlobUrlRef.current = u;
         setVideoUrl(u);
-      } catch {
+      } catch (error) {
+        if (isRequestCanceled(error) || controller.signal.aborted) return;
         if (gen === videoFetchGen.current) revokeAndClear();
       }
     })();
 
     return () => {
       videoFetchGen.current += 1;
+      controller.abort();
       revokeAndClear();
     };
   }, [selectedFile?.id, selectedFile?.name, selectedFile?.type, selectedFile?.originalFile?.name, selectedFile?.originalFile?.lastModified]);
@@ -340,6 +457,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
 
   useEffect(() => {
     const gen = ++inputFetchGen.current;
+    const controller = new AbortController();
 
     const revokeInputBlob = () => {
       if (inputBlobUrlRef.current) {
@@ -367,12 +485,14 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       try {
         const nameLower = selectedFile.name.toLowerCase();
         const ext = nameLower.includes('.') ? nameLower.slice(nameLower.lastIndexOf('.')) : '';
-        const officeExt = ['.ppt', '.pptx', '.xls', '.xlsx', '.doc', '.docx'];
         const wordExt = ['.doc', '.docx'];
         const officeViewerExt = ['.ppt', '.pptx', '.xls', '.xlsx'];
+        const signedPreviewTypes = new Set(['image', 'audio']);
 
         if (ext === '.pdf' || selectedFile.type === 'pdf') {
-          const u = await getInputFileUrl(selectedFile.name, 900);
+          const u = await getInputFileUrl(selectedFile.name, 900, {
+            signal: controller.signal,
+          });
           if (gen !== inputFetchGen.current) return;
           if (u?.url) {
             setInputPreview({
@@ -384,14 +504,56 @@ export default function LectureView({ files = [] }: LectureViewProps) {
           }
         }
 
-        // For Word files: try processed PDF first, then fallback to markdown
+        if (signedPreviewTypes.has(selectedFile.type)) {
+          try {
+            const u = await getInputFileUrl(selectedFile.name, 900, {
+              signal: controller.signal,
+            });
+            if (gen !== inputFetchGen.current || controller.signal.aborted) return;
+            if (u?.url) {
+              const mime = (u.content_type || guessPreviewMime(selectedFile.name)).split(';')[0].trim().toLowerCase();
+              setInputPreview({
+                kind: 'blob',
+                url: u.url,
+                mime: mime || guessPreviewMime(selectedFile.name),
+              });
+              return;
+            }
+          } catch (error) {
+            if (isRequestCanceled(error) || controller.signal.aborted) return;
+          }
+        }
+
+        // For Word files: prefer original Office preview, then fallback to processed PDF.
         if (wordExt.includes(ext)) {
           try {
-            const data = await getProcessedByFile(selectedFile.name);
+            const u = await getInputFileUrl(selectedFile.name, 900, {
+              viewer: 'office',
+              signal: controller.signal,
+            });
+            if (gen !== inputFetchGen.current) return;
+            if (u?.url) {
+              setInputPreview({
+                kind: 'office',
+                iframeSrc: `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(u.url)}`,
+                sourceUrl: u.url,
+              });
+              return;
+            }
+          } catch {
+            // Fall through to processed-PDF fallback.
+          }
+
+          try {
+            const cached = processedByFileCacheRef.current.get(selectedFile.name);
+            const data = cached || await getProcessedByFile(selectedFile.name, { signal: controller.signal });
+            if (!cached) {
+              processedByFileCacheRef.current.set(selectedFile.name, data);
+            }
             if (gen !== inputFetchGen.current) return;
 
-            // Look for PDF in processed stages
-            const stageOrder = ['stage3_document_processed', 'stage4_rag_ready'] as const;
+            // Look for PDF in processed stages (include stage1 normalized fallback).
+            const stageOrder = ['stage3_document_processed', 'stage4_rag_ready', 'stage1_normalized'] as const;
             let pdfPath: string | null = null;
 
             for (const st of stageOrder) {
@@ -405,7 +567,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             }
 
             if (pdfPath) {
-              const { body, mediaType } = await getProcessedFile(pdfPath);
+              const { body, mediaType } = await getProcessedFile(pdfPath, { signal: controller.signal });
               if (gen !== inputFetchGen.current) return;
               const coerced = coerceBlobForPreview(body, selectedFile.name, mediaType);
               const objectUrl = URL.createObjectURL(coerced);
@@ -422,17 +584,21 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               return;
             }
           } catch (e) {
+            if (isRequestCanceled(e) || controller.signal.aborted) return;
             console.warn('Failed to load processed PDF for Word file:', e);
           }
 
-          // No processed PDF found - set preview to 'none' to trigger markdown fallback
+          // No Office preview or processed PDF found - trigger markdown fallback.
           setInputPreview({ kind: 'none' });
           return;
         }
 
         // For PowerPoint/Excel: use Microsoft Office Online viewer
         if (officeViewerExt.includes(ext)) {
-          const u = await getInputFileUrl(selectedFile.name, 900, { viewer: 'office' });
+          const u = await getInputFileUrl(selectedFile.name, 900, {
+            viewer: 'office',
+            signal: controller.signal,
+          });
           if (gen !== inputFetchGen.current) return;
           if (u?.url) {
             setInputPreview({
@@ -449,7 +615,9 @@ export default function LectureView({ files = [] }: LectureViewProps) {
           return;
         }
 
-        const { body, mediaType } = await getInputFile(selectedFile.name);
+        const { body, mediaType } = await getInputFile(selectedFile.name, {
+          signal: controller.signal,
+        });
         if (gen !== inputFetchGen.current) return;
 
         const mime = (mediaType || '').split(';')[0].trim().toLowerCase();
@@ -488,12 +656,15 @@ export default function LectureView({ files = [] }: LectureViewProps) {
           mime: coerced.type || mime || 'application/octet-stream',
         });
       } catch (e) {
+        if (isRequestCanceled(e) || controller.signal.aborted) return;
         if (gen !== inputFetchGen.current) return;
 
         // Fallback for PDFs on S3: use presigned URL (helps when direct blob fetch fails intermittently).
         if (selectedFile.type === 'pdf') {
           try {
-            const u = await getInputFileUrl(selectedFile.name, 900);
+            const u = await getInputFileUrl(selectedFile.name, 900, {
+              signal: controller.signal,
+            });
             if (gen !== inputFetchGen.current) return;
             if (u?.url) {
               setInputPreview({
@@ -518,6 +689,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
 
     return () => {
       inputFetchGen.current += 1;
+      controller.abort();
       revokeInputBlob();
     };
   }, [selectedFile?.id, selectedFile?.name, selectedFile?.type]);
@@ -562,7 +734,17 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       return;
     }
 
+    const cachedEntry = processedMarkdownCacheRef.current.get(scopeFile.name);
+    if (cachedEntry) {
+      setProcessedMarkdown(cachedEntry.markdown);
+      setProcessedMdSourcePath(cachedEntry.sourcePath);
+      setProcessedMdNotice(cachedEntry.notice);
+      setProcessedMdLoading(false);
+      return;
+    }
+
     const gen = ++processedMdFetchGen.current;
+    const controller = new AbortController();
     setProcessedMdLoading(true);
     setProcessedMdNotice(null);
     setProcessedMarkdown(null);
@@ -570,28 +752,49 @@ export default function LectureView({ files = [] }: LectureViewProps) {
 
     void (async () => {
       try {
-        const data = await getProcessedByFile(scopeFile.name);
+        const cached = processedByFileCacheRef.current.get(scopeFile.name);
+        const data = cached || await getProcessedByFile(scopeFile.name, { signal: controller.signal });
+        if (!cached) {
+          processedByFileCacheRef.current.set(scopeFile.name, data);
+        }
         if (gen !== processedMdFetchGen.current) return;
         const rel = pickPrimaryProcessedMarkdownRelPath(data);
         if (!rel) {
-          setProcessedMdNotice(
+          const notice =
             'Processed tree exists but no markdown (.md) was found in stage 3 or 4. Re-run **Process** or check pipeline outputs.'
-          );
+          setProcessedMdNotice(notice);
+          processedMarkdownCacheRef.current.set(scopeFile.name, {
+            markdown: null,
+            sourcePath: null,
+            notice,
+          });
           return;
         }
-        const { body } = await getProcessedFile(rel);
+        const { body } = await getProcessedFile(rel, { signal: controller.signal });
         const text = await body.text();
         if (gen !== processedMdFetchGen.current) return;
         setProcessedMarkdown(text);
         setProcessedMdSourcePath(rel);
+        processedMarkdownCacheRef.current.set(scopeFile.name, {
+          markdown: text,
+          sourcePath: rel,
+          notice: null,
+        });
       } catch (e) {
+        if (isRequestCanceled(e) || controller.signal.aborted) return;
         if (gen !== processedMdFetchGen.current) return;
         const status =
           e && typeof e === 'object' && 'response' in e
             ? Number((e as { response?: { status?: number } }).response?.status)
             : 0;
         if (status === 404) {
-          setProcessedMdNotice('No processed artifacts for this file yet. Click **Run Pipeline** in Knowledge Management, wait until the status turns from **Uploaded** to **Processed**.');
+          const notice = 'No processed artifacts for this file yet. Click **Run Pipeline** in Knowledge Management, wait until the status turns from **Uploaded** to **Processed**.';
+          setProcessedMdNotice(notice);
+          processedMarkdownCacheRef.current.set(scopeFile.name, {
+            markdown: null,
+            sourcePath: null,
+            notice,
+          });
         } else {
           const msg =
             e && typeof e === 'object' && 'response' in e
@@ -599,7 +802,13 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               : e instanceof Error
                 ? e.message
                 : 'Could not load processed markdown.';
-          setProcessedMdNotice(msg || 'Could not load processed markdown.');
+          const notice = msg || 'Could not load processed markdown.';
+          setProcessedMdNotice(notice);
+          processedMarkdownCacheRef.current.set(scopeFile.name, {
+            markdown: null,
+            sourcePath: null,
+            notice,
+          });
         }
       } finally {
         if (gen === processedMdFetchGen.current) setProcessedMdLoading(false);
@@ -608,6 +817,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
 
     return () => {
       processedMdFetchGen.current += 1;
+      controller.abort();
     };
   }, [scopeFile?.name, shouldLoadProcessedMarkdown]);
 
@@ -649,17 +859,29 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       return;
     }
 
+    const cachedChunks = chunksCacheRef.current.get(scopeFile.name);
+    if (cachedChunks) {
+      setTranscriptChunks(cachedChunks);
+      setTranscriptLoading(false);
+      setTranscriptError(null);
+      return;
+    }
+
     const gen = ++chunksFetchGen.current;
+    const controller = new AbortController();
     setTranscriptChunks([]);
     setTranscriptLoading(true);
     setTranscriptError(null);
 
     void (async () => {
       try {
-        const data = await getChunksByFile(scopeFile.name);
+        const data = await getChunksByFile(scopeFile.name, { signal: controller.signal });
         if (gen !== chunksFetchGen.current) return;
-        setTranscriptChunks((data.chunks as Array<Record<string, unknown>>) || []);
+        const nextChunks = (data.chunks as Array<Record<string, unknown>>) || [];
+        chunksCacheRef.current.set(scopeFile.name, nextChunks);
+        setTranscriptChunks(nextChunks);
       } catch (e) {
+        if (isRequestCanceled(e) || controller.signal.aborted) return;
         if (gen !== chunksFetchGen.current) return;
         const msg =
           e && typeof e === 'object' && 'response' in e
@@ -676,6 +898,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
 
     return () => {
       chunksFetchGen.current += 1;
+      controller.abort();
     };
   }, [scopeFile?.name, activeTab, passagesPane]);
 

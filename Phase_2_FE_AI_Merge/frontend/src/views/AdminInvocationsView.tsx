@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import {
   ArrowLeft,
   Loader2,
@@ -69,6 +69,13 @@ export default function AdminInvocationsView() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
+  const mounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const load = async () => {
     setLoading(true);
     setError(null);
@@ -79,6 +86,9 @@ export default function AdminInvocationsView() {
         feature: feature || undefined,
         model_id: modelId || undefined,
       });
+
+      if (!mounted.current) return;
+
       setItems(data.items || []);
 
       const nextParams = new URLSearchParams();
@@ -88,9 +98,10 @@ export default function AdminInvocationsView() {
       if (modelId) nextParams.set('model_id', modelId);
       setSearchParams(nextParams, { replace: true });
     } catch (e: any) {
+      if (!mounted.current) return;
       setError(e?.response?.data?.detail || e?.message || 'Failed to load invocation logs');
     } finally {
-      setLoading(false);
+      if (mounted.current) setLoading(false);
     }
   };
 

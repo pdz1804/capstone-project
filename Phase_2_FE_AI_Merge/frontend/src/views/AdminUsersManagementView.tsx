@@ -67,6 +67,13 @@ export default function AdminUsersManagementView() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
+  const mounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const loadUsers = async () => {
     setLoading(true);
     setError(null);
@@ -76,11 +83,17 @@ export default function AdminUsersManagementView() {
         role: role || undefined,
         is_active: activeFilter === 'all' ? undefined : activeFilter === 'active',
       });
+      
+      if (!mounted.current) return;
+      
       setUsers(data.items || []);
     } catch (e: any) {
+      if (!mounted.current) return;
       setError(e?.response?.data?.detail || e?.message || 'Failed to load users');
     } finally {
-      setLoading(false);
+      if (mounted.current) {
+        setLoading(false);
+      }
     }
   };
 

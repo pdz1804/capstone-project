@@ -46,6 +46,19 @@ interface LibraryViewProps {
   controlMode?: 'upload' | 'process' | 'index';
 }
 
+type PipelineJobMode = 'process' | 'index';
+
+type PipelineProgressState = {
+  mode: PipelineJobMode;
+  targetNames: string[];
+  total: number;
+  completed: number;
+  percent: number;
+};
+
+const PROCESS_PROGRESS_POLL_MS = 5000;
+const INDEX_PROGRESS_POLL_MS = 10000;
+
 export default function LibraryView({
   files,
   setFiles,
@@ -93,14 +106,112 @@ export default function LibraryView({
   const [metadataLoading, setMetadataLoading] = useState(false);
   const [pipelineMode, setPipelineMode] = useState<'standard' | 'fast'>('standard');
   const [pipelineBusy, setPipelineBusy] = useState<'idle' | 'process' | 'index'>('idle');
+  const [pipelineProgress, setPipelineProgress] = useState<PipelineProgressState | null>(null);
   const [uploadBusy, setUploadBusy] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
   const pipelineBusyRef = useRef<'idle' | 'process' | 'index'>('idle');
+  const pipelinePollRef = useRef<number | null>(null);
+  const pipelinePollInFlightRef = useRef(false);
+  const pipelineJobTokenRef = useRef(0);
   const pdfContainerRef = useRef<HTMLDivElement | null>(null);
+  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
+  const [bulkDeleteProgress, setBulkDeleteProgress] = useState<{ current: number; total: number } | null>(null);
 
   const setPipelineBusySafe = (next: 'idle' | 'process' | 'index') => {
     pipelineBusyRef.current = next;
     setPipelineBusy(next);
   };
+
+  const computePipelineProgress = (
+    mode: PipelineJobMode,
+    targetNames: string[],
+    snapshot: FileItem[]
+  ): PipelineProgressState => {
+    const normalizedTargets = Array.from(
+      new Set(
+        targetNames
+          .map((name) => String(name || '').trim().toLowerCase())
+          .filter(Boolean)
+      )
+    );
+
+    const byName = new Map(snapshot.map((row) => [String(row.name || '').trim().toLowerCase(), row]));
+
+    const completed = normalizedTargets.reduce((acc, key) => {
+      const row = byName.get(key);
+      if (!row) return acc;
+      if (mode === 'process') {
+        return acc + (row.status === 'processed' || row.status === 'indexed' ? 1 : 0);
+      }
+      return acc + (row.status === 'indexed' || (row.indexStatus && row.indexStatus !== 'none') ? 1 : 0);
+    }, 0);
+
+    const total = normalizedTargets.length;
+    const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
+
+    return {
+      mode,
+      targetNames: normalizedTargets,
+      total,
+      completed,
+      percent,
+    };
+  };
+
+  const stopPipelinePolling = () => {
+    if (pipelinePollRef.current !== null) {
+      window.clearInterval(pipelinePollRef.current);
+      pipelinePollRef.current = null;
+    }
+    pipelinePollInFlightRef.current = false;
+  };
+
+  const startPipelinePolling = (token: number, mode: PipelineJobMode) => {
+    stopPipelinePolling();
+
+    const pollOnce = () => {
+      if (pipelineBusyRef.current === 'idle') return;
+      if (pipelineJobTokenRef.current !== token) return;
+      if (pipelinePollInFlightRef.current) return;
+
+      pipelinePollInFlightRef.current = true;
+      void onRefreshFiles()
+        .catch(() => undefined)
+        .finally(() => {
+          pipelinePollInFlightRef.current = false;
+        });
+    };
+
+    pollOnce();
+    const intervalMs = mode === 'index' ? INDEX_PROGRESS_POLL_MS : PROCESS_PROGRESS_POLL_MS;
+    pipelinePollRef.current = window.setInterval(pollOnce, intervalMs);
+  };
+
+  useEffect(() => {
+    return () => {
+      stopPipelinePolling();
+    };
+  }, []);
+
+  useEffect(() => {
+    setPipelineProgress((prev) => {
+      if (!prev || pipelineBusy === 'idle') return prev;
+      const next = computePipelineProgress(prev.mode, prev.targetNames, files);
+      return {
+        ...prev,
+        total: next.total,
+        completed: next.completed,
+        percent: next.percent,
+      };
+    });
+  }, [files, pipelineBusy]);
+
+  useEffect(() => {
+    if (pipelineBusy === 'idle' || !pipelineProgress) return;
+    if (pipelineProgress.total > 0 && pipelineProgress.completed >= pipelineProgress.total) {
+      stopPipelinePolling();
+    }
+  }, [pipelineBusy, pipelineProgress]);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -152,6 +263,7 @@ export default function LibraryView({
           const nameLower = String(previewFile.name || '').toLowerCase();
           const ext = nameLower.includes('.') ? nameLower.slice(nameLower.lastIndexOf('.')) : '';
           const officeExt = ['.ppt', '.pptx', '.xls', '.xlsx', '.doc', '.docx'];
+          const isPdfExt = ext === '.pdf';
 
           if (officeExt.includes(ext)) {
             const u = await getInputFileUrl(previewFile.name, 900, { viewer: 'office' });
@@ -163,6 +275,21 @@ export default function LibraryView({
               sourceUrl: u.url,
             });
             return;
+          }
+
+          // Fast path for remote PDFs: avoid proxying full bytes through backend.
+          if (isPdfExt) {
+            try {
+              const u = await getInputFileUrl(previewFile.name, 900);
+              if (cancelled) return;
+              if (u?.url) {
+                const pdfMime = (u.content_type || 'application/pdf').split(';')[0].trim().toLowerCase() || 'application/pdf';
+                setRemotePreview({ kind: 'blob', url: u.url, mime: pdfMime });
+                return;
+              }
+            } catch {
+              // Fallback to byte fetch path below.
+            }
           }
 
           const { body, mediaType } = await getInputFile(previewFile.name);
@@ -302,60 +429,103 @@ export default function LibraryView({
     const arr = Array.from(fileList);
     if (arr.length === 0) return;
     setUploadBusy(true);
+    setUploadProgress({ current: 0, total: arr.length });
     try {
-      await uploadFiles(arr);
+      if (arr.length === 1) {
+        await uploadFiles(arr);
+        setUploadProgress({ current: 1, total: 1 });
+      } else {
+        let count = 0;
+        // Batch upload 5 at a time
+        const batchSize = 5;
+        for (let i = 0; i < arr.length; i += batchSize) {
+          const batch = arr.slice(i, i + batchSize);
+          await uploadFiles(batch);
+          count += batch.length;
+          setUploadProgress({ current: Math.min(count, arr.length), total: arr.length });
+        }
+      }
       await onRefreshFiles();
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'Upload failed');
     } finally {
       setUploadBusy(false);
+      setUploadProgress(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
   const handleRunProcess = async () => {
     if (pipelineBusyRef.current !== 'idle') return;
+
+    let selectedRows = files.filter((f) => selectedFiles.includes(f.id));
+    if (selectedRows.length === 0 && selectedFiles.length > 0) {
+      selectedRows = filteredAndSortedFiles.filter((f) => selectedFiles.includes(f.id));
+    }
+    if (selectedRows.length === 0) {
+      alert('No selected files resolved for processing. Please re-select the file(s) and try again.');
+      return;
+    }
+
+    const selectedPaths = selectedRows
+      .map((f) => f.storagePath)
+      .filter((p): p is string => Boolean(p));
+    const targetNames = selectedRows.map((f) => f.name).filter(Boolean);
+    const initialProgress = computePipelineProgress('process', targetNames, files);
+
     setPipelineBusySafe('process');
+    setPipelineProgress(initialProgress);
+    const token = ++pipelineJobTokenRef.current;
+    startPipelinePolling(token, 'process');
+
     try {
-      const selectedPaths = files
-        .filter((f) => selectedFiles.includes(f.id))
-        .map((f) => f.storagePath)
-        .filter((p): p is string => Boolean(p));
       await runProcess(false, selectedPaths, pipelineMode);
       await onRefreshFiles();
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'Process failed');
     } finally {
+      stopPipelinePolling();
       setPipelineBusySafe('idle');
+      setPipelineProgress(null);
     }
   };
 
   const handleRunIndex = async () => {
     if (pipelineBusyRef.current !== 'idle') return;
+
+    let selectedRows = files.filter((f) => selectedFiles.includes(f.id));
+    // Fallback to currently rendered rows if list ids drift after refresh/sort.
+    if (selectedRows.length === 0 && selectedFiles.length > 0) {
+      selectedRows = filteredAndSortedFiles.filter((f) => selectedFiles.includes(f.id));
+    }
+    if (selectedRows.length === 0) {
+      alert('No selected files resolved for indexing. Please re-select the file and try again.');
+      return;
+    }
+
+    const selectedPaths = selectedRows
+      .map((f) => f.storagePath)
+      .filter((p): p is string => Boolean(p));
+    const selectedNames = selectedRows.map((f) => f.name).filter(Boolean);
+    const initialProgress = computePipelineProgress('index', selectedNames, files);
+
     setPipelineBusySafe('index');
+    setPipelineProgress(initialProgress);
+    const token = ++pipelineJobTokenRef.current;
+    startPipelinePolling(token, 'index');
+
     try {
-      let selectedRows = files.filter((f) => selectedFiles.includes(f.id));
-      // Fallback to currently rendered rows if list ids drift after refresh/sort.
-      if (selectedRows.length === 0 && selectedFiles.length > 0) {
-        selectedRows = filteredAndSortedFiles.filter((f) => selectedFiles.includes(f.id));
-      }
-      const selectedPaths = selectedRows
-        .map((f) => f.storagePath)
-        .filter((p): p is string => Boolean(p));
-      const selectedNames = selectedRows.map((f) => f.name).filter(Boolean);
-      if (selectedRows.length === 0) {
-        alert('No selected files resolved for indexing. Please re-select the file and try again.');
-        return;
-      }
       await runIndex(false, selectedPaths, selectedNames, pipelineMode);
       await onRefreshFiles();
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'Index failed');
     } finally {
+      stopPipelinePolling();
       setPipelineBusySafe('idle');
+      setPipelineProgress(null);
     }
   };
 
@@ -392,10 +562,16 @@ export default function LibraryView({
       return;
     }
     const path = row?.storagePath;
+    setDeletingIds((prev) => new Set([...prev, id]));
+    setActiveDropdown(null);
     if (!path) {
       setFiles(files.filter((f) => f.id !== id));
       setSelectedFiles(selectedFiles.filter((selectedId) => selectedId !== id));
-      setActiveDropdown(null);
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
       return;
     }
     try {
@@ -404,9 +580,14 @@ export default function LibraryView({
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'Delete failed');
+    } finally {
+      setSelectedFiles(selectedFiles.filter((selectedId) => selectedId !== id));
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
-    setSelectedFiles(selectedFiles.filter((selectedId) => selectedId !== id));
-    setActiveDropdown(null);
   };
 
   const handleBulkDelete = async () => {
@@ -416,16 +597,23 @@ export default function LibraryView({
       `Delete ${toRemove.length} selected file(s)?\n\nThis action cannot be undone.`
     );
     if (!confirmed) return;
+    setDeletingIds(new Set(toRemove.map((f) => f.id)));
+    setBulkDeleteProgress({ current: 0, total: toRemove.length });
     try {
-      for (const f of toRemove) {
+      for (let i = 0; i < toRemove.length; i++) {
+        const f = toRemove[i];
         if (f.storagePath) await deleteFile(f.storagePath);
+        setBulkDeleteProgress({ current: i + 1, total: toRemove.length });
       }
       await onRefreshFiles();
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'Bulk delete failed');
+    } finally {
+      setSelectedFiles([]);
+      setDeletingIds(new Set());
+      setBulkDeleteProgress(null);
     }
-    setSelectedFiles([]);
   };
 
   const toggleSelection = (id: number) => {
@@ -478,6 +666,14 @@ export default function LibraryView({
       (remotePreview.kind === 'blob' && remotePreview.mime === 'application/pdf')
     );
 
+  const usePdfViewportLayout = isPdfPreview && !previewLoading && !previewError;
+  const useFullBleedStatusLayout = previewLoading || !!previewError;
+  const isRemoteSignedPdfPreview =
+    isPdfPreview &&
+    remotePreview.kind === 'blob' &&
+    remotePreview.mime === 'application/pdf' &&
+    /^https?:\/\//i.test(remotePreview.url);
+
   const getPdfSrc = () => {
     if (previewUrl) return previewUrl;
     if (remotePreview.kind === 'blob') return remotePreview.url;
@@ -527,7 +723,11 @@ export default function LibraryView({
               onClick={() => fileInputRef.current?.click()}
               className="px-6 py-2.5 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors disabled:opacity-50"
             >
-              {uploadBusy ? 'Uploading…' : 'Browse Files'}
+              {uploadBusy && uploadProgress !== null
+                ? `Uploading… ${uploadProgress.current}/${uploadProgress.total}`
+                : uploadBusy
+                ? 'Uploading…'
+                : 'Browse Files'}
             </button>
           </div>
           <p className="mt-4 text-center text-xs text-slate-500 max-w-xl mx-auto">
@@ -555,6 +755,9 @@ export default function LibraryView({
                   ? 'Select staged files from the library below to start transcription and insight extraction.'
                   : 'Select processed files to build the semantic search index.'}
               </p>
+              <p className="text-xs text-slate-500 max-w-md">
+                Uploading only places files in staged state. Run Pipeline first to move files to <span className="font-semibold">Processed</span>, then Build Index to make them searchable in Knowledge Explorer and visible as chunks in Lecture Viewer.
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4">
@@ -579,7 +782,9 @@ export default function LibraryView({
                   className="flex items-center gap-3 px-8 py-3.5 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-all disabled:opacity-50 shadow-lg shadow-sky-100 hover:-translate-y-0.5 active:translate-y-0"
                 >
                   {pipelineBusy === 'process' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
-                  {pipelineBusy === 'process' ? 'Processing…' : `Run Pipeline (${selectedFiles.length})`}
+                  {pipelineBusy === 'process'
+                    ? `Processing… ${pipelineProgress?.mode === 'process' ? `${pipelineProgress.completed}/${pipelineProgress.total}` : ''}`.trim()
+                    : `Run Pipeline (${selectedFiles.length})`}
                 </button>
               ) : (
                 <button
@@ -589,11 +794,35 @@ export default function LibraryView({
                   className="flex items-center gap-3 px-8 py-3.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all disabled:opacity-50 shadow-lg shadow-emerald-100 hover:-translate-y-0.5 active:translate-y-0"
                 >
                   {pipelineBusy === 'index' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Layers className="w-5 h-5" />}
-                  {pipelineBusy === 'index' ? 'Indexing…' : `Build Vector Index (${selectedFiles.length})`}
+                  {pipelineBusy === 'index'
+                    ? `Indexing… ${pipelineProgress?.mode === 'index' ? `${pipelineProgress.completed}/${pipelineProgress.total}` : ''}`.trim()
+                    : `Build Vector Index (${selectedFiles.length})`}
                 </button>
               )}
             </div>
           </div>
+
+          {pipelineBusy !== 'idle' && pipelineProgress && (
+            <div className="mt-6 rounded-xl border border-sky-100 bg-sky-50/70 p-4">
+              <div className="flex items-center justify-between gap-3 text-xs font-semibold text-slate-700">
+                <span>{pipelineProgress.mode === 'process' ? 'Pipeline progress' : 'Index progress'}</span>
+                <span>
+                  {pipelineProgress.completed}/{pipelineProgress.total} ({pipelineProgress.percent}%)
+                </span>
+              </div>
+              <div className="mt-2 w-full h-2 rounded-full bg-sky-100 overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-500 ${pipelineProgress.mode === 'process' ? 'bg-sky-500' : 'bg-emerald-500'}`}
+                  style={{ width: `${pipelineProgress.percent}%` }}
+                />
+              </div>
+              <p className="mt-2 text-[11px] text-slate-500">
+                {pipelineProgress.mode === 'process'
+                  ? 'Tracking selected files as they move from Uploaded to Processed/Indexed.'
+                  : 'Tracking selected files as they move to Indexed status.'}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -608,9 +837,23 @@ export default function LibraryView({
                 <div className="w-px h-4 bg-sky-200"></div>
                 <button
                   onClick={handleBulkDelete}
-                  className="text-sm font-medium text-red-600 hover:text-red-700 flex items-center gap-1"
+                  disabled={bulkDeleteProgress !== null}
+                  className={`text-sm font-medium flex items-center gap-1 transition-colors ${
+                    bulkDeleteProgress !== null
+                      ? 'text-amber-600 cursor-wait'
+                      : 'text-red-600 hover:text-red-700'
+                  }`}
                 >
-                  <Trash2 className="w-4 h-4" /> Delete
+                  {bulkDeleteProgress !== null ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Deleting {bulkDeleteProgress.current}/{bulkDeleteProgress.total}
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" /> Delete
+                    </>
+                  )}
                 </button>
               </div>
             )}
@@ -848,9 +1091,19 @@ export default function LibraryView({
                             <div className="h-px bg-slate-100 my-1"></div>
                             <button
                               onClick={() => handleDelete(file.id)}
-                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                              disabled={deletingIds.has(file.id)}
+                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors ${
+                                deletingIds.has(file.id)
+                                  ? 'text-amber-600 bg-amber-50 cursor-wait'
+                                  : 'text-red-600 hover:bg-red-50'
+                              }`}
                             >
-                              <Trash2 className="w-4 h-4" /> Delete
+                              {deletingIds.has(file.id) ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                              {deletingIds.has(file.id) ? 'Deleting...' : 'Delete'}
                             </button>
                           </div>
                         )}
@@ -903,9 +1156,19 @@ export default function LibraryView({
                         <div className="h-px bg-slate-100 my-1"></div>
                         <button
                           onClick={() => handleDelete(file.id)}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                          disabled={deletingIds.has(file.id)}
+                          className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors ${
+                            deletingIds.has(file.id)
+                              ? 'text-amber-600 bg-amber-50 cursor-wait'
+                              : 'text-red-600 hover:bg-red-50'
+                          }`}
                         >
-                          <Trash2 className="w-4 h-4" /> Delete
+                          {deletingIds.has(file.id) ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                          {deletingIds.has(file.id) ? 'Deleting...' : 'Delete'}
                         </button>
                       </div>
                     )}
@@ -1052,19 +1315,21 @@ export default function LibraryView({
               </button>
             </div>
             <div
-              className={`flex-1 bg-sky-50/40 min-h-[420px] ${isPdfPreview
+              className={`flex-1 bg-sky-50/40 min-h-[420px] ${usePdfViewportLayout
                 ? 'p-0 overflow-hidden'
-                : 'p-8 flex items-center justify-center overflow-y-auto'
+                : useFullBleedStatusLayout
+                  ? 'p-0 overflow-hidden'
+                  : 'p-8 flex items-center justify-center overflow-y-auto'
                 }`}
             >
               {/* Preview Content */}
               {previewLoading ? (
-                <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg border border-sky-100 p-12 min-h-[320px] flex flex-col items-center justify-center text-center">
+                <div className="w-full h-full min-h-[420px] bg-white/90 border border-sky-100 flex flex-col items-center justify-center text-center p-8">
                   <Loader2 className="w-8 h-8 animate-spin text-sky-600 mb-4" />
                   <p className="text-sm text-slate-600">Loading preview...</p>
                 </div>
               ) : previewError ? (
-                <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg border border-red-200 p-12 min-h-[320px] flex flex-col items-center justify-center text-center">
+                <div className="w-full h-full min-h-[420px] bg-white/90 border border-red-200 flex flex-col items-center justify-center text-center p-8">
                   <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
                   <p className="text-sm text-red-700 mb-2">Cannot preview this file.</p>
                   <p className="text-xs text-slate-500 max-w-lg">{previewError}</p>
@@ -1090,6 +1355,12 @@ export default function LibraryView({
                   </div>
                   <audio src={previewUrl || (remotePreview.kind === 'blob' ? remotePreview.url : '')} controls className="w-full" />
                 </div>
+              ) : isRemoteSignedPdfPreview ? (
+                <iframe
+                  title={`PDF: ${previewFile.name}`}
+                  src={remotePreview.url}
+                  className="w-full h-full min-h-[620px] max-h-[75vh] border-0 bg-white"
+                />
               ) : isPdfPreview ? (
                 <div
                   ref={pdfContainerRef}

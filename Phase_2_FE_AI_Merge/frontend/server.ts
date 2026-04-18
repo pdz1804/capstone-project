@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 function normalizeProxyTarget(rawTarget?: string): URL {
-  const fallback = rawTarget?.trim() || "http://127.0.0.1:5001";
+  const fallback = rawTarget?.trim() || "http://127.0.0.1:5000";
   const normalized = fallback.endsWith("/api") ? fallback.slice(0, -4) : fallback;
   return new URL(normalized);
 }

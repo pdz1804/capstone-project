@@ -27,16 +27,35 @@ def _env_has_value(name: str) -> bool:
 
 
 def _aws_credentials_configured() -> bool:
-    return any(
+    # Fast-path env hints for common local/container setups.
+    if any(
         _env_has_value(name)
         for name in (
             "AWS_ACCESS_KEY_ID",
             "AWS_PROFILE",
+            "AWS_DEFAULT_PROFILE",
             "AWS_WEB_IDENTITY_TOKEN_FILE",
             "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI",
             "AWS_CONTAINER_CREDENTIALS_FULL_URI",
         )
-    )
+    ):
+        return True
+
+    # Fallback to boto3's full credential provider chain so shared/default
+    # profile credentials are detected even when AWS_PROFILE is not set.
+    try:
+        import boto3
+
+        session = boto3.Session(
+            region_name=(os.getenv("BEDROCK_REGION") or os.getenv("AWS_REGION") or None)
+        )
+        creds = session.get_credentials()
+        if creds is None:
+            return False
+        frozen = creds.get_frozen_credentials()
+        return bool(getattr(frozen, "access_key", None) and getattr(frozen, "secret_key", None))
+    except Exception:
+        return False
 
 
 def _looks_like_bedrock_model(model_name: str) -> bool:

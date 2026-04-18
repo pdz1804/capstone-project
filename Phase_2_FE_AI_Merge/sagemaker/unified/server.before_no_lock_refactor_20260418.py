@@ -9,8 +9,8 @@ This server is intentionally aligned with backend local implementations by reusi
 
 from __future__ import annotations
 
+import asyncio
 import base64
-import copy
 import io
 import logging
 import os
@@ -59,6 +59,8 @@ _docling_processor: MultimodalDocumentProcessor | None = None
 _whisper_transcriber: AudioTranscriber | None = None
 _docling_cfg: ProcessingConfig | None = None
 _whisper_cfg: MediaProcessorConfig | None = None
+_docling_lock = asyncio.Lock()
+_whisper_lock = asyncio.Lock()
 
 
 class InvocationRequest(BaseModel):
@@ -175,13 +177,11 @@ def _build_whisper_cfg() -> MediaProcessorConfig:
         enable_transcription=True,
         asr_model=os.getenv("WHISPER_MODEL", "base"),
         asr_language=(os.getenv("WHISPER_LANGUAGE") or None),
-        # Use low-cost defaults for endpoint stability; override via env if needed.
-        use_word_timestamps=_truthy_env("WHISPER_WORD_TIMESTAMPS", default=False),
+        use_word_timestamps=_truthy_env("WHISPER_WORD_TIMESTAMPS", default=True),
         temperature_schedule=_parse_float_tuple(
-            os.getenv("WHISPER_TEMPERATURE_SCHEDULE", "0.0"),
-            fallback=(0.0,),
+            os.getenv("WHISPER_TEMPERATURE_SCHEDULE", "0.0,0.2,0.4,0.6,0.8,1.0"),
+            fallback=(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
         ),
-        condition_on_previous_text=_truthy_env("WHISPER_CONDITION_ON_PREVIOUS_TEXT", default=False),
         # Ensure this service always uses local model loading inside endpoint.
         use_aws_sagemaker_whisper=False,
         aws_region=os.getenv("AWS_REGION", "us-west-2").strip() or "us-west-2",
@@ -269,22 +269,23 @@ def _whisper_transcribe_sync(req: InvocationRequest) -> Dict[str, Any]:
         audio_path = Path(tmp.name)
 
     try:
-        request_cfg = copy.copy(_whisper_transcriber.config)
+        old_lang = _whisper_transcriber.config.asr_language
+        old_words = _whisper_transcriber.config.use_word_timestamps
         if req.language is not None:
-            request_cfg.asr_language = req.language
+            _whisper_transcriber.config.asr_language = req.language
         if req.word_timestamps is not None:
-            request_cfg.use_word_timestamps = bool(req.word_timestamps)
+            _whisper_transcriber.config.use_word_timestamps = bool(req.word_timestamps)
 
-        # Reuse loaded model/runtime but keep config request-scoped to avoid shared-state races.
-        request_transcriber = AudioTranscriber.__new__(AudioTranscriber)
-        request_transcriber.config = request_cfg
-        request_transcriber.model = _whisper_transcriber.model
-
-        result = request_transcriber.transcribe(audio_path)
+        result = _whisper_transcriber.transcribe(audio_path)
         if not result:
             raise RuntimeError("Whisper transcription returned empty result")
         return result
     finally:
+        try:
+            _whisper_transcriber.config.asr_language = old_lang
+            _whisper_transcriber.config.use_word_timestamps = old_words
+        except Exception:
+            pass
         audio_path.unlink(missing_ok=True)
 
 
@@ -398,23 +399,25 @@ async def invocations(req: InvocationRequest = Body(...)):
         }
 
     if op == "process-document":
-        try:
-            data = await run_in_threadpool(_docling_process_sync, req)
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=f"Docling processing failed: {exc}") from exc
+        async with _docling_lock:
+            try:
+                data = await run_in_threadpool(_docling_process_sync, req)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+            except Exception as exc:
+                raise HTTPException(status_code=500, detail=f"Docling processing failed: {exc}") from exc
         data["operation"] = op
         data["inference_time_ms"] = round((time.time() - started) * 1000, 1)
         return data
 
     if op == "transcribe-audio":
-        try:
-            data = await run_in_threadpool(_whisper_transcribe_sync, req)
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=f"Whisper transcription failed: {exc}") from exc
+        async with _whisper_lock:
+            try:
+                data = await run_in_threadpool(_whisper_transcribe_sync, req)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+            except Exception as exc:
+                raise HTTPException(status_code=500, detail=f"Whisper transcription failed: {exc}") from exc
         data["operation"] = op
         data["inference_time_ms"] = round((time.time() - started) * 1000, 1)
         return data

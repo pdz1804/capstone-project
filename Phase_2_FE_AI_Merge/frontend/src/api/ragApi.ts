@@ -6,6 +6,10 @@ import type { AxiosRequestConfig } from 'axios';
 import apiClient from './client';
 import type { FileItem } from '../App'; // type-only: no runtime cycle
 
+type RequestOptions = {
+  signal?: AbortSignal;
+};
+
 /** Avoid sending default `Content-Type: application/json` on binary GETs (some stacks mishandle it). */
 const blobGetConfig: Pick<AxiosRequestConfig, 'responseType' | 'transformRequest'> = {
   responseType: 'blob',
@@ -202,10 +206,14 @@ export async function getProcessedDocuments(preview = false): Promise<Record<str
   return data;
 }
 
-export async function getProcessedFile(relPath: string): Promise<{ body: Blob; mediaType: string }> {
+export async function getProcessedFile(
+  relPath: string,
+  options?: RequestOptions,
+): Promise<{ body: Blob; mediaType: string }> {
   const response = await apiClient.get('/processed-file', {
     params: { rel_path: relPath },
     ...blobGetConfig,
+    ...(options?.signal ? { signal: options.signal } : {}),
   });
   return {
     body: response.data,
@@ -213,10 +221,14 @@ export async function getProcessedFile(relPath: string): Promise<{ body: Blob; m
   };
 }
 
-export async function getInputFile(fileName: string): Promise<{ body: Blob; mediaType: string }> {
+export async function getInputFile(
+  fileName: string,
+  options?: RequestOptions,
+): Promise<{ body: Blob; mediaType: string }> {
   const response = await apiClient.get('/input-file', {
     params: { file_name: fileName },
     ...blobGetConfig,
+    ...(options?.signal ? { signal: options.signal } : {}),
   });
   return {
     body: response.data,
@@ -227,14 +239,15 @@ export async function getInputFile(fileName: string): Promise<{ body: Blob; medi
 export async function getInputFileUrl(
   fileName: string,
   expiresIn = 900,
-  options?: { viewer?: 'office' }
-): Promise<{ url?: string | null; mode?: string; reason?: string; expires_in?: number; viewer?: string | null }> {
+  options?: { viewer?: 'office'; signal?: AbortSignal }
+): Promise<{ url?: string | null; mode?: string; reason?: string; expires_in?: number; viewer?: string | null; content_type?: string | null }> {
   const { data } = await apiClient.get('/input-file-url', {
     params: {
       file_name: fileName,
       expires_in: expiresIn,
       ...(options?.viewer ? { viewer: options.viewer } : {}),
     },
+    ...(options?.signal ? { signal: options.signal } : {}),
   });
   return data;
 }
@@ -244,9 +257,17 @@ export async function getFilesWithMetadata(): Promise<FilesWithMetadataResponse>
   return data;
 }
 
-export async function getProcessedByFile(fileName: string): Promise<ProcessedByFileResponse> {
+export async function getProcessedByFile(
+  fileName: string,
+  options?: RequestOptions,
+): Promise<ProcessedByFileResponse> {
   const encoded = encodeURIComponent(fileName);
-  const { data } = await apiClient.get<ProcessedByFileResponse>(`/files/${encoded}/processed`);
+  const { data } = await apiClient.get<ProcessedByFileResponse>(
+    `/files/${encoded}/processed`,
+    {
+      ...(options?.signal ? { signal: options.signal } : {}),
+    },
+  );
   return data;
 }
 
@@ -256,7 +277,10 @@ export async function getFileMetadata(fileName: string): Promise<FileMetadataDet
   return data;
 }
 
-export async function getChunksByFile(fileName: string): Promise<{
+export async function getChunksByFile(
+  fileName: string,
+  options?: RequestOptions,
+): Promise<{
   file_name: string;
   document_id?: string;
   loaded_from?: string | null;
@@ -264,7 +288,9 @@ export async function getChunksByFile(fileName: string): Promise<{
   chunks: Array<Record<string, unknown>>;
 }> {
   const encoded = encodeURIComponent(fileName);
-  const { data } = await apiClient.get(`/files/${encoded}/chunks`);
+  const { data } = await apiClient.get(`/files/${encoded}/chunks`, {
+    ...(options?.signal ? { signal: options.signal } : {}),
+  });
   return data;
 }
 
