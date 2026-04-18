@@ -68,7 +68,6 @@ locals {
   sagemaker_default_env = merge(
     {
       AWS_REGION                     = var.aws_region
-      UNIFIED_MAX_CONCURRENT_GPU_OPS = "1"
       COLQWEN_MODEL                  = "vidore/colqwen2-v1.0"
       COLQWEN_QUANTIZATION           = "8bit"
       WHISPER_MODEL                  = "base"
@@ -310,6 +309,7 @@ module "alb" {
   alb_name   = "${var.project_name}-alb"
   vpc_id     = data.aws_vpc.default.id
   subnet_ids = data.aws_subnets.default.ids
+  idle_timeout_seconds = var.alb_idle_timeout_seconds
 
   enable_deletion_protection = var.enable_alb_deletion_protection
 

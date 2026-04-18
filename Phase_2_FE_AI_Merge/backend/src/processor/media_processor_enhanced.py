@@ -25,6 +25,7 @@ from tqdm import tqdm
 import tempfile
 import hashlib
 from collections import Counter
+import subprocess
 
 from .whisper_remote import invoke_sagemaker_whisper, should_use_sagemaker_whisper
 
@@ -654,6 +655,63 @@ class AudioTranscriber:
         except Exception as e:
             logger.error(f"Error loading model: {str(e)}")
             self.model = None
+
+    def _prepare_audio_for_whisper(self, audio_path: Path) -> Tuple[Path, bool]:
+        """
+        Normalize media inputs to mono 16k WAV via ffmpeg before librosa load.
+
+        Returns:
+            (prepared_audio_path, should_cleanup)
+        """
+        ffmpeg_bin = shutil.which("ffmpeg")
+        if ffmpeg_bin is None:
+            return audio_path, False
+
+        # Keep native WAV inputs on the fast path.
+        if audio_path.suffix.lower() == ".wav":
+            return audio_path, False
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+            prepared_audio = Path(tmp.name)
+
+        cmd = [
+            ffmpeg_bin,
+            "-nostdin",
+            "-y",
+            "-i",
+            str(audio_path),
+            "-ac",
+            str(self.config.audio_channels),
+            "-ar",
+            str(self.config.audio_sample_rate),
+            "-vn",
+            str(prepared_audio),
+        ]
+
+        try:
+            subprocess.run(
+                cmd,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            logger.info(
+                "Prepared audio with ffmpeg: %s -> %s (%s Hz, %s channel)",
+                audio_path.name,
+                prepared_audio.name,
+                self.config.audio_sample_rate,
+                self.config.audio_channels,
+            )
+            return prepared_audio, True
+        except subprocess.CalledProcessError as exc:
+            prepared_audio.unlink(missing_ok=True)
+            err_preview = (exc.stderr or "").strip().splitlines()
+            logger.warning(
+                "ffmpeg pre-conversion failed, falling back to direct librosa load: %s",
+                err_preview[-1] if err_preview else str(exc),
+            )
+            return audio_path, False
     
     def transcribe(self, audio_path: Union[str, Path]) -> Optional[Dict]:
         """
@@ -692,16 +750,21 @@ class AudioTranscriber:
         audio_path = Path(audio_path)
         logger.info(f"Transcribing audio: {audio_path}")
         logger.info(f"File size: {audio_path.stat().st_size / (1024*1024):.2f} MB")
+
+        prepared_audio_path = audio_path
+        cleanup_prepared = False
         
         try:
             if not audio_path.exists():
                 raise FileNotFoundError(f"Audio file not found: {audio_path}")
+
+            prepared_audio_path, cleanup_prepared = self._prepare_audio_for_whisper(audio_path)
             
             # Load audio with librosa
-            logger.info("Loading audio with librosa...")
+            logger.info("Loading audio with librosa from: %s", prepared_audio_path)
             start_time = time.time()
             audio, sr = librosa.load(
-                str(audio_path),
+                str(prepared_audio_path),
                 sr=self.config.audio_sample_rate,
                 mono=True
             )
@@ -741,30 +804,51 @@ class AudioTranscriber:
             )
             transcribe_time = time.time() - start_time
             logger.info(f"✓ Transcription completed in {transcribe_time:.2f}s")
+
+            if not isinstance(result, dict):
+                logger.error("Unexpected Whisper result type: %s", type(result))
+                return None
+
+            if result.get("text") is None:
+                result["text"] = ""
+            segments = result.get("segments")
+            if not isinstance(segments, list):
+                segments = []
+                result["segments"] = segments
             
             language = result.get('language', 'unknown')
             text_length = len(result.get('text', ''))
-            segment_count = len(result.get('segments', []))
+            segment_count = len(segments)
             logger.info(f"  - Detected language: {language}")
             logger.info(f"  - Text length: {text_length} characters")
             logger.info(f"  - Segments: {segment_count}")
             
             # Check for word timestamps
-            first_segment = result.get('segments', [{}])[0]
-            has_word_timestamps = 'words' in first_segment
+            first_segment = segments[0] if segments else {}
+            has_word_timestamps = isinstance(first_segment, dict) and ('words' in first_segment)
             logger.info(f"  - Word-level timestamps: {'✓ Yes' if has_word_timestamps else '✗ No'}")
             
             # Log sample segments
             logger.info("Sample segments (first 3):")
-            for idx, seg in enumerate(result.get('segments', [])[:3]):
-                logger.info(f"  [{idx}] {seg['start']:.2f}s - {seg['end']:.2f}s | "
-                          f"Tokens: {seg.get('tokens', 0)} | Text: {seg['text'][:50]}...")
+            for idx, seg in enumerate(segments[:3]):
+                start_sec = float(seg.get('start', 0.0)) if isinstance(seg, dict) else 0.0
+                end_sec = float(seg.get('end', 0.0)) if isinstance(seg, dict) else 0.0
+                seg_text = str(seg.get('text', '')) if isinstance(seg, dict) else ""
+                token_val = seg.get('tokens', 0) if isinstance(seg, dict) else 0
+                token_count = len(token_val) if isinstance(token_val, list) else token_val
+                logger.info(
+                    f"  [{idx}] {start_sec:.2f}s - {end_sec:.2f}s | "
+                    f"Tokens: {token_count} | Text: {seg_text[:50]}..."
+                )
             
             return result
         
         except Exception as e:
             logger.error(f"Error transcribing: {str(e)}")
             return None
+        finally:
+            if cleanup_prepared:
+                prepared_audio_path.unlink(missing_ok=True)
 
 
 # ======================== Frame Extraction ========================

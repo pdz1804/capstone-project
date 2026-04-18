@@ -8,6 +8,7 @@ acm_certificate_arn = ""
 https_listener_ssl_policy = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
 enable_alb_deletion_protection = false
+alb_idle_timeout_seconds = 1800
 
 # WAF (5-rule baseline): RateLimit + SQLi + KnownBadInputs + CommonRuleSet + IPReputation.
 # If you already created this manually in AWS, import resources before apply.

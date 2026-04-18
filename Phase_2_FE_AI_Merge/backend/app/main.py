@@ -110,6 +110,7 @@ async def _record_usage_safely(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global USAGE_SERVICE
     # In containers, runtime env vars from `docker run --env-file` should win over
     # the baked-in `.env` copied into the image.
     load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)

@@ -33,6 +33,7 @@ from app.services.processed_documents_service import (
     invalidate_processed_documents_snapshot_cache,
 )
 from app.services.file_metadata_service import FileMetadataService
+from app.services.search_cache import get_search_cache_client
 from app.storage import get_file_storage
 from app.storage.service import S3FileStorage, parse_s3_uri
 
@@ -52,6 +53,12 @@ _FILES_WITH_METADATA_INDEX_PROBE_TTL_SECONDS = float(
     os.getenv("FILES_WITH_METADATA_INDEX_PROBE_TTL_SECONDS", "10")
 )
 _files_with_metadata_index_probe_cache: Dict[str, Tuple[float, set[str], set[str]]] = {}
+_FILES_WITH_METADATA_CACHE_NAMESPACE = "files_with_metadata"
+_FILES_WITH_METADATA_CACHE_PAYLOAD = {"route": "files_with_metadata", "version": 1}
+_FILES_WITH_METADATA_CACHE_TTL_SECONDS = max(
+    1,
+    int(float(os.getenv("FILES_WITH_METADATA_RESPONSE_TTL_SECONDS", "5") or "5")),
+)
 
 
 def _file_stem(name: str) -> str:
@@ -476,6 +483,15 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
     - optional local companion metadata json (if available)
     """
     ensure_data_dirs(user_id)
+    cache_client = get_search_cache_client()
+    cached = cache_client.get(
+        user_id,
+        _FILES_WITH_METADATA_CACHE_PAYLOAD,
+        namespace=_FILES_WITH_METADATA_CACHE_NAMESPACE,
+    )
+    if isinstance(cached, dict):
+        return cached
+
     storage = get_file_storage(user_id)
     input_rows = storage.list_input_files()
     processed_snapshot = build_processed_documents_snapshot(user_id, include_preview=False)
@@ -593,12 +609,20 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
             }
         )
 
-    return {
+    payload = {
         "count": len(out),
         "files": out,
         "pipeline_stage_totals": stage_totals,
         "pipeline_document_count": int(processed_snapshot.get("document_count") or len(docs)),
     }
+    cache_client.set(
+        user_id,
+        _FILES_WITH_METADATA_CACHE_PAYLOAD,
+        payload,
+        namespace=_FILES_WITH_METADATA_CACHE_NAMESPACE,
+        ttl_seconds=_FILES_WITH_METADATA_CACHE_TTL_SECONDS,
+    )
+    return payload
 
 
 @router.get("/files/{file_name}/processed")
