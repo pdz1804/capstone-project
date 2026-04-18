@@ -9,8 +9,8 @@ This server is intentionally aligned with backend local implementations by reusi
 
 from __future__ import annotations
 
+import asyncio
 import base64
-import copy
 import io
 import logging
 import os
@@ -59,6 +59,9 @@ _docling_processor: MultimodalDocumentProcessor | None = None
 _whisper_transcriber: AudioTranscriber | None = None
 _docling_cfg: ProcessingConfig | None = None
 _whisper_cfg: MediaProcessorConfig | None = None
+_gpu_semaphore: asyncio.Semaphore | None = None
+_docling_lock = asyncio.Lock()
+_whisper_lock = asyncio.Lock()
 
 
 class InvocationRequest(BaseModel):
@@ -129,6 +132,19 @@ def _score_sync(query_embedding: List[List[float]], doc_embeddings: List[List[Li
     return scores
 
 
+@asynccontextmanager
+async def _gpu_slot(name: str):
+    if _gpu_semaphore is None:
+        yield
+        return
+    await _gpu_semaphore.acquire()
+    try:
+        logger.info("gpu slot acquired for %s", name)
+        yield
+    finally:
+        _gpu_semaphore.release()
+
+
 def _build_colqwen_cfg() -> Dict[str, Any]:
     quant = os.getenv("COLQWEN_QUANTIZATION", "").strip().lower()
     load_4 = _truthy_env("COLQWEN_LOAD_IN_4BIT", default=quant == "4bit")
@@ -175,13 +191,11 @@ def _build_whisper_cfg() -> MediaProcessorConfig:
         enable_transcription=True,
         asr_model=os.getenv("WHISPER_MODEL", "base"),
         asr_language=(os.getenv("WHISPER_LANGUAGE") or None),
-        # Use low-cost defaults for endpoint stability; override via env if needed.
-        use_word_timestamps=_truthy_env("WHISPER_WORD_TIMESTAMPS", default=False),
+        use_word_timestamps=_truthy_env("WHISPER_WORD_TIMESTAMPS", default=True),
         temperature_schedule=_parse_float_tuple(
-            os.getenv("WHISPER_TEMPERATURE_SCHEDULE", "0.0"),
-            fallback=(0.0,),
+            os.getenv("WHISPER_TEMPERATURE_SCHEDULE", "0.0,0.2,0.4,0.6,0.8,1.0"),
+            fallback=(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
         ),
-        condition_on_previous_text=_truthy_env("WHISPER_CONDITION_ON_PREVIOUS_TEXT", default=False),
         # Ensure this service always uses local model loading inside endpoint.
         use_aws_sagemaker_whisper=False,
         aws_region=os.getenv("AWS_REGION", "us-west-2").strip() or "us-west-2",
@@ -269,30 +283,33 @@ def _whisper_transcribe_sync(req: InvocationRequest) -> Dict[str, Any]:
         audio_path = Path(tmp.name)
 
     try:
-        request_cfg = copy.copy(_whisper_transcriber.config)
+        old_lang = _whisper_transcriber.config.asr_language
+        old_words = _whisper_transcriber.config.use_word_timestamps
         if req.language is not None:
-            request_cfg.asr_language = req.language
+            _whisper_transcriber.config.asr_language = req.language
         if req.word_timestamps is not None:
-            request_cfg.use_word_timestamps = bool(req.word_timestamps)
+            _whisper_transcriber.config.use_word_timestamps = bool(req.word_timestamps)
 
-        # Reuse loaded model/runtime but keep config request-scoped to avoid shared-state races.
-        request_transcriber = AudioTranscriber.__new__(AudioTranscriber)
-        request_transcriber.config = request_cfg
-        request_transcriber.model = _whisper_transcriber.model
-
-        result = request_transcriber.transcribe(audio_path)
+        result = _whisper_transcriber.transcribe(audio_path)
         if not result:
             raise RuntimeError("Whisper transcription returned empty result")
         return result
     finally:
+        try:
+            _whisper_transcriber.config.asr_language = old_lang
+            _whisper_transcriber.config.use_word_timestamps = old_words
+        except Exception:
+            pass
         audio_path.unlink(missing_ok=True)
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    global _colqwen, _docling_processor, _whisper_transcriber, _docling_cfg, _whisper_cfg
+    global _colqwen, _docling_processor, _whisper_transcriber, _docling_cfg, _whisper_cfg, _gpu_semaphore
 
     started = time.time()
+    max_concurrent = max(1, int(os.getenv("UNIFIED_MAX_CONCURRENT_GPU_OPS", "1")))
+    _gpu_semaphore = asyncio.Semaphore(max_concurrent)
 
     _colqwen = ColQwenInferenceService(_build_colqwen_cfg())
 
@@ -308,7 +325,11 @@ async def lifespan(_: FastAPI):
     _whisper_cfg = _build_whisper_cfg()
     _whisper_transcriber = AudioTranscriber(_whisper_cfg)
 
-    logger.info("Unified endpoint ready in %.2fs", time.time() - started)
+    logger.info(
+        "Unified endpoint ready in %.2fs (max_concurrent_gpu_ops=%d)",
+        time.time() - started,
+        max_concurrent,
+    )
     yield
 
 
@@ -346,6 +367,7 @@ async def health():
             },
         },
         "aws_region": os.getenv("AWS_REGION", "us-west-2"),
+        "max_concurrent_gpu_ops": int(os.getenv("UNIFIED_MAX_CONCURRENT_GPU_OPS", "1")),
     }
 
 
@@ -362,7 +384,8 @@ async def invocations(req: InvocationRequest = Body(...)):
             raise HTTPException(status_code=503, detail="ColQwen service not initialized")
         if not req.query.strip():
             raise HTTPException(status_code=400, detail="query is required for embed-query")
-        embedding = await run_in_threadpool(_colqwen.embed_query, req.query)
+        async with _gpu_slot("colqwen:embed-query"):
+            embedding = await run_in_threadpool(_colqwen.embed_query, req.query)
         return {
             "operation": op,
             "embedding": embedding,
@@ -377,7 +400,8 @@ async def invocations(req: InvocationRequest = Body(...)):
         if not req.images_base64:
             raise HTTPException(status_code=400, detail="images_base64 is required for embed-images")
         images = _decode_images_base64(req.images_base64)
-        embeddings, n_patches = await run_in_threadpool(_colqwen.embed_images, images)
+        async with _gpu_slot("colqwen:embed-images"):
+            embeddings, n_patches = await run_in_threadpool(_colqwen.embed_images, images)
         return {
             "operation": op,
             "embeddings": embeddings,
@@ -398,23 +422,27 @@ async def invocations(req: InvocationRequest = Body(...)):
         }
 
     if op == "process-document":
-        try:
-            data = await run_in_threadpool(_docling_process_sync, req)
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=f"Docling processing failed: {exc}") from exc
+        async with _docling_lock:
+            async with _gpu_slot("docling:process-document"):
+                try:
+                    data = await run_in_threadpool(_docling_process_sync, req)
+                except ValueError as exc:
+                    raise HTTPException(status_code=400, detail=str(exc)) from exc
+                except Exception as exc:
+                    raise HTTPException(status_code=500, detail=f"Docling processing failed: {exc}") from exc
         data["operation"] = op
         data["inference_time_ms"] = round((time.time() - started) * 1000, 1)
         return data
 
     if op == "transcribe-audio":
-        try:
-            data = await run_in_threadpool(_whisper_transcribe_sync, req)
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=f"Whisper transcription failed: {exc}") from exc
+        async with _whisper_lock:
+            async with _gpu_slot("whisper:transcribe-audio"):
+                try:
+                    data = await run_in_threadpool(_whisper_transcribe_sync, req)
+                except ValueError as exc:
+                    raise HTTPException(status_code=400, detail=str(exc)) from exc
+                except Exception as exc:
+                    raise HTTPException(status_code=500, detail=f"Whisper transcription failed: {exc}") from exc
         data["operation"] = op
         data["inference_time_ms"] = round((time.time() - started) * 1000, 1)
         return data

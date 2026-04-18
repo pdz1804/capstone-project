@@ -34,7 +34,7 @@ type CitationItem = {
   time_range_label?: string;
 };
 
-const SEARCH_REMARK_PLUGINS = [remarkGfm, remarkMath];
+const SEARCH_REMARK_PLUGINS = [remarkGfm, remarkBreaks, remarkMath];
 const SEARCH_REHYPE_PLUGINS = [rehypeKatex];
 
 function formatSecondsToClock(seconds?: number): string {
@@ -678,7 +678,8 @@ export default function SearchView({ files }: SearchViewProps) {
               </div>
               <div ref={answerRenderRef} className="p-8 prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
                 <ReactMarkdown
-                  remarkPlugins={[remarkGfm, remarkBreaks]}
+                  remarkPlugins={SEARCH_REMARK_PLUGINS}
+                  rehypePlugins={SEARCH_REHYPE_PLUGINS}
                   components={{
                     h1: ({ children }) => <h1 className="text-3xl font-bold text-slate-900 mt-2 mb-4">{children}</h1>,
                     h2: ({ children }) => <h2 className="text-2xl font-semibold text-slate-900 mt-6 mb-3">{children}</h2>,

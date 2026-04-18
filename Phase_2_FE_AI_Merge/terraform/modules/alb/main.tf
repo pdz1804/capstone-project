@@ -33,6 +33,12 @@ variable "https_listener_ssl_policy" {
   default     = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 }
 
+variable "idle_timeout_seconds" {
+  description = "ALB idle timeout in seconds for long-running requests"
+  type        = number
+  default     = 1800
+}
+
 variable "tags" {
   description = "Tags for ALB resources"
   type        = map(string)
@@ -84,6 +90,7 @@ resource "aws_lb" "main" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
   subnets            = var.subnet_ids
+  idle_timeout       = var.idle_timeout_seconds
 
   enable_deletion_protection = var.enable_deletion_protection
 

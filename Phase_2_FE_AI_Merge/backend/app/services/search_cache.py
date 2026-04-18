@@ -203,16 +203,18 @@ class SearchCacheClient:
         request_payload: Dict[str, Any],
         result_payload: Dict[str, Any],
         namespace: str = "search",
+        ttl_seconds: Optional[int] = None,
     ) -> bool:
         client = self._redis_client()
         if client is None:
             return False
         key = self._build_key(user_id, request_payload, namespace=namespace)
         ns = (namespace or "search").strip().lower()
+        ttl = max(1, int(ttl_seconds or self.config.ttl_seconds))
         try:
             body = json.dumps(result_payload, separators=(",", ":"), ensure_ascii=False, default=str).encode("utf-8")
-            client.setex(key, self.config.ttl_seconds, body)
-            logger.info("Search cache write success: namespace=%s key=%s ttl=%ss", ns, key, self.config.ttl_seconds)
+            client.setex(key, ttl, body)
+            logger.info("Search cache write success: namespace=%s key=%s ttl=%ss", ns, key, ttl)
             return True
         except (RedisError, TypeError, ValueError) as e:
             logger.warning("Search cache write failed: %s", e)
