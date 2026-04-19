@@ -2,7 +2,7 @@
 # Combines Document Processing + Information Retrieval
 
 transformers==4.57.3
-peft==0.14.0
+peft==0.19.1
 sentence-transformers==3.0.1
 accelerate>=0.30.0
 huggingface-hub>=0.23.0
