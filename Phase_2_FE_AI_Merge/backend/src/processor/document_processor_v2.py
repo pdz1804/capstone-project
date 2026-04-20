@@ -51,6 +51,8 @@ class ProcessingConfigV2:
     prefer_custom_readers: bool = True
     excel_reader_mode: str = "xml"  # "xml" | "docling"
     pptx_llm_validate_headers: bool = False
+    # PDF content source for CustomPdfReader: "pymupdf" | "docling" | "hybrid"
+    pdf_content_source: str = "hybrid"
     docling_config: Optional[Any] = None  # Optional[ProcessingConfig]
 
     def __post_init__(self) -> None:
@@ -249,9 +251,14 @@ class DocumentProcessorV2:
     def _run_pdf_reader(
         self, file_path: Path, out_dir: Path,
     ) -> List[Dict[str, Any]]:
-        from .pdf_reader import CustomPdfReader
+        from .pdf_reader import CustomPdfConfig, CustomPdfReader
 
-        reader = CustomPdfReader()
+        cfg = CustomPdfConfig(
+            content_source=self.config.pdf_content_source,
+            enable_ocr=getattr(self.config.docling_config, "enable_ocr", True),
+            extract_images=getattr(self.config.docling_config, "export_images", False),
+        )
+        reader = CustomPdfReader(cfg)
         return reader.read(str(file_path), output_dir=str(out_dir))
 
     def _run_docling(self, file_path: Path) -> Any:
