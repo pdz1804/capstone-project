@@ -63,7 +63,7 @@ def _save_picture(image_ref: Any, img_dir: Path, counter: int) -> Optional[Tuple
         if len(img_bytes) < 100:
             return None
 
-        md5_short = hashlib.md5(img_bytes).hexdigest()[:12]
+        md5_short = hashlib.md5(img_bytes).hexdigest()[:8]
         filename = f"img_docling_{counter:03d}.{ext}"
         dest = img_dir / filename
         dest.write_bytes(img_bytes)
