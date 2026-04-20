@@ -23,7 +23,7 @@ def _env_bool(name: str, default: bool) -> bool:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run FastAPI backend")
     parser.add_argument("--host", default=os.getenv("RUN_API_HOST", "0.0.0.0"))
-    parser.add_argument("--port", type=int, default=int(os.getenv("RUN_API_PORT", "5000")))
+    parser.add_argument("--port", type=int, default=int(os.getenv("RUN_API_PORT", "5001")))
     parser.add_argument("--workers", type=int, default=int(os.getenv("RUN_API_WORKERS", "1")))
     parser.add_argument(
         "--reload",
