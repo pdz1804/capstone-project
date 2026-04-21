@@ -60,7 +60,7 @@ Two different users can process/index in parallel; the same user cannot double-s
 `asyncio.Semaphore` (ColQwen). Concurrent requests from multiple users queue inside the
 endpoint process and are served in order — exactly what you want.
 - SageMaker autoscaling creates more instances when `InvocationsPerInstance` exceeds the
-target (default 2), so truly concurrent heavy load gets its own GPU automatically.
+target (default 10 in this repo), so truly concurrent heavy load gets its own GPU automatically.
 
 ### When SQS would make sense (for future reference)
 
@@ -190,10 +190,11 @@ python .\ops\deploy_sagemaker_endpoint.py `
   --instance-type     ml.g4dn.xlarge `
   --initial-instance-count 1 `
   --min-capacity      1 `
-  --max-capacity      3 `
-  --target-invocations-per-instance 2 `
+  --max-capacity      10 `
+  --target-invocations-per-instance 10 `
   --env AWS_REGION=us-west-2 `
-  --env UNIFIED_MAX_CONCURRENT_GPU_OPS=1 `
+  --env UNIFIED_MAX_CONCURRENT_GPU_OPS=10 `
+  --env COLQWEN_MAX_CONCURRENT_INFERENCES=10 `
   --env COLQWEN_MODEL=vidore/colqwen2-v1.0 `
   --env COLQWEN_QUANTIZATION=8bit `
   --env WHISPER_MODEL=base `
@@ -225,6 +226,20 @@ aws sagemaker describe-endpoint `
 ```
 
 Wait for `EndpointStatus = InService` before running smoke tests.
+
+### Why `InvocationsPerInstance` often looks like `1`
+
+For real-time endpoints, this is a throughput/rate metric over time, not an async-endpoint
+"max concurrent invocations per instance" hard limit. In the Console, the async setting shows
+`-` for real-time endpoints by design.
+
+If model/container env misses concurrency variables, your service can still behave like near
+single-flight execution under load. Keep these env vars explicitly set in model deployment:
+
+- `UNIFIED_MAX_CONCURRENT_GPU_OPS=10`
+- `COLQWEN_MAX_CONCURRENT_INFERENCES=10`
+
+Then verify with health payload and load tests before increasing beyond 10.
 
 ---
 
@@ -325,7 +340,8 @@ python .\ops\delete_sagemaker_endpoint.py `
 | `WHISPER_LANGUAGE`               | *(auto-detect)*        | Force language code e.g. `en`, `vi`                  |
 | `COLQWEN_MODEL`                  | `vidore/colqwen2-v1.0` | ColQwen HuggingFace model id                         |
 | `COLQWEN_QUANTIZATION`           | `8bit`                 | `4bit` / `8bit` / *(empty = bfloat16)*               |
-| `UNIFIED_MAX_CONCURRENT_GPU_OPS` | `1`                    | Max parallel GPU operations in one container         |
+| `UNIFIED_MAX_CONCURRENT_GPU_OPS` | `10`                   | Max parallel GPU operations in one container         |
+| `COLQWEN_MAX_CONCURRENT_INFERENCES` | `10`                | ColQwen in-flight inference budget (when supported by server image) |
 | `AWS_REGION`                     | `us-west-2`            | AWS region for boto3 clients inside container        |
 
 

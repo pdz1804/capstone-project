@@ -519,6 +519,28 @@ ENV/
 env.bak/
 venv.bak/
 
+# JMeter load-test artifacts (keep only report-ready summaries)
+docs/jmeter-experiments/reports/**
+docs/jmeter-experiments/jmeter.log
+docs/jmeter-experiments/*.jtl
+docs/jmeter-experiments/*.xml
+docs/jmeter-experiments/data/users.csv
+docs/jmeter-experiments/report-ready/**
+# !docs/jmeter-experiments/report-ready/
+# !docs/jmeter-experiments/report-ready/*.csv
+# !docs/jmeter-experiments/report-ready/*.md
+
+docs/jmeter-main-apis/reports/**
+docs/jmeter-main-apis/jmeter.log
+docs/jmeter-main-apis/*.jtl
+docs/jmeter-main-apis/*.xml
+docs/jmeter-main-apis/data/users.csv
+docs/jmeter-main-apis/report-ready/main_apis_labels_*.csv
+docs/jmeter-main-apis/report-ready/**
+# !docs/jmeter-main-apis/report-ready/
+# !docs/jmeter-main-apis/report-ready/*.csv
+# !docs/jmeter-main-apis/report-ready/*.md
+
 # Spyder project settings
 .spyderproject
 .spyproject
