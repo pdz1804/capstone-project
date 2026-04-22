@@ -882,6 +882,32 @@ class DocumentProcessingPipeline:
                     if fp.is_file() and fp.stem not in processed_stems:
                         candidate_files.append(fp)
 
+            excel_parsed_dir = self.stage_dirs["normalized"] / "excel_parsed"
+            custom_excel_stems = set()
+            if excel_parsed_dir.exists():
+                custom_excel_stems = {p.stem for p in excel_parsed_dir.glob("*.json")}
+
+            docx_parsed_dir = self.stage_dirs["normalized"] / "docx_parsed"
+            custom_docx_stems = set()
+            if docx_parsed_dir.exists():
+                custom_docx_stems = {p.stem for p in docx_parsed_dir.glob("*.json")}
+
+            pdf_parsed_dir = self.stage_dirs["normalized"] / "pdf_parsed"
+            custom_pdf_stems = set()
+            if pdf_parsed_dir.exists():
+                custom_pdf_stems = {p.stem for p in pdf_parsed_dir.glob("*.json")}
+
+            before_count = len(candidate_files)
+            skipped_stems = custom_excel_stems | custom_docx_stems | custom_pdf_stems
+            if skipped_stems:
+                candidate_files = [f for f in candidate_files if f.stem not in skipped_stems]
+            skipped_count = before_count - len(candidate_files)
+            if skipped_count > 0:
+                print(
+                    "  → Skipping "
+                    f"{skipped_count} file(s) already handled by specialised Excel/DOCX/PDF stages"
+                )
+
             if not candidate_files:
                 print("WARNING: No inputs found for V2 document processing")
                 return {"processed_files": 0, "total_files": 0}

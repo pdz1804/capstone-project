@@ -43,6 +43,26 @@ def parse_s3_uri(uri: str) -> Optional[Tuple[str, str]]:
     return bucket, key
 
 
+def _allow_local_aws_fallback() -> bool:
+    raw = str(os.getenv("ALLOW_LOCAL_AWS_FALLBACK", "true")).strip().lower()
+    return raw not in {"0", "false", "no", "off"}
+
+
+def _aws_credentials_available(region: str | None = None) -> bool:
+    try:
+        import boto3
+
+        session = boto3.session.Session(region_name=region or None)
+        creds = session.get_credentials()
+        if creds is None:
+            return False
+        frozen = creds.get_frozen_credentials()
+        return bool(getattr(frozen, "access_key", None))
+    except Exception as exc:
+        logger.warning("Could not inspect AWS credentials for storage backend selection: %s", exc)
+        return False
+
+
 class FileStorageService(ABC):
     """Uploads, listing, delete, and pipeline sync hooks."""
 
@@ -708,6 +728,18 @@ def get_file_storage(user_id: str | None = None) -> FileStorageService:
         return _storage_cache[cache_key]
 
     paths = workspace_paths_for_user(uid)
+    region = os.getenv("AWS_REGION", "").strip() or None
+
+    if backend == "s3" and _allow_local_aws_fallback() and not _aws_credentials_available(region):
+        logger.warning(
+            "FILE_STORAGE_BACKEND=s3 but AWS credentials are unavailable; "
+            "falling back to local filesystem storage for user=%s",
+            uid,
+        )
+        backend = "local"
+        cache_key = f"{backend}:{uid}"
+        if cache_key in _storage_cache:
+            return _storage_cache[cache_key]
 
     if backend == "s3":
         originals = os.getenv("S3_ORIGINALS_BUCKET", "").strip()
@@ -729,7 +761,6 @@ def get_file_storage(user_id: str | None = None) -> FileStorageService:
         segment = _s3_user_key_segment(uid)
         prefix_in = base_in + segment
         prefix_proc = base_proc + segment
-        region = os.getenv("AWS_REGION", "").strip() or None
         inst: FileStorageService = S3FileStorage(
             originals_bucket=ob,
             processed_bucket=pb,

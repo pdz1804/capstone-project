@@ -1586,6 +1586,144 @@ def _determine_table_col_range(
     return min(all_cols), max(all_cols)
 
 
+def _cell_to_markdown_text(cd: Dict[str, Any]) -> str:
+    """Format a cell value for markdown table output."""
+    val = cd.get("value", "")
+    if val is None:
+        val = ""
+    text = str(val).replace("|", "\\|").replace("\n", " ")
+    link = cd.get("hyperlink", "")
+    if link and text.strip():
+        return f"[{text}]({link})"
+    return text
+
+
+def _normalize_header_text(text: str) -> str:
+    return re.sub(r"\s+", " ", str(text or "").strip()).casefold()
+
+
+def _row_numericish_count_in_range(
+    rows: Dict[int, Dict[int, Dict[str, Any]]],
+    row_idx: int,
+    min_col: int,
+    max_col: int,
+) -> int:
+    """Count cells that look numeric-ish in a row range."""
+    count = 0
+    for c in range(min_col, max_col + 1):
+        cd = rows.get(row_idx, {}).get(c, {})
+        text = str(cd.get("value", "") or "").strip()
+        if text and re.search(r"\d", text):
+            count += 1
+    return count
+
+
+def _has_same_row_merged_copy(
+    rows: Dict[int, Dict[int, Dict[str, Any]]],
+    row_idx: int,
+    min_col: int,
+    max_col: int,
+) -> bool:
+    """Whether the row contains horizontally propagated merged cells."""
+    for c in range(min_col, max_col + 1):
+        merged_from = rows.get(row_idx, {}).get(c, {}).get("merged_from")
+        if not merged_from:
+            continue
+        try:
+            src_row, _ = parse_cell_ref(merged_from)
+        except ValueError:
+            continue
+        if src_row == row_idx:
+            return True
+    return False
+
+
+def _has_merge_from_previous_row(
+    rows: Dict[int, Dict[int, Dict[str, Any]]],
+    row_idx: int,
+    min_col: int,
+    max_col: int,
+) -> bool:
+    """Whether the row contains vertically propagated merged cells from above."""
+    for c in range(min_col, max_col + 1):
+        merged_from = rows.get(row_idx, {}).get(c, {}).get("merged_from")
+        if not merged_from:
+            continue
+        try:
+            src_row, _ = parse_cell_ref(merged_from)
+        except ValueError:
+            continue
+        if src_row < row_idx:
+            return True
+    return False
+
+
+def _infer_markdown_header_row_count(
+    rows: Dict[int, Dict[int, Dict[str, Any]]],
+    table_row_indices: List[int],
+    min_col: int,
+    max_col: int,
+) -> int:
+    """
+    Infer how many top rows belong to a visual multi-row header.
+
+    Excel tables like:
+      - row 1: ML-1M / Gowalla / Steam / ...
+      - row 2: HR / NDCG / HR / NDCG / ...
+    should be emitted as one markdown header row by combining the first
+    two sheet rows. We detect that from merged-cell propagation:
+      - top row has same-row merged copies (horizontal merged groups)
+      - second row has values merged down from the first row in some cols
+      - the following row looks more data-like than the second row
+    """
+    if len(table_row_indices) < 3:
+        return 1
+
+    first_row = table_row_indices[0]
+    second_row = table_row_indices[1]
+    third_row = table_row_indices[2]
+
+    if not _has_same_row_merged_copy(rows, first_row, min_col, max_col):
+        return 1
+
+    if not _has_merge_from_previous_row(rows, second_row, min_col, max_col):
+        return 1
+
+    second_numericish = _row_numericish_count_in_range(rows, second_row, min_col, max_col)
+    third_numericish = _row_numericish_count_in_range(rows, third_row, min_col, max_col)
+    if third_numericish <= second_numericish:
+        return 1
+
+    return 2
+
+
+def _build_markdown_header_cells(
+    rows: Dict[int, Dict[int, Dict[str, Any]]],
+    header_row_indices: List[int],
+    min_col: int,
+    max_col: int,
+) -> List[str]:
+    """Combine one or more sheet header rows into a single markdown header row."""
+    header_cells: List[str] = []
+
+    for c in range(min_col, max_col + 1):
+        parts: List[str] = []
+        last_norm = ""
+        for r in header_row_indices:
+            text = _cell_to_markdown_text(rows.get(r, {}).get(c, {})).strip()
+            if not text:
+                continue
+            norm = _normalize_header_text(text)
+            if norm == last_norm:
+                continue
+            parts.append(text)
+            last_norm = norm
+
+        header_cells.append(" ".join(parts).strip())
+
+    return header_cells
+
+
 def _grid_to_markdown_table(
     rows: Dict[int, Dict[int, Dict[str, Any]]],
     table_row_indices: List[int],
@@ -1595,29 +1733,30 @@ def _grid_to_markdown_table(
     """
     Build a Markdown table from explicit row indices.
     Merged-cell values are **duplicated** in every spanned cell.
-    The first row is treated as the header.
+    Visual multi-row headers are collapsed into one markdown header row.
     """
     if not table_row_indices:
         return ""
 
+    header_row_count = _infer_markdown_header_row_count(
+        rows, table_row_indices, min_col, max_col,
+    )
+    header_row_indices = table_row_indices[:header_row_count]
+    data_row_indices = table_row_indices[header_row_count:]
+
+    header_cells = _build_markdown_header_cells(
+        rows, header_row_indices, min_col, max_col,
+    )
+
     lines: List[str] = []
-    for i, r in enumerate(table_row_indices):
+    lines.append("| " + " | ".join(header_cells) + " |")
+    lines.append("| " + " | ".join("---" for _ in header_cells) + " |")
+
+    for r in data_row_indices:
         cells: List[str] = []
         for c in range(min_col, max_col + 1):
-            cd = rows.get(r, {}).get(c, {})
-            val = cd.get("value", "")
-            if val is None:
-                val = ""
-            text = str(val).replace("|", "\\|").replace("\n", " ")
-            # Append hyperlink if present
-            link = cd.get("hyperlink", "")
-            if link and text.strip():
-                text = f"[{text}]({link})"
-            cells.append(text)
+            cells.append(_cell_to_markdown_text(rows.get(r, {}).get(c, {})))
         lines.append("| " + " | ".join(cells) + " |")
-        # Separator after the header (first) row
-        if i == 0:
-            lines.append("| " + " | ".join("---" for _ in cells) + " |")
 
     return "\n".join(lines)
 
