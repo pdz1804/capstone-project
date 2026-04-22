@@ -62,6 +62,11 @@ class CustomPdfConfig:
     preserve_caption_text: bool = True  # kept for CLI compatibility
     enable_paddle_layout: bool = False  # kept for CLI compatibility
     debug_region_types: bool = False
+    # Content extraction source: "pymupdf" | "docling" | "hybrid"
+    #   pymupdf: legacy text-blocks only (fast, no tables/formulas).
+    #   docling: Docling for text+tables+formulas+pictures.
+    #   hybrid : Docling first, fallback to pymupdf blocks on Docling failure.
+    content_source: str = "pymupdf"
 
 
 class CustomPdfReader:
@@ -87,7 +92,7 @@ class CustomPdfReader:
             raise FileNotFoundError(f"PDF not found: {file_path}")
 
         section_tree, total_pages = self._extract_hierarchy(file_path)
-        extracted = self._extract_text_blocks(file_path)
+        extracted = self._extract_content(file_path, output_dir)
         tree = self.item_sequencer.sequence(extracted, section_tree)
 
         logger.info(
@@ -100,6 +105,39 @@ class CustomPdfReader:
         if skip_ocr:
             logger.debug("skip_ocr was requested but OCR is not used in lightweight mode")
         return tree
+
+    def _extract_content(
+        self, pdf_path: str, output_dir: Optional[str],
+    ) -> List[ExtractedRegion]:
+        """Route to the configured content source."""
+        source = (self.config.content_source or "pymupdf").lower()
+
+        if source == "docling":
+            from .docling_regions import extract_regions_from_docling
+            return extract_regions_from_docling(
+                pdf_path,
+                enable_ocr=self.config.enable_ocr,
+                extract_images=self.config.extract_images,
+                output_dir=output_dir,
+            )
+
+        if source == "hybrid":
+            try:
+                from .docling_regions import extract_regions_from_docling
+                return extract_regions_from_docling(
+                    pdf_path,
+                    enable_ocr=self.config.enable_ocr,
+                    extract_images=self.config.extract_images,
+                    output_dir=output_dir,
+                )
+            except Exception as exc:
+                logger.warning(
+                    "Docling content extraction failed for %s (%s) — falling back to pymupdf blocks",
+                    pdf_path, exc,
+                )
+                return self._extract_text_blocks(pdf_path)
+
+        return self._extract_text_blocks(pdf_path)
 
     def _extract_text_blocks(self, pdf_path: str) -> List[ExtractedRegion]:
         try:
