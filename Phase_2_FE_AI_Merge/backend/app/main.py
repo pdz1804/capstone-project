@@ -111,27 +111,46 @@ async def _record_usage_safely(
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global USAGE_SERVICE
-    # In containers, runtime env vars from `docker run --env-file` should win over
-    # the baked-in `.env` copied into the image.
-    load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
-    ensure_data_dirs("default")
+
+    logger.info("🚀 AI service startup initiated")
+
+    try:
+        # In containers, runtime env vars from `docker run --env-file` should win over
+        # the baked-in `.env` copied into the image.
+        load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
+        logger.info("✓ Environment variables loaded")
+    except Exception as env_err:
+        logger.exception("❌ Failed to load environment variables: %s", env_err)
+        raise
+
+    try:
+        ensure_data_dirs("default")
+        logger.info("✓ Data directories ensured")
+    except Exception as dir_err:
+        logger.exception("❌ Failed to ensure data directories: %s", dir_err)
+        raise
 
     try:
         user_repo = get_user_repository_from_env()
+        logger.info("✓ User repository initialized")
         UserService(user_repo).ensure_default_admin_account()
-        logger.info("Default admin bootstrap complete")
+        logger.info("✓ Default admin bootstrap complete")
     except Exception as bootstrap_err:
-        logger.warning("Default admin bootstrap skipped: %s", bootstrap_err)
+        logger.warning("⚠️  Default admin bootstrap skipped: %s", bootstrap_err)
 
-    USAGE_SERVICE = AppUsageService.from_env_optional()
-    if USAGE_SERVICE is None:
-        logger.warning("App usage tracking disabled (DYNAMODB_APP_USAGE_TABLE is not configured)")
-    else:
-        logger.info("App usage tracking enabled")
+    try:
+        USAGE_SERVICE = AppUsageService.from_env_optional()
+        if USAGE_SERVICE is None:
+            logger.warning("⚠️  App usage tracking disabled (DYNAMODB_APP_USAGE_TABLE is not configured)")
+        else:
+            logger.info("✓ App usage tracking enabled")
+    except Exception as usage_err:
+        logger.exception("❌ App usage service initialization failed: %s", usage_err)
 
-    logger.info("AI service startup")
+    port = os.getenv("RUN_API_PORT", "5000")
+    logger.info("✅ AI service startup complete - listening on port %s", port)
     yield
-    logger.info("AI service shutdown")
+    logger.info("🛑 AI service shutdown")
 
 
 app = FastAPI(

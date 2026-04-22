@@ -858,8 +858,7 @@ class DocumentProcessingPipeline:
         V2.1 handles routing internally with SageMaker Docling support and GPU memory management.
         All candidate files go through a single entry point and are dispatched to the optimal reader.
         """
-        # from .document_processor_v2 import DocumentProcessorV2  # DEPRECATED - use V2.1
-        from .document_processor_v2_1 import DocumentProcessorV2_1
+        from .document_processor_v2 import DocumentProcessorV2
 
         print("Processing documents with V2 unified router...")
         v2_config = self.config.document_config_v2
@@ -913,7 +912,7 @@ class DocumentProcessingPipeline:
                 print("WARNING: No inputs found for V2 document processing")
                 return {"processed_files": 0, "total_files": 0}
 
-            processor = DocumentProcessorV2_1(
+            processor = DocumentProcessorV2(
                 input_dir=self.stage_dirs["normalized"],
                 output_dir=self.stage_dirs["final_processed"],
                 config=v2_config,
