@@ -542,7 +542,7 @@ export default function LoginView() {
                     exit={{ opacity: 0, height: 0 }}
                     className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
                   >
-                    {error}
+                    <p className="whitespace-pre-line">{error}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
