@@ -11,8 +11,7 @@ from .media_processor import MediaProcessor, MediaProcessorConfig
 from .document_processor import MultimodalDocumentProcessor, ProcessingConfig
 from .consolidator import Stage4Consolidator, ConsolidatorConfig
 from .xlsx_reader_v2 import process_excel_file
-# from .document_processor_v2 import DocumentProcessorV2, ProcessingConfigV2  # DEPRECATED - use V2.1
-from .document_processor_v2_1 import DocumentProcessorV2_1, ProcessingConfigV2_1
+from .document_processor_v2 import DocumentProcessorV2, ProcessingConfigV2
 from .chunk_enhancer import (
     ChunkEnhancement,
     FrameMetadata,
@@ -20,6 +19,12 @@ from .chunk_enhancer import (
     FrameMetadataBuilder,
     EnhancedChunkProcessor
 )
+
+try:
+    from .document_processor_v2_1 import DocumentProcessorV2_1, ProcessingConfigV2_1
+except ImportError:
+    DocumentProcessorV2_1 = None
+    ProcessingConfigV2_1 = None
 
 __all__ = [
     "DocumentProcessingPipeline",
@@ -37,6 +42,6 @@ __all__ = [
     "ChunkDescriptionGenerator",
     "FrameMetadataBuilder",
     "EnhancedChunkProcessor",
-    "DocumentProcessorV2_1",  # V2.1: with SageMaker + GPU memory management
-    "ProcessingConfigV2_1",   # V2.1: with SageMaker + GPU options
+    "DocumentProcessorV2",
+    "ProcessingConfigV2",
 ]
