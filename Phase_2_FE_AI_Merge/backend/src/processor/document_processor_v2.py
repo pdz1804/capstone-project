@@ -24,6 +24,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+from .docling_remote import (
+    invoke_sagemaker_docling,
+    should_use_sagemaker_docling,
+    write_docling_outputs_from_sagemaker,
+)
 from src.processor.utils import sanitize_filename_stem
 
 logger = logging.getLogger(__name__)
@@ -54,6 +59,7 @@ class ProcessingConfigV2:
     # PDF content source for CustomPdfReader: "pymupdf" | "docling" | "hybrid"
     pdf_content_source: str = "hybrid"
     docling_config: Optional[Any] = None  # Optional[ProcessingConfig]
+    runtime_yaml: Optional[Dict[str, Any]] = None
 
     def __post_init__(self) -> None:
         if self.docling_config is None:
@@ -280,7 +286,14 @@ class DocumentProcessorV2:
         return reader.read(str(file_path), output_dir=str(out_dir))
 
     def _run_docling(self, file_path: Path) -> Any:
-        """Run Docling converter (primary → fallback on failure)."""
+        """Run Docling either locally or via SageMaker, based on runtime config."""
+        if should_use_sagemaker_docling(self.config.runtime_yaml):
+            return self._run_docling_sagemaker(file_path)
+
+        return self._run_docling_local(file_path)
+
+    def _run_docling_local(self, file_path: Path) -> Any:
+        """Run local in-process Docling converter (primary → fallback on failure)."""
         converter = self._get_primary_converter()
 
         # Handle .txt → temp .md
@@ -321,6 +334,32 @@ class DocumentProcessorV2:
                 actual_path.unlink(missing_ok=True)
 
         return result
+
+    def _run_docling_sagemaker(self, file_path: Path) -> Dict[str, Any]:
+        """Invoke the remote SageMaker Docling endpoint.
+
+        Mirror local `.txt -> temporary .md` adaptation so both local and
+        remote Docling can process plain-text inputs consistently.
+        """
+        actual_path = file_path
+        temp_created = False
+        if file_path.suffix.lower() == ".txt":
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+            except UnicodeDecodeError:
+                with open(file_path, "r", encoding="latin-1") as f:
+                    content = f.read()
+            md_path = file_path.parent / f"{file_path.stem}_temp.md"
+            md_path.write_text(f"# {file_path.stem}\n\n{content}", encoding="utf-8")
+            actual_path = md_path
+            temp_created = True
+
+        try:
+            return invoke_sagemaker_docling(actual_path, self.config.runtime_yaml or {})
+        finally:
+            if temp_created and actual_path.exists():
+                actual_path.unlink(missing_ok=True)
 
     # ------------------------------------------------------------------
     # Docling lazy factories (verbatim from document_processor.py)
@@ -554,6 +593,19 @@ class DocumentProcessorV2:
 
             # --- Docling path (default or fallback) ---
             docling_result = self._run_docling(file_path)
+            if should_use_sagemaker_docling(self.config.runtime_yaml):
+                return self._build_result(
+                    file_path=file_path,
+                    file_type=ext.lstrip("."),
+                    processor_used="docling",
+                    start_time=start_time,
+                    file_size=file_size,
+                    docling_result=docling_result,
+                    used_fallback=used_fallback,
+                    error=original_error,
+                    docling_mode="sagemaker",
+                )
+
             doc = docling_result.document
             pages = getattr(doc, "page_count", None)
 
@@ -568,6 +620,7 @@ class DocumentProcessorV2:
                 pages=pages,
                 used_fallback=used_fallback,
                 error=original_error,
+                docling_mode="local",
             )
 
         except Exception as exc:
@@ -594,6 +647,8 @@ class DocumentProcessorV2:
             return {}
 
         if processing_info["processor_used"] == "docling":
+            if processing_info.get("docling_mode") == "sagemaker":
+                return self._export_docling_sagemaker(processing_info)
             return self._export_docling(processing_info)
 
         return self._export_custom(processing_info)
@@ -636,6 +691,41 @@ class DocumentProcessorV2:
             json.dump(meta, f, indent=2, ensure_ascii=False, default=str)
         exported["metadata"] = str(meta_path)
 
+        return exported
+
+    def _export_docling_sagemaker(self, info: Dict[str, Any]) -> Dict[str, str]:
+        """Export remote SageMaker Docling outputs with V2-compatible metadata."""
+        file_stem = Path(info["file_path"]).stem
+        safe_stem = self._get_safe_output_path(file_stem)
+        doc_dir = self.output_dir / safe_stem
+        if doc_dir.exists():
+            shutil.rmtree(doc_dir, ignore_errors=True)
+
+        payload = info.get("docling_result")
+        if not isinstance(payload, dict):
+            raise ValueError("SageMaker Docling result must be a JSON object")
+
+        write_docling_outputs_from_sagemaker(self.output_dir, Path(info["file_path"]), payload)
+
+        meta = {
+            "file_path": info["file_path"],
+            "file_type": info["file_type"],
+            "processor_used": "docling",
+            "docling_mode": "sagemaker",
+            "processing_time": info["processing_time"],
+            "pages": info.get("pages"),
+            "used_fallback": info.get("used_fallback", False),
+        }
+        meta_path = doc_dir / f"{safe_stem}_metadata.json"
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump(meta, f, indent=2, ensure_ascii=False, default=str)
+
+        exported: Dict[str, str] = {
+            "metadata": str(meta_path),
+        }
+        md_path = doc_dir / f"{safe_stem}.md"
+        if md_path.exists():
+            exported["markdown"] = str(md_path)
         return exported
 
     def _export_custom(self, info: Dict[str, Any]) -> Dict[str, str]:
@@ -826,6 +916,7 @@ class DocumentProcessorV2:
         pages: Optional[int] = None,
         used_fallback: bool = False,
         error: Optional[str] = None,
+        docling_mode: Optional[str] = None,
     ) -> Dict[str, Any]:
         return {
             "file_path": str(file_path),
@@ -841,6 +932,7 @@ class DocumentProcessorV2:
             "used_fallback": used_fallback,
             "pages": pages,
             "file_size": file_size,
+            "docling_mode": docling_mode,
         }
 
     @staticmethod
