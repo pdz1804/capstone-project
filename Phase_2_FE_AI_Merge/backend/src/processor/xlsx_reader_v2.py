@@ -516,8 +516,17 @@ def _parse_cell_element(cell_el: ET.Element, shared_values: List[str]) -> Dict[s
         value_type = "inline_string"
 
     elif cell_type == "b":
-        value = raw_value == "1"
-        value_type = "boolean"
+        if raw_value == "1":
+            value = True
+            value_type = "boolean"
+        elif raw_value == "0":
+            value = False
+            value_type = "boolean"
+        else:
+            # Some workbooks emit boolean-typed cells without a cached value.
+            # Treat those as empty instead of coercing them to False.
+            value = ""
+            value_type = "empty"
 
     elif cell_type == "e":
         value = raw_value  # e.g. "#REF!", "#N/A"
