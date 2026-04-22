@@ -50,6 +50,8 @@ def search(
 ):
     cfg = merged_runtime_settings()
     try:
+        cfg_gen = cfg.get("generation", {}) or {}
+        configured_model = str(cfg_gen.get("model", "") or "").strip()
         orch = SearchOrchestrator(cfg, user_id=user_id)
         result = orch.run(
             query=req.query,
@@ -68,7 +70,7 @@ def search(
             steps = telemetry.get("steps_ms") or {}
             retrieval_cache = ((telemetry.get("cache") or {}).get("retrieval") or {})
             tokens = telemetry.get("tokens") or {}
-            usage_model = str(((result.get("generation") or {}).get("model") or requested_model or configured_model or "")).strip()
+            usage_model = str(((result.get("generation") or {}).get("model") or req.generation_model or configured_model or "")).strip()
             logger.info(
                 "Search timings: user=%s retrieval_ms=%s generation_ms=%s total_ms=%s retrieval_cache_hit=%s mode=%s scope=%s",
                 user_id,

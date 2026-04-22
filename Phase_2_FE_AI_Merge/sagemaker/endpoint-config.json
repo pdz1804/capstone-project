@@ -1,0 +1,11 @@
+{
+  "EndpointConfigName": "phase2-multimodal-rt-endpoint-cfg-20260422",
+  "ProductionVariants": [
+    {
+      "VariantName": "AllTraffic",
+      "ModelName": "phase2-multimodal-rt-model-20260420174057",
+      "InitialInstanceCount": 1,
+      "InstanceType": "ml.g4dn.xlarge"
+    }
+  ]
+}
