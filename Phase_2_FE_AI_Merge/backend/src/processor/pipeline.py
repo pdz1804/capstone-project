@@ -853,12 +853,13 @@ class DocumentProcessingPipeline:
             raise
     
     def _run_document_processing_v2(self) -> Dict:
-        """Run Stage 3 via the unified V2 router (DocumentProcessorV2).
+        """Run Stage 3 via the unified V2.1 router (DocumentProcessorV2_1).
 
-        V2 handles routing internally — all candidate files go through a
-        single entry point and are dispatched to the optimal reader.
+        V2.1 handles routing internally with SageMaker Docling support and GPU memory management.
+        All candidate files go through a single entry point and are dispatched to the optimal reader.
         """
-        from .document_processor_v2 import DocumentProcessorV2
+        # from .document_processor_v2 import DocumentProcessorV2  # DEPRECATED - use V2.1
+        from .document_processor_v2_1 import DocumentProcessorV2_1
 
         print("Processing documents with V2 unified router...")
         v2_config = self.config.document_config_v2
@@ -912,7 +913,7 @@ class DocumentProcessingPipeline:
                 print("WARNING: No inputs found for V2 document processing")
                 return {"processed_files": 0, "total_files": 0}
 
-            processor = DocumentProcessorV2(
+            processor = DocumentProcessorV2_1(
                 input_dir=self.stage_dirs["normalized"],
                 output_dir=self.stage_dirs["final_processed"],
                 config=v2_config,
@@ -924,7 +925,7 @@ class DocumentProcessingPipeline:
 
             stats = processor.process_batch(supported)
 
-            print(f"\n✓ V2 processing complete: {stats.get('processed_files', 0)}/{stats.get('total_files', 0)} files")
+            print(f"\n✓ V2.1 processing complete: {stats.get('processed_files', 0)}/{stats.get('total_files', 0)} files (SageMaker: {stats.get('sagemaker_used', 0)}, GPU cleanups: {stats.get('gpu_memory_cleanups', 0)})")
             return {
                 "processed_files": stats.get("processed_files", 0),
                 "failed_files": stats.get("failed_files", 0),

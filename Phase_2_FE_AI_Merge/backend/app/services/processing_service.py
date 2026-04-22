@@ -9,7 +9,8 @@ from typing import Any, Dict, Sequence
 from app.core.paths import is_s3_storage_backend, load_yaml_config, merged_runtime_settings, workspace_paths_for_user
 from app.storage import get_file_storage
 from src.processor.document_processor import ProcessingConfig
-from src.processor.document_processor_v2 import ProcessingConfigV2
+# from src.processor.document_processor_v2 import ProcessingConfigV2  # DEPRECATED - use V2.1
+from src.processor.document_processor_v2_1 import ProcessingConfigV2_1
 from src.processor.media_processor_enhanced import MediaProcessorConfig
 from src.processor.pipeline import DocumentProcessingPipeline, PipelineConfig
 
@@ -79,7 +80,8 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
     if excel_reader_mode not in {"xml", "docling"}:
         excel_reader_mode = "xml"
 
-    document_config_v2 = ProcessingConfigV2(
+    # V2.1: Added SageMaker Docling support
+    document_config_v2 = ProcessingConfigV2_1(
         prefer_custom_readers=_as_bool(document_v2.get("prefer_custom_readers", True), default=True),
         excel_reader_mode=excel_reader_mode,
         pptx_llm_validate_headers=_as_bool(
@@ -88,6 +90,14 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         ),
         pdf_content_source=str(document_v2.get("pdf_content_source", "hybrid")).strip().lower() or "hybrid",
         docling_config=document_config,
+        # V2.1: SageMaker Docling options
+        use_sagemaker_for_docling=_as_bool(inf.get("use_aws_sagemaker_docling", False), default=False),
+        sagemaker_docling_endpoint_name=str(inf.get("sagemaker_docling_endpoint_name", "")),
+        aws_region=str(inf.get("aws_region", "us-west-2")),
+        # V2.1: GPU memory management options
+        disable_ocr_on_gpu_pressure=_as_bool(document_v2.get("disable_ocr_on_gpu_pressure", True), default=True),
+        gpu_memory_cleanup_on_error=_as_bool(document_v2.get("gpu_memory_cleanup_on_error", True), default=True),
+        # V2.1: Runtime YAML for auto-detection
         runtime_yaml=runtime,
     )
 
