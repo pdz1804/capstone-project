@@ -264,5 +264,5 @@ python run_api.py       # Main entrypoint
 
 ```bash
 docker build -t phase2-ai-backend .
-docker run -p 5001:5000 --env-file .env phase2-ai-backend
+docker run -p 5000:5000 --env-file .env phase2-ai-backend
 ```

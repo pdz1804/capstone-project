@@ -40,7 +40,7 @@ from app.admin.routes import router as admin_router
 from app.identity.routes import auth_router as identity_auth_router
 from app.identity.routes import users_router as identity_users_router
 from app.core.paths import ensure_data_dirs, sanitize_storage_user_id
-from app.identity.user_repository_dynamo import DynamoUserRepository
+from app.identity.user_repository_factory import get_user_repository_from_env
 from app.identity.user_service import UserService
 from app.services.app_usage_service import AppUsageService
 
@@ -117,7 +117,7 @@ async def lifespan(app: FastAPI):
     ensure_data_dirs("default")
 
     try:
-        user_repo = DynamoUserRepository.from_env()
+        user_repo = get_user_repository_from_env()
         UserService(user_repo).ensure_default_admin_account()
         logger.info("Default admin bootstrap complete")
     except Exception as bootstrap_err:
