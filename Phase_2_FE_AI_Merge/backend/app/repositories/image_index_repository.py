@@ -147,7 +147,7 @@ class ImageIndexRepository:
         ids: Sequence[str],
         multivectors: List[List[List[float]]],
         payloads: List[Dict[str, Any]],
-        batch_size: int = 8,
+        batch_size: int = 16,
         wait: bool = False,
     ) -> None:
         from qdrant_client.models import PointStruct
