@@ -88,6 +88,7 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         ),
         pdf_content_source=str(document_v2.get("pdf_content_source", "hybrid")).strip().lower() or "hybrid",
         docling_config=document_config,
+        runtime_yaml=runtime,
     )
 
     cache_enabled = _as_bool(proc.get("enable_processing_cache", False), default=False)
