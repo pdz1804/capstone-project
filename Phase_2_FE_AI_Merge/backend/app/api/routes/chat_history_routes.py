@@ -34,16 +34,19 @@ def list_chat_sessions(
     user_id: str = Depends(storage_user_id),
     svc: ChatHistoryService | None = Depends(get_chat_history_service),
 ):
+    logger.info("list_chat_sessions: user_id=%s limit=%d", user_id, limit)
     if svc is None:
+        logger.warning("list_chat_sessions: ChatHistoryService is None")
         return ChatSessionsListResponse(items=[], next_cursor=None)
     try:
         items, next_cursor = svc.list_sessions(user_id=user_id, limit=limit, cursor=cursor)
+        logger.info("list_chat_sessions: Retrieved %d sessions for user_id=%s", len(items), user_id)
         return ChatSessionsListResponse(
             items=[ChatSessionItem.model_validate(x) for x in items],
             next_cursor=next_cursor,
         )
     except Exception as e:
-        logger.warning("list_chat_sessions failed: %s", e)
+        logger.warning("list_chat_sessions failed for user_id=%s: %s", user_id, e)
         return ChatSessionsListResponse(items=[], next_cursor=None)
 
 

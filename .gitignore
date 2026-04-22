@@ -541,6 +541,16 @@ docs/jmeter-main-apis/report-ready/**
 # !docs/jmeter-main-apis/report-ready/*.csv
 # !docs/jmeter-main-apis/report-ready/*.md
 
+# Capacity Tests
+docs/jmeter-capacity-tests/reports/**
+docs/jmeter-capacity-tests/report-ready/**
+docs/jmeter-capacity-tests/results/**
+docs/jmeter-capacity-tests/jmeter.log
+docs/jmeter-capacity-tests/*.jtl
+docs/jmeter-capacity-tests/*.xml
+docs/jmeter-capacity-tests/data/users.csv
+docs/jmeter-capacity-tests/data/user_file_mapping_with_passwords.csv
+
 # Spyder project settings
 .spyderproject
 .spyproject

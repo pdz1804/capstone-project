@@ -19,6 +19,30 @@ const getFirebaseAuthIfNeeded = async (): Promise<any | null> => {
   return firebaseAuthPromise;
 };
 
+// Export this function so ChatAssistantView can use the same auth logic
+export const getConsistentAuthHeaders = async (): Promise<Record<string, string>> => {
+  const auth = await getFirebaseAuthIfNeeded();
+  const user = auth?.currentUser;
+  const headers: Record<string, string> = {};
+
+  if (user) {
+    const token = await user.getIdToken();
+    headers['Authorization'] = `Bearer ${token}`;
+    headers['X-User-Id'] = user.uid;
+  } else {
+    const localToken = localStorage.getItem(LOCAL_AUTH_TOKEN_KEY);
+    const localUid = localStorage.getItem(LOCAL_AUTH_UID_KEY);
+    if (localToken) {
+      headers['Authorization'] = `Bearer ${localToken}`;
+    }
+    if (localUid) {
+      headers['X-User-Id'] = localUid;
+    }
+  }
+
+  return headers;
+};
+
 const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
