@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import uuid
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
@@ -15,29 +16,77 @@ import redis
 
 logger = logging.getLogger(__name__)
 
-# Configuration
-MAX_CONCURRENT_JOBS_PER_USER = 3
-MAX_CONCURRENT_JOBS_GLOBAL = 20
-JOB_TTL_SECONDS = 3600  # 1 hour
 
-
-def _get_redis_client() -> redis.Redis:
-    """Get or create Redis client. Uses default localhost:6379."""
+def _get_redis_client(redis_url: str = None) -> redis.Redis:
+    """Get or create Redis client with optional URL override."""
     try:
-        import os
-        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-        return redis.from_url(redis_url, decode_responses=True)
+        url = redis_url or os.getenv("REDIS_URL", "redis://localhost:6379/0")
+        logger.info("Connecting to Redis: %s", url.split("@")[-1] if "@" in url else url)
+        return redis.from_url(url, decode_responses=True)
     except Exception as e:
         logger.error("Failed to connect to Redis: %s", e)
         raise
 
 
 class IndexingJobService:
-    """Manages indexing job lifecycle using Redis."""
+    """Manages indexing job lifecycle using Redis.
 
-    def __init__(self):
-        self._redis = _get_redis_client()
+    Supports configuration-driven limits and fallback behavior.
+    """
+
+    def __init__(self, config=None):
+        """Initialize job service with optional config.
+
+        Args:
+            config: RuntimeSettings object with async_indexing config, or None to use defaults
+        """
+        self.config = config
+        self.enabled = True
+        self.max_per_user = 3
+        self.max_global = 20
+        self.job_ttl = 3600
+        self.fallback_to_blocking = False
+        self.redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+        # Load from config if provided
+        if config and hasattr(config, "async_indexing"):
+            async_cfg = config.async_indexing
+            self.enabled = getattr(async_cfg, "enabled", True)
+            self.max_per_user = getattr(async_cfg, "max_concurrent_per_user", 3)
+            self.max_global = getattr(async_cfg, "max_concurrent_global", 20)
+            self.job_ttl = getattr(async_cfg, "job_ttl_seconds", 3600)
+            self.fallback_to_blocking = getattr(async_cfg, "fallback_to_blocking", False)
+            self.redis_url = getattr(async_cfg, "redis_url", self.redis_url)
+
+        logger.info(
+            "IndexingJobService initialized: enabled=%s, "
+            "max_per_user=%d, max_global=%d, fallback=%s",
+            self.enabled,
+            self.max_per_user,
+            self.max_global,
+            self.fallback_to_blocking,
+        )
+
+        self._redis = None
         self._prefix = "phase2:index"
+        self._init_redis()
+
+    def _init_redis(self):
+        """Initialize Redis connection with fallback handling."""
+        if not self.enabled:
+            logger.info("Async indexing disabled - Redis not needed")
+            return
+
+        try:
+            self._redis = _get_redis_client(self.redis_url)
+            # Test connection
+            self._redis.ping()
+            logger.info("Redis connection successful")
+        except Exception as e:
+            logger.error("Failed to connect to Redis: %s", e)
+            if not self.fallback_to_blocking:
+                raise
+            logger.warning("Redis unavailable - fallback mode enabled")
 
     def create_job(
         self,
@@ -54,29 +103,36 @@ class IndexingJobService:
             params: Job parameters (selected_paths, selected_names, force, mode, etc.)
 
         Returns:
-            job_id (UUID string) if successful, None if concurrency limit hit
+            job_id (UUID string) if successful, None if concurrency limit hit or system disabled
         """
+        if not self.enabled:
+            logger.debug("Async indexing disabled, creating dummy job")
+            return self._create_dummy_job(user_id, job_type, params)
+
         try:
+            if not self._redis:
+                raise redis.ConnectionError("Redis client not initialized")
+
             # Check per-user concurrency limit
             active_key = f"{self._prefix}:active:{user_id}"
             active_jobs = self._redis.smembers(active_key)
-            if len(active_jobs) >= MAX_CONCURRENT_JOBS_PER_USER:
+            if len(active_jobs) >= self.max_per_user:
                 logger.warning(
                     "Per-user concurrency limit hit for user=%s (active=%d, max=%d)",
                     user_id,
                     len(active_jobs),
-                    MAX_CONCURRENT_JOBS_PER_USER,
+                    self.max_per_user,
                 )
                 return None
 
             # Check global concurrency limit
             global_active_key = f"{self._prefix}:global_active"
             total_active = self._redis.scard(global_active_key)
-            if total_active >= MAX_CONCURRENT_JOBS_GLOBAL:
+            if total_active >= self.max_global:
                 logger.warning(
                     "Global concurrency limit hit (active=%d, max=%d)",
                     total_active,
-                    MAX_CONCURRENT_JOBS_GLOBAL,
+                    self.max_global,
                 )
                 return None
 
@@ -101,21 +157,44 @@ class IndexingJobService:
 
             pipe = self._redis.pipeline()
             pipe.hset(job_key, mapping=job_data)
-            pipe.expire(job_key, JOB_TTL_SECONDS)
+            pipe.expire(job_key, self.job_ttl)
             pipe.sadd(active_key, job_id)
-            pipe.expire(active_key, JOB_TTL_SECONDS)
+            pipe.expire(active_key, self.job_ttl)
             pipe.sadd(global_active_key, job_id)
-            pipe.expire(global_active_key, JOB_TTL_SECONDS)
+            pipe.expire(global_active_key, self.job_ttl)
             pipe.execute()
 
             logger.info("Created job job_id=%s user_id=%s job_type=%s", job_id, user_id, job_type)
             return job_id
+
+        except redis.ConnectionError as e:
+            logger.error("Redis connection error while creating job: %s", e)
+            if self.fallback_to_blocking:
+                logger.info("Falling back to blocking mode (Redis unavailable)")
+                return self._create_dummy_job(user_id, job_type, params)
+            logger.error("Fallback disabled - job creation failed")
+            raise
         except Exception as e:
             logger.exception("Failed to create job: %s", e)
             return None
 
+    def _create_dummy_job(self, user_id: str, job_type: str, params: Dict) -> str:
+        """Create a dummy job when async is disabled or Redis unavailable."""
+        job_id = str(uuid.uuid4())
+        logger.info(
+            "Created dummy job (fallback/disabled) job_id=%s user_id=%s job_type=%s",
+            job_id,
+            user_id,
+            job_type,
+        )
+        return job_id
+
     def get_job(self, job_id: str) -> Optional[Dict[str, Any]]:
         """Fetch full job metadata by job_id."""
+        if not self.enabled or not self._redis:
+            logger.debug("Job system disabled or Redis unavailable - returning None")
+            return None
+
         try:
             job_key = f"{self._prefix}:job:{job_id}"
             data = self._redis.hgetall(job_key)
@@ -167,7 +246,7 @@ class IndexingJobService:
 
             if updates:
                 self._redis.hset(job_key, mapping=updates)
-                self._redis.expire(job_key, JOB_TTL_SECONDS)
+                self._redis.expire(job_key, self.job_ttl)
 
             return True
         except Exception as e:
