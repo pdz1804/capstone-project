@@ -124,13 +124,19 @@ class ColQwenInferenceService:
         device = next(model.parameters()).device
         all_emb: List[List[List[float]]] = []
         n_patches: List[int] = []
+
         with torch.no_grad():
-            for im in images:
-                inputs = processor.process_images([im.convert("RGB")]).to(device)
+            batch_size = 16
+            for i in range(0, len(images), batch_size):
+                batch = images[i : i + batch_size]
+                rgb_batch = [im.convert("RGB") for im in batch]
+                inputs = processor.process_images(rgb_batch).to(device)
                 out = _as_tensor(model(**inputs))
-                t = out[0].float().cpu().tolist()
-                all_emb.append(t)
-                n_patches.append(len(t))
+                for j, emb_vec in enumerate(out):
+                    t = emb_vec.float().cpu().tolist()
+                    all_emb.append(t)
+                    n_patches.append(len(t))
+
         return all_emb, n_patches
 
     def _ensure_local(self) -> Tuple[Any, Any]:
