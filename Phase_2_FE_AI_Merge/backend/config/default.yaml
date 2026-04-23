@@ -75,6 +75,16 @@ processing:
     export_tables: false            # Disable table extraction to reduce processing time
 
 # ============================================================================
+# ASYNC INDEXING JOB CONFIGURATION
+# ============================================================================
+async_indexing:
+  enabled: true
+  max_concurrent_per_user: 3
+  max_concurrent_global: 200
+  job_ttl_seconds: 900
+  fallback_to_blocking: true
+
+# ============================================================================
 # TEXT RETRIEVAL CONFIGURATION
 # ============================================================================
 text_retrieval:

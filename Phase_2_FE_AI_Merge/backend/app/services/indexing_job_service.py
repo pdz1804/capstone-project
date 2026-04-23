@@ -43,7 +43,7 @@ class IndexingJobService:
         self.config = config
         self.enabled = True
         self.max_per_user = 3
-        self.max_global = 20
+        self.max_global = 200
         self.job_ttl = 3600
         self.fallback_to_blocking = False
         self.redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
@@ -53,7 +53,7 @@ class IndexingJobService:
             async_cfg = config.async_indexing
             self.enabled = getattr(async_cfg, "enabled", True)
             self.max_per_user = getattr(async_cfg, "max_concurrent_per_user", 3)
-            self.max_global = getattr(async_cfg, "max_concurrent_global", 20)
+            self.max_global = getattr(async_cfg, "max_concurrent_global", 200)
             self.job_ttl = getattr(async_cfg, "job_ttl_seconds", 3600)
             self.fallback_to_blocking = getattr(async_cfg, "fallback_to_blocking", False)
             self.redis_url = getattr(async_cfg, "redis_url", self.redis_url)
