@@ -155,7 +155,9 @@ class IndexingJobService:
                 "completed_at": "",
             }
 
-            pipe = self._redis.pipeline()
+            # Redis Cluster cannot execute MULTI/EXEC across different hash slots.
+            # Use a non-transactional pipeline to avoid CROSSSLOT failures.
+            pipe = self._redis.pipeline(transaction=False)
             pipe.hset(job_key, mapping=job_data)
             pipe.expire(job_key, self.job_ttl)
             pipe.sadd(active_key, job_id)
@@ -273,7 +275,7 @@ class IndexingJobService:
             active_key = f"{self._prefix}:active:{user_id}"
             global_active_key = f"{self._prefix}:global_active"
 
-            pipe = self._redis.pipeline()
+            pipe = self._redis.pipeline(transaction=False)
             pipe.delete(job_key)
             pipe.srem(active_key, job_id)
             pipe.srem(global_active_key, job_id)
@@ -290,7 +292,7 @@ class IndexingJobService:
         try:
             active_key = f"{self._prefix}:active:{user_id}"
             active_jobs = self._redis.smembers(active_key)
-            return len(active_jobs) < MAX_CONCURRENT_JOBS_PER_USER
+            return len(active_jobs) < self.max_per_user
         except Exception as e:
             logger.warning("Failed to check concurrency limit for user=%s: %s", user_id, e)
             return True  # Fail open (allow job to proceed if Redis is unavailable)
@@ -303,7 +305,7 @@ class IndexingJobService:
                 user_id = job.get("user_id")
                 active_key = f"{self._prefix}:active:{user_id}"
                 global_active_key = f"{self._prefix}:global_active"
-                pipe = self._redis.pipeline()
+                pipe = self._redis.pipeline(transaction=False)
                 pipe.srem(active_key, job_id)
                 pipe.srem(global_active_key, job_id)
                 pipe.execute()
