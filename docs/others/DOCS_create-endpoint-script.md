@@ -3,7 +3,7 @@
 ```powershell
 $region = "us-west-2"
 $accountId = "381492273521"
-$modelName = "phase2-multimodal-rt-model-20260414232148"
+$modelName = "phase2-multimodal-rt-model-20260420174057"
 $endpointName = "phase2-multimodal-rt"
 $instanceType = "ml.g4dn.xlarge"
 $initialCount = 1
