@@ -21,11 +21,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["search"])
 
 
+DEFAULT_KNOWLEDGE_EXPLORER_MODEL = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+
+
 BEDROCK_KNOWLEDGE_EXPLORER_MODELS: List[str] = [
     "us.anthropic.claude-haiku-4-5-20251001-v1:0",
     "google.gemma-3-27b-it",
     "us.anthropic.claude-sonnet-4-20250514-v1:0",
     "us.anthropic.claude-sonnet-4-6",
+    "zai.glm-4.7-flash",
+    "zai.glm-4.7",
+    "zai.glm-5",
 ]
 
 
@@ -52,6 +58,7 @@ def search(
     generation_cfg = (cfg.get("generation", {}) or {})
     configured_model = str(generation_cfg.get("model", "") or "").strip()
     requested_model = str(req.generation_model or "").strip()
+    effective_model = requested_model or DEFAULT_KNOWLEDGE_EXPLORER_MODEL
     try:
         orch = SearchOrchestrator(cfg, user_id=user_id)
         result = orch.run(
@@ -62,7 +69,7 @@ def search(
             images_for_generation=req.images_for_generation,
             mode=req.mode,
             search_scope=req.search_scope,
-            generation_model=req.generation_model,
+            generation_model=effective_model,
             # Reranker is disabled globally for latency optimization.
             skip_reranker=True,
         )
@@ -71,7 +78,9 @@ def search(
             steps = telemetry.get("steps_ms") or {}
             retrieval_cache = ((telemetry.get("cache") or {}).get("retrieval") or {})
             tokens = telemetry.get("tokens") or {}
-            usage_model = str(((result.get("generation") or {}).get("model") or requested_model or configured_model or "")).strip()
+            usage_model = str(
+                ((result.get("generation") or {}).get("model") or effective_model or configured_model or "")
+            ).strip()
             logger.info(
                 "Search timings: user=%s retrieval_ms=%s generation_ms=%s total_ms=%s retrieval_cache_hit=%s mode=%s scope=%s",
                 user_id,

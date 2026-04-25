@@ -10,6 +10,7 @@ import logging
 import os
 import uuid
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import Any, Dict, Optional
 
 import redis
@@ -65,6 +66,8 @@ class IndexingJobService:
         self.job_ttl = _env_int("ASYNC_INDEXING_JOB_TTL_SECONDS", 3600)
         self.fallback_to_blocking = _env_bool("ASYNC_INDEXING_FALLBACK_TO_BLOCKING", False)
         self.redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+        self.dynamo_jobs_table = os.getenv("DYNAMODB_JOBS_TABLE", "bk_mind_app_jobs").strip()
+        self.aws_region = (os.getenv("AWS_REGION") or "us-east-1").strip()
 
         # Load from config if provided (dict or object), then allow env override.
         async_cfg = None
@@ -106,8 +109,62 @@ class IndexingJobService:
         )
 
         self._redis = None
+        self._dynamo_table = None
         self._prefix = "phase2:index"
         self._init_redis()
+        self._init_dynamodb()
+
+    @staticmethod
+    def _to_dynamo_value(value: Any) -> Any:
+        if isinstance(value, list):
+            return [IndexingJobService._to_dynamo_value(v) for v in value]
+        if isinstance(value, dict):
+            return {k: IndexingJobService._to_dynamo_value(v) for k, v in value.items()}
+        if isinstance(value, float):
+            return Decimal(str(value))
+        return value
+
+    def _init_dynamodb(self) -> None:
+        """Initialize DynamoDB table for durable job persistence."""
+        if not self.dynamo_jobs_table:
+            logger.info("DynamoDB jobs table is empty, durable job persistence disabled")
+            return
+        try:
+            import boto3
+
+            resource = boto3.resource("dynamodb", region_name=self.aws_region)
+            self._dynamo_table = resource.Table(self.dynamo_jobs_table)
+            logger.info(
+                "DynamoDB job persistence enabled: table=%s region=%s",
+                self.dynamo_jobs_table,
+                self.aws_region,
+            )
+        except Exception as e:
+            self._dynamo_table = None
+            logger.warning("DynamoDB jobs persistence unavailable: %s", e)
+
+    def _upsert_job_dynamo(self, payload: Dict[str, Any]) -> None:
+        """Persist job snapshot to DynamoDB (best effort, non-blocking)."""
+        if not self._dynamo_table:
+            return
+        try:
+            item = dict(payload)
+            item["updated_at"] = str(int(datetime.utcnow().timestamp()))
+            self._dynamo_table.put_item(Item=self._to_dynamo_value(item))
+        except Exception as e:
+            logger.warning("Failed to persist job to DynamoDB job_id=%s: %s", payload.get("job_id"), e)
+
+    def _sync_job_to_dynamo(self, job_id: str) -> None:
+        """Sync current Redis job snapshot to DynamoDB (best effort)."""
+        if not self._dynamo_table or not job_id:
+            return
+        try:
+            job = self.get_job(job_id)
+            if not job:
+                return
+            self._upsert_job_dynamo(job)
+        except Exception as e:
+            logger.warning("Failed to sync job snapshot to DynamoDB job_id=%s: %s", job_id, e)
 
     def _init_redis(self):
         """Initialize Redis connection with fallback handling."""
@@ -205,6 +262,7 @@ class IndexingJobService:
             pipe.execute()
 
             logger.info("Created job job_id=%s user_id=%s job_type=%s", job_id, user_id, job_type)
+            self._upsert_job_dynamo(job_data)
             return job_id
 
         except redis.ConnectionError as e:
@@ -270,8 +328,15 @@ class IndexingJobService:
 
             if status:
                 updates["status"] = status
-                if status == "running" and not self._redis.hexists(job_key, "started_at"):
-                    updates["started_at"] = str(int(datetime.utcnow().timestamp()))
+                if status == "running":
+                    started_at_raw = ""
+                    try:
+                        started_at_raw = str(self._redis.hget(job_key, "started_at") or "").strip()
+                    except Exception:
+                        started_at_raw = ""
+                    # Set started_at on first transition to running (also fixes existing rows with empty started_at)
+                    if not started_at_raw:
+                        updates["started_at"] = str(int(datetime.utcnow().timestamp()))
                 if status in ("completed", "failed"):
                     updates["completed_at"] = str(int(datetime.utcnow().timestamp()))
 
@@ -287,6 +352,7 @@ class IndexingJobService:
             if updates:
                 self._redis.hset(job_key, mapping=updates)
                 self._redis.expire(job_key, self.job_ttl)
+                self._sync_job_to_dynamo(job_id)
 
             return True
         except Exception as e:

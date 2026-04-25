@@ -54,6 +54,12 @@ docs/jmeter-capacity-tests/report_06_1loop_async/*
 docs/jmeter-capacity-tests/report_06_1loop_async_r5/*
 docs/jmeter-capacity-tests/report_06_jobtrack_fix1/*
 docs/jmeter-capacity-tests/report_08_search/*
+docs/jmeter-capacity-tests/report_05_process_poll_60s/*
+docs/jmeter-capacity-tests/report_06_concurrency_only_20_0/*
+docs/jmeter-capacity-tests/report_06_index_poll_60s/*
+docs/jmeter-capacity-tests/report_06_jobtrack_fix2/*
+docs/jmeter-capacity-tests/report_08_search_20/*
+docs/jmeter-capacity-tests/report_06_jobtrack_stable/*
 
 
 # -------------------------
