@@ -17,6 +17,24 @@ import redis
 logger = logging.getLogger(__name__)
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return str(raw).strip().lower() in ("1", "true", "yes", "on")
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        return int(str(raw).strip())
+    except (TypeError, ValueError):
+        logger.warning("Invalid %s=%r, using default=%d", name, raw, default)
+        return default
+
+
 def _get_redis_client(redis_url: str = None) -> redis.Redis:
     """Get or create Redis client with optional URL override."""
     try:
@@ -41,22 +59,42 @@ class IndexingJobService:
             config: RuntimeSettings object with async_indexing config, or None to use defaults
         """
         self.config = config
-        self.enabled = True
-        self.max_per_user = 3
-        self.max_global = 200
-        self.job_ttl = 3600
-        self.fallback_to_blocking = False
+        self.enabled = _env_bool("ASYNC_INDEXING_ENABLED", True)
+        self.max_per_user = _env_int("ASYNC_INDEXING_MAX_PER_USER", 3)
+        self.max_global = _env_int("ASYNC_INDEXING_MAX_GLOBAL", 200)
+        self.job_ttl = _env_int("ASYNC_INDEXING_JOB_TTL_SECONDS", 3600)
+        self.fallback_to_blocking = _env_bool("ASYNC_INDEXING_FALLBACK_TO_BLOCKING", False)
         self.redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
-        # Load from config if provided
-        if config and hasattr(config, "async_indexing"):
-            async_cfg = config.async_indexing
-            self.enabled = getattr(async_cfg, "enabled", True)
-            self.max_per_user = getattr(async_cfg, "max_concurrent_per_user", 3)
-            self.max_global = getattr(async_cfg, "max_concurrent_global", 200)
-            self.job_ttl = getattr(async_cfg, "job_ttl_seconds", 3600)
-            self.fallback_to_blocking = getattr(async_cfg, "fallback_to_blocking", False)
+        # Load from config if provided (dict or object), then allow env override.
+        async_cfg = None
+        if isinstance(config, dict):
+            async_cfg = config.get("async_indexing")
+        elif config and hasattr(config, "async_indexing"):
+            async_cfg = getattr(config, "async_indexing")
+
+        if isinstance(async_cfg, dict):
+            self.enabled = bool(async_cfg.get("enabled", self.enabled))
+            self.max_per_user = int(async_cfg.get("max_concurrent_per_user", self.max_per_user))
+            self.max_global = int(async_cfg.get("max_concurrent_global", self.max_global))
+            self.job_ttl = int(async_cfg.get("job_ttl_seconds", self.job_ttl))
+            self.fallback_to_blocking = bool(async_cfg.get("fallback_to_blocking", self.fallback_to_blocking))
+            self.redis_url = str(async_cfg.get("redis_url", self.redis_url) or self.redis_url)
+        elif async_cfg is not None:
+            self.enabled = getattr(async_cfg, "enabled", self.enabled)
+            self.max_per_user = getattr(async_cfg, "max_concurrent_per_user", self.max_per_user)
+            self.max_global = getattr(async_cfg, "max_concurrent_global", self.max_global)
+            self.job_ttl = getattr(async_cfg, "job_ttl_seconds", self.job_ttl)
+            self.fallback_to_blocking = getattr(async_cfg, "fallback_to_blocking", self.fallback_to_blocking)
             self.redis_url = getattr(async_cfg, "redis_url", self.redis_url)
+
+        # Env always wins in deployment.
+        self.enabled = _env_bool("ASYNC_INDEXING_ENABLED", bool(self.enabled))
+        self.max_per_user = _env_int("ASYNC_INDEXING_MAX_PER_USER", int(self.max_per_user))
+        self.max_global = _env_int("ASYNC_INDEXING_MAX_GLOBAL", int(self.max_global))
+        self.job_ttl = _env_int("ASYNC_INDEXING_JOB_TTL_SECONDS", int(self.job_ttl))
+        self.fallback_to_blocking = _env_bool("ASYNC_INDEXING_FALLBACK_TO_BLOCKING", bool(self.fallback_to_blocking))
+        self.redis_url = os.getenv("REDIS_URL", self.redis_url)
 
         logger.info(
             "IndexingJobService initialized: enabled=%s, "
