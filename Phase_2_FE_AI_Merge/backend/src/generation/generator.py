@@ -67,7 +67,7 @@ def _bedrock_model_supports_vision(model_id: str) -> bool:
     if not mid:
         return True
     # Known text-only in our allowed set.
-    if mid.startswith("google.gemma"):
+    if mid.startswith("google.gemma") or mid.startswith("zai.glm"):
         return False
     return True
 

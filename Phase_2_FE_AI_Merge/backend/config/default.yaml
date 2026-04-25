@@ -179,8 +179,8 @@ generation:
   # LLM Provider: "openai", "azure", "ollama", "bedrock" (Anthropic Claude on Amazon Bedrock)
   provider: "bedrock"
   
-  # Model: OpenAI name, or Bedrock model ID e.g. Claude Haiku 4.5 (text + image in, text out)
-  model: "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+  # Model: OpenAI name, or Bedrock model ID (default non-search generation model)
+  model: "zai.glm-4.7-flash"
   
   # Region for bedrock-runtime (defaults to AWS_REGION)
   bedrock_region: ""

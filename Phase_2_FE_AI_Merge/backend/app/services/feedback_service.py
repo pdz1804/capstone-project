@@ -21,7 +21,7 @@ ALLOWED_CATEGORIES: List[str] = [
     "User Experience",
 ]
 
-DEFAULT_CLASSIFIER_MODEL = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+DEFAULT_CLASSIFIER_MODEL = "zai.glm-4.7-flash"
 
 
 class FeedbackService:
