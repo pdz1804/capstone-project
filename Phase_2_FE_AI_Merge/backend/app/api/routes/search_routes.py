@@ -49,6 +49,9 @@ def search(
     user_id: str = Depends(storage_user_id),
 ):
     cfg = merged_runtime_settings()
+    generation_cfg = (cfg.get("generation", {}) or {})
+    configured_model = str(generation_cfg.get("model", "") or "").strip()
+    requested_model = str(req.generation_model or "").strip()
     try:
         orch = SearchOrchestrator(cfg, user_id=user_id)
         result = orch.run(

@@ -15,7 +15,7 @@ from app.services.processing_service import run_processing
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["pipeline"])
 
-_job_service = IndexingJobService()
+_job_service = IndexingJobService(config=merged_runtime_settings())
 
 
 @router.get("/index/status/{job_id}")

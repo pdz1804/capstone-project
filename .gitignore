@@ -49,6 +49,13 @@ _bmad-output/
 .env/
 capstone/
 
+docs/jmeter-capacity-tests/report_06_1loop_2/*
+docs/jmeter-capacity-tests/report_06_1loop_async/*
+docs/jmeter-capacity-tests/report_06_1loop_async_r5/*
+docs/jmeter-capacity-tests/report_06_jobtrack_fix1/*
+docs/jmeter-capacity-tests/report_08_search/*
+
+
 # -------------------------
 # Python
 # -------------------------
