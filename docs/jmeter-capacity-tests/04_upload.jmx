@@ -8,11 +8,13 @@
           <elementProp name="apiport" elementType="Argument"><stringProp name="Argument.name">apiport</stringProp><stringProp name="Argument.value">${__P(apiport,443)}</stringProp></elementProp>
           <elementProp name="protocol" elementType="Argument"><stringProp name="Argument.name">protocol</stringProp><stringProp name="Argument.value">${__P(protocol,https)}</stringProp></elementProp>
           <elementProp name="threads" elementType="Argument"><stringProp name="Argument.name">threads</stringProp><stringProp name="Argument.value">${__P(threads,5)}</stringProp></elementProp>
-          <elementProp name="ramp_up" elementType="Argument"><stringProp name="Argument.name">ramp_up</stringProp><stringProp name="Argument.value">${__P(ramp_up,5)}</stringProp></elementProp>
-          <elementProp name="duration" elementType="Argument"><stringProp name="Argument.name">duration</stringProp><stringProp name="Argument.value">${__P(duration,15)}</stringProp></elementProp>
-          <elementProp name="users_csv" elementType="Argument"><stringProp name="Argument.name">users_csv</stringProp><stringProp name="Argument.value">${__P(users_csv,data/users.csv)}</stringProp></elementProp>
+          <elementProp name="ramp_up" elementType="Argument"><stringProp name="Argument.name">ramp_up</stringProp><stringProp name="Argument.value">${__P(ramp_up,0)}</stringProp></elementProp>
+          <elementProp name="loops" elementType="Argument"><stringProp name="Argument.name">loops</stringProp><stringProp name="Argument.value">${__P(loops,1)}</stringProp></elementProp>
+          <elementProp name="mapping_csv" elementType="Argument"><stringProp name="Argument.name">mapping_csv</stringProp><stringProp name="Argument.value">${__P(mapping_csv,data/user_file_mapping_with_passwords.csv)}</stringProp></elementProp>
           <elementProp name="upload_file_path" elementType="Argument"><stringProp name="Argument.name">upload_file_path</stringProp><stringProp name="Argument.value">${__P(upload_file_path,data/Text_mining_by_using_Python2025_5pages.pdf)}</stringProp></elementProp>
           <elementProp name="upload_mime_type" elementType="Argument"><stringProp name="Argument.name">upload_mime_type</stringProp><stringProp name="Argument.value">${__P(upload_mime_type,application/pdf)}</stringProp></elementProp>
+          <elementProp name="response_timeout_ms" elementType="Argument"><stringProp name="Argument.name">response_timeout_ms</stringProp><stringProp name="Argument.value">${__P(response_timeout_ms,600000)}</stringProp></elementProp>
+          <elementProp name="connect_timeout_ms" elementType="Argument"><stringProp name="Argument.name">connect_timeout_ms</stringProp><stringProp name="Argument.value">${__P(connect_timeout_ms,60000)}</stringProp></elementProp>
         </collectionProp>
       </elementProp>
     </TestPlan>
@@ -21,15 +23,15 @@
         <stringProp name="HTTPSampler.domain">${apihost}</stringProp>
         <stringProp name="HTTPSampler.port">${apiport}</stringProp>
         <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
-        <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
-        <stringProp name="HTTPSampler.response_timeout">120000</stringProp>
+        <stringProp name="HTTPSampler.connect_timeout">${connect_timeout_ms}</stringProp>
+        <stringProp name="HTTPSampler.response_timeout">${response_timeout_ms}</stringProp>
       </ConfigTestElement>
       <hashTree/>
       <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load Users" enabled="true">
-        <stringProp name="filename">${users_csv}</stringProp>
+        <stringProp name="filename">${mapping_csv}</stringProp>
         <stringProp name="delimiter">,</stringProp>
         <boolProp name="quotedData">false</boolProp>
-        <boolProp name="recycle">true</boolProp>
+        <boolProp name="recycle">false</boolProp>
         <stringProp name="shareMode">All</stringProp>
       </CSVDataSet>
       <hashTree/>
@@ -37,12 +39,12 @@
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">-1</stringProp>
+          <stringProp name="LoopController.loops">${loops}</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">${threads}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">${ramp_up}</stringProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">${duration}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
       </ThreadGroup>
       <hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/auth/login-local" enabled="true">
@@ -109,6 +111,10 @@
               <elementProp name="Authorization" elementType="Header">
                 <stringProp name="Header.name">Authorization</stringProp>
                 <stringProp name="Header.value">Bearer ${token}</stringProp>
+              </elementProp>
+              <elementProp name="X-User-Id" elementType="Header">
+                <stringProp name="Header.name">X-User-Id</stringProp>
+                <stringProp name="Header.value">${user_id}</stringProp>
               </elementProp>
             </collectionProp>
           </HeaderManager>

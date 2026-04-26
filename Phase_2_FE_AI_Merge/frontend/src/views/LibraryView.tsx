@@ -691,7 +691,7 @@ export default function LibraryView({
   };
 
   return (
-    <div className="w-full max-w-[1720px] mx-auto space-y-7 pb-12 px-1 sm:px-2">
+    <div className="w-full space-y-7 pb-12">
       {/* Upload/Pipeline/Index Control Section */}
       {controlMode === 'upload' && (
         <div
@@ -745,22 +745,30 @@ export default function LibraryView({
 
       {(controlMode === 'process' || controlMode === 'index') && (
         <div className="bg-white rounded-2xl border border-sky-100 shadow-[0_16px_36px_-28px_rgba(14,165,233,0.55)] p-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="space-y-2 text-center md:text-left">
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.5fr)_auto] items-center gap-8 xl:gap-12">
+            <div className="space-y-2 text-center xl:text-left">
               <h3 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2 justify-center md:justify-start">
                 {controlMode === 'process' ? <><Play className="w-5 h-5 text-sky-600" /> Pipeline Control</> : <><Layers className="w-5 h-5 text-emerald-600" /> Vector Index Control</>}
               </h3>
-              <p className="text-slate-500 font-medium leading-relaxed max-w-md">
+              <p className="text-slate-500 font-medium leading-relaxed xl:max-w-2xl">
                 {controlMode === 'process'
                   ? 'Select staged files from the library below to start transcription and insight extraction.'
                   : 'Select processed files to build the semantic search index.'}
               </p>
-              <p className="text-xs text-slate-500 max-w-md">
+              <p className="text-xs text-slate-600 xl:max-w-2xl">
+                {controlMode === 'process'
+                  ? 'Estimated time: 3 - 5s per page.'
+                  : 'Estimated time: 7s per page.'}
+              </p>
+              <p className="text-xs text-amber-700 xl:max-w-2xl">
+                Note: Actual processing time can vary depending on the number of active users currently using the system.
+              </p>
+              <p className="text-xs text-slate-500 xl:max-w-2xl">
                 Uploading only places files in staged state. Run Pipeline first to move files to <span className="font-semibold">Processed</span>, then Build Index to make them searchable in Knowledge Explorer and visible as chunks in Lecture Viewer.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="flex flex-wrap items-center justify-center xl:justify-end gap-4">
               <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mode</span>
                 <select

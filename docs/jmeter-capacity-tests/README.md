@@ -29,6 +29,9 @@ jmeter-capacity-tests/
 │
 ├── Test Command Files
 │   ├── COMMANDS_WINDOWS.md                    # Search/Index/Process test commands
+│   ├── runs/README_MAIN_APIS.md               # 05/06/08: JMeter + JTL + Dynamo + search CSV
+│   ├── runs/README_NON_MAIN_APIS.md           # 01–04, 09–12: JMeter + jtl_metrics_csv
+│   ├── runs/README.md                         # Short index → links above
 │   └── CHAT_INSIGHTS_TEST_COMMANDS.md         # Chat & Insights API test commands (NEW)
 │
 ├── Result Files
@@ -127,7 +130,7 @@ See **CHAT_INSIGHTS_TEST_COMMANDS.md** for all Chat & Insights API commands.
 jmeter -n -t 08_search_mapped.jmx -Jmapping_csv="data/user_file_mapping_with_passwords.csv" -Jthreads=10 -Jramp_up=5 -Jduration=60 -Jsearch_query="mining" -l "results/08-search_mining_10threads_$(Get-Date -Format 'yyyyMMdd_HHmmss').jtl"
 ```
 
-See **COMMANDS_WINDOWS.md** for Search, Index, and Process API commands.
+See **runs/README_MAIN_APIS.md** for Search, Index, and Process (JTL, Dynamo CSV, `jtl_metrics_csv`). **COMMANDS_WINDOWS.md** has additional Windows-oriented snippets.
 
 ### Manual Test Command Template
 
@@ -368,6 +371,8 @@ Throughput:
 
 - [JMeter Documentation](https://jmeter.apache.org/usermanual/)
 - [Chat & Insights API Commands](CHAT_INSIGHTS_TEST_COMMANDS.md)
+- [Main APIs runbook — 05 / 06 / 08](runs/README_MAIN_APIS.md)
+- [Non-main APIs runbook — 01–04, 09–12](runs/README_NON_MAIN_APIS.md)
 - [Search/Index/Process Commands](COMMANDS_WINDOWS.md)
 - [Performance Testing Report](../PERFORMANCE_TESTING_FINAL_RELEASE_REPORT_2026-04-21.md)
 - [API Documentation](../API_SCHEMA.md)

@@ -377,6 +377,14 @@ export async function postSummary(payload: {
   return data;
 }
 
+export async function postLectureVisualization(payload: {
+  topic?: string;
+  document_id?: string | null;
+}): Promise<{ image_base64?: string; mime_type?: string; model_text?: string; error?: string }> {
+  const { data } = await apiClient.post('/insights/visualization', payload);
+  return data;
+}
+
 export async function postMcq(payload: {
   topic: string;
   num_questions: number;
@@ -447,7 +455,24 @@ export type ChatSessionMessage = {
   created_at: string;
   traces?: Array<Record<string, unknown>>;
   suggestions?: string[];
+  attachments?: Array<Record<string, unknown>>;
 };
+
+export async function getChatAttachmentBlob(
+  sessionId: string,
+  messageId: string,
+  index = 0
+): Promise<Blob | null> {
+  try {
+    const { data } = await apiClient.get('/chat/attachment', {
+      ...blobGetConfig,
+      params: { session_id: sessionId, message_id: messageId, index },
+    });
+    return data instanceof Blob ? data : null;
+  } catch {
+    return null;
+  }
+}
 
 export type FeedbackVote = 'like' | 'dislike' | 'general';
 

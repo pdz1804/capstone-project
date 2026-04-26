@@ -1,0 +1,2 @@
+﻿label,samples,errors,error_pct,elapsed_ms_min,elapsed_ms_max,elapsed_ms_mean,elapsed_ms_p50,elapsed_ms_p90,elapsed_ms_p95,elapsed_ms_p99,latency_ms_min,latency_ms_max,latency_ms_mean,latency_ms_p50,latency_ms_p90,latency_ms_p95,latency_ms_p99
+POST /api/search,20,0,0.0,8741,18067,16162.5,17455.0,17851.0,18040.0,18067.0,8740,18066,16161.8,17453.0,17850.0,18040.0,18066.0

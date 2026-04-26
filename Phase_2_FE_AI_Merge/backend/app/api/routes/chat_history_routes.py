@@ -4,6 +4,7 @@ import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 
 from app.api.deps import storage_user_id
 from app.api.schemas import (
@@ -14,6 +15,7 @@ from app.api.schemas import (
     ChatSessionsListResponse,
     ChatSessionUpdateRequest,
 )
+from app.services.chat_attachment_storage import read_chat_attachment_bytes
 from app.services.chat_history_service import ChatHistoryService
 
 logger = logging.getLogger(__name__)
@@ -133,6 +135,37 @@ def list_chat_session_messages(
     except Exception as e:
         logger.exception("list_chat_session_messages failed")
         raise HTTPException(status_code=500, detail=f"Could not list chat messages: {e}") from e
+
+
+@router.get("/attachment")
+def get_chat_attachment(
+    session_id: str = Query(..., min_length=8),
+    message_id: str = Query(..., min_length=4),
+    index: int = Query(0, ge=0, le=32),
+    user_id: str = Depends(storage_user_id),
+    svc: ChatHistoryService | None = Depends(get_chat_history_service),
+):
+    """Return a persisted chat infographic (binary). Same auth as chat history."""
+    if svc is None:
+        raise HTTPException(status_code=503, detail="Chat history persistence is not configured.")
+    msg = svc.get_message(user_id=user_id, session_id=session_id, message_id=message_id)
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found.")
+    atts = msg.get("attachments") or []
+    if not isinstance(atts, list) or index >= len(atts):
+        raise HTTPException(status_code=404, detail="Attachment not found.")
+    att = atts[index]
+    if not isinstance(att, dict) or str(att.get("type") or "") != "image":
+        raise HTTPException(status_code=404, detail="Attachment not found.")
+    rel_path = str(att.get("rel_path") or "").strip()
+    mime = str(att.get("mime") or "image/png").split(";")[0].strip() or "image/png"
+    if not rel_path:
+        raise HTTPException(status_code=404, detail="Attachment path missing.")
+    out = read_chat_attachment_bytes(user_id, rel_path)
+    if not out:
+        raise HTTPException(status_code=404, detail="Attachment file missing.")
+    body, _fallback_ct = out
+    return Response(content=body, media_type=mime)
 
 
 @router.delete("/sessions/{session_id}")
