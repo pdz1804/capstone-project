@@ -109,19 +109,19 @@ python "scripts\jtl_metrics_csv.py" $jtl.FullName --label-regex "GET /api/proces
 
 ## 04 — `POST /api/upload` (`04_upload.jmx`)
 
-**Semantics:** default `**loops=1`**, scheduler off. Each thread runs once: `POST /api/auth/login-local` then `**POST /api/upload`**.
+**Semantics:** default `loops=1`, scheduler off. Each thread runs once: `POST /api/auth/login-local` then `POST /api/upload`.
 
-- `**#(POST /api/upload)` = `threads` × `loops**` (e.g. 30 threads → **30** upload samples).
-- `**#(login)`** matches that same count.
-- CSV `**recycle=false`**: you need at least as many data rows as threads (header excluded). Use `**data/user_file_mapping_with_passwords.csv`** because it includes `email`, `password`, and `**user_id`**.
-- The upload request sends `**X-User-Id: ${user_id}`**. Without this header, the backend intentionally falls back to `DEFAULT_STORAGE_USER_ID` / `default`, which writes to `s3://.../users/default/...`.
-- Upload body file: `**-Jupload_file_path**` (default `data/Text_mining_by_using_Python2025_5pages.pdf`). Paths are relative to the directory where you run JMeter (run from `docs/jmeter-capacity-tests`).
+- `#(POST /api/upload)` = `threads x loops` (e.g. 30 threads -> **30** upload samples).
+- `#(login)` matches that same count.
+- CSV `recycle=false`: you need at least as many data rows as threads (header excluded). Use `data/user_file_mapping_with_passwords.csv` because it includes `email`, `password`, and `user_id`.
+- The upload request sends `X-User-Id: ${user_id}`. Without this header, the backend intentionally falls back to `DEFAULT_STORAGE_USER_ID` / `default`, which writes to `s3://.../users/default/...`.
+- Upload body file: `-Jupload_file_path` (default `data/Text_mining_by_using_Python2025_5pages.pdf`). Paths are relative to the directory where you run JMeter (run from `docs/jmeter-capacity-tests`).
 
-**Optional:** `-Jloops=3` → each user performs 3 uploads in sequence (`**threads` × 3** upload samples).
+**Optional:** `-Jloops=3` -> each user performs 3 uploads in sequence (`threads x 3` upload samples).
 
-**Timeouts:** the plan sets `**response_timeout_ms` default 600000** (10 min). The old **120 s** limit often shows up as `**Err` with `Max` elapsed ≈ 120000–122000 ms** when many uploads hit the API at once (ALB/API/S3 queueing). Override if needed: `-Jresponse_timeout_ms=900000`. Connect timeout default **60 s**: `-Jconnect_timeout_ms=...`.
+**Timeouts:** the plan sets `response_timeout_ms` default `600000` (10 min). The old **120 s** limit often shows up as `Err` with `Max` elapsed around `120000-122000 ms` when many uploads hit the API at once (ALB/API/S3 queueing). Override if needed: `-Jresponse_timeout_ms=900000`. Connect timeout default **60 s**: `-Jconnect_timeout_ms=...`.
 
-**If many errors remain:** open the `.jtl` and check `responseCode` / `responseMessage` on failed rows (`POST /api/upload` vs login). Tune ECS concurrency, ALB `**idle_timeout_seconds`**, or reduce `threads`.
+**If many errors remain:** open the `.jtl` and check `responseCode` / `responseMessage` on failed rows (`POST /api/upload` vs login). Tune ECS concurrency, ALB `idle_timeout_seconds`, or reduce `threads`.
 
 **Example (30 concurrent users, 30 uploads, ramp 0):**
 
@@ -130,7 +130,7 @@ jmeter -n -t "04_upload.jmx" `
   -Jmapping_csv="data/user_file_mapping_with_passwords.csv" `
   -Jupload_file_path="data/Text_mining_by_using_Python2025_5pages.pdf" `
   -Jupload_mime_type="application/pdf" `
-  -Jthreads=50 -Jramp_up=0 -Jloops=1 `
+  -Jthreads=30 -Jramp_up=0 -Jloops=1 `
   -l "results\04_upload_30t_$(Get-Date -Format 'yyyyMMdd_HHmmss').jtl"
 ```
 
@@ -149,9 +149,9 @@ Uses the **mapped** user/file CSV (same family as 05/06/08). See also [CHAT_INSI
 
 **Semantics:** these chat/insights mapped plans are **sustained-load** tests (`loops=-1`, scheduler duration enabled). `threads` means concurrent users, but total endpoint samples are based on how many request cycles complete during `Jduration`. This is different from 04 upload, where `threads=uploads` because `loops=1`.
 
-All 09–12 plans already send **`X-User-Id: ${user_id}`**, so backend storage/retrieval is scoped to the mapped user instead of `default`.
+All 09–12 plans already send `X-User-Id: ${user_id}`, so backend storage/retrieval is scoped to the mapped user instead of `default`.
 
-For 09 specifically, the plan now explicitly calls **`POST /api/chat/sessions`** before **`POST /api/chat/stream`**. A Groovy preprocessor generates a fresh `chat_session_id` for each loop, the session create request persists it for that user, and the chat stream request sends the same `session_id`.
+For 09 specifically, the plan now explicitly calls `POST /api/chat/sessions` before `POST /api/chat/stream`. A Groovy preprocessor generates a fresh `chat_session_id` for each loop, the session create request persists it for that user, and the chat stream request sends the same `session_id`.
 
 **Example:**
 

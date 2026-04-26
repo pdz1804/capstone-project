@@ -49,17 +49,14 @@ _bmad-output/
 .env/
 capstone/
 
-docs/jmeter-capacity-tests/report_06_index_jobs/*
-docs/jmeter-capacity-tests/report_06_1loop_async/*
-docs/jmeter-capacity-tests/report_06_1loop_async_r5/*
-docs/jmeter-capacity-tests/report_06_jobtrack_fix1/*
-docs/jmeter-capacity-tests/report_08_search/*
-docs/jmeter-capacity-tests/report_05_process_poll_60s/*
-docs/jmeter-capacity-tests/report_06_concurrency_only_20_0/*
-docs/jmeter-capacity-tests/report_06_index_poll_60s/*
-docs/jmeter-capacity-tests/report_06_jobtrack_fix2/*
-docs/jmeter-capacity-tests/report_08_search_20/*
-docs/jmeter-capacity-tests/report_06_jobtrack_stable/*
+# JMeter documentation/output policy
+# Keep docs/jmeter-capacity-tests tracked, but do not track raw generated JMeter results.
+docs/jmeter-capacity-tests/results/
+
+# Superseded JMeter documentation folders kept locally only.
+docs/jmeter-experiments/
+docs/jmeter-final-correctness/
+docs/jmeter-main-apis/
 
 
 # -------------------------

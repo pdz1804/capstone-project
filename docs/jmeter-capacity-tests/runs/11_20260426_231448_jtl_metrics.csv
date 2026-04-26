@@ -1,0 +1,3 @@
+﻿label,samples,errors,error_pct,elapsed_ms_min,elapsed_ms_max,elapsed_ms_mean,elapsed_ms_p50,elapsed_ms_p90,elapsed_ms_p95,elapsed_ms_p99,latency_ms_min,latency_ms_max,latency_ms_mean,latency_ms_p50,latency_ms_p90,latency_ms_p95,latency_ms_p99
+POST /api/mcq,567,0,0.0,2793,9404,4295.2,4135.0,5212.0,6171.0,8533.0,2793,9404,4295.2,4135.0,5212.0,6171.0,8533.0
+TOTAL_ALL_LABELS,567,0,0.0,2793,9404,4295.2,4135.0,5212.0,6171.0,8533.0,2793,9404,4295.2,4135.0,5212.0,6171.0,8533.0
