@@ -475,14 +475,27 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 
 ## 📚 Documentation
 
-**Authoritative specification**
+**Documentation hub**
 
-- **[`docs/requirements.md`](docs/requirements.md)** — Software Requirements Specification: functional (content, retrieval, QA/UI, summaries, personalization), non-functional (performance, scale, reliability, UX, security, privacy), technical (FastAPI, React/Vite/Tailwind, stores, integrations, Docker, cloud), constraints, and verification criteria.
+- **[`docs/README.md`](docs/README.md)** — Central documentation index for technical references, testing evidence, diagrams, reports, and presentation materials.
+
+**Authoritative technical documents**
+
+- **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)** — Product scope, user workflows, architecture summary, features, quality attributes, and engineering assessment.
+- **[`docs/technical/API_REFERENCE.md`](docs/technical/API_REFERENCE.md)** — Maintainer-level API reference covering authentication, files, processing, indexing, search, chat, insights, feedback, and operational guidance.
+- **[`docs/requirements.md`](docs/requirements.md)** — Software Requirements Specification: functional, non-functional, technical constraints, and verification criteria.
+
+**Testing and performance evidence**
+
+- **[`docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)** — Final application performance report for technical lead review and capstone protection day.
+- **[`docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md)** — JMeter runbook and result exports for Process, Index, and Search.
+- **[`docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md)** — JMeter runbook and result exports for Auth, User, Stats, Upload, Chat, and Insights.
 
 **Architecture and deployment**
 
-- **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — Processor-oriented architecture and stage flows (aligned with Week 07–09 lineage).
-- **[`docs/deployment-alb-acm-custom-domain.md`](docs/deployment-alb-acm-custom-domain.md)** — ACM certificates, DNS validation, ALB HTTP→HTTPS, custom domains.
+- **[`docs/diagram/README_SYSTEM_DOCUMENTATION.md`](docs/diagram/README_SYSTEM_DOCUMENTATION.md)** — System documentation and diagram index.
+- **[`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](docs/technical/DOCS_deployment-alb-acm-custom-domain.md)** — ACM certificates, DNS validation, ALB HTTP→HTTPS, custom domains.
+- **[`docs/technical/DOCS_search-cache-redis-setup.md`](docs/technical/DOCS_search-cache-redis-setup.md)** — Redis/ElastiCache search cache setup and operational notes.
 
 **Merged production application (`Phase_2_FE_AI_Merge/`)**
 

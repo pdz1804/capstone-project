@@ -374,8 +374,8 @@ Throughput:
 - [Main APIs runbook — 05 / 06 / 08](runs/README_MAIN_APIS.md)
 - [Non-main APIs runbook — 01–04, 09–12](runs/README_NON_MAIN_APIS.md)
 - [Search/Index/Process Commands](COMMANDS_WINDOWS.md)
-- [Performance Testing Report](../PERFORMANCE_TESTING_FINAL_RELEASE_REPORT_2026-04-21.md)
-- [API Documentation](../API_SCHEMA.md)
+- [Final Application Performance Report](../testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)
+- [Technical API Reference](../technical/API_REFERENCE.md)
 
 ## Support
 
