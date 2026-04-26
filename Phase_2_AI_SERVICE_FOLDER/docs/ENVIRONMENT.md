@@ -43,8 +43,8 @@ When **not** using SageMaker, install GPU/CPU PyTorch and `colpali-engine` per `
 
 ## 4. System tools (unchanged from Phase 2)
 
-Document/media processing still depends on **FFmpeg**, **Poppler** (pdf2image), **Tesseract**, **LibreOffice** (see `Phase_2/backend/requirements.txt` comments). These are **not** Terraform-managed in this refactor.
+Document/media processing still depends on **FFmpeg**, **Poppler** (pdf2image), **Tesseract**, and **LibreOffice** (see this service's `backend/requirements.txt` and the maintained `Phase_2_FE_AI_Merge/backend/requirements.txt` notes). These are **not** Terraform-managed in this refactor.
 
 ## 5. Terraform
 
-The **`Phase_2/terraform`** folder was **not** modified; use it only as a separate infra concern if your team already maintains it.
+For maintained infrastructure-as-code, use **`Phase_2_FE_AI_Merge/terraform`**.

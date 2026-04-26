@@ -2,7 +2,7 @@
 
 This folder is the **refactored Phase 2** deliverable: a **layered backend** (API → Service → Repository → Qdrant + files), **Qdrant** as the vector database (no on-disk FAISS for dense text), **configurable ColQwen inference** (local GPU vs **AWS SageMaker** endpoint), optional **S3-backed file storage** with **per-user prefixes**, and a **React** UI.
 
-**Do not use** the Terraform tree under `Phase_2/terraform` for this refactor — it was left unchanged.
+For maintained infrastructure-as-code, use `Phase_2_FE_AI_Merge/terraform`. This folder is retained as an AI-service reference and is not the primary deployment tree.
 
 ## Layout
 

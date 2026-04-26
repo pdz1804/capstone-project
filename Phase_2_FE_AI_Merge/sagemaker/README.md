@@ -344,4 +344,13 @@ python .\ops\delete_sagemaker_endpoint.py `
 | `COLQWEN_MAX_CONCURRENT_INFERENCES` | `10`                | ColQwen in-flight inference budget (when supported by server image) |
 | `AWS_REGION`                     | `us-west-2`            | AWS region for boto3 clients inside container        |
 
+---
+
+## Related Maintained Docs
+
+- [`../README.md`](../README.md) — maintained merged application overview.
+- [`../../docs/technical/APPLICATION_OVERVIEW.md`](../../docs/technical/APPLICATION_OVERVIEW.md) — system capabilities and architecture summary.
+- [`../../docs/technical/API_REFERENCE.md`](../../docs/technical/API_REFERENCE.md) — API map and operational guidance.
+- [`../../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](../../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md) — performance evidence and scaling plan.
+
 

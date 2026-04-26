@@ -25,19 +25,19 @@ Three automated CI/CD pipelines handle:
 ```yaml
 Backend CI/CD:
   - Triggers on: push/PR to main/develop
-  - Watches: Phase_2/backend/**
+  - Watches: Phase_2_FE_AI_Merge/backend/**
   - Deploys to: rag-pipeline-cluster-backend-service
   - Auto-triggers on: manifest/code changes
 
 Frontend CI/CD:
   - Triggers on: push/PR to main/develop
-  - Watches: Phase_2/frontend/**
+  - Watches: Phase_2_FE_AI_Merge/frontend/**
   - Deploys to: rag-pipeline-cluster-frontend-service
   - Auto-triggers on: manifest/code changes
 
 Infrastructure CI/CD:
   - Triggers on: push to main
-  - Watches: Phase_2/terraform/**
+  - Watches: Phase_2_FE_AI_Merge/terraform/**
   - Deploys to: AWS via Terraform
   - Manual approval: Before apply to production
 ```
@@ -48,7 +48,7 @@ Infrastructure CI/CD:
 
 ### 1. Backend CI/CD Workflow (backend-cicd.yml)
 
-**Trigger:** Push/PR to main or develop with changes in `Phase_2/backend/`
+**Trigger:** Push/PR to main or develop with changes in `Phase_2_FE_AI_Merge/backend/`
 
 **Steps:**
 
@@ -117,7 +117,7 @@ GitHub > Actions > backend-cicd.yml > <Run> > <Job>
 
 ### 2. Frontend CI/CD Workflow (frontend-cicd.yml)
 
-**Trigger:** Push/PR to main or develop with changes in `Phase_2/frontend/`
+**Trigger:** Push/PR to main or develop with changes in `Phase_2_FE_AI_Merge/frontend/`
 
 **Steps:**
 
@@ -184,7 +184,7 @@ GitHub > Actions > backend-cicd.yml > <Run> > <Job>
 
 ### 3. Infrastructure CI/CD Workflow (infrastructure-cicd.yml)
 
-**Trigger:** Push to main with changes in `Phase_2/terraform/`
+**Trigger:** Push to main with changes in `Phase_2_FE_AI_Merge/terraform/`
 
 **Steps:**
 
@@ -350,7 +350,7 @@ on:
       - main          # ← Change to 'main' only, 'main|develop', etc
       - develop
     paths:
-      - 'Phase_2/backend/**'
+      - 'Phase_2_FE_AI_Merge/backend/**'
 ```
 
 #### Change AWS region
@@ -447,7 +447,7 @@ aws iam get-role-policy \
 **Solution:**
 ```bash
 # 1. Check Dockerfile syntax
-docker build Phase_2/backend/ -t test
+docker build Phase_2_FE_AI_Merge/backend/ -t test
 
 # 2. Check Dockerfile exit code
 # Ensure all RUN commands exit 0
@@ -505,10 +505,10 @@ curl -f http://localhost:8000/health
 **Solution:**
 ```bash
 # 1. Validate syntax locally
-terraform -chdir=Phase_2/terraform validate
+terraform -chdir=Phase_2_FE_AI_Merge/terraform validate
 
 # 2. Format check
-terraform fmt -check -recursive Phase_2/terraform/
+terraform fmt -check -recursive Phase_2_FE_AI_Merge/terraform/
 
 # 3. Review error message in workflow logs
 # Error message usually points to specific issue

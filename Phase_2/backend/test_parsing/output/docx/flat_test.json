@@ -1,8 +1,0 @@
-[
-  {
-    "heading_text": "",
-    "heading_level": 0,
-    "children": [],
-    "content": "\nThis is a test document.\nIt has no structural Word heading styles, just plain bold lines representing headings.\nPurpose of the Document\nThis document is purely flat. I am typing it out.\nAudience\nThe audience is QA engineers checking the LLM fallback trigger logic.\nHardware and Hosting\nWe will host this on a potato."
-  }
-]

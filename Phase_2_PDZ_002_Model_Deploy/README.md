@@ -57,7 +57,7 @@ Not implemented yet in this folder:
 
 - Dedicated Docling service API
 - Dedicated Whisper service API
-- Full remote integration wiring in Phase_2 backend to call all services by endpoint name
+- Full remote integration wiring in the maintained `Phase_2_FE_AI_Merge/backend` service to call all services by endpoint name
 
 ## 5 to 10 Concurrent Users - Recommended Configuration
 
