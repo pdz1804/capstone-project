@@ -14,7 +14,7 @@ colpali-engine==0.3.13
 ragatouille>=0.0.8
 
 # Video/Audio RAG Pipeline - Streamlit Application Requirements
-streamlit>=1.28.0
+streamlit>=1.56.0
 imagehash>=4.3.1
 
 # nvidia-nccl-cu12-2.27.3 # Khoi said cannot use this 
