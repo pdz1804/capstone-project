@@ -150,7 +150,7 @@ class TextIndexRepository:
         ids: Sequence[str],
         embeddings: Any,
         payloads: List[Dict[str, Any]],
-        batch_size: int = 64,
+        batch_size: int = 128,
         wait: bool = False,
     ) -> None:
         _, PointStruct, _ = _qdrant_models()

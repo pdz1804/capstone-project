@@ -8,6 +8,7 @@ import logging
 import os
 import re
 import uuid
+from pathlib import Path
 from typing import Any, Dict, List
 
 from agent.strands_chat_runtime import build_query_with_history, run_chat_agent
@@ -127,9 +128,12 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
     if not query:
         raise HTTPException(status_code=400, detail="query is required")
 
+    logger.info("chat_stream: STARTING user_id=%s query_len=%d session_id=%s", user_id, len(query), req.session_id)
+
     cfg = merged_runtime_settings()
     orch = SearchOrchestrator(cfg, user_id=user_id)
     session_id = req.session_id.strip() if req.session_id.strip() else str(uuid.uuid4())
+    logger.info("chat_stream: Using session_id=%s (new=%s)", session_id, not req.session_id.strip())
     preferred_persona = (req.persona or "").strip()
     education_context = (req.education_description or "").strip()
     history_svc = _get_chat_history_service()
@@ -137,23 +141,27 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
 
     if history_svc is not None:
         try:
+            logger.info("chat_stream: Ensuring session user_id=%s session_id=%s", user_id, session_id)
             history_svc.ensure_session(
                 user_id=user_id,
                 session_id=session_id,
                 title=query,
                 pinned=False,
             )
+            logger.info("chat_stream: Session ensured, retrieving prior messages")
             prior_messages = history_svc.list_recent_messages(
                 user_id=user_id,
                 session_id=session_id,
                 limit=8,
             )
+            logger.info("chat_stream: Retrieved %d prior messages from session", len(prior_messages))
             history_svc.put_message(
                 user_id=user_id,
                 session_id=session_id,
                 role="user",
                 content=query,
             )
+            logger.info("chat_stream: User message saved to session")
         except Exception as history_err:
             logger.warning("Chat history persistence unavailable for this request: %s", history_err)
             history_svc = None
@@ -292,55 +300,61 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 including their document_id values needed for other tools.
                 Use when the user asks what content is available, or needs a document_id."""
                 try:
-                    from app.services.processed_documents_service import build_processed_documents_snapshot
-                    processed = build_processed_documents_snapshot(user_id, include_preview=False)
-                    raw_docs = processed.get("documents") or []
+                    from app.api.routes.files_routes import list_files_with_metadata
 
-                    # Filter out pipeline system artefacts (logs, metadata, stats folders)
-                    docs = [
-                        d for d in raw_docs
-                        if _is_content_document(
-                            d.get("folder_name") or "",
-                            d.get("display_name") or "",
-                        )
-                    ]
+                    logger.info("list_my_documents: Starting document list for user=%s", user_id)
 
-                    if not docs:
-                        from app.core.paths import workspace_paths_for_user
-                        from app.repositories import load_documents_snapshot
-                        paths = workspace_paths_for_user(user_id)
-                        doc_snap = load_documents_snapshot(paths.documents_json_path, user_id=paths.user_id)
-                        sources: set[str] = set()
-                        for d in doc_snap:
-                            src = str(d.get("source") or "")
-                            if src:
-                                fname = src.replace("\\", "/").split("/")[-1]
-                                # Skip log/metadata filenames in the fallback list too
-                                if fname and _is_content_document(fname):
-                                    sources.add(fname)
-                        if not sources:
-                            return "No documents found. Upload files and run **Run Pipeline** + **Build Index** in Knowledge Management. Your documents need to be in **Indexed** status to be available for search and insights tools."
-                        lines = [f"**Indexed Files** ({len(sources)}):"]
-                        for s in sorted(sources)[:20]:
-                            lines.append(f"- {s}")
-                        return "\n".join(lines)
+                    # Use the same function as the UI's file list tab
+                    metadata_response = list_files_with_metadata(user_id)
+                    files = metadata_response.get("files") or []
 
-                    lines = [f"**Available Documents** ({len(docs)}):"]
-                    for doc in docs[:20]:
-                        name = doc.get("display_name") or doc.get("folder_name") or "unknown"
-                        folder = doc.get("folder_name") or ""
-                        stage = doc.get("max_stage") or ""
-                        entry = f"- **{name}**"
-                        if folder:
-                            entry += f" | document_id: `{folder}`"
-                        if stage:
-                            entry += f" | stage: {stage}"
+                    logger.info(
+                        "list_my_documents: Retrieved %d files from list_files_with_metadata. "
+                        "Total count: %d, Pipeline docs: %d",
+                        len(files),
+                        metadata_response.get("count", 0),
+                        metadata_response.get("pipeline_document_count", 0),
+                    )
+
+                    if not files:
+                        logger.warning("list_my_documents: No files returned")
+                        return "No documents found. Upload files to get started!"
+
+                    # Build display with file names and statuses
+                    lines = [f"**Your Knowledge Base** ({len(files)} files):"]
+
+                    for file_info in files[:50]:
+                        file_name = file_info.get("file_name") or file_info.get("name") or "unknown"
+                        status = file_info.get("status") or "unknown"
+                        index_status = file_info.get("index_status") or ""
+
+                        # Build status string
+                        if status == "indexed":
+                            if index_status == "all":
+                                status_str = "Indexed (All)"
+                            elif index_status == "text":
+                                status_str = "Indexed (Text)"
+                            elif index_status == "image":
+                                status_str = "Indexed (Image)"
+                            else:
+                                status_str = "Indexed"
+                        elif status == "processed":
+                            status_str = "Processed"
+                        else:
+                            status_str = "Uploaded"
+
+                        entry = f"- **{file_name}** | {status_str}"
                         lines.append(entry)
-                    if len(docs) > 20:
-                        lines.append(f"... and {len(docs) - 20} more")
-                    return "\n".join(lines)
+
+                    if len(files) > 50:
+                        lines.append(f"... and {len(files) - 50} more")
+
+                    result = "\n".join(lines)
+                    logger.info("list_my_documents: Returning %d files for display", len(files))
+                    return result
+
                 except Exception as e:
-                    logger.warning("list_my_documents failed: %s", e)
+                    logger.exception("list_my_documents failed: %s", e)
                     return f"Could not list documents: {e}"
 
             # ── Tool 5: Document Summary ──────────────────────────────────────
@@ -457,6 +471,12 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 system_prompt = system_prompt + "\n\nUser profile guidance:\n- " + "\n- ".join(profile_instructions)
 
             agent_query = build_query_with_history(query=query, history_messages=prior_messages)
+            logger.info(
+                "chat_stream: Built agent query with history (original_query_len=%d, history_count=%d, agent_query_len=%d)",
+                len(query),
+                len(prior_messages),
+                len(agent_query),
+            )
             agent_result = await asyncio.to_thread(
                 run_chat_agent,
                 runtime_mode=CHAT_AGENT_RUNTIME,
@@ -469,6 +489,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 region=AGENTCORE_REGION,
                 runtime_arn=AGENTCORE_RUNTIME_ARN,
             )
+            logger.info("chat_stream: Agent returned result, processing...")
 
             final_text = _strip_raw_tool_markup(str(agent_result.get("answer") or "").strip()) or "No response generated."
             suggestions = [x for x in (agent_result.get("suggestions") or []) if isinstance(x, str) and x.strip()][:3]
@@ -487,6 +508,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
 
             if history_svc is not None:
                 try:
+                    logger.info("chat_stream: Saving assistant message to session (len=%d)", len(final_text))
                     history_svc.put_message(
                         user_id=user_id,
                         session_id=session_id,
@@ -495,6 +517,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                         traces=tool_traces,
                         suggestions=suggestions,
                     )
+                    logger.info("chat_stream: Assistant message successfully saved to session")
                 except Exception as history_err:
                     logger.warning("Failed to persist assistant message: %s", history_err)
 

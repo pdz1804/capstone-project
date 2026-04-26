@@ -147,25 +147,28 @@ class SearchOrchestrator:
                 return ImageSearchService(self.cfg, user_id=self._user_id).search(query, top_k)
 
             t_parallel = perf_counter()
-            search_timeout_seconds = int(os.getenv("SEARCH_PARALLEL_TIMEOUT_SECONDS", "30"))
-            with ThreadPoolExecutor(max_workers=2) as pool:
-                fut_t = pool.submit(_fetch_text)
-                fut_i = pool.submit(_fetch_images)
-                for fut in as_completed([fut_t, fut_i], timeout=search_timeout_seconds):
-                    if fut is fut_t:
-                        try:
-                            text_rows = fut.result(timeout=1)
-                        except TimeoutError:
-                            logger.warning("Text search timeout after %d seconds", search_timeout_seconds)
-                        except Exception as e:
-                            logger.exception("Text search failed: %s", e)
-                    else:
-                        try:
-                            image_rows = fut.result(timeout=1)
-                        except TimeoutError:
-                            logger.warning("Image search timeout after %d seconds", search_timeout_seconds)
-                        except Exception as e:
-                            logger.exception("Image search failed: %s", e)
+            search_timeout_seconds = int(os.getenv("SEARCH_PARALLEL_TIMEOUT_SECONDS", "60"))
+            try:
+                with ThreadPoolExecutor(max_workers=2) as pool:
+                    fut_t = pool.submit(_fetch_text)
+                    fut_i = pool.submit(_fetch_images)
+                    for fut in as_completed([fut_t, fut_i], timeout=search_timeout_seconds):
+                        if fut is fut_t:
+                            try:
+                                text_rows = fut.result(timeout=1)
+                            except TimeoutError:
+                                logger.warning("Text search timeout after %d seconds", search_timeout_seconds)
+                            except Exception as e:
+                                logger.exception("Text search failed: %s", e)
+                        else:
+                            try:
+                                image_rows = fut.result(timeout=1)
+                            except TimeoutError:
+                                logger.warning("Image search timeout after %d seconds", search_timeout_seconds)
+                            except Exception as e:
+                                logger.exception("Image search failed: %s", e)
+            except TimeoutError:
+                logger.warning("Search parallel timeout after %d seconds, using text results only", search_timeout_seconds)
             elapsed = int((perf_counter() - t_parallel) * 1000)
             step_ms["text_retrieval"] = elapsed
             step_ms["image_retrieval"] = elapsed

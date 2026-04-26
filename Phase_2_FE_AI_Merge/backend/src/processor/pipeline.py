@@ -853,10 +853,10 @@ class DocumentProcessingPipeline:
             raise
     
     def _run_document_processing_v2(self) -> Dict:
-        """Run Stage 3 via the unified V2 router (DocumentProcessorV2).
+        """Run Stage 3 via the unified V2.1 router (DocumentProcessorV2_1).
 
-        V2 handles routing internally — all candidate files go through a
-        single entry point and are dispatched to the optimal reader.
+        V2.1 handles routing internally with SageMaker Docling support and GPU memory management.
+        All candidate files go through a single entry point and are dispatched to the optimal reader.
         """
         from .document_processor_v2 import DocumentProcessorV2
 
@@ -882,6 +882,32 @@ class DocumentProcessingPipeline:
                     if fp.is_file() and fp.stem not in processed_stems:
                         candidate_files.append(fp)
 
+            excel_parsed_dir = self.stage_dirs["normalized"] / "excel_parsed"
+            custom_excel_stems = set()
+            if excel_parsed_dir.exists():
+                custom_excel_stems = {p.stem for p in excel_parsed_dir.glob("*.json")}
+
+            docx_parsed_dir = self.stage_dirs["normalized"] / "docx_parsed"
+            custom_docx_stems = set()
+            if docx_parsed_dir.exists():
+                custom_docx_stems = {p.stem for p in docx_parsed_dir.glob("*.json")}
+
+            pdf_parsed_dir = self.stage_dirs["normalized"] / "pdf_parsed"
+            custom_pdf_stems = set()
+            if pdf_parsed_dir.exists():
+                custom_pdf_stems = {p.stem for p in pdf_parsed_dir.glob("*.json")}
+
+            before_count = len(candidate_files)
+            skipped_stems = custom_excel_stems | custom_docx_stems | custom_pdf_stems
+            if skipped_stems:
+                candidate_files = [f for f in candidate_files if f.stem not in skipped_stems]
+            skipped_count = before_count - len(candidate_files)
+            if skipped_count > 0:
+                print(
+                    "  → Skipping "
+                    f"{skipped_count} file(s) already handled by specialised Excel/DOCX/PDF stages"
+                )
+
             if not candidate_files:
                 print("WARNING: No inputs found for V2 document processing")
                 return {"processed_files": 0, "total_files": 0}
@@ -898,7 +924,7 @@ class DocumentProcessingPipeline:
 
             stats = processor.process_batch(supported)
 
-            print(f"\n✓ V2 processing complete: {stats.get('processed_files', 0)}/{stats.get('total_files', 0)} files")
+            print(f"\n✓ V2.1 processing complete: {stats.get('processed_files', 0)}/{stats.get('total_files', 0)} files (SageMaker: {stats.get('sagemaker_used', 0)}, GPU cleanups: {stats.get('gpu_memory_cleanups', 0)})")
             return {
                 "processed_files": stats.get("processed_files", 0),
                 "failed_files": stats.get("failed_files", 0),

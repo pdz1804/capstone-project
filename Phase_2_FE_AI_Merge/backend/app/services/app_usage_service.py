@@ -43,6 +43,24 @@ MODEL_PRICES: List[ModelPrice] = [
         input_price_per_million=0.23,
         output_price_per_million=0.38,
     ),
+    ModelPrice(
+        model_id="zai.glm-4.7-flash",
+        display_name="GLM 4.7 Flash",
+        input_price_per_million=0.07,
+        output_price_per_million=0.40,
+    ),
+    ModelPrice(
+        model_id="zai.glm-4.7",
+        display_name="GLM 4.7",
+        input_price_per_million=0.60,
+        output_price_per_million=2.20,
+    ),
+    ModelPrice(
+        model_id="zai.glm-5",
+        display_name="GLM 5",
+        input_price_per_million=1.00,
+        output_price_per_million=3.20,
+    ),
 ]
 
 

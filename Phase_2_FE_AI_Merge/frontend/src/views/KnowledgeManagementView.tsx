@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import LibraryView from './LibraryView';
 import SearchView from './SearchView';
 import KnowledgeDashboardView from './KnowledgeDashboardView';
@@ -16,6 +17,10 @@ export default function KnowledgeManagementView({
   activeTab,
   onRefreshFiles,
 }: KnowledgeManagementViewProps) {
+  useEffect(() => {
+    void onRefreshFiles();
+  }, [activeTab, onRefreshFiles]);
+
   const tabDescription: Record<KnowledgeSubTab, { title: string; description: string }> = {
     dashboard: {
       title: 'Knowledge Dashboard',

@@ -20,13 +20,19 @@ from .chunk_enhancer import (
     EnhancedChunkProcessor
 )
 
+try:
+    from .document_processor_v2_1 import DocumentProcessorV2_1, ProcessingConfigV2_1
+except ImportError:
+    DocumentProcessorV2_1 = None
+    ProcessingConfigV2_1 = None
+
 __all__ = [
     "DocumentProcessingPipeline",
     "PipelineConfig",
-    "DocumentNormalizer", 
+    "DocumentNormalizer",
     "NormalizerConfig",
     "MediaProcessor",
-    "MediaProcessorConfig", 
+    "MediaProcessorConfig",
     "MultimodalDocumentProcessor",
     "ProcessingConfig",
     "Stage4Consolidator",
@@ -37,5 +43,5 @@ __all__ = [
     "FrameMetadataBuilder",
     "EnhancedChunkProcessor",
     "DocumentProcessorV2",
-    "ProcessingConfigV2"
+    "ProcessingConfigV2",
 ]

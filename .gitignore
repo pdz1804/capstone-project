@@ -49,6 +49,19 @@ _bmad-output/
 .env/
 capstone/
 
+docs/jmeter-capacity-tests/report_06_1loop_2/*
+docs/jmeter-capacity-tests/report_06_1loop_async/*
+docs/jmeter-capacity-tests/report_06_1loop_async_r5/*
+docs/jmeter-capacity-tests/report_06_jobtrack_fix1/*
+docs/jmeter-capacity-tests/report_08_search/*
+docs/jmeter-capacity-tests/report_05_process_poll_60s/*
+docs/jmeter-capacity-tests/report_06_concurrency_only_20_0/*
+docs/jmeter-capacity-tests/report_06_index_poll_60s/*
+docs/jmeter-capacity-tests/report_06_jobtrack_fix2/*
+docs/jmeter-capacity-tests/report_08_search_20/*
+docs/jmeter-capacity-tests/report_06_jobtrack_stable/*
+
+
 # -------------------------
 # Python
 # -------------------------
@@ -540,6 +553,16 @@ docs/jmeter-main-apis/report-ready/**
 # !docs/jmeter-main-apis/report-ready/
 # !docs/jmeter-main-apis/report-ready/*.csv
 # !docs/jmeter-main-apis/report-ready/*.md
+
+# Capacity Tests
+docs/jmeter-capacity-tests/reports/**
+docs/jmeter-capacity-tests/report-ready/**
+docs/jmeter-capacity-tests/results/**
+docs/jmeter-capacity-tests/jmeter.log
+docs/jmeter-capacity-tests/*.jtl
+docs/jmeter-capacity-tests/*.xml
+docs/jmeter-capacity-tests/data/users.csv
+docs/jmeter-capacity-tests/data/user_file_mapping_with_passwords.csv
 
 # Spyder project settings
 .spyderproject

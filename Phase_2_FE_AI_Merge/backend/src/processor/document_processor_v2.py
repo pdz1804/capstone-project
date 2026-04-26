@@ -24,6 +24,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+from .docling_remote import (
+    invoke_sagemaker_docling,
+    should_use_sagemaker_docling,
+    write_docling_outputs_from_sagemaker,
+)
 from src.processor.utils import sanitize_filename_stem
 
 logger = logging.getLogger(__name__)
@@ -51,7 +56,10 @@ class ProcessingConfigV2:
     prefer_custom_readers: bool = True
     excel_reader_mode: str = "xml"  # "xml" | "docling"
     pptx_llm_validate_headers: bool = False
+    # PDF content source for CustomPdfReader: "pymupdf" | "docling" | "hybrid"
+    pdf_content_source: str = "hybrid"
     docling_config: Optional[Any] = None  # Optional[ProcessingConfig]
+    runtime_yaml: Optional[Dict[str, Any]] = None
 
     def __post_init__(self) -> None:
         if self.docling_config is None:
@@ -206,8 +214,26 @@ class DocumentProcessorV2:
             return "docling"
 
         if ext == ".pdf":
-            return "pdf_reader"
+            return self._route_pdf(file_path)
 
+        return "docling"
+
+    def _route_pdf(self, file_path: Path) -> str:
+        """Route PDFs conservatively so scanned PDFs keep the Docling markdown path."""
+        meta_path = self.input_dir / "normalization_metadata" / f"{file_path.stem}_pdf_classification.json"
+        if not meta_path.exists():
+            return "docling"
+
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+        except Exception as exc:
+            logger.warning("Could not read PDF classification metadata for %s: %s", file_path.name, exc)
+            return "docling"
+
+        pdf_type = str(meta.get("pdf_type", "")).strip().lower()
+        if pdf_type == "born_digital":
+            return "pdf_reader"
         return "docling"
 
     # ------------------------------------------------------------------
@@ -249,13 +275,25 @@ class DocumentProcessorV2:
     def _run_pdf_reader(
         self, file_path: Path, out_dir: Path,
     ) -> List[Dict[str, Any]]:
-        from .pdf_reader import CustomPdfReader
+        from .pdf_reader import CustomPdfConfig, CustomPdfReader
 
-        reader = CustomPdfReader()
+        cfg = CustomPdfConfig(
+            content_source=self.config.pdf_content_source,
+            enable_ocr=getattr(self.config.docling_config, "enable_ocr", True),
+            extract_images=getattr(self.config.docling_config, "export_images", False),
+        )
+        reader = CustomPdfReader(cfg)
         return reader.read(str(file_path), output_dir=str(out_dir))
 
     def _run_docling(self, file_path: Path) -> Any:
-        """Run Docling converter (primary → fallback on failure)."""
+        """Run Docling either locally or via SageMaker, based on runtime config."""
+        if should_use_sagemaker_docling(self.config.runtime_yaml):
+            return self._run_docling_sagemaker(file_path)
+
+        return self._run_docling_local(file_path)
+
+    def _run_docling_local(self, file_path: Path) -> Any:
+        """Run local in-process Docling converter (primary → fallback on failure)."""
         converter = self._get_primary_converter()
 
         # Handle .txt → temp .md
@@ -296,6 +334,32 @@ class DocumentProcessorV2:
                 actual_path.unlink(missing_ok=True)
 
         return result
+
+    def _run_docling_sagemaker(self, file_path: Path) -> Dict[str, Any]:
+        """Invoke the remote SageMaker Docling endpoint.
+
+        Mirror local `.txt -> temporary .md` adaptation so both local and
+        remote Docling can process plain-text inputs consistently.
+        """
+        actual_path = file_path
+        temp_created = False
+        if file_path.suffix.lower() == ".txt":
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+            except UnicodeDecodeError:
+                with open(file_path, "r", encoding="latin-1") as f:
+                    content = f.read()
+            md_path = file_path.parent / f"{file_path.stem}_temp.md"
+            md_path.write_text(f"# {file_path.stem}\n\n{content}", encoding="utf-8")
+            actual_path = md_path
+            temp_created = True
+
+        try:
+            return invoke_sagemaker_docling(actual_path, self.config.runtime_yaml or {})
+        finally:
+            if temp_created and actual_path.exists():
+                actual_path.unlink(missing_ok=True)
 
     # ------------------------------------------------------------------
     # Docling lazy factories (verbatim from document_processor.py)
@@ -529,6 +593,19 @@ class DocumentProcessorV2:
 
             # --- Docling path (default or fallback) ---
             docling_result = self._run_docling(file_path)
+            if should_use_sagemaker_docling(self.config.runtime_yaml):
+                return self._build_result(
+                    file_path=file_path,
+                    file_type=ext.lstrip("."),
+                    processor_used="docling",
+                    start_time=start_time,
+                    file_size=file_size,
+                    docling_result=docling_result,
+                    used_fallback=used_fallback,
+                    error=original_error,
+                    docling_mode="sagemaker",
+                )
+
             doc = docling_result.document
             pages = getattr(doc, "page_count", None)
 
@@ -543,6 +620,7 @@ class DocumentProcessorV2:
                 pages=pages,
                 used_fallback=used_fallback,
                 error=original_error,
+                docling_mode="local",
             )
 
         except Exception as exc:
@@ -569,6 +647,8 @@ class DocumentProcessorV2:
             return {}
 
         if processing_info["processor_used"] == "docling":
+            if processing_info.get("docling_mode") == "sagemaker":
+                return self._export_docling_sagemaker(processing_info)
             return self._export_docling(processing_info)
 
         return self._export_custom(processing_info)
@@ -613,6 +693,41 @@ class DocumentProcessorV2:
 
         return exported
 
+    def _export_docling_sagemaker(self, info: Dict[str, Any]) -> Dict[str, str]:
+        """Export remote SageMaker Docling outputs with V2-compatible metadata."""
+        file_stem = Path(info["file_path"]).stem
+        safe_stem = self._get_safe_output_path(file_stem)
+        doc_dir = self.output_dir / safe_stem
+        if doc_dir.exists():
+            shutil.rmtree(doc_dir, ignore_errors=True)
+
+        payload = info.get("docling_result")
+        if not isinstance(payload, dict):
+            raise ValueError("SageMaker Docling result must be a JSON object")
+
+        write_docling_outputs_from_sagemaker(self.output_dir, Path(info["file_path"]), payload)
+
+        meta = {
+            "file_path": info["file_path"],
+            "file_type": info["file_type"],
+            "processor_used": "docling",
+            "docling_mode": "sagemaker",
+            "processing_time": info["processing_time"],
+            "pages": info.get("pages"),
+            "used_fallback": info.get("used_fallback", False),
+        }
+        meta_path = doc_dir / f"{safe_stem}_metadata.json"
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump(meta, f, indent=2, ensure_ascii=False, default=str)
+
+        exported: Dict[str, str] = {
+            "metadata": str(meta_path),
+        }
+        md_path = doc_dir / f"{safe_stem}.md"
+        if md_path.exists():
+            exported["markdown"] = str(md_path)
+        return exported
+
     def _export_custom(self, info: Dict[str, Any]) -> Dict[str, str]:
         """Export custom-reader results as _parsed.json + _metadata.json."""
         file_stem = Path(info["file_path"]).stem
@@ -631,6 +746,16 @@ class DocumentProcessorV2:
                 json.dump(content, f, ensure_ascii=False, indent=2, default=str)
             exported["parsed_json"] = str(parsed_path)
 
+        markdown_text = self._build_custom_markdown(
+            content_tree=info.get("content_tree"),
+            excel_sheets=info.get("excel_sheets"),
+            title=file_stem,
+        )
+        if markdown_text:
+            md_path = doc_dir / f"{safe_stem}.md"
+            md_path.write_text(markdown_text, encoding="utf-8")
+            exported["markdown"] = str(md_path)
+
         # Metadata
         meta = {
             "file_path": info["file_path"],
@@ -646,6 +771,81 @@ class DocumentProcessorV2:
         exported["metadata_json"] = str(meta_path)
 
         return exported
+
+    def _build_custom_markdown(
+        self,
+        *,
+        content_tree: Optional[List[Dict[str, Any]]],
+        excel_sheets: Optional[List[Dict[str, Any]]],
+        title: str,
+    ) -> str:
+        """Best-effort markdown export for custom-reader outputs."""
+        if content_tree:
+            lines: List[str] = []
+            self._append_content_tree_markdown(content_tree, lines)
+            text = "\n\n".join(line for line in lines if line is not None).strip()
+            if text:
+                return text
+
+        if excel_sheets:
+            lines = [f"# {title}", "", "This workbook was processed with the V2 custom reader."]
+            for idx, sheet in enumerate(excel_sheets, 1):
+                if not isinstance(sheet, dict):
+                    lines.append(f"## Sheet {idx}")
+                    lines.append(str(sheet))
+                    continue
+                sheet_name = (
+                    sheet.get("sheet_name")
+                    or sheet.get("name")
+                    or sheet.get("title")
+                    or f"Sheet {idx}"
+                )
+                lines.append(f"## {sheet_name}")
+                summary = sheet.get("summary")
+                if summary:
+                    lines.append(str(summary))
+                    continue
+                tables = sheet.get("tables")
+                if isinstance(tables, list) and tables:
+                    lines.append(f"Detected {len(tables)} table(s).")
+                else:
+                    lines.append("Structured workbook content was extracted for downstream chunking.")
+            return "\n\n".join(lines).strip()
+
+        return ""
+
+    def _append_content_tree_markdown(
+        self,
+        nodes: List[Dict[str, Any]],
+        lines: List[str],
+    ) -> None:
+        for node in nodes or []:
+            if not isinstance(node, dict):
+                lines.append(str(node))
+                continue
+
+            heading = (
+                node.get("heading_text")
+                or node.get("title")
+                or node.get("heading")
+                or ""
+            )
+            heading_level = node.get("heading_level") or node.get("level") or 1
+            try:
+                level = max(1, min(int(heading_level), 6))
+            except Exception:
+                level = 1
+
+            if heading:
+                lines.append(f"{'#' * level} {str(heading).strip()}")
+
+            content = node.get("content")
+            if content:
+                lines.append(str(content).strip())
+
+            children = node.get("children")
+            if isinstance(children, list) and children:
+                self._append_content_tree_markdown(children, lines)
 
     # ------------------------------------------------------------------
     # Batch
@@ -716,6 +916,7 @@ class DocumentProcessorV2:
         pages: Optional[int] = None,
         used_fallback: bool = False,
         error: Optional[str] = None,
+        docling_mode: Optional[str] = None,
     ) -> Dict[str, Any]:
         return {
             "file_path": str(file_path),
@@ -731,6 +932,7 @@ class DocumentProcessorV2:
             "used_fallback": used_fallback,
             "pages": pages,
             "file_size": file_size,
+            "docling_mode": docling_mode,
         }
 
     @staticmethod

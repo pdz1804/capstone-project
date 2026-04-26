@@ -54,6 +54,36 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   throw new Error(JSON.stringify(errInfo));
 }
 
+type FirebaseAuthLikeError = {
+  code?: string;
+  message?: string;
+};
+
+function formatGoogleAuthError(error: unknown): Error {
+  const firebaseError = error as FirebaseAuthLikeError | null;
+  const code = firebaseError?.code;
+  const fallbackMessage = firebaseError?.message || 'Failed to sign in with Google. Please try again.';
+
+  if (code === 'auth/unauthorized-domain') {
+    const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'the current origin';
+    const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'the current host';
+
+    return new Error(
+      `Google sign-in is blocked for ${currentOrigin}. Add "${currentHost}" to Firebase Console > Authentication > Settings > Authorized domains for project "${firebaseConfig.projectId}", then reload and try again.`
+    );
+  }
+
+  if (code === 'auth/popup-blocked') {
+    return new Error('The Google sign-in popup was blocked by your browser. Allow popups for this site and try again.');
+  }
+
+  if (code === 'auth/popup-closed-by-user') {
+    return new Error('The Google sign-in popup was closed before the login finished. Please try again.');
+  }
+
+  return new Error(fallbackMessage);
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
@@ -62,34 +92,47 @@ export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 // Google Auth Provider
 export const googleProvider = new GoogleAuthProvider();
 
-export const signInWithGoogle = async () => {
+async function syncGoogleUserProfile(user: { uid: string; email: string | null; displayName: string | null }) {
+  const userRef = doc(db, 'users', user.uid);
+
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-    
-    // Create or update user profile in Firestore
-    const userRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userRef);
-    
+
     if (!userDoc.exists()) {
       await setDoc(userRef, {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
-        role: 'student', // Default role
+        role: 'student',
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp()
       });
-    } else {
-      await setDoc(userRef, {
-        lastLogin: serverTimestamp()
-      }, { merge: true });
+      return;
     }
-    
+
+    await setDoc(userRef, {
+      lastLogin: serverTimestamp()
+    }, { merge: true });
+  } catch (error) {
+    console.warn(
+      'Skipping Firestore user profile sync after Google login. Backend auth can continue without it.',
+      error
+    );
+  }
+}
+
+export const signInWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+
+    await syncGoogleUserProfile(user);
+
     return user;
   } catch (error) {
+    const formattedError = formatGoogleAuthError(error);
     console.error("Error signing in with Google", error);
-    throw error;
+    throw formattedError;
   }
 };
 

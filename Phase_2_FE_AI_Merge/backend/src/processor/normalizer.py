@@ -931,14 +931,21 @@ class DocumentNormalizer:
     def _parse_pdf_with_reader(self, file_path: Path, stem: str):
         """Parse a born-digital PDF into heading-tree JSON using pdf_reader.py."""
         import json as _json
-        from .pdf_reader_pymupdf import PdfParser
+        from .pdf_reader import CustomPdfConfig, CustomPdfReader
 
         parsed_output_dir = self.pdf_parsed_dir / "_parsed" / stem
         parsed_output_dir.mkdir(parents=True, exist_ok=True)
 
         try:
-            parser = PdfParser()
-            tree = parser.parse(str(file_path), output_dir=str(parsed_output_dir))
+            reader = CustomPdfReader(
+                CustomPdfConfig(
+                    enable_ocr=False,
+                    extract_images=False,
+                    extract_tables=False,
+                    content_source="pymupdf",
+                )
+            )
+            tree = reader.read(str(file_path), output_dir=str(parsed_output_dir), skip_ocr=True)
 
             out_json = self.pdf_parsed_dir / f"{stem}.json"
             with open(out_json, "w", encoding="utf-8") as f:

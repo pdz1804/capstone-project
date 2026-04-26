@@ -448,16 +448,15 @@ export default function ChatAssistantView() {
     try {
       const aid = (Date.now() + 1).toString();
 
-      const currentUser = auth.currentUser;
-      const token = currentUser ? await currentUser.getIdToken() : localStorage.getItem(LOCAL_AUTH_TOKEN_KEY);
-      const uid = currentUser?.uid || localStorage.getItem(LOCAL_AUTH_UID_KEY) || 'default';
+      // Import the shared auth header helper to ensure consistent X-User-Id with other API calls
+      const { getConsistentAuthHeaders } = await import('../api/client');
+      const authHeaders = await getConsistentAuthHeaders();
 
       const response = await fetch(`${API_BASE_URL}/chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          'X-User-Id': uid,
+          ...authHeaders,
         },
         body: JSON.stringify({
           query: userMessage.content,

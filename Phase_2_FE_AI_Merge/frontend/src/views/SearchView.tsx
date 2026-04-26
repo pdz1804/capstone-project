@@ -15,6 +15,7 @@ interface SearchViewProps {
 type SearchMode = 'retrieval_only' | 'retrieval_generation';
 type SearchScope = 'text' | 'image' | 'both';
 type RetrieverType = 'bm25' | 'dense' | 'hybrid';
+const DEFAULT_KNOWLEDGE_EXPLORER_MODEL = 'us.anthropic.claude-haiku-4-5-20251001-v1:0';
 
 type CitationItem = {
   key: string;
@@ -152,7 +153,7 @@ export default function SearchView({ files }: SearchViewProps) {
         const models = (data.models || []).filter(Boolean);
         setModelOptions(models);
         if (models.length > 0) {
-          setGenerationModel(models[0]);
+          setGenerationModel(models.includes(DEFAULT_KNOWLEDGE_EXPLORER_MODEL) ? DEFAULT_KNOWLEDGE_EXPLORER_MODEL : models[0]);
         }
       })
       .catch(() => {

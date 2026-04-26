@@ -9,6 +9,7 @@ from typing import Any, Dict, Sequence
 from app.core.paths import is_s3_storage_backend, load_yaml_config, merged_runtime_settings, workspace_paths_for_user
 from app.storage import get_file_storage
 from src.processor.document_processor import ProcessingConfig
+from src.processor.document_processor_v2 import ProcessingConfigV2
 from src.processor.media_processor_enhanced import MediaProcessorConfig
 from src.processor.pipeline import DocumentProcessingPipeline, PipelineConfig
 
@@ -73,6 +74,23 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         media_config.remove_duplicate_frames = False
         media_config.temperature_schedule = (0.0,)
 
+    document_v2 = doc.get("v2") or {}
+    excel_reader_mode = str(document_v2.get("excel_reader_mode", "xml")).strip().lower() or "xml"
+    if excel_reader_mode not in {"xml", "docling"}:
+        excel_reader_mode = "xml"
+
+    document_config_v2 = ProcessingConfigV2(
+        prefer_custom_readers=_as_bool(document_v2.get("prefer_custom_readers", True), default=True),
+        excel_reader_mode=excel_reader_mode,
+        pptx_llm_validate_headers=_as_bool(
+            document_v2.get("pptx_llm_validate_headers", False),
+            default=False,
+        ),
+        pdf_content_source=str(document_v2.get("pdf_content_source", "hybrid")).strip().lower() or "hybrid",
+        docling_config=document_config,
+        runtime_yaml=runtime,
+    )
+
     cache_enabled = _as_bool(proc.get("enable_processing_cache", False), default=False)
     return PipelineConfig(
         skip_processed=(not force) and cache_enabled,
@@ -83,6 +101,7 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         enable_document_processing=bool(proc.get("enable_document_processing", True)),
         media_config=media_config,
         document_config=document_config,
+        document_config_v2=document_config_v2,
     )
 
 

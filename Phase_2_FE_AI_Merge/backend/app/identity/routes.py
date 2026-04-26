@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 
 from .firebase_auth import FirebaseAuthService
 from .schemas import AuthSessionResponse, LocalLoginRequest, LocalRegisterRequest, UserResponse, UserUpdate
-from .user_repository_dynamo import DynamoUserRepository
+from .user_repository_factory import get_user_repository_from_env
 from .user_service import UserService
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
@@ -17,11 +17,11 @@ def get_firebase_auth() -> FirebaseAuthService:
     return FirebaseAuthService()
 
 
-def get_user_repository() -> DynamoUserRepository:
-    return DynamoUserRepository.from_env()
+def get_user_repository():
+    return get_user_repository_from_env()
 
 
-def get_user_service(repo: DynamoUserRepository = Depends(get_user_repository)) -> UserService:
+def get_user_service(repo=Depends(get_user_repository)) -> UserService:
     return UserService(repo)
 
 

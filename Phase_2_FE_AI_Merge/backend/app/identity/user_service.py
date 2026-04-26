@@ -16,11 +16,10 @@ from .schemas import (
     UserResponse,
     UserUpdate,
 )
-from .user_repository_dynamo import DynamoUserRepository
 
 
 class UserService:
-    def __init__(self, user_repo: DynamoUserRepository):
+    def __init__(self, user_repo):
         self.user_repo = user_repo
         self.local_auth = LocalAuthService()
 
