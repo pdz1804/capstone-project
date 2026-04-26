@@ -136,6 +136,26 @@ def test_insights_summary_mocked(client: TestClient):
 
 
 @pytest.mark.unit
+def test_insights_visualization_mocked(client: TestClient):
+    with patch("app.api.routes.insights_routes.InsightsService") as MockSvc:
+        MockSvc.return_value.lecture_visualization.return_value = {
+            "image_base64": "YQo=",
+            "mime_type": "image/png",
+            "model_text": "Here is a summary caption.",
+            "error": None,
+        }
+        r = client.post(
+            "/api/insights/visualization",
+            json={"topic": "chapter 1", "document_id": None},
+        )
+    assert r.status_code == 200
+    body = r.json()
+    assert body.get("image_base64")
+    assert body.get("mime_type") == "image/png"
+    assert body.get("model_text")
+
+
+@pytest.mark.unit
 def test_insights_mcq_mocked(client: TestClient):
     with patch("app.api.routes.insights_routes.InsightsService") as MockSvc:
         MockSvc.return_value.mcq_quiz.return_value = {"questions": [], "topic": "t"}

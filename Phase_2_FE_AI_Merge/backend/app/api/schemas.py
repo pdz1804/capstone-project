@@ -121,6 +121,17 @@ class SummaryRequest(BaseModel):
     )
 
 
+class VisualizationRequest(BaseModel):
+    topic: str = Field(
+        "",
+        description="Optional emphasis (e.g. chapter, concept) for what the infographic should highlight.",
+    )
+    document_id: str | None = Field(
+        None,
+        description="Document folder under processed markdown; scopes content like /insights/summary.",
+    )
+
+
 class McqRequest(BaseModel):
     topic: str = Field(..., min_length=1)
     num_questions: int = Field(5, ge=1, le=20)
@@ -234,6 +245,10 @@ class ChatMessageItem(BaseModel):
     created_at: str
     traces: list[dict[str, Any]] = Field(default_factory=list)
     suggestions: list[str] = Field(default_factory=list)
+    attachments: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description="Persisted chat assets, e.g. infographic PNG rel_path under processing/chat_attachments.",
+    )
 
 
 class ChatMessagesListResponse(BaseModel):

@@ -34,6 +34,7 @@ import {
   createFeedback,
   createChatSession,
   deleteChatSession,
+  getChatAttachmentBlob,
   listFeedback,
   listChatSessionMessages,
   listChatSessions,
@@ -42,6 +43,13 @@ import {
   updateChatSession,
 } from '../api/ragApi';
 
+type ChatImageAttachment = {
+  mime: string;
+  modelText?: string;
+  dataUrl?: string;
+  storageRef?: { sessionId: string; messageId: string; index: number };
+};
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -49,6 +57,7 @@ interface Message {
   timestamp: Date;
   traces?: ToolTrace[];
   suggestions?: string[];
+  attachments?: ChatImageAttachment[];
 }
 
 interface ToolTrace {
@@ -95,6 +104,22 @@ const CHAT_MARKDOWN_COMPONENTS: Components = {
       </a>
     );
   },
+  img: ({ src, alt }) => {
+    const s = String(src || '');
+    if (s.startsWith('data:image/')) {
+      return (
+        <span className="block my-3">
+          <img
+            src={s}
+            alt={String(alt || 'BK-MInD visualization')}
+            className="max-w-full rounded-xl border border-sky-200 shadow-sm"
+          />
+          <span className="mt-1 block text-[10px] text-slate-500">Right-click or long-press the image to save.</span>
+        </span>
+      );
+    }
+    return <img src={s} alt={String(alt || '')} className="max-w-full rounded-lg border border-slate-200" />;
+  },
 };
 
 function newSessionId(): string {
@@ -129,6 +154,22 @@ function welcomeMessage(text: string): Message {
 }
 
 function toUiMessage(row: ChatSessionMessage): Message {
+  const rawAtt = row.attachments || [];
+  const attachments: ChatImageAttachment[] = [];
+  for (let i = 0; i < rawAtt.length; i++) {
+    const a = rawAtt[i] as Record<string, unknown>;
+    if (a?.type === 'image' && a.rel_path) {
+      attachments.push({
+        mime: String(a.mime || 'image/png'),
+        modelText: a.model_text ? String(a.model_text) : undefined,
+        storageRef: {
+          sessionId: row.session_id,
+          messageId: row.message_id,
+          index: i,
+        },
+      });
+    }
+  }
   return {
     id: row.message_id,
     role: row.role === 'user' ? 'user' : 'assistant',
@@ -136,7 +177,52 @@ function toUiMessage(row: ChatSessionMessage): Message {
     timestamp: new Date(row.created_at || Date.now()),
     traces: (row.traces || []) as unknown as ToolTrace[],
     suggestions: row.suggestions || [],
+    attachments: attachments.length ? attachments : undefined,
   };
+}
+
+function StoredChatImage({
+  sessionId,
+  messageId,
+  index,
+  mime,
+  className,
+}: {
+  sessionId: string;
+  messageId: string;
+  index: number;
+  mime: string;
+  className?: string;
+}) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    const holder = { current: null as string | null };
+    void (async () => {
+      const blob = await getChatAttachmentBlob(sessionId, messageId, index);
+      if (!alive || !blob) {
+        if (alive) setFailed(true);
+        return;
+      }
+      const nu = URL.createObjectURL(blob);
+      holder.current = nu;
+      setUrl(nu);
+    })();
+    return () => {
+      alive = false;
+      if (holder.current) URL.revokeObjectURL(holder.current);
+    };
+  }, [sessionId, messageId, index]);
+
+  if (failed) {
+    return <p className="text-xs text-rose-600">Could not load saved infographic.</p>;
+  }
+  if (!url) {
+    return <p className="text-xs text-slate-500">Loading infographic…</p>;
+  }
+  return <img src={url} alt="BK-MInD learning infographic" className={className} />;
 }
 
 export default function ChatAssistantView() {
@@ -475,6 +561,7 @@ export default function ChatAssistantView() {
       const decoder = new TextDecoder();
       let buf = '';
       let finalHadToken = false;
+      let streamHadInlineImage = false;
 
       const appendAssistant = (delta: string, replace = false) => {
         if (!delta) return;
@@ -525,6 +612,41 @@ export default function ChatAssistantView() {
         });
       };
 
+      const appendAssistantInlineImage = (mime: string, dataBase64: string, modelText?: string) => {
+        const m = String(mime || 'image/png').trim() || 'image/png';
+        const b64 = String(dataBase64 || '').trim();
+        if (!b64) return;
+        streamHadInlineImage = true;
+        const dataUrl = `data:${m};base64,${b64}`;
+        setMessages((prev) => {
+          const idx = prev.findIndex((mm) => mm.id === aid);
+          const att: ChatImageAttachment = {
+            mime: m,
+            dataUrl,
+            modelText: (modelText || '').trim() || undefined,
+          };
+          if (idx < 0) {
+            return [
+              ...prev,
+              {
+                id: aid,
+                role: 'assistant',
+                content: '',
+                attachments: [att],
+                timestamp: new Date(),
+              },
+            ];
+          }
+          const next = [...prev];
+          const old = next[idx];
+          next[idx] = {
+            ...old,
+            attachments: [...(old.attachments || []), att],
+          };
+          return next;
+        });
+      };
+
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -546,6 +668,9 @@ export default function ChatAssistantView() {
             trace?: ToolTrace;
             questions?: string[];
             session_id?: string;
+            mime?: string;
+            data_base64?: string;
+            model_text?: string;
           } = {};
           try {
             payload = JSON.parse(payloadText);
@@ -563,13 +688,19 @@ export default function ChatAssistantView() {
             setAssistantStatus(payload.message || 'Thinking...');
           } else if (payload.type === 'suggestions' && Array.isArray(payload.questions)) {
             setSuggestions(payload.questions.slice(0, 3).filter(Boolean));
+          } else if (payload.type === 'inline_image' && payload.data_base64) {
+            appendAssistantInlineImage(
+              payload.mime || 'image/png',
+              payload.data_base64,
+              payload.model_text,
+            );
           } else if (payload.type === 'error') {
             throw new Error(payload.message || 'Chat agent error');
           }
         }
       }
 
-      if (!finalHadToken) {
+      if (!finalHadToken && !streamHadInlineImage) {
         appendAssistant('No response generated. Ensure Strands is installed and RAG indexes are available.', true);
       }
 
@@ -1023,6 +1154,48 @@ export default function ChatAssistantView() {
                       <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={CHAT_MARKDOWN_COMPONENTS}>
                         {message.content}
                       </ReactMarkdown>
+                      {(message.attachments || []).map((att, attIdx) => (
+                        <div key={`${message.id}-viz-${attIdx}`} className="not-prose mt-4 space-y-2">
+                          {att.modelText ? (
+                            <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-3 text-xs text-slate-700 leading-relaxed">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-sky-600 mb-2">From the image model (text)</p>
+                              <div className="prose prose-sm max-w-none prose-p:my-1">
+                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={CHAT_MARKDOWN_COMPONENTS}>
+                                  {att.modelText}
+                                </ReactMarkdown>
+                              </div>
+                            </div>
+                          ) : null}
+                          <div className="relative inline-block max-w-full rounded-xl border border-sky-100 bg-sky-50/30 p-2">
+                            {att.dataUrl ? (
+                              <img
+                                src={att.dataUrl}
+                                alt="BK-MInD learning infographic"
+                                className="max-w-full h-auto rounded-lg border border-sky-100/80 shadow-sm"
+                              />
+                            ) : att.storageRef ? (
+                              <StoredChatImage
+                                sessionId={att.storageRef.sessionId}
+                                messageId={att.storageRef.messageId}
+                                index={att.storageRef.index}
+                                mime={att.mime}
+                                className="max-w-full h-auto rounded-lg border border-sky-100/80 shadow-sm"
+                              />
+                            ) : null}
+                            <span
+                              className="pointer-events-none absolute bottom-3 right-3 text-[10px] font-black tracking-[0.15em] uppercase text-white bg-sky-600/92 px-2 py-1 rounded-md shadow-md border border-sky-500/40"
+                              aria-hidden
+                            >
+                              BK-MInD
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-500">
+                            {att.storageRef
+                              ? 'Saved with this chat — reload anytime from history.'
+                              : 'Right-click or long-press the image to save.'}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     message.content

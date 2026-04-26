@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import contextlib
 import io
 import json
@@ -35,7 +36,13 @@ from fastapi.responses import StreamingResponse
 from app.api.deps import storage_user_id
 from app.api.schemas import ChatStreamRequest
 from app.core.paths import merged_runtime_settings
+from app.repositories.chat_history_repository_dynamo import allocate_chat_message_id
+from app.services.chat_attachment_storage import persist_chat_visualization_png
 from app.services.chat_history_service import ChatHistoryService
+from app.services.processed_markdown_service import (
+    gather_processed_markdown_context,
+    sanitize_insights_document_id,
+)
 from app.services.search_orchestrator import SearchOrchestrator
 
 logger = logging.getLogger(__name__)
@@ -115,6 +122,24 @@ def _strip_raw_tool_markup(text: str) -> str:
     return cleaned
 
 
+def _scrub_data_image_markdown_for_history(text: str) -> str:
+    """Avoid persisting huge base64 payloads in chat history."""
+    if not text or "data:image/" not in text:
+        return text
+    return re.sub(
+        r"!\[([^\]]*)\]\(data:image/[^)]+\)",
+        r"*[BK-MInD visualization was shown in this reply; images are not stored — ask again to regenerate.]*",
+        text,
+    )
+
+
+def _strip_data_url_images(text: str) -> str:
+    """Remove markdown data-URL images from streamed text (avoids huge SSE / duplicate images)."""
+    if not text or "data:image/" not in text:
+        return text
+    return re.sub(r"!\[[^\]]*\]\(data:image/[^)]+\)\s*", "", text).strip()
+
+
 def _get_chat_history_service() -> ChatHistoryService | None:
     try:
         return ChatHistoryService.from_env()
@@ -174,6 +199,10 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
         yield emit({"type": "status", "message": "Planning tool calls..."})
         try:
             tool_traces: List[Dict[str, Any]] = []
+            # Infographic bytes must NOT be returned in tool strings — Bedrock/Strands context overflows.
+            chat_viz_attachments: List[Dict[str, str]] = []
+            # Same chat turn: require get_processed_markdown before generate_learning_visualization per document_id.
+            viz_markdown_prefetched: set[str] = set()
 
             from strands import tool
 
@@ -320,13 +349,21 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                         logger.warning("list_my_documents: No files returned")
                         return "No documents found. Upload files to get started!"
 
-                    # Build display with file names and statuses
-                    lines = [f"**Your Knowledge Base** ({len(files)} files):"]
+                    # Build display with file names, pipeline document_id (for tools), and statuses
+                    lines = [
+                        f"**Your Knowledge Base** ({len(files)} files):",
+                        "",
+                        "For **get_processed_markdown** / **generate_learning_visualization**, copy `document_id` exactly from the line below (or pass the **file_name** — it will be resolved).",
+                        "",
+                    ]
 
                     for file_info in files[:50]:
                         file_name = file_info.get("file_name") or file_info.get("name") or "unknown"
+                        doc_id_tool = str(file_info.get("document_id") or "").strip() or "—"
                         status = file_info.get("status") or "unknown"
                         index_status = file_info.get("index_status") or ""
+                        st_counts = file_info.get("processed_stage_counts") or {}
+                        s3c = int((st_counts.get("stage3_document_processed") or 0) or 0)
 
                         # Build status string
                         if status == "indexed":
@@ -343,7 +380,10 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                         else:
                             status_str = "Uploaded"
 
-                        entry = f"- **{file_name}** | {status_str}"
+                        entry = (
+                            f"- **{file_name}** | **document_id=`{doc_id_tool}`** | {status_str} "
+                            f"| stage3_files={s3c}"
+                        )
                         lines.append(entry)
 
                     if len(files) > 50:
@@ -356,6 +396,63 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 except Exception as e:
                     logger.exception("list_my_documents failed: %s", e)
                     return f"Could not list documents: {e}"
+
+            # ── Tool: Full processed markdown (pipeline .md, not vector snippets) ──
+            @tool
+            def get_processed_markdown(document_id: str, max_chars: int = 120_000) -> str:
+                """Load full processed markdown for ONE document (pipeline stage3/stage4 .md) — not vector RAG snippets.
+
+                Pass **document_id** exactly as shown in list_my_documents (`document_id=...`), **or** the upload
+                **file_name** (e.g. `Report.pdf`) — same resolution as the Lecture viewer /files metadata.
+
+                **Mandatory before generate_learning_visualization** for named files: call once per document.
+                max_chars: cap on returned characters (default 120000)."""
+                from pathlib import Path
+
+                from app.api.routes.files_routes import _find_document_entry_for_input_name
+                from app.services.processed_documents_service import build_processed_documents_snapshot
+
+                raw = (document_id or "").strip()
+                if not raw:
+                    return "Invalid: provide document_id from list_my_documents or the upload file_name."
+
+                try:
+                    cap = max(4_000, min(int(float(max_chars)), 200_000))
+                except Exception:
+                    cap = 120_000
+
+                snap = build_processed_documents_snapshot(user_id, include_preview=False)
+                resolved: str | None = None
+
+                cand = sanitize_insights_document_id(raw or None)
+                if cand:
+                    probe = gather_processed_markdown_context(user_id, cand, min(cap, 6_000))
+                    if probe.strip():
+                        resolved = cand
+
+                if not resolved:
+                    entry = _find_document_entry_for_input_name(snap, raw)
+                    if not entry:
+                        entry = _find_document_entry_for_input_name(snap, Path(raw.replace("\\", "/")).name)
+                    if entry:
+                        rid = str(entry.get("id") or "").strip()
+                        resolved = sanitize_insights_document_id(rid or None)
+
+                if not resolved:
+                    return (
+                        "Could not map that value to a pipeline document. Use list_my_documents and copy "
+                        "**document_id=`...`** exactly, or pass the exact **file_name** of the upload."
+                    )
+
+                ctx = gather_processed_markdown_context(user_id, resolved, cap)
+                if not ctx.strip():
+                    return (
+                        f"No processed markdown under pipeline folder `{resolved}` (stage3/stage4 .md). "
+                        "Indexed text can exist without markdown on disk — run **Process** in Knowledge Management, "
+                        "then try again. Check list_my_documents `stage3_files=` for that row."
+                    )
+                viz_markdown_prefetched.add(resolved)
+                return ctx
 
             # ── Tool 5: Document Summary ──────────────────────────────────────
             @tool
@@ -429,6 +526,126 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                     logger.warning("generate_quiz failed: %s", e)
                     return f"Could not generate quiz: {e}"
 
+            # ── Tool 7: Learning infographic (Gemini image, KB-only context) ──
+            @tool
+            def generate_learning_visualization(topic: str, document_id: str = "") -> str:
+                """Generate one infographic from the student's learning materials (Gemini image).
+
+                **Required workflow when the user names file(s) or wants a visualization of specific uploads:**
+                1) list_my_documents (if you need the folder id)
+                2) get_processed_markdown(document_id) — **once per file** that is in scope
+                3) then call this tool with the same document_id
+
+                Do **not** use text_rag as a substitute for step 2 for named lecture files.
+                If document_id is omitted, retrieval snippets are used only for broad/topic-only requests (indexed text).
+                topic: what the graphic should emphasize."""
+                try:
+                    from pathlib import Path
+
+                    from app.api.routes.files_routes import _find_document_entry_for_input_name
+                    from app.services.insights_service import InsightsService
+                    from app.services.processed_documents_service import build_processed_documents_snapshot
+
+                    raw_doc = (document_id or "").strip()
+                    doc: str | None = None
+                    if raw_doc:
+                        snap_v = build_processed_documents_snapshot(user_id, include_preview=False)
+                        entry_v = _find_document_entry_for_input_name(snap_v, raw_doc)
+                        if not entry_v:
+                            entry_v = _find_document_entry_for_input_name(
+                                snap_v, Path(raw_doc.replace("\\", "/")).name
+                            )
+                        if entry_v:
+                            rid = str(entry_v.get("id") or "").strip()
+                            doc = sanitize_insights_document_id(rid or None)
+                        if doc is None:
+                            doc = sanitize_insights_document_id(raw_doc or None)
+                    if raw_doc and doc is None:
+                        return (
+                            "Invalid document_id: use **document_id** from list_my_documents, the pipeline folder id, "
+                            "or the upload file name (no path segments or `..`)."
+                        )
+                    if doc is not None and doc not in viz_markdown_prefetched:
+                        return (
+                            "Workflow: call get_processed_markdown first for this document, then retry visualization.\n"
+                            f"Run: get_processed_markdown(document_id=\"{raw_doc or doc}\") "
+                            "(same value you pass here — file name or folder id). "
+                            "For multiple files, call get_processed_markdown once per document before this tool."
+                        )
+
+                    retrieved: str | None = None
+                    if doc is None:
+                        with _suppress_pipeline_noise():
+                            result = orch.run(
+                                query=(topic or "course materials").strip() or "course materials",
+                                top_k=14,
+                                retriever_type="hybrid",
+                                include_images=False,
+                                images_for_generation=0,
+                                mode="retrieval_only",
+                                search_scope="text",
+                                generation_model=None,
+                                skip_reranker=True,
+                            )
+                        rows = result.get("text_results") or []
+                        compact = _compact_text_rows(rows, limit=14)
+                        if not compact or compact == "(no text matches)":
+                            return (
+                                "No indexed text found for that topic. Try list_my_documents, a different topic, "
+                                "or pass document_id after materials are processed and indexed."
+                            )
+                        retrieved = compact
+
+                    svc = InsightsService(cfg, user_id=user_id)
+                    out = svc.lecture_visualization(
+                        document_id=doc,
+                        topic=topic,
+                        retrieved_context=retrieved,
+                    )
+                    tool_traces.append({
+                        "tool": "generate_learning_visualization",
+                        "query": topic,
+                        "top_k": 0,
+                        "search_scope": "text",
+                        "index_backend": "processed markdown and/or hybrid text retrieval",
+                        "result_count": 1 if (out.get("image_base64") or "").strip() else 0,
+                        "result_preview": "Gemini infographic (base64 omitted from trace)",
+                    })
+                    if out.get("error"):
+                        err = str(out["error"])
+                        mt = (out.get("model_text") or "").strip()
+                        if mt:
+                            return f"Visualization error: {err}\n\nModel text (before failure):\n\n{mt[:4000]}"
+                        return f"Visualization error: {err}"
+                    b64 = (out.get("image_base64") or "").strip()
+                    mime = (out.get("mime_type") or "image/png").strip()
+                    if not b64:
+                        mt = (out.get("model_text") or "").strip()
+                        if mt:
+                            return (
+                                "Model did not return an image. Check GEMINI_API_KEY and GEMINI_IMAGE_MODEL.\n\n"
+                                f"Model text:\n\n{mt[:4000]}"
+                            )
+                        return "Model did not return an image. Check GEMINI_API_KEY and GEMINI_IMAGE_MODEL."
+                    topic_short = (topic or "your materials").strip()[:120] or "your materials"
+                    model_txt = (out.get("model_text") or "").strip()
+                    chat_viz_attachments.append({
+                        "mime": mime,
+                        "data_base64": b64,
+                        "model_text": model_txt[:8000],
+                    })
+                    cap = model_txt[:2000] + ("…" if len(model_txt) > 2000 else "")
+                    return (
+                        "VISUALIZATION_OK: An infographic PNG was generated from the student's learning materials "
+                        f"(focus: {topic_short}). The chat UI will display it under your reply.\n"
+                        "Summarize in a few sentences what the graphic conveys. "
+                        "Do not use markdown images, data URLs, or base64 — the client renders the picture separately.\n\n"
+                        f"Optional caption from the image model:\n{cap if cap else '(none)'}"
+                    )
+                except Exception as e:
+                    logger.warning("generate_learning_visualization failed: %s", e)
+                    return f"Could not generate visualization: {e}"
+
             # ── Build and run the agent ───────────────────────────────────────
             yield emit({"type": "status", "message": "Running Strands agent..."})
 
@@ -437,8 +654,10 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 # image_rag,
                 get_quiz_performance,
                 list_my_documents,
+                get_processed_markdown,
                 get_document_summary,
                 generate_quiz,
+                generate_learning_visualization,
             ]
 
             system_prompt = (
@@ -450,7 +669,17 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 "- For performance/progress questions → use get_quiz_performance\n"
                 "- For quiz/practice requests → use generate_quiz\n"
                 "- For 'what documents do I have' → use list_my_documents\n"
+                "- For full lecture text / verbatim grounding → use get_processed_markdown with document_id from list_my_documents or the file name\n"
                 "- For document summaries → call list_my_documents first, then get_document_summary\n"
+                "- **Infographic / visual summary / mind map (mandatory order when user names file(s) or slide/PDF/lecture):**\n"
+                "  1) list_my_documents if you need the pipeline folder id\n"
+                "  2) get_processed_markdown(document_id) — **call once per file** that is in scope (confirms Process output exists)\n"
+                "  3) only then generate_learning_visualization(topic=..., document_id=...)\n"
+                "  Do **not** skip step 2. Do **not** use text_rag instead of get_processed_markdown for this workflow.\n"
+                "  If step 2 returns no markdown, tell the user to run **Process** — do not fall back to text_rag for that file.\n"
+                "  Multiple files: fetch markdown for **each** document_id first; the visualization tool uses one document_id "
+                "per image (call visualization again if the user needs separate graphics per file).\n"
+                "- If a tool returns VISUALIZATION_OK, the image is shown automatically in the chat UI — never paste base64 or ![image](data:...) in your answer\n"
                 "- If no relevant content found, suggest running Process + Build Index\n"
                 "- Format in clean markdown: ## headings, - bullets, **bold** key terms\n"
                 "- Never output raw <function_calls> or <function_result> tags\n"
@@ -491,7 +720,9 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
             )
             logger.info("chat_stream: Agent returned result, processing...")
 
-            final_text = _strip_raw_tool_markup(str(agent_result.get("answer") or "").strip()) or "No response generated."
+            final_text = _strip_data_url_images(
+                _strip_raw_tool_markup(str(agent_result.get("answer") or "").strip())
+            ) or "No response generated."
             suggestions = [x for x in (agent_result.get("suggestions") or []) if isinstance(x, str) and x.strip()][:3]
             if not suggestions:
                 suggestions = list(DEFAULT_SUGGESTIONS)
@@ -506,16 +737,52 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 yield emit({"type": "token", "delta": f"{w}{suffix}"})
                 await asyncio.sleep(0.03)
 
+            for va in chat_viz_attachments:
+                yield emit({
+                    "type": "inline_image",
+                    "mime": va.get("mime") or "image/png",
+                    "data_base64": va.get("data_base64") or "",
+                    "model_text": (va.get("model_text") or "").strip(),
+                })
+                await asyncio.sleep(0.01)
+
             if history_svc is not None:
                 try:
-                    logger.info("chat_stream: Saving assistant message to session (len=%d)", len(final_text))
+                    stored_text = _scrub_data_image_markdown_for_history(final_text)
+                    persisted_attachments: List[Dict[str, Any]] = []
+                    assistant_message_id: str | None = None
+                    if chat_viz_attachments:
+                        assistant_message_id = allocate_chat_message_id()
+                        for idx, va in enumerate(chat_viz_attachments):
+                            try:
+                                raw = base64.standard_b64decode((va.get("data_base64") or "").strip())
+                                mime = (va.get("mime") or "image/png").strip()
+                                rel = persist_chat_visualization_png(
+                                    user_id,
+                                    session_id,
+                                    assistant_message_id,
+                                    idx,
+                                    raw,
+                                    mime,
+                                )
+                                persisted_attachments.append({
+                                    "type": "image",
+                                    "rel_path": rel,
+                                    "mime": mime,
+                                    "model_text": (va.get("model_text") or "")[:8000],
+                                })
+                            except Exception as att_err:
+                                logger.warning("Could not persist chat visualization: %s", att_err)
+                    logger.info("chat_stream: Saving assistant message to session (len=%d)", len(stored_text))
                     history_svc.put_message(
                         user_id=user_id,
                         session_id=session_id,
                         role="assistant",
-                        content=final_text,
+                        content=stored_text,
                         traces=tool_traces,
                         suggestions=suggestions,
+                        message_id=assistant_message_id,
+                        attachments=persisted_attachments if persisted_attachments else None,
                     )
                     logger.info("chat_stream: Assistant message successfully saved to session")
                 except Exception as history_err:

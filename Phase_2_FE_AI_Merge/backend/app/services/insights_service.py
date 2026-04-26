@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import base64
 import logging
+import os
 from typing import Any, Dict, Tuple
 
 from app.core.paths import BACKEND_ROOT
@@ -12,6 +14,111 @@ from app.services.processed_markdown_service import (
 )
 
 logger = logging.getLogger(__name__)
+
+_DEFAULT_GEMINI_IMAGE_MODEL = "gemini-3.1-flash-image-preview"
+
+
+def _build_gemini_image_config(types: Any) -> Any | None:
+    """Match studio defaults: 16:9, 1K; tolerate older SDKs."""
+    ImageConfig = getattr(types, "ImageConfig", None)
+    if ImageConfig is None:
+        return None
+    candidates = [
+        {"aspect_ratio": "16:9", "image_size": "1K"},
+    ]
+    for kwargs in candidates:
+        try:
+            return ImageConfig(**kwargs)
+        except Exception:
+            continue
+    try:
+        return ImageConfig(aspect_ratio="16:9")
+    except Exception:
+        try:
+            return ImageConfig()
+        except Exception:
+            return None
+
+
+def _call_gemini_infographic_image(prompt: str) -> Tuple[bytes | None, str | None, str, str | None]:
+    """Return ``(image_bytes, mime_type, model_text, error)`` — streams may emit TEXT and IMAGE parts."""
+    key = (os.environ.get("GEMINI_API_KEY") or "").strip()
+    if not key:
+        return None, None, "", "GEMINI_API_KEY is not set"
+    try:
+        from google import genai
+        from google.genai import types
+    except ImportError as e:
+        return None, None, "", f"google-genai is not installed: {e}"
+
+    model = (os.environ.get("GEMINI_IMAGE_MODEL") or _DEFAULT_GEMINI_IMAGE_MODEL).strip()
+    client = genai.Client(api_key=key)
+
+    config_kwargs: Dict[str, Any] = {"response_modalities": ["IMAGE", "TEXT"]}
+    img_cfg = _build_gemini_image_config(types)
+    if img_cfg is not None:
+        config_kwargs["image_config"] = img_cfg
+    try:
+        config_kwargs["thinking_config"] = types.ThinkingConfig(thinking_level="MINIMAL")
+    except Exception:
+        pass
+
+    try:
+        config = types.GenerateContentConfig(**config_kwargs)
+    except Exception:
+        try:
+            config = types.GenerateContentConfig(response_modalities=["IMAGE", "TEXT"])
+        except Exception:
+            return None, None, "", "Could not build GenerateContentConfig"
+
+    contents = [
+        types.Content(
+            role="user",
+            parts=[types.Part.from_text(text=prompt)],
+        ),
+    ]
+
+    text_fragments: list[str] = []
+    last_image: tuple[bytes, str] | None = None
+
+    try:
+        for chunk in client.models.generate_content_stream(
+            model=model,
+            contents=contents,
+            config=config,
+        ):
+            ct = getattr(chunk, "text", None)
+            if ct:
+                text_fragments.append(str(ct))
+            parts = getattr(chunk, "parts", None)
+            if not parts:
+                continue
+            for part in parts:
+                pt = getattr(part, "text", None)
+                if pt:
+                    text_fragments.append(str(pt))
+                inline = getattr(part, "inline_data", None)
+                if not inline:
+                    continue
+                raw = getattr(inline, "data", None)
+                if not raw:
+                    continue
+                data_bytes: bytes
+                if isinstance(raw, str):
+                    data_bytes = base64.b64decode(raw)
+                else:
+                    data_bytes = raw
+                mime = getattr(inline, "mime_type", None) or "image/png"
+                last_image = (data_bytes, mime)
+    except Exception as e:
+        logger.warning("Gemini image stream failed: %s", e)
+        return None, None, "".join(text_fragments).strip(), str(e)
+
+    model_text = "".join(text_fragments).strip()
+    if last_image:
+        return last_image[0], last_image[1], model_text, None
+    detail = f" Model output (text only): {model_text[:800]}" if model_text else ""
+    return None, None, model_text, f"No image in model response.{detail}"
 
 
 def _estimate_tokens(text: str) -> int:
@@ -120,6 +227,106 @@ class InsightsService:
                 "model_id": _generation_model_id(self.cfg),
                 "token_in": _estimate_tokens(prompt),
                 "token_out": _estimate_tokens(raw or ""),
+            },
+        }
+
+    def lecture_visualization(
+        self,
+        document_id: str | None = None,
+        topic: str = "",
+        retrieved_context: str | None = None,
+    ) -> Dict[str, Any]:
+        """One-shot infographic from processed markdown and/or retrieved snippets (Gemini image)."""
+        topic_q = (topic or "").strip()
+        raw_doc = (document_id or "").strip()
+        doc = sanitize_insights_document_id(document_id)
+        if raw_doc and doc is None:
+            return {
+                "image_base64": "",
+                "mime_type": "",
+                "model_text": "",
+                "error": "Invalid document_id: use the folder name under Processed files (no slashes or ..).",
+            }
+
+        if retrieved_context is not None:
+            ctx = (retrieved_context or "").strip()
+            if not ctx:
+                return {
+                    "image_base64": "",
+                    "mime_type": "",
+                    "model_text": "",
+                    "error": "No retrieved content to visualize.",
+                }
+            source_note = (
+                "Content source: retrieved excerpts from the student's indexed lecture materials only — "
+                "do not invent facts beyond this text."
+            )
+        else:
+            ctx = gather_processed_markdown_context(self._user_id, doc, 100_000)
+            if not ctx.strip():
+                return {
+                    "image_base64": "",
+                    "mime_type": "",
+                    "model_text": "",
+                    "error": (
+                        "No processed markdown found. Run **Process** first. "
+                        "From chat, ensure **Build Index** is done so retrieval can supply snippets when "
+                        "no document_id is set."
+                    ),
+                }
+            source_note = (
+                "Content source: processed lecture markdown from the pipeline for this document scope — "
+                "do not invent facts beyond this text."
+            )
+
+        focus = f"The learner asked to emphasize: {topic_q}\n\n" if topic_q else ""
+        brand = (
+            "Create ONE clear, educational infographic or study poster summarizing the CONTENT below. "
+            "Style: modern, high contrast, readable labels, simple icons or shapes where helpful.\n"
+            "Use this palette as the dominant accents (hex): "
+            "primary sky #0ea5e9, deep sky #0284c7, accent #0369a1, "
+            "panel backgrounds #f0f9ff and #e0f2fe, body text #0f172a and #334155, borders #bae6fd.\n"
+            "Place a small, readable watermark in the bottom-right corner with the exact plain text: BK-MInD "
+            "(no asterisks, no markdown, no ** bold syntax — letters only).\n"
+            "Avoid illegible micro-text; no decorative clutter.\n\n"
+            f"{source_note}\n\n"
+            f"{focus}"
+            "CONTENT:\n"
+        )
+        full_prompt = brand + ctx[:100_000]
+
+        image_bytes, mime, model_text, err = _call_gemini_infographic_image(full_prompt)
+        model_id = (os.environ.get("GEMINI_IMAGE_MODEL") or _DEFAULT_GEMINI_IMAGE_MODEL).strip()
+        if err:
+            return {
+                "image_base64": "",
+                "mime_type": "",
+                "model_text": model_text or "",
+                "error": err,
+                "document_id": doc,
+                "topic": topic_q or None,
+            }
+        if not image_bytes:
+            return {
+                "image_base64": "",
+                "mime_type": "",
+                "model_text": model_text or "",
+                "error": "Empty image payload from model.",
+                "document_id": doc,
+                "topic": topic_q or None,
+            }
+        b64 = base64.standard_b64encode(image_bytes).decode("ascii")
+        return {
+            "image_base64": b64,
+            "mime_type": mime or "image/png",
+            "model_text": model_text or "",
+            "error": None,
+            "document_id": doc,
+            "topic": topic_q or None,
+            "usage": {
+                "model_id": model_id,
+                "token_in": _estimate_tokens(full_prompt),
+                "token_out": _estimate_tokens(model_text or "") + 1,
             },
         }
 
