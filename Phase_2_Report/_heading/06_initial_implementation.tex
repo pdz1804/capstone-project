@@ -332,11 +332,12 @@ Scores from both retrievers are combined using Min-Max normalization and a weigh
 
 
 \section{Database Schema and Storage}
-The system implementation requires a robust schema design to manage heterogeneous data including user interactions, processed documents, and high-dimensional vector representations. We utilize a dual-database approach to balance persistence and low-latency retrieval:
+The system implementation requires a robust schema design to manage heterogeneous data including user interactions, processed documents, and high-dimensional vector representations. We utilize a \textbf{Hybrid Storage Architecture} to balance persistence, scalability, and low-latency retrieval across three specialized layers:
 
 \begin{itemize}
-    \item \textbf{Amazon DynamoDB}: A fully managed \textbf{NoSQL} database service that provides fast and predictable performance with seamless scalability. In our architecture, DynamoDB serves as the primary store for persistent metadata, user profile information, assessment results, and conversational state (chat sessions/messages). Its schema-less nature allows for flexible data structures while its partitioned key-value access ensures low-latency operations even as the user base scales.
-    \item \textbf{Qdrant}: A specialized \textbf{Vector Database} and similarity search engine designed for storing and querying high-dimensional embeddings. Qdrant manages the multi-pathway vector representations of textual chunks and visual document pages, enabling semantic similarity matching and retrieval-augmented generation. It provides optimized search algorithms, filtering capabilities, and distributed indexing to maintain sub-second retrieval performance across deep vector collections.
+    \item \textbf{Qdrant}: A specialized \textbf{Vector Database} and similarity search engine designed for storing and querying high-dimensional embeddings. Qdrant manages the multi-pathway vector representations of textual chunks and visual document pages, enabling semantic similarity matching and retrieval-augmented generation. It provides optimized search algorithms, filtering capabilities, and distributed indexing to maintain sub-second retrieval performance.
+    \item \textbf{Amazon S3}: A highly scalable \textbf{Object Storage} service used to manage the complete lifecycle of document assets. It acts as the canonical source of truth, storing raw uploads, intermediate processing artifacts (e.g., extracted audio, keyframes), and final "RAG-ready" normalized documents. This layer ensures data durability and facilitates multi-tenant isolation through keyed prefixing.
+    \item \textbf{Amazon DynamoDB}: A fully managed \textbf{NoSQL} database service that provides fast and predictable performance with seamless scalability. In our architecture, DynamoDB serves as the primary store for persistent metadata, user profile information, assessment results, conversational state, and system telemetry. Its schema-less nature allows for flexible data structures while its partitioned key-value access ensures low-latency operations.
 \end{itemize}
 
 \subsection{Schema Property Definitions}
@@ -483,14 +484,14 @@ The system utilizes a dual-bucket object storage architecture to manage the life
         anchor=west,
         parent anchor=east,
         child anchor=west,
-        l sep=15pt,
-        s sep=3pt,
+        l sep=10pt,
+        s sep=1pt,
         edge path={
           \noexpand\path [draw, \forestoption{edge}]
-          (!u.east) -- +(5pt,0) |- (.child anchor) \forestoption{edge label};
+          (!u.east) -- +(3pt,0) |- (.child anchor) \forestoption{edge label};
         },
       }
-      [S3
+      [
         [ai-service-originals-dev
           [users/\{uid\}/
             [\{doc\_name\}.pdf]
@@ -709,10 +710,11 @@ To facilitate continuous improvement and capture user sentiment, a specialized \
         message\_id & String & Reference to the specific AI message being evaluated. \\
         session\_id & String & Reference to the parent conversational session. \\
         query & String & The user's original query that prompted the response. \\
-        response & String & The AI's generated response being evaluated. \\
-        vote & String & User sentiment (\texttt{like} or \texttt{dislike}). \\
         reason\_code & String & Categorized reason for the feedback (e.g., \texttt{other}, \texttt{incorrect}). \\
-        reason\_text & String & Qualitative text provided by the user. \\
+        response & String & The AI's generated response being evaluated. \\
+        vote & String & User sentiment or feedback type (e.g., \texttt{general}, \texttt{like}, \texttt{dislike}). \\
+        feedback\_text & String & Qualitative text provided by the user. \\
+        scope & String & The application area or feature (e.g., \texttt{Knowledge Explorer}). \\
         is\_active & Boolean & Indicates if the feedback entry is currently valid for analysis. \\
         category & String & High-level classification (e.g., \texttt{Content Quality}). \\
         sub\_category & String & Granular classification (e.g., \texttt{Missing Visual Examples}). \\
@@ -726,6 +728,39 @@ To facilitate continuous improvement and capture user sentiment, a specialized \
     \end{tabular}
     \caption{Feedback Schema}
     \label{tab:feedback_results}
+\end{table}
+
+\newpage
+
+\textbf{App Usage Table}
+To monitor system performance, track resource consumption, and estimate operational costs, the system utilizes an \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_app\_usage}). This table logs granular telemetry for every AI-driven request, capturing token counts, latency metrics, and estimated financial impact.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        usage\_id & String & Partition Key. Unique identifier for the usage log entry. \\
+        \midrule
+        user\_id & String & Identifier of the user who initiated the request. \\
+        day\_bucket & String & Date-based partition (YYYY-MM-DD) for temporal analysis. \\
+        duration\_ms & Number & Total request latency in milliseconds. \\
+        estimated\_cost\_usd & Number & Calculated cost of the LLM interaction in USD. \\
+        feature & String & The specific system feature utilized (e.g., \texttt{learning\_insights}). \\
+        invoked\_at & String (ISO) & Precise timestamp of the request invocation. \\
+        invoked\_at\_epoch & Number & Unix timestamp for efficient numerical filtering. \\
+        method & String & HTTP method (e.g., \texttt{POST}). \\
+        model\_id & String & The specific LLM or embedding model utilized. \\
+        path & String & The API endpoint path accessed (e.g., \texttt{/api/insights/summary}). \\
+        request\_id & String & Unique correlation ID for cross-service tracing. \\
+        status\_code & Number & HTTP status code returned to the client (e.g., \texttt{200}). \\
+        token\_in & Number & Total input tokens processed by the model. \\
+        token\_out & Number & Total output tokens generated by the model. \\
+        \bottomrule
+    \end{tabular}
+    \caption{App Usage Schema}
+    \label{tab:app_usage}
 \end{table}
 
 
@@ -1095,5 +1130,27 @@ The runtime environment is managed by \textbf{Amazon Elastic Container Service (
     \item \textbf{Task Definitions}: These define the CPU and memory requirements for each service, as well as the environment variables needed for the RAG pipeline to connect to its various cloud backends.
     \item \textbf{High Availability}: ECS ensures that the desired number of containers are always running, automatically restarting any tasks that fail their health checks.
 \end{itemize}
+
+
+\section{System Performance}
+
+To ensure a high-quality user experience, the system's frontend performance was evaluated using industry-standard metrics. The application was tested for both desktop and mobile environments, focusing on core web vitals, accessibility, and best practices.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/29-desktop performance.png}
+    \caption[Desktop Performance Metrics]{Desktop Performance Metrics.}
+    \label{fig:desktop_performance}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/30-mobile performance.png}
+    \caption[Mobile Performance Metrics]{Mobile Performance Metrics.}
+    \label{fig:mobile_performance}
+\end{figure}
+
+As shown in Figures \ref{fig:desktop_performance} and \ref{fig:mobile_performance}, the system maintains high performance scores across all categories, ensuring fast load times and a responsive interface for multimodal document interaction.
+
 
 \newpage
