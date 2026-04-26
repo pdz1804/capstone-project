@@ -58,7 +58,7 @@ Exact **host** field at providers varies: some want the full `_xxx.example.com`,
 ## Related repo docs
 
 - `AWS_DEPLOYMENT_SETUP.md` — broader Terraform, ECS, and CI/CD context
-- `Phase_2/terraform/` — ALB and listener definitions as code (keep code and console in sync when possible)
+- `Phase_2_FE_AI_Merge/terraform/` — ALB and listener definitions as code (keep code and console in sync when possible)
 
 ---
 

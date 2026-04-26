@@ -157,6 +157,13 @@ Lambda Container pricing:
 
 Still much cheaper than running LibreOffice 24/7 in ECS!
 
+## Related Maintained Docs
+
+- [`../../README.md`](../../README.md) — maintained merged application overview.
+- [`../../../docs/technical/APPLICATION_OVERVIEW.md`](../../../docs/technical/APPLICATION_OVERVIEW.md) — system capabilities and architecture summary.
+- [`../../../docs/technical/API_REFERENCE.md`](../../../docs/technical/API_REFERENCE.md) — API map and operational guidance.
+- [`../../../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](../../../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md) — performance evidence and scaling plan.
+
 ## Supported Formats
 
 ### Input Formats:

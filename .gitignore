@@ -58,6 +58,9 @@ docs/jmeter-experiments/
 docs/jmeter-final-correctness/
 docs/jmeter-main-apis/
 
+# Superseded Phase 2 split tree kept locally only.
+Phase_2/
+
 
 # -------------------------
 # Python

@@ -17,7 +17,7 @@ The authoritative requirements baseline is **[`docs/requirements.md`](docs/requi
 - **Non-functional**: latency and scale targets (**NFR-001–NFR-002**); availability, integrity, UX, accessibility, security, and privacy (**NFR-003–NFR-008**).
 - **Technical**: FastAPI + async APIs, React 18 + Vite + Tailwind, vector and metadata stores, external LLM/embedding services, Docker, and **cloud-ready** infrastructure (**TR-001–TR-007**).
 
-Research-week folders (`Week03*`, `Week05*`, `Week07*`) and **`Phase_2`** deliverables map to these requirements incrementally; **`Phase_2_FE_AI_Merge`** is the **integrated** app (Firebase UI, Qdrant/S3, optional **SageMaker**, **Terraform** for ECS/ALB/ECR).
+Research-week folders (`Week03*`, `Week05*`, `Week07*`) map to these requirements incrementally; **`Phase_2_FE_AI_Merge`** is the maintained integrated app (Firebase UI, Qdrant/S3, optional **SageMaker**, **Terraform** for ECS/ALB/ECR).
 
 ---
 
@@ -302,61 +302,7 @@ stage4_rag_ready/
 
 ---
 
-### 📅 **Phase 2: Production RAG System with Web Interface**
-
-Complete end-to-end RAG system with unified processing pipeline, multimodal retrieval, and interactive web interface.
-
-#### **Backend: FastAPI + Unified RAG Pipeline** (`Phase_2/backend/`)
-
-Production-ready REST API combining document processing and retrieval into a complete RAG system.
-
-**Key Components**:
-
-- **Unified RAG Pipeline**: Combines document processing (Week 07-09) + retrieval systems
-- **FastAPI Server**: REST API with auto-reload for development
-- **Multimodal Retrieval**: Text (BM25/Dense/Hybrid) + Image (ColQwen)
-- **Answer Generation**: LLM-based responses with citations
-- **Evaluation Framework**: Built-in benchmarking with nDCG, Recall, MRR metrics
-
-**API Features**:
-
-- File upload and management
-- Document processing pipeline
-- Index building (text + image)
-- Search and query with retrievers
-- Generated answers from LLM
-- Health monitoring
-
-**Retrieval Options**:
-
-- **Text Retrievers**: BM25 (sparse), Dense (semantic), Hybrid (RRF)
-- **Image Retriever**: ColQwen 2.5 (vision-language)
-- **Rerankers**: BGE-Large, MiniLM, BGE-Base (optional)
-- **Chunking**: Configurable text splitting (1000 chars, 200 overlap)
-
-#### **Frontend: React + Vite + Tailwind CSS** (`Phase_2/frontend/`)
-
-Modern web interface for the RAG pipeline with real-time interaction.
-
-**Features**:
-
-- Drag-and-drop file upload
-- View uploaded, processed, and indexed files
-- Natural language search with multimodal results
-- Text chunk results with scores and metadata
-- Image page results from ColQwen
-- LLM-generated answers with citations
-- Responsive design with Tailwind CSS
-
-**Tech Stack**:
-
-- React 18 + Vite (fast dev server)
-- Axios for API communication
-- Lucide React for icons
-- React Markdown with math support (KaTeX)
-- TailwindCSS for styling
-
-#### **Merged stack: FE + AI + AWS (`Phase_2_FE_AI_Merge/`)**
+### 📅 **Phase 2 Integrated Application: FE + AI + AWS (`Phase_2_FE_AI_Merge/`)**
 
 Single tree that combines the production-style **FastAPI** backend (Qdrant, S3, optional SageMaker inference), the **React + Firebase** frontend from the FE track, **SageMaker** hosting packs (unified Docling + Whisper + ColQwen container and optional split endpoints), and **Terraform** for AWS: **ECR**, **ECS Fargate**, **Application Load Balancer** with optional **HTTPS** (ACM), auto scaling, and an optional **SageMaker endpoint** aligned with `sagemaker/unified`.
 
@@ -366,9 +312,9 @@ Single tree that combines the production-style **FastAPI** backend (Qdrant, S3, 
 | Integration log | `Phase_2_FE_AI_Merge/MERGE_SUMMARY.md` | Merge checklist and features |
 | Terraform (ALB, ECS, ECR, SageMaker) | `Phase_2_FE_AI_Merge/terraform/` | [`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md) |
 | SageMaker build / deploy | `Phase_2_FE_AI_Merge/sagemaker/` | [`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md) |
-| HTTPS + custom domain runbook | `docs/deployment-alb-acm-custom-domain.md` | ACM validation, DNS, ALB listeners |
+| HTTPS + custom domain runbook | `docs/technical/DOCS_deployment-alb-acm-custom-domain.md` | ACM validation, DNS, ALB listeners |
 
-Use **`Phase_2_FE_AI_Merge`** when you want the Firebase UI, cloud-ready backend, and reproducible AWS infra in one place; use **`Phase_2`** for the earlier split of `backend/` and `frontend/` only.
+Use **`Phase_2_FE_AI_Merge`** as the maintained application tree for local development, technical review, deployment, and testing.
 
 ---
 
@@ -414,22 +360,6 @@ Set-Location Phase_2_FE_AI_Merge\terraform
 terraform init -backend=false
 terraform fmt -recursive
 terraform validate
-```
-
-### Classic Phase 2 tree (`Phase_2/`)
-
-```powershell
-# Terminal 1 — API (from repository root)
-Set-Location Phase_2\backend
-pip install -r requirements.txt
-Copy-Item .env.example .env
-Set-Location api
-python main.py
-
-# Terminal 2 — UI (from repository root)
-Set-Location Phase_2\frontend
-npm install
-npm run dev
 ```
 
 ### Research and pipeline folders (optional)
@@ -507,7 +437,7 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 
 **Research milestones and utilities**
 
-- READMEs inside **`Week0304_*`**, **`Week0506_*`**, **`Week070809_QPhu_Processor/`**, **`Phase_2/`**, and **`downloads/`** (datasets and paper references).
+- READMEs inside **`Week0304_*`**, **`Week0506_*`**, **`Week070809_QPhu_Processor/`**, and **`downloads/`** (datasets and paper references).
 - **`DETAILED_PIPELINE_FLOWS.md`**, **`Week0506_*/`** comparison markdowns, and other week-specific notes where present.
 
 ---
