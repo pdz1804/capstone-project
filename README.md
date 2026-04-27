@@ -123,14 +123,14 @@ flowchart TB
 
 **Layer summary**
 
-| Layer | Role | SRS touchpoints |
-|--------|------|------------------|
-| Client | Uploads, search, summaries, dashboards, auth | FR-021–FR-022, FR-023–FR-027, NFR-005–NFR-008 |
-| API | Orchestration, RBAC hooks, integration | TR-001, NFR-003–NFR-004 |
-| Processing | ASR, OCR/VLM, spreadsheets, sync, corpus | FR-001–FR-008 |
-| Storage | Vectors, sparse index, blobs, metadata | TR-003, TR-004, NFR-004 |
-| Retrieval & generation | Hybrid + visual search, RAG, chat, LLM | FR-009–FR-014, TR-004 |
-| Deployment | Containers, cloud LB TLS, optional managed GPU | TR-006–TR-007, NFR-002–NFR-003 |
+| Layer                  | Role                                           | SRS touchpoints                                  |
+| ---------------------- | ---------------------------------------------- | ------------------------------------------------ |
+| Client                 | Uploads, search, summaries, dashboards, auth   | FR-021–FR-022, FR-023–FR-027, NFR-005–NFR-008 |
+| API                    | Orchestration, RBAC hooks, integration         | TR-001, NFR-003–NFR-004                         |
+| Processing             | ASR, OCR/VLM, spreadsheets, sync, corpus       | FR-001–FR-008                                   |
+| Storage                | Vectors, sparse index, blobs, metadata         | TR-003, TR-004, NFR-004                          |
+| Retrieval & generation | Hybrid + visual search, RAG, chat, LLM         | FR-009–FR-014, TR-004                           |
+| Deployment             | Containers, cloud LB TLS, optional managed GPU | TR-006–TR-007, NFR-002–NFR-003                 |
 
 For HTTPS and custom domains on AWS, see [`docs/deployment-alb-acm-custom-domain.md`](docs/deployment-alb-acm-custom-domain.md).
 
@@ -306,13 +306,13 @@ stage4_rag_ready/
 
 Single tree that combines the production-style **FastAPI** backend (Qdrant, S3, optional SageMaker inference), the **React + Firebase** frontend from the FE track, **SageMaker** hosting packs (unified Docling + Whisper + ColQwen container and optional split endpoints), and **Terraform** for AWS: **ECR**, **ECS Fargate**, **Application Load Balancer** with optional **HTTPS** (ACM), auto scaling, and an optional **SageMaker endpoint** aligned with `sagemaker/unified`.
 
-| Area | Path | Documentation |
-|------|------|----------------|
-| Folder overview | `Phase_2_FE_AI_Merge/` | [`Phase_2_FE_AI_Merge/README.md`](Phase_2_FE_AI_Merge/README.md) |
-| Integration log | `Phase_2_FE_AI_Merge/MERGE_SUMMARY.md` | Merge checklist and features |
-| Terraform (ALB, ECS, ECR, SageMaker) | `Phase_2_FE_AI_Merge/terraform/` | [`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md) |
-| SageMaker build / deploy | `Phase_2_FE_AI_Merge/sagemaker/` | [`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md) |
-| HTTPS + custom domain runbook | `docs/technical/DOCS_deployment-alb-acm-custom-domain.md` | ACM validation, DNS, ALB listeners |
+| Area                                 | Path                                                        | Documentation                                                                       |
+| ------------------------------------ | ----------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Folder overview                      | `Phase_2_FE_AI_Merge/`                                    | [`Phase_2_FE_AI_Merge/README.md`](Phase_2_FE_AI_Merge/README.md)                     |
+| Integration log                      | `Phase_2_FE_AI_Merge/MERGE_SUMMARY.md`                    | Merge checklist and features                                                        |
+| Terraform (ALB, ECS, ECR, SageMaker) | `Phase_2_FE_AI_Merge/terraform/`                          | [`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md) |
+| SageMaker build / deploy             | `Phase_2_FE_AI_Merge/sagemaker/`                          | [`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md) |
+| HTTPS + custom domain runbook        | `docs/technical/DOCS_deployment-alb-acm-custom-domain.md` | ACM validation, DNS, ALB listeners                                                  |
 
 Use **`Phase_2_FE_AI_Merge`** as the maintained application tree for local development, technical review, deployment, and testing.
 
@@ -320,6 +320,10 @@ Use **`Phase_2_FE_AI_Merge`** as the maintained application tree for local devel
 
 ## 🚀 Quick Start
 
+**📚 For capstone presentations / documentation review:**
+Start with **[`docs/INDEX.md`](docs/INDEX.md)** (navigation guide) → **[`docs/CAPSTONE_PRESENTATION_GUIDE.md`](docs/CAPSTONE_PRESENTATION_GUIDE.md)** (presentation strategy and document checklist).
+
+**👨‍💻 For development setup:**
 Prerequisites follow **[`docs/requirements.md`](docs/requirements.md)** (TR-001–TR-005, NFR-005–NFR-006): **Python 3.9+**, **FastAPI** backend; **React 18+**, **Vite**, **Tailwind** frontend; **FFmpeg**, **Tesseract**, **Poppler** for media; **GPU** optional locally if you offload heavy inference to APIs or **SageMaker** ([`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)). **Docker** and **Terraform** are for packaging and cloud layout (TR-006–TR-007).
 
 **Shell:** All commands below are **Windows PowerShell** (5.1 or 7+). From another shell, translate `Set-Location`/`Copy-Item`/`.\venv\Scripts\Activate.ps1` as needed. If script activation is blocked, run once: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` (or start Python via `.\venv\Scripts\python.exe` without activating).
@@ -405,15 +409,21 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 
 ## 📚 Documentation
 
-**Documentation hub**
+**📖 Start Here:**
 
-- **[`docs/README.md`](docs/README.md)** — Central documentation index for technical references, testing evidence, diagrams, reports, and presentation materials.
+- **[`docs/INDEX.md`](docs/INDEX.md)** ⭐ — **Central documentation index** with reading paths by role, quick navigation, and complete documentation map. Use this to find what you need.
 
-**Authoritative technical documents**
+**Core Documentation**
+
+- **[`docs/README.md`](docs/README.md)** — Documentation hub and overview.
+- **[`docs/FEATURES.md`](docs/FEATURES.md)** ⭐ — Comprehensive feature documentation: all 18 features with implementation details, APIs, configurations.
+
+**Authoritative Technical Documents**
 
 - **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)** — Product scope, user workflows, architecture summary, features, quality attributes, and engineering assessment.
 - **[`docs/technical/API_REFERENCE.md`](docs/technical/API_REFERENCE.md)** — Maintainer-level API reference covering authentication, files, processing, indexing, search, chat, insights, feedback, and operational guidance.
-- **[`docs/requirements.md`](docs/requirements.md)** — Software Requirements Specification: functional, non-functional, technical constraints, and verification criteria.
+- **[`docs/requirements.md`](docs/requirements.md)** — Software Requirements Specification: functional, non-functional, technical constraints, and verification criteria (37 requirements total).
+- **[`docs/technical/GUARDRAIL_CONFIGURATION.md`](docs/technical/GUARDRAIL_CONFIGURATION.md)** ⭐ — AWS Bedrock guardrails configuration, content safety filters, PII protection, implementation details.
 
 **Testing and performance evidence**
 
@@ -426,6 +436,10 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 - **[`docs/diagram/README_SYSTEM_DOCUMENTATION.md`](docs/diagram/README_SYSTEM_DOCUMENTATION.md)** — System documentation and diagram index.
 - **[`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](docs/technical/DOCS_deployment-alb-acm-custom-domain.md)** — ACM certificates, DNS validation, ALB HTTP→HTTPS, custom domains.
 - **[`docs/technical/DOCS_search-cache-redis-setup.md`](docs/technical/DOCS_search-cache-redis-setup.md)** — Redis/ElastiCache search cache setup and operational notes.
+
+**Cost estimation**
+
+- **[`docs/others/AWS_Cost_Estimation_50_Users_Professional.xlsx`](docs/others/AWS_Cost_Estimation_50_Users_Professional.xlsx)** — Detailed cost analysis and scalability projections for 50 concurrent users.
 
 **Merged production application (`Phase_2_FE_AI_Merge/`)**
 
@@ -490,11 +504,7 @@ Open-source models, APIs, and platforms that this codebase builds on (see also T
 
 ---
 
-**Last Updated:** April 9, 2026
+**Version:** 1.0
+**Last Updated:** April 28, 2026
 
-**Project status:** Requirements are baselined in [`docs/requirements.md`](docs/requirements.md). The **Week 07–09** processor and **Phase 2** RAG+UI codepaths remain the research-to-product backbone; **`Phase_2_FE_AI_Merge/`** is the **integrated** Firebase UI + FastAPI + Qdrant/S3 stack with documented **SageMaker** hosting and **Terraform** for AWS. Feature completeness vs. the SRS is tracked per requirement in that document.
-
-**Team:** MKhoi (ASR/OCR and multimodal processing), NKhoi (retrieval systems and embeddings), QPhu (unified pipeline, Phase 2 backend/frontend integration, merge and deployment documentation).
-
-**Latest release:** Phase 2 **FE + AI merge** — production-oriented monorepo folder with **Terraform** (ECS, ALB, optional HTTPS, optional SageMaker endpoint) and **SageMaker** unified multimodal container docs; root README and architecture aligned with the **SRS**.
-
+**Team:** MKhoi, NKhoi, QPhu.
