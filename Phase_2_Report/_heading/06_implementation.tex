@@ -1288,6 +1288,38 @@ To ensure the economic viability of the proposed system, we have established a b
     \label{tab:aws_pricing_ref}
 \end{table}
 
+\begin{table}[H]
+    \centering
+    \scalebox{0.8}{
+    \begin{tabular}{llp{1.6cm}p{3cm}p{4.5cm}rr}
+        \toprule
+        \textbf{Category} & \textbf{Component} & \textbf{Quantity} & \textbf{Unit Price} & \textbf{Base Calc} & \textbf{Cost} & \textbf{\%} \\
+        \midrule
+        NETWORKING & ALB Instance Hours & 730 hrs & \$0.0225 / hr & 730 hrs $\times$ \$0.0225 & \$16.43 & 2.40\% \\
+        NETWORKING & ALB LCU (avg 1.0) & 730 hrs & \$0.008 / hr & 730 hrs $\times$ 1.0 $\times$ \$0.008 & \$5.84 & 0.85\% \\
+        CACHE & ElastiCache Serverless & 730 hrs & \$0.125 / GB-hr & 730 hrs $\times$ 0.5 GB $\times$ 0.125 & \$45.63 & 6.67\% \\
+        STORAGE & S3 Bucket (storage) & 10 GB & \$0.023 / GB & 10 $\times$ \$0.023 & \$0.23 & 0.03\% \\
+        STORAGE & S3 Bucket (requests) & 5000 req. & \$0.05 / 1k & 5 $\times$ \$0.05 & \$0.25 & 0.04\% \\
+        AI/ML & Bedrock - Haiku & 5 Million & \$1.50 / 1M & 5M tokens (Blended) & \$7.50 & 1.10\% \\
+        DATABASE & DynamoDB On-Demand & 1.00 & \$5.00 / mo & RRU/WRU + Storage & \$5.00 & 0.73\% \\
+        MONITORING & CloudWatch Logs & 1.00 & \$10.00 / mo & 15GB Ingest + Storage & \$10.00 & 1.46\% \\
+        CONTAINER & ECR Storage & 12 GB & \$0.10 / GB & 12GB $\times$ \$0.10 & \$1.20 & 0.18\% \\
+        COMPUTE & ECS Backend (vCPU) & 730 hrs & \$0.02024 / hr & 730 hrs $\times$ 2 $\times$ \$0.02024 & \$29.55 & 4.32\% \\
+        COMPUTE & ECS Backend (RAM) & 730 hrs & \$0.004445 / hr & 730 hrs $\times$ 2 $\times$ \$0.004445 & \$6.49 & 0.95\% \\
+        COMPUTE & ECS Frontend (vCPU) & 730 hrs & \$0.01012 / hr & 730 hrs $\times$ 2 $\times$ \$0.01012 & \$14.78 & 2.16\% \\
+        COMPUTE & ECS Frontend (RAM) & 730 hrs & \$0.002223 / hr & 730 hrs $\times$ 2 $\times$ \$0.002223 & \$3.25 & 0.48\% \\
+        COMPUTE & SageMaker (GPU) & 730 hrs & \$0.7364 / hr & 730 hrs $\times$ \$0.7364 & \$537.57 & 78.62\% \\
+        \midrule
+        \textbf{TOTAL} & & & & & \textbf{\$683.72} & \textbf{100.00\%} \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{Monthly Cost Breakdown - 50 Users}
+    \label{tab:monthly_cost_breakdown}
+\end{table}
+
+
+
 \section{System Performance}
 
 To ensure a high-quality user experience, the system's frontend performance was evaluated using industry-standard metrics. The application was tested for both desktop and mobile environments, focusing on core web vitals, accessibility, and best practices.
