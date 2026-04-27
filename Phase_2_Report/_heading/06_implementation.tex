@@ -846,21 +846,30 @@ The core API, built with FastAPI, serves as the communication backend between th
     \label{tab:ui_api_mapping}
 \end{table}
 
+The following subsections detail the core API endpoints that power the system's multimodal processing and retrieval engine. To ensure clarity and technical consistency, each service is documented using a standardized schema:
+\begin{itemize}
+    \item \textbf{Request Headers}: Mandatory or optional metadata sent in the HTTP header for authentication, multi-tenant isolation, and session tracking.
+    \item \textbf{Query Parameters}: Key-value pairs appended to the URL to modify the processing behavior (e.g., forcing a re-index).
+    \item \textbf{Request Body}: The primary data payload, delivered as \texttt{JSON} for structured requests or \texttt{multipart/form-data} for high-concurrency binary asset ingestion.
+    \item \textbf{Security Constraints}: Programmatic safeguards and validation rules enforced by the backend to ensure tenant safety and system integrity.
+    \item \textbf{Response}: The schema of the data returned upon a successful operation, facilitating frontend integration and state management.
+\end{itemize}
+
 \subsection{Upload Files [\texttt{POST} \texttt{/api/upload}]}
 Manages the initial ingestion of raw document assets into the system's storage backend (local filesystem or Amazon S3). This service supports high-concurrency multi-file uploads and ensures that all assets are logically partitioned by user identity.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): The logical tenant or user ID used for workspace isolation and S3 key prefixing. If not provided, the service defaults to a system-wide \texttt{default} storage context.
+        \item \texttt{X-User-Id} (String, Optional): The logical tenant ID used for workspace isolation and storage partitioning. Defaults to \texttt{default}.
     \end{itemize}
     \item \textbf{Request Body (multipart/form-data)}:
     \begin{itemize}
-        \item \texttt{files} (Array of Binary Objects, Required): A collection of document files to be ingested. These are streamed directly to the persistent storage layer under the user's input.
+        \item \texttt{files} (Binary Array, Required): A collection of document assets to be streamed directly to persistent storage.
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{Response}: (String) A confirmation message indicating the successful completion of the multi-part upload.
+        \item \texttt{Response} (String): A confirmation message indicating the successful ingestion of the files.
     \end{itemize}
 \end{itemize}
 
@@ -870,21 +879,21 @@ Initiates the 5-stage multimodal extraction and normalization pipeline for a spe
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation.
+        \item \texttt{X-User-Id} (String, Optional): Identifier for multi-tenant workspace isolation.
     \end{itemize}
     \item \textbf{Query Parameters}:
     \begin{itemize}
-        \item \texttt{force} (Boolean, Default: \texttt{false}): If \texttt{true}, forces reprocessing even if cached structural artifacts exist.
+        \item \texttt{force} (Boolean, Default: \texttt{false}): Toggles re-processing of already processed structural artifacts.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{selected\_paths}: (Array of Strings) Optional list of specific file paths to process. 
-        \item \texttt{mode}: (String) Processing fidelity (\texttt{standard} or \texttt{fast}).
+        \item \texttt{selected\_paths} (String Array, Optional): Specific file paths within the tenant workspace to process. 
+        \item \texttt{mode} (String, Optional): Pipeline fidelity level (\texttt{standard} or \texttt{fast}).
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{status}: (String) Lifecycle indicator (\texttt{completed} or \texttt{failed}).
-        \item \texttt{results}: (Object) Dynamic dictionary containing granular statistics for each pipeline stage.
+        \item \texttt{status} (String): Overall pipeline state (\texttt{completed} or \texttt{failed}).
+        \item \texttt{results} (Object): Granular execution statistics for each multimodal stage.
     \end{itemize}
 \end{itemize}
 
@@ -894,22 +903,22 @@ Synchronizes extracted artifacts into searchable vector and keyword indexes. Thi
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for index isolation.
+        \item \texttt{X-User-Id} (String, Optional): Identifier for multi-tenant index isolation.
     \end{itemize}
     \item \textbf{Query Parameters}:
     \begin{itemize}
-        \item \texttt{force} (Boolean, Default: \texttt{false}): If \texttt{true}, forces the re-indexing of all artifacts even if they are already present in the vector store.
+        \item \texttt{force} (Boolean, Default: \texttt{false}): If \texttt{true}, forces re-indexing of artifacts even if they exist in the vector store.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{selected\_paths}: (Array of Strings) Optional list of absolute paths to specific processed artifacts.
-        \item \texttt{selected\_names}: (Array of Strings) Fallback matching for original document filenames. 
-        \item \texttt{mode}: (String) Indexing modality (\texttt{standard} or \texttt{fast}).
+        \item \texttt{selected\_paths} (String Array, Optional): Absolute paths to specific normalized artifacts for indexing.
+        \item \texttt{selected\_names} (String Array, Optional): Match artifacts by original document filenames. 
+        \item \texttt{mode} (String, Optional): Indexing modality (\texttt{standard} or \texttt{fast}).
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{status}: (String) Overall indexing lifecycle state.
-        \item \texttt{results}: (Object) Success details for both text (dense/BM25) and visual (multimodal) index stages.
+        \item \texttt{status} (String): The final state of the indexing lifecycle.
+        \item \texttt{results} (Object): Success metrics for text (dense/BM25) and visual indexing stages.
     \end{itemize}
 \end{itemize}
 
@@ -919,24 +928,24 @@ Provides a high-fidelity search interface for granular document exploration, sup
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation and search history auditing.
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and search auditing.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{query}: (String) The natural language request from the user.
-        \item \texttt{top\_k}: (Integer) Number of candidate chunks to retrieve.
-        \item \texttt{retriever\_type}: (String) Search logic (\texttt{bm25}, \texttt{dense}, or \texttt{hybrid}).
-        \item \texttt{include\_images}: (Boolean) Toggles visual token consideration.
-        \item \texttt{images\_for\_generation}: (Integer) Number of visual contexts to inject into the LLM.
-        \item \texttt{mode}: (String) Operation modality (\texttt{retrieval\_only} vs \texttt{retrieval\_generation}).
-        \item \texttt{search\_scope}: (String) Target index (\texttt{text}, \texttt{image}, or \texttt{both}).
-        \item \texttt{generation\_model}: (String) Optional override for the inference model ID.
-        \item \texttt{skip\_reranker}: (Boolean) Flag to bypass secondary ranking for latency.
+        \item \texttt{query} (String, Required): The natural language query from the end-user.
+        \item \texttt{top\_k} (Integer, Optional): Number of candidate chunks to retrieve for ranking.
+        \item \texttt{retriever\_type} (String, Optional): Retrieval logic (\texttt{bm25}, \texttt{dense}, or \texttt{hybrid}).
+        \item \texttt{include\_images} (Boolean, Optional): Toggles the use of visual tokens in search.
+        \item \texttt{images\_for\_generation} (Integer, Optional): Number of visual contexts to provide to the generator.
+        \item \texttt{mode} (String, Optional): Operation modality (\texttt{retrieval\_only} vs \texttt{retrieval\_generation}).
+        \item \texttt{search\_scope} (String, Optional): Target index (\texttt{text}, \texttt{image}, or \texttt{both}).
+        \item \texttt{generation\_model} (String, Optional): Override for the default inference model ID.
+        \item \texttt{skip\_reranker} (Boolean, Default: \texttt{false}): Toggles secondary ranking for latency optimization.
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{generation}: (Object) Contains the synthesized answer and metadata about the inference model.
-        \item \texttt{telemetry}: (Object) Performance metrics for the retrieval and generation phases.
+        \item \texttt{generation} (Object): The synthesized answer and associated model metadata.
+        \item \texttt{telemetry} (Object): Performance metrics for retrieval and generation phases.
     \end{itemize}
 \end{itemize}
 
@@ -946,20 +955,20 @@ Generates context-aware abstracts and targeted summaries by synthesizing the str
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation and backend storage prefixing.
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and backend prefixing.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{focus\_query}: (String) Specific themes or keywords to emphasize in the summary.
-        \item \texttt{depth}: (String) Complexity level (\texttt{brief}, \texttt{detailed}, or \texttt{comprehensive}).
-        \item \texttt{top\_k}: (Integer) Number of high-relevance components to consider during synthesis.
-        \item \texttt{document\_id}: (String) Unique identifier for the source document folder.
-        \item \texttt{tone}: (String) Stylistic orientation (\texttt{neutral}, \texttt{formal}, or \texttt{friendly}).
-        \item \texttt{target\_length}: (String) Approximate volume of the output (\texttt{short}, \texttt{medium}, or \texttt{long}).
+        \item \texttt{document\_id} (String, Required): Unique identifier for the source document context.
+        \item \texttt{focus\_query} (String, Optional): Specific themes or keywords to emphasize.
+        \item \texttt{depth} (String, Optional): Complexity level (\texttt{brief}, \texttt{detailed}, or \texttt{comprehensive}).
+        \item \texttt{top\_k} (Integer, Optional): Number of high-relevance chunks to consider for synthesis.
+        \item \texttt{tone} (String, Optional): Stylistic orientation (\texttt{neutral}, \texttt{formal}, or \texttt{friendly}).
+        \item \texttt{target\_length} (String, Optional): Approximate output length (\texttt{short}, \texttt{medium}, or \texttt{long}).
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{Response}: (String) The context-aware summary or abstract generated by the AI synthesis engine.
+        \item \texttt{Response} (String): The context-aware summary generated by the AI engine.
     \end{itemize}
 \end{itemize}
 
@@ -967,19 +976,22 @@ Generates context-aware abstracts and targeted summaries by synthesizing the str
 Provides a secure mechanism to download or inline-preview single file artifacts (e.g., high-resolution Markdown, page images, or original assets) located within the multi-tenant processing tree. The service is strictly tenant-safe; it rejects all path traversal attempts and ensures that S3 keys remain confined to the user-specific processing prefix.
 
 \begin{itemize}
-    \item \textbf{Request Parameters}:
+    \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{rel\_path} (Query, Required): The relative path within the processing workspace using forward slashes (e.g., \texttt{stage4\_rag\_ready/LectureA/p1.png}). Supported length: 1 to 2048 characters.
-        \item \texttt{X-User-Id} (Header, Optional): Logical tenant identifier used for S3 prefixing and local workspace isolation. Defaults to the system's \texttt{default} user context if omitted.
+        \item \texttt{X-User-Id} (String, Optional): Identifier for multi-tenant path isolation and S3 key prefixing.
+    \end{itemize}
+    \item \textbf{Query Parameters}:
+    \begin{itemize}
+        \item \texttt{rel\_path} (String, Required): Forward-slashed relative path within the tenant workspace (e.g., \texttt{stage4/doc.md}).
     \end{itemize}
     \item \textbf{Security Constraints}: 
     \begin{itemize}
-        \item Automatic rejection of \texttt{..} sequences to prevent directory traversal.
-        \item Forced prefixing with the user-specific directory (local) or S3 bucket/key-root (cloud).
+        \item \textbf{Traversal Prevention}: Programmatic rejection of \texttt{..} sequences to prevent directory escape.
+        \item \textbf{Tenant Lockdown}: Forced prefixing with the user-specific storage root (S3 or Local).
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{File stream}: (Binary/String) The raw requested asset delivered with appropriate MIME types for high-resolution inline rendering or downloading.
+        \item \texttt{File stream} (Binary): The raw requested asset delivered with appropriate MIME types for inline rendering.
     \end{itemize}
 \end{itemize}
 
@@ -989,17 +1001,17 @@ Synthesizes a structured educational progression and roadmap based on specific d
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation and backend storage prefixing.
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and backend prefixing.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{student\_profile}: (String) Contextual data regarding the user's prior expertise, current academic level, or educational context.
-        \item \texttt{goals}: (String) The specific desired learning outcomes or topics the user wishes to master.
-        \item \texttt{document\_id}: (String) Optional identifier to scope the roadmap generation to a specific processed document.
+        \item \texttt{student\_profile} (String, Optional): Context regarding the user's expertise or educational background.
+        \item \texttt{goals} (String, Required): Desired learning outcomes or topics for mastery.
+        \item \texttt{document\_id} (String, Optional): Identifier to scope the roadmap to a specific document context.
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{Response}: (String) The synthesized pedagogical roadmap delivered as a structured Markdown template.
+        \item \texttt{Response} (String): The synthesized pedagogical roadmap delivered in structured Markdown.
     \end{itemize}
 \end{itemize}
 
@@ -1009,20 +1021,20 @@ Synthesizes dynamic multiple-choice quizzes and rationales based on specific doc
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation and backend storage prefixing.
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and backend prefixing.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{topic}: (String) The primary educational subject or internal document theme used for context validation.
-        \item \texttt{num\_questions}: (Integer) Total items to generate (supported range: 1 to 20).
-        \item \texttt{difficulty}: (String) Target cognitive difficulty (\texttt{basic}, \texttt{intermediate}, or \texttt{advanced}).
-        \item \texttt{document\_id}: (String) Optional identifier to scope quiz generation to a specific processed document.
-        \item \texttt{question\_style}: (String) Formatting tone for questions (\texttt{exam}, \texttt{conceptual}, or \texttt{mixed}).
-        \item \texttt{include\_explanations}: (Boolean) Toggles the inclusion of detailed rationales for each correct answer.
+        \item \texttt{topic} (String, Required): Primary educational theme for question validation.
+        \item \texttt{num\_questions} (Integer, Default: \texttt{5}): Total items to generate (Range: 1--20).
+        \item \texttt{difficulty} (String, Optional): Target cognitive difficulty (\texttt{basic}, \texttt{intermediate}, or \texttt{advanced}).
+        \item \texttt{document\_id} (String, Optional): Identifier to scope generation to a specific document context.
+        \item \texttt{question\_style} (String, Optional): Formatting tone (\texttt{exam}, \texttt{conceptual}, or \texttt{mixed}).
+        \item \texttt{include\_explanations} (Boolean, Default: \texttt{true}): Toggles the inclusion of detailed rationales.
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{Response}: (String) The generated quiz delivered as a structured JSON-compatible string or Markdown list containing questions, options, and rationales.
+        \item \texttt{Response} (String): The generated quiz delivered as a JSON-compatible Markdown list.
     \end{itemize}
 \end{itemize}
 
@@ -1032,66 +1044,19 @@ The primary RAG orchestration endpoint for streaming conversational interaction 
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for session isolation and storage access.
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for session isolation and storage access.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{query}: (String) The natural language request or question from the end-user.
-        \item \texttt{top\_k}: (Integer) The number of relevant document chunks to inject into the LLM context. Default: 8.
-        \item \texttt{persona}: (String) Optional stylistic tone override (e.g., professor, concise assistant).
-        \item \texttt{education\_description}: (String) Optional student background context for personalization.
-        \item \texttt{session\_id}: (String) Unique identifier for the chat session for memory continuity.
+        \item \texttt{query} (String, Required): The natural language query or question from the end-user.
+        \item \texttt{session\_id} (String, Required): Unique identifier for the chat session for memory continuity.
+        \item \texttt{top\_k} (Integer, Default: \texttt{8}): Number of relevant document chunks to inject into the context.
+        \item \texttt{persona} (String, Optional): Stylistic tone override (e.g., \texttt{professor}, \texttt{concise}).
+        \item \texttt{education\_description} (String, Optional): Student background context for personalization.
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{Response}: (String) Server-Sent Events (SSE) stream of the generated AI answer tokens.
-    \end{itemize}
-\end{itemize}
-
-\subsection{Feedbacks [\texttt{POST} \texttt{/api/feedback}]}
-Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG performance. This service captures both structured sentiment (votes) and unstructured qualitative data to drive system improvements.
-
-\begin{itemize}
-    \item \textbf{Request Headers}:
-    \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation and audit logging.
-    \end{itemize}
-    \item \textbf{Request Payload Fields}:
-    \begin{itemize}
-        \item \texttt{vote}: (String) Sentiment classification (\texttt{like}, \texttt{dislike}, or \texttt{general}).
-        \item \texttt{query}: (String) Snapshot of the user prompt associated with the feedback.
-        \item \texttt{response}: (String) Snapshot of the AI response associated with the feedback.
-        \item \texttt{session\_id}: (String) UUID mapping to the parent Chatbot Session.
-        \item \texttt{message\_id}: (String) UUID mapping to the specific conversational turn.
-        \item \texttt{reason\_code}: (String) Programmatic category identifier (e.g., \texttt{inaccurate}, \texttt{hallucination}).
-        \item \texttt{reason\_text}: (String) Short justification text from the user.
-        \item \texttt{scope}: (String) Optional targeting of the feedback (e.g., \texttt{retrieval}, \texttt{generation}).
-        \item \texttt{feedback\_text}: (String) Extended unstructured comments or descriptions.
-    \end{itemize}
-    \item \textbf{Success Response Fields}:
-    \begin{itemize}
-        \item \texttt{user\_id}: (String) Logical tenant identifier for the feedback owner.
-        \item \texttt{feedback\_id}: (String) System-generated unique identifier for the record.
-        \item \texttt{session\_id}: (String) UUID link to the parent Chatbot Session.
-        \item \texttt{message\_id}: (String) UUID link to the specific conversational turn.
-        \item \texttt{vote}: (String) Echoed sentiment classification.
-        \item \texttt{reason\_code}: (String) Categorization code provided during submission.
-        \item \texttt{reason\_text}: (String) Justification text provided during submission.
-        \item \texttt{scope}: (String) Targeted system component (e.g., retrieval, generation).
-        \item \texttt{feedback\_text}: (String) Complete user comments.
-        \item \texttt{query}: (String) Snapshot of the original user prompt.
-        \item \texttt{response}: (String) Snapshot of the original AI response.
-        \item \texttt{is\_active}: (Boolean) Retention flag indicating if the feedback is currently visible in active analytics.
-        \item \texttt{category}: (String) AI-classified logic category (e.g., \texttt{Accuracy}).
-        \item \texttt{sub\_category}: (String) Granular classification (e.g., \texttt{Math Error}).
-        \item \texttt{suggested\_action}: (String) AI-generated prescriptive improvement step.
-        \item \texttt{analysis\_summary}: (String) Narrative synthesis of the feedback generated by the LLM classifier.
-        \item \texttt{classifier\_model}: (String) The ID of the model used for automated categorization.
-        \item \texttt{classification\_status}: (String) Pipeline state (\texttt{pending}, \texttt{completed}).
-        \item \texttt{classification\_error}: (String) Error trace if the AI analysis failed.
-        \item \texttt{created\_at}: (String) ISO-8601 timestamp of record creation.
-        \item \texttt{updated\_at}: (String) ISO-8601 timestamp of the last record update.
-        \item \texttt{version}: (Integer) Optimistic concurrency version for DynamoDB updates.
+        \item \texttt{response} (String): Server-Sent Events (SSE) stream of generated AI answer tokens.
     \end{itemize}
 \end{itemize}
 
@@ -1102,6 +1067,55 @@ Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG p
     \item \textbf{Augmentation}: Context injection into the dynamic LLM prompt template.
     \item \textbf{Streaming}: Real-time response delivery via Server-Sent Events (SSE).
 \end{enumerate}
+
+\subsection{Feedbacks [\texttt{POST} \texttt{/api/feedback}]}
+Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG performance. This service captures both structured sentiment (votes) and unstructured qualitative data to drive system improvements.
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and audit logging.
+    \end{itemize}
+    \item \textbf{Request Body}:
+    \begin{itemize}
+        \item \texttt{vote} (String, Required): Sentiment classification (\texttt{like}, \texttt{dislike}, or \texttt{general}).
+        \item \texttt{session\_id} (String, Required): UUID mapping to the parent Chatbot Session.
+        \item \texttt{message\_id} (String, Required): UUID mapping to the specific conversational turn.
+        \item \texttt{query} (String, Optional): Snapshot of the user prompt associated with the feedback.
+        \item \texttt{response} (String, Optional): Snapshot of the AI response associated with the feedback.
+        \item \texttt{reason\_code} (String, Optional): Category identifier (e.g., \texttt{inaccurate}, \texttt{hallucination}).
+        \item \texttt{reason\_text} (String, Optional): Justification text from the user.
+        \item \texttt{scope} (String, Optional): Targeted system component (e.g., \texttt{retrieval}, \texttt{generation}).
+        \item \texttt{feedback\_text} (String, Optional): Extended unstructured comments.
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{user\_id} (String): Logical tenant identifier for the feedback owner.
+        \item \texttt{feedback\_id} (String): System-generated unique identifier for the record.
+        \item \texttt{session\_id} (String): UUID link to the parent Chatbot Session.
+        \item \texttt{message\_id} (String): UUID link to the specific conversational turn.
+        \item \texttt{vote} (String): Echoed sentiment classification.
+        \item \texttt{reason\_code} (String): Categorization code provided during submission.
+        \item \texttt{reason\_text} (String): Justification text provided during submission.
+        \item \texttt{scope} (String): Targeted system component (e.g., retrieval, generation).
+        \item \texttt{feedback\_text} (String): Complete user comments.
+        \item \texttt{query} (String): Snapshot of the original user prompt.
+        \item \texttt{response} (String): Snapshot of the original AI response.
+        \item \texttt{is\_active} (Boolean): Retention flag indicating if the feedback is currently visible.
+        \item \texttt{category} (String): AI-classified logic category (e.g., \texttt{Accuracy}).
+        \item \texttt{sub\_category} (String): Granular classification (e.g., \texttt{Math Error}).
+        \item \texttt{suggested\_action} (String): AI-generated prescriptive improvement step.
+        \item \texttt{analysis\_summary} (String): Narrative synthesis of the feedback generated by the LLM.
+        \item \texttt{classifier\_model} (String): The ID of the model used for automated categorization.
+        \item \texttt{classification\_status} (String): Pipeline state (\texttt{pending}, \texttt{completed}).
+        \item \texttt{classification\_error} (String): Error trace if the AI analysis failed.
+        \item \texttt{created\_at} (String): ISO-8601 timestamp of record creation.
+        \item \texttt{updated\_at} (String): ISO-8601 timestamp of the last record update.
+        \item \texttt{version} (Integer): Optimistic concurrency version for DynamoDB.
+    \end{itemize}
+\end{itemize}
+
+
 
 
 \section{System Configurations and Modular Architecture}
