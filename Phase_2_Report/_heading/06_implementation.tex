@@ -475,77 +475,125 @@ The visual index maintains geometric representations (height/width) alongside S3
 \subsection{Object Storage (Amazon S3)}
 The system utilizes a dual-bucket object storage architecture to manage the lifecycle of document assets. This approach decouples raw ingestion from the downstream processing pipeline, ensuring data integrity and enabling scalable multi-tenancy.
 
+% \begin{figure}[H]
+%     \centering
+%     \begin{forest}
+%       for tree={
+%         font=\ttfamily\scriptsize,
+%         grow'=0,
+%         anchor=west,
+%         parent anchor=east,
+%         child anchor=west,
+%         l sep=10pt,
+%         s sep=1pt,
+%         edge path={
+%           \noexpand\path [draw, \forestoption{edge}]
+%           (!u.east) -- +(3pt,0) |- (.child anchor) \forestoption{edge label};
+%         },
+%       }
+%       [
+%         [ai-service-originals-dev
+%           [users/\{uid\}/
+%             [\{doc\_name\}.pdf]
+%             [\{doc\_name\}.pdf.metadata.json]
+%           ]
+%         ]
+%         [ai-service-processed-dev
+%           [users/\{uid\}/
+%             [.processing\_cache.json]
+%             [pipeline\_stats.json]
+%             [stage1\_normalized/
+%                 [normalized\_pdfs/]
+%                 [excel\_parsed/]
+%                 [original\_files/]
+%                 [normalization\_metadata/
+%                     % [normalization\_stats.json]
+%                 ]
+%             ]
+%             [stage2\_media\_processed/
+%                 [extracted\_audio/]
+%                 [extracted\_frames/]
+%                 [transcripts/]
+%                 [media\_metadata/]
+%             ]
+%             [stage3\_document\_processed/
+%                 [\{doc\_name\}/
+%                     [\{doc\_name\}.md]
+%                     [\{doc\_name\}\_metadata.json]
+%                 ]
+%                 [logs/
+%                     [batch\_summary\_*.json]
+%                     [processing\_*.log]
+%                 ]
+%             ]
+%             [stage4\_rag\_ready/
+%                 [\{doc\_name\}/
+%                     [\{doc\_name\}.md]
+%                     [\{doc\_name\}.pdf]
+%                     [docling\_additional/
+%                         % [metadata.json]
+%                     ]
+%                 ]
+%                 [consolidation\_stats.json]
+%             ]
+%             [retrieval/
+%                 [bm25\_index.pkl]
+%                 [documents.json.pkl]
+%             ]
+%           ]
+%         ]
+%       ]
+%     \end{forest}
+%     \caption{Amazon S3 Directory Structure Tree}
+%     \label{fig:s3_tree}
+% \end{figure}
+
+% \markdownInput{markdown/s3.md}
+
 \begin{figure}[H]
     \centering
-    \begin{forest}
-      for tree={
-        font=\ttfamily\scriptsize,
-        grow'=0,
-        anchor=west,
-        parent anchor=east,
-        child anchor=west,
-        l sep=10pt,
-        s sep=1pt,
-        edge path={
-          \noexpand\path [draw, \forestoption{edge}]
-          (!u.east) -- +(3pt,0) |- (.child anchor) \forestoption{edge label};
-        },
-      }
-      [
-        [ai-service-originals-dev
-          [users/\{uid\}/
-            [\{doc\_name\}.pdf]
-            [\{doc\_name\}.pdf.metadata.json]
-          ]
-        ]
-        [ai-service-processed-dev
-          [users/\{uid\}/
-            [.processing\_cache.json]
-            [pipeline\_stats.json]
-            [stage1\_normalized/
-                [normalized\_pdfs/]
-                [excel\_parsed/]
-                [original\_files/]
-                [normalization\_metadata/
-                    % [normalization\_stats.json]
-                ]
-            ]
-            [stage2\_media\_processed/
-                [extracted\_audio/]
-                [extracted\_frames/]
-                [transcripts/]
-                [media\_metadata/]
-            ]
-            [stage3\_document\_processed/
-                [\{doc\_name\}/
-                    [\{doc\_name\}.md]
-                    [\{doc\_name\}\_metadata.json]
-                ]
-                [logs/
-                    [batch\_summary\_*.json]
-                    [processing\_*.log]
-                ]
-            ]
-            [stage4\_rag\_ready/
-                [\{doc\_name\}/
-                    [\{doc\_name\}.md]
-                    [\{doc\_name\}.pdf]
-                    [docling\_additional/
-                        % [metadata.json]
-                    ]
-                ]
-                [consolidation\_stats.json]
-            ]
-            [retrieval/
-                [bm25\_index.pkl]
-                [documents.json.pkl]
-            ]
-          ]
-        ]
-      ]
-    \end{forest}
+
+    \begin{markdown}
+    S3/
+    ├── ai-service-originals-dev/
+    │   └── users/{uid}/
+    │       ├── {doc_name}.pdf
+    │       └── {doc_name}.pdf.metadata.json
+    └── ai-service-processed-dev/
+        └── users/{uid}/
+            ├── .processing_cache.json
+            ├── pipeline_stats.json
+            ├── stage1_normalized/
+            │   ├── normalized_pdfs/
+            │   ├── excel_parsed/
+            │   ├── original_files/
+            │   └── normalization_metadata/
+            ├── stage2_media_processed/
+            │   ├── extracted_audio/
+            │   ├── extracted_frames/
+            │   ├── transcripts/
+            │   └── media_metadata/
+            ├── stage3_document_processed/
+            │   ├── {doc_name}/
+            │   │   ├── {doc_name}.md
+            │   │   └── {doc_name}_metadata.json
+            │   └── logs/
+            │       ├── batch_summary_*.json
+            │       └── processing_*.log
+            ├── stage4_rag_ready/
+            │   ├── {doc_name}/
+            │   │   ├── {doc_name}.md
+            │   │   ├── {doc_name}.pdf
+            │   │   └── docling_additional/
+            │   └── consolidation_stats.json
+            └── retrieval/
+                ├── bm25_index.pkl
+                └── documents.json.pkl
+    \end{markdown}
+
     \caption{Amazon S3 Directory Structure Tree}
     \label{fig:s3_tree}
+
 \end{figure}
 
 \textbf{Bucket 1: Originals Storage (\texttt{ai-service-originals-dev})}
