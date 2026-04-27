@@ -1180,6 +1180,73 @@ The runtime environment is managed by \textbf{Amazon Elastic Container Service (
 \end{itemize}
 
 
+\section{Cloud Infrastructure Cost Estimation}
+
+To ensure the economic viability of the proposed system, we have established a baseline cost estimation based on a production-grade AWS deployment. The following table summarizes the key assumptions and resource allocations used to forecast the monthly operational expenditure for the \texttt{prod} environment in the \texttt{us-west-2} region, supporting an initial cohort of 50 active users.
+
+\begin{table}[H]
+    \centering
+    \scalebox{0.85}{
+    \begin{tabular}{lp{2.5cm}llp{6cm}}
+        \toprule
+        \textbf{Parameter} & \textbf{Value} & \textbf{Unit} & \textbf{Source} & \textbf{Notes} \\
+        \midrule
+        Active Users & 50 & count & Target & Monthly active users for forecast. \\
+        Hours per Month & 730 & hours & Standard & 24/7 $\times$ 365 $\div$ 12. \\
+        AWS Region & us-west-2 & region & Config & Oregon - base pricing reference. \\
+        Environment & prod & text & Terraform & Production environment. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{COMPUTE}} \\
+        \midrule
+        Backend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks (High Availability). \\
+        Backend Min/Max & 1 / 10 & tasks & Terraform & Auto-scaling range. \\
+        Backend vCPU & 0.50 & vCPU & Terraform & 512 CPU units per task. \\
+        Backend RAM & 1 & GB & Terraform & 1024 MB per task. \\
+        Frontend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks. \\
+        Frontend Min/Max & 1 / 5 & tasks & Terraform & Auto-scaling range (lighter). \\
+        Frontend vCPU & 0.25 & vCPU & Terraform & 256 CPU units for Node.js. \\
+        Frontend RAM & 0.50 & GB & Terraform & 512 MB per task. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{AI/ML \& INFERENCE}} \\
+        \midrule
+        SageMaker Enabled & Yes & boolean & Terraform & ml.g4dn.xlarge GPU inference. \\
+        Instance Type & ml.g4dn.xlarge & text & Terraform & NVIDIA T4 GPU (1x). \\
+        Instances (Always-On) & 1 & count & Estimate & 24/7 instance for inference. \\
+        Bedrock Claude Usage & $\sim$6M & tokens & Estimate & Haiku + Sonnet for generation. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{STORAGE \& CACHE}} \\
+        \midrule
+        ElastiCache Serverless & Yes & boolean & Terraform & Redis search cache. \\
+        Cache Data Size & 2.50 & GB & Estimate & BM25 + dense embeddings. \\
+        Cache TTL & 600 & seconds & Config & 10-minute cache validity. \\
+        S3 Bucket (storage) & 10 & GB & Terraform & Store the original files and processed files. \\
+        S3 Bucket (requests) & 5000 & count & Terraform & Calling the original files and processed files. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{DATABASE}} \\
+        \midrule
+        DynamoDB Billing & On-Demand & text & Terraform & Flexible for 50 users. \\
+        Read Units & 10.00 & M RRU & Estimate & Chat retrieval + insights. \\
+        Write Units & 10.00 & M WRU & Estimate & Sessions + messages + telemetry. \\
+        DynamoDB Storage & 5.00 & GB & Estimate & Chat history + profiles. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{NETWORKING}} \\
+        \midrule
+        ALB Enabled & Yes & boolean & Terraform & Application Load Balancer. \\
+        ALB LCU (average) & 1.00 & LCU & Estimate & 50 users = $\sim$1 LCU load. \\
+        HTTPS/SSL & Yes & boolean & Config & ACM certificate enabled. \\
+        WAF Enabled & No & boolean & Terraform & Not enabled for 50 users. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{CONTINGENCY}} \\
+        \midrule
+        Buffer Percentage & 0.15 & percent & Estimate & 15\% contingency for growth. \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{Cost Estimation Assumptions}
+    \label{tab:cost_assumptions}
+\end{table}
+
+
 \section{System Performance}
 
 To ensure a high-quality user experience, the system's frontend performance was evaluated using industry-standard metrics. The application was tested for both desktop and mobile environments, focusing on core web vitals, accessibility, and best practices.
