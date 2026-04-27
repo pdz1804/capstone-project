@@ -340,7 +340,7 @@ class IndexingService:
                 "chunk_id": cid,
                 "user_id": self._paths.user_id,
                 "source": d.get("source", ""),
-                "text_preview": (d.get("text", "") or "")[:4000],
+                "text_preview": d.get("text", "") or "",
             }
             su = meta.get("storage_uri")
             if su:

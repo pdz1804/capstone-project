@@ -20,6 +20,36 @@ from .benchmark import (
     BenchmarkRunner,
     run_retrieval_benchmark
 )
+from .docx_section_coverage import (
+    BaseSectionCoverageJudge,
+    CalibrationResult,
+    DocumentEvalResult,
+    DocxSectionCoverageConfig,
+    DocxSectionCoverageRunner,
+    LLMSectionCoverageJudge,
+    QuestionCoverageResult,
+    SectionEvalResult,
+    SectionEvalSample,
+    compute_parsing_metrics,
+    flatten_docx_sections,
+    map_chunks_to_sections,
+    run_docx_section_coverage,
+)
+from .document_intelligence import (
+    BaseDocumentIntelligenceJudge,
+    BaseQAExecutor,
+    DocumentEvalSample,
+    DocumentIntelligenceEvalConfig,
+    DocumentIntelligenceRunner,
+    DocumentQAEvalResult,
+    LLMDocumentIntelligenceJudge,
+    QAEvalItem,
+    QAEvalResult,
+    SearchOrchestratorQAExecutor,
+    SectionSample,
+    discover_document_samples,
+    run_document_intelligence_eval,
+)
 
 __all__ = [
     # Metrics
@@ -32,5 +62,32 @@ __all__ = [
     "BenchmarkConfig",
     "BenchmarkRunner",
     "run_retrieval_benchmark",
+    # DOCX section coverage evaluation
+    "BaseSectionCoverageJudge",
+    "CalibrationResult",
+    "DocumentEvalResult",
+    "DocxSectionCoverageConfig",
+    "DocxSectionCoverageRunner",
+    "LLMSectionCoverageJudge",
+    "QuestionCoverageResult",
+    "SectionEvalResult",
+    "SectionEvalSample",
+    "compute_parsing_metrics",
+    "flatten_docx_sections",
+    "map_chunks_to_sections",
+    "run_docx_section_coverage",
+    # Document Intelligence evaluation
+    "BaseDocumentIntelligenceJudge",
+    "BaseQAExecutor",
+    "DocumentEvalSample",
+    "DocumentIntelligenceEvalConfig",
+    "DocumentIntelligenceRunner",
+    "DocumentQAEvalResult",
+    "LLMDocumentIntelligenceJudge",
+    "QAEvalItem",
+    "QAEvalResult",
+    "SearchOrchestratorQAExecutor",
+    "SectionSample",
+    "discover_document_samples",
+    "run_document_intelligence_eval",
 ]
-

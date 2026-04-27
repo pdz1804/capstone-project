@@ -499,6 +499,11 @@ export default function App() {
                             <button
                               key={sub.id}
                               title={sidebarCollapsed ? sub.label : undefined}
+                              onMouseEnter={() => {
+                                if (sub.id === 'upload') {
+                                  refreshFilesFromApi();
+                                }
+                              }}
                               onClick={() => {
                                 navigateToKnowledgeTab(sub.id as KnowledgeSubTab);
                               }}

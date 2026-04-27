@@ -700,6 +700,7 @@ export default function LibraryView({
           onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
+          onClick={() => void onRefreshFiles()}
         >
           <div className="w-16 h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <UploadCloud className="w-8 h-8" />
@@ -720,7 +721,10 @@ export default function LibraryView({
             <button
               type="button"
               disabled={uploadBusy}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                void onRefreshFiles();
+                fileInputRef.current?.click();
+              }}
               className="px-6 py-2.5 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors disabled:opacity-50"
             >
               {uploadBusy && uploadProgress !== null
