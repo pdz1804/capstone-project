@@ -4,12 +4,39 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.api.deps import storage_user_id
-from app.api.schemas import McqRequest, RoadmapRequest, SummaryRequest
+from app.api.schemas import McqRequest, RoadmapRequest, SummaryRequest, VisualizationRequest
 from app.core.paths import merged_runtime_settings
 from app.services.insights_service import InsightsService
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["insights"])
+
+
+@router.post("/visualization")
+def lecture_visualization(
+    req: VisualizationRequest,
+    user_id: str = Depends(storage_user_id),
+):
+    try:
+        cfg = merged_runtime_settings()
+        result = InsightsService(cfg, user_id=user_id).lecture_visualization(
+            document_id=req.document_id,
+            topic=req.topic,
+            retrieved_context=None,
+        )
+        usage = (result.get("usage") or {}) if isinstance(result, dict) else {}
+        return JSONResponse(
+            content=result,
+            headers={
+                "X-Usage-Feature": "learning_insights",
+                "X-Usage-Model-Id": str(usage.get("model_id") or ""),
+                "X-Usage-Token-In": str(int(usage.get("token_in") or 0)),
+                "X-Usage-Token-Out": str(int(usage.get("token_out") or 0)),
+            },
+        )
+    except Exception as e:
+        logger.exception("visualization")
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/summary")

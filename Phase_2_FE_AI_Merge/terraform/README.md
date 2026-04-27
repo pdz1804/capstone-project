@@ -140,4 +140,6 @@ AWS_REGION=<same as var.aws_region>
 ## Related docs
 
 - `../sagemaker/README.md` — build, push ECR, and endpoint smoke tests
-- Repository root `docs/deployment-alb-acm-custom-domain.md` — ACM + ALB HTTPS checklist
+- Repository root `docs/technical/DOCS_deployment-alb-acm-custom-domain.md` — ACM + ALB HTTPS checklist
+- Repository root `docs/technical/APPLICATION_OVERVIEW.md` — maintained application overview
+- Repository root `docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md` — final performance and scaling report

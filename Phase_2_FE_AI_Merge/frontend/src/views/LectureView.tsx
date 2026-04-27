@@ -14,6 +14,7 @@ import {
   Headphones,
   List,
   ScrollText,
+  Palette,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
@@ -30,6 +31,7 @@ import {
   getProcessedByFile,
   getProcessedFile,
   postSummary,
+  postLectureVisualization,
   type ProcessedByFileResponse,
 } from '../api/ragApi';
 import apiClient from '../api/client';
@@ -339,7 +341,7 @@ const SUMMARY_PERSONA_OPTIONS: Array<{ value: SummaryPersona; label: string }> =
 ];
 
 export default function LectureView({ files = [] }: LectureViewProps) {
-  const [activeTab, setActiveTab] = useState<'transcript' | 'summary'>('summary');
+  const [activeTab, setActiveTab] = useState<'transcript' | 'summary' | 'visualization'>('summary');
   const [passagesPane, setPassagesPane] = useState<'chunks' | 'markdown'>('chunks');
 
   const [selectedFileId, setSelectedFileId] = useState<number | null>(files.length > 0 ? files[0].id : null);
@@ -831,12 +833,25 @@ export default function LectureView({ files = [] }: LectureViewProps) {
   const [isPreparingSummaryPdf, setIsPreparingSummaryPdf] = useState(false);
   const summaryRenderRef = useRef<HTMLDivElement | null>(null);
 
+  const [vizLoading, setVizLoading] = useState(false);
+  const [vizError, setVizError] = useState<string | null>(null);
+  const [vizDataUrl, setVizDataUrl] = useState<string | null>(null);
+  const [vizTopic, setVizTopic] = useState('');
+  const [vizCopyStatus, setVizCopyStatus] = useState<'idle' | 'ok' | 'err'>('idle');
+  const [vizAssistantText, setVizAssistantText] = useState<string | null>(null);
+
   useEffect(() => {
     setSummaryMarkdown(null);
     setSummaryError(null);
     setIsGenerating(false);
     setPassagesPane('chunks');
     setSummaryCopyStatus('idle');
+    setVizDataUrl(null);
+    setVizError(null);
+    setVizLoading(false);
+    setVizTopic('');
+    setVizCopyStatus('idle');
+    setVizAssistantText(null);
   }, [selectedFileId]);
 
   const [transcriptQuery, setTranscriptQuery] = useState('');
@@ -1006,6 +1021,62 @@ export default function LectureView({ files = [] }: LectureViewProps) {
     } finally {
       window.setTimeout(() => setIsPreparingSummaryPdf(false), 250);
     }
+  };
+
+  const handleGenerateVisualization = async () => {
+    setVizLoading(true);
+    setVizError(null);
+    setVizDataUrl(null);
+    setVizAssistantText(null);
+    try {
+      const res = await postLectureVisualization({
+        topic: vizTopic.trim(),
+        document_id: scopeFile?.documentFolder ?? null,
+      });
+      const mt = (res.model_text || '').trim();
+      if (res.error) {
+        setVizError(res.error);
+        setVizAssistantText(mt || null);
+        return;
+      }
+      const b64 = (res.image_base64 || '').trim();
+      const mime = (res.mime_type || 'image/png').trim();
+      if (!b64) {
+        setVizError('Empty image. Ensure materials are **Processed** and GEMINI_API_KEY is set on the API server.');
+        setVizAssistantText(mt || null);
+        return;
+      }
+      setVizAssistantText(mt || null);
+      setVizDataUrl(`data:${mime};base64,${b64}`);
+    } catch (e) {
+      console.error('Visualization failed:', e);
+      setVizError(e instanceof Error ? e.message : 'Visualization request failed');
+    } finally {
+      setVizLoading(false);
+    }
+  };
+
+  const handleCopyVisualization = async () => {
+    if (!vizDataUrl) return;
+    try {
+      const blob = await fetch(vizDataUrl).then((r) => r.blob());
+      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+      setVizCopyStatus('ok');
+      window.setTimeout(() => setVizCopyStatus('idle'), 1800);
+    } catch {
+      setVizCopyStatus('err');
+      window.setTimeout(() => setVizCopyStatus('idle'), 2200);
+    }
+  };
+
+  const handleDownloadVisualization = () => {
+    if (!vizDataUrl) return;
+    const base = (scopeFile?.name || 'lecture-visualization').trim().slice(0, 80) || 'lecture-visualization';
+    const safe = base.replace(/[\\/:*?"<>|]+/g, '-');
+    const a = document.createElement('a');
+    a.href = vizDataUrl;
+    a.download = `${safe}-bk-mind-infographic.png`;
+    a.click();
   };
 
   return (
@@ -1310,28 +1381,39 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       </div>
 
       <div className="w-full lg:max-w-[560px] xl:max-w-[620px] 2xl:max-w-[680px] bg-white rounded-[2.5rem] border border-sky-100 shadow-[0_16px_32px_-26px_rgba(14,165,233,0.55)] flex flex-col h-[calc(100vh-10rem)] overflow-hidden">
-        <div className="flex items-center p-3 bg-sky-50/50 border-b border-sky-100 shrink-0">
+        <div className="flex items-center gap-1 p-2 sm:p-3 bg-sky-50/50 border-b border-sky-100 shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('transcript')}
-            className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 ${activeTab === 'transcript'
+            className={`flex-1 min-w-0 py-2.5 sm:py-3 text-[10px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest rounded-2xl transition-all flex items-center justify-center gap-1 sm:gap-2 ${activeTab === 'transcript'
               ? 'bg-white text-sky-600 shadow-sm border border-sky-100'
               : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
               }`}
           >
-            <MessageSquare className="w-4 h-4" />
-            Passages
+            <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+            <span className="truncate">Passages</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('summary')}
-            className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 ${activeTab === 'summary'
+            className={`flex-1 min-w-0 py-2.5 sm:py-3 text-[10px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest rounded-2xl transition-all flex items-center justify-center gap-1 sm:gap-2 ${activeTab === 'summary'
               ? 'bg-white text-sky-600 shadow-sm border border-sky-100'
               : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
               }`}
           >
-            <Sparkles className="w-4 h-4" />
-            AI Summary
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+            <span className="truncate">AI Summary</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('visualization')}
+            className={`flex-1 min-w-0 py-2.5 sm:py-3 text-[10px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest rounded-2xl transition-all flex items-center justify-center gap-1 sm:gap-2 ${activeTab === 'visualization'
+              ? 'bg-white text-sky-600 shadow-sm border border-sky-100'
+              : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
+              }`}
+          >
+            <Palette className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+            <span className="truncate">Visual</span>
           </button>
         </div>
 
@@ -1458,7 +1540,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                 </>
               )}
             </div>
-          ) : (
+          ) : activeTab === 'summary' ? (
             <div className="flex flex-col h-full">
               {!summaryMarkdown && !isGenerating ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-10 text-center m-6 bg-[#F8FAFC] rounded-[2rem] border border-slate-100 shadow-inner">
@@ -1587,6 +1669,117 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     </div>
                   </article>
                 </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col h-full p-6 sm:p-8 space-y-6">
+              <div>
+                <h3 className="font-black text-slate-900 text-lg tracking-tight">Lecture visualization</h3>
+                <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                  One infographic from your <strong>processed markdown</strong> (Gemini image). Nothing is stored on the server — view, copy, or download here.
+                </p>
+                {scopeFile && (
+                  <p className="text-[11px] text-slate-500 mt-2">
+                    Scoped folder: <strong>{scopeFile.documentFolder || '—'}</strong> · {scopeFile.name}
+                  </p>
+                )}
+              </div>
+
+              <label className="block text-xs text-slate-600 font-semibold">
+                Optional focus (topic, chapter, or concept)
+                <input
+                  type="text"
+                  value={vizTopic}
+                  onChange={(e) => setVizTopic(e.target.value)}
+                  placeholder="e.g. main definitions from this lecture"
+                  className="mt-1 w-full rounded-xl border border-sky-100 bg-sky-50/60 px-3 py-2 text-sm font-medium text-slate-800 placeholder:text-slate-400"
+                  disabled={vizLoading}
+                />
+              </label>
+
+              {vizError && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-4">{vizError}</p>
+              )}
+
+              {!vizLoading && vizAssistantText && (
+                <div className="rounded-2xl border border-sky-100 bg-white p-4 shadow-sm">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-sky-600 mb-3">
+                    From the model (text + image mode)
+                  </p>
+                  <div className="prose prose-sm prose-slate max-w-none text-slate-700 leading-relaxed prose-p:my-2 prose-headings:my-3 prose-li:my-1">
+                    <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={inputMarkdownComponents}>
+                      {vizAssistantText}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              )}
+
+              {vizLoading && (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Loader2 className="w-12 h-12 text-sky-600 animate-spin mb-4" />
+                  <p className="text-sm font-bold text-slate-700">Generating infographic…</p>
+                  <p className="text-xs text-slate-500 mt-2">16:9 · 1K image + optional text (Gemini)</p>
+                </div>
+              )}
+
+              {!vizLoading && vizDataUrl && (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void handleCopyVisualization()}
+                      className="inline-flex items-center gap-2 rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-50"
+                    >
+                      <Copy className="w-4 h-4" />
+                      {vizCopyStatus === 'ok' ? 'Copied' : vizCopyStatus === 'err' ? 'Copy failed' : 'Copy image'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDownloadVisualization}
+                      className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
+                    >
+                      <FileDown className="w-4 h-4" />
+                      Download PNG
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVizDataUrl(null);
+                        setVizError(null);
+                        setVizAssistantText(null);
+                      }}
+                      className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      New
+                    </button>
+                  </div>
+                  <div className="relative inline-block max-w-full rounded-2xl border border-sky-100 bg-sky-50/30 p-3 mx-auto">
+                    <img
+                      src={vizDataUrl}
+                      alt="BK-MInD lecture infographic"
+                      className="max-w-full h-auto rounded-xl border border-sky-100/80 shadow-sm"
+                    />
+                    <span
+                      className="pointer-events-none absolute bottom-4 right-4 text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase text-white bg-sky-600/92 px-2.5 py-1.5 rounded-lg shadow-md border border-sky-500/50"
+                      aria-hidden
+                    >
+                      BK-MInD
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {!vizLoading && !vizDataUrl && (
+                <button
+                  type="button"
+                  onClick={() => void handleGenerateVisualization()}
+                  disabled={!scopeFile}
+                  className="w-full py-4 bg-sky-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-sky-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-sky-200 disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <Palette className="w-5 h-5" />
+                  Generate visualization
+                </button>
               )}
             </div>
           )}

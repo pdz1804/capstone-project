@@ -37,6 +37,11 @@ def _message_id_now() -> str:
     return f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')}_{uuid.uuid4().hex[:8]}"
 
 
+def allocate_chat_message_id() -> str:
+    """Client/server can pre-allocate before persisting binary attachments."""
+    return _message_id_now()
+
+
 def _clean_title(raw: str | None, fallback: str = "New chat") -> str:
     text = (raw or "").strip()
     if not text:
@@ -47,9 +52,7 @@ def _clean_title(raw: str | None, fallback: str = "New chat") -> str:
 
 def _preview_text(raw: str, max_len: int = 140) -> str:
     text = " ".join((raw or "").split())
-    if len(text) <= max_len:
-        return text
-    return text[: max_len - 3] + "..."
+    return text
 
 
 def _encode_cursor(key: Dict[str, Any] | None) -> str | None:
@@ -225,12 +228,14 @@ class DynamoChatHistoryRepository:
         content: str,
         traces: list[dict[str, Any]] | None = None,
         suggestions: list[str] | None = None,
+        message_id: str | None = None,
+        attachments: list[dict[str, Any]] | None = None,
     ) -> Dict[str, Any]:
         now = _iso_now()
-        message_id = _message_id_now()
+        mid = (message_id or "").strip() or _message_id_now()
         item: Dict[str, Any] = {
             "session_id": session_id,
-            "message_id": message_id,
+            "message_id": mid,
             "user_id": user_id,
             "role": role,
             "content": content,
@@ -240,6 +245,8 @@ class DynamoChatHistoryRepository:
             item["traces"] = traces
         if suggestions:
             item["suggestions"] = suggestions
+        if attachments:
+            item["attachments"] = attachments
 
         self._messages_table.put_item(Item=item)
 
@@ -299,6 +306,13 @@ class DynamoChatHistoryRepository:
         next_cursor = _encode_cursor(r.get("LastEvaluatedKey"))
         return items, next_cursor
 
+    def get_message(self, *, session_id: str, message_id: str) -> Dict[str, Any] | None:
+        r = self._messages_table.get_item(Key={"session_id": session_id, "message_id": message_id})
+        item = r.get("Item")
+        if not item:
+            return None
+        return self._normalize_message(item)
+
     def delete_session(self, *, user_id: str, session_id: str) -> None:
         # Delete messages first.
         eks: Dict[str, Any] | None = None
@@ -337,6 +351,12 @@ class DynamoChatHistoryRepository:
     def _normalize_message(self, item: Dict[str, Any]) -> Dict[str, Any]:
         traces = item.get("traces") or []
         suggestions = item.get("suggestions") or []
+        raw_att = item.get("attachments") or []
+        attachments: list[dict[str, Any]] = []
+        if isinstance(raw_att, list):
+            for a in raw_att:
+                if isinstance(a, dict):
+                    attachments.append(dict(a))
         return {
             "session_id": str(item.get("session_id") or ""),
             "message_id": str(item.get("message_id") or ""),
@@ -346,4 +366,5 @@ class DynamoChatHistoryRepository:
             "created_at": str(item.get("created_at") or ""),
             "traces": traces if isinstance(traces, list) else [],
             "suggestions": [str(x) for x in suggestions] if isinstance(suggestions, list) else [],
+            "attachments": attachments,
         }

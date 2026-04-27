@@ -172,6 +172,13 @@ python -m pytest tests\ -v
 
 Optional: `pytest -m unit` (markers in `pytest.ini`). Pass extra pytest args to the scripts, e.g. `.\run_tests.ps1 tests\services -q`.
 
+## Related Maintained Docs
+
+- [`../../docs/technical/APPLICATION_OVERVIEW.md`](../../docs/technical/APPLICATION_OVERVIEW.md) — maintained application overview and architecture summary.
+- [`../../docs/technical/API_REFERENCE.md`](../../docs/technical/API_REFERENCE.md) — reviewer-level API map.
+- [`../../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](../../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md) — performance evidence and scaling plan.
+- [`../terraform/README.md`](../terraform/README.md) — AWS infrastructure for the maintained merged application.
+
 ## Indexing workflow
 
 Use the same **`X-User-Id`** (if any) for upload → process → index → search.

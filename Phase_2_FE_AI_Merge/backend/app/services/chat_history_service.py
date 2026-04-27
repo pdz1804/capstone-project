@@ -54,6 +54,8 @@ class ChatHistoryService:
         content: str,
         traces: list[dict[str, Any]] | None = None,
         suggestions: list[str] | None = None,
+        message_id: str | None = None,
+        attachments: list[dict[str, Any]] | None = None,
     ) -> Dict[str, Any]:
         return self.repo.put_message(
             user_id=user_id,
@@ -62,7 +64,21 @@ class ChatHistoryService:
             content=content,
             traces=traces,
             suggestions=suggestions,
+            message_id=message_id,
+            attachments=attachments,
         )
+
+    def get_message(self, *, user_id: str, session_id: str, message_id: str) -> Dict[str, Any] | None:
+        session = self.get_session(user_id=user_id, session_id=session_id)
+        if not session:
+            return None
+        row = self.repo.get_message(session_id=session_id, message_id=message_id)
+        if not row:
+            return None
+        row_uid = str(row.get("user_id") or "")
+        if row_uid and row_uid != str(user_id):
+            return None
+        return row
 
     def list_messages(
         self,
