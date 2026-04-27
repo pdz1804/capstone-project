@@ -1246,6 +1246,9 @@ To ensure the economic viability of the proposed system, we have established a b
     \label{tab:cost_assumptions}
 \end{table}
 
+
+To ground our cost projections in current market rates, we utilize the following pricing reference for the specific AWS services and components used in our architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
+
 \begin{table}[H]
     \centering
     \scalebox{0.8}{
@@ -1288,6 +1291,9 @@ To ensure the economic viability of the proposed system, we have established a b
     \label{tab:aws_pricing_ref}
 \end{table}
 
+
+Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
+
 \begin{table}[H]
     \centering
     \scalebox{0.8}{
@@ -1319,6 +1325,25 @@ To ensure the economic viability of the proposed system, we have established a b
 \end{table}
 
 
+The following table provides a comparative analysis of GPU operational costs across different cloud providers. This estimation is based on a workload scenario of 50 active users, with each user initiating 20 requests per day and each request requiring 15 seconds of GPU inference time, totaling approximately 125 hours of GPU utilization per month.
+
+\begin{table}[H]
+    \centering
+    \scalebox{0.8}{
+    \begin{tabular}{llllrrr}
+        \toprule
+        \textbf{Provider} & \textbf{GPU Type} & \textbf{Pricing Model} & \textbf{Pricing Unit} & \textbf{Always-On} & \textbf{50-User} & \textbf{Savings vs AWS} \\
+        \midrule
+        AWS SageMaker & ml.g4dn.xlarge & Dedicated & \$0.7364 / hr & \$537.57 & \$537.57 & Baseline \\
+        RunPod Serverless & NVIDIA T4 & Pay-per-sec & \$0.000164 / s & \$0.00 & \$73.80 & \$463.77 \\
+        Modal Labs & NVIDIA T4 & Serverless & \$0.000225 / s & \$0.00 & \$101.25 & \$436.32 \\
+        Hyperstack & RTX A4000 & Dedicated & \$0.15 / hr & \$109.50 & \$109.50 & \$428.07 \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month)}
+    \label{tab:gpu_optimization}
+\end{table}
 
 \section{System Performance}
 
