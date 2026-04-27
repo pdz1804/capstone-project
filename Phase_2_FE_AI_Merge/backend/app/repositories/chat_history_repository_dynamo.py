@@ -47,9 +47,7 @@ def _clean_title(raw: str | None, fallback: str = "New chat") -> str:
 
 def _preview_text(raw: str, max_len: int = 140) -> str:
     text = " ".join((raw or "").split())
-    if len(text) <= max_len:
-        return text
-    return text[: max_len - 3] + "..."
+    return text
 
 
 def _encode_cursor(key: Dict[str, Any] | None) -> str | None:

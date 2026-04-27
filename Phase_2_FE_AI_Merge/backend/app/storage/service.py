@@ -139,8 +139,7 @@ class LocalFileStorage(FileStorageService):
                     if include_preview:
                         try:
                             with open(f, "r", encoding="utf-8", errors="ignore") as fp:
-                                chunk = fp.read(500)
-                            info["preview"] = chunk + ("..." if len(chunk) >= 500 else "")
+                                info["preview"] = fp.read()
                         except OSError:
                             pass
                     rows.append(info)
@@ -431,14 +430,10 @@ class S3FileStorage(FileStorageService):
                 }
                 if include_preview:
                     try:
-                        prev = self._client.get_object(
-                            Bucket=self.processed_bucket,
-                            Key=key,
-                            Range="bytes=0-499",
-                        )
+                        prev = self._client.get_object(Bucket=self.processed_bucket, Key=key)
                         body = prev["Body"].read()
                         text = body.decode("utf-8", errors="ignore")
-                        info["preview"] = text + ("..." if obj["Size"] > 500 else "")
+                        info["preview"] = text
                     except Exception as e:
                         logger.debug("S3 preview skip %s: %s", key, e)
                 rows.append(info)

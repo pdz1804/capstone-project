@@ -83,8 +83,6 @@ def _compact_text_rows(rows: List[Dict[str, Any]], limit: int = 6) -> str:
     for i, r in enumerate(rows[:limit], start=1):
         txt = str(r.get("text") or "").strip().replace("\n", " ")
         src = str(r.get("source") or "")
-        if len(txt) > 360:
-            txt = txt[:360] + "..."
         if src:
             parts.append(f"[{i}] {txt}\nsource: {src}")
         else:

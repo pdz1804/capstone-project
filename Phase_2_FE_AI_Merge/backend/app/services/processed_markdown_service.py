@@ -14,10 +14,6 @@ logger = logging.getLogger(__name__)
 
 STAGE3 = "stage3_document_processed"
 STAGE4 = "stage4_rag_ready"
-_MAX_SINGLE_FILE_CHARS = 200_000
-_MAX_SINGLE_FILE_BYTES = min(_MAX_SINGLE_FILE_CHARS * 4, 800_000)
-
-
 def _safe_document_folder(raw: str | None) -> str | None:
     s = (raw or "").strip()
     if not s or ".." in s or "/" in s or "\\" in s:
@@ -35,22 +31,12 @@ def sanitize_insights_document_id(document_id: str | None) -> str | None:
 
 def _join_md_blocks(blocks: List[Tuple[str, str]], max_chars: int) -> str:
     parts: List[str] = []
-    total = 0
     for rel, body in blocks:
         header = f"---\nFile: {rel}\n\n"
         text = (body or "").strip()
         if not text:
             continue
-        block = header + text
-        if total + len(block) > max_chars:
-            room = max_chars - total - len(header)
-            if room < 400:
-                break
-            block = header + text[:room] + "\n\n[truncated]"
-            parts.append(block)
-            break
-        parts.append(block)
-        total += len(block)
+        parts.append(header + text)
     return "\n\n".join(parts)
 
 
@@ -82,8 +68,6 @@ def _gather_local(
         except OSError as e:
             logger.debug("skip md %s: %s", f, e)
             continue
-        if len(raw) > _MAX_SINGLE_FILE_CHARS:
-            raw = raw[:_MAX_SINGLE_FILE_CHARS] + "\n\n[truncated file]"
         out.append((rel, raw))
     return out
 
@@ -98,23 +82,11 @@ def _read_s3_md_body(storage: S3FileStorage, key: str) -> str | None:
         logger.debug("head_object %s: %s", key, e)
         return None
     try:
-        if sz <= _MAX_SINGLE_FILE_BYTES:
-            body, _ = storage.read_object(storage.processed_bucket, key)
-        else:
-            rng = f"bytes=0-{_MAX_SINGLE_FILE_BYTES - 1}"
-            obj = storage._client.get_object(
-                Bucket=storage.processed_bucket,
-                Key=key,
-                Range=rng,
-            )
-            body = obj["Body"].read()
+        body, _ = storage.read_object(storage.processed_bucket, key)
     except Exception as e:
         logger.debug("get_object %s: %s", key, e)
         return None
-    text = body.decode("utf-8", errors="ignore")
-    if len(text) > _MAX_SINGLE_FILE_CHARS or sz > _MAX_SINGLE_FILE_BYTES:
-        text = text[:_MAX_SINGLE_FILE_CHARS] + "\n\n[truncated file]"
-    return text
+    return body.decode("utf-8", errors="ignore")
 
 
 def _gather_s3(

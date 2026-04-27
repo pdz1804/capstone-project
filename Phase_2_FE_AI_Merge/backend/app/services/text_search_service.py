@@ -303,7 +303,7 @@ class TextSearchService:
             results.append(
                 {
                     "id": cid,
-                    "text": full_text[:500] + ("..." if len(full_text) > 500 else ""),
+                    "text": full_text,
                     "full_text": full_text,
                     "source": src,
                     "score": float(hit.get("score", 0.0)),
@@ -325,7 +325,7 @@ class TextSearchService:
         for r in rows:
             full_text = str(r.get("text", "") or "")
             r["full_text"] = full_text
-            r["text"] = full_text[:500] + ("..." if len(full_text) > 500 else "")
+            r["text"] = full_text
             r["retrieval_type"] = "bm25"
             m = dict(r.get("metadata") or {})
             _attach_original_media_storage_uri(m, self._user_id)
@@ -369,7 +369,7 @@ class TextSearchService:
             out.append(
                 {
                     "id": cid,
-                    "text": full_text[:500] + ("..." if len(full_text) > 500 else ""),
+                    "text": full_text,
                     "full_text": full_text,
                     "source": src,
                     "score": float(combined[cid]),

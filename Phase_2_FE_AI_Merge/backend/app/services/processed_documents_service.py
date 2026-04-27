@@ -111,14 +111,13 @@ def _file_row(
     return row
 
 
-def _preview_local(path: Path, max_bytes: int = 500) -> str | None:
+def _preview_local(path: Path, max_bytes: int | None = None) -> str | None:
     suf = path.suffix.lower()
     if suf not in {".json", ".md", ".txt"}:
         return None
     try:
         with open(path, "r", encoding="utf-8", errors="ignore") as fp:
-            chunk = fp.read(max_bytes)
-        return chunk + ("..." if len(chunk) >= max_bytes else "")
+            return fp.read() if max_bytes is None else fp.read(max_bytes)
     except OSError:
         return None
 
@@ -128,10 +127,9 @@ def _preview_s3(client: Any, bucket: str, key: str, total_size: int) -> str | No
     if suf not in {".json", ".md", ".txt"}:
         return None
     try:
-        prev = client.get_object(Bucket=bucket, Key=key, Range="bytes=0-499")
+        prev = client.get_object(Bucket=bucket, Key=key)
         body = prev["Body"].read()
-        text = body.decode("utf-8", errors="ignore")
-        return text + ("..." if total_size > 500 else "")
+        return body.decode("utf-8", errors="ignore")
     except Exception as e:
         logger.debug("S3 preview skip %s: %s", key, e)
         return None
