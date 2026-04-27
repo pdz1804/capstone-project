@@ -14,6 +14,7 @@ except ImportError:  # pragma: no cover - optional dependency
     ClientError = Exception
 
 from .base import BaseLLMProvider
+from agent.bedrock_guardrail_integration import get_guardrail_config
 
 _executor = ThreadPoolExecutor(max_workers=10)
 
@@ -153,6 +154,11 @@ class BedrockProvider(BaseLLMProvider):
         if tool_cfg:
             req["toolConfig"] = tool_cfg
 
+        # Add guardrail config if enabled
+        guardrail_cfg = get_guardrail_config()
+        if guardrail_cfg:
+            req["guardrailConfig"] = guardrail_cfg
+
         def _call():
             try:
                 return client.converse(**req)
@@ -243,6 +249,11 @@ class BedrockProvider(BaseLLMProvider):
         tool_cfg = self._build_tool_config(tools, tool_choice)
         if tool_cfg:
             req["toolConfig"] = tool_cfg
+
+        # Add guardrail config if enabled
+        guardrail_cfg = get_guardrail_config()
+        if guardrail_cfg:
+            req["guardrailConfig"] = guardrail_cfg
 
         def _call():
             try:

@@ -619,17 +619,25 @@ class RAGGenerator:
         return "".join(parts).strip()
 
     def _call_bedrock(self, prompt: str, image_paths: Optional[List[str]] = None) -> str:
+        from agent.bedrock_guardrail_integration import get_guardrail_config
+        
         rt = self._bedrock_runtime()
         
         def _invoke(content_payload: List[Dict[str, Any]]) -> str:
-            resp = rt.converse(
-                modelId=self.config.model_name,
-                messages=[{"role": "user", "content": content_payload}],
-                inferenceConfig={
+            request = {
+                "modelId": self.config.model_name,
+                "messages": [{"role": "user", "content": content_payload}],
+                "inferenceConfig": {
                     "maxTokens": int(self.config.max_tokens),
                     "temperature": float(self.config.temperature),
                 },
-            )
+            }
+            # Add guardrail if enabled
+            guardrail_cfg = get_guardrail_config()
+            if guardrail_cfg:
+                request["guardrailConfig"] = guardrail_cfg
+            
+            resp = rt.converse(**request)
             return self._extract_converse_text(resp)
 
         content: List[Dict[str, Any]] = [{"text": prompt}]

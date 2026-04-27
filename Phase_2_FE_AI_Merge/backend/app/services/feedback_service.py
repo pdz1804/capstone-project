@@ -185,11 +185,19 @@ Rules:
 - Keep analysis_summary under 220 chars.
 """.strip()
 
-        resp = rt.converse(
-            modelId=model_id,
-            messages=[{"role": "user", "content": [{"text": prompt}]}],
-            inferenceConfig={"maxTokens": 500, "temperature": 0.0},
-        )
+        request = {
+            "modelId": model_id,
+            "messages": [{"role": "user", "content": [{"text": prompt}]}],
+            "inferenceConfig": {"maxTokens": 500, "temperature": 0.0},
+        }
+        
+        # Add guardrail if enabled
+        from agent.bedrock_guardrail_integration import get_guardrail_config
+        guardrail_cfg = get_guardrail_config()
+        if guardrail_cfg:
+            request["guardrailConfig"] = guardrail_cfg
+
+        resp = rt.converse(**request)
 
         out_text = ""
         msg = (resp.get("output") or {}).get("message") or {}
