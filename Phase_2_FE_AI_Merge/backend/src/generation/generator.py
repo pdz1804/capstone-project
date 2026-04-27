@@ -963,8 +963,7 @@ CRITICAL FORMATTING RULES:
             output_parts.append("📄 CONTENTS")
             output_parts.append("-" * 60)
             for citation_id, content in sorted(result["contents"].items()):
-                text_preview = content['text'][:100] + "..." if len(content['text']) > 100 else content['text']
-                output_parts.append(f"{citation_id} {text_preview}")
+                output_parts.append(f"{citation_id} {content['text']}")
                 output_parts.append(f"    └─ {content['filename']} (score: {content['score']:.4f})")
         
         output_parts.append("=" * 60)

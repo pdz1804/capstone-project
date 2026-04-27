@@ -866,9 +866,7 @@ class UnifiedRAGPipeline:
                 if results:
                     for i, result in enumerate(results, 1):
                         print(f"    {i}. {result['id']} (score: {result['score']:.4f})")
-                        # Show first 100 chars of text
-                        preview = result['text'][:100] + "..." if len(result['text']) > 100 else result['text']
-                        print(f"       {preview}")
+                        print(f"       {result['text']}")
                 else:
                     print("    No results found")
                     
@@ -980,8 +978,7 @@ class UnifiedRAGPipeline:
                         print("CONTENTS")
                         print(f"{'-'*60}")
                         for citation_id, content in sorted(generation_result["contents"].items()):
-                            text_preview = content['text'][:100] + "..." if len(content['text']) > 100 else content['text']
-                            print(f"{citation_id} {text_preview}")
+                            print(f"{citation_id} {content['text']}")
                             print(f"    └─ {content['filename']} (score: {content['score']:.4f})")
                     print(f"{'='*60}")
             else:

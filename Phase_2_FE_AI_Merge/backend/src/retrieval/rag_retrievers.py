@@ -228,7 +228,7 @@ class SimpleBM25Retriever(BaseRetriever):
             if scores[idx] > 0:  # Only return documents with positive scores
                 result = {
                     'id': self.documents[idx]['id'],
-                    'text': self.documents[idx]['text'][:500] + "..." if len(self.documents[idx]['text']) > 500 else self.documents[idx]['text'],
+                    'text': self.documents[idx]['text'],
                     'source': self.documents[idx]['source'],
                     'score': float(scores[idx]),
                     'rank': i + 1
@@ -309,7 +309,7 @@ class SimpleDenseRetriever(BaseRetriever):
             if idx != -1:  # Valid result
                 result = {
                     'id': self.documents[idx]['id'],
-                    'text': self.documents[idx]['text'][:500] + "..." if len(self.documents[idx]['text']) > 500 else self.documents[idx]['text'],
+                    'text': self.documents[idx]['text'],
                     'source': self.documents[idx]['source'],
                     'score': float(score),
                     'rank': i + 1
@@ -434,7 +434,7 @@ class SimpleHybridRetriever(BaseRetriever):
                 
                 results.append({
                     'id': doc_id,
-                    'text': doc['text'][:500] + "..." if len(doc['text']) > 500 else doc['text'],
+                    'text': doc['text'],
                     'source': doc['source'],
                     'score': float(score),
                     'rank': i + 1,
