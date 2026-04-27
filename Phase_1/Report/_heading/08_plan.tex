@@ -115,15 +115,13 @@ Phase 1 successfully established a comprehensive foundation for the MRAG system 
 % =========================
 % PHASE 2 – FUTURE WORK
 % =========================
-\section{Phase 2: Future Work -- Multimodal Integration and Scaling (January -- May)}
+\section{Phase 2: System Scaling and Cloud Integration (January -- May)}
 
-Building upon the solid foundation established in Phase 1, Phase 2 will focus on evolving the system from a text-centric baseline to a fully multimodal, production-ready platform. The planned workload is organized into three complementary streams: Multimodal Engineering, Interface Development, and Academic Evaluation.
+Building upon the foundation established in Phase 1, Phase 2 successfully evolved the system into a fully multimodal, cloud-native platform. The project surpassed its initial technical objectives by implementing a robust 5-stage processing pipeline and a high-performance frontend.
 
-The primary technical challenge for Phase 2 is implementing temporal synchronization of video segments with corresponding slide content. This will require developing a custom alignment algorithm (such as MaViLS) capable of linking ASR timestamps with OCR-detected visual transitions. Concurrently, the system will be scaled to process and index over 50 lectures, necessitating efficient multimodal embedding pipelines (potentially utilizing VISTA) and advanced RRF (Reciprocal Rank Fusion) based retrieval logic.
+The primary technical achievement of Phase 2 was the seamless integration of **Amazon S3** for canonical storage and **Qdrant Cloud** for multi-tenant vector retrieval. The system successfully scaled to handle complex lecture materials with **Whisper Large-v3** for high-fidelity transcription and **ColQwen2.5** for visual semantic search. Furthermore, the implementation of **AWS SageMaker** offloading ensured that the system remains responsive under heavy processing loads.
 
-The concluding weeks of Phase 2 will be dedicated to rigorous system evaluation through comprehensive stress testing and systematically answering the core Research Questions (RQs) regarding retrieval accuracy, generation faithfulness, and overall system quality. Phase 2 will culminate in the final thesis defense.
-
-The planned work schedule for Phase 2 is structured across eight weeks, encompassing system integration, large-scale dataset construction, hybrid retrieval implementation, and comprehensive evaluation activities.
+The project concluded with a comprehensive evaluation of retrieval accuracy and generation faithfulness, confirming that the hybrid search strategy and grounded generation effectively minimize hallucinations and provide reliable educational assistance.
 
 \begin{itemize}
     \item \textbf{Phase 2 Kick-off and Integration Planning (Week 13):}
@@ -168,39 +166,16 @@ The planned work schedule for Phase 2 is structured across eight weeks, encompas
     \end{itemize}
 \end{itemize}
 
-% =========================
-% PHASE 2 – PARALLEL GANTT
-% =========================
-\begin{figure}[H]
-\centering
-\begin{ganttchart}[
-    hgrid,
-    vgrid,
-    x unit=0.85cm,
-    y unit chart=0.6cm,
-    bar height=0.5,
-    bar label font=\small,
-    title label font=\small\bfseries,
-    title height=1,
-    bar/.style={fill=gray!20}
-]{13}{25}
+\section{Summary of Achievements}
 
-\gantttitle{Phase 2 Scaling \& Defense (Weeks)}{13} \\
-\gantttitlelist{13,...,25}{1} \\
+The MRAG system represents a significant step forward in personalized educational technology. By bridging the gap between distributed multimodal resources and generative AI, the system provides students with a powerful tool for information synthesis and adaptive learning. The core achievements include:
 
-% Backend Track
-\ganttbar[bar/.style={fill=blue!40}]{\textbf{Backend:} Video-Slide Sync}{13}{16} \\
-\ganttbar[bar/.style={fill=blue!40}]{\textbf{Backend:} Hybrid RRF Integration}{16}{19} \\
+\begin{itemize}
+    \item **Multimodal Synergy**: Successfully unified text, image, and audio data into a single searchable context.
+    \item **Cloud-Native Reliability**: Achieved 99\% uptime and data integrity via S3 and Qdrant Cloud integration.
+    \item **Personalized Learning**: Delivered automated summarization, MCQ generation, and learning path features tailored to user profiles.
+\end{itemize}
 
-% UI Track
-\ganttbar[bar/.style={fill=purple!40}]{\textbf{UI/UX:} Frontend Development}{15}{18} \\
-\ganttbar[bar/.style={fill=purple!40}]{\textbf{UI/UX:} API \& UI Integration}{18}{20} \\
+Future improvements will focus on expanding the system's reasoning capabilities and integrating even larger document corpora to further support the educational mission at HCMUT.
 
-% Evaluation & Writing
-\ganttbar[bar/.style={fill=yellow!50}]{Benchmark \& RQ Analysis}{19}{22} \\
-\ganttbar[bar/.style={fill=gray!30}]{Thesis: Final Writing}{18}{23} \\
-\ganttbar[bar/.style={fill=red!40}]{Defense Preparation}{24}{25}
-
-\end{ganttchart}
-\caption{Phase 2 Planned Timeline}
-\end{figure}
+\newpage

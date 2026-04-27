@@ -1,4 +1,3 @@
-
 # Software Requirements Specification
 
 ## Educational Content Processing & Retrieval-Augmented Generation System
@@ -7,19 +6,19 @@
 
 ### Requirements Statistics
 
-**Total Requirements**: 37
+**Total Requirements**: 43
 
--**Functional Requirements**: 22 (FR-001 through FR-022)
+-**Functional Requirements**: 26
 
--**Non-Functional Requirements**: 8 (NFR-001 through NFR-008)
+-**Non-Functional Requirements**: 10
 
--**Technical Requirements**: 7 (TR-001 through TR-007)
+-**Technical Requirements**: 7
 
 **AI vs Software Distribution**:
 
--**AI-Heavy Requirements**: 14 (38%) - Core AI processing components
+-**AI-Heavy Requirements**: 17 (40%) - Core AI processing components
 
--**Software-Heavy Requirements**: 23 (62%) - Infrastructure and core features
+-**Software-Heavy Requirements**: 26 (60%) - Infrastructure and core features
 
 **Functional Requirements by Category**:
 
@@ -59,7 +58,9 @@ The system encompasses:
 - Automated lecture summary generation
 - Personalized learning paths and roadmaps
 - Web-based user interface for interaction
-- Production-ready deployment architecture
+- Production-ready deployment architecture (Local and Cloud modes)
+- S3-based canonical storage with local workspace synchronization
+- Qdrant-based vector search with payload-level multitenancy
 
 #### 1.3 Definitions
 
@@ -73,7 +74,8 @@ The system encompasses:
 
 -**BM25**: Best Match 25 (sparse retrieval algorithm)
 
--**Dense Retrieval**: Semantic similarity-based retrieval using embeddings
+- **Dense Retrieval**: Semantic similarity-based retrieval using embeddings
+- **Multitenancy**: Strategy for isolating data between different users/tenants
 
 ---
 
@@ -83,9 +85,9 @@ The system encompasses:
 
 **FR-001: Audio Processing**
 
-- Extract audio from video files (MP4, AVI, MOV)
-- Transcribe audio to text using ASR models
-- Generate timestamped transcripts in multiple formats (JSON, SRT, VTT, MD)
+- Extract audio from video files (MP4, AVI, MOV) using FFmpeg.
+- Transcribe audio to text using **Whisper Large-v3** (Standard mode) or **Whisper Tiny** (Fast mode).
+- Generate timestamped transcripts in multiple formats (JSON, SRT, VTT, MD).
 
 **FR-002: Document Processing**
 
@@ -94,16 +96,16 @@ The system encompasses:
 - Support multiple document formats (DOCX, PPTX, HTML, TXT, CSV, Excel)
 - Generate dual outputs: normalized PDFs and Markdown files
 
-**FR-003: Advanced Spreadsheet Parsing with Merged Cells**
+**FR-003: Advanced Spreadsheet Parsing (Stage 3b)**
 
-- Parse Excel/CSV files with merged cells
-- Preserve merged cell structure and hierarchy in parsing
-- Extract merged cell content with proper semantic interpretation
-- Generate hierarchical markdown representation (nested lists, tables with row/column groups)
-- Support complex multi-level merged cell layouts
-- Handle merged cells in headers (column groups, row groups)
-- Detect and preserve data relationships across merged ranges
-- Support conditional preservation of formatting (colors, fonts, borders)
+- Parse Excel/CSV files using specialized Stage 3b logic (local XML parsing).
+- Preserve merged cell structure and hierarchy in parsing.
+- Extract merged cell content with proper semantic interpretation.
+- Generate hierarchical markdown representation (nested lists, tables with row/column groups).
+- Support complex multi-level merged cell layouts.
+- Handle merged cells in headers (column groups, row groups).
+- Detect and preserve data relationships across merged ranges.
+- Support conditional preservation of formatting (colors, fonts, borders).
 
 **FR-004: Markdown Export from Spreadsheets**
 
@@ -115,9 +117,9 @@ The system encompasses:
 
 **FR-005: Image Processing**
 
-- Extract and process images from documents
-- Generate image descriptions using VLM
-- Support visual retrieval capabilities
+- Extract and process images from documents using Docling.
+- Generate image descriptions using **SmolVLM-256M**.
+- Support visual retrieval capabilities via ColQwen multivectors.
 
 **FR-007: Audio-Slide Synchronization**
 
@@ -137,7 +139,18 @@ The system encompasses:
 **FR-006: Content Deduplication**
 
 - Implement file hashing
-- Skip already processed files
+- Skip already processed files based on content hash and processing cache
+
+**FR-028: Multi-Mode Processing (Standard vs Fast)**
+
+- Support **Standard mode**: Full quality (Whisper Large-v3, Docling VLM enabled, table/image export, word timestamps).
+- Support **Fast mode**: Optimized speed (Whisper Tiny, Docling VLM disabled, increased frame intervals, simplified ASR schedule).
+
+**FR-033: Processing Cache & Deduplication**
+
+- Implement idempotent processing using content-based hashing.
+- Maintain a processing cache (`.processing_cache.json`) to skip already processed files.
+- Support `force` flag to bypass cache and re-process entire library.
 
 #### 2.2 Information Retrieval Requirements
 
@@ -157,6 +170,7 @@ The system encompasses:
 - Accept natural language queries
 - Provide relevance scoring for results
 - Support query expansion and optimization
+- **Enforce tenant isolation via `user_id` filtering in all retrieval operations**
 
 #### 2.3 Question Answering Requirements
 
@@ -173,33 +187,35 @@ The system encompasses:
 - Present generated answers with citations
 - Support result filtering and sorting
 
-**FR-014: Chat Assistant with Intelligent Query Processing**
+**FR-014: Chat Assistant**
 
--**Step 1: Query Decomposition**
+- Provide a natural language interface for querying educational content.
+- Retrieve relevant documents from multiple search methods (Dense, Sparse, Hybrid).
+- Generate comprehensive answers using retrieved context across multiple modalities.
+- Provide citations from all relevant sources used in answer generation.
 
-- Analyze complex user questions and decompose into simple, atomic tasks
-- Identify multiple sub-questions within compound queries
-- Generate task breakdown for parallel processing
-- Maintain question context and intent during decomposition
+**FR-030: Persistent Chat History**
 
--**Step 2: Search Strategy Classification**
+- Persist chat sessions and messages using DynamoDB.
+- Enable users to retrieve history across different devices/sessions.
+- Support paged loading of chat history to optimize performance.
 
-- Classify each sub-task for appropriate search method:
+**FR-031: Chat Session Management**
 
-  - Keyword search for exact matches and specific terms
-  - Semantic search for conceptual similarity and meaning
-  - Hybrid search combining keyword and semantic approaches
-- Determine optimal search parameters per task (retrieval depth, filters)
-- Select appropriate document modalities (text, images, audio, video)
+- Allow users to rename, pin/unpin, and delete chat sessions.
+- Provide a compact chat history panel for easy navigation.
+- Support "History Sync" toggle for session data privacy.
 
--**Step 3: Multi-Search Retrieval and Aggregation**
+**FR-032: Runtime Mode Switch**
 
-- Execute parallel searches across classified strategies
-- Retrieve relevant documents from multiple search methods
-- Aggregate and rank results from different retrieval approaches
-- Resolve conflicts and merge overlapping information
-- Generate comprehensive answer using aggregated context
-- Provide citations from all relevant sources used in answer generation
+- Support dynamic switching between local agent runtime and remote Bedrock AgentCore runtime.
+- Enable configuration-driven runtime selection via environment variables.
+
+**FR-029: Cloud-Native Storage & Processing**
+
+- Support S3 as the canonical storage for original and processed artifacts.
+- Implement automatic synchronization between cloud storage and local processing workspace.
+- Support remote inference for heavy tasks (SageMaker for Docling/Whisper/ColQwen).
 
 #### 2.4 User Interface Requirements
 
@@ -234,33 +250,17 @@ The system encompasses:
 - Search within generated summaries
 - Annotation and note-taking on summaries
 
-#### 2.6 Personalization Requirements
+**FR-025: Learning Path Generation**
 
-**FR-025: Personalized Learning Path Generation**
+- Generate customized "learning roadmaps" based on student profile and goals.
+- Suggest prerequisites and ordered topics based on processed document content.
 
-- Analyze student query patterns and learning style
-- Generate customized "learning roadmaps" based on weak/strong areas
-- Recommend prerequisite materials and advanced topics
-- Create adaptive course progression suggestions
-- Track learning progression over multiple sessions
-- Suggest supplementary materials based on performance
+**FR-026: Knowledge Assessment Generation**
 
-**FR-026: Student Knowledge Assessment**
-
-- Generate adaptive multiple-choice questions (MCQs) from lecture content
-- Create question sets targeting identified weak areas
-- Support different difficulty levels (basic, intermediate, advanced)
-- Provide instant feedback with explanations
-- Track student responses and learning gaps
-- Categorize questions by concept/topic
-
-**FR-027: Performance Analytics Dashboard**
-
-- Display student strength/weakness matrix by topic
-- Visualize learning progress over time
-- Show performance metrics (correctness rate, response time, concepts mastered)
-- Identify knowledge gaps through gap analysis
-- Generate personalized recommendations based on performance patterns
+- Generate multiple-choice questions (MCQs) from lecture content.
+- Support different difficulty levels and question styles.
+- Provide instant feedback with correct answers and explanations.
+- Track basic quiz results and scores per user.
 
 ---
 
@@ -270,33 +270,32 @@ The system encompasses:
 
 **NFR-001: Response Time**
 
-- Text retrieval: <1 second for 1000+ documents
-- Image retrieval: <2 seconds for visual queries
-- Answer generation: <10 seconds for typical queries
-- File upload: <5 seconds per 10MB file
+- Text retrieval: <1 second for 1000+ documents.
+- Image retrieval: <2 seconds for visual queries.
+- Answer generation: <10 seconds for typical queries.
+- Document processing: <2 minutes for standard 10MB document (DOC/PPT/PDF) in Standard Mode; <30 seconds in Fast Mode.
 
 **NFR-002: Scalability**
 
-- Support 10,000+ documents in corpus
-- Handle concurrent users (10+ simultaneous)
-- Efficient memory usage for large document sets
-- Horizontal scaling capability
+- Support 10,000+ documents in corpus.
+- Handle concurrent users (10+ simultaneous) with horizontal scaling.
+- Efficient memory usage via `on_disk=true` vector storage and quantization.
+- Support multi-tenant isolation at scale via payload-based filtering.
 
 #### 3.2 Reliability Requirements
 
 **NFR-003: System Availability**
 
-- 99% uptime during business hours
-- Graceful error handling and recovery
-- Automatic retry mechanisms for failed operations
-- Comprehensive logging and monitoring
+- 99% uptime during business hours.
+- Graceful recovery via **Local <=> Cloud failover** for inference and storage backends.
+- Automatic retry mechanisms for SageMaker/Bedrock transient failures.
 
-**NFR-004: Data Integrity**
+**NFR-004: Data Integrity & Consistency**
 
-- Ensure processed data consistency
-- Prevent data corruption during processing
-- Maintain backup and recovery procedures
-- Validate file formats and content
+- Maintain atomicity between file storage (S3) and vector index states.
+- Ensure processed markdown accuracy against original hashes.
+- Idempotent re-runs using `.processing_cache.json`.
+- Automatic pruning of orphan artifacts in the processing pipeline.
 
 #### 3.3 Usability Requirements
 
@@ -318,17 +317,32 @@ The system encompasses:
 
 **NFR-007: Data Protection**
 
-- Secure file upload with validation
-- API key management for external services
-- User authentication and authorization
-- Data encryption in transit and at rest
+- Secure file upload with backend validation.
+- **Firebase Authentication** for user-level access control and session management.
+- **Payload-level tenant isolation** in shared Qdrant collections using `user_id` filters.
+- Data encryption in transit (HTTPS/TLS) and at rest (S3/DynamoDB encryption).
 
 **NFR-008: Privacy Compliance**
 
-- No user data retention beyond session
-- Anonymous usage analytics
-- GDPR-like compliance for educational data
-- Clear data usage policies
+- Multi-tenant isolation ensuring no leakage between user-isolated prefixes in S3.
+- Anonymous usage analytics.
+- GDPR/FERPA compliance readiness for educational records.
+- Clear data usage policies.
+- Support for session-only history persistence option.
+
+#### 3.5 Operational & Quality Requirements
+
+**NFR-009: Observability & Lifecycle Management**
+
+- Detailed structured logging for pipeline stages and API errors.
+- Real-time monitoring of SageMaker/Bedrock inference costs and latency.
+- Automated lifecycle management for temporary processing workspaces (pruning and cleanup).
+
+**NFR-010: RAG Accuracy & Trust**
+
+- **Citation Precision**: 100% accuracy in mapping citations to source document pages/timestamps.
+- **Hallucination Mitigation**: Enforced groundedness via prompt engineering and multi-stage verification.
+- **Retrieval Recall**: Optimized dense/sparse hybrid search to ensure top-relevant chunks are within top-5 results.
 
 ---
 
@@ -338,17 +352,18 @@ The system encompasses:
 
 **TR-001: Backend Requirements**
 
-- Python 3.9+ runtime environment
-- FastAPI web framework
-- Async processing capabilities
-- RESTful API design
+- Python 3.11+ runtime environment
+- FastAPI web framework for all microservices
+- Asynchronous orchestration with Pydantic v2 data models
+- Production-grade Uvicorn/Gunicorn server
 
 **TR-002: Frontend Requirements**
 
-- React 18+ with modern hooks
-- Vite build system
-- TailwindCSS for styling
-- Responsive design principles
+- React 19+ (Single Page Application)
+- Vite build tool and dev server
+- TailwindCSS 4.1+ for advanced styling and modern aesthetics
+- Lucide-React and Framer Motion for premium UX/UI
+- TypeScript for full-stack type safety
 
 **TR-003: Database Requirements**
 
@@ -361,17 +376,23 @@ The system encompasses:
 
 **TR-004: External Service Integration**
 
-- OpenAI API for GPT models
-- Google Gemini API for multimodal processing
-- Hugging Face for model hosting
-- Cloud storage for file backup
+- OpenAI API for primary LLM generation (GPT-4o)
+- Google Gemini API for multimodal 1.5 Pro processing
+- AWS SageMaker for remote ColQwen and Docling inference
+- Google Firebase for Identity and Authentication
+- AWS DynamoDB for user profiles and persistent chat history storage
+- AWS S3 for canonical object storage (Originals & Processed)
+- Hugging Face Hub for model weights and configuration
 
-**TR-005: System Dependencies**
+**TR-005: AI and Processing Pipeline Stack**
 
-- FFmpeg for audio/video processing
-- Tesseract OCR for text extraction
-- Poppler for PDF processing
-- CUDA toolkit for GPU acceleration
+- **Docling 2.0+**: Primary document understanding and layout analysis
+- **Whisper**: High-accuracy spear-to-text (transcribe)
+- **ColQwen/ColPali**: Vision-Language-Model for direct image retrieval
+- **SmolVLM (256M)**: Lightweight VLM for image captioning and OCR
+- **FFmpeg**: Media stream extraction and frame management
+- **Sentence-Transformers**: Dense text embeddings (Local and Cloud)
+- **CUDA 12.8**: GPU acceleration for inference stages
 
 #### 4.3 Deployment Requirements
 
@@ -384,10 +405,12 @@ The system encompasses:
 
 **TR-007: Infrastructure**
 
-- Support for cloud deployment (AWS, GCP, Azure)
-- On-premises deployment capability
-- Load balancing for high availability
-- Monitoring and logging infrastructure
+- Support for cloud deployment (AWS, GCP, Azure).
+- On-premises deployment capability.
+- Load balancing for high availability.
+- Monitoring and logging infrastructure.
+- **AWS S3** for original and processed artifact persistence.
+- **Qdrant Cloud** with shared collections and payload-level tenant isolation (Deprecated per-user collections).
 
 ---
 

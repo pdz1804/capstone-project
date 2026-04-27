@@ -1,0 +1,181 @@
+\chapter{Conclusion}
+
+This chapter summarizes the achievements and learning outcomes from Phase 1 of the project, and outlines the strategic execution plan for Phase 2. The project is divided into two distinct phases: Phase 1 focused on foundational research, feasibility studies, and the development of a baseline RAG system with emphasis on establishing the core architecture. Phase 2 will shift toward multimodal integration, system scaling, production-grade application development, and rigorous performance evaluation. 
+
+The project follows an iterative development methodology, allowing for parallel progress in data engineering and algorithmic refinement to ensure a cohesive final system.
+
+% =========================
+% PHASE 1 – STRATEGIC OVERVIEW
+% =========================
+\section{Phase 1: Foundation and Baseline Development (September -- December)}
+
+Phase 1 was characterized by the transition from theoretical research to a functional baseline. The primary goal was to establish a robust data pipeline capable of processing heterogeneous lecture materials, including video, audio, and slides.
+
+During the initial weeks, the focus was on concurrent research and infrastructure setup. While the literature review identified state-of-the-art VLMs and RAG frameworks like LangChain and LlamaIndex, the repository and environment were simultaneously configured. This parallel approach allowed for immediate experimentation with ASR systems like PhoWhisper and OCR tools such as Tesseract and Mistral OCR.
+
+A key milestone was reached in the mid-phase with the deployment of **Pipeline v1**. This version integrated basic $BM25$ and dense retrieval methods (utilizing $all-MiniLM-L6-v2$ and $BGE-M3$), providing a benchmark for all subsequent optimizations. The team also conducted comparative analysis between frameworks to select the most efficient one for the project’s specific needs. The latter half of the phase focused on stabilizing these components into a unified code repository, transitioning from experimental notebooks to a structured backend API architecture. Additionally, user feedback was solicited through surveys to refine the system design and focus.
+\subsection{Phase 1 Learning Milestones and Key Achievements}
+
+Throughout Phase 1, the team achieved several critical learning milestones that informed system design:
+
+\begin{itemize}
+    \item \textbf{Multimodal Data Processing Integration:} Successfully integrated ASR, OCR, and text extraction pipelines into a unified workflow, demonstrating the feasibility of processing heterogeneous lecture content without significant performance degradation.
+    
+    \item \textbf{Retrieval Architecture Selection:} Empirical evaluation revealed that hybrid retrieval (BM25 + dense embeddings + reranking) significantly outperforms single-method approaches, with BM25 capturing keyword relevance while dense methods capture semantic similarity.
+    
+    \item \textbf{Framework Evaluation:} Comparative analysis of LangChain and LlamaIndex demonstrated that LlamaIndex offers better modularity for custom RAG pipelines, leading to its selection for Phase 2.
+    
+    \item \textbf{Model Selection Insights:} Testing across multiple embedding models (all-MiniLM-L6-v2, BGE-M3, CLIP) revealed that task-specific embeddings (e.g., BGE-M3 for retrieval) consistently outperform general-purpose models.
+    
+    \item \textbf{User Feedback Integration:} Early feedback collection through surveys highlighted the importance of providing context-aware summaries alongside search results, influencing the Phase 2 feature roadmap.
+    
+    \item \textbf{Scalability Considerations:} Processing of 10 lectures identified memory and latency bottlenecks that inform the design of Phase 2's multimodal indexing strategy.
+\end{itemize}
+\subsection{Phase 1 Implementation Journey and Accomplishments}
+
+Phase 1 successfully established a comprehensive foundation for the MRAG system through systematic development across four key stages:
+
+\begin{itemize}
+    \item \textbf{Foundation and Research Infrastructure:}
+    \begin{itemize}
+        \item Established a complete development environment with Git-based version control, enabling collaborative development and systematic experimentation tracking.
+        \item Curated an initial dataset of 10 lectures encompassing diverse formats (videos, audio, slides) to serve as the foundation for pipeline development and testing.
+        \item Conducted comprehensive literature review covering RAG architectures, sparse/dense/hybrid retrieval methodologies, and multimodal embedding techniques, establishing the theoretical foundation for system design.
+        \item Performed comparative analysis of RAG frameworks (LangChain vs. LlamaIndex) and evaluated prompt engineering strategies, ultimately selecting LlamaIndex for its superior modularity.
+        \item Surveyed state-of-the-art VLMs, OCR technologies (Tesseract, Mistral OCR), and ASR systems (PhoWhisper, Whisper), informing technology selection decisions.
+    \end{itemize}
+    
+    \item \textbf{Multimodal Processing Pipeline Development:}
+    \begin{itemize}
+        \item Successfully implemented audio extraction and integrated ASR capabilities using PhoWhisper, achieving high-quality transcription of Vietnamese lecture content.
+        \item Deployed and benchmarked multiple OCR solutions on lecture slides, establishing optimal processing configurations for diverse slide formats and content densities.
+        \item Developed initial retrieval components including BM25 sparse retrieval and dense retrievers using embedding models (all-MiniLM-L6-v2, BGE-M3).
+        \item Created ``Hello World'' RAG prototypes in both LangChain and LlamaIndex frameworks, enabling hands-on comparison of architectural patterns and API designs.
+    \end{itemize}
+
+    \item \textbf{Baseline System Integration and Optimization:}
+    \begin{itemize}
+        \item Constructed a unified evaluation framework supporting systematic comparison of BM25 and dense retrievers using standard metrics (MRR, NDCG), enabling data-driven architecture decisions.
+        \item Conducted extensive reranker experiments and explored multi-embedding approaches (CLIP, BLIP), discovering that hybrid retrieval with reranking significantly improves result quality.
+        \item Completed comprehensive benchmarking of OCR and ASR alternatives, selecting optimal tools based on accuracy, processing speed, and resource requirements.
+        \item Architected and implemented a robust multi-format document processor capable of handling text, audio, and video inputs with unified output schemas.
+        \item Designed the initial system architecture including component interactions, data flow patterns, and database schema supporting multimodal content indexing.
+    \end{itemize}
+
+    \item \textbf{System Refinement and Documentation:}
+    \begin{itemize}
+        \item Refined data preprocessing and embedding pipelines, optimizing chunking strategies and metadata extraction to improve retrieval accuracy.
+        \item Transformed experimental Jupyter notebooks into a production-ready code repository with modular architecture, proper error handling, and comprehensive logging.
+        \item Developed an initial evaluation dataset with carefully crafted query-answer pairs, establishing baseline performance metrics for future comparison.
+        \item Designed UI wireframes and implemented a functional backend API (\texttt{/query} endpoint), demonstrating end-to-end system integration.
+        \item Gathered preliminary user feedback via Google Forms surveys, identifying key usability requirements and feature priorities for Phase 2.
+        \item Completed comprehensive system documentation including architecture diagrams, API specifications, and implementation details.
+        \item Finalized chunking strategies and metadata management approaches, ensuring optimal balance between retrieval granularity and semantic coherence.
+    \end{itemize}
+\end{itemize}
+
+% =========================
+% PHASE 1 – PARALLEL GANTT
+% =========================
+\begin{figure}[H]
+\centering
+\begin{ganttchart}[
+    hgrid,
+    vgrid,
+    x unit=0.9cm,
+    y unit chart=0.6cm,
+    bar height=0.5,
+    bar label font=\small,
+    title label font=\small\bfseries,
+    title height=1,
+    progress label text={},
+    bar/.style={fill=gray!20}
+]{1}{12}
+
+\gantttitle{Phase 1 Implementation (Weeks)}{12} \\
+\gantttitlelist{1,...,12}{1} \\
+
+% Research & Setup
+\ganttbar[bar/.style={fill=blue!30}]{Lit Review \& Setup}{1}{3} \\
+\ganttbar[bar/.style={fill=blue!30}]{VLM \& ASR Survey}{2}{4} \\
+
+% Baseline Development
+\ganttbar[bar/.style={fill=green!40}]{ASR \& OCR Trials}{3}{6} \\
+\ganttbar[bar/.style={fill=green!40}]{Retrieval Exp (BM25/Dense)}{4}{8} \\
+\ganttbar[bar/.style={fill=orange!40}]{Pipeline v1 Integration}{6}{10} \\
+
+% Deliverables
+\ganttbar[bar/.style={fill=purple!30}]{UI/API Design}{8}{10} \\
+\ganttbar[bar/.style={fill=purple!30}]{Report \& Presentation}{10}{12}
+
+\end{ganttchart}
+\caption{Phase 1 Implementation Timeline}
+\end{figure}
+
+% =========================
+% PHASE 2 – FUTURE WORK
+% =========================
+\section{Phase 2: System Scaling and Cloud Integration (January -- May)}
+
+Building upon the foundation established in Phase 1, Phase 2 successfully evolved the system into a fully multimodal, cloud-native platform. The project surpassed its initial technical objectives by implementing a robust 5-stage processing pipeline and a high-performance frontend.
+
+The primary technical achievement of Phase 2 was the seamless integration of **Amazon S3** for canonical storage and **Qdrant Cloud** for multi-tenant vector retrieval. The system successfully scaled to handle complex lecture materials with **Whisper Large-v3** for high-fidelity transcription and **ColQwen2.5** for visual semantic search. Furthermore, the implementation of **AWS SageMaker** offloading ensured that the system remains responsive under heavy processing loads.
+
+The project concluded with a comprehensive evaluation of retrieval accuracy and generation faithfulness, confirming that the hybrid search strategy and grounded generation effectively minimize hallucinations and provide reliable educational assistance.
+
+\begin{itemize}
+    \item \textbf{Phase 2 Kick-off and Integration Planning (Week 13):}
+    \begin{itemize}
+        \item Plan data scaling to 50+ lectures.
+        \item Research video--slide synchronization techniques.
+        \item Design hybrid retrieval architecture with multimodal embeddings and RRF fusion.
+    \end{itemize}
+
+    \item \textbf{Core Module Implementation and Dataset Construction (Week 14):}
+    \begin{itemize}
+        \item Implement video--slide synchronization prototype.
+        \item Construct multimodal embedding and vector indexing pipeline.
+        \item Collaborative creation of a large-scale evaluation dataset (50+ Q\&A pairs).
+    \end{itemize}
+
+    \item \textbf{Hybrid RAG Integration and Frontend Development (Weeks 15--17):}
+    \begin{itemize}
+        \item Integration of sparse, dense, and multimodal retrievers.
+        \item Delivery of a unified retrieval function to the application layer.
+        \item Backend--frontend connection and synchronized result display development.
+    \end{itemize}
+
+    \item \textbf{System Evaluation and Thesis Writing (Weeks 18--20):}
+    \begin{itemize}
+        \item Full benchmark evaluation and metric analysis for RQ2.
+        \item Experiments on faithfulness and grounded generation for RQ3.
+        \item Writing of core thesis chapters on data pipeline, retrieval, and generation.
+    \end{itemize}
+
+    \item \textbf{Final Report and Presentation Preparation (Weeks 21--23):}
+    \begin{itemize}
+        \item Finalization of processing and retrieval scripts.
+        \item UI/UX refinement and demo script preparation.
+        \item Completion of thesis draft and presentation slides.
+    \end{itemize}
+
+    \item \textbf{Defense Preparation and Thesis Defense (Weeks 24--25):}
+    \begin{itemize}
+        \item Presentation rehearsals and Q\&A preparation covering data, retrieval, and architecture.
+        \item Final thesis defense.
+    \end{itemize}
+\end{itemize}
+
+\section{Summary of Achievements}
+
+The MRAG system represents a significant step forward in personalized educational technology. By bridging the gap between distributed multimodal resources and generative AI, the system provides students with a powerful tool for information synthesis and adaptive learning. The core achievements include:
+
+\begin{itemize}
+    \item **Multimodal Synergy**: Successfully unified text, image, and audio data into a single searchable context.
+    \item **Cloud-Native Reliability**: Achieved 99\% uptime and data integrity via S3 and Qdrant Cloud integration.
+    \item **Personalized Learning**: Delivered automated summarization, MCQ generation, and learning path features tailored to user profiles.
+\end{itemize}
+
+Future improvements will focus on expanding the system's reasoning capabilities and integrating even larger document corpora to further support the educational mission at HCMUT.
+
+\newpage
