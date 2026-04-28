@@ -1,12 +1,12 @@
 \chapter{Implementation}
 
-\textbf{Phase 1 Scope and Objectives:} This chapter presents the initial implementation phase of the MRAG system. In Phase 1, the primary focus is on \textbf{establishing and validating the core system architecture}, including the data processing pipeline, embedding strategies, and retrieval mechanisms. The implementation prioritizes architectural feasibility and functional correctness. Advanced considerations such as production-grade application development, optimized database storage solutions, and comprehensive system optimization are deliberately deferred to Phase 2. This phased approach allows for iterative refinement based on empirical evaluation of the foundational architecture before committing to infrastructure-level optimizations.
+% \textbf{Phase 1 Scope and Objectives:} This chapter presents the initial implementation phase of the MRAG system. In Phase 1, the primary focus is on \textbf{establishing and validating the core system architecture}, including the data processing pipeline, embedding strategies, and retrieval mechanisms. The implementation prioritizes architectural feasibility and functional correctness. Advanced considerations such as production-grade application development, optimized database storage solutions, and comprehensive system optimization are deliberately deferred to Phase 2. This phased approach allows for iterative refinement based on empirical evaluation of the foundational architecture before committing to infrastructure-level optimizations.
 
-\textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 5-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
+% \textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 5-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
 
 This chapter details the practical implementation of the core system architecture. We describe the system design, data processing pipeline, and key implementation components that enable efficient document processing and retrieval.
 
-\section{Implementation Evolution: Phase 1 vs. Phase 2}
+\section{Implementation Evolution}
 
 The development of the Unified MRAG system was executed in two distinct phases, representing a transition from a research-oriented baseline to a robust, production-ready platform. This evolution was driven by the need for scalability, multi-tenancy, and high availability.
 
@@ -40,7 +40,7 @@ The following table summarizes the key technical transitions between the two pha
     \caption{Technical Comparison: Phase 1 (Baseline) vs. Phase 2 (Production)}
     \label{tab:phase_comparison}
     \scalebox{0.85}{
-    \begin{tabular}{p{3.5cm}p{5.5cm}p{5.5cm}}
+    \begin{tabular}{p{3.5cm}p{5.5cm}p{9cm}}
         \toprule
         \textbf{Dimension} & \textbf{Phase 1 (Local Prototype)} & \textbf{Phase 2 (Cloud-Native Production)} \\
         \midrule
@@ -60,7 +60,7 @@ The following table summarizes the key technical transitions between the two pha
 
 This strategic transition from a local-first prototype to a cloud-native platform was not merely a change in infrastructure, but a fundamental shift in how the system manages multimodal intelligence. By offloading resource-intensive tasks and centralizing data state, the system transitioned from a experimental tool to a scalable service capable of supporting complex educational workflows.
 
-\newpage
+% \newpage
 
 \section{Architecture Design}
 
@@ -403,6 +403,8 @@ Before detailing the specific collection structures, we define the properties ut
 
 \begin{table}[H]
     \centering
+    \caption{Schema properties used in implementation documentation}
+    \label{tab:schema_props}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Property} & \textbf{Description} & \textbf{Note} \\
@@ -416,8 +418,6 @@ Before detailing the specific collection structures, we define the properties ut
         Distance & The distance calculation for retrieval & Mandatory for vector indices (e.g., Cosine). \\
         \bottomrule
     \end{tabular}
-    \caption{Schema properties used in implementation documentation}
-    \label{tab:schema_props}
 \end{table}
 
 \textbf{Key Concepts in DynamoDB Schema Design}
@@ -441,6 +441,8 @@ To support our Hybrid + Multimodal retrieval strategy, we segregate embeddings i
 Stores granular textual chunks extracted from structured Markdown documents. It utilizes a hybrid search approach, combining sparse keyword indexing with the following dense vector configuration.
 \begin{table}[H]
     \centering
+    \caption{Text Vector Collection Properties}
+    \label{tab:qdrant_text}
     \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
         \toprule
         \textbf{Vector Name} & \textbf{Dim} & \textbf{Distance} & \textbf{Description} \\
@@ -448,13 +450,13 @@ Stores granular textual chunks extracted from structured Markdown documents. It 
         text & 384 & Cosine & Main text embeddings representing chunk semantics (e.g., via \texttt{all-MiniLM-L6-v2}). \\
         \bottomrule
     \end{tabular}
-    \caption{Text Vector Collection Properties}
-    \label{tab:qdrant_text}
 \end{table}
 
 Each indexed text chunk retains critical metadata necessary for strict multi-tenant filtering and file attribution during generative retrieval:
 \begin{table}[H]
     \centering
+    \caption{Text Collection Schema Structure}
+    \label{tab:qdrant_text_schema}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -469,14 +471,14 @@ Each indexed text chunk retains critical metadata necessary for strict multi-ten
         storage\_backend & String & Storage system (e.g., s3). \\
         \bottomrule
     \end{tabular}
-    \caption{Text Collection Schema Structure}
-    \label{tab:qdrant_text_schema}
 \end{table}
 
 \textbf{Collection: \texttt{edu\_image\_pages}}
 Dedicated to storing high-order visual layouts. It leverages a unique multi-vector representation generated directly from the ColQwen vision-language model, enabling direct visual similarity searches against original PDF structures.
 \begin{table}[H]
     \centering
+    \caption{Image Vector Collection Properties}
+    \label{tab:qdrant_image}
     \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
         \toprule
         \textbf{Vector Name} & \textbf{Dim} & \textbf{Distance} & \textbf{Description} \\
@@ -484,8 +486,6 @@ Dedicated to storing high-order visual layouts. It leverages a unique multi-vect
         colpali\_multivec & 128*x & Dot & Multi-vector representations (128 dims $\times$ $x$ visual tokens) for ColQwen late-interaction. \\
         \bottomrule
     \end{tabular}
-    \caption{Image Vector Collection Properties}
-    \label{tab:qdrant_image}
 \end{table}
 
 \textbf{Visual Token Calculation Methodology}
@@ -509,6 +509,8 @@ For a standard processing resolution of $1024 \times 1024$ pixels, $x \approx 5,
 The visual index maintains geometric representations (height/width) alongside S3 references, allowing the orchestration layer to securely retrieve the original page images for multimodal language models:
 \begin{table}[H]
     \centering
+    \caption{Image Collection Schema Structure}
+    \label{tab:qdrant_image_schema}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -526,8 +528,6 @@ The visual index maintains geometric representations (height/width) alongside S3
         storage\_backend & String & Storage system (e.g., s3). \\
         \bottomrule
     \end{tabular}
-    \caption{Image Collection Schema Structure}
-    \label{tab:qdrant_image_schema}
 \end{table}
 
 \subsection{Object Storage (Amazon S3)}
@@ -613,40 +613,40 @@ The system utilizes a dual-bucket object storage architecture to manage the life
 
     \begin{markdown}
     S3/
-    ├── ai-service-originals-dev/
-    │   └── users/{uid}/
-    │       ├── {doc_name}.pdf
-    │       └── {doc_name}.pdf.metadata.json
-    └── ai-service-processed-dev/
+    ├── ai-service-originals-dev/         # Bucket for raw document ingestion
+    │   └── users/{uid}/                  # Logical user-tenant isolation
+    │       ├── {doc_name}.pdf            # Original source document
+    │       └── {doc_name}.pdf.metadata.json # Ingestion time & file provenance
+    └── ai-service-processed-dev/         # Bucket for pipeline artifacts
         └── users/{uid}/
-            ├── .processing_cache.json
-            ├── pipeline_stats.json
-            ├── stage1_normalized/
-            │   ├── normalized_pdfs/
-            │   ├── excel_parsed/
-            │   ├── original_files/
+            ├── .processing_cache.json    # Idempotency and deduplication tracking
+            ├── pipeline_stats.json       # Telemetry and processing performance
+            ├── stage1_normalized/        # Standardized PDF & structured data
+            │   ├── normalized_pdfs/      # Unified format for visual processing
+            │   ├── excel_parsed/         # Structured tables from Office files
+            │   ├── original_files/       # Internal reference copy
             │   └── normalization_metadata/
-            ├── stage2_media_processed/
-            │   ├── extracted_audio/
-            │   ├── extracted_frames/
-            │   ├── transcripts/
-            │   └── media_metadata/
-            ├── stage3_document_processed/
+            ├── stage2_media_processed/   # Extracted audiovisual artifacts
+            │   ├── extracted_audio/      # Raw audio for Whisper transcription
+            │   ├── extracted_frames/     # Visual frames for late-interaction RAG
+            │   ├── transcripts/          # ASR textual outputs
+            │   └── media_metadata/       # Temporal feature mapping
+            ├── stage3_document_processed/# Structural Markdown outputs
             │   ├── {doc_name}/
-            │   │   ├── {doc_name}.md
+            │   │   ├── {doc_name}.md     # Cleaned semantic Markdown
             │   │   └── {doc_name}_metadata.json
-            │   └── logs/
+            │   └── logs/                 # Granular stage-level logs
             │       ├── batch_summary_*.json
             │       └── processing_*.log
-            ├── stage4_rag_ready/
+            ├── stage4_rag_ready/         # Optimized artifacts for RAG engine
             │   ├── {doc_name}/
-            │   │   ├── {doc_name}.md
-            │   │   ├── {doc_name}.pdf
+            │   │   ├── {doc_name}.md     # Final semantic text
+            │   │   ├── {doc_name}.pdf     # Optimized PDF for visual retrieval
             │   │   └── docling_additional/
             │   └── consolidation_stats.json
-            └── retrieval/
-                ├── bm25_index.pkl
-                └── documents.json.pkl
+            └── retrieval/                # Secondary persistence for search indices
+                ├── bm25_index.pkl        # Serialized sparse search index
+                └── documents.json.pkl     # Document lookup table
     \end{markdown}
 
     \caption{Amazon S3 Directory Structure Tree}
@@ -696,6 +696,8 @@ Following the Phase 2 architectural consolidation, core identity profiles have b
 
 \begin{table}[H]
     \centering
+    \caption{User Profile Schema}
+    \label{tab:user_profiles}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -716,8 +718,6 @@ Following the Phase 2 architectural consolidation, core identity profiles have b
         passwordHash & String & Securely hashed credentials (exclusive to \texttt{local} auth providers). \\
         \bottomrule
     \end{tabular}
-    \caption{User Profile Schema}
-    \label{tab:user_profiles}
 \end{table}
 
 \newpage
@@ -727,6 +727,8 @@ We developed an optimized schema within Amazon DynamoDB to organize chat histori
 
 \begin{table}[H]
     \centering
+    \caption{Chatbot Sessions Schema}
+    \label{tab:chat_sessions}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -744,8 +746,6 @@ We developed an optimized schema within Amazon DynamoDB to organize chat histori
         updated\_at & String (ISO) & Timestamp of the last conversational interaction. \\
         \bottomrule
     \end{tabular}
-    \caption{Chatbot Sessions Schema}
-    \label{tab:chat_sessions}
 \end{table}
 
 \newpage
@@ -755,6 +755,8 @@ Stores individual conversational turns (prompts and AI responses) within a sessi
 
 \begin{table}[H]
     \centering
+    \caption{Chatbot Messages Schema}
+    \label{tab:chat_messages}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -770,8 +772,6 @@ Stores individual conversational turns (prompts and AI responses) within a sessi
         user\_id & String & Reference to the owner of the message for secondary filtering. \\
         \bottomrule
     \end{tabular}
-    \caption{Chatbot Messages Schema}
-    \label{tab:chat_messages}
 \end{table}
 
 \newpage
@@ -781,6 +781,8 @@ To facilitate academic tracking and monitor instructional efficacy, the system u
 
 \begin{table}[H]
     \centering
+    \caption{Quiz Results Schema}
+    \label{tab:quiz_results}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -795,8 +797,6 @@ To facilitate academic tracking and monitor instructional efficacy, the system u
         total & Number & The aggregate number of questions presented during the assessment. \\
         \bottomrule
     \end{tabular}
-    \caption{Quiz Results Schema}
-    \label{tab:quiz_results}
 \end{table}
 
 \newpage
@@ -806,6 +806,8 @@ To facilitate continuous improvement and capture user sentiment, a specialized \
 
 \begin{table}[H]
     \centering
+    \caption{Feedback Schema}
+    \label{tab:feedback_results}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -832,8 +834,6 @@ To facilitate continuous improvement and capture user sentiment, a specialized \
         updated\_at & String (ISO) & Timestamp of the last classification or update. \\
         \bottomrule
     \end{tabular}
-    \caption{Feedback Schema}
-    \label{tab:feedback_results}
 \end{table}
 
 \newpage
@@ -843,6 +843,8 @@ To monitor system performance, track resource consumption, and estimate operatio
 
 \begin{table}[H]
     \centering
+    \caption{App Usage Schema}
+    \label{tab:app_usage}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -865,8 +867,6 @@ To monitor system performance, track resource consumption, and estimate operatio
         token\_out & Number & Total output tokens generated by the model. \\
         \bottomrule
     \end{tabular}
-    \caption{App Usage Schema}
-    \label{tab:app_usage}
 \end{table}
 
 
@@ -875,6 +875,8 @@ The core API, built with FastAPI, serves as the communication backend between th
 
 \begin{table}[H]
     \centering
+    \caption{Mapping of System Interface Tabs to Core API Services}
+    \label{tab:ui_api_mapping}
     \scalebox{0.9}{
     \begin{tabular}{llp{7cm}}
         \toprule
@@ -900,8 +902,6 @@ The core API, built with FastAPI, serves as the communication backend between th
         \bottomrule
     \end{tabular}
     }
-    \caption{Mapping of System Interface Tabs to Core API Services}
-    \label{tab:ui_api_mapping}
 \end{table}
 
 The following subsections detail the core API endpoints that power the system's multimodal processing and retrieval engine. To ensure clarity and technical consistency, each service is documented using a standardized schema:
@@ -1176,30 +1176,30 @@ Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG p
 
 
 
-\section{System Configurations and Modular Architecture}
-
-To ensure scalability and adaptability, the backend architecture introduces several configuration modalities that dictate how machine learning operations, multi-tenancy, and file storage are managed.
-
-\subsection{Multi-tenant Architecture and Asset Management}
-The system is designed from the ground up to support isolation across multiple concurrent users.
-\begin{itemize}
-    \item \textbf{Tenant Isolation}: HTTP requests utilize an \texttt{X-User-Id} header to logically isolate data. Qdrant vector collections remain shared but are partitioned using payload filtering by \texttt{user\_id}.
-    \item \textbf{Storage Backend (Local vs. S3)}: The system supports two primary storage modes dictated by environmental variables (\texttt{FILE\_STORAGE\_BACKEND}). Small-scale deployments can utilize local filesystem storage (\texttt{backend/input} and \texttt{backend/output}), while production environments seamlessly switch to \textbf{Amazon S3}. When operating in S3 mode, files are logically isolated using key prefixes (e.g., \texttt{users/<user\_id>/...}).
-\end{itemize}
-
-\subsection{Inference and Compute Scalability}
-The system architecture cleanly decouples the application layer from the heavy inference processing logic.
-\begin{itemize}
-    \item \textbf{Hybrid Inference Mode}: The backend supports dynamic switching between local GPU execution and AWS SageMaker Integration.
-    \item \textbf{AWS SageMaker Integration}: For production-grade scalability, the backend can delegate inference tasks (ASR, VLM, Embeddings) to SageMaker endpoints. This ensures that the frontend remains responsive even during large-scale document processing.
-\end{itemize}
-
-\subsection{Chat Runtime Environments}
-Conversational capabilities are adaptable to different operational frameworks based on the \texttt{CHAT\_AGENT\_RUNTIME} flag:
-\begin{itemize}
-    \item \textbf{Local Runtime}: The default mode utilizes local logic to handle conversational intelligence.
-    \item \textbf{AgentCore Runtime}: Administrators can configure the backend to interact with a deployed AWS Bedrock AgentCore environment. This integrates seamlessly with the DynamoDB session tracking schemas.
-\end{itemize}
+% \section{System Configurations and Modular Architecture}
+% 
+% To ensure scalability and adaptability, the backend architecture introduces several configuration modalities that dictate how machine learning operations, multi-tenancy, and file storage are managed.
+% 
+% \subsection{Multi-tenant Architecture and Asset Management}
+% The system is designed from the ground up to support isolation across multiple concurrent users.
+% \begin{itemize}
+%     \item \textbf{Tenant Isolation}: HTTP requests utilize an \texttt{X-User-Id} header to logically isolate data. Qdrant vector collections remain shared but are partitioned using payload filtering by \texttt{user\_id}.
+%     \item \textbf{Storage Backend (Local vs. S3)}: The system supports two primary storage modes dictated by environmental variables (\texttt{FILE\_STORAGE\_BACKEND}). Small-scale deployments can utilize local filesystem storage (\texttt{backend/input} and \texttt{backend/output}), while production environments seamlessly switch to \textbf{Amazon S3}. When operating in S3 mode, files are logically isolated using key prefixes (e.g., \texttt{users/<user\_id>/...}).
+% \end{itemize}
+% 
+% \subsection{Inference and Compute Scalability}
+% The system architecture cleanly decouples the application layer from the heavy inference processing logic.
+% \begin{itemize}
+%     \item \textbf{Hybrid Inference Mode}: The backend supports dynamic switching between local GPU execution and AWS SageMaker Integration.
+%     \item \textbf{AWS SageMaker Integration}: For production-grade scalability, the backend can delegate inference tasks (ASR, VLM, Embeddings) to SageMaker endpoints. This ensures that the frontend remains responsive even during large-scale document processing.
+% \end{itemize}
+% 
+% \subsection{Chat Runtime Environments}
+% Conversational capabilities are adaptable to different operational frameworks based on the \texttt{CHAT\_AGENT\_RUNTIME} flag:
+% \begin{itemize}
+%     \item \textbf{Local Runtime}: The default mode utilizes local logic to handle conversational intelligence.
+%     \item \textbf{AgentCore Runtime}: Administrators can configure the backend to interact with a deployed AWS Bedrock AgentCore environment. This integrates seamlessly with the DynamoDB session tracking schemas.
+% \end{itemize}
 
 
 \section{System Deployment}
@@ -1267,14 +1267,14 @@ After analyzing the leading frameworks, React is the recommended choice. This de
 
 From now on, we detail the reasoning for this selection, including a direct comparison with the primary alternative, Vue.js.
 
-\subsubsection{Architecture Suits a Multimodal RAG System}
+\textbf{Architecture Suits a Multimodal RAG System}
 The architectural principles of React are uniquely suited to the specific challenges of our application. The RAG system will return a heterogeneous mix of data: a streaming text answer, a reference to a page in a PDF, a timestamp in a lecture video, and a relevant diagram.
 
 React's declarative nature, where developers describe what the UI should look like for a given state, allows the team to manage this complexity effectively. Instead of writing complex, imperative code to manually update the DOM for each data type, developers can create distinct, self-contained components for example \texttt{ChatWindow}, \texttt{SourceDocViewer}, \texttt{VideoPlayer}, \texttt{ImageViewer}. 
 
 The main application component then simply manages the application's state and declaratively renders the appropriate components based on the API response. This clear separation of concerns is critical for building a robust and maintainable multimodal user interface.
 
-\subsubsection{Core Advantages and Technical Rationale}
+\textbf{Core Advantages and Technical Rationale}
 Beyond its perfect fit for our specific data model, React provides foundational advantages in performance and development efficiency.
 
 \textbf{Component-Based Architecture}
@@ -1283,7 +1283,7 @@ This is the cornerstone of the selection. The user interface will be a compositi
 \textbf{High Performance with the Virtual DOM}
 The RAG system will generate text responses and display various media types. React's use of a Virtual Document Object Model (DOM) is a key performance feature. It creates a lightweight in-memory representation of the UI, calculates the most efficient changes ("diffing"), and minimizes direct, costly manipulations of the actual browser DOM. This results in a smooth, responsive user experience, even as the UI updates frequently with new data from the backend.
 
-\subsubsection{Comparative Analysis: React vs. Vue.js}
+\textbf{Comparative Analysis: React vs. Vue.js}
 While both React and Vue.js utilize a virtual DOM and a component-based architecture, a direct comparison reveals React's significant advantages for a project of this scale.
 
 \textbf{Ecosystem, Community, and Talent Pool}
@@ -1324,21 +1324,21 @@ This decision is based on three core pillars:
     \item \textbf{Future-Proof Architectural Philosophy}: FastAPI is designed for a modern, microservices-first world, providing the flexibility and scalability required to prevent technical debt and support long-term growth.
 \end{itemize}
 
-\subsubsection{Performance and Asynchronous Processing}
+\textbf{Performance and Asynchronous Processing}
 A RAG application is inherently I/O-bound. The server spends most of its time not computing, but waiting: waiting for a query response from the vector database, waiting for user data from a relational database, and, most significantly, waiting for the Large Language Model (LLM) API to stream back its generated response.
 
 In a traditional synchronous framework like Django, each of these waiting periods would block an entire worker thread. This means that if 10 users send a query simultaneously, the application needs at least 10 worker threads, each consuming significant memory. This model scales poorly, leading to a rapid increase in server costs and a degradation of user experience under load.
 
 FastAPI solves this problem at its core. It is built on modern Python \texttt{async/await} syntax and the Asynchronous Server Gateway Interface (ASGI) standard. This allows a single process to handle thousands of concurrent connections. When a task starts waiting for an I/O operation (like an LLM call), the server doesn't block; it yields control and serves other requests, returning to the original task only when the data is ready.
 
-\subsubsection{Real-World Performance Benchmarks}
+\textbf{Real-World Performance Benchmarks}
 This architectural difference is not merely theoretical; it is reflected in stark performance metrics from independent, industry-standard benchmarks. According to the highly respected TechEmpower benchmarks, which test hundreds of web frameworks in realistic scenarios, FastAPI's performance is in a different league.
 
 In the Round 22 benchmarks (testing against physical hardware), the Uvicorn server running a basic FastAPI application handled \textbf{12,567 requests per second} in the Multiple Queries test. In contrast, Django on Gunicorn (a standard synchronous setup) handled \textbf{1,623 requests per second}.
 
 This means FastAPI can handle over 8 times the traffic with the same hardware for this common task. For our I/O-bound application, this advantage is even more pronounced. The ability to efficiently manage concurrent waiting tasks means we can serve more users simultaneously with lower latency and significantly lower infrastructure costs. This raw performance is essential for delivering the responsive, real-time experience that users expect from an interactive AI assistant.
 
-\subsubsection{The Superior Developer Experience}
+\textbf{The Superior Developer Experience}
 Beyond raw performance, FastAPI is engineered with a laser focus on building APIs, which dramatically improves developer productivity and code quality.
 
 \begin{itemize}
@@ -1346,14 +1346,14 @@ Beyond raw performance, FastAPI is engineered with a laser focus on building API
     \item \textbf{Automatic Interactive API Documentation}: Out of the box, FastAPI generates interactive API documentation based on the OpenAPI standard. As soon as an endpoint is written, a fully functional documentation page is available at \texttt{/docs}, allowing frontend developers and consumers to test endpoints and understand the API without manual effort. This tight feedback loop is invaluable for rapid development.
 \end{itemize}
 
-\subsubsection{Architectural Philosophy and Future-Proofing}
+\textbf{Architectural Philosophy and Future-Proofing}
 The choice between FastAPI and Django represents a fundamental decision between a modern, microservices-first architecture and a traditional, monolithic one.
 
 Django's philosophy is geared towards building monolithic, full-stack applications with server-rendered templates, an admin panel, and a built-in ORM. These are excellent features for certain projects, but they are less critical for our API-first, decoupled architecture.
 
 FastAPI's lightweight and unopinionated nature makes it a natural fit for building independent, scalable microservices. This allows for a logical separation of concerns. We can develop, deploy, and scale the user authentication service independently from the RAG pipeline service. This modularity offers significant long-term advantages in scalability and maintainability, preventing the need for a costly and disruptive rewrite as the platform grows.
 
-\subsubsection{Head-to-Head Comparison Matrix}
+\textbf{Head-to-Head Comparison Matrix}
 The following table provides a clear, at-a-glance comparison to justify the selection of FastAPI for our specific application context.
 
 \begin{table}[H]
@@ -1380,7 +1380,7 @@ The following table provides a clear, at-a-glance comparison to justify the sele
 
 The market for cloud vector databases is highly fragmented, with vendors utilizing fundamentally different programming languages, scaling architectures, and index structures. Evaluating their capacity to handle billion-scale multimodal workloads requires a granular architectural analysis of each platform.
 
-\subsubsection{Multi-Embedding Storage and MaxSim Execution}
+\textbf{Multi-Embedding Storage and MaxSim Execution}
 The capacity to efficiently ingest, store, and query the multi-embeddings generated by ColPali is a primary differentiator among vector databases. While platforms like \textbf{Vespa} and \textbf{Milvus} offer robust native solutions via tensor formalism and unified data types respectively, \textbf{Qdrant} uniquely excels through its decoupling of storage and indexing. Acknowledging that indexing heavy multi-vector payloads via HNSW wastes compute and RAM, Qdrant allows architects to explicitly disable graph construction for these payloads. They are utilized exclusively for in-memory, query-time MaxSim reranking against candidates retrieved via a fast single-vector pass. This architectural brilliance prevents the database from collapsing under graph maintenance during ingestion, ensuring high-speed data loading and significantly reduced RAM overhead.
 
 \begin{table}[H]
@@ -1402,7 +1402,7 @@ The capacity to efficiently ingest, store, and query the multi-embeddings genera
     }
 \end{table}
 
-\subsubsection{Supported Search Mechanisms}
+\textbf{Supported Search Mechanisms}
 A robust multimodal database must support various search paradigms. All major platforms natively support dense, sparse (keyword), and hybrid search mechanisms. The critical differentiator is the underlying hybrid fusion algorithm. \textbf{Qdrant} stands out by supporting advanced fusion techniques such as Reciprocal Rank Fusion (RRF) and Distribution-Based Score Fusion (DBSF), intelligently balancing the unbounded scoring of BM25 against the normalized bounds of cosine similarity. Furthermore, Qdrant leads the industry in metadata filtering via its highly optimized payload indexing, allowing complex JSON-based logical conditions to intersect with vector search without compromising retrieval speed.
 
 \begin{table}[H]
@@ -1423,7 +1423,7 @@ A robust multimodal database must support various search paradigms. All major pl
     }
 \end{table}
 
-\subsubsection{Scalability, Latency, and Economics}
+\textbf{Scalability, Latency, and Economics}
 Transitioning to production demands rigorous evaluation of latency, scalability, and Total Cost of Ownership (TCO). Driven by its \textbf{Rust-based engine}, Qdrant demonstrates exceptional performance, maintaining 30-40 millisecond p95 latencies and sustaining 8,000 to 15,000 QPS, significantly outperforming Go-based alternatives in tail latency. Economically, Qdrant offers a generous perpetual free tier for prototyping and scales cost-effectively via custom sharding and the Raft consensus protocol, whereas enterprise solutions like Milvus and Vespa carry higher base infrastructure costs.
 
 \begin{table}[H]
@@ -1445,10 +1445,10 @@ Transitioning to production demands rigorous evaluation of latency, scalability,
     }
 \end{table}
 
-\subsubsection{Developer Experience and Integration}
+\textbf{Developer Experience and Integration}
 Developer experience dictates integration speed. While Weaviate offers simplified APIs, it can lack granular configurability. Vespa provides deep tensor control but suffers from an exceptionally steep learning curve. \textbf{Qdrant} strikes the perfect balance. It features straightforward Docker deployments, highly readable Python SDKs, and deep integration with the \texttt{FastEmbed} library. This allows developers to generate dense and sparse embeddings locally without heavy external dependencies, vastly simplifying the creation of multi-vector RAG pipelines.
 
-\subsubsection{Final Selection and Strategic Recommendation}
+\textbf{Final Selection and Strategic Recommendation}
 
 \begin{table}[H]
     \centering
