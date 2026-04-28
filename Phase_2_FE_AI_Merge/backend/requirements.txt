@@ -27,7 +27,7 @@ ragatouille>=0.0.8
 
 docling[all]>=2.0.0
 docling-core>=2.0.0
-docling-parse>=2.0.0
+docling-parse>=5.10.1
 bitsandbytes
 
 python-docx
