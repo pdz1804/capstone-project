@@ -1,8 +1,66 @@
 \chapter{Implementation}
 
+\textbf{Phase 1 Scope and Objectives:} This chapter presents the initial implementation phase of the MRAG system. In Phase 1, the primary focus is on \textbf{establishing and validating the core system architecture}, including the data processing pipeline, embedding strategies, and retrieval mechanisms. The implementation prioritizes architectural feasibility and functional correctness. Advanced considerations such as production-grade application development, optimized database storage solutions, and comprehensive system optimization are deliberately deferred to Phase 2. This phased approach allows for iterative refinement based on empirical evaluation of the foundational architecture before committing to infrastructure-level optimizations.
+
 \textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 5-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
 
 This chapter details the practical implementation of the core system architecture. We describe the system design, data processing pipeline, and key implementation components that enable efficient document processing and retrieval.
+
+\section{Implementation Evolution: Phase 1 vs. Phase 2}
+
+The development of the Unified MRAG system was executed in two distinct phases, representing a transition from a research-oriented baseline to a robust, production-ready platform. This evolution was driven by the need for scalability, multi-tenancy, and high availability.
+
+Phase 1 focused on the validation of the core retrieval-augmented generation logic, utilizing local resources and monolithic processing scripts. Phase 2 involved a comprehensive refactoring of the system into a cloud-native architecture, offloading compute-heavy tasks and leveraging managed services for data persistence and orchestration.
+
+\subsection{Phase 1: Foundation and Feasibility}
+
+Phase 1 was characterized by the development of a \textbf{Proof-of-Concept (PoC)} baseline. The primary objective was to validate the technical feasibility of the multimodal retrieval logic and ensure that the integration of text and visual embedding models yielded coherent results. During this stage, the system was implemented as a monolithic Python environment, relying on local filesystem storage for documents and a local instance of a vector database for retrieval. While functional, this architecture suffered from significant limitations:
+
+\begin{itemize}
+    \item \textbf{Resource Contention}: Running heavy embedding models (like ColQwen and BGE) alongside the API server on a single machine led to significant latency and memory exhaustion.
+    \item \textbf{Lack of Persistence}: User sessions and processing states were transient, meaning that any system restart resulted in the loss of progress and required complete re-indexing of documents.
+    \item \textbf{Monolithic Bottlenecks}: The sequential nature of the data processing pipeline meant that large document uploads blocked all other system operations, preventing concurrent usage.
+\end{itemize}
+
+\subsection{Phase 2: Scalability and Productionalization}
+
+Phase 2 involved a fundamental \textbf{architectural refactoring}, transitioning the system into a production-grade, cloud-native application. The focus shifted from functional correctness to operational excellence, addressing the bottlenecks identified during Phase 1. Key enhancements included:
+
+\begin{itemize}
+    \item \textbf{Decoupled Infrastructure}: The core compute logic was separated from the storage and inference layers. By leveraging \textbf{Amazon S3} for object storage and \textbf{Qdrant Cloud} for vector search, the system achieved true multi-tenancy and horizontal scalability.
+    \item \textbf{Stateful Session Management}: The integration of \textbf{Amazon DynamoDB} allowed for persistent, low-latency tracking of user chat histories and processing statuses, enabling a seamless resume-from-anywhere experience.
+    \item \textbf{Optimized Inference Offloading}: To handle the massive compute requirements of late-interaction models, Phase 2 offloaded visual embedding generation to \textbf{AWS SageMaker}. This ensures that the main application backend remains responsive even during high-intensity processing tasks.
+    \item \textbf{Asynchronous 5-Stage Pipeline}: The processing logic was rebuilt as a concurrent, event-driven pipeline, allowing for the simultaneous normalization, chunking, and indexing of multiple document streams.
+\end{itemize}
+
+The following table summarizes the key technical transitions between the two phases:
+
+\begin{table}[H]
+    \centering
+    \caption{Technical Comparison: Phase 1 (Baseline) vs. Phase 2 (Production)}
+    \label{tab:phase_comparison}
+    \scalebox{0.85}{
+    \begin{tabular}{p{3.5cm}p{5.5cm}p{5.5cm}}
+        \toprule
+        \textbf{Dimension} & \textbf{Phase 1 (Local Prototype)} & \textbf{Phase 2 (Cloud-Native Production)} \\
+        \midrule
+        \textbf{Primary Storage} & Local File System & Amazon S3 (Isolated, Durability) \\
+        \textbf{Vector Search} & Local Vector Store & Qdrant Cloud (Managed, Multi-tenant) \\
+        \textbf{Session State} & In-memory (Transient) & Amazon DynamoDB (Stateful, Persistent) \\
+        \textbf{Inference Engine} & Local GPU Resources & AWS SageMaker (Scalable Offloading) \\
+        \textbf{System Deployment} & Manual Script Execution & AWS ECS Fargate (Containerized, HA) \\
+        \textbf{Architecture} & Monolithic Prototype & Layered Service Architecture (Modular) \\
+        \textbf{Data Pipeline} & Sequential Processing & 5-Stage Resource-Optimized Pipeline \\
+        \textbf{Frontend Interface} & Basic Interactive UI & Enhanced React App (Real-time Streaming) \\
+        \textbf{Scalability} & Single-user / Single-machine & Multi-user / Cloud-scale \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+This strategic transition from a local-first prototype to a cloud-native platform was not merely a change in infrastructure, but a fundamental shift in how the system manages multimodal intelligence. By offloading resource-intensive tasks and centralizing data state, the system transitioned from a experimental tool to a scalable service capable of supporting complex educational workflows.
+
+\newpage
 
 \section{Architecture Design}
 
