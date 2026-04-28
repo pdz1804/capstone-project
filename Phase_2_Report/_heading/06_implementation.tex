@@ -1,8 +1,66 @@
 \chapter{Implementation}
 
-\textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 5-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
+% \textbf{Phase 1 Scope and Objectives:} This chapter presents the initial implementation phase of the MRAG system. In Phase 1, the primary focus is on \textbf{establishing and validating the core system architecture}, including the data processing pipeline, embedding strategies, and retrieval mechanisms. The implementation prioritizes architectural feasibility and functional correctness. Advanced considerations such as production-grade application development, optimized database storage solutions, and comprehensive system optimization are deliberately deferred to Phase 2. This phased approach allows for iterative refinement based on empirical evaluation of the foundational architecture before committing to infrastructure-level optimizations.
+
+% \textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 5-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
 
 This chapter details the practical implementation of the core system architecture. We describe the system design, data processing pipeline, and key implementation components that enable efficient document processing and retrieval.
+
+\section{Implementation Evolution}
+
+The development of the Unified MRAG system was executed in two distinct phases, representing a transition from a research-oriented baseline to a robust, production-ready platform. This evolution was driven by the need for scalability, multi-tenancy, and high availability.
+
+Phase 1 focused on the validation of the core retrieval-augmented generation logic, utilizing local resources and monolithic processing scripts. Phase 2 involved a comprehensive refactoring of the system into a cloud-native architecture, offloading compute-heavy tasks and leveraging managed services for data persistence and orchestration.
+
+\subsection{Phase 1: Foundation and Feasibility}
+
+Phase 1 was characterized by the development of a \textbf{Proof-of-Concept (PoC)} baseline. The primary objective was to validate the technical feasibility of the multimodal retrieval logic and ensure that the integration of text and visual embedding models yielded coherent results. During this stage, the system was implemented as a monolithic Python environment, relying on local filesystem storage for documents and a local instance of a vector database for retrieval. While functional, this architecture suffered from significant limitations:
+
+\begin{itemize}
+    \item \textbf{Resource Contention}: Running heavy embedding models (like ColQwen and BGE) alongside the API server on a single machine led to significant latency and memory exhaustion.
+    \item \textbf{Lack of Persistence}: User sessions and processing states were transient, meaning that any system restart resulted in the loss of progress and required complete re-indexing of documents.
+    \item \textbf{Monolithic Bottlenecks}: The sequential nature of the data processing pipeline meant that large document uploads blocked all other system operations, preventing concurrent usage.
+\end{itemize}
+
+\subsection{Phase 2: Scalability and Productionalization}
+
+Phase 2 involved a fundamental \textbf{architectural refactoring}, transitioning the system into a production-grade, cloud-native application. The focus shifted from functional correctness to operational excellence, addressing the bottlenecks identified during Phase 1. Key enhancements included:
+
+\begin{itemize}
+    \item \textbf{Decoupled Infrastructure}: The core compute logic was separated from the storage and inference layers. By leveraging \textbf{Amazon S3} for object storage and \textbf{Qdrant Cloud} for vector search, the system achieved true multi-tenancy and horizontal scalability.
+    \item \textbf{Stateful Session Management}: The integration of \textbf{Amazon DynamoDB} allowed for persistent, low-latency tracking of user chat histories and processing statuses, enabling a seamless resume-from-anywhere experience.
+    \item \textbf{Optimized Inference Offloading}: To handle the massive compute requirements of late-interaction models, Phase 2 offloaded visual embedding generation to \textbf{AWS SageMaker}. This ensures that the main application backend remains responsive even during high-intensity processing tasks.
+    \item \textbf{Asynchronous 5-Stage Pipeline}: The processing logic was rebuilt as a concurrent, event-driven pipeline, allowing for the simultaneous normalization, chunking, and indexing of multiple document streams.
+\end{itemize}
+
+The following table summarizes the key technical transitions between the two phases:
+
+\begin{table}[H]
+    \centering
+    \caption{Technical Comparison: Phase 1 (Baseline) vs. Phase 2 (Production)}
+    \label{tab:phase_comparison}
+    \scalebox{0.85}{
+    \begin{tabular}{p{3.5cm}p{5.5cm}p{9cm}}
+        \toprule
+        \textbf{Dimension} & \textbf{Phase 1 (Local Prototype)} & \textbf{Phase 2 (Cloud-Native Production)} \\
+        \midrule
+        \textbf{Primary Storage} & Local File System & Amazon S3 (Isolated, Durability) \\
+        \textbf{Vector Search} & Local Vector Store & Qdrant Cloud (Managed, Multi-tenant) \\
+        \textbf{Session State} & In-memory (Transient) & Amazon DynamoDB (Stateful, Persistent) \\
+        \textbf{Inference Engine} & Local GPU Resources & AWS SageMaker (Scalable Offloading) \\
+        \textbf{System Deployment} & Manual Script Execution & AWS ECS Fargate (Containerized, HA) \\
+        \textbf{Architecture} & Monolithic Prototype & Layered Service Architecture (Modular) \\
+        \textbf{Data Pipeline} & Sequential Processing & 5-Stage Resource-Optimized Pipeline \\
+        \textbf{Frontend Interface} & Basic Interactive UI & Enhanced React App (Real-time Streaming) \\
+        \textbf{Scalability} & Single-user / Single-machine & Multi-user / Cloud-scale \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+This strategic transition from a local-first prototype to a cloud-native platform was not merely a change in infrastructure, but a fundamental shift in how the system manages multimodal intelligence. By offloading resource-intensive tasks and centralizing data state, the system transitioned from a experimental tool to a scalable service capable of supporting complex educational workflows.
+
+% \newpage
 
 \section{Architecture Design}
 
@@ -345,6 +403,8 @@ Before detailing the specific collection structures, we define the properties ut
 
 \begin{table}[H]
     \centering
+    \caption{Schema properties used in implementation documentation}
+    \label{tab:schema_props}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Property} & \textbf{Description} & \textbf{Note} \\
@@ -358,8 +418,6 @@ Before detailing the specific collection structures, we define the properties ut
         Distance & The distance calculation for retrieval & Mandatory for vector indices (e.g., Cosine). \\
         \bottomrule
     \end{tabular}
-    \caption{Schema properties used in implementation documentation}
-    \label{tab:schema_props}
 \end{table}
 
 \textbf{Key Concepts in DynamoDB Schema Design}
@@ -383,6 +441,8 @@ To support our Hybrid + Multimodal retrieval strategy, we segregate embeddings i
 Stores granular textual chunks extracted from structured Markdown documents. It utilizes a hybrid search approach, combining sparse keyword indexing with the following dense vector configuration.
 \begin{table}[H]
     \centering
+    \caption{Text Vector Collection Properties}
+    \label{tab:qdrant_text}
     \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
         \toprule
         \textbf{Vector Name} & \textbf{Dim} & \textbf{Distance} & \textbf{Description} \\
@@ -390,13 +450,13 @@ Stores granular textual chunks extracted from structured Markdown documents. It 
         text & 384 & Cosine & Main text embeddings representing chunk semantics (e.g., via \texttt{all-MiniLM-L6-v2}). \\
         \bottomrule
     \end{tabular}
-    \caption{Text Vector Collection Properties}
-    \label{tab:qdrant_text}
 \end{table}
 
 Each indexed text chunk retains critical metadata necessary for strict multi-tenant filtering and file attribution during generative retrieval:
 \begin{table}[H]
     \centering
+    \caption{Text Collection Schema Structure}
+    \label{tab:qdrant_text_schema}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -411,14 +471,14 @@ Each indexed text chunk retains critical metadata necessary for strict multi-ten
         storage\_backend & String & Storage system (e.g., s3). \\
         \bottomrule
     \end{tabular}
-    \caption{Text Collection Schema Structure}
-    \label{tab:qdrant_text_schema}
 \end{table}
 
 \textbf{Collection: \texttt{edu\_image\_pages}}
 Dedicated to storing high-order visual layouts. It leverages a unique multi-vector representation generated directly from the ColQwen vision-language model, enabling direct visual similarity searches against original PDF structures.
 \begin{table}[H]
     \centering
+    \caption{Image Vector Collection Properties}
+    \label{tab:qdrant_image}
     \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
         \toprule
         \textbf{Vector Name} & \textbf{Dim} & \textbf{Distance} & \textbf{Description} \\
@@ -426,8 +486,6 @@ Dedicated to storing high-order visual layouts. It leverages a unique multi-vect
         colpali\_multivec & 128*x & Dot & Multi-vector representations (128 dims $\times$ $x$ visual tokens) for ColQwen late-interaction. \\
         \bottomrule
     \end{tabular}
-    \caption{Image Vector Collection Properties}
-    \label{tab:qdrant_image}
 \end{table}
 
 \textbf{Visual Token Calculation Methodology}
@@ -451,6 +509,8 @@ For a standard processing resolution of $1024 \times 1024$ pixels, $x \approx 5,
 The visual index maintains geometric representations (height/width) alongside S3 references, allowing the orchestration layer to securely retrieve the original page images for multimodal language models:
 \begin{table}[H]
     \centering
+    \caption{Image Collection Schema Structure}
+    \label{tab:qdrant_image_schema}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -468,8 +528,6 @@ The visual index maintains geometric representations (height/width) alongside S3
         storage\_backend & String & Storage system (e.g., s3). \\
         \bottomrule
     \end{tabular}
-    \caption{Image Collection Schema Structure}
-    \label{tab:qdrant_image_schema}
 \end{table}
 
 \subsection{Object Storage (Amazon S3)}
@@ -555,40 +613,40 @@ The system utilizes a dual-bucket object storage architecture to manage the life
 
     \begin{markdown}
     S3/
-    ├── ai-service-originals-dev/
-    │   └── users/{uid}/
-    │       ├── {doc_name}.pdf
-    │       └── {doc_name}.pdf.metadata.json
-    └── ai-service-processed-dev/
+    ├── ai-service-originals-dev/         # Bucket for raw document ingestion
+    │   └── users/{uid}/                  # Logical user-tenant isolation
+    │       ├── {doc_name}.pdf            # Original source document
+    │       └── {doc_name}.pdf.metadata.json # Ingestion time & file provenance
+    └── ai-service-processed-dev/         # Bucket for pipeline artifacts
         └── users/{uid}/
-            ├── .processing_cache.json
-            ├── pipeline_stats.json
-            ├── stage1_normalized/
-            │   ├── normalized_pdfs/
-            │   ├── excel_parsed/
-            │   ├── original_files/
+            ├── .processing_cache.json    # Idempotency and deduplication tracking
+            ├── pipeline_stats.json       # Telemetry and processing performance
+            ├── stage1_normalized/        # Standardized PDF & structured data
+            │   ├── normalized_pdfs/      # Unified format for visual processing
+            │   ├── excel_parsed/         # Structured tables from Office files
+            │   ├── original_files/       # Internal reference copy
             │   └── normalization_metadata/
-            ├── stage2_media_processed/
-            │   ├── extracted_audio/
-            │   ├── extracted_frames/
-            │   ├── transcripts/
-            │   └── media_metadata/
-            ├── stage3_document_processed/
+            ├── stage2_media_processed/   # Extracted audiovisual artifacts
+            │   ├── extracted_audio/      # Raw audio for Whisper transcription
+            │   ├── extracted_frames/     # Visual frames for late-interaction RAG
+            │   ├── transcripts/          # ASR textual outputs
+            │   └── media_metadata/       # Temporal feature mapping
+            ├── stage3_document_processed/# Structural Markdown outputs
             │   ├── {doc_name}/
-            │   │   ├── {doc_name}.md
+            │   │   ├── {doc_name}.md     # Cleaned semantic Markdown
             │   │   └── {doc_name}_metadata.json
-            │   └── logs/
+            │   └── logs/                 # Granular stage-level logs
             │       ├── batch_summary_*.json
             │       └── processing_*.log
-            ├── stage4_rag_ready/
+            ├── stage4_rag_ready/         # Optimized artifacts for RAG engine
             │   ├── {doc_name}/
-            │   │   ├── {doc_name}.md
-            │   │   ├── {doc_name}.pdf
+            │   │   ├── {doc_name}.md     # Final semantic text
+            │   │   ├── {doc_name}.pdf     # Optimized PDF for visual retrieval
             │   │   └── docling_additional/
             │   └── consolidation_stats.json
-            └── retrieval/
-                ├── bm25_index.pkl
-                └── documents.json.pkl
+            └── retrieval/                # Secondary persistence for search indices
+                ├── bm25_index.pkl        # Serialized sparse search index
+                └── documents.json.pkl     # Document lookup table
     \end{markdown}
 
     \caption{Amazon S3 Directory Structure Tree}
@@ -638,6 +696,8 @@ Following the Phase 2 architectural consolidation, core identity profiles have b
 
 \begin{table}[H]
     \centering
+    \caption{User Profile Schema}
+    \label{tab:user_profiles}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -658,17 +718,17 @@ Following the Phase 2 architectural consolidation, core identity profiles have b
         passwordHash & String & Securely hashed credentials (exclusive to \texttt{local} auth providers). \\
         \bottomrule
     \end{tabular}
-    \caption{User Profile Schema}
-    \label{tab:user_profiles}
 \end{table}
 
 \newpage
 
 \textbf{Chatbot Sessions Table}
-We developed an optimized schema within Amazon DynamoDB to organize chat histories per user, enabling high-performance session retrieval and stateful UI rendering.
+To organize chat histories per user and enable high-performance session retrieval, we developed an optimized \textbf{Amazon DynamoDB} table (name: \texttt{chatbot-sessions}). This schema supports stateful UI rendering by tracking the most recent interactions across all user conversational threads.
 
 \begin{table}[H]
     \centering
+    \caption{Chatbot Sessions Schema}
+    \label{tab:chat_sessions}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -686,17 +746,17 @@ We developed an optimized schema within Amazon DynamoDB to organize chat histori
         updated\_at & String (ISO) & Timestamp of the last conversational interaction. \\
         \bottomrule
     \end{tabular}
-    \caption{Chatbot Sessions Schema}
-    \label{tab:chat_sessions}
 \end{table}
 
 \newpage
 
 \textbf{Chatbot Messages Table}
-Stores individual conversational turns (prompts and AI responses) within a session, utilizing a composite key structure to ensure message ordering and user-isolation.
+Individual conversational turns (prompts and AI responses) are persisted in a dedicated \textbf{Amazon DynamoDB} table (name: \texttt{chatbot-messages}). This table utilizes a composite key structure to ensure strict message ordering and multi-tenant isolation, allowing the retrieval engine to reconstruct full dialogue histories for the multimodal assistant.
 
 \begin{table}[H]
     \centering
+    \caption{Chatbot Messages Schema}
+    \label{tab:chat_messages}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -712,8 +772,6 @@ Stores individual conversational turns (prompts and AI responses) within a sessi
         user\_id & String & Reference to the owner of the message for secondary filtering. \\
         \bottomrule
     \end{tabular}
-    \caption{Chatbot Messages Schema}
-    \label{tab:chat_messages}
 \end{table}
 
 \newpage
@@ -723,6 +781,8 @@ To facilitate academic tracking and monitor instructional efficacy, the system u
 
 \begin{table}[H]
     \centering
+    \caption{Quiz Results Schema}
+    \label{tab:quiz_results}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -737,8 +797,6 @@ To facilitate academic tracking and monitor instructional efficacy, the system u
         total & Number & The aggregate number of questions presented during the assessment. \\
         \bottomrule
     \end{tabular}
-    \caption{Quiz Results Schema}
-    \label{tab:quiz_results}
 \end{table}
 
 \newpage
@@ -748,6 +806,8 @@ To facilitate continuous improvement and capture user sentiment, a specialized \
 
 \begin{table}[H]
     \centering
+    \caption{Feedback Schema}
+    \label{tab:feedback_results}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -774,8 +834,6 @@ To facilitate continuous improvement and capture user sentiment, a specialized \
         updated\_at & String (ISO) & Timestamp of the last classification or update. \\
         \bottomrule
     \end{tabular}
-    \caption{Feedback Schema}
-    \label{tab:feedback_results}
 \end{table}
 
 \newpage
@@ -785,6 +843,8 @@ To monitor system performance, track resource consumption, and estimate operatio
 
 \begin{table}[H]
     \centering
+    \caption{App Usage Schema}
+    \label{tab:app_usage}
     \begin{tabular}{llp{8cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
@@ -807,8 +867,36 @@ To monitor system performance, track resource consumption, and estimate operatio
         token\_out & Number & Total output tokens generated by the model. \\
         \bottomrule
     \end{tabular}
-    \caption{App Usage Schema}
-    \label{tab:app_usage}
+\end{table}
+
+\newpage
+
+\textbf{App Jobs Table}
+To manage long-running asynchronous tasks—such as full-document re-indexing, multimodal extraction, or batch analysis—the system utilizes an \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_app\_jobs}). This table acts as a task registry, tracking the lifecycle and progress of background operations to ensure system resilience and provide real-time status updates to the user interface.
+
+\begin{table}[H]
+    \centering
+    \caption{App Jobs Schema}
+    \label{tab:app_jobs}
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        job\_id & String & Partition Key. Unique identifier for the asynchronous task. \\
+        \midrule
+        user\_id & String & Reference to the user who initiated the job. \\
+        job\_type & String & Category of the task (e.g., \texttt{index\_all}, \texttt{process\_video}). \\
+        status & String & Operational state: \texttt{pending}, \texttt{running}, \texttt{completed}, or \texttt{failed}. \\
+        progress & Map & Dynamic metrics tracking completion percentage and sub-task status. \\
+        params & Map & Input parameters and configuration flags used for the execution. \\
+        result & Map & Final output artifacts or references generated by the job. \\
+        error & String & Detailed error trace or failure reason if the job fails. \\
+        created\_at & String (ISO) & Timestamp of job registration. \\
+        started\_at & String (ISO) & Timestamp when processing commenced. \\
+        updated\_at & String (ISO) & Timestamp of the most recent progress update. \\
+        completed\_at & String (ISO) & Timestamp of final task completion. \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 
@@ -817,6 +905,8 @@ The core API, built with FastAPI, serves as the communication backend between th
 
 \begin{table}[H]
     \centering
+    \caption{Mapping of System Interface Tabs to Core API Services}
+    \label{tab:ui_api_mapping}
     \scalebox{0.9}{
     \begin{tabular}{llp{7cm}}
         \toprule
@@ -842,9 +932,16 @@ The core API, built with FastAPI, serves as the communication backend between th
         \bottomrule
     \end{tabular}
     }
-    \caption{Mapping of System Interface Tabs to Core API Services}
-    \label{tab:ui_api_mapping}
 \end{table}
+
+The following subsections detail the core API endpoints that power the system's multimodal processing and retrieval engine. To ensure clarity and technical consistency, each service is documented using a standardized schema:
+\begin{itemize}
+    \item \textbf{Request Headers}: Mandatory or optional metadata sent in the HTTP header for authentication, multi-tenant isolation, and session tracking.
+    \item \textbf{Query Parameters}: Key-value pairs appended to the URL to modify the processing behavior (e.g., forcing a re-index).
+    \item \textbf{Request Body}: The primary data payload, delivered as \texttt{JSON} for structured requests or \texttt{multipart/form-data} for high-concurrency binary asset ingestion.
+    \item \textbf{Security Constraints}: Programmatic safeguards and validation rules enforced by the backend to ensure tenant safety and system integrity.
+    \item \textbf{Response}: The schema of the data returned upon a successful operation, facilitating frontend integration and state management.
+\end{itemize}
 
 \subsection{Upload Files [\texttt{POST} \texttt{/api/upload}]}
 Manages the initial ingestion of raw document assets into the system's storage backend (local filesystem or Amazon S3). This service supports high-concurrency multi-file uploads and ensures that all assets are logically partitioned by user identity.
@@ -852,15 +949,15 @@ Manages the initial ingestion of raw document assets into the system's storage b
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): The logical tenant or user ID used for workspace isolation and S3 key prefixing. If not provided, the service defaults to a system-wide \texttt{default} storage context.
+        \item \texttt{X-User-Id} (String, Optional): The logical tenant ID used for workspace isolation and storage partitioning. Defaults to \texttt{default}.
     \end{itemize}
     \item \textbf{Request Body (multipart/form-data)}:
     \begin{itemize}
-        \item \texttt{files} (Array of Binary Objects, Required): A collection of document files to be ingested. These are streamed directly to the persistent storage layer under the user's input.
+        \item \texttt{files} (Binary Array, Required): A collection of document assets to be streamed directly to persistent storage.
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{Response}: (String) A confirmation message indicating the successful completion of the multi-part upload.
+        \item \texttt{Response} (String): A confirmation message indicating the successful ingestion of the files.
     \end{itemize}
 \end{itemize}
 
@@ -870,21 +967,21 @@ Initiates the 5-stage multimodal extraction and normalization pipeline for a spe
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation.
+        \item \texttt{X-User-Id} (String, Optional): Identifier for multi-tenant workspace isolation.
     \end{itemize}
     \item \textbf{Query Parameters}:
     \begin{itemize}
-        \item \texttt{force} (Boolean, Default: \texttt{false}): If \texttt{true}, forces reprocessing even if cached structural artifacts exist.
+        \item \texttt{force} (Boolean, Default: \texttt{false}): Toggles re-processing of already processed structural artifacts.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{selected\_paths}: (Array of Strings) Optional list of specific file paths to process. 
-        \item \texttt{mode}: (String) Processing fidelity (\texttt{standard} or \texttt{fast}).
+        \item \texttt{selected\_paths} (String Array, Optional): Specific file paths within the tenant workspace to process. 
+        \item \texttt{mode} (String, Optional): Pipeline fidelity level (\texttt{standard} or \texttt{fast}).
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{status}: (String) Lifecycle indicator (\texttt{completed} or \texttt{failed}).
-        \item \texttt{results}: (Object) Dynamic dictionary containing granular statistics for each pipeline stage.
+        \item \texttt{status} (String): Overall pipeline state (\texttt{completed} or \texttt{failed}).
+        \item \texttt{results} (Object): Granular execution statistics for each multimodal stage.
     \end{itemize}
 \end{itemize}
 
@@ -894,22 +991,22 @@ Synchronizes extracted artifacts into searchable vector and keyword indexes. Thi
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for index isolation.
+        \item \texttt{X-User-Id} (String, Optional): Identifier for multi-tenant index isolation.
     \end{itemize}
     \item \textbf{Query Parameters}:
     \begin{itemize}
-        \item \texttt{force} (Boolean, Default: \texttt{false}): If \texttt{true}, forces the re-indexing of all artifacts even if they are already present in the vector store.
+        \item \texttt{force} (Boolean, Default: \texttt{false}): If \texttt{true}, forces re-indexing of artifacts even if they exist in the vector store.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{selected\_paths}: (Array of Strings) Optional list of absolute paths to specific processed artifacts.
-        \item \texttt{selected\_names}: (Array of Strings) Fallback matching for original document filenames. 
-        \item \texttt{mode}: (String) Indexing modality (\texttt{standard} or \texttt{fast}).
+        \item \texttt{selected\_paths} (String Array, Optional): Absolute paths to specific normalized artifacts for indexing.
+        \item \texttt{selected\_names} (String Array, Optional): Match artifacts by original document filenames. 
+        \item \texttt{mode} (String, Optional): Indexing modality (\texttt{standard} or \texttt{fast}).
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{status}: (String) Overall indexing lifecycle state.
-        \item \texttt{results}: (Object) Success details for both text (dense/BM25) and visual (multimodal) index stages.
+        \item \texttt{status} (String): The final state of the indexing lifecycle.
+        \item \texttt{results} (Object): Success metrics for text (dense/BM25) and visual indexing stages.
     \end{itemize}
 \end{itemize}
 
@@ -919,24 +1016,24 @@ Provides a high-fidelity search interface for granular document exploration, sup
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation and search history auditing.
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and search auditing.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{query}: (String) The natural language request from the user.
-        \item \texttt{top\_k}: (Integer) Number of candidate chunks to retrieve.
-        \item \texttt{retriever\_type}: (String) Search logic (\texttt{bm25}, \texttt{dense}, or \texttt{hybrid}).
-        \item \texttt{include\_images}: (Boolean) Toggles visual token consideration.
-        \item \texttt{images\_for\_generation}: (Integer) Number of visual contexts to inject into the LLM.
-        \item \texttt{mode}: (String) Operation modality (\texttt{retrieval\_only} vs \texttt{retrieval\_generation}).
-        \item \texttt{search\_scope}: (String) Target index (\texttt{text}, \texttt{image}, or \texttt{both}).
-        \item \texttt{generation\_model}: (String) Optional override for the inference model ID.
-        \item \texttt{skip\_reranker}: (Boolean) Flag to bypass secondary ranking for latency.
+        \item \texttt{query} (String, Required): The natural language query from the end-user.
+        \item \texttt{top\_k} (Integer, Optional): Number of candidate chunks to retrieve for ranking.
+        \item \texttt{retriever\_type} (String, Optional): Retrieval logic (\texttt{bm25}, \texttt{dense}, or \texttt{hybrid}).
+        \item \texttt{include\_images} (Boolean, Optional): Toggles the use of visual tokens in search.
+        \item \texttt{images\_for\_generation} (Integer, Optional): Number of visual contexts to provide to the generator.
+        \item \texttt{mode} (String, Optional): Operation modality (\texttt{retrieval\_only} vs \texttt{retrieval\_generation}).
+        \item \texttt{search\_scope} (String, Optional): Target index (\texttt{text}, \texttt{image}, or \texttt{both}).
+        \item \texttt{generation\_model} (String, Optional): Override for the default inference model ID.
+        \item \texttt{skip\_reranker} (Boolean, Default: \texttt{false}): Toggles secondary ranking for latency optimization.
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{generation}: (Object) Contains the synthesized answer and metadata about the inference model.
-        \item \texttt{telemetry}: (Object) Performance metrics for the retrieval and generation phases.
+        \item \texttt{generation} (Object): The synthesized answer and associated model metadata.
+        \item \texttt{telemetry} (Object): Performance metrics for retrieval and generation phases.
     \end{itemize}
 \end{itemize}
 
@@ -946,20 +1043,20 @@ Generates context-aware abstracts and targeted summaries by synthesizing the str
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation and backend storage prefixing.
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and backend prefixing.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{focus\_query}: (String) Specific themes or keywords to emphasize in the summary.
-        \item \texttt{depth}: (String) Complexity level (\texttt{brief}, \texttt{detailed}, or \texttt{comprehensive}).
-        \item \texttt{top\_k}: (Integer) Number of high-relevance components to consider during synthesis.
-        \item \texttt{document\_id}: (String) Unique identifier for the source document folder.
-        \item \texttt{tone}: (String) Stylistic orientation (\texttt{neutral}, \texttt{formal}, or \texttt{friendly}).
-        \item \texttt{target\_length}: (String) Approximate volume of the output (\texttt{short}, \texttt{medium}, or \texttt{long}).
+        \item \texttt{document\_id} (String, Required): Unique identifier for the source document context.
+        \item \texttt{focus\_query} (String, Optional): Specific themes or keywords to emphasize.
+        \item \texttt{depth} (String, Optional): Complexity level (\texttt{brief}, \texttt{detailed}, or \texttt{comprehensive}).
+        \item \texttt{top\_k} (Integer, Optional): Number of high-relevance chunks to consider for synthesis.
+        \item \texttt{tone} (String, Optional): Stylistic orientation (\texttt{neutral}, \texttt{formal}, or \texttt{friendly}).
+        \item \texttt{target\_length} (String, Optional): Approximate output length (\texttt{short}, \texttt{medium}, or \texttt{long}).
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{Response}: (String) The context-aware summary or abstract generated by the AI synthesis engine.
+        \item \texttt{Response} (String): The context-aware summary generated by the AI engine.
     \end{itemize}
 \end{itemize}
 
@@ -967,19 +1064,22 @@ Generates context-aware abstracts and targeted summaries by synthesizing the str
 Provides a secure mechanism to download or inline-preview single file artifacts (e.g., high-resolution Markdown, page images, or original assets) located within the multi-tenant processing tree. The service is strictly tenant-safe; it rejects all path traversal attempts and ensures that S3 keys remain confined to the user-specific processing prefix.
 
 \begin{itemize}
-    \item \textbf{Request Parameters}:
+    \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{rel\_path} (Query, Required): The relative path within the processing workspace using forward slashes (e.g., \texttt{stage4\_rag\_ready/LectureA/p1.png}). Supported length: 1 to 2048 characters.
-        \item \texttt{X-User-Id} (Header, Optional): Logical tenant identifier used for S3 prefixing and local workspace isolation. Defaults to the system's \texttt{default} user context if omitted.
+        \item \texttt{X-User-Id} (String, Optional): Identifier for multi-tenant path isolation and S3 key prefixing.
+    \end{itemize}
+    \item \textbf{Query Parameters}:
+    \begin{itemize}
+        \item \texttt{rel\_path} (String, Required): Forward-slashed relative path within the tenant workspace (e.g., \texttt{stage4/doc.md}).
     \end{itemize}
     \item \textbf{Security Constraints}: 
     \begin{itemize}
-        \item Automatic rejection of \texttt{..} sequences to prevent directory traversal.
-        \item Forced prefixing with the user-specific directory (local) or S3 bucket/key-root (cloud).
+        \item \textbf{Traversal Prevention}: Programmatic rejection of \texttt{..} sequences to prevent directory escape.
+        \item \textbf{Tenant Lockdown}: Forced prefixing with the user-specific storage root (S3 or Local).
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{File stream}: (Binary/String) The raw requested asset delivered with appropriate MIME types for high-resolution inline rendering or downloading.
+        \item \texttt{File stream} (Binary): The raw requested asset delivered with appropriate MIME types for inline rendering.
     \end{itemize}
 \end{itemize}
 
@@ -989,17 +1089,17 @@ Synthesizes a structured educational progression and roadmap based on specific d
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation and backend storage prefixing.
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and backend prefixing.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{student\_profile}: (String) Contextual data regarding the user's prior expertise, current academic level, or educational context.
-        \item \texttt{goals}: (String) The specific desired learning outcomes or topics the user wishes to master.
-        \item \texttt{document\_id}: (String) Optional identifier to scope the roadmap generation to a specific processed document.
+        \item \texttt{student\_profile} (String, Optional): Context regarding the user's expertise or educational background.
+        \item \texttt{goals} (String, Required): Desired learning outcomes or topics for mastery.
+        \item \texttt{document\_id} (String, Optional): Identifier to scope the roadmap to a specific document context.
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{Response}: (String) The synthesized pedagogical roadmap delivered as a structured Markdown template.
+        \item \texttt{Response} (String): The synthesized pedagogical roadmap delivered in structured Markdown.
     \end{itemize}
 \end{itemize}
 
@@ -1009,20 +1109,20 @@ Synthesizes dynamic multiple-choice quizzes and rationales based on specific doc
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation and backend storage prefixing.
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and backend prefixing.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{topic}: (String) The primary educational subject or internal document theme used for context validation.
-        \item \texttt{num\_questions}: (Integer) Total items to generate (supported range: 1 to 20).
-        \item \texttt{difficulty}: (String) Target cognitive difficulty (\texttt{basic}, \texttt{intermediate}, or \texttt{advanced}).
-        \item \texttt{document\_id}: (String) Optional identifier to scope quiz generation to a specific processed document.
-        \item \texttt{question\_style}: (String) Formatting tone for questions (\texttt{exam}, \texttt{conceptual}, or \texttt{mixed}).
-        \item \texttt{include\_explanations}: (Boolean) Toggles the inclusion of detailed rationales for each correct answer.
+        \item \texttt{topic} (String, Required): Primary educational theme for question validation.
+        \item \texttt{num\_questions} (Integer, Default: \texttt{5}): Total items to generate (Range: 1--20).
+        \item \texttt{difficulty} (String, Optional): Target cognitive difficulty (\texttt{basic}, \texttt{intermediate}, or \texttt{advanced}).
+        \item \texttt{document\_id} (String, Optional): Identifier to scope generation to a specific document context.
+        \item \texttt{question\_style} (String, Optional): Formatting tone (\texttt{exam}, \texttt{conceptual}, or \texttt{mixed}).
+        \item \texttt{include\_explanations} (Boolean, Default: \texttt{true}): Toggles the inclusion of detailed rationales.
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{Response}: (String) The generated quiz delivered as a structured JSON-compatible string or Markdown list containing questions, options, and rationales.
+        \item \texttt{Response} (String): The generated quiz delivered as a JSON-compatible Markdown list.
     \end{itemize}
 \end{itemize}
 
@@ -1032,66 +1132,19 @@ The primary RAG orchestration endpoint for streaming conversational interaction 
 \begin{itemize}
     \item \textbf{Request Headers}:
     \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for session isolation and storage access.
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for session isolation and storage access.
     \end{itemize}
-    \item \textbf{Request Payload Fields (JSON)}:
+    \item \textbf{Request Body}:
     \begin{itemize}
-        \item \texttt{query}: (String) The natural language request or question from the end-user.
-        \item \texttt{top\_k}: (Integer) The number of relevant document chunks to inject into the LLM context. Default: 8.
-        \item \texttt{persona}: (String) Optional stylistic tone override (e.g., professor, concise assistant).
-        \item \texttt{education\_description}: (String) Optional student background context for personalization.
-        \item \texttt{session\_id}: (String) Unique identifier for the chat session for memory continuity.
+        \item \texttt{query} (String, Required): The natural language query or question from the end-user.
+        \item \texttt{session\_id} (String, Required): Unique identifier for the chat session for memory continuity.
+        \item \texttt{top\_k} (Integer, Default: \texttt{8}): Number of relevant document chunks to inject into the context.
+        \item \texttt{persona} (String, Optional): Stylistic tone override (e.g., \texttt{professor}, \texttt{concise}).
+        \item \texttt{education\_description} (String, Optional): Student background context for personalization.
     \end{itemize}
-    \item \textbf{Success Response Fields}:
+    \item \textbf{Response}:
     \begin{itemize}
-        \item \texttt{Response}: (String) Server-Sent Events (SSE) stream of the generated AI answer tokens.
-    \end{itemize}
-\end{itemize}
-
-\subsection{Feedbacks [\texttt{POST} \texttt{/api/feedback}]}
-Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG performance. This service captures both structured sentiment (votes) and unstructured qualitative data to drive system improvements.
-
-\begin{itemize}
-    \item \textbf{Request Headers}:
-    \begin{itemize}
-        \item \texttt{X-User-Id} (Header, Optional): Multi-tenant identifier for workspace isolation and audit logging.
-    \end{itemize}
-    \item \textbf{Request Payload Fields}:
-    \begin{itemize}
-        \item \texttt{vote}: (String) Sentiment classification (\texttt{like}, \texttt{dislike}, or \texttt{general}).
-        \item \texttt{query}: (String) Snapshot of the user prompt associated with the feedback.
-        \item \texttt{response}: (String) Snapshot of the AI response associated with the feedback.
-        \item \texttt{session\_id}: (String) UUID mapping to the parent Chatbot Session.
-        \item \texttt{message\_id}: (String) UUID mapping to the specific conversational turn.
-        \item \texttt{reason\_code}: (String) Programmatic category identifier (e.g., \texttt{inaccurate}, \texttt{hallucination}).
-        \item \texttt{reason\_text}: (String) Short justification text from the user.
-        \item \texttt{scope}: (String) Optional targeting of the feedback (e.g., \texttt{retrieval}, \texttt{generation}).
-        \item \texttt{feedback\_text}: (String) Extended unstructured comments or descriptions.
-    \end{itemize}
-    \item \textbf{Success Response Fields}:
-    \begin{itemize}
-        \item \texttt{user\_id}: (String) Logical tenant identifier for the feedback owner.
-        \item \texttt{feedback\_id}: (String) System-generated unique identifier for the record.
-        \item \texttt{session\_id}: (String) UUID link to the parent Chatbot Session.
-        \item \texttt{message\_id}: (String) UUID link to the specific conversational turn.
-        \item \texttt{vote}: (String) Echoed sentiment classification.
-        \item \texttt{reason\_code}: (String) Categorization code provided during submission.
-        \item \texttt{reason\_text}: (String) Justification text provided during submission.
-        \item \texttt{scope}: (String) Targeted system component (e.g., retrieval, generation).
-        \item \texttt{feedback\_text}: (String) Complete user comments.
-        \item \texttt{query}: (String) Snapshot of the original user prompt.
-        \item \texttt{response}: (String) Snapshot of the original AI response.
-        \item \texttt{is\_active}: (Boolean) Retention flag indicating if the feedback is currently visible in active analytics.
-        \item \texttt{category}: (String) AI-classified logic category (e.g., \texttt{Accuracy}).
-        \item \texttt{sub\_category}: (String) Granular classification (e.g., \texttt{Math Error}).
-        \item \texttt{suggested\_action}: (String) AI-generated prescriptive improvement step.
-        \item \texttt{analysis\_summary}: (String) Narrative synthesis of the feedback generated by the LLM classifier.
-        \item \texttt{classifier\_model}: (String) The ID of the model used for automated categorization.
-        \item \texttt{classification\_status}: (String) Pipeline state (\texttt{pending}, \texttt{completed}).
-        \item \texttt{classification\_error}: (String) Error trace if the AI analysis failed.
-        \item \texttt{created\_at}: (String) ISO-8601 timestamp of record creation.
-        \item \texttt{updated\_at}: (String) ISO-8601 timestamp of the last record update.
-        \item \texttt{version}: (Integer) Optimistic concurrency version for DynamoDB updates.
+        \item \texttt{response} (String): Server-Sent Events (SSE) stream of generated AI answer tokens.
     \end{itemize}
 \end{itemize}
 
@@ -1103,31 +1156,80 @@ Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG p
     \item \textbf{Streaming}: Real-time response delivery via Server-Sent Events (SSE).
 \end{enumerate}
 
+\subsection{Feedbacks [\texttt{POST} \texttt{/api/feedback}]}
+Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG performance. This service captures both structured sentiment (votes) and unstructured qualitative data to drive system improvements.
 
-\section{System Configurations and Modular Architecture}
-
-To ensure scalability and adaptability, the backend architecture introduces several configuration modalities that dictate how machine learning operations, multi-tenancy, and file storage are managed.
-
-\subsection{Multi-tenant Architecture and Asset Management}
-The system is designed from the ground up to support isolation across multiple concurrent users.
 \begin{itemize}
-    \item \textbf{Tenant Isolation}: HTTP requests utilize an \texttt{X-User-Id} header to logically isolate data. Qdrant vector collections remain shared but are partitioned using payload filtering by \texttt{user\_id}.
-    \item \textbf{Storage Backend (Local vs. S3)}: The system supports two primary storage modes dictated by environmental variables (\texttt{FILE\_STORAGE\_BACKEND}). Small-scale deployments can utilize local filesystem storage (\texttt{backend/input} and \texttt{backend/output}), while production environments seamlessly switch to \textbf{Amazon S3}. When operating in S3 mode, files are logically isolated using key prefixes (e.g., \texttt{users/<user\_id>/...}).
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and audit logging.
+    \end{itemize}
+    \item \textbf{Request Body}:
+    \begin{itemize}
+        \item \texttt{vote} (String, Required): Sentiment classification (\texttt{like}, \texttt{dislike}, or \texttt{general}).
+        \item \texttt{session\_id} (String, Required): UUID mapping to the parent Chatbot Session.
+        \item \texttt{message\_id} (String, Required): UUID mapping to the specific conversational turn.
+        \item \texttt{query} (String, Optional): Snapshot of the user prompt associated with the feedback.
+        \item \texttt{response} (String, Optional): Snapshot of the AI response associated with the feedback.
+        \item \texttt{reason\_code} (String, Optional): Category identifier (e.g., \texttt{inaccurate}, \texttt{hallucination}).
+        \item \texttt{reason\_text} (String, Optional): Justification text from the user.
+        \item \texttt{scope} (String, Optional): Targeted system component (e.g., \texttt{retrieval}, \texttt{generation}).
+        \item \texttt{feedback\_text} (String, Optional): Extended unstructured comments.
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{user\_id} (String): Logical tenant identifier for the feedback owner.
+        \item \texttt{feedback\_id} (String): System-generated unique identifier for the record.
+        \item \texttt{session\_id} (String): UUID link to the parent Chatbot Session.
+        \item \texttt{message\_id} (String): UUID link to the specific conversational turn.
+        \item \texttt{vote} (String): Echoed sentiment classification.
+        \item \texttt{reason\_code} (String): Categorization code provided during submission.
+        \item \texttt{reason\_text} (String): Justification text provided during submission.
+        \item \texttt{scope} (String): Targeted system component (e.g., retrieval, generation).
+        \item \texttt{feedback\_text} (String): Complete user comments.
+        \item \texttt{query} (String): Snapshot of the original user prompt.
+        \item \texttt{response} (String): Snapshot of the original AI response.
+        \item \texttt{is\_active} (Boolean): Retention flag indicating if the feedback is currently visible.
+        \item \texttt{category} (String): AI-classified logic category (e.g., \texttt{Accuracy}).
+        \item \texttt{sub\_category} (String): Granular classification (e.g., \texttt{Math Error}).
+        \item \texttt{suggested\_action} (String): AI-generated prescriptive improvement step.
+        \item \texttt{analysis\_summary} (String): Narrative synthesis of the feedback generated by the LLM.
+        \item \texttt{classifier\_model} (String): The ID of the model used for automated categorization.
+        \item \texttt{classification\_status} (String): Pipeline state (\texttt{pending}, \texttt{completed}).
+        \item \texttt{classification\_error} (String): Error trace if the AI analysis failed.
+        \item \texttt{created\_at} (String): ISO-8601 timestamp of record creation.
+        \item \texttt{updated\_at} (String): ISO-8601 timestamp of the last record update.
+        \item \texttt{version} (Integer): Optimistic concurrency version for DynamoDB.
+    \end{itemize}
 \end{itemize}
 
-\subsection{Inference and Compute Scalability}
-The system architecture cleanly decouples the application layer from the heavy inference processing logic.
-\begin{itemize}
-    \item \textbf{Hybrid Inference Mode}: The backend supports dynamic switching between local GPU execution and AWS SageMaker Integration.
-    \item \textbf{AWS SageMaker Integration}: For production-grade scalability, the backend can delegate inference tasks (ASR, VLM, Embeddings) to SageMaker endpoints. This ensures that the frontend remains responsive even during large-scale document processing.
-\end{itemize}
 
-\subsection{Chat Runtime Environments}
-Conversational capabilities are adaptable to different operational frameworks based on the \texttt{CHAT\_AGENT\_RUNTIME} flag:
-\begin{itemize}
-    \item \textbf{Local Runtime}: The default mode utilizes local logic to handle conversational intelligence.
-    \item \textbf{AgentCore Runtime}: Administrators can configure the backend to interact with a deployed AWS Bedrock AgentCore environment. This integrates seamlessly with the DynamoDB session tracking schemas.
-\end{itemize}
+
+
+% \section{System Configurations and Modular Architecture}
+% 
+% To ensure scalability and adaptability, the backend architecture introduces several configuration modalities that dictate how machine learning operations, multi-tenancy, and file storage are managed.
+% 
+% \subsection{Multi-tenant Architecture and Asset Management}
+% The system is designed from the ground up to support isolation across multiple concurrent users.
+% \begin{itemize}
+%     \item \textbf{Tenant Isolation}: HTTP requests utilize an \texttt{X-User-Id} header to logically isolate data. Qdrant vector collections remain shared but are partitioned using payload filtering by \texttt{user\_id}.
+%     \item \textbf{Storage Backend (Local vs. S3)}: The system supports two primary storage modes dictated by environmental variables (\texttt{FILE\_STORAGE\_BACKEND}). Small-scale deployments can utilize local filesystem storage (\texttt{backend/input} and \texttt{backend/output}), while production environments seamlessly switch to \textbf{Amazon S3}. When operating in S3 mode, files are logically isolated using key prefixes (e.g., \texttt{users/<user\_id>/...}).
+% \end{itemize}
+% 
+% \subsection{Inference and Compute Scalability}
+% The system architecture cleanly decouples the application layer from the heavy inference processing logic.
+% \begin{itemize}
+%     \item \textbf{Hybrid Inference Mode}: The backend supports dynamic switching between local GPU execution and AWS SageMaker Integration.
+%     \item \textbf{AWS SageMaker Integration}: For production-grade scalability, the backend can delegate inference tasks (ASR, VLM, Embeddings) to SageMaker endpoints. This ensures that the frontend remains responsive even during large-scale document processing.
+% \end{itemize}
+% 
+% \subsection{Chat Runtime Environments}
+% Conversational capabilities are adaptable to different operational frameworks based on the \texttt{CHAT\_AGENT\_RUNTIME} flag:
+% \begin{itemize}
+%     \item \textbf{Local Runtime}: The default mode utilizes local logic to handle conversational intelligence.
+%     \item \textbf{AgentCore Runtime}: Administrators can configure the backend to interact with a deployed AWS Bedrock AgentCore environment. This integrates seamlessly with the DynamoDB session tracking schemas.
+% \end{itemize}
 
 
 \section{System Deployment}
@@ -1179,10 +1281,409 @@ The runtime environment is managed by \textbf{Amazon Elastic Container Service (
     \item \textbf{High Availability}: ECS ensures that the desired number of containers are always running, automatically restarting any tasks that fail their health checks.
 \end{itemize}
 
+% \section{Strategic Technology Selection}
+% 
+% \subsection{Frontend: React}
+% 
+% The frontend is the face of the application, defining the user's entire interactive experience with the multimodal output of the RAG system. The choice of a modern JavaScript framework is therefore essential for building a rich, responsive, and maintainable user interface.
+% 
+% After analyzing the leading frameworks, React is the recommended choice. This decision is based on four key pillars:
+% \begin{itemize}
+%     \item \textbf{Core Architectural Suitability} for the application's specific technical demands.
+%     \item \textbf{Superior Performance} in managing frequent and complex UI updates.
+%     \item \textbf{Unmatched Ecosystem and Community Support}, which directly accelerates development and ensures long-term viability.
+%     \item \textbf{Proven Precedent} in large-scale, complex applications, particularly within the EdTech industry.
+% \end{itemize}
+% 
+% From now on, we detail the reasoning for this selection, including a direct comparison with the primary alternative, Vue.js.
+% 
+% \textbf{Architecture Suits a Multimodal RAG System}
+% The architectural principles of React are uniquely suited to the specific challenges of our application. The RAG system will return a heterogeneous mix of data: a streaming text answer, a reference to a page in a PDF, a timestamp in a lecture video, and a relevant diagram.
+% 
+% React's declarative nature, where developers describe what the UI should look like for a given state, allows the team to manage this complexity effectively. Instead of writing complex, imperative code to manually update the DOM for each data type, developers can create distinct, self-contained components for example \texttt{ChatWindow}, \texttt{SourceDocViewer}, \texttt{VideoPlayer}, \texttt{ImageViewer}. 
+% 
+% The main application component then simply manages the application's state and declaratively renders the appropriate components based on the API response. This clear separation of concerns is critical for building a robust and maintainable multimodal user interface.
+% 
+% \textbf{Core Advantages and Technical Rationale}
+% Beyond its perfect fit for our specific data model, React provides foundational advantages in performance and development efficiency.
+% 
+% \textbf{Component-Based Architecture}
+% This is the cornerstone of the selection. The user interface will be a composition of independent, reusable components (as listed above). This modularity simplifies the entire development lifecycle; each component can be built, tested, and maintained in isolation, which is critical for managing the complexity of the application.
+% 
+% \textbf{High Performance with the Virtual DOM}
+% The RAG system will generate text responses and display various media types. React's use of a Virtual Document Object Model (DOM) is a key performance feature. It creates a lightweight in-memory representation of the UI, calculates the most efficient changes ("diffing"), and minimizes direct, costly manipulations of the actual browser DOM. This results in a smooth, responsive user experience, even as the UI updates frequently with new data from the backend.
+% 
+% \textbf{Comparative Analysis: React vs. Vue.js}
+% While both React and Vue.js utilize a virtual DOM and a component-based architecture, a direct comparison reveals React's significant advantages for a project of this scale.
+% 
+% \textbf{Ecosystem, Community, and Talent Pool}
+% React boasts a significantly larger and more mature ecosystem than Vue.js. This translates into an unparalleled selection of third-party libraries, state management solutions (like Redux and Zustand), UI component kits (e.g., Material-UI, Ant Design), and development tools. For a feature-rich educational application that will require complex UI elements, such as interactive document viewers, data visualization, and chat interfaces, this vast ecosystem is a critical accelerator, reducing the need to build components from scratch.
+% 
+% Furthermore, industry surveys consistently demonstrate React's dominant position. Stack Overflow's 2023 survey showed that 42.87\% of professional developers use React, compared to 17.64\% for Vue.js. This larger talent pool is a pragmatic and significant advantage for a university-based project like us.
+% 
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{img/pdz/33-react-survey.png}
+%     \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023)}
+%     \label{fig:react_survey}
+% \end{figure}
+% 
+% \textbf{Scalability and Suitability for Complex Applications}
+% Both React and Vue.js are capable of building scalable applications. However, React's unopinionated library-based approach provides a crucial flexibility that is often favored for building large-scale, highly complex enterprise applications. This flexibility allows development teams to custom-build their architecture, selecting their own libraries for routing, state management, and data fetching, to create a stack that is perfectly optimized for unique and demanding business logic.
+% 
+% This preference is not merely theoretical; it is validated by the technology stacks of some of the world's largest and most complex web applications:
+% \begin{itemize}
+%     \item \textbf{Meta (Facebook \& Instagram)}: As the creator of React, Meta's platforms are its primary case study. The Facebook web app is a quintessential example of a complex, component-driven application, required to manage thousands of individual components, real-time data streaming, and billions of user interactions simultaneously.
+%     \item \textbf{Netflix}: The Netflix web application relies on React to deliver its high-performance, TV-like user interface. The team chose React to manage the complex state interactions of its UI, enabling them to rapidly iterate, A/B test features, and maintain performance on a wide variety of devices.
+%     \item \textbf{The New York Times}: To support modern, interactive journalism and a massive, dynamic content library, The New York Times rebuilt its website using React. This allows their development teams to create reusable components that can be shared across the organization, accelerating the development of new features and data visualizations.
+% \end{itemize}
+% 
+% While Vue is highly capable, React's architecture is battle-tested and proven to be the choice for global teams building applications where complexity and massive scale are the primary concerns.
+% 
+% \subsection{Backend: FastAPI}
+% 
+% 
+% The backend is the engine of our AI-driven educational application, responsible for orchestrating every interaction between the user, our data stores, and the core AI models. Our reliance on Python is a strategic imperative, granting us native access to the world's leading AI ecosystem, including libraries like PyTorch, Scikit-learn, and the Hugging Face ecosystem.
+% 
+% Within this ecosystem, the choice of web framework is critical. It is the layer that can either unleash the power of our AI models or become a crippling performance bottleneck. After a detailed analysis of the primary contenders, the mature, "batteries-included" Django framework and the modern, high-performance FastAPI, we have concluded that FastAPI is the unequivocally superior choice for this project.
+% 
+% This decision is based on three core pillars:
+% \begin{itemize}
+%     \item \textbf{Exceptional Performance}: FastAPI's asynchronous architecture delivers an order-of-magnitude performance improvement over traditional frameworks, which is essential for the I/O-bound nature of a Retrieval-Augmented Generation (RAG) application.
+%     \item \textbf{Accelerated Developer Experience}: Its modern, type-hint-driven design, featuring automatic data validation and API documentation, drastically reduces boilerplate code and minimizes common errors.
+%     \item \textbf{Future-Proof Architectural Philosophy}: FastAPI is designed for a modern, microservices-first world, providing the flexibility and scalability required to prevent technical debt and support long-term growth.
+% \end{itemize}
+% 
+% \textbf{Performance and Asynchronous Processing}
+% A RAG application is inherently I/O-bound. The server spends most of its time not computing, but waiting: waiting for a query response from the vector database, waiting for user data from a relational database, and, most significantly, waiting for the Large Language Model (LLM) API to stream back its generated response.
+% 
+% In a traditional synchronous framework like Django, each of these waiting periods would block an entire worker thread. This means that if 10 users send a query simultaneously, the application needs at least 10 worker threads, each consuming significant memory. This model scales poorly, leading to a rapid increase in server costs and a degradation of user experience under load.
+% 
+% FastAPI solves this problem at its core. It is built on modern Python \texttt{async/await} syntax and the Asynchronous Server Gateway Interface (ASGI) standard. This allows a single process to handle thousands of concurrent connections. When a task starts waiting for an I/O operation (like an LLM call), the server doesn't block; it yields control and serves other requests, returning to the original task only when the data is ready.
+% 
+% \textbf{Real-World Performance Benchmarks}
+% This architectural difference is not merely theoretical; it is reflected in stark performance metrics from independent, industry-standard benchmarks. According to the highly respected TechEmpower benchmarks, which test hundreds of web frameworks in realistic scenarios, FastAPI's performance is in a different league.
+% 
+% In the Round 22 benchmarks (testing against physical hardware), the Uvicorn server running a basic FastAPI application handled \textbf{12,567 requests per second} in the Multiple Queries test. In contrast, Django on Gunicorn (a standard synchronous setup) handled \textbf{1,623 requests per second}.
+% 
+% This means FastAPI can handle over 8 times the traffic with the same hardware for this common task. For our I/O-bound application, this advantage is even more pronounced. The ability to efficiently manage concurrent waiting tasks means we can serve more users simultaneously with lower latency and significantly lower infrastructure costs. This raw performance is essential for delivering the responsive, real-time experience that users expect from an interactive AI assistant.
+% 
+% \textbf{The Superior Developer Experience}
+% Beyond raw performance, FastAPI is engineered with a laser focus on building APIs, which dramatically improves developer productivity and code quality.
+% 
+% \begin{itemize}
+%     \item \textbf{Automatic Data Validation \& Serialization}: FastAPI leverages the Pydantic library and Python type hints to provide automatic request validation. This is a game-changer. Developers simply define the expected data structure as a Python class, and FastAPI handles the rest: validating incoming data, returning clear JSON error messages if validation fails, serializing complex data types, and converting data seamlessly. In Django, achieving this requires the Django REST Framework (DRF), which involves writing separate Serializer classes, adding boilerplate and cognitive load.
+%     \item \textbf{Automatic Interactive API Documentation}: Out of the box, FastAPI generates interactive API documentation based on the OpenAPI standard. As soon as an endpoint is written, a fully functional documentation page is available at \texttt{/docs}, allowing frontend developers and consumers to test endpoints and understand the API without manual effort. This tight feedback loop is invaluable for rapid development.
+% \end{itemize}
+% 
+% \textbf{Architectural Philosophy and Future-Proofing}
+% The choice between FastAPI and Django represents a fundamental decision between a modern, microservices-first architecture and a traditional, monolithic one.
+% 
+% Django's philosophy is geared towards building monolithic, full-stack applications with server-rendered templates, an admin panel, and a built-in ORM. These are excellent features for certain projects, but they are less critical for our API-first, decoupled architecture.
+% 
+% FastAPI's lightweight and unopinionated nature makes it a natural fit for building independent, scalable microservices. This allows for a logical separation of concerns. We can develop, deploy, and scale the user authentication service independently from the RAG pipeline service. This modularity offers significant long-term advantages in scalability and maintainability, preventing the need for a costly and disruptive rewrite as the platform grows.
+% 
+% \textbf{Head-to-Head Comparison Matrix}
+% The following table provides a clear, at-a-glance comparison to justify the selection of FastAPI for our specific application context.
+% 
+% \begin{table}[H]
+%     \centering
+%     \caption{FastAPI vs. Django Comparison for RAG Application}
+%     \label{tab:fastapi_vs_django}
+%     \scalebox{0.8}{
+%     \begin{tabular}{p{3cm}p{4.5cm}p{4.5cm}p{6cm}}
+%         \toprule
+%         \textbf{Criterion} & \textbf{FastAPI} & \textbf{Django} & \textbf{Justification for RAG Application} \\
+%         \midrule
+%         Performance (Req/s) & Very High ($\sim$12,500+) & Moderate ($\sim$1,600) & RAG requires high concurrency for I/O-bound tasks. FastAPI's 8x+ performance is a decisive advantage. \\
+%         Asynchronous Support & Native, built-in (\texttt{async/await}) & Supported via Channels (adds complexity) & Native async is simpler and more performant for orchestrating LLM and database calls. \\
+%         API Documentation & Automatic (Swagger UI, ReDoc) & Requires external library (DRF) & Automatic documentation accelerates development, reduces friction, and simplifies API integration. \\
+%         Data Validation & Built-in via Pydantic Type Hints & Built-in Forms / DRF Serializers & Pydantic is more modern, concise, and integrated, reducing boilerplate and potential errors. \\
+%         Architectural Fit & Microservices, API-first & Monolithic, full-stack & A microservices approach is inherently more scalable and maintainable for our project's distinct components. \\
+%         Learning Curve & Low & Moderate to High & A lower learning curve allows for faster onboarding of new developers and contributors. \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+% \end{table}
+% 
+% \subsection{Cloud Vector Database: Qdrant}
+% 
+% The market for cloud vector databases is highly fragmented, with vendors utilizing fundamentally different programming languages, scaling architectures, and index structures. Evaluating their capacity to handle billion-scale multimodal workloads requires a granular architectural analysis of each platform.
+% 
+% \textbf{Multi-Embedding Storage and MaxSim Execution}
+% The capacity to efficiently ingest, store, and query the multi-embeddings generated by ColPali is a primary differentiator among vector databases. While platforms like \textbf{Vespa} and \textbf{Milvus} offer robust native solutions via tensor formalism and unified data types respectively, \textbf{Qdrant} uniquely excels through its decoupling of storage and indexing. Acknowledging that indexing heavy multi-vector payloads via HNSW wastes compute and RAM, Qdrant allows architects to explicitly disable graph construction for these payloads. They are utilized exclusively for in-memory, query-time MaxSim reranking against candidates retrieved via a fast single-vector pass. This architectural brilliance prevents the database from collapsing under graph maintenance during ingestion, ensuring high-speed data loading and significantly reduced RAM overhead.
+% 
+% \begin{table}[H]
+%     \centering
+%     \caption{Multi-Vector Storage and MaxSim Implementation}
+%     \label{tab:multivector_impl}
+%     \scalebox{0.8}{
+%     \begin{tabular}{llll}
+%         \toprule
+%         \textbf{Platform} & \textbf{Native Storage} & \textbf{MaxSim Implementation} & \textbf{ColPali Optimization} \\
+%         \midrule
+%         Vespa & Yes (Tensor Formalism) & Yes (Float \& Hamming) & Phased retrieval, BQ \\
+%         Milvus & Yes (Array of Structs) & Yes (MAX\_SIM Metric) & Entity retrieval \\
+%         \textbf{Qdrant} & \textbf{Yes (Nested Arrays)} & \textbf{Yes (Query-time compute)} & \textbf{Index bypassing (m=0)} \\
+%         Weaviate & Yes (Multi-vector) & Yes & Jina AI integration \\
+%         Pinecone & Partial (Metadata) & Yes (Cascading logic) & ConstBERT mapping \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+% \end{table}
+% 
+% \textbf{Supported Search Mechanisms}
+% A robust multimodal database must support various search paradigms. All major platforms natively support dense, sparse (keyword), and hybrid search mechanisms. The critical differentiator is the underlying hybrid fusion algorithm. \textbf{Qdrant} stands out by supporting advanced fusion techniques such as Reciprocal Rank Fusion (RRF) and Distribution-Based Score Fusion (DBSF), intelligently balancing the unbounded scoring of BM25 against the normalized bounds of cosine similarity. Furthermore, Qdrant leads the industry in metadata filtering via its highly optimized payload indexing, allowing complex JSON-based logical conditions to intersect with vector search without compromising retrieval speed.
+% 
+% \begin{table}[H]
+%     \centering
+%     \caption{Search Mechanism Comparison}
+%     \label{tab:search_mechanisms}
+%     \scalebox{0.8}{
+%     \begin{tabular}{llllll}
+%         \toprule
+%         \textbf{Mechanism} & \textbf{Vespa} & \textbf{Milvus} & \textbf{Qdrant} & \textbf{Weaviate} & \textbf{Pinecone} \\
+%         \midrule
+%         Keyword / BM25 & Yes (Native) & Yes (Sparse) & Yes (Sparse) & Yes (Inverted) & No \\
+%         Semantic Dense & Yes & Yes & Yes & Yes & Yes \\
+%         Hybrid Fusion & RRF, Tensor & Built-in Rankers & \textbf{RRF, DBSF} & Alpha weight & Sparse/Dense \\
+%         Metadata Filter & Yes & JSON Shred & \textbf{Payload Index} & Yes & High Speed \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+% \end{table}
+% 
+% \textbf{Scalability, Latency, and Economics}
+% Transitioning to production demands rigorous evaluation of latency, scalability, and Total Cost of Ownership (TCO). Driven by its \textbf{Rust-based engine}, Qdrant demonstrates exceptional performance, maintaining 30-40 millisecond p95 latencies and sustaining 8,000 to 15,000 QPS, significantly outperforming Go-based alternatives in tail latency. Economically, Qdrant offers a generous perpetual free tier for prototyping and scales cost-effectively via custom sharding and the Raft consensus protocol, whereas enterprise solutions like Milvus and Vespa carry higher base infrastructure costs.
+% 
+% \begin{table}[H]
+%     \centering
+%     \caption{Cloud Scalability, Latency, and Economic Efficiency}
+%     \label{tab:scalability_econ}
+%     \scalebox{0.8}{
+%     \begin{tabular}{llllp{4cm}}
+%         \toprule
+%         \textbf{Platform} & \textbf{p95 Latency} & \textbf{Throughput} & \textbf{Cost (10M Vec)} & \textbf{Architecture} \\
+%         \midrule
+%         \textbf{Qdrant} & \textbf{30-40ms} & \textbf{8k - 15k} & \textbf{\$120 - \$250} & \textbf{Custom Sharding, Raft} \\
+%         Weaviate & 50-70ms & 3k - 8k & \$150 - \$300 & Sharded Index, K8s \\
+%         Milvus & 50-80ms & 10k - 20k & \$300 - \$600 & Tiered Storage \\
+%         Pinecone & Sub-100ms & Auto-scale & \$200 - \$400 & Serverless Pods \\
+%         Vespa & Sub-100ms & Extreme & Usage-based & Distributed Data Nodes \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+% \end{table}
+% 
+% \textbf{Developer Experience and Integration}
+% Developer experience dictates integration speed. While Weaviate offers simplified APIs, it can lack granular configurability. Vespa provides deep tensor control but suffers from an exceptionally steep learning curve. \textbf{Qdrant} strikes the perfect balance. It features straightforward Docker deployments, highly readable Python SDKs, and deep integration with the \texttt{FastEmbed} library. This allows developers to generate dense and sparse embeddings locally without heavy external dependencies, vastly simplifying the creation of multi-vector RAG pipelines.
+% 
+% \textbf{Final Selection and Strategic Recommendation}
+% 
+% \begin{table}[H]
+%     \centering
+%     \caption{Holistic Vector Database Comparison Summary}
+%     \label{tab:holistic_db_comp}
+%     \scalebox{0.8}{
+%     \begin{tabular}{llllll}
+%         \toprule
+%         \textbf{Feature} & \textbf{Vespa} & \textbf{Milvus} & \textbf{Qdrant} & \textbf{Weaviate} & \textbf{Pinecone} \\
+%         \midrule
+%         Core Architecture & Hybrid C++ / Java & Go (K8s) & \textbf{Rust} & Go & SaaS \\
+%         ColPali Support & Native Tensor & Array of Structs & \textbf{Index Bypassing} & Multi-vector arrays & Metadata strings \\
+%         Pricing Model & Usage-based & Tiered Cloud & \textbf{Free Tier + Cloud} & 14-day + Cloud & Free Tier + Pods \\
+%         Developer Curve & High Complexity & Moderate & \textbf{Low} & Low & Very Low \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+% \end{table}
+% 
+% After an exhaustive analysis of architectural design, search mechanism breadth, economic efficiency, and specific multi-vector handling capabilities, we have selected \textbf{Qdrant} as the primary cloud vector database for the production environment. 
+% 
+% \textbf{Strategic Rationale for Selecting Qdrant}:
+% Qdrant serves as the optimal highly performant alternative for our multimodal RAG architecture. Its architectural decision to bypass HNSW indexing for heavy multi-vector payloads demonstrates a deep understanding of memory economics, ensuring high-speed ingestion and reduced RAM overhead. For our team, Qdrant's \texttt{FastEmbed} ecosystem makes ColPali integration exceptionally streamlined, while its Rust-powered engine provides the necessary latency and throughput performance for the system.
 
-\section{System Performance}
 
-To ensure a high-quality user experience, the system's frontend performance was evaluated using industry-standard metrics. The application was tested for both desktop and mobile environments, focusing on core web vitals, accessibility, and best practices.
+\section{Cloud Infrastructure Cost Estimation}
+
+To ensure the economic viability of the proposed system, we have established a baseline cost estimation based on a production-grade AWS deployment. The following table summarizes the key assumptions and resource allocations used to forecast the monthly operational expenditure for the \texttt{prod} environment in the \texttt{us-west-2} region, supporting an initial cohort of 50 active users.
+
+\begin{table}[H]
+    \centering
+    \scalebox{0.8}{
+    \begin{tabular}{lp{2.5cm}llp{8cm}}
+        \toprule
+        \textbf{Parameter} & \textbf{Value} & \textbf{Unit} & \textbf{Source} & \textbf{Notes} \\
+        \midrule
+        Active Users & 50 & count & Target & Monthly active users for forecast. \\
+        Hours per Month & 730 & hours & Standard & 24/7 $\times$ 365 $\div$ 12. \\
+        AWS Region & us-west-2 & region & Config & Oregon - base pricing reference. \\
+        Environment & prod & text & Terraform & Production environment. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{COMPUTE}} \\
+        \midrule
+        Backend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks (High Availability). \\
+        Backend Min/Max & 1 / 10 & tasks & Terraform & Auto-scaling range. \\
+        Backend vCPU & 0.50 & vCPU & Terraform & 512 CPU units per task. \\
+        Backend RAM & 1 & GB & Terraform & 1024 MB per task. \\
+        Frontend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks. \\
+        Frontend Min/Max & 1 / 5 & tasks & Terraform & Auto-scaling range (lighter). \\
+        Frontend vCPU & 0.25 & vCPU & Terraform & 256 CPU units for Node.js. \\
+        Frontend RAM & 0.50 & GB & Terraform & 512 MB per task. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{AI/ML \& INFERENCE}} \\
+        \midrule
+        SageMaker Enabled & Yes & boolean & Terraform & ml.g4dn.xlarge GPU inference. \\
+        Instance Type & ml.g4dn.xlarge & text & Terraform & NVIDIA T4 GPU (1x). \\
+        Instances (Always-On) & 1 & count & Estimate & 24/7 instance for inference. \\
+        Bedrock Claude Usage & $\sim$6M & tokens & Estimate & Haiku + Sonnet for generation. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{STORAGE \& CACHE}} \\
+        \midrule
+        ElastiCache Serverless & Yes & boolean & Terraform & Redis search cache. \\
+        Cache Data Size & 2.50 & GB & Estimate & BM25 + dense embeddings. \\
+        Cache TTL & 600 & seconds & Config & 10-minute cache validity. \\
+        S3 Bucket (storage) & 10 & GB & Terraform & Store the original files and processed files. \\
+        S3 Bucket (requests) & 5000 & count & Terraform & Calling the original files and processed files. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{DATABASE}} \\
+        \midrule
+        DynamoDB Billing & On-Demand & text & Terraform & Flexible for 50 users. \\
+        Read Units & 10.00 & M RRU & Estimate & Chat retrieval + insights. \\
+        Write Units & 10.00 & M WRU & Estimate & Sessions + messages + telemetry. \\
+        DynamoDB Storage & 5.00 & GB & Estimate & Chat history + profiles. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{NETWORKING}} \\
+        \midrule
+        ALB Enabled & Yes & boolean & Terraform & Application Load Balancer. \\
+        ALB LCU (average) & 1.00 & LCU & Estimate & 50 users = $\sim$1 LCU load. \\
+        HTTPS/SSL & Yes & boolean & Config & ACM certificate enabled. \\
+        WAF Enabled & No & boolean & Terraform & Not enabled for 50 users. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{CONTINGENCY}} \\
+        \midrule
+        Buffer Percentage & 0.15 & percent & Estimate & 15\% contingency for growth. \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{Cost Estimation Assumptions}
+    \label{tab:cost_assumptions}
+\end{table}
+
+\newpage
+
+To ground our cost projections in current market rates, we utilize the following pricing reference for the specific AWS services and components used in our architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
+
+\begin{table}[H]
+    \centering
+    \scalebox{0.8}{
+    \begin{tabular}{lllp{3.4cm}p{6cm}}
+        \toprule
+        \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
+        \midrule
+        Amazon ECS Fargate & vCPU & \$0.04048 & per vCPU-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
+        Amazon ECS Fargate & Memory & \$0.004445 & per GB-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
+        \midrule
+        Amazon SageMaker & ml.g4dn.xlarge & \$0.7364 & per instance-hour & \url{https://aws.amazon.com/sagemaker/pricing/} \\
+        \midrule
+        Elastic Load Balancing & ALB Instance & \$0.0225 & per hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
+        Elastic Load Balancing & ALB LCU & \$0.008 & per LCU-hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
+        \midrule
+        AWS Bedrock & Claude Haiku Input & \$0.00025 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        AWS Bedrock & Claude Haiku Output & \$0.00125 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        \midrule
+        Amazon DynamoDB & On-Demand Reads & \$0.25 & per 1M RRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+        Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+        Amazon DynamoDB & Storage & \$0.25 & per GB & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+        \midrule
+        Amazon ElastiCache & Serverless (Redis) & \$0.125 & per GB-hour & \url{https://aws.amazon.com/elasticache/pricing/} \\
+        \midrule
+        Amazon ECR & Storage & \$0.10 & per GB-month & \url{https://aws.amazon.com/ecr/pricing/} \\
+        \midrule
+        Amazon CloudWatch & Logs Ingest & \$0.50 & per GB & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
+        Amazon CloudWatch & Logs Storage & \$0.03 & per GB-month & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
+        \midrule
+        AWS WAF & Web ACL & \$5.00 & per month & \url{https://aws.amazon.com/waf/pricing/} \\
+        \midrule
+        Amazon S3 & Standard Storage & \$0.02 & per GB-month & \url{https://aws.amazon.com/s3/pricing/} \\
+        Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{AWS Pricing Reference (us-west-2)}
+    \label{tab:aws_pricing_ref}
+\end{table}
+
+\newpage
+
+Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
+
+\begin{table}[H]
+    \centering
+    \scalebox{0.8}{
+    \begin{tabular}{llp{1.6cm}p{2.7cm}p{4.4cm}rr}
+        \toprule
+        \textbf{Category} & \textbf{Component} & \textbf{Quantity} & \textbf{Unit Price} & \textbf{Base Calculation} & \textbf{Cost} & \textbf{\%} \\
+        \midrule
+        NETWORKING & ALB Instance Hours & 730 hrs & \$0.0225 / hr & 730 hrs $\times$ \$0.0225 & \$16.43 & 2.40\% \\
+        NETWORKING & ALB LCU (avg 1.0) & 730 hrs & \$0.008 / hr & 730 hrs $\times$ 1.0 $\times$ \$0.008 & \$5.84 & 0.85\% \\
+        CACHE & ElastiCache Serverless & 730 hrs & \$0.125 / GB-hr & 730 hrs $\times$ 0.5 GB $\times$ 0.125 & \$45.63 & 6.67\% \\
+        STORAGE & S3 Bucket (storage) & 10 GB & \$0.023 / GB & 10 $\times$ \$0.023 & \$0.23 & 0.03\% \\
+        STORAGE & S3 Bucket (requests) & 5000 req. & \$0.05 / 1k & 5 $\times$ \$0.05 & \$0.25 & 0.04\% \\
+        AI/ML & Bedrock - Haiku & 5 Million & \$1.50 / 1M & 5M tokens (Blended) & \$7.50 & 1.10\% \\
+        DATABASE & DynamoDB On-Demand & 1.00 & \$5.00 / mo & RRU/WRU + Storage & \$5.00 & 0.73\% \\
+        MONITORING & CloudWatch Logs & 1.00 & \$10.00 / mo & 15GB Ingest + Storage & \$10.00 & 1.46\% \\
+        CONTAINER & ECR Storage & 12 GB & \$0.10 / GB & 12GB $\times$ \$0.10 & \$1.20 & 0.18\% \\
+        COMPUTE & ECS Backend (vCPU) & 730 hrs & \$0.02024 / hr & 730 hrs $\times$ 2 $\times$ \$0.02024 & \$29.55 & 4.32\% \\
+        COMPUTE & ECS Backend (RAM) & 730 hrs & \$0.004445 / hr & 730 hrs $\times$ 2 $\times$ \$0.004445 & \$6.49 & 0.95\% \\
+        COMPUTE & ECS Frontend (vCPU) & 730 hrs & \$0.01012 / hr & 730 hrs $\times$ 2 $\times$ \$0.01012 & \$14.78 & 2.16\% \\
+        COMPUTE & ECS Frontend (RAM) & 730 hrs & \$0.002223 / hr & 730 hrs $\times$ 2 $\times$ \$0.002223 & \$3.25 & 0.48\% \\
+        COMPUTE & SageMaker (GPU) & 730 hrs & \$0.7364 / hr & 730 hrs $\times$ \$0.7364 & \$537.57 & 78.62\% \\
+        \midrule
+        \textbf{TOTAL} & & & & & \textbf{\$683.72} & \textbf{100.00\%} \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{Monthly Cost Breakdown - 50 Users}
+    \label{tab:monthly_cost_breakdown}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/31-pie-cost.png}
+    \caption[Monthly Cost Breakdown Visualization]{Monthly Cost Breakdown Visualization (50 Users).}
+    \label{fig:monthly_cost_pie}
+\end{figure}
+
+\newpage
+
+The following table provides a comparative analysis of GPU operational costs across different cloud providers. This estimation is based on a workload scenario of 50 active users, with each user initiating 20 requests per day and each request requiring 15 seconds of GPU inference time, totaling approximately 125 hours of GPU utilization per month.
+
+\begin{table}[H]
+    \centering
+    \scalebox{0.8}{
+    \begin{tabular}{llllrrr}
+        \toprule
+        \textbf{Provider} & \textbf{GPU Type} & \textbf{Pricing Model} & \textbf{Pricing Unit} & \textbf{Always-On} & \textbf{50-User Cost} & \textbf{Savings vs AWS} \\
+        \midrule
+        AWS SageMaker & ml.g4dn.xlarge & Dedicated & \$0.7364 / hr & \$537.57 & \$537.57 & Baseline \\
+        RunPod Serverless & NVIDIA T4 & Pay-per-sec & \$0.000164 / s & \$0.00 & \$73.80 & \$463.77 \\
+        Modal Labs & NVIDIA T4 & Serverless & \$0.000225 / s & \$0.00 & \$101.25 & \$436.32 \\
+        Hyperstack & RTX A4000 & Dedicated & \$0.15 / hr & \$109.50 & \$109.50 & \$428.07 \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month)}
+    \label{tab:gpu_optimization}
+\end{table}
+
+\newpage
+
+\section{Performance}
+
+To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
 
 \begin{figure}[H]
     \centering
