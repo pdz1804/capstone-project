@@ -4,29 +4,5 @@
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
-updates:
-  # Frontend (Node.js/npm) - Phase 2 FE AI Merge
-  - package-ecosystem: "npm"
-    directory: "/Phase_2_FE_AI_Merge/frontend"
-    schedule:
-      interval: "daily"
-    allow:
-      - dependency-type: "all"
-    open-pull-requests-limit: 5
-
-  # Backend (Python/pip) - Phase 2 FE AI Merge
-  - package-ecosystem: "pip"
-    directory: "/Phase_2_FE_AI_Merge/backend"
-    schedule:
-      interval: "daily"
-    allow:
-      - dependency-type: "all"
-    open-pull-requests-limit: 5
-
-  # GitHub Actions workflows (keeps CI/CD up-to-date)
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 5
+updates: []
     
