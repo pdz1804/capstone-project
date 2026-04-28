@@ -1195,6 +1195,66 @@ The runtime environment is managed by \textbf{Amazon Elastic Container Service (
 
 \newpage
 
+\section{Frontend: A Rationale for React}
+
+\subsection{Introduction and Recommendation}
+The frontend is the face of the application, defining the user's entire interactive experience with the multimodal output of the RAG system. The choice of a modern JavaScript framework is therefore essential for building a rich, responsive, and maintainable user interface.
+
+After analyzing the leading frameworks, React is the recommended choice. This decision is based on four key pillars:
+\begin{itemize}
+    \item \textbf{Core Architectural Suitability} for the application's specific technical demands.
+    \item \textbf{Superior Performance} in managing frequent and complex UI updates.
+    \item \textbf{Unmatched Ecosystem and Community Support}, which directly accelerates development and ensures long-term viability.
+    \item \textbf{Proven Precedent} in large-scale, complex applications, particularly within the EdTech industry.
+\end{itemize}
+
+From now on, we detail the reasoning for this selection, including a direct comparison with the primary alternative, Vue.js.
+
+\subsection{The "Best-Fit": Why React's Architecture Suits a Multimodal RAG System}
+The architectural principles of React are uniquely suited to the specific challenges of our application. The RAG system will return a heterogeneous mix of data: a streaming text answer, a reference to a page in a PDF, a timestamp in a lecture video, and a relevant diagram.
+
+React's declarative nature, where developers describe what the UI should look like for a given state, allows the team to manage this complexity effectively. Instead of writing complex, imperative code to manually update the DOM for each data type, developers can create distinct, self-contained components for example \texttt{ChatWindow}, \texttt{SourceDocViewer}, \texttt{VideoPlayer}, \texttt{ImageViewer}. 
+
+The main application component then simply manages the application's state and declaratively renders the appropriate components based on the API response. This clear separation of concerns is critical for building a robust and maintainable multimodal user interface.
+
+\subsection{Core Advantages and Technical Rationale}
+Beyond its perfect fit for our specific data model, React provides foundational advantages in performance and development efficiency.
+
+\textbf{Component-Based Architecture}
+This is the cornerstone of the selection. The user interface will be a composition of independent, reusable components (as listed above). This modularity simplifies the entire development lifecycle; each component can be built, tested, and maintained in isolation, which is critical for managing the complexity of the application.
+
+\textbf{High Performance with the Virtual DOM}
+The RAG system will generate text responses and display various media types. React's use of a Virtual Document Object Model (DOM) is a key performance feature. It creates a lightweight in-memory representation of the UI, calculates the most efficient changes ("diffing"), and minimizes direct, costly manipulations of the actual browser DOM. This results in a smooth, responsive user experience, even as the UI updates frequently with new data from the backend.
+
+\subsection{Comparative Analysis: React vs. Vue.js}
+While both React and Vue.js utilize a virtual DOM and a component-based architecture, a direct comparison reveals React's significant advantages for a project of this scale.
+
+\textbf{Ecosystem, Community, and Talent Pool}
+React boasts a significantly larger and more mature ecosystem than Vue.js. This translates into an unparalleled selection of third-party libraries, state management solutions (like Redux and Zustand), UI component kits (e.g., Material-UI, Ant Design), and development tools. For a feature-rich educational application that will require complex UI elements, such as interactive document viewers, data visualization, and chat interfaces, this vast ecosystem is a critical accelerator, reducing the need to build components from scratch.
+
+Furthermore, industry surveys consistently demonstrate React's dominant position. Stack Overflow's 2023 survey showed that 42.87\% of professional developers use React, compared to 17.64\% for Vue.js. This larger talent pool is a pragmatic and significant advantage for a university-based project like us.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/33-react-survey.png}
+    \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023)}
+    \label{fig:react_survey}
+\end{figure}
+
+\textbf{Scalability and Suitability for Complex Applications}
+Both React and Vue.js are capable of building scalable applications. However, React's unopinionated library-based approach provides a crucial flexibility that is often favored for building large-scale, highly complex enterprise applications. This flexibility allows development teams to custom-build their architecture, selecting their own libraries for routing, state management, and data fetching, to create a stack that is perfectly optimized for unique and demanding business logic.
+
+This preference is not merely theoretical; it is validated by the technology stacks of some of the world's largest and most complex web applications:
+\begin{itemize}
+    \item \textbf{Meta (Facebook \& Instagram)}: As the creator of React, Meta's platforms are its primary case study. The Facebook web app is a quintessential example of a complex, component-driven application, required to manage thousands of individual components, real-time data streaming, and billions of user interactions simultaneously.
+    \item \textbf{Netflix}: The Netflix web application relies on React to deliver its high-performance, TV-like user interface. The team chose React to manage the complex state interactions of its UI, enabling them to rapidly iterate, A/B test features, and maintain performance on a wide variety of devices.
+    \item \textbf{The New York Times}: To support modern, interactive journalism and a massive, dynamic content library, The New York Times rebuilt its website using React. This allows their development teams to create reusable components that can be shared across the organization, accelerating the development of new features and data visualizations.
+\end{itemize}
+
+While Vue is highly capable, React's architecture is battle-tested and proven to be the choice for global teams building applications where complexity and massive scale are the primary concerns.
+
+\newpage
+
 \section{Backend: A Strategic Case for FastAPI}
 
 \subsection{Executive Summary}
@@ -1236,7 +1296,7 @@ The choice between FastAPI and Django represents a fundamental decision between 
 
 Django's philosophy is geared towards building monolithic, full-stack applications with server-rendered templates, an admin panel, and a built-in ORM. These are excellent features for certain projects, but they are less critical for our API-first, decoupled architecture.
 
-FastAPI’s lightweight and unopinionated nature makes it a natural fit for building independent, scalable microservices. This allows for a logical separation of concerns. We can develop, deploy, and scale the user authentication service independently from the RAG pipeline service. This modularity offers significant long-term advantages in scalability and maintainability, preventing the need for a costly and disruptive rewrite as the platform grows.
+FastAPI's lightweight and unopinionated nature makes it a natural fit for building independent, scalable microservices. This allows for a logical separation of concerns. We can develop, deploy, and scale the user authentication service independently from the RAG pipeline service. This modularity offers significant long-term advantages in scalability and maintainability, preventing the need for a costly and disruptive rewrite as the platform grows.
 
 \subsection{Head-to-Head Comparison Matrix}
 The following table provides a clear, at-a-glance comparison to justify the selection of FastAPI for our specific application context.
@@ -1311,7 +1371,7 @@ A robust multimodal database must support various search paradigms. All major pl
 \end{table}
 
 \subsection{Dimension 3: Scalability and Economics}
-Transitioning to production demands rigorous evaluation of latency, scalability, and Total Cost of Ownership (TCO). Driven by its \textbf{Rust-based engine}, Qdrant demonstrates exceptional performance, maintaining 30-40 millisecond p95 latencies and sustaining 8,000 to 15,000 QPS—significantly outperforming Go-based alternatives in tail latency. Economically, Qdrant offers a generous perpetual free tier for prototyping and scales cost-effectively via custom sharding and the Raft consensus protocol, whereas enterprise solutions like Milvus and Vespa carry higher base infrastructure costs.
+Transitioning to production demands rigorous evaluation of latency, scalability, and Total Cost of Ownership (TCO). Driven by its \textbf{Rust-based engine}, Qdrant demonstrates exceptional performance, maintaining 30-40 millisecond p95 latencies and sustaining 8,000 to 15,000 QPS, significantly outperforming Go-based alternatives in tail latency. Economically, Qdrant offers a generous perpetual free tier for prototyping and scales cost-effectively via custom sharding and the Raft consensus protocol, whereas enterprise solutions like Milvus and Vespa carry higher base infrastructure costs.
 
 \begin{table}[H]
     \centering
