@@ -8,6 +8,7 @@
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
 main.pdf
+main.luabridge.lua
 
 # LaTeX generated files - DO NOT COMMIT
 *.aux
