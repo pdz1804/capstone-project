@@ -5,29 +5,20 @@
 
 version: 2
 updates:
-  # Frontend (Node.js/npm) - Phase 2
+  # Frontend (Node.js/npm) - Phase 2 FE AI Merge
   - package-ecosystem: "npm"
-    directory: "/Phase_2/frontend"
+    directory: "/Phase_2_FE_AI_Merge/frontend"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     allow:
       - dependency-type: "all"
     open-pull-requests-limit: 5
 
-  # Backend (Python/pip) - Phase 2
+  # Backend (Python/pip) - Phase 2 FE AI Merge
   - package-ecosystem: "pip"
-    directory: "/Phase_2/backend"
+    directory: "/Phase_2_FE_AI_Merge/backend"
     schedule:
-      interval: "weekly"
-    allow:
-      - dependency-type: "all"
-    open-pull-requests-limit: 5
-
-  # Python ML/RAG Pipeline - Phase 2 Test
-  - package-ecosystem: "pip"
-    directory: "/Phase_2_PDZ_001_Test_Media_RAG"
-    schedule:
-      interval: "weekly"
+      interval: "daily"
     allow:
       - dependency-type: "all"
     open-pull-requests-limit: 5
@@ -36,6 +27,6 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     open-pull-requests-limit: 5
     
