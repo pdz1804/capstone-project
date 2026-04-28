@@ -26,7 +26,7 @@ ragatouille>=0.0.8
 # voyager==2.1.0
 
 docling[all]>=2.0.0
-docling-core>=2.0.0
+docling-core>=2.74.1
 docling-parse>=2.0.0
 bitsandbytes
 
