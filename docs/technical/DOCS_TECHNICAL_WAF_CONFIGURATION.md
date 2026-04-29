@@ -125,9 +125,9 @@ BK-MInD implements **AWS WAF (Web Application Firewall)** as the primary layer-7
 **False Positive Rate:** <1% in production environments
 
 **Why This Matters:**
-- SQLi is in OWASP Top 10 #3 (Injection)
-- BK-MInD uses PostgreSQL/RDS for course data
-- Compromised database = data breach of all users' credentials, notes, performance data
+- Injection attacks are in OWASP Top 10 #3 (Injection)
+- BK-MInD stores user data in AWS DynamoDB and S3
+- Successful injection attack could bypass authentication, access unauthorized data, or manipulate stored records
 
 ---
 

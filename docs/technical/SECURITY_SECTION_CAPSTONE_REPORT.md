@@ -45,13 +45,13 @@ The first rule implemented is a rate-limiting rule configured to block any IP ad
 
 For legitimate users, the 2,000 requests per 5 minutes threshold is well above typical usage patterns. A typical user using the BK-MInD chat interface might generate 10-20 requests per minute during active learning sessions. Even users running automated batch processes or API integrations would need to generate more than 400 requests per minute to trigger the rate limit. The threshold was chosen based on analysis of expected user behavior patterns and provides protection without impacting legitimate usage.
 
-**SQL Injection Detection: Protecting the Database Layer**
+**Injection Attack Prevention: Protecting Application Layer**
 
-The second rule implemented is the AWS Managed SQL Injection (SQLi) rule set. This rule analyzes all request parameters including query strings, POST body data, cookies, and HTTP headers to identify patterns characteristic of SQL injection attacks. SQL injection is listed as the third most critical vulnerability in the OWASP Top 10 (2021) and remains one of the most common web application attacks.
+The second rule implemented is the AWS Managed SQL Injection (SQLi) rule set. This rule analyzes all request parameters including query strings, POST body data, cookies, and HTTP headers to identify patterns characteristic of injection attacks. Injection attacks are listed as the third most critical vulnerability in the OWASP Top 10 (2021) and remain one of the most common web application attacks.
 
-BK-MInD uses a PostgreSQL database deployed on AWS RDS to store all course materials, student credentials, learning progress, and assessment results. A successful SQL injection attack against this database would allow an attacker to bypass authentication, access all student records, modify grades, or delete course content. The SQLi detection rule uses both machine learning and signature-based detection to identify attack patterns such as SQL keywords in unexpected locations, comment sequences used to terminate SQL statements, and time-based blind SQL injection probes.
+While BK-MInD uses AWS DynamoDB for data persistence rather than SQL databases, the SQLi detection rule still provides valuable protection by blocking malformed requests that may attempt to exploit parsing vulnerabilities or bypass authentication mechanisms. A successful injection attack against the backend services could allow an attacker to bypass authentication, access unauthorized data, or manipulate stored records. The SQLi detection rule uses both machine learning and signature-based detection to identify attack patterns such as suspicious keywords in unexpected locations, comment sequences used to manipulate requests, and other encoded injection probes.
 
-The SQL injection rule maintains a very low false positive rate (<1% in production environments), meaning legitimate educational queries containing common words are not incorrectly flagged. AWS maintains and updates these signatures weekly as new SQLi techniques are discovered in the wild.
+The injection prevention rule maintains a very low false positive rate (<1% in production environments), meaning legitimate application queries are not incorrectly flagged. AWS maintains and updates these signatures weekly as new attack techniques are discovered in the wild.
 
 **Known Bad Inputs Detection: Protecting Against Zero-Day Exploits**
 
@@ -243,11 +243,11 @@ The domain DNS records are configured to point all user traffic to the ALB's loa
 
 ### 3.2 Data at Rest
 
-Course materials, student records, and progress data stored in the PostgreSQL RDS database are encrypted using AWS RDS encryption with keys managed through AWS Key Management Service (KMS). This ensures that data is encrypted on disk and in storage systems, providing protection against physical theft or unauthorized access to storage media.
+Course materials, student records, and progress data stored in AWS DynamoDB and Amazon S3 are encrypted at rest using industry-standard server-side encryption. DynamoDB stores structured data including user profiles, session information, chat history, quiz results, and analytics data. S3 stores original uploaded files and processed artifacts. Both services support encryption by default, protecting data from unauthorized access in case of physical media compromise.
 
-**Encryption Key Management**
+**Data Storage Encryption**
 
-AWS KMS manages all encryption keys used for RDS database encryption. The keys are stored in AWS-managed hardware security modules (HSMs) and are never exposed to the application layer. Access to encryption keys is controlled through IAM policies, ensuring that only authorized database administrators and backup processes can decrypt the database. When the database is backed up, encrypted data is backed up in encrypted form, and restoration of backups automatically maintains encryption protection.
+AWS DynamoDB tables are configured with server-side encryption using AWS-managed keys, ensuring that all stored data is encrypted on disk. S3 buckets are configured with default encryption (either SSE-S3 or SSE-KMS per organizational policy), encrypting all objects automatically when stored. Both services handle encryption transparently to the application—there is no additional application-layer encryption burden, and encryption keys are managed entirely by AWS infrastructure. When backups occur, encrypted data is backed up in encrypted form, and restoration of backups automatically maintains encryption protection.
 
 ---
 
@@ -258,7 +258,7 @@ AWS KMS manages all encryption keys used for RDS database encryption. The keys a
 The BK-MInD security implementation provides protection against all items in the OWASP Top 10 (2021):
 
 1. **Broken Access Control** — Addressed through IAM policies and application-level authorization checks
-2. **Cryptographic Failures** — Addressed through TLS encryption for transit and KMS encryption at rest
+2. **Cryptographic Failures** — Addressed through TLS encryption for transit and server-side encryption at rest (DynamoDB, S3)
 3. **Injection** — Addressed through SQL injection detection via WAF and parameterized queries in application code
 4. **Insecure Design** — Addressed through security-first architecture and threat modeling
 5. **Security Misconfiguration** — Addressed through Infrastructure as Code and security scanning of configurations
