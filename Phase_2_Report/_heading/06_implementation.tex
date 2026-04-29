@@ -4,11 +4,11 @@
 
 % \textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 5-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
 
-This chapter details the practical implementation of the core system architecture. We describe the system design, data processing pipeline, and key implementation components that enable efficient document processing and retrieval.
+This chapter details the practical implementation of the core system architecture. We describe the system design, data processing pipeline, and key implementation components.
 
 \section{Implementation Evolution}
 
-The development of the Unified MRAG system was executed in two distinct phases, representing a transition from a research-oriented baseline to a robust, production-ready platform. This evolution was driven by the need for scalability, multi-tenancy, and high availability.
+The development of the Unified MRAG system was executed in two distinct phases, representing a transition from a research-oriented baseline to a robust, production-ready platform. This evolution was driven by the need for scalability, and high availability.
 
 Phase 1 focused on the validation of the core retrieval-augmented generation logic, utilizing local resources and monolithic processing scripts. Phase 2 involved a comprehensive refactoring of the system into a cloud-native architecture, offloading compute-heavy tasks and leveraging managed services for data persistence and orchestration.
 
@@ -17,7 +17,7 @@ Phase 1 focused on the validation of the core retrieval-augmented generation log
 Phase 1 was characterized by the development of a \textbf{Proof-of-Concept (PoC)} baseline. The primary objective was to validate the technical feasibility of the multimodal retrieval logic and ensure that the integration of text and visual embedding models yielded coherent results. During this stage, the system was implemented as a monolithic Python environment, relying on local filesystem storage for documents and a local instance of a vector database for retrieval. While functional, this architecture suffered from significant limitations:
 
 \begin{itemize}
-    \item \textbf{Resource Contention}: Running heavy embedding models (like ColQwen and BGE) alongside the API server on a single machine led to significant latency and memory exhaustion.
+    \item \textbf{Resource Contention}: Running heavy embedding models (like ColQwen) alongside the API server on a single machine led to significant latency and memory exhaustion.
     \item \textbf{Lack of Persistence}: User sessions and processing states were transient, meaning that any system restart resulted in the loss of progress and required complete re-indexing of documents.
     \item \textbf{Monolithic Bottlenecks}: The sequential nature of the data processing pipeline meant that large document uploads blocked all other system operations, preventing concurrent usage.
 \end{itemize}
@@ -31,6 +31,9 @@ Phase 2 involved a fundamental \textbf{architectural refactoring}, transitioning
     \item \textbf{Stateful Session Management}: The integration of \textbf{Amazon DynamoDB} allowed for persistent, low-latency tracking of user chat histories and processing statuses, enabling a seamless resume-from-anywhere experience.
     \item \textbf{Optimized Inference Offloading}: To handle the massive compute requirements of late-interaction models, Phase 2 offloaded visual embedding generation to \textbf{AWS SageMaker}. This ensures that the main application backend remains responsive even during high-intensity processing tasks.
     \item \textbf{Asynchronous 5-Stage Pipeline}: The processing logic was rebuilt as a concurrent, event-driven pipeline, allowing for the simultaneous normalization, chunking, and indexing of multiple document streams.
+    \item \textbf{Automated CI/CD and Deployment}: We implemented a fully automated \textbf{GitHub Actions} pipeline to handle containerization via \textbf{Docker} and deployment to \textbf{AWS ECS Fargate}, ensuring rapid iteration and system stability.
+    \item \textbf{Testing and Quality Assurance}: A multi-layered testing strategy was introduced, including \textbf{Pytest} for backend logic, \textbf{Pydantic} for data validation, and \textbf{Apache JMeter} for performance stress testing.
+    \item \textbf{Operational Cost Estimation}: We established a detailed cloud expenditure model, optimizing GPU utilization costs to ensure the economic viability of the production environment.
 \end{itemize}
 
 The following table summarizes the key technical transitions between the two phases:
@@ -59,6 +62,29 @@ The following table summarizes the key technical transitions between the two pha
 \end{table}
 
 This strategic transition from a local-first prototype to a cloud-native platform was not merely a change in infrastructure, but a fundamental shift in how the system manages multimodal intelligence. By offloading resource-intensive tasks and centralizing data state, the system transitioned from a experimental tool to a scalable service capable of supporting complex educational workflows.
+
+In addition to the architectural evolution, Phase 2 integrated several production-grade milestones that were absent in the Phase 1 prototype. This included the delivery of a \textbf{complete full-stack application} with a comprehensive suite of functionalities. This was further supported by a rigorous \textbf{technology selection} process for high-concurrency frameworks, the implementation of automated \textbf{CI/CD pipelines} and \textbf{system deployment} via GitHub Actions and AWS ECS, a multi-layered \textbf{testing} strategy (covering unit, data validation, and performance metrics), and a comprehensive \textbf{cost estimation} model to ensure operational viability. These enhancements transition the system from a research tool into a sustainable service.
+
+\begin{table}[H]
+    \centering
+    \caption{Operational and Management Milestones (Phase 2)}
+    \label{tab:phase2_milestones}
+    \scalebox{0.9}{
+    \begin{tabular}{p{5cm}p{12cm}}
+        \toprule
+        \textbf{Component} & \textbf{Phase 2 Implementation} \\
+        \midrule
+        \textbf{Technology Selection} & Formalized selection of FastAPI, React, and Qdrant Cloud based on scalability and latency benchmarks. \\
+        \textbf{Full-Stack} & Implementation of a complete frontend and backend featuring real-time RAG chat assistant, knowledge explorer, lecture viewer, summarization and quiz generation. \\
+        \textbf{System Deployment} & Automated containerization via Docker and orchestration on AWS ECS Fargate for high availability. \\
+        \textbf{CI/CD Pipeline} & End-to-end automation using GitHub Actions for continuous build, test, and deployment. \\
+        \textbf{Testing \& QA} & Multi-tiered testing using Pytest, Pydantic, and Apache JMeter for performance stress tests. \\
+        \textbf{Cost Estimation} & Detailed monthly expenditure modeling for AWS resources and GPU utilization to ensure economic viability. \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
 
 % \newpage
 
