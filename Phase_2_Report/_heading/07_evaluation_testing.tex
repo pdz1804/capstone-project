@@ -1,112 +1,550 @@
-\chapter{Evaluation and Testing}
+\chapter{Evaluation, Testing, and Estimation}
 
-This chapter describes the metrics and procedures used to evaluate the effectiveness, efficiency, and usability of the proposed system. The evaluation is conducted at three levels: retriever, generator, and overall system performance.
+% This chapter describes the metrics and procedures used to evaluate the effectiveness, efficiency, and usability of the proposed system. The evaluation is conducted at three levels: retriever, generator, and overall system performance.
 
-\section{Evaluation Metrics}
+\section{Evaluation}
 
-\subsection{Retriever Metrics}
 
-\textbf{Recall@K} measures how many relevant documents are successfully retrieved within the top $K$ results for a given query:
-\[
-\text{Recall@K} = 
-\frac{\lvert \text{Relevant Documents} \cap \text{Top-}K \text{ Retrieved Documents} \rvert}
-{\lvert \text{Relevant Documents} \rvert}
-\]
-This metric reflects the ability of the retriever to cover all relevant information.
+% \subsection{Retriever Metrics}
 
-\textbf{Precision@K} evaluates the proportion of retrieved documents in the top $K$ that are actually relevant:
-\[
-\text{Precision@K} =
-\frac{\lvert \text{Relevant Documents} \cap \text{Top-}K \text{ Retrieved Documents} \rvert}
-{\lvert \text{Top-}K \text{ Retrieved Documents} \rvert}
-\]
-It indicates how accurate the retrieved results are.
+% \textbf{Recall@K} measures how many relevant documents are successfully retrieved within the top $K$ results for a given query:
+% \[
+% \text{Recall@K} = 
+% \frac{\lvert \text{Relevant Documents} \cap \text{Top-}K \text{ Retrieved Documents} \rvert}
+% {\lvert \text{Relevant Documents} \rvert}
+% \]
+% This metric reflects the ability of the retriever to cover all relevant information.
 
-\textbf{Retrieval Latency} represents the time required for the retriever to return results:
-\[
-\text{Latency (ms)} = \text{Result Returned Time} - \text{Query Submission Time}
-\]
+% \textbf{Precision@K} evaluates the proportion of retrieved documents in the top $K$ that are actually relevant:
+% \[
+% \text{Precision@K} =
+% \frac{\lvert \text{Relevant Documents} \cap \text{Top-}K \text{ Retrieved Documents} \rvert}
+% {\lvert \text{Top-}K \text{ Retrieved Documents} \rvert}
+% \]
+% It indicates how accurate the retrieved results are.
 
-\textbf{Coverage} measures how often the system retrieves at least one relevant document across all queries:
-\[
-\text{Coverage} =
-\frac{\text{Number of Queries with Relevant Results}}
-{\text{Total Number of Queries}} \times 100
-\]
+% \textbf{Retrieval Latency} represents the time required for the retriever to return results:
+% \[
+% \text{Latency (ms)} = \text{Result Returned Time} - \text{Query Submission Time}
+% \]
 
-\subsection{Generator Metrics}
+% \textbf{Coverage} measures how often the system retrieves at least one relevant document across all queries:
+% \[
+% \text{Coverage} =
+% \frac{\text{Number of Queries with Relevant Results}}
+% {\text{Total Number of Queries}} \times 100
+% \]
 
-\textbf{ROUGE Score} quantifies textual similarity between generated outputs and reference answers. For ROUGE-N:
-\[
-\text{ROUGE-N} =
-\frac{
-\sum_{\text{ref}} \sum_{\text{ngram} \in \text{generated}} \text{Count}(\text{ngram})
-}{
-\sum_{\text{ref}} \sum_{\text{ngram} \in \text{reference}} \text{Count}(\text{ngram})
-}
-\]
+% \subsection{Generator Metrics}
 
-\textbf{Relevance} is assessed through human judgment, rating how well generated responses align with user intent. The final score is computed as:
-\[
-\text{Relevance} =
-\frac{1}{N} \sum_{i=1}^{N} \text{Relevance Score}_i
-\]
+% \textbf{ROUGE Score} quantifies textual similarity between generated outputs and reference answers. For ROUGE-N:
+% \[
+% \text{ROUGE-N} =
+% \frac{
+% \sum_{\text{ref}} \sum_{\text{ngram} \in \text{generated}} \text{Count}(\text{ngram})
+% }{
+% \sum_{\text{ref}} \sum_{\text{ngram} \in \text{reference}} \text{Count}(\text{ngram})
+% }
+% \]
 
-\textbf{Factual Accuracy} measures the proportion of generated responses that are factually correct based on retrieved evidence:
-\[
-\text{Factual Accuracy} =
-\frac{\text{Number of Correct Outputs}}
-{\text{Total Number of Outputs}} \times 100
-\]
+% \textbf{Relevance} is assessed through human judgment, rating how well generated responses align with user intent. The final score is computed as:
+% \[
+% \text{Relevance} =
+% \frac{1}{N} \sum_{i=1}^{N} \text{Relevance Score}_i
+% \]
 
-\textbf{Generation Latency} captures the time taken by the generator to produce an output after retrieval completes:
-\[
-\text{Latency (ms)} = \text{Output Generation Time} - \text{Retrieval Completion Time}
-\]
+% \textbf{Factual Accuracy} measures the proportion of generated responses that are factually correct based on retrieved evidence:
+% \[
+% \text{Factual Accuracy} =
+% \frac{\text{Number of Correct Outputs}}
+% {\text{Total Number of Outputs}} \times 100
+% \]
 
-\subsection{System-Level Metrics}
+% \textbf{Generation Latency} captures the time taken by the generator to produce an output after retrieval completes:
+% \[
+% \text{Latency (ms)} = \text{Output Generation Time} - \text{Retrieval Completion Time}
+% \]
 
-\textbf{Usability} is evaluated via user feedback, typically collected using a Likert scale. The overall usability score is averaged across tasks:
-\[
-\text{Usability} =
-\frac{1}{N} \sum_{i=1}^{N} \text{User Rating}_i
-\]
+% \subsection{System-Level Metrics}
 
-\textbf{Task Success Rate} measures the percentage of tasks that users complete successfully:
-\[
-\text{Task Success Rate} =
-\frac{\text{Number of Completed Tasks}}
-{\text{Total Number of Tasks}} \times 100
-\]
+% \textbf{Usability} is evaluated via user feedback, typically collected using a Likert scale. The overall usability score is averaged across tasks:
+% \[
+% \text{Usability} =
+% \frac{1}{N} \sum_{i=1}^{N} \text{User Rating}_i
+% \]
 
-\textbf{End-to-End Latency} reflects the total response time of the system from user input to final output delivery:
-\[
-\text{Integration Latency (ms)} =
-\text{Output Delivery Time} - \text{Query Submission Time}
-\]
+% \textbf{Task Success Rate} measures the percentage of tasks that users complete successfully:
+% \[
+% \text{Task Success Rate} =
+% \frac{\text{Number of Completed Tasks}}
+% {\text{Total Number of Tasks}} \times 100
+% \]
 
-\section{Evaluation Methodology}
+% \textbf{End-to-End Latency} reflects the total response time of the system from user input to final output delivery:
+% \[
+% \text{Integration Latency (ms)} =
+% \text{Output Delivery Time} - \text{Query Submission Time}
+% \]
 
-\subsection{Retriever Evaluation}
+% \section{Evaluation Methodology}
 
-The retriever is evaluated using a benchmark dataset with predefined relevance judgments. Performance is analyzed across different query categories:
+% \subsection{Retriever Evaluation}
+
+% The retriever is evaluated using a benchmark dataset with predefined relevance judgments. Performance is analyzed across different query categories:
+% \begin{itemize}
+%     \item \textbf{Simple Queries}: Direct queries requiring straightforward document retrieval.
+%     \item \textbf{Complex Queries}: Queries involving multiple constraints or ambiguous conditions.
+%     \item \textbf{Context-Aware Queries}: Queries that depend on contextual knowledge of the repository.
+% \end{itemize}
+
+% \subsection{Generator Evaluation}
+
+% The generator receives outputs from the retriever and is evaluated using:
+% \begin{itemize}
+%     \item \textbf{Automatic Metrics}: ROUGE scores to measure overlap with reference answers.
+%     \item \textbf{Human Evaluation}: Expert assessments of relevance, correctness, and response quality.
+% \end{itemize}
+% Special attention is given to challenging cases, such as incomplete or ambiguous retrieved information, to test robustness.
+
+% \subsection{System Evaluation}
+
+% System-level evaluation is conducted through controlled user studies where participants interact with the VSCode extension to perform predefined programming tasks. Feedback is collected through questionnaires and interviews to assess usability, responsiveness, and overall user experience.
+
+\newpage
+
+\section{Testing}
+
+\subsection{PageSpeed Insights}
+
+To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/29-desktop performance.png}
+    \caption[Desktop Performance Metrics]{Desktop Performance Metrics.}
+    \label{fig:desktop_performance}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/30-mobile performance.png}
+    \caption[Mobile Performance Metrics]{Mobile Performance Metrics.}
+    \label{fig:mobile_performance}
+\end{figure}
+
+As shown in Figures \ref{fig:desktop_performance} and \ref{fig:mobile_performance}, the system maintains high performance scores across all categories, ensuring fast load times and a responsive interface for multimodal document interaction.
+
+\subsection{Test Methodology}
+
+To ensure a rigorous and transparent evaluation, the performance test suite was architected using \textbf{Apache JMeter}, a leading open-source application designed to load test functional behavior and measure performance. JMeter was selected for its ability to simulate heavy concurrent workloads on the BK-MInD backend, providing high-fidelity data on response times, throughput, and resource utilization across various operational scenarios. The methodology focused on simulating high-concurrency environments to identify the system's operational boundaries, utilizing custom Python orchestration scripts to process the raw output logs into actionable insights.
+
+\begin{table}[H]
+    \centering
+    \caption{Performance Testing Toolchain}
+    \label{tab:test_tools}
+    \scalebox{0.85}{
+    \begin{tabular}{lp{5cm}p{7cm}}
+        \toprule
+        \textbf{Tool / Artifact} & \textbf{Role in Testing} & \textbf{Reason for Use} \\
+        \midrule
+        Apache JMeter & Load test execution & Industry-standard tool; supports complex HTTP plans and assertions. \\
+        CSV Data Set Config & Test data orchestration & Feeds multi-tenant credentials to ensure isolated user sessions. \\
+        \texttt{jtl\_metrics\_csv.py} & Metrics extraction & Converts raw JTL logs into summary statistical reports. \\
+        \texttt{dynamo\_job\_metrics.py} & Async job tracking & Extracts background job durations directly from DynamoDB. \\
+        S3 User Prefixes & Isolation validation & Verifies that uploaded files are correctly scoped to user identities. \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Key Performance Metrics}
+    \label{tab:metrics_explained}
+    \scalebox{0.85}{
+    \begin{tabular}{lp{4.5cm}p{7.5cm}}
+        \toprule
+        \textbf{Metric} & \textbf{Meaning} & \textbf{Interpretation} \\
+        \midrule
+        \texttt{samples} & Total endpoint calls & Measures the total volume of processed requests. \\
+        \texttt{error\_pct} & Percentage of failed requests & Primary indicator of system stability under load. \\
+        \texttt{elapsed\_ms\_p50} & Median response time & Represents the typical user experience. \\
+        \texttt{elapsed\_ms\_p95} & 95th percentile latency & Key indicator of production readiness and tail behavior. \\
+        \texttt{duration\_sec} & Background job duration & Measures the end-to-end time for asynchronous processing tasks. \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \scalebox{0.85}{
+    \begin{tabular}{lp{6cm}p{6cm}}
+        \toprule
+        \textbf{Test Plan} & \textbf{Description} & \textbf{Focus} \\
+        \midrule
+        Interactive APIs & Auth, Profile, Stats, Insights & High-concurrency stability, low latency. \\
+        Hybrid Search & Multimodal vector retrieval & Retrieval accuracy vs. throughput. \\
+        AI Pipeline & OCR, Segment, Transcribe & Background worker job success rate. \\
+        Full Indexing & Large document vectorization & System-wide resource limits. \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \scalebox{0.85}{
+    \begin{tabular}{lp{6cm}p{6cm}}
+        \toprule
+        \textbf{Scope} & \textbf{Evidence Source} & \textbf{Verification Method} \\
+        \midrule
+        API Security & \texttt{jmeter-logs/*.jtl} & HTTP 401/403 validation for invalid keys. \\
+        Concurrency & \texttt{jmeter-results/*.csv} & Error rate < 1\% at target load. \\
+        Job Integrity & \texttt{dynamodb-jobs/*.json} & Step-by-step state transition logs. \\
+        LLM Streams & \texttt{chat-trace/*.txt} & TTFT (Time To First Token) measurement. \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\subsection{Load Testing and API Performance}
+
+To evaluate the system's robustness and scalability under realistic user workloads, a comprehensive load testing suite was executed using \textbf{Apache JMeter}. The testing focused on the core user journeys, ranging from lightweight authentication and profile retrieval to heavy AI-driven processing and indexing pipelines. The following results represent the system's performance across varying concurrency levels, up to 50 simultaneous users.
+
+\subsubsection{Baseline API and Upload Performance}
+
+The system's foundational APIs and file upload services were tested across multiple concurrency levels. As shown in Table \ref{tab:baseline_upload_perf}, the core identity and telemetry services maintain exceptional stability, while the upload service identifies a predictable linear latency increase.
+
+\begin{table}[H]
+    \centering
+    \caption{Baseline API and Upload Performance Matrix}
+    \label{tab:baseline_upload_perf}
+    \scalebox{0.85}{
+    \begin{tabular}{llrrrrr}
+        \toprule
+        \textbf{Endpoint} & \textbf{Concurrency} & \textbf{Error \%} & \textbf{Mean (ms)} & \textbf{P50 (ms)} & \textbf{P95 (ms)} & \textbf{P99 (ms)} \\
+        \midrule
+        \texttt{POST /api/auth/login} & 50 users & 0.0 & 1,891.6 & 1,986 & 2,418 & 2,628 \\
+        \texttt{GET /api/users/me} & 50 users & 0.0 & 1,372.3 & 1,461 & 1,919 & 1,980 \\
+        \texttt{GET /api/processing-stats} & 50 users & 0.0 & 590.0 & 582 & 1,033 & 1,112 \\
+        \midrule
+        \textbf{Upload API} & 20 users & 0.0 & 2,810.4 & 2,410 & 4,120 & 4,450 \\
+        & 30 users & 0.0 & 3,842.1 & 3,550 & 5,821 & 6,102 \\
+        & 40 users & 0.0 & 4,912.4 & 4,210 & 7,931 & 8,245 \\
+        & 50 users & 0.0 & 6,198.9 & 5,050 & 9,363 & 9,367 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\subsubsection{Asynchronous Pipeline and Indexing Performance}
+
+The asynchronous processing and vector indexing pipelines are measured by their success rates and total job durations.
+
+\begin{table}[H]
+    \centering
+    \caption{Asynchronous Pipeline and Indexing Performance Matrix}
+    \label{tab:pipeline_perf}
+    \scalebox{0.85}{
+    \begin{tabular}{lrrrr}
+        \toprule
+        \textbf{Workflow} & \textbf{Concurrency} & \textbf{Success Rate} & \textbf{Avg Duration (s)} & \textbf{P95 (s)} \\
+        \midrule
+        \textbf{Document Processing} & 20 jobs & 80.0\% & 36.2 & 38 \\
+        & 30 jobs & 83.3\% & 41.5 & 44 \\
+        & 40 jobs & 72.5\% & 50.8 & 56 \\
+        \midrule
+        \textbf{Full Indexing} & 20 jobs & 100.0\% & 98.1 & 106 \\
+        & 30 jobs & 100.0\% & 161.7 & 187 \\
+        & 40 jobs & 0.0\% & 274.6 & 329 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\subsubsection{Search and Chat Streaming Performance}
+
+The following matrix details the performance of the hybrid search and the real-time chat assistant across escalating concurrency loads.
+
+\begin{table}[H]
+    \centering
+    \caption{Search and Chat Performance Matrix}
+    \label{tab:search_chat_perf_matrix}
+    \scalebox{0.85}{
+    \begin{tabular}{llrrrr}
+        \toprule
+        \textbf{Service} & \textbf{Concurrency} & \textbf{Mean (ms)} & \textbf{P50 (ms)} & \textbf{P95 (ms)} & \textbf{P99 (ms)} \\
+        \midrule
+        \textbf{Search API} & 20 users & 18,412.3 & 17,901 & 24,102 & 25,110 \\
+        & 30 users & 19,550.8 & 18,340 & 26,891 & 27,240 \\
+        & 40 users & 20,119.2 & 19,821 & 28,410 & 28,901 \\
+        & 50 users & 21,894.8 & 22,112 & 30,119 & 30,162 \\
+        \midrule
+        \textbf{Chat Stream} & 20 users & 34,102.1 & 32,841 & 42,109 & 44,120 \\
+        (Full Request) & 30 users & 36,891.4 & 35,102 & 48,110 & 50,210 \\
+        & 40 users & 41,201.7 & 45,102 & 55,210 & 58,110 \\
+        & 50 users & 45,318.6 & 52,931 & 61,150 & 63,120 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+While full search and chat response times increase with concurrency, the chat assistant maintains a highly responsive first-byte latency of approximately 1.4 seconds. This ensures that users perceive the system as responsive even as the backend orchestrates complex retrieval and generation tasks.
+
+\subsubsection{Learning Insight APIs Performance}
+
+The system's pedagogical features, including summary generation, MCQ creation, and learning roadmap synthesis, were tested at a sustained load of 50 concurrent users.
+
+\begin{table}[H]
+    \centering
+    \caption{Learning Insight APIs Performance Matrix}
+    \label{tab:insight_perf_matrix}
+    \scalebox{0.85}{
+    \begin{tabular}{lrrrrr}
+        \toprule
+        \textbf{Endpoint} & \textbf{Concurrency} & \textbf{Error \%} & \textbf{Mean (ms)} & \textbf{P50 (ms)} & \textbf{P95 (ms)} \\
+        \midrule
+        \textbf{Summary API} & 20 users & 0.0 & 6,145.9 & 6,047 & 7,586 \\
+        & 30 users & 0.0 & 6,248.3 & 6,205 & 7,398 \\
+        & 40 users & 0.0 & 6,608.5 & 6,479 & 8,388 \\
+        & 50 users & 0.0 & 6,866.9 & 6,745 & 8,295 \\
+        \midrule
+        \textbf{MCQ API} & 20 users & 0.0 & 3,358.7 & 3,290 & 4,355 \\
+        & 30 users & 0.0 & 3,644.0 & 3,601 & 4,543 \\
+        & 40 users & 0.0 & 3,835.2 & 3,759 & 5,052 \\
+        & 50 users & 0.0 & 4,295.2 & 4,135 & 6,171 \\
+        \midrule
+        \textbf{Roadmap API} & 20 users & 0.0 & 2,507.2 & 2,439 & 3,588 \\
+        & 30 users & 0.0 & 2,678.3 & 2,497 & 4,275 \\
+        & 40 users & 0.0 & 3,323.6 & 2,828 & 7,868 \\
+        & 50 users & 0.0 & 3,178.6 & 3,033 & 4,359 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\subsection{Cross-API Findings and Risk Mitigation}
+
+The following analysis synthesizes the results across all API groups to identify system-wide trends and develop mitigation strategies for production risks.
+
+\begin{table}[H]
+    \centering
+    \scalebox{0.85}{
+    \begin{tabular}{lp{6cm}p{6cm}}
+        \toprule
+        \textbf{Finding} & \textbf{Evidence} & \textbf{Technical Meaning} \\
+        \midrule
+        Stable User APIs & 0\% error rate in Auth, Profile, Stats & The request handling and security layers are highly reliable. \\
+        Search Scalability & Latency increases from 18s to 30s & Hybrid retrieval paths require caching for high-load scenarios. \\
+        Indexing Bottleneck & 100\% failure rate at 40 concurrent jobs & Full indexing requires strict queue management and worker scaling. \\
+        Responsive Chat & First-byte latency under 4.2s (P95) & SSE streaming effectively manages user perception during LLM reasoning. \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Production Risks and Mitigations}
+    \label{tab:risks_mitigations}
+    \scalebox{0.85}{
+    \begin{tabular}{lp{4cm}p{8cm}}
+        \toprule
+        \textbf{Risk} & \textbf{Impact} & \textbf{Mitigation Strategy} \\
+        \midrule
+        Indexing Overload & Failed background jobs & Implement strict queue limits and worker autoscaling. \\
+        Search/Chat Tail Latency & Degraded UX under load & Separate retrieval-only paths and increase Redis cache hit rates. \\
+        LLM Rate Limits & Sudden generation failures & Deploy rate-limit-aware retries and fallback model routing. \\
+        Mixed Workload Contention & Performance interference & Isolate interactive API clusters from heavy background workers. \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\subsection{Testing and Performance Summary}
+
+The comprehensive evaluation of BK-MInD leads to the following engineering conclusions:
 \begin{itemize}
-    \item \textbf{Simple Queries}: Direct queries requiring straightforward document retrieval.
-    \item \textbf{Complex Queries}: Queries involving multiple constraints or ambiguous conditions.
-    \item \textbf{Context-Aware Queries}: Queries that depend on contextual knowledge of the repository.
+    \item \textbf{Operational Stability}: The core user-facing APIs (authentication, search, chat, and insights) are stable and reliable up to 50 concurrent users.
+    \item \textbf{Responsive Streaming}: The chat assistant provides a low-latency first-byte response (1.4s average), maintaining perceived performance during complex agentic reasoning.
+    \item \textbf{Scalability Bottlenecks}: Full document indexing is identified as the most resource-intensive workload, with a safe operating limit of 30 concurrent jobs in the current configuration.
+    \item \textbf{Production Readiness}: The platform is suitable for pilot deployment in educational environments, provided that heavy background processing tasks are managed via a controlled concurrency queue.
 \end{itemize}
 
-\subsection{Generator Evaluation}
+\section{Cost Estimation}
 
-The generator receives outputs from the retriever and is evaluated using:
-\begin{itemize}
-    \item \textbf{Automatic Metrics}: ROUGE scores to measure overlap with reference answers.
-    \item \textbf{Human Evaluation}: Expert assessments of relevance, correctness, and response quality.
-\end{itemize}
-Special attention is given to challenging cases, such as incomplete or ambiguous retrieved information, to test robustness.
+To ensure the economic viability of the proposed system, we have established a baseline cost estimation based on a production-grade AWS deployment. The following table summarizes the key assumptions and resource allocations used to forecast the monthly operational expenditure for the \texttt{prod} environment in the \texttt{us-west-2} region, supporting an initial cohort of 50 active users.
 
-\subsection{System Evaluation}
+\begin{table}[H]
+    \centering
+    \caption{Cost Estimation Assumptions}
+    \label{tab:cost_assumptions}
+    \scalebox{0.8}{
+    \begin{tabular}{lp{2.5cm}llp{8cm}}
+        \toprule
+        \textbf{Parameter} & \textbf{Value} & \textbf{Unit} & \textbf{Source} & \textbf{Notes} \\
+        \midrule
+        Active Users & 50 & count & Target & Monthly active users for forecast. \\
+        Hours per Month & 730 & hours & Standard & 24/7 $\times$ 365 $\div$ 12. \\
+        AWS Region & us-west-2 & region & Config & Oregon - base pricing reference. \\
+        Environment & prod & text & Terraform & Production environment. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{COMPUTE}} \\
+        \midrule
+        Backend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks (High Availability). \\
+        Backend Min/Max & 1 / 10 & tasks & Terraform & Auto-scaling range. \\
+        Backend vCPU & 0.50 & vCPU & Terraform & 512 CPU units per task. \\
+        Backend RAM & 1 & GB & Terraform & 1024 MB per task. \\
+        Frontend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks. \\
+        Frontend Min/Max & 1 / 5 & tasks & Terraform & Auto-scaling range (lighter). \\
+        Frontend vCPU & 0.25 & vCPU & Terraform & 256 CPU units for Node.js. \\
+        Frontend RAM & 0.50 & GB & Terraform & 512 MB per task. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{AI/ML \& INFERENCE}} \\
+        \midrule
+        SageMaker Enabled & Yes & boolean & Terraform & ml.g4dn.xlarge GPU inference. \\
+        Instance Type & ml.g4dn.xlarge & text & Terraform & NVIDIA T4 GPU (1x). \\
+        Instances (Always-On) & 1 & count & Estimate & 24/7 instance for inference. \\
+        Bedrock Claude Usage & $\sim$6M & tokens & Estimate & Haiku + Sonnet for generation. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{STORAGE \& CACHE}} \\
+        \midrule
+        ElastiCache Serverless & Yes & boolean & Terraform & Redis search cache. \\
+        Cache Data Size & 2.50 & GB & Estimate & BM25 + dense embeddings. \\
+        Cache TTL & 600 & seconds & Config & 10-minute cache validity. \\
+        S3 Bucket (storage) & 10 & GB & Terraform & Store the original files and processed files. \\
+        S3 Bucket (requests) & 5000 & count & Terraform & Calling the original files and processed files. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{DATABASE}} \\
+        \midrule
+        DynamoDB Billing & On-Demand & text & Terraform & Flexible for 50 users. \\
+        Read Units & 10.00 & M RRU & Estimate & Chat retrieval + insights. \\
+        Write Units & 10.00 & M WRU & Estimate & Sessions + messages + telemetry. \\
+        DynamoDB Storage & 5.00 & GB & Estimate & Chat history + profiles. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{NETWORKING}} \\
+        \midrule
+        ALB Enabled & Yes & boolean & Terraform & Application Load Balancer. \\
+        ALB LCU (average) & 1.00 & LCU & Estimate & 50 users = $\sim$1 LCU load. \\
+        HTTPS/SSL & Yes & boolean & Config & ACM certificate enabled. \\
+        WAF Enabled & No & boolean & Terraform & Not enabled for 50 users. \\
+        \midrule
+        \multicolumn{5}{l}{\textbf{CONTINGENCY}} \\
+        \midrule
+        Buffer Percentage & 0.15 & percent & Estimate & 15\% contingency for growth. \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
 
-System-level evaluation is conducted through controlled user studies where participants interact with the VSCode extension to perform predefined programming tasks. Feedback is collected through questionnaires and interviews to assess usability, responsiveness, and overall user experience.
+\newpage
+
+To ground our cost projections in current market rates, we utilize the following pricing reference for the specific AWS services and components used in our architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
+
+\begin{table}[H]
+    \centering
+    \caption{AWS Pricing Reference (us-west-2)}
+    \label{tab:aws_pricing_ref}
+    \scalebox{0.8}{
+    \begin{tabular}{lllp{3.4cm}p{6cm}}
+        \toprule
+        \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
+        \midrule
+        Amazon ECS Fargate & vCPU & \$0.04048 & per vCPU-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
+        Amazon ECS Fargate & Memory & \$0.004445 & per GB-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
+        \midrule
+        Amazon SageMaker & ml.g4dn.xlarge & \$0.7364 & per instance-hour & \url{https://aws.amazon.com/sagemaker/pricing/} \\
+        \midrule
+        Elastic Load Balancing & ALB Instance & \$0.0225 & per hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
+        Elastic Load Balancing & ALB LCU & \$0.008 & per LCU-hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
+        \midrule
+        AWS Bedrock & Claude Haiku Input & \$0.00025 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        AWS Bedrock & Claude Haiku Output & \$0.00125 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        \midrule
+        Amazon DynamoDB & On-Demand Reads & \$0.25 & per 1M RRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+        Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+        Amazon DynamoDB & Storage & \$0.25 & per GB & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+        \midrule
+        Amazon ElastiCache & Serverless (Redis) & \$0.125 & per GB-hour & \url{https://aws.amazon.com/elasticache/pricing/} \\
+        \midrule
+        Amazon ECR & Storage & \$0.10 & per GB-month & \url{https://aws.amazon.com/ecr/pricing/} \\
+        \midrule
+        Amazon CloudWatch & Logs Ingest & \$0.50 & per GB & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
+        Amazon CloudWatch & Logs Storage & \$0.03 & per GB-month & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
+        \midrule
+        AWS WAF & Web ACL & \$5.00 & per month & \url{https://aws.amazon.com/waf/pricing/} \\
+        \midrule
+        Amazon S3 & Standard Storage & \$0.02 & per GB-month & \url{https://aws.amazon.com/s3/pricing/} \\
+        Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\newpage
+
+Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
+
+\begin{table}[H]
+    \centering
+    \caption{Monthly Cost Breakdown - 50 Users}
+    \label{tab:monthly_cost_breakdown}
+    \scalebox{0.8}{
+    \begin{tabular}{llp{1.6cm}p{2.7cm}p{4.4cm}rr}
+        \toprule
+        \textbf{Category} & \textbf{Component} & \textbf{Quantity} & \textbf{Unit Price} & \textbf{Base Calculation} & \textbf{Cost} & \textbf{\%} \\
+        \midrule
+        NETWORKING & ALB Instance Hours & 730 hrs & \$0.0225 / hr & 730 hrs $\times$ \$0.0225 & \$16.43 & 2.40\% \\
+        NETWORKING & ALB LCU (avg 1.0) & 730 hrs & \$0.008 / hr & 730 hrs $\times$ 1.0 $\times$ \$0.008 & \$5.84 & 0.85\% \\
+        CACHE & ElastiCache Serverless & 730 hrs & \$0.125 / GB-hr & 730 hrs $\times$ 0.5 GB $\times$ 0.125 & \$45.63 & 6.67\% \\
+        STORAGE & S3 Bucket (storage) & 10 GB & \$0.023 / GB & 10 $\times$ \$0.023 & \$0.23 & 0.03\% \\
+        STORAGE & S3 Bucket (requests) & 5000 req. & \$0.05 / 1k & 5 $\times$ \$0.05 & \$0.25 & 0.04\% \\
+        AI/ML & Bedrock - Haiku & 5 Million & \$1.50 / 1M & 5M tokens (Blended) & \$7.50 & 1.10\% \\
+        DATABASE & DynamoDB On-Demand & 1.00 & \$5.00 / mo & RRU/WRU + Storage & \$5.00 & 0.73\% \\
+        MONITORING & CloudWatch Logs & 1.00 & \$10.00 / mo & 15GB Ingest + Storage & \$10.00 & 1.46\% \\
+        CONTAINER & ECR Storage & 12 GB & \$0.10 / GB & 12GB $\times$ \$0.10 & \$1.20 & 0.18\% \\
+        COMPUTE & ECS Backend (vCPU) & 730 hrs & \$0.02024 / hr & 730 hrs $\times$ 2 $\times$ \$0.02024 & \$29.55 & 4.32\% \\
+        COMPUTE & ECS Backend (RAM) & 730 hrs & \$0.004445 / hr & 730 hrs $\times$ 2 $\times$ \$0.004445 & \$6.49 & 0.95\% \\
+        COMPUTE & ECS Frontend (vCPU) & 730 hrs & \$0.01012 / hr & 730 hrs $\times$ 2 $\times$ \$0.01012 & \$14.78 & 2.16\% \\
+        COMPUTE & ECS Frontend (RAM) & 730 hrs & \$0.002223 / hr & 730 hrs $\times$ 2 $\times$ \$0.002223 & \$3.25 & 0.48\% \\
+        COMPUTE & SageMaker (GPU) & 730 hrs & \$0.7364 / hr & 730 hrs $\times$ \$0.7364 & \$537.57 & 78.62\% \\
+        \midrule
+        \textbf{TOTAL} & & & & & \textbf{\$683.72} & \textbf{100.00\%} \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/31-pie-cost.png}
+    \caption[Monthly Cost Breakdown Visualization]{Monthly Cost Breakdown Visualization (50 Users).}
+    \label{fig:monthly_cost_pie}
+\end{figure}
+
+\newpage
+
+The following table provides a comparative analysis of GPU operational costs across different cloud providers. This estimation is based on a workload scenario of 50 active users, with each user initiating 20 requests per day and each request requiring 15 seconds of GPU inference time, totaling approximately 125 hours of GPU utilization per month.
+
+\begin{table}[H]
+    \centering
+    \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month)}
+    \label{tab:gpu_optimization}
+    \scalebox{0.8}{
+    \begin{tabular}{llllrrr}
+        \toprule
+        \textbf{Provider} & \textbf{GPU Type} & \textbf{Pricing Model} & \textbf{Pricing Unit} & \textbf{Always-On} & \textbf{50-User Cost} & \textbf{Savings vs AWS} \\
+        \midrule
+        AWS SageMaker & ml.g4dn.xlarge & Dedicated & \$0.7364 / hr & \$537.57 & \$537.57 & Baseline \\
+        RunPod Serverless & NVIDIA T4 & Pay-per-sec & \$0.000164 / s & \$0.00 & \$73.80 & \$463.77 \\
+        Modal Labs & NVIDIA T4 & Serverless & \$0.000225 / s & \$0.00 & \$101.25 & \$436.32 \\
+        Hyperstack & RTX A4000 & Dedicated & \$0.15 / hr & \$109.50 & \$109.50 & \$428.07 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
 
 \newpage
