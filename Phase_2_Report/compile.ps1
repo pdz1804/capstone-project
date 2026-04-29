@@ -23,7 +23,7 @@ Write-Host " - Cleanup complete"
 # Step 1: First pdflatex pass
 Write-Host ""
 Write-Host "[2/5] Running pdflatex (first pass)..."
-& pdflatex -interaction=nonstopmode main.tex
+& pdflatex -interaction=nonstopmode -shell-escape main.tex
 if ($LASTEXITCODE -ne 0) {
     Write-Host " ! Warning: pdflatex returned non-zero exit code"
 }
@@ -42,13 +42,13 @@ if ($LASTEXITCODE -ne 0) {
 # Step 3: Second pdflatex pass
 Write-Host ""
 Write-Host "[4/5] Running pdflatex (second pass)..."
-& pdflatex -interaction=nonstopmode main.tex
+& pdflatex -interaction=nonstopmode -shell-escape main.tex
 Write-Host " - Second pass complete"
 
 # Step 4: Third pdflatex pass (to resolve all references)
 Write-Host ""
 Write-Host "[5/5] Running pdflatex (final pass)..."
-& pdflatex -interaction=nonstopmode main.tex
+& pdflatex -interaction=nonstopmode -shell-escape main.tex
 Write-Host " - Final pass complete"
 
 Write-Host ""
