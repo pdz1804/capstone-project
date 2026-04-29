@@ -13,7 +13,7 @@ Phase 1 was characterized by the transition from theoretical research to a funct
 
 During the initial weeks, the focus was on concurrent research and infrastructure setup. While the literature review identified state-of-the-art VLMs and RAG frameworks like LangChain and LlamaIndex, the repository and environment were simultaneously configured. This parallel approach allowed for immediate experimentation with ASR systems like PhoWhisper and OCR tools such as Tesseract and Mistral OCR.
 
-A key milestone was reached in the mid-phase with the deployment of **Pipeline v1**. This version integrated basic $BM25$ and dense retrieval methods (utilizing $all-MiniLM-L6-v2$ and $BGE-M3$), providing a benchmark for all subsequent optimizations. The team also conducted comparative analysis between frameworks to select the most efficient one for the project’s specific needs. The latter half of the phase focused on stabilizing these components into a unified code repository, transitioning from experimental notebooks to a structured backend API architecture. Additionally, user feedback was solicited through surveys to refine the system design and focus.
+A key milestone was reached in the mid-phase with the deployment of Pipeline v1. This version integrated basic $BM25$ and dense retrieval methods (utilizing $all-MiniLM-L6-v2$ and $BGE-M3$), providing a benchmark for all subsequent optimizations. The team also conducted comparative analysis between frameworks to select the most efficient one for the project’s specific needs. The latter half of the phase focused on stabilizing these components into a unified code repository, transitioning from experimental notebooks to a structured backend API architecture. Additionally, user feedback was solicited through surveys to refine the system design and focus.
 \subsection{Phase 1 Learning Milestones and Key Achievements}
 
 Throughout Phase 1, the team achieved several critical learning milestones that informed system design:
@@ -119,7 +119,7 @@ Phase 1 successfully established a comprehensive foundation for the MRAG system 
 
 Building upon the foundation established in Phase 1, Phase 2 successfully evolved the system into a fully multimodal, cloud-native platform. The project surpassed its initial technical objectives by implementing a robust 5-stage processing pipeline and a high-performance frontend.
 
-The primary technical achievement of Phase 2 was the seamless integration of **Amazon S3** for canonical storage and **Qdrant Cloud** for multi-tenant vector retrieval. The system successfully scaled to handle complex lecture materials with **Whisper Large-v3** for high-fidelity transcription and **ColQwen2.5** for visual semantic search. Furthermore, the implementation of **AWS SageMaker** offloading ensured that the system remains responsive under heavy processing loads.
+The primary technical achievement of Phase 2 was the seamless integration of Amazon S3 for canonical storage and Qdrant Cloud for multi-tenant vector retrieval. The system successfully scaled to handle complex lecture materials with Whisper Large-v3 for high-fidelity transcription and ColQwen2.5 for visual semantic search. Furthermore, the implementation of AWS SageMaker offloading ensured that the system remains responsive under heavy processing loads.
 
 The project concluded with a comprehensive evaluation of retrieval accuracy and generation faithfulness, confirming that the hybrid search strategy and grounded generation effectively minimize hallucinations and provide reliable educational assistance.
 
@@ -171,9 +171,9 @@ The project concluded with a comprehensive evaluation of retrieval accuracy and 
 The MRAG system represents a significant step forward in personalized educational technology. By bridging the gap between distributed multimodal resources and generative AI, the system provides students with a powerful tool for information synthesis and adaptive learning. The core achievements include:
 
 \begin{itemize}
-    \item **Multimodal Synergy**: Successfully unified text, image, and audio data into a single searchable context.
-    \item **Cloud-Native Reliability**: Achieved 99\% uptime and data integrity via S3 and Qdrant Cloud integration.
-    \item **Personalized Learning**: Delivered automated summarization, MCQ generation, and learning path features tailored to user profiles.
+    \item Multimodal Synergy: Successfully unified text, image, and audio data into a single searchable context.
+    \item Cloud-Native Reliability: Achieved 99\% uptime and data integrity via S3 and Qdrant Cloud integration.
+    \item Personalized Learning: Delivered automated summarization, MCQ generation, and learning path features tailored to user profiles.
 \end{itemize}
 
 Future improvements will focus on expanding the system's reasoning capabilities and integrating even larger document corpora to further support the educational mission at HCMUT.
