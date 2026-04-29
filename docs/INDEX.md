@@ -16,7 +16,8 @@ Start here for a complete overview:
 3. **[FEATURES.md](FEATURES.md)** — All 18 features documented comprehensively (15 min read)
 4. **[FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md](testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)** — Testing results, capacity analysis (10 min read)
 5. **[AWS_Cost_Estimation_50_Users_Professional.xlsx](others/AWS_Cost_Estimation_50_Users_Professional.xlsx)** — Scalability and cost projections
-6. **[GUARDRAIL_CONFIGURATION.md](technical/GUARDRAIL_CONFIGURATION.md)** — Safety measures and guardrails (5 min read)
+6. **[SECURITY_SECTION_CAPSTONE_REPORT.md](technical/SECURITY_SECTION_CAPSTONE_REPORT.md)** — Comprehensive security architecture and implementation (15 min read) ⭐ **[USE THIS FOR REPORT]**
+7. **[DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md](technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)** — Content safety technical details (reference)
 
 **Time to understand full project:** ~45-60 minutes
 
@@ -29,7 +30,7 @@ Implementation-focused documentation:
 2. **[API_REFERENCE.md](technical/API_REFERENCE.md)** — All HTTP endpoints with parameters and responses
 3. **[requirements.md](requirements.md)** — Software Requirements Specification (functional, non-functional, technical)
 4. **[FEATURES.md](FEATURES.md)** — Feature implementation details
-5. **[GUARDRAIL_CONFIGURATION.md](technical/GUARDRAIL_CONFIGURATION.md)** — Content safety implementation
+5. **[DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md](technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)** — Content safety implementation
 6. **[DOCS_REDIS_ASYNC_JOB_SYSTEM_GUIDE.md](technical/DOCS_REDIS_ASYNC_JOB_SYSTEM_GUIDE.md)** — Async job processing
 7. **[DOCS_search-cache-redis-setup.md](technical/DOCS_search-cache-redis-setup.md)** — Search cache configuration
 
@@ -51,8 +52,10 @@ Deployment, AWS, and infrastructure:
 1. **[Phase_2_FE_AI_Merge/terraform/README.md](../../Phase_2_FE_AI_Merge/terraform/README.md)** — Terraform IaC for ECS, ALB, ECR, SageMaker
 2. **[Phase_2_FE_AI_Merge/sagemaker/README.md](../../Phase_2_FE_AI_Merge/sagemaker/README.md)** — SageMaker container build and deployment
 3. **[DOCS_deployment-alb-acm-custom-domain.md](technical/DOCS_deployment-alb-acm-custom-domain.md)** — HTTPS, custom domains, ACM
-4. **[DOCS_search-cache-redis-setup.md](technical/DOCS_search-cache-redis-setup.md)** — Redis/ElastiCache setup
-5. **[AWS_Cost_Estimation_50_Users_Professional.xlsx](others/AWS_Cost_Estimation_50_Users_Professional.xlsx)** — Cost projections and capacity planning
+4. **[DOCS_TECHNICAL_WAF_CONFIGURATION.md](technical/DOCS_TECHNICAL_WAF_CONFIGURATION.md)** — AWS WAF detailed configuration, rules, capacity, operations (technical reference)
+5. **[13-04-firewall-guidelines.md](technical/13-04-firewall-guidelines.md)** — WAF Terraform IaC code and state management
+6. **[DOCS_search-cache-redis-setup.md](technical/DOCS_search-cache-redis-setup.md)** — Redis/ElastiCache setup
+7. **[AWS_Cost_Estimation_50_Users_Professional.xlsx](others/AWS_Cost_Estimation_50_Users_Professional.xlsx)** — Cost projections and capacity planning
 
 ---
 
@@ -87,13 +90,15 @@ Testing, validation, and performance:
 |------|---------|----------|----------|
 | **API_REFERENCE.md** | HTTP endpoints, parameters, responses | Backend, Frontend devs | 🔴 High |
 | **APPLICATION_OVERVIEW.md** | Architecture, capabilities, workflows, quality attributes | All | 🔴 High |
-| **GUARDRAIL_CONFIGURATION.md** | AWS Bedrock safety filters, PII protection, content blocking | Security, Backend, Team | 🔴 High |
+| **SECURITY_SECTION_CAPSTONE_REPORT.md** | AWS WAF + Bedrock Guardrails written for capstone report (narrative format) | Team, Leadership, Report | 🔴 High |
+| **DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md** | AWS Bedrock safety filters, PII protection, content blocking (technical details) | Security, Backend, Team | 🔴 High |
+| **DOCS_TECHNICAL_WAF_CONFIGURATION.md** | AWS WAF protection pack, rules, capacity, operations (technical details) | Security, DevOps, Backend | 🟡 Medium |
 | **DOCS_deployment-alb-acm-custom-domain.md** | HTTPS setup, custom domains, DNS, ACM | DevOps | 🟡 Medium |
 | **DOCS_search-cache-redis-setup.md** | Redis/ElastiCache configuration, operations | DevOps, Backend | 🟡 Medium |
 | **DOCS_REDIS_ASYNC_JOB_SYSTEM_GUIDE.md** | Job queue, background workers, retry logic | Backend, DevOps | 🟡 Medium |
 | **DOCS_create-endpoint-script.md** | SageMaker endpoint creation automation | DevOps | 🟡 Medium |
 | **14-04-2026-backend-analysis.md** | Backend performance analysis, optimization notes | Backend lead | 🟢 Low |
-| **13-04-firewall-guidelines.md** | Security and firewall considerations | Security, DevOps | 🟢 Low |
+| **13-04-firewall-guidelines.md** | Terraform IaC for WAF deployment and state management | Security, DevOps | 🟢 Low |
 
 ---
 
