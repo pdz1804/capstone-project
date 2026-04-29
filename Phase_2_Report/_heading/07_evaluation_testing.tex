@@ -192,34 +192,52 @@ To ensure a rigorous and transparent evaluation, the performance test suite was 
 
 To evaluate the system's robustness and scalability under realistic user workloads, a comprehensive load testing suite was executed using \textbf{Apache JMeter}. The testing focused on the core user journeys, ranging from lightweight authentication and profile retrieval to heavy AI-driven processing and indexing pipelines. The following results represent the system's performance across varying concurrency levels, up to 50 simultaneous users.
 
-\subsubsection{Baseline API and Upload Performance}
-
-The system's foundational APIs and file upload services were tested across multiple concurrency levels. As shown in Table \ref{tab:baseline_upload_perf}, the core identity and telemetry services maintain exceptional stability, while the upload service identifies a predictable linear latency increase.
+\subsubsection{Baseline API}
 
 \begin{table}[H]
     \centering
-    \caption{Baseline API and Upload Performance Matrix}
-    \label{tab:baseline_upload_perf}
+    \caption{Baseline API Performance Matrix}
+    \label{tab:baseline_perf}
     \scalebox{0.85}{
-    \begin{tabular}{llrrrrr}
+    \begin{tabular}{lrrrrr}
         \toprule
-        \textbf{Endpoint} & \textbf{Concurrency} & \textbf{Error \%} & \textbf{Mean (ms)} & \textbf{P50 (ms)} & \textbf{P95 (ms)} & \textbf{P99 (ms)} \\
+        \textbf{Endpoint} & \textbf{Error \%} & \textbf{Mean (ms)} & \textbf{P50 (ms)} & \textbf{P95 (ms)} & \textbf{P99 (ms)} \\
         \midrule
-        \texttt{POST /api/auth/login} & 50 users & 0.0 & 1,891.6 & 1,986 & 2,418 & 2,628 \\
-        \texttt{GET /api/users/me} & 50 users & 0.0 & 1,372.3 & 1,461 & 1,919 & 1,980 \\
-        \texttt{GET /api/processing-stats} & 50 users & 0.0 & 590.0 & 582 & 1,033 & 1,112 \\
-        \midrule
-        \textbf{Upload API} & 30 users & 0.0 & 7,404.1 & 7,693 & 9,895 & 9,896 \\
-        & 40 users & 0.0 & 4,919.9 & 4,267 & 7,781 & 7,819 \\
-        & 50 users & 0.0 & 6,198.9 & 5,050 & 9,363 & 9,367 \\
+        \texttt{POST /api/auth/login} & 0.0 & 1,891.6 & 1,986 & 2,418 & 2,628 \\
+        \texttt{GET /api/users/me} & 0.0 & 1,372.3 & 1,461 & 1,919 & 1,980 \\
+        \texttt{GET /api/processing-stats} & 0.0 & 590.0 & 582 & 1,033 & 1,112 \\
         \bottomrule
     \end{tabular}
     }
 \end{table}
 
-\textbf{Analysis:} Authentication and user profile calls stayed below 2.5 seconds at P95, while processing stats stayed near 1 second at P95. The stats endpoint is the fastest because it is a lightweight read path. Authentication and profile retrieval include identity checks and token/user state work, so their higher latency is reasonable. Upload latency remained under 10 seconds at P95 for the tested concurrency levels and returned 0 errors. The mean latency varies between runs because upload performance depends on network path, S3 put latency, backend worker availability, and per-user object naming/storage metadata work. The upload API is not CPU-heavy compared with document processing and indexing. Its primary dependencies are request body transfer, S3 storage, metadata creation, and backend concurrency.
+Authentication and user profile calls stayed below 2.5 seconds at P95, while processing stats stayed near 1 second at P95. The stats endpoint is the fastest because it is a lightweight read path. Authentication and profile retrieval include identity checks and token/user state work, so their higher latency is reasonable.
 
-\textbf{Conclusion:} The baseline API and upload layer are healthy at 50 concurrent users. These endpoints do not appear to be the primary scalability risk for the application. The upload layer is suitable for normal user onboarding and file submission traffic. At larger scale, upload should remain protected by request-size limits, direct-to-S3 upload options, and async post-upload processing.
+The baseline API layer is healthy at 50 concurrent users. These endpoints do not appear to be the primary scalability risk for the application.
+
+\subsubsection{Upload API}
+
+\begin{table}[H]
+    \centering
+    \caption{Upload API Performance Matrix}
+    \label{tab:upload_perf}
+    \scalebox{0.85}{
+    \begin{tabular}{lrrrrr}
+        \toprule
+        \textbf{Concurrency} & \textbf{Error \%} & \textbf{Mean (ms)} & \textbf{P50 (ms)} & \textbf{P95 (ms)} & \textbf{P99 (ms)} \\
+        \midrule
+        30 users & 0.0 & 7,404.1 & 7,693 & 9,895 & 9,896 \\
+        40 users & 0.0 & 4,919.9 & 4,267 & 7,781 & 7,819 \\
+        50 users & 0.0 & 6,198.9 & 5,050 & 9,363 & 9,367 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+Upload latency remained under 10 seconds at P95 for the tested concurrency levels and returned 0 errors. The mean latency varies between runs because upload performance depends on network path, S3 put latency, backend worker availability, and per-user object naming/storage metadata work. The upload API is not CPU-heavy compared with document processing and indexing. Its primary dependencies are request body transfer, S3 storage, metadata creation, and backend concurrency.
+
+The upload layer is reliable up to 50 concurrent users in the available test set. It is suitable for normal user onboarding and file submission traffic. At larger scale, upload should remain protected by request-size limits, direct-to-S3 upload options, and async post-upload processing.
+
 
 
 \subsubsection{Document Processing Jobs}
@@ -241,9 +259,9 @@ The system's foundational APIs and file upload services were tested across multi
     }
 \end{table}
 
-\textbf{Analysis:} Processing duration rises from approximately 36 seconds at 20 jobs to 51 seconds at 40 jobs. The increasing failure count indicates resource contention or timeout sensitivity as the number of simultaneous jobs increases. Processing is compute- and I/O-heavy because it may include document conversion, OCR/ASR preparation, media handling, markdown generation, S3 I/O, and metadata updates.
+Processing duration rises from approximately 36 seconds at 20 jobs to 51 seconds at 40 jobs. The increasing failure count indicates resource contention or timeout sensitivity as the number of simultaneous jobs increases. Processing is compute- and I/O-heavy because it may include document conversion, OCR/ASR preparation, media handling, markdown generation, S3 I/O, and metadata updates.
 
-\textbf{Conclusion:} Processing is acceptable at moderate concurrency but should be treated as a controlled background workload. The system should not allow unlimited simultaneous processing jobs. Queueing, worker autoscaling, and job-specific retry/error classification will improve stability as usage grows.
+Processing is acceptable at moderate concurrency but should be treated as a controlled background workload. The system should not allow unlimited simultaneous processing jobs. Queueing, worker autoscaling, and job-specific retry/error classification will improve stability as usage grows.
 
 \subsubsection{Indexing Jobs}
 
@@ -264,9 +282,9 @@ The system's foundational APIs and file upload services were tested across multi
     }
 \end{table}
 
-\textbf{Analysis:} Indexing scales less smoothly than processing. The 20-job and 30-job runs completed successfully, but the 40-job run failed all jobs after long execution times. This strongly indicates that full indexing is currently the most capacity-sensitive workflow. The reason is technical: indexing combines processed text/image assets, embedding generation, sparse/dense index updates, Qdrant writes, and potentially multimodal index operations. These operations place pressure on model throughput, memory, network, and vector database capacity.
+Indexing scales less smoothly than processing. The 20-job and 30-job runs completed successfully, but the 40-job run failed all jobs after long execution times. This strongly indicates that full indexing is currently the most capacity-sensitive workflow. The reason is technical: indexing combines processed text/image assets, embedding generation, sparse/dense index updates, Qdrant writes, and potentially multimodal index operations. These operations place pressure on model throughput, memory, network, and vector database capacity.
 
-\textbf{Conclusion:} The safe operating point for indexing from current evidence is up to 30 concurrent full-index jobs. The 40-job result is a useful boundary measurement rather than a product failure: it identifies where queue control, worker capacity, and index-write scaling should be improved before opening higher parallelism.
+The safe operating point for indexing from current evidence is up to 30 concurrent full-index jobs. The 40-job result is a useful boundary measurement rather than a product failure: it identifies where queue control, worker capacity, and index-write scaling should be improved before opening higher parallelism.
 
 
 
@@ -290,9 +308,9 @@ The system's foundational APIs and file upload services were tested across multi
     }
 \end{table}
 
-\textbf{Analysis:} Search remained reliable with 0 errors through 50 concurrent users. Latency increases as concurrency grows, especially at the tail. P95 latency rises from 18.0 seconds at 20 users to 30.1 seconds at 50 users. This is expected because search is not a simple database read; it involves hybrid retrieval, Qdrant, BM25, result merging, and multimodal orchestration.
+Search remained reliable with 0 errors through 50 concurrent users. Latency increases as concurrency grows, especially at the tail. P95 latency rises from 18.0 seconds at 20 users to 30.1 seconds at 50 users. This is expected because search is not a simple database read; it involves hybrid retrieval, Qdrant, BM25, result merging, and multimodal orchestration.
 
-\textbf{Conclusion:} Search is functionally stable under the tested concurrency. The next optimization target should be latency reduction: cache hit-rate improvement, stricter retrieval defaults for high-load conditions, and separating retrieval-only paths from generation-heavy paths.
+Search is functionally stable under the tested concurrency. The next optimization target should be latency reduction: cache hit-rate improvement, stricter retrieval defaults for high-load conditions, and separating retrieval-only paths from generation-heavy paths.
 
 \subsubsection{Chat Stream API}
 
@@ -314,9 +332,9 @@ The system's foundational APIs and file upload services were tested across multi
     }
 \end{table}
 
-\textbf{Analysis:} Chat stream returned 0 errors through 50 concurrent users. First-byte latency is good for a streaming AI endpoint: even at 50 users, the average first response was about 1.4 seconds and P95 was about 4.2 seconds. The gradual increase in elapsed time is normal for LLM-backed workflows. Each chat request can trigger multiple operations: history/session persistence, tool selection, retrieval, prompt construction, model call, and token streaming. The system behaves correctly because it starts streaming quickly while the full answer completes later.
+Chat stream returned 0 errors through 50 concurrent users. First-byte latency is good for a streaming AI endpoint: even at 50 users, the average first response was about 1.4 seconds and P95 was about 4.2 seconds. The gradual increase in elapsed time is normal for LLM-backed workflows. Each chat request can trigger multiple operations: history/session persistence, tool selection, retrieval, prompt construction, model call, and token streaming. The system behaves correctly because it starts streaming quickly while the full answer completes later.
 
-\textbf{Conclusion:} Chat is operationally stable up to 50 concurrent users. For production growth, the priority should be controlling model/tool complexity per request, adding queue/backpressure controls for expensive agent actions, and separating lightweight chat from high-cost multimodal/tool-heavy chat.
+Chat is operationally stable up to 50 concurrent users. For production growth, the priority should be controlling model/tool complexity per request, adding queue/backpressure controls for expensive agent actions, and separating lightweight chat from high-cost multimodal/tool-heavy chat.
 
 
 
@@ -340,9 +358,9 @@ The system's foundational APIs and file upload services were tested across multi
     }
 \end{table}
 
-\textbf{Analysis:} Summary latency is consistent, with mean latency remaining around 6-7 seconds through 50 users, indicating stable backend behavior and predictable LLM/retrieval cost for the summary workload.
+Summary latency is consistent, with mean latency remaining around 6-7 seconds through 50 users, indicating stable backend behavior and predictable LLM/retrieval cost for the summary workload.
 
-\textbf{Conclusion:} Summary generation is ready for concurrent classroom-style usage, especially when users request structured overviews of already processed materials.
+Summary generation is ready for concurrent classroom-style usage, especially when users request structured overviews of already processed materials.
 
 \subsubsection{Multiple Choice Question (MCQ) API}
 
@@ -364,9 +382,9 @@ The system's foundational APIs and file upload services were tested across multi
     }
 \end{table}
 
-\textbf{Analysis:} MCQ generation is the best-performing AI insight endpoint, with mean latency staying under 4.3 seconds at 50 users, and P95 remaining around 6.2 seconds.
+MCQ generation is the best-performing AI insight endpoint, with mean latency staying under 4.3 seconds at 50 users, and P95 remaining around 6.2 seconds.
 
-\textbf{Conclusion:} MCQ generation is a strong candidate for high-traffic educational workflows such as quick quizzes and revision sessions.
+MCQ generation is a strong candidate for high-traffic educational workflows such as quick quizzes and revision sessions.
 
 \subsubsection{Learning Roadmap API}
 
@@ -388,9 +406,9 @@ The system's foundational APIs and file upload services were tested across multi
     }
 \end{table}
 
-\textbf{Analysis:} Roadmap generation is stable and low-latency for an AI feature. While the 40-user run shows a temporary tail-latency spike, the 50-user run returns to a lower P95, suggesting a transient load or external dependency effect rather than a monotonic scaling failure.
+Roadmap generation is stable and low-latency for an AI feature. While the 40-user run shows a temporary tail-latency spike, the 50-user run returns to a lower P95, suggesting a transient load or external dependency effect rather than a monotonic scaling failure.
 
-\textbf{Conclusion:} Roadmap generation has strong production potential, supporting many concurrent learners with acceptable latency and no observed errors in the current test set.
+Roadmap generation has strong production potential, supporting many concurrent learners with acceptable latency and no observed errors in the current test set.
 
 
 
