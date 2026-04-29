@@ -944,7 +944,7 @@ The following subsections detail the core API endpoints that power the system's 
 \end{itemize}
 
 \subsection{Upload Files [\texttt{POST} \texttt{/api/upload}]}
-Manages the initial ingestion of raw document assets into the system's storage backend (local filesystem or Amazon S3). This service supports high-concurrency multi-file uploads and ensures that all assets are logically partitioned by user identity.
+Manages the initial ingestion of raw document assets into the system's storage backend (local filesystem or Amazon S3). This service supports high-concurrency multi-file uploads and ensures that all assets are logically partitioned by user identity. The corresponding user interface for document ingestion is illustrated in Figure \ref{fig:ui_upload}.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -962,7 +962,7 @@ Manages the initial ingestion of raw document assets into the system's storage b
 \end{itemize}
 
 \subsection{Run Pipeline [\texttt{POST} \texttt{/api/process}]}
-Initiates the 5-stage multimodal extraction and normalization pipeline for a specific set of assets. 
+Initiates the 5-stage multimodal extraction and normalization pipeline for a specific set of assets. The visual orchestration of these pipeline stages is shown in Figure \ref{fig:ui_pipeline}. 
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -986,7 +986,7 @@ Initiates the 5-stage multimodal extraction and normalization pipeline for a spe
 \end{itemize}
 
 \subsection{Build Index [\texttt{POST} \texttt{/api/index}]}
-Synchronizes extracted artifacts into searchable vector and keyword indexes. This service manages both the Qdrant visual/text collections and the BM25 sparse index.
+Synchronizes extracted artifacts into searchable vector and keyword indexes. This service manages both the Qdrant visual/text collections and the BM25 sparse index. The indexing management dashboard is presented in Figure \ref{fig:ui_index}.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -1011,7 +1011,7 @@ Synchronizes extracted artifacts into searchable vector and keyword indexes. Thi
 \end{itemize}
 
 \subsection{Knowledge Explorer [\texttt{POST} \texttt{/api/search}]}
-Provides a high-fidelity search interface for granular document exploration, supporting hybrid retrieval (BM25 + Dense) and visual context rendering using multimodal embeddings.
+Provides a high-fidelity search interface for granular document exploration, supporting hybrid retrieval (BM25 + Dense) and visual context rendering using multimodal embeddings. A visual representation of the search interface is available in Figure \ref{fig:ui_explorer}.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -1038,7 +1038,7 @@ Provides a high-fidelity search interface for granular document exploration, sup
 \end{itemize}
 
 \subsection{Summary Generation [\texttt{POST} \texttt{/api/insights/summary}]}
-Generates context-aware abstracts and targeted summaries by synthesizing the structured outputs of the 5-stage processing pipeline. This service utilizes the high-fidelity Markdown context of a specific document to generate synthesis while respecting thematic focus and stylistic constraints.
+Generates context-aware abstracts and targeted summaries by synthesizing the structured outputs. The interface for summary generation is detailed in Figure \ref{fig:ui_summary}. This service utilizes the high-fidelity context of a specific document to generate while respecting thematic focus and stylistic constraints.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -1061,7 +1061,7 @@ Generates context-aware abstracts and targeted summaries by synthesizing the str
 \end{itemize}
 
 \subsection{Lecture Viewer [\texttt{GET} \texttt{/api/processed-file}]}
-Provides a secure mechanism to download or inline-preview single file artifacts (e.g., high-resolution Markdown, page images, or original assets) located within the multi-tenant processing tree. The service is strictly tenant-safe; it rejects all path traversal attempts and ensures that S3 keys remain confined to the user-specific processing prefix.
+Provides a secure mechanism to download or inline-preview single file artifacts (e.g., high-resolution Markdown, page images, or original assets) located within the multi-tenant processing tree. The integrated viewer interface for multimodal artifacts is shown in Figure \ref{fig:ui_viewer}. The service is strictly tenant-safe; it rejects all path traversal attempts and ensures that S3 keys remain confined to the user-specific processing prefix.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -1084,7 +1084,7 @@ Provides a secure mechanism to download or inline-preview single file artifacts 
 \end{itemize}
 
 \subsection{Learning Path [\texttt{POST} \texttt{/api/insights/learning-roadmap}]}
-Synthesizes a structured educational progression and roadmap based on specific document contexts and user goals. This pedagogical service leverages the LLM's reasoning capabilities to formulate a logical sequence of prerequisite and core topics.
+Synthesizes a structured educational progression and roadmap based on specific document contexts and user goals. The generated roadmap interface for personalized learning is illustrated in Figure \ref{fig:ui_roadmap}. This pedagogical service leverages the LLM's reasoning capabilities to formulate a logical sequence of prerequisite and core topics.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -1104,7 +1104,7 @@ Synthesizes a structured educational progression and roadmap based on specific d
 \end{itemize}
 
 \subsection{Multiple Choice Questions [\texttt{POST} \texttt{/api/insights/mcq}]}
-Synthesizes dynamic multiple-choice quizzes and rationales based on specific document contexts. This service is designed for automated knowledge validation, supporting various difficulty levels and stylistic orientations.
+Synthesizes dynamic multiple-choice quizzes and rationales based on specific document contexts. The automated quiz generation interface is presented in Figure \ref{fig:ui_mcq}. This service is designed for automated knowledge validation, supporting various difficulty levels and stylistic orientations.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -1127,7 +1127,7 @@ Synthesizes dynamic multiple-choice quizzes and rationales based on specific doc
 \end{itemize}
 
 \subsection{Chat Assistant [\texttt{POST} \texttt{/api/chat/stream}]}
-The primary RAG orchestration endpoint for streaming conversational interaction and long-term memory management. This service utilizes DynamoDB for session state and prompt injection for personalized personalization.
+The primary RAG orchestration endpoint for streaming conversational interaction and long-term memory management. The conversational interface for the RAG assistant is detailed in Figure \ref{fig:ui_chat}. This service utilizes DynamoDB for session state and prompt injection for personalized personalization.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -1157,7 +1157,7 @@ The primary RAG orchestration endpoint for streaming conversational interaction 
 \end{enumerate}
 
 \subsection{Feedbacks [\texttt{POST} \texttt{/api/feedback}]}
-Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG performance. This service captures both structured sentiment (votes) and unstructured qualitative data to drive system improvements.
+Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG performance. The sentiment collection interface for system improvement is shown in Figure \ref{fig:ui_feedback}. This service captures both structured sentiment (votes) and unstructured qualitative data to drive system improvements.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
