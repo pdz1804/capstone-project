@@ -1,4 +1,8 @@
-# Firewall Guide (Single Source)
+# Firewall Guide (Single Source) - Terraform IaC
+
+**📚 For comprehensive security analysis, see:** [DOCS_TECHNICAL_WAF_CONFIGURATION.md](DOCS_TECHNICAL_WAF_CONFIGURATION.md)
+
+---
 
 ## Current Target State
 
