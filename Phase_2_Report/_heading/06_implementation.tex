@@ -4,11 +4,11 @@
 
 % \textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 5-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
 
-This chapter details the practical implementation of the core system architecture. We describe the system design, data processing pipeline, and key implementation components that enable efficient document processing and retrieval.
+This chapter details the practical implementation of the core system architecture. We describe the system design, data processing pipeline, and key implementation components.
 
 \section{Implementation Evolution}
 
-The development of the Unified MRAG system was executed in two distinct phases, representing a transition from a research-oriented baseline to a robust, production-ready platform. This evolution was driven by the need for scalability, multi-tenancy, and high availability.
+The development of the Unified MRAG system was executed in two distinct phases, representing a transition from a research-oriented baseline to a robust, production-ready platform. This evolution was driven by the need for scalability, and high availability.
 
 Phase 1 focused on the validation of the core retrieval-augmented generation logic, utilizing local resources and monolithic processing scripts. Phase 2 involved a comprehensive refactoring of the system into a cloud-native architecture, offloading compute-heavy tasks and leveraging managed services for data persistence and orchestration.
 
@@ -17,7 +17,7 @@ Phase 1 focused on the validation of the core retrieval-augmented generation log
 Phase 1 was characterized by the development of a \textbf{Proof-of-Concept (PoC)} baseline. The primary objective was to validate the technical feasibility of the multimodal retrieval logic and ensure that the integration of text and visual embedding models yielded coherent results. During this stage, the system was implemented as a monolithic Python environment, relying on local filesystem storage for documents and a local instance of a vector database for retrieval. While functional, this architecture suffered from significant limitations:
 
 \begin{itemize}
-    \item \textbf{Resource Contention}: Running heavy embedding models (like ColQwen and BGE) alongside the API server on a single machine led to significant latency and memory exhaustion.
+    \item \textbf{Resource Contention}: Running heavy embedding models (like ColQwen) alongside the API server on a single machine led to significant latency and memory exhaustion.
     \item \textbf{Lack of Persistence}: User sessions and processing states were transient, meaning that any system restart resulted in the loss of progress and required complete re-indexing of documents.
     \item \textbf{Monolithic Bottlenecks}: The sequential nature of the data processing pipeline meant that large document uploads blocked all other system operations, preventing concurrent usage.
 \end{itemize}
@@ -31,6 +31,9 @@ Phase 2 involved a fundamental \textbf{architectural refactoring}, transitioning
     \item \textbf{Stateful Session Management}: The integration of \textbf{Amazon DynamoDB} allowed for persistent, low-latency tracking of user chat histories and processing statuses, enabling a seamless resume-from-anywhere experience.
     \item \textbf{Optimized Inference Offloading}: To handle the massive compute requirements of late-interaction models, Phase 2 offloaded visual embedding generation to \textbf{AWS SageMaker}. This ensures that the main application backend remains responsive even during high-intensity processing tasks.
     \item \textbf{Asynchronous 5-Stage Pipeline}: The processing logic was rebuilt as a concurrent, event-driven pipeline, allowing for the simultaneous normalization, chunking, and indexing of multiple document streams.
+    \item \textbf{Automated CI/CD and Deployment}: We implemented a fully automated \textbf{GitHub Actions} pipeline to handle containerization via \textbf{Docker} and deployment to \textbf{AWS ECS Fargate}, ensuring rapid iteration and system stability.
+    \item \textbf{Testing and Quality Assurance}: A multi-layered testing strategy was introduced, including \textbf{Pytest} for backend logic, \textbf{Pydantic} for data validation, and \textbf{Apache JMeter} for performance stress testing.
+    \item \textbf{Operational Cost Estimation}: We established a detailed cloud expenditure model, optimizing GPU utilization costs to ensure the economic viability of the production environment.
 \end{itemize}
 
 The following table summarizes the key technical transitions between the two phases:
@@ -59,6 +62,29 @@ The following table summarizes the key technical transitions between the two pha
 \end{table}
 
 This strategic transition from a local-first prototype to a cloud-native platform was not merely a change in infrastructure, but a fundamental shift in how the system manages multimodal intelligence. By offloading resource-intensive tasks and centralizing data state, the system transitioned from a experimental tool to a scalable service capable of supporting complex educational workflows.
+
+In addition to the architectural evolution, Phase 2 integrated several production-grade milestones that were absent in the Phase 1 prototype. This included the delivery of a \textbf{complete full-stack application} with a comprehensive suite of functionalities. This was further supported by a rigorous \textbf{technology selection} process for high-concurrency frameworks, the implementation of automated \textbf{CI/CD pipelines} and \textbf{system deployment} via GitHub Actions and AWS ECS, a multi-layered \textbf{testing} strategy (covering unit, data validation, and performance metrics), and a comprehensive \textbf{cost estimation} model to ensure operational viability. These enhancements transition the system from a research tool into a sustainable service.
+
+\begin{table}[H]
+    \centering
+    \caption{Operational and Management Milestones (Phase 2)}
+    \label{tab:phase2_milestones}
+    \scalebox{0.9}{
+    \begin{tabular}{p{5cm}p{12cm}}
+        \toprule
+        \textbf{Component} & \textbf{Phase 2 Implementation} \\
+        \midrule
+        \textbf{Technology Selection} & Formalized selection of FastAPI, React, and Qdrant Cloud based on scalability and latency benchmarks. \\
+        \textbf{Full-Stack} & Implementation of a complete frontend and backend featuring real-time RAG chat assistant, knowledge explorer, lecture viewer, summarization and quiz generation. \\
+        \textbf{System Deployment} & Automated containerization via Docker and orchestration on AWS ECS Fargate for high availability. \\
+        \textbf{CI/CD Pipeline} & End-to-end automation using GitHub Actions for continuous build, test, and deployment. \\
+        \textbf{Testing \& QA} & Multi-tiered testing using Pytest, Pydantic, and Apache JMeter for performance stress tests. \\
+        \textbf{Cost Estimation} & Detailed monthly expenditure modeling for AWS resources and GPU utilization to ensure economic viability. \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
 
 % \newpage
 
@@ -1504,202 +1530,202 @@ The runtime environment is managed by \textbf{Amazon Elastic Container Service (
 % Qdrant serves as the optimal highly performant alternative for our multimodal RAG architecture. Its architectural decision to bypass HNSW indexing for heavy multi-vector payloads demonstrates a deep understanding of memory economics, ensuring high-speed ingestion and reduced RAM overhead. For our team, Qdrant's \texttt{FastEmbed} ecosystem makes ColPali integration exceptionally streamlined, while its Rust-powered engine provides the necessary latency and throughput performance for the system.
 
 
-\section{Cloud Infrastructure Cost Estimation}
-
-To ensure the economic viability of the proposed system, we have established a baseline cost estimation based on a production-grade AWS deployment. The following table summarizes the key assumptions and resource allocations used to forecast the monthly operational expenditure for the \texttt{prod} environment in the \texttt{us-west-2} region, supporting an initial cohort of 50 active users.
-
-\begin{table}[H]
-    \centering
-    \scalebox{0.8}{
-    \begin{tabular}{lp{2.5cm}llp{8cm}}
-        \toprule
-        \textbf{Parameter} & \textbf{Value} & \textbf{Unit} & \textbf{Source} & \textbf{Notes} \\
-        \midrule
-        Active Users & 50 & count & Target & Monthly active users for forecast. \\
-        Hours per Month & 730 & hours & Standard & 24/7 $\times$ 365 $\div$ 12. \\
-        AWS Region & us-west-2 & region & Config & Oregon - base pricing reference. \\
-        Environment & prod & text & Terraform & Production environment. \\
-        \midrule
-        \multicolumn{5}{l}{\textbf{COMPUTE}} \\
-        \midrule
-        Backend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks (High Availability). \\
-        Backend Min/Max & 1 / 10 & tasks & Terraform & Auto-scaling range. \\
-        Backend vCPU & 0.50 & vCPU & Terraform & 512 CPU units per task. \\
-        Backend RAM & 1 & GB & Terraform & 1024 MB per task. \\
-        Frontend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks. \\
-        Frontend Min/Max & 1 / 5 & tasks & Terraform & Auto-scaling range (lighter). \\
-        Frontend vCPU & 0.25 & vCPU & Terraform & 256 CPU units for Node.js. \\
-        Frontend RAM & 0.50 & GB & Terraform & 512 MB per task. \\
-        \midrule
-        \multicolumn{5}{l}{\textbf{AI/ML \& INFERENCE}} \\
-        \midrule
-        SageMaker Enabled & Yes & boolean & Terraform & ml.g4dn.xlarge GPU inference. \\
-        Instance Type & ml.g4dn.xlarge & text & Terraform & NVIDIA T4 GPU (1x). \\
-        Instances (Always-On) & 1 & count & Estimate & 24/7 instance for inference. \\
-        Bedrock Claude Usage & $\sim$6M & tokens & Estimate & Haiku + Sonnet for generation. \\
-        \midrule
-        \multicolumn{5}{l}{\textbf{STORAGE \& CACHE}} \\
-        \midrule
-        ElastiCache Serverless & Yes & boolean & Terraform & Redis search cache. \\
-        Cache Data Size & 2.50 & GB & Estimate & BM25 + dense embeddings. \\
-        Cache TTL & 600 & seconds & Config & 10-minute cache validity. \\
-        S3 Bucket (storage) & 10 & GB & Terraform & Store the original files and processed files. \\
-        S3 Bucket (requests) & 5000 & count & Terraform & Calling the original files and processed files. \\
-        \midrule
-        \multicolumn{5}{l}{\textbf{DATABASE}} \\
-        \midrule
-        DynamoDB Billing & On-Demand & text & Terraform & Flexible for 50 users. \\
-        Read Units & 10.00 & M RRU & Estimate & Chat retrieval + insights. \\
-        Write Units & 10.00 & M WRU & Estimate & Sessions + messages + telemetry. \\
-        DynamoDB Storage & 5.00 & GB & Estimate & Chat history + profiles. \\
-        \midrule
-        \multicolumn{5}{l}{\textbf{NETWORKING}} \\
-        \midrule
-        ALB Enabled & Yes & boolean & Terraform & Application Load Balancer. \\
-        ALB LCU (average) & 1.00 & LCU & Estimate & 50 users = $\sim$1 LCU load. \\
-        HTTPS/SSL & Yes & boolean & Config & ACM certificate enabled. \\
-        WAF Enabled & No & boolean & Terraform & Not enabled for 50 users. \\
-        \midrule
-        \multicolumn{5}{l}{\textbf{CONTINGENCY}} \\
-        \midrule
-        Buffer Percentage & 0.15 & percent & Estimate & 15\% contingency for growth. \\
-        \bottomrule
-    \end{tabular}
-    }
-    \caption{Cost Estimation Assumptions}
-    \label{tab:cost_assumptions}
-\end{table}
-
-\newpage
-
-To ground our cost projections in current market rates, we utilize the following pricing reference for the specific AWS services and components used in our architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
-
-\begin{table}[H]
-    \centering
-    \scalebox{0.8}{
-    \begin{tabular}{lllp{3.4cm}p{6cm}}
-        \toprule
-        \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
-        \midrule
-        Amazon ECS Fargate & vCPU & \$0.04048 & per vCPU-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
-        Amazon ECS Fargate & Memory & \$0.004445 & per GB-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
-        \midrule
-        Amazon SageMaker & ml.g4dn.xlarge & \$0.7364 & per instance-hour & \url{https://aws.amazon.com/sagemaker/pricing/} \\
-        \midrule
-        Elastic Load Balancing & ALB Instance & \$0.0225 & per hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
-        Elastic Load Balancing & ALB LCU & \$0.008 & per LCU-hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
-        \midrule
-        AWS Bedrock & Claude Haiku Input & \$0.00025 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Haiku Output & \$0.00125 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        \midrule
-        Amazon DynamoDB & On-Demand Reads & \$0.25 & per 1M RRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        Amazon DynamoDB & Storage & \$0.25 & per GB & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        \midrule
-        Amazon ElastiCache & Serverless (Redis) & \$0.125 & per GB-hour & \url{https://aws.amazon.com/elasticache/pricing/} \\
-        \midrule
-        Amazon ECR & Storage & \$0.10 & per GB-month & \url{https://aws.amazon.com/ecr/pricing/} \\
-        \midrule
-        Amazon CloudWatch & Logs Ingest & \$0.50 & per GB & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
-        Amazon CloudWatch & Logs Storage & \$0.03 & per GB-month & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
-        \midrule
-        AWS WAF & Web ACL & \$5.00 & per month & \url{https://aws.amazon.com/waf/pricing/} \\
-        \midrule
-        Amazon S3 & Standard Storage & \$0.02 & per GB-month & \url{https://aws.amazon.com/s3/pricing/} \\
-        Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
-        \bottomrule
-    \end{tabular}
-    }
-    \caption{AWS Pricing Reference (us-west-2)}
-    \label{tab:aws_pricing_ref}
-\end{table}
-
-\newpage
-
-Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
-
-\begin{table}[H]
-    \centering
-    \scalebox{0.8}{
-    \begin{tabular}{llp{1.6cm}p{2.7cm}p{4.4cm}rr}
-        \toprule
-        \textbf{Category} & \textbf{Component} & \textbf{Quantity} & \textbf{Unit Price} & \textbf{Base Calculation} & \textbf{Cost} & \textbf{\%} \\
-        \midrule
-        NETWORKING & ALB Instance Hours & 730 hrs & \$0.0225 / hr & 730 hrs $\times$ \$0.0225 & \$16.43 & 2.40\% \\
-        NETWORKING & ALB LCU (avg 1.0) & 730 hrs & \$0.008 / hr & 730 hrs $\times$ 1.0 $\times$ \$0.008 & \$5.84 & 0.85\% \\
-        CACHE & ElastiCache Serverless & 730 hrs & \$0.125 / GB-hr & 730 hrs $\times$ 0.5 GB $\times$ 0.125 & \$45.63 & 6.67\% \\
-        STORAGE & S3 Bucket (storage) & 10 GB & \$0.023 / GB & 10 $\times$ \$0.023 & \$0.23 & 0.03\% \\
-        STORAGE & S3 Bucket (requests) & 5000 req. & \$0.05 / 1k & 5 $\times$ \$0.05 & \$0.25 & 0.04\% \\
-        AI/ML & Bedrock - Haiku & 5 Million & \$1.50 / 1M & 5M tokens (Blended) & \$7.50 & 1.10\% \\
-        DATABASE & DynamoDB On-Demand & 1.00 & \$5.00 / mo & RRU/WRU + Storage & \$5.00 & 0.73\% \\
-        MONITORING & CloudWatch Logs & 1.00 & \$10.00 / mo & 15GB Ingest + Storage & \$10.00 & 1.46\% \\
-        CONTAINER & ECR Storage & 12 GB & \$0.10 / GB & 12GB $\times$ \$0.10 & \$1.20 & 0.18\% \\
-        COMPUTE & ECS Backend (vCPU) & 730 hrs & \$0.02024 / hr & 730 hrs $\times$ 2 $\times$ \$0.02024 & \$29.55 & 4.32\% \\
-        COMPUTE & ECS Backend (RAM) & 730 hrs & \$0.004445 / hr & 730 hrs $\times$ 2 $\times$ \$0.004445 & \$6.49 & 0.95\% \\
-        COMPUTE & ECS Frontend (vCPU) & 730 hrs & \$0.01012 / hr & 730 hrs $\times$ 2 $\times$ \$0.01012 & \$14.78 & 2.16\% \\
-        COMPUTE & ECS Frontend (RAM) & 730 hrs & \$0.002223 / hr & 730 hrs $\times$ 2 $\times$ \$0.002223 & \$3.25 & 0.48\% \\
-        COMPUTE & SageMaker (GPU) & 730 hrs & \$0.7364 / hr & 730 hrs $\times$ \$0.7364 & \$537.57 & 78.62\% \\
-        \midrule
-        \textbf{TOTAL} & & & & & \textbf{\$683.72} & \textbf{100.00\%} \\
-        \bottomrule
-    \end{tabular}
-    }
-    \caption{Monthly Cost Breakdown - 50 Users}
-    \label{tab:monthly_cost_breakdown}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/31-pie-cost.png}
-    \caption[Monthly Cost Breakdown Visualization]{Monthly Cost Breakdown Visualization (50 Users).}
-    \label{fig:monthly_cost_pie}
-\end{figure}
-
-\newpage
-
-The following table provides a comparative analysis of GPU operational costs across different cloud providers. This estimation is based on a workload scenario of 50 active users, with each user initiating 20 requests per day and each request requiring 15 seconds of GPU inference time, totaling approximately 125 hours of GPU utilization per month.
-
-\begin{table}[H]
-    \centering
-    \scalebox{0.8}{
-    \begin{tabular}{llllrrr}
-        \toprule
-        \textbf{Provider} & \textbf{GPU Type} & \textbf{Pricing Model} & \textbf{Pricing Unit} & \textbf{Always-On} & \textbf{50-User Cost} & \textbf{Savings vs AWS} \\
-        \midrule
-        AWS SageMaker & ml.g4dn.xlarge & Dedicated & \$0.7364 / hr & \$537.57 & \$537.57 & Baseline \\
-        RunPod Serverless & NVIDIA T4 & Pay-per-sec & \$0.000164 / s & \$0.00 & \$73.80 & \$463.77 \\
-        Modal Labs & NVIDIA T4 & Serverless & \$0.000225 / s & \$0.00 & \$101.25 & \$436.32 \\
-        Hyperstack & RTX A4000 & Dedicated & \$0.15 / hr & \$109.50 & \$109.50 & \$428.07 \\
-        \bottomrule
-    \end{tabular}
-    }
-    \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month)}
-    \label{tab:gpu_optimization}
-\end{table}
-
-\newpage
-
-\section{Performance}
-
-To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/29-desktop performance.png}
-    \caption[Desktop Performance Metrics]{Desktop Performance Metrics.}
-    \label{fig:desktop_performance}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/30-mobile performance.png}
-    \caption[Mobile Performance Metrics]{Mobile Performance Metrics.}
-    \label{fig:mobile_performance}
-\end{figure}
-
-As shown in Figures \ref{fig:desktop_performance} and \ref{fig:mobile_performance}, the system maintains high performance scores across all categories, ensuring fast load times and a responsive interface for multimodal document interaction.
+% \section{Cloud Infrastructure Cost Estimation}
+% 
+% To ensure the economic viability of the proposed system, we have established a baseline cost estimation based on a production-grade AWS deployment. The following table summarizes the key assumptions and resource allocations used to forecast the monthly operational expenditure for the \texttt{prod} environment in the \texttt{us-west-2} region, supporting an initial cohort of 50 active users.
+% 
+% \begin{table}[H]
+%     \centering
+%     \scalebox{0.8}{
+%     \begin{tabular}{lp{2.5cm}llp{8cm}}
+%         \toprule
+%         \textbf{Parameter} & \textbf{Value} & \textbf{Unit} & \textbf{Source} & \textbf{Notes} \\
+%         \midrule
+%         Active Users & 50 & count & Target & Monthly active users for forecast. \\
+%         Hours per Month & 730 & hours & Standard & 24/7 $\times$ 365 $\div$ 12. \\
+%         AWS Region & us-west-2 & region & Config & Oregon - base pricing reference. \\
+%         Environment & prod & text & Terraform & Production environment. \\
+%         \midrule
+%         \multicolumn{5}{l}{\textbf{COMPUTE}} \\
+%         \midrule
+%         Backend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks (High Availability). \\
+%         Backend Min/Max & 1 / 10 & tasks & Terraform & Auto-scaling range. \\
+%         Backend vCPU & 0.50 & vCPU & Terraform & 512 CPU units per task. \\
+%         Backend RAM & 1 & GB & Terraform & 1024 MB per task. \\
+%         Frontend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks. \\
+%         Frontend Min/Max & 1 / 5 & tasks & Terraform & Auto-scaling range (lighter). \\
+%         Frontend vCPU & 0.25 & vCPU & Terraform & 256 CPU units for Node.js. \\
+%         Frontend RAM & 0.50 & GB & Terraform & 512 MB per task. \\
+%         \midrule
+%         \multicolumn{5}{l}{\textbf{AI/ML \& INFERENCE}} \\
+%         \midrule
+%         SageMaker Enabled & Yes & boolean & Terraform & ml.g4dn.xlarge GPU inference. \\
+%         Instance Type & ml.g4dn.xlarge & text & Terraform & NVIDIA T4 GPU (1x). \\
+%         Instances (Always-On) & 1 & count & Estimate & 24/7 instance for inference. \\
+%         Bedrock Claude Usage & $\sim$6M & tokens & Estimate & Haiku + Sonnet for generation. \\
+%         \midrule
+%         \multicolumn{5}{l}{\textbf{STORAGE \& CACHE}} \\
+%         \midrule
+%         ElastiCache Serverless & Yes & boolean & Terraform & Redis search cache. \\
+%         Cache Data Size & 2.50 & GB & Estimate & BM25 + dense embeddings. \\
+%         Cache TTL & 600 & seconds & Config & 10-minute cache validity. \\
+%         S3 Bucket (storage) & 10 & GB & Terraform & Store the original files and processed files. \\
+%         S3 Bucket (requests) & 5000 & count & Terraform & Calling the original files and processed files. \\
+%         \midrule
+%         \multicolumn{5}{l}{\textbf{DATABASE}} \\
+%         \midrule
+%         DynamoDB Billing & On-Demand & text & Terraform & Flexible for 50 users. \\
+%         Read Units & 10.00 & M RRU & Estimate & Chat retrieval + insights. \\
+%         Write Units & 10.00 & M WRU & Estimate & Sessions + messages + telemetry. \\
+%         DynamoDB Storage & 5.00 & GB & Estimate & Chat history + profiles. \\
+%         \midrule
+%         \multicolumn{5}{l}{\textbf{NETWORKING}} \\
+%         \midrule
+%         ALB Enabled & Yes & boolean & Terraform & Application Load Balancer. \\
+%         ALB LCU (average) & 1.00 & LCU & Estimate & 50 users = $\sim$1 LCU load. \\
+%         HTTPS/SSL & Yes & boolean & Config & ACM certificate enabled. \\
+%         WAF Enabled & No & boolean & Terraform & Not enabled for 50 users. \\
+%         \midrule
+%         \multicolumn{5}{l}{\textbf{CONTINGENCY}} \\
+%         \midrule
+%         Buffer Percentage & 0.15 & percent & Estimate & 15\% contingency for growth. \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+%     \caption{Cost Estimation Assumptions}
+%     \label{tab:cost_assumptions}
+% \end{table}
+% 
+% \newpage
+% 
+% To ground our cost projections in current market rates, we utilize the following pricing reference for the specific AWS services and components used in our architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
+% 
+% \begin{table}[H]
+%     \centering
+%     \scalebox{0.8}{
+%     \begin{tabular}{lllp{3.4cm}p{6cm}}
+%         \toprule
+%         \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
+%         \midrule
+%         Amazon ECS Fargate & vCPU & \$0.04048 & per vCPU-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
+%         Amazon ECS Fargate & Memory & \$0.004445 & per GB-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
+%         \midrule
+%         Amazon SageMaker & ml.g4dn.xlarge & \$0.7364 & per instance-hour & \url{https://aws.amazon.com/sagemaker/pricing/} \\
+%         \midrule
+%         Elastic Load Balancing & ALB Instance & \$0.0225 & per hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
+%         Elastic Load Balancing & ALB LCU & \$0.008 & per LCU-hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
+%         \midrule
+%         AWS Bedrock & Claude Haiku Input & \$0.00025 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+%         AWS Bedrock & Claude Haiku Output & \$0.00125 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+%         AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+%         AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+%         \midrule
+%         Amazon DynamoDB & On-Demand Reads & \$0.25 & per 1M RRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+%         Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+%         Amazon DynamoDB & Storage & \$0.25 & per GB & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+%         \midrule
+%         Amazon ElastiCache & Serverless (Redis) & \$0.125 & per GB-hour & \url{https://aws.amazon.com/elasticache/pricing/} \\
+%         \midrule
+%         Amazon ECR & Storage & \$0.10 & per GB-month & \url{https://aws.amazon.com/ecr/pricing/} \\
+%         \midrule
+%         Amazon CloudWatch & Logs Ingest & \$0.50 & per GB & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
+%         Amazon CloudWatch & Logs Storage & \$0.03 & per GB-month & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
+%         \midrule
+%         AWS WAF & Web ACL & \$5.00 & per month & \url{https://aws.amazon.com/waf/pricing/} \\
+%         \midrule
+%         Amazon S3 & Standard Storage & \$0.02 & per GB-month & \url{https://aws.amazon.com/s3/pricing/} \\
+%         Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+%     \caption{AWS Pricing Reference (us-west-2)}
+%     \label{tab:aws_pricing_ref}
+% \end{table}
+% 
+% \newpage
+% 
+% Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
+% 
+% \begin{table}[H]
+%     \centering
+%     \scalebox{0.8}{
+%     \begin{tabular}{llp{1.6cm}p{2.7cm}p{4.4cm}rr}
+%         \toprule
+%         \textbf{Category} & \textbf{Component} & \textbf{Quantity} & \textbf{Unit Price} & \textbf{Base Calculation} & \textbf{Cost} & \textbf{\%} \\
+%         \midrule
+%         NETWORKING & ALB Instance Hours & 730 hrs & \$0.0225 / hr & 730 hrs $\times$ \$0.0225 & \$16.43 & 2.40\% \\
+%         NETWORKING & ALB LCU (avg 1.0) & 730 hrs & \$0.008 / hr & 730 hrs $\times$ 1.0 $\times$ \$0.008 & \$5.84 & 0.85\% \\
+%         CACHE & ElastiCache Serverless & 730 hrs & \$0.125 / GB-hr & 730 hrs $\times$ 0.5 GB $\times$ 0.125 & \$45.63 & 6.67\% \\
+%         STORAGE & S3 Bucket (storage) & 10 GB & \$0.023 / GB & 10 $\times$ \$0.023 & \$0.23 & 0.03\% \\
+%         STORAGE & S3 Bucket (requests) & 5000 req. & \$0.05 / 1k & 5 $\times$ \$0.05 & \$0.25 & 0.04\% \\
+%         AI/ML & Bedrock - Haiku & 5 Million & \$1.50 / 1M & 5M tokens (Blended) & \$7.50 & 1.10\% \\
+%         DATABASE & DynamoDB On-Demand & 1.00 & \$5.00 / mo & RRU/WRU + Storage & \$5.00 & 0.73\% \\
+%         MONITORING & CloudWatch Logs & 1.00 & \$10.00 / mo & 15GB Ingest + Storage & \$10.00 & 1.46\% \\
+%         CONTAINER & ECR Storage & 12 GB & \$0.10 / GB & 12GB $\times$ \$0.10 & \$1.20 & 0.18\% \\
+%         COMPUTE & ECS Backend (vCPU) & 730 hrs & \$0.02024 / hr & 730 hrs $\times$ 2 $\times$ \$0.02024 & \$29.55 & 4.32\% \\
+%         COMPUTE & ECS Backend (RAM) & 730 hrs & \$0.004445 / hr & 730 hrs $\times$ 2 $\times$ \$0.004445 & \$6.49 & 0.95\% \\
+%         COMPUTE & ECS Frontend (vCPU) & 730 hrs & \$0.01012 / hr & 730 hrs $\times$ 2 $\times$ \$0.01012 & \$14.78 & 2.16\% \\
+%         COMPUTE & ECS Frontend (RAM) & 730 hrs & \$0.002223 / hr & 730 hrs $\times$ 2 $\times$ \$0.002223 & \$3.25 & 0.48\% \\
+%         COMPUTE & SageMaker (GPU) & 730 hrs & \$0.7364 / hr & 730 hrs $\times$ \$0.7364 & \$537.57 & 78.62\% \\
+%         \midrule
+%         \textbf{TOTAL} & & & & & \textbf{\$683.72} & \textbf{100.00\%} \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+%     \caption{Monthly Cost Breakdown - 50 Users}
+%     \label{tab:monthly_cost_breakdown}
+% \end{table}
+% 
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{img/pdz/31-pie-cost.png}
+%     \caption[Monthly Cost Breakdown Visualization]{Monthly Cost Breakdown Visualization (50 Users).}
+%     \label{fig:monthly_cost_pie}
+% \end{figure}
+% 
+% \newpage
+% 
+% The following table provides a comparative analysis of GPU operational costs across different cloud providers. This estimation is based on a workload scenario of 50 active users, with each user initiating 20 requests per day and each request requiring 15 seconds of GPU inference time, totaling approximately 125 hours of GPU utilization per month.
+% 
+% \begin{table}[H]
+%     \centering
+%     \scalebox{0.8}{
+%     \begin{tabular}{llllrrr}
+%         \toprule
+%         \textbf{Provider} & \textbf{GPU Type} & \textbf{Pricing Model} & \textbf{Pricing Unit} & \textbf{Always-On} & \textbf{50-User Cost} & \textbf{Savings vs AWS} \\
+%         \midrule
+%         AWS SageMaker & ml.g4dn.xlarge & Dedicated & \$0.7364 / hr & \$537.57 & \$537.57 & Baseline \\
+%         RunPod Serverless & NVIDIA T4 & Pay-per-sec & \$0.000164 / s & \$0.00 & \$73.80 & \$463.77 \\
+%         Modal Labs & NVIDIA T4 & Serverless & \$0.000225 / s & \$0.00 & \$101.25 & \$436.32 \\
+%         Hyperstack & RTX A4000 & Dedicated & \$0.15 / hr & \$109.50 & \$109.50 & \$428.07 \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+%     \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month)}
+%     \label{tab:gpu_optimization}
+% \end{table}
+% 
+% \newpage
+% 
+% \section{Performance}
+% 
+% To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
+% 
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{img/pdz/29-desktop performance.png}
+%     \caption[Desktop Performance Metrics]{Desktop Performance Metrics.}
+%     \label{fig:desktop_performance}
+% \end{figure}
+% 
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{img/pdz/30-mobile performance.png}
+%     \caption[Mobile Performance Metrics]{Mobile Performance Metrics.}
+%     \label{fig:mobile_performance}
+% \end{figure}
+% 
+% As shown in Figures \ref{fig:desktop_performance} and \ref{fig:mobile_performance}, the system maintains high performance scores across all categories, ensuring fast load times and a responsive interface for multimodal document interaction.
 
 
 \newpage
