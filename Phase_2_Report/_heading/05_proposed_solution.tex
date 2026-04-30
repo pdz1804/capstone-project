@@ -877,7 +877,7 @@ While both React and Vue.js utilize a virtual DOM and a component-based architec
 \textbf{Ecosystem, Community, and Talent Pool}
 React boasts a significantly larger and more mature ecosystem than Vue.js. This translates into an unparalleled selection of third-party libraries, state management solutions (like Redux and Zustand), UI component kits (e.g., Material-UI, Ant Design), and development tools. For a feature-rich educational application that will require complex UI elements, such as interactive document viewers, data visualization, and chat interfaces, this vast ecosystem is a critical accelerator, reducing the need to build components from scratch.
 
-Furthermore, industry surveys consistently demonstrate React's dominant position. Stack Overflow's 2023 survey showed that 42.87\% of professional developers use React, compared to 17.64\% for Vue.js\footnote{\url{https://survey.stackoverflow.co/2023/#most-popular-technologies-webframe-prof}}. This larger talent pool is a pragmatic and significant advantage for a university-based project like us.
+Furthermore, industry surveys consistently demonstrate React's dominant position. Stack Overflow's 2023 survey showed that 42.87\% of professional developers use React, compared to 17.64\% for Vue.js\footnote{\url{https://survey.stackoverflow.co/2023/\#most-popular-technologies-webframe-prof}}. This larger talent pool is a pragmatic and significant advantage for a university-based project like us.
 
 \begin{figure}[H]
     \centering
@@ -924,7 +924,7 @@ This architectural difference is not merely theoretical; it is reflected in star
 
 In the Round 22 benchmarks (testing against physical hardware), the Uvicorn server running a basic FastAPI application handled \textbf{12,567 requests per second} in the Multiple Queries test. In contrast, Django on Gunicorn (a standard synchronous setup) handled \textbf{1,623 requests per second}.
 
-This means FastAPI can handle over 8 times the traffic with the same hardware for this common task\footnote{\url{https://www.techempower.com/benchmarks/#section=data-r22&test=query}}. For our I/O-bound application, this advantage is even more pronounced. The ability to efficiently manage concurrent waiting tasks means we can serve more users simultaneously with lower latency and significantly lower infrastructure costs. This raw performance is essential for delivering the responsive, real-time experience that users expect from an interactive AI assistant.
+This means FastAPI can handle over 8 times the traffic with the same hardware for this common task\footnote{\url{https://www.techempower.com/benchmarks/\#section=data-r22&test=query}}. For our I/O-bound application, this advantage is even more pronounced. The ability to efficiently manage concurrent waiting tasks means we can serve more users simultaneously with lower latency and significantly lower infrastructure costs. This raw performance is essential for delivering the responsive, real-time experience that users expect from an interactive AI assistant.
 
 \subsection{The Superior Developer Experience}
 Beyond raw performance, FastAPI is engineered with a laser focus on building APIs, which dramatically improves developer productivity and code quality.
