@@ -1,0 +1,35 @@
+S3/
+├── ai-service-originals-dev/         # Bucket for raw document ingestion
+│   └── users/\{uid\}/                  # Logical user-tenant isolation
+│       ├── \{doc_name\}.pdf            # Original source document
+│       └── \{doc_name\}.pdf.metadata.json # Ingestion time & file provenance
+└── ai-service-processed-dev/         # Bucket for pipeline artifacts
+    └── users/\{uid\}/
+        ├── .processing_cache.json    # Idempotency and deduplication tracking
+        ├── pipeline_stats.json       # Telemetry and processing performance
+        ├── stage1_normalized/        # Standardized PDF & structured data
+        │   ├── normalized_pdfs/      # Unified format for visual processing
+        │   ├── excel_parsed/         # Structured tables from Office files
+        │   ├── original_files/       # Internal reference copy
+        │   └── normalization_metadata/
+        ├── stage2_media_processed/   # Extracted audiovisual artifacts
+        │   ├── extracted_audio/      # Raw audio for Whisper transcription
+        │   ├── extracted_frames/     # Visual frames for late-interaction RAG
+        │   ├── transcripts/          # ASR textual outputs
+        │   └── media_metadata/       # Temporal feature mapping
+        ├── stage3_document_processed/# Structural Markdown outputs
+        │   ├── \{doc_name\}/
+        │   │   ├── \{doc_name\}.md     # Cleaned semantic Markdown
+        │   │   └── \{doc_name\}_metadata.json
+        │   └── logs/                 # Granular stage-level logs
+        │       ├── batch_summary_*.json
+        │       └── processing_*.log
+        ├── stage4_rag_ready/         # Optimized artifacts for RAG engine
+        │   ├── \{doc_name\}/
+        │   │   ├── \{doc_name\}.md     # Final semantic text
+        │   │   ├── \{doc_name\}.pdf     # Optimized PDF for visual retrieval
+        │   │   └── docling_additional/
+        │   └── consolidation_stats.json
+        └── retrieval/                # Secondary persistence for search indices
+            ├── bm25_index.pkl        # Serialized sparse search index
+            └── documents.json.pkl     # Document lookup table
