@@ -13,7 +13,7 @@ Start here for a complete overview:
 
 1. **[README.md](../README.md)** — Project overview, architecture, scope (5-10 min read)
 2. **[APPLICATION_OVERVIEW.md](technical/APPLICATION_OVERVIEW.md)** — Mission, capabilities, user workflows (10 min read)
-3. **[FEATURES.md](FEATURES.md)** — All 18 features documented comprehensively (15 min read)
+3. **[DOCS_FEATURES.md](DOCS_FEATURES.md)** — All 18 features documented comprehensively (15 min read)
 4. **[FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md](testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)** — Testing results, capacity analysis (10 min read)
 5. **[AWS_Cost_Estimation_50_Users_Professional.xlsx](others/AWS_Cost_Estimation_50_Users_Professional.xlsx)** — Scalability and cost projections
 6. **[SECURITY_SECTION_CAPSTONE_REPORT.md](technical/SECURITY_SECTION_CAPSTONE_REPORT.md)** — Comprehensive security architecture and implementation (15 min read) ⭐ **[USE THIS FOR REPORT]**
@@ -29,7 +29,7 @@ Implementation-focused documentation:
 1. **[Phase_2_FE_AI_Merge/backend/README.md](../../Phase_2_FE_AI_Merge/backend/README.md)** — Backend setup, APIs, database schema
 2. **[API_REFERENCE.md](technical/API_REFERENCE.md)** — All HTTP endpoints with parameters and responses
 3. **[requirements.md](requirements.md)** — Software Requirements Specification (functional, non-functional, technical)
-4. **[FEATURES.md](FEATURES.md)** — Feature implementation details
+4. **[DOCS_FEATURES.md](DOCS_FEATURES.md)** — Feature implementation details
 5. **[DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md](technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)** — Content safety implementation
 6. **[DOCS_REDIS_ASYNC_JOB_SYSTEM_GUIDE.md](technical/DOCS_REDIS_ASYNC_JOB_SYSTEM_GUIDE.md)** — Async job processing
 7. **[DOCS_search-cache-redis-setup.md](technical/DOCS_search-cache-redis-setup.md)** — Search cache configuration
@@ -42,7 +42,7 @@ UI/UX and frontend integration:
 1. **[Phase_2_FE_AI_Merge/frontend/README.md](../../Phase_2_FE_AI_Merge/frontend/README.md)** — Frontend setup, components
 2. **[APPLICATION_OVERVIEW.md](technical/APPLICATION_OVERVIEW.md)** — User workflows and UX requirements
 3. **[API_REFERENCE.md](technical/API_REFERENCE.md)** — API contracts to implement
-4. **[FEATURES.md](FEATURES.md)** — Feature specifications (chat, search, insights, etc.)
+4. **[DOCS_FEATURES.md](DOCS_FEATURES.md)** — Feature specifications (chat, search, insights, etc.)
 
 ---
 
@@ -65,7 +65,7 @@ Testing, validation, and performance:
 1. **[FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md](testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)** — Complete performance test report
 2. **[README_MAIN_APIS.md](jmeter-capacity-tests/runs/README_MAIN_APIS.md)** — JMeter runbook for core APIs
 3. **[README_NON_MAIN_APIS.md](jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md)** — JMeter runbook for secondary APIs
-4. **[FEATURES.md](FEATURES.md)** — Feature acceptance criteria
+4. **[DOCS_FEATURES.md](DOCS_FEATURES.md)** — Feature acceptance criteria
 
 ---
 
@@ -147,14 +147,14 @@ Testing, validation, and performance:
 
 ### 👨‍🎓 **Student / Learner (Using the Platform)**
 - Start with: [APPLICATION_OVERVIEW.md](technical/APPLICATION_OVERVIEW.md) — Know what BK-MInD can do
-- Then read: [FEATURES.md](FEATURES.md) — Understand each feature
+- Then read: [DOCS_FEATURES.md](DOCS_FEATURES.md) — Understand each feature
 
 **Time:** 20 minutes
 
 ---
 
 ### 🎯 **Product Manager**
-- **Week 1:** [README.md](../README.md) → [APPLICATION_OVERVIEW.md](technical/APPLICATION_OVERVIEW.md) → [FEATURES.md](FEATURES.md)
+- **Week 1:** [README.md](../README.md) → [APPLICATION_OVERVIEW.md](technical/APPLICATION_OVERVIEW.md) → [DOCS_FEATURES.md](DOCS_FEATURES.md)
 - **Week 2:** [requirements.md](requirements.md) → [usecases.md](usecases.md) → [FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md](testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)
 - **Week 3:** [AWS_Cost_Estimation_50_Users_Professional.xlsx](others/AWS_Cost_Estimation_50_Users_Professional.xlsx)
 
@@ -166,7 +166,7 @@ Testing, validation, and performance:
 1. [Phase_2_FE_AI_Merge/backend/README.md](../../Phase_2_FE_AI_Merge/backend/README.md) — Setup
 2. [API_REFERENCE.md](technical/API_REFERENCE.md) — Understand endpoints
 3. [requirements.md](requirements.md) — Know requirements
-4. [FEATURES.md](FEATURES.md) — Feature implementation details
+4. [DOCS_FEATURES.md](DOCS_FEATURES.md) — Feature implementation details
 5. [GUARDRAIL_CONFIGURATION.md](technical/GUARDRAIL_CONFIGURATION.md) — Safety layer
 6. Code: `Phase_2_FE_AI_Merge/backend/`
 
@@ -178,7 +178,7 @@ Testing, validation, and performance:
 1. [Phase_2_FE_AI_Merge/frontend/README.md](../../Phase_2_FE_AI_Merge/frontend/README.md) — Setup
 2. [APPLICATION_OVERVIEW.md](technical/APPLICATION_OVERVIEW.md) — Workflows
 3. [API_REFERENCE.md](technical/API_REFERENCE.md) — API contracts
-4. [FEATURES.md](FEATURES.md) — What to build
+4. [DOCS_FEATURES.md](DOCS_FEATURES.md) — What to build
 5. Code: `Phase_2_FE_AI_Merge/frontend/`
 
 **Time:** 3-4 hours
@@ -200,7 +200,7 @@ Testing, validation, and performance:
 1. [FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md](testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md) — Test scope & results
 2. [README_MAIN_APIS.md](jmeter-capacity-tests/runs/README_MAIN_APIS.md) — Core API testing
 3. [README_NON_MAIN_APIS.md](jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md) — Full API coverage
-4. [FEATURES.md](FEATURES.md) — Acceptance criteria
+4. [DOCS_FEATURES.md](DOCS_FEATURES.md) — Acceptance criteria
 5. Jmeter files: `docs/jmeter-capacity-tests/`
 
 **Time:** 3-4 hours
@@ -213,7 +213,7 @@ Testing, validation, and performance:
 
 - [ ] **[README.md](../README.md)** — Open with project overview
 - [ ] **[APPLICATION_OVERVIEW.md](technical/APPLICATION_OVERVIEW.md)** — Mission, architecture, workflows
-- [ ] **[FEATURES.md](FEATURES.md)** — Comprehensive feature list (shows scope completion)
+- [ ] **[DOCS_FEATURES.md](DOCS_FEATURES.md)** — Comprehensive feature list (shows scope completion)
 - [ ] **[FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md](testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)** — Evidence of testing, performance
 - [ ] **[GUARDRAIL_CONFIGURATION.md](technical/GUARDRAIL_CONFIGURATION.md)** — Safety measures (shows responsibility)
 - [ ] **[AWS_Cost_Estimation_50_Users_Professional.xlsx](others/AWS_Cost_Estimation_50_Users_Professional.xlsx)** — Scalability projections
@@ -241,7 +241,7 @@ Testing, validation, and performance:
 |-------|------|------------------|
 | Project scope | [README.md](../README.md) | Intro, Overview |
 | System architecture | [APPLICATION_OVERVIEW.md](technical/APPLICATION_OVERVIEW.md) | Architecture slide |
-| All features | [FEATURES.md](FEATURES.md) | Features & capabilities |
+| All features | [DOCS_FEATURES.md](DOCS_FEATURES.md) | Features & capabilities |
 | Performance results | [FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md](testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md) | Testing & validation |
 | Scalability | [AWS_Cost_Estimation_50_Users_Professional.xlsx](others/AWS_Cost_Estimation_50_Users_Professional.xlsx) | Deployment & scalability |
 | Safety | [GUARDRAIL_CONFIGURATION.md](technical/GUARDRAIL_CONFIGURATION.md) | Security & responsibility |

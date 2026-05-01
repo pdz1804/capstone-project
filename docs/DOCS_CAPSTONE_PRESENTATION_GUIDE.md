@@ -44,7 +44,7 @@ Read these first — they establish the foundation:
 
 ---
 
-#### 2. **[docs/FEATURES.md](docs/FEATURES.md)** — Feature Completeness Evidence
+#### 2. **[DOCS_FEATURES.md](DOCS_FEATURES.md)** — Feature Completeness Evidence
 - **What to extract:**
   - All 18 features with descriptions
   - Implementation status (all ✅ Active)
@@ -157,7 +157,7 @@ Read these for depth and to answer expected questions:
   
 - **Use in Q&A:**
   - "How many requirements?" → "37 total: 22 functional, 8 non-functional, 7 technical"
-  - "Are all implemented?" → Reference [FEATURES.md](docs/FEATURES.md#-feature-compliance-with-srs) compliance table
+  - "Are all implemented?" → Reference [FEATURES.md](DOCS_FEATURES.md#-feature-compliance-with-srs) compliance table
   
 - **Time to read:** 20-30 minutes (reference document)
 
@@ -250,39 +250,39 @@ Slide: System Architecture
 ---
 
 ### **Minute 5-15: How Does It Work? (DEMO)**
-**Key documents:** [FEATURES.md](docs/FEATURES.md), [API_REFERENCE.md](docs/technical/API_REFERENCE.md)
+**Key documents:** [FEATURES.md](DOCS_FEATURES.md), [API_REFERENCE.md](docs/technical/API_REFERENCE.md)
 
 **Demo 5 features in sequence:**
 
 1. **Upload & Search** (2 min)
    - Show file upload
    - Search using text + image
-   - Reference: [FEATURES.md#2-file-upload--management](docs/FEATURES.md#2-file-upload--management)
+   - Reference: [FEATURES.md#2-file-upload--management](DOCS_FEATURES.md#2-file-upload--management)
 
 2. **Chat Assistant** (2 min)
    - Ask a question
    - Show tool usage (search retrieval)
    - Show streaming response
-   - Reference: [FEATURES.md#8-chat-assistant](docs/FEATURES.md#8-chat-assistant)
+   - Reference: [FEATURES.md#8-chat-assistant](DOCS_FEATURES.md#8-chat-assistant)
 
 3. **Quiz Generation** (1 min)
    - Generate quiz from lecture
    - Show MCQ format
-   - Reference: [FEATURES.md#9-quiz-generation](docs/FEATURES.md#9-quiz-generation)
+   - Reference: [FEATURES.md#9-quiz-generation](DOCS_FEATURES.md#9-quiz-generation)
 
 4. **Lecture Summary** (1 min)
    - Generate summary
    - Show formatting
-   - Reference: [FEATURES.md#10-lecture-summaries](docs/FEATURES.md#10-lecture-summaries)
+   - Reference: [FEATURES.md#10-lecture-summaries](DOCS_FEATURES.md#10-lecture-summaries)
 
 5. **Learning Visualization** (1 min)
    - Show mind map / infographic
-   - Reference: [FEATURES.md#13-learning-visualizations](docs/FEATURES.md#13-learning-visualizations)
+   - Reference: [FEATURES.md#13-learning-visualizations](DOCS_FEATURES.md#13-learning-visualizations)
 
 ---
 
 ### **Minute 15-18: Does It Work? (VALIDATION)**
-**Key documents:** [FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md](docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md), [FEATURES.md](docs/FEATURES.md)
+**Key documents:** [FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md](docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md), [FEATURES.md](DOCS_FEATURES.md)
 
 ```
 Slide: Testing & Performance
@@ -471,9 +471,9 @@ Before presenting, verify:
 **Minimum package for each team member:**
 
 ```
-1. /docs/INDEX.md — Full navigation guide
+1. /DOCS_INDEX.md — Full navigation guide
 2. /README.md — Project overview
-3. /docs/FEATURES.md — Feature reference
+3. /DOCS_FEATURES.md — Feature reference
 4. /docs/technical/APPLICATION_OVERVIEW.md — Architecture
 5. /docs/technical/API_REFERENCE.md — API endpoints (backend only)
 6. /docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md — Performance proof
