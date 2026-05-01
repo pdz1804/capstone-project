@@ -1,7 +1,8 @@
 # Project Architecture Blueprint
 
-Generated: 2026-04-18
-Scope: Current architecture and processing flow for document pipelines in `Phase_2_FE_AI_Merge`.
+**Generated:** 2026-05-01  
+**Status:** Current & Verified Against Implementation  
+**Scope:** Complete architecture and processing flow for Phase 2 AI Service, including 4-stage pipeline (Stage 3 with 4 conditional processing paths: main V2 router + Excel/DOCX/PDF preprocessors), indexing, and search/retrieval systems.
 Primary analyzed areas:
 - `Phase_2_FE_AI_Merge/backend`
 - `Phase_2_FE_AI_Merge/frontend`
@@ -20,12 +21,14 @@ Backend:
   - SageMaker endpoints (ColQwen, Docling, Whisper)
   - DynamoDB (identity, usage telemetry, knowledge/admin data)
 
-Processing engine:
-- Internal multi-stage pipeline (`src/processor/pipeline.py`)
-- Normalizer (`src/processor/normalizer.py`)
-- Media processor (`src/processor/media_processor_enhanced.py` via `media_processor.py`)
-- Docling processor (`src/processor/document_processor.py`)
-- Custom preprocessors for Excel/DOCX/PDF (`src/chunking/*_preprocessor.py`)
+Processing engine (4-stage pipeline with Stage 3 conditional variants):
+- **Stage 1:** Normalizer (`src/processor/normalizer.py`) - Format detection & conversion
+- **Stage 2:** Media processor (`src/processor/media_processor_enhanced.py`) - Audio/video extraction & transcription (40 dB noise reduction)
+- **Stage 3 (Main):** DocumentProcessorV2 unified router (`src/processor/document_processor_v2.py`)
+  - **Stage 3b:** ExcelPreprocessor (`src/chunking/excel_preprocessor.py`) - Conditional, table-aware chunking
+  - **Stage 3c:** DocxPreprocessor (`src/chunking/docx_preprocessor.py`) - Conditional, heading-aware chunking
+  - **Stage 3d:** PdfPreprocessor (`src/chunking/pdf_preprocessor.py`) - Conditional, born-digital parsing
+- **Stage 4:** Consolidator (`src/processor/consolidator.py`) - RAG-ready consolidation
 
 Frontend:
 - React + TypeScript + Vite
@@ -90,59 +93,28 @@ flowchart LR
   API --> SM[SageMaker optional]
 ```
 
-### 3.2 Processing + Indexing Interaction (Component/Flow)
+### 3.2 Processing Pipeline Flow (Detailed)
 
-```mermaid
-sequenceDiagram
-  participant UI as LibraryView
-  participant R as /api routes
-  participant S as Storage Service
-  participant P as DocumentProcessingPipeline
-  participant I as IndexingService
-  participant Q as Qdrant
+For complete documentation of the 4-stage processing pipeline with Stage 3 conditional variants, file type routing, and detailed stage outputs, see:
+**[DOCS_PIPELINES_CONSOLIDATED_DOCUMENT.md](DOCS_PIPELINES_CONSOLIDATED_DOCUMENT.md)**
 
-  UI->>R: POST /api/upload (files)
-  R->>S: save_upload
+That document provides:
+- Detailed Stage 1-4 architecture with 20+ diagrams
+- Stage 3 intelligent routing for 15+ file formats
+- File type handling (DOCX, Excel, PDF, images, media, etc.)
+- Media processing with transcription and frame extraction
+- Complete processing timeline and data flow
+- Output directory structures for each stage
 
-  UI->>R: POST /api/process (selected_paths, mode)
-  R->>S: prepare_pipeline_input
-  R->>P: run()
-  P->>P: Stage1 normalize
-  P->>P: Stage2 media process
-  P->>P: Stage3 doc process + custom branches
-  P->>P: Stage4 consolidate
-  R->>S: publish_pipeline_output
+### 3.3 Indexing Pipeline Overview
 
-  UI->>R: POST /api/index (selected_paths, selected_names, mode)
-  R->>I: index_all / index_text / index_images
-  I->>Q: upsert text/image points (payload includes user_id)
-  I->>I: save documents.json + bm25
-```
+After Stage 4 consolidation, RAG-ready documents flow into dual indexing:
 
-### 3.3 Pipeline Stage Data Flow
+**Text Indexing:** Chunks are embedded using sentence-transformers (`all-MiniLM-L6-v2`), stored as dense vectors in Qdrant, plus BM25 sidecar for keyword search.
 
-```mermaid
-flowchart TD
-  IN[input/] --> S1[Stage1: normalized outputs]
-  S1 --> S2[Stage2: media outputs]
-  S1 --> S3[Stage3: docling outputs]
-  S1 --> S3B[Stage3b: excel preprocessor]
-  S1 --> S3C[Stage3c: docx preprocessor]
-  S1 --> S3D[Stage3d: pdf preprocessor]
+**Image Indexing:** PDF pages and images are processed with ColQwen multivectors, stored in separate Qdrant collection.
 
-  S2 --> S4[Stage4 rag_ready]
-  S3 --> S4
-  S3B --> S4
-  S3C --> S4
-  S3D --> S4
-
-  S4 --> TXT[text chunk loader]
-  S4 --> IMG[pdf/image page loader]
-  TXT --> TIDX[Text embedding + BM25]
-  IMG --> IIDX[ColQwen image embedding]
-  TIDX --> QT[(Qdrant text)]
-  IIDX --> QI[(Qdrant image)]
-```
+Both indices support multi-tenant queries via payload `user_id` filtering in shared collections.
 
 ## 4. Core Architectural Components
 
@@ -211,9 +183,10 @@ Primary files:
 - `backend/app/services/image_search_service.py`
 
 Responsibilities:
-- Execute text and image retrieval in parallel when applicable.
-- Merge retrieval outputs and optionally invoke generator.
+- Execute text and image retrieval in parallel when applicable (BM25, dense, hybrid).
+- Merge retrieval outputs and optionally invoke generator (LLM generation).
 - Track telemetry and cache retrieval branch results.
+- **Note:** Reranking is globally disabled (`skip_reranker=true`) for latency optimization. Code is retained for fast rollback if needed.
 
 ### 4.7 Storage Abstraction
 
@@ -603,6 +576,130 @@ New route template:
 
 ---
 
+## 18. Async Indexing Job Architecture (Added April 20, 2026)
+
+### Purpose
+High-throughput document indexing with concurrent job tracking, Redis-based queue management, and per-user rate limiting.
+
+### Components
+
+**IndexingJobService** (`backend/app/services/indexing_job_service.py`)
+- Manages indexing job lifecycle (queued → processing → completed/failed)
+- Redis-backed job state tracking with job_id polling
+- DynamoDB persistence for job history
+- Concurrency controls:
+  - Per-user limit (default 3 concurrent jobs)
+  - Global limit (default 200 concurrent jobs)
+  - Job queue with priority handling
+
+### Job State Machine
+```
+submitted → queued → processing → completed
+                  ↘                  ↙
+                    failed (with retry)
+```
+
+### Configuration
+```yaml
+async_indexing:
+  enabled: true
+  max_per_user: 3        # Limit concurrent jobs per user
+  max_global: 200        # Global concurrency cap
+  queue_backend: redis   # Job queue persistence
+  state_backend: dynamodb # Job history persistence
+```
+
+### Usage Pattern
+1. Client submits indexing job via `/api/index` with job mode
+2. Backend returns `job_id` immediately (async mode)
+3. Client polls `/api/status?job_id={job_id}` for progress
+4. Job executes in background worker pool
+5. Results available when status reaches `completed`
+
+---
+
+## 19. Chat & Conversation System (Added April 22, 2026)
+
+### Purpose
+Persistent conversation history with user-scoped chat management, DynamoDB-backed storage, and stateful multi-turn interactions.
+
+### Components
+
+**ChatHistoryService** (`backend/app/services/chat_history_service.py`)
+- Conversation lifecycle management (create, retrieve, update, delete)
+- Per-user conversation isolation
+- DynamoDB persistence layer: `chat_conversations` table
+
+**ChatHistoryRepository** (`backend/app/repositories/chat_history_repository_dynamo.py`)
+- DynamoDB adapter for chat operations
+- Query patterns: by conversation_id, by user_id, by timestamp
+- Supports pagination and ordering
+
+**Chat Routes** (`backend/app/api/routes/chat_routes.py`)
+- POST /api/chat/conversations — Create new conversation
+- GET /api/chat/conversations — List user's conversations
+- POST /api/chat/{conversation_id}/messages — Add message
+- GET /api/chat/{conversation_id}/messages — Retrieve history
+
+### Data Model
+```
+ConversationRecord:
+  - conversation_id (PK)
+  - user_id (GSI for multi-user queries)
+  - title (auto-generated or user-provided)
+  - created_at, updated_at
+  - messages: [{ role, content, timestamp, metadata }]
+  - context: { relevant_chunks, query_result }
+```
+
+### Integration with Search
+Chat supports context injection from document search:
+- User queries document → search returns relevant chunks
+- Chunks attached to chat message as context
+- LLM generation uses chat history + current search context
+
+---
+
+## 20. Safety & Guardrails (Bedrock Integration, Added April 28, 2026)
+
+### Purpose
+LLM call safety validation and harmful content filtering via AWS Bedrock Guardrails.
+
+### Components
+
+**Bedrock Guardrail Integration** (`backend/app/services/feedback_service.py`)
+- Guardrail configuration loading from AWS Bedrock
+- Pre-generation validation (prompt guardrail)
+- Post-generation validation (output guardrail)
+- Configurable content filters (hate, violence, sexual, illegal, etc.)
+
+### Safety Flow
+```
+User Input → Guardrail Validation → LLM Call → Output Validation → User Response
+```
+
+### Configuration
+```yaml
+safety:
+  guardrails:
+    enabled: true
+    provider: bedrock
+    guardrail_id: "arn:aws:bedrock:..."
+    filters:
+      - hate_speech
+      - violence
+      - sexual_content
+      - illegal_activity
+    sensitivity: medium  # low | medium | high
+```
+
+### Behavior
+- **PASS:** Both input and output pass guardrails → response sent to user
+- **BLOCK:** Input or output fails guardrails → error response with reason
+- **FILTER:** High-sensitivity content filtered out with user notification
+
+---
+
 ## Appendix A: End-to-End Document Flow (Current)
 
 1. User uploads file in Library tab.
@@ -627,10 +724,14 @@ Backend orchestration:
 - `backend/app/services/search_orchestrator.py`
 
 Pipeline internals:
-- `backend/src/processor/pipeline.py`
-- `backend/src/processor/normalizer.py`
-- `backend/src/processor/document_processor.py`
-- `backend/src/processor/consolidator.py`
+- `backend/src/processor/pipeline.py` — Orchestrator for all 4 stages
+- `backend/src/processor/normalizer.py` — Stage 1
+- `backend/src/processor/document_processor_v2.py` — Stage 3 (Current: Unified Router)
+- `backend/src/processor/document_processor.py` — **LEGACY** (Original Docling-only path, retained for fallback)
+- `backend/src/processor/consolidator.py` — Stage 4
+- `backend/src/chunking/excel_preprocessor.py` — Stage 3b (Conditional)
+- `backend/src/chunking/docx_preprocessor.py` — Stage 3c (Conditional)
+- `backend/src/chunking/pdf_preprocessor.py` — Stage 3d (Conditional)
 
 Storage and tenancy:
 - `backend/app/core/paths.py`
