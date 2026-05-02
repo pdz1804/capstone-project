@@ -2,7 +2,7 @@
 
 % \textbf{Phase 1 Scope and Objectives:} This chapter presents the initial implementation phase of the MRAG system. In Phase 1, the primary focus is on \textbf{establishing and validating the core system architecture}, including the data processing pipeline, embedding strategies, and retrieval mechanisms. The implementation prioritizes architectural feasibility and functional correctness. Advanced considerations such as production-grade application development, optimized database storage solutions, and comprehensive system optimization are deliberately deferred to Phase 2. This phased approach allows for iterative refinement based on empirical evaluation of the foundational architecture before committing to infrastructure-level optimizations.
 
-% \textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 5-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
+% \textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 7-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
 
 This chapter details the practical implementation of the core system architecture. We describe the system design, data processing pipeline, and key implementation components.
 
@@ -30,7 +30,7 @@ Phase 2 involved a fundamental \textbf{architectural refactoring}, transitioning
     \item \textbf{Decoupled Infrastructure}: The core compute logic was separated from the storage and inference layers. By leveraging \textbf{Amazon S3} for object storage and \textbf{Qdrant Cloud} for vector search, the system achieved true multi-tenancy and horizontal scalability.
     \item \textbf{Stateful Session Management}: The integration of \textbf{Amazon DynamoDB} allowed for persistent, low-latency tracking of user chat histories and processing statuses, enabling a seamless resume-from-anywhere experience.
     \item \textbf{Optimized Inference Offloading}: To handle the massive compute requirements of late-interaction models, Phase 2 offloaded visual embedding generation to \textbf{AWS SageMaker}. This ensures that the main application backend remains responsive even during high-intensity processing tasks.
-    \item \textbf{Asynchronous 5-Stage Pipeline}: The processing logic was rebuilt as a concurrent, event-driven pipeline, allowing for the simultaneous normalization, chunking, and indexing of multiple document streams.
+    \item \textbf{Asynchronous 7-Stage Pipeline}: The processing logic was rebuilt as a concurrent, event-driven pipeline with intelligent conditional routing. Stages 3b, 3c, and 3d (Excel, DOCX, and PDF custom processors) run only if their corresponding specialized inputs are detected in Stage 1 outputs, allowing for simultaneous normalization, specialized parsing, chunking, and indexing of multiple document streams.
     \item \textbf{Automated CI/CD and Deployment}: We implemented a fully automated \textbf{GitHub Actions} pipeline to handle containerization via \textbf{Docker} and deployment to \textbf{AWS ECS Fargate}, ensuring rapid iteration and system stability.
     \item \textbf{Testing and Quality Assurance}: A multi-layered testing strategy was introduced, including \textbf{Pytest} for backend logic, \textbf{Pydantic} for data validation, and \textbf{Apache JMeter} for performance stress testing.
     \item \textbf{Operational Cost Estimation}: We established a detailed cloud expenditure model, optimizing GPU utilization costs to ensure the economic viability of the production environment.
@@ -53,7 +53,7 @@ The following table summarizes the key technical transitions between the two pha
         \textbf{Inference Engine} & Local GPU Resources & AWS SageMaker (Scalable Offloading) \\
         \textbf{System Deployment} & Manual Script Execution & AWS ECS Fargate (Containerized, HA) \\
         \textbf{Architecture} & Monolithic Prototype & Layered Service Architecture (Modular) \\
-        \textbf{Data Pipeline} & Sequential Processing & 5-Stage Resource-Optimized Pipeline \\
+        \textbf{Data Pipeline} & Sequential Processing & 7-Stage Resource-Optimized Pipeline (with conditional 3b/3c/3d) \\
         \textbf{Frontend Interface} & Basic Interactive UI & Enhanced React App (Real-time Streaming) \\
         \textbf{Scalability} & Single-user / Single-machine & Multi-user / Cloud-scale \\
         \bottomrule
@@ -130,7 +130,7 @@ The text retrieval engine has been optimized for multi-tenant cloud deployment u
 \begin{enumerate}
     \item \textbf{Vector Backend}: Shared collections with int8 scalar quantization and mandatory user\_id payload filtering.
     \item \textbf{Dense-Sparse Hybrid}: Merges dense vector results (MiniLM/BGE) with sparse BM25 scores (using S3-sidecar index coordination).
-    \item \textbf{Reranking}: A second-stage cross-encoder (\texttt{bge-reranker-large}) refines the top $K$ candidates to ensure high precision.
+    \item \textbf{Reranking}: Globally disabled by default (\texttt{skip\_reranker=true}) for latency optimization. The reranker code (\texttt{bge-reranker-large}) is retained for fast rollback if needed.
 \end{enumerate}
 
 \textbf{Visual Retrieval Engine (ColQwen2.5)}
@@ -256,10 +256,195 @@ For data-dense documents, the pipeline integrates \textbf{Docling} as the centra
 % \end{enumerate}
 
 
-The output of this step  is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
+The output of this step is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
 
+\section{Detailed Processing Stages (7-Stage Pipeline)}
 
+This section documents the complete 7-stage processing pipeline in detail, including stage-specific logic, conditional execution rules, and output structures.
 
+\subsection{Stage 1: Normalization}
+
+\textbf{Input}: Raw files in diverse formats (DOCX, XLSX, PDF, PPTX, HTML, Images, Video, Audio, etc.)
+
+\textbf{Purpose}: Detect file types, route to appropriate processors, and generate multiple canonical forms (PDF for visual processing, Markdown for text processing, specialized JSON for custom parsers).
+
+\textbf{Processing Logic}:
+
+\begin{table}[H]
+\centering
+\caption[Stage 1 File Type Routing and Normalization]{Stage 1 routing logic for different input formats.}
+\label{tab:stage1_routing}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Input Format} & \textbf{Detection} & \textbf{Primary Handler} & \textbf{Output (PDF)} & \textbf{Custom Parser} \\ \midrule
+DOCX / DOC & File extension & LibreOffice + Docling & \checkmark & \checkmark (Stage 3c) \\
+XLSX / XLS & File extension & LibreOffice + Docling & \checkmark & \checkmark (Stage 3b) \\
+PDF (Digital) & PDF header check & Copy + Docling & \checkmark & \checkmark (Stage 3d) \\
+PPTX / PPT & File extension & LibreOffice & \checkmark & — \\
+HTML & MIME type & BeautifulSoup + Docling & \checkmark & — \\
+Markdown & Extension & Copy as-is & — & — \\
+TXT & Extension & Copy as-is & — & — \\
+CSV & Extension & Pandas & — & — \\
+Images (JPG, PNG) & Extension & img2pdf & \checkmark & — \\
+Video (MP4, AVI) & Extension & MoviePy (audio extraction) & — & — (→ Stage 2) \\
+Audio (WAV, MP3) & Extension & Pass-through & — & — (→ Stage 2) \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Output}:
+\begin{itemize}
+    \item \texttt{normalized\_pdfs/}: PDF versions for visual processing
+    \item \texttt{normalized\_markdown/}: Text versions for semantic processing
+    \item \texttt{docx\_parsed/}: XML-extracted DOCX data (if DOCX detected)
+    \item \texttt{excel\_parsed/}: XML-extracted Excel data (if XLSX detected)
+    \item \texttt{pdf\_parsed/}: XML-extracted PDF data (if PDF detected)
+\end{itemize}
+
+\subsection{Stage 2: Media Processing}
+
+\textbf{Input}: Video and Audio files (or extracted audio from Stage 1)
+
+\textbf{Purpose}: Extract audio tracks, perform noise reduction, transcribe speech to text, extract key frames from video.
+
+\textbf{Processing Pipeline}:
+
+\begin{table}[H]
+\centering
+\caption[Stage 2 Media Processing Workflow]{Media processing steps and transformations.}
+\label{tab:stage2_media}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Input Type} & \textbf{Extraction} & \textbf{Processing} & \textbf{Output Format} & \textbf{Destination} \\ \midrule
+Video (MP4, AVI) & MoviePy audio extraction & Noise reduction (80Hz HPF) & WAV file & Audio processing \\
+ &  & Whisper transcription & Markdown transcript & Indexing \\
+ & OpenCV frame extraction & Laplacian variance filtering & JPEG images & Visual indexing \\
+Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Transcription \\
+ &  & Whisper transcription & Markdown transcript & Indexing \\
+ &  & Multiple formats & SRT/VTT subtitles & Display \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Key Details}:
+\begin{itemize}
+    \item \textbf{80Hz High-Pass Filter}: Removes low-frequency hum and rumble before transcription, improving Whisper accuracy
+    \item \textbf{Frame Extraction}: OpenCV processes video to extract key frames, using Laplacian variance to detect non-blurry frames
+    \item \textbf{Deduplication}: Perceptual hashing (0.95 similarity threshold) prevents duplicate frames
+    \item \textbf{Whisper Configuration}: Large-v3 model for high-fidelity multi-language transcription
+\end{itemize}
+
+\textbf{Output}:
+\begin{itemize}
+    \item \texttt{transcripts/}: Markdown versions of all transcriptions
+    \item \texttt{transcript\_chunks/}: Pre-chunked transcript segments
+    \item \texttt{extracted\_frames/}: Key frames from video processing
+    \item \texttt{media\_metadata/}: Timestamp bindings, speaker identification
+\end{itemize}
+
+\subsection{Stage 3: Main Document Processing (Docling)}
+
+\textbf{Input}: Normalized PDFs and Markdown from Stage 1
+
+\textbf{Purpose}: Perform deep structural analysis, extract tables with hierarchy preservation, isolate images, handle general document types not requiring custom parsers.
+
+\textbf{Processing Logic}:
+
+Docling analyzes all normalized documents, with intelligent conditional skipping for documents already processed by Stages 3b/3c/3d (via smart deduplication). For documents NOT in the custom parser output directories, Docling performs full structural analysis.
+
+\textbf{Output}:
+\begin{itemize}
+    \item \texttt{document\_id/chunks.json}: Text chunks with semantic boundaries
+    \item \texttt{document\_id/tables.csv}: Extracted tables in CSV format
+    \item \texttt{document\_id/images/}: Isolated figures and diagrams
+    \item \texttt{document\_id/metadata.json}: Provenance and processing metadata
+\end{itemize}
+
+\subsection{Stage 3b: Excel Processing (Conditional)}
+
+\textbf{Trigger}: Only executes if \texttt{excel\_parsed/} directory exists (populated in Stage 1)
+
+\textbf{Purpose}: Parse Excel workbooks using custom XML parser to preserve table structure, column headers, and quantitative relationships.
+
+\textbf{Processing Strategy}:
+\begin{itemize}
+    \item \textbf{Sheet-aware parsing}: Extract each sheet independently with sheet name metadata
+    \item \textbf{Table detection}: Identify table boundaries via cell formulas and formatting
+    \item \textbf{Chunking strategy}: Maximum 2000 characters per table chunk (split by rows, not mid-table)
+    \item \textbf{Header preservation}: Include column headers with every chunk for context
+\end{itemize}
+
+\textbf{Output}:
+\begin{itemize}
+    \item \texttt{document\_id/chunks.json}: Table-aware chunks with sheet and row metadata
+    \item \texttt{document\_id/tables.csv}: Extracted tables
+    \item Metadata: \texttt{sheet\_name}, \texttt{row\_range}, \texttt{table\_id}
+\end{itemize}
+
+\subsection{Stage 3c: DOCX Processing (Conditional)}
+
+\textbf{Trigger}: Only executes if \texttt{docx\_parsed/} directory exists (populated in Stage 1)
+
+\textbf{Purpose}: Parse Word documents using custom XML parser to respect heading hierarchies and preserve document structure.
+
+\textbf{Processing Strategy}:
+\begin{itemize}
+    \item \textbf{Heading extraction}: Build heading tree (Heading 1, 2, 3, etc.)
+    \item \textbf{Boundary-aware chunking}: Split at heading boundaries, not arbitrary character limits
+    \item \textbf{Overlap}: 200-character overlap at boundaries for semantic continuity
+    \item \textbf{Metadata enrichment}: Track heading level and hierarchy path
+\end{itemize}
+
+\textbf{Output}:
+\begin{itemize}
+    \item \texttt{document\_id/chunks.json}: Heading-aware chunks
+    \item Metadata: \texttt{heading\_level}, \texttt{heading\_path}, \texttt{section\_title}
+\end{itemize}
+
+\subsection{Stage 3d: PDF Processing (Conditional)}
+
+\textbf{Trigger}: Only executes if \texttt{pdf\_parsed/} directory exists (populated in Stage 1 for structured PDFs)
+
+\textbf{Purpose}: Parse born-digital PDFs with internal structure to preserve page references and section hierarchies.
+
+\textbf{Processing Strategy}:
+\begin{itemize}
+    \item \textbf{Metadata extraction}: Analyze PDF outlines and internal section markers
+    \item \textbf{Page tracking}: Maintain explicit page numbers for every chunk
+    \item \textbf{Section-based chunking}: Split at section boundaries from PDF structure
+    \item \textbf{Visual element linking}: Preserve references to figures and tables with page numbers
+\end{itemize}
+
+\textbf{Output}:
+\begin{itemize}
+    \item \texttt{document\_id/chunks.json}: Page-aware chunks
+    \item Metadata: \texttt{page\_number}, \texttt{section\_level}, \texttt{total\_pages}
+\end{itemize}
+
+\subsection{Stage 4: RAG-Ready Consolidation}
+
+\textbf{Input}: All outputs from Stages 3, 3b, 3c, 3d (merged), plus Stage 2 transcripts and media
+
+\textbf{Purpose}: Merge all processing outputs, consolidate metadata, prepare unified retrieval index.
+
+\textbf{Consolidation Logic}:
+\begin{enumerate}
+    \item \textbf{Merge chunks}: Combine text chunks from all sources (Docling + custom parsers) with deduplicated provenance
+    \item \textbf{Collect images}: Gather all extracted images (from document pages, figures, video frames) with page references
+    \item \textbf{Link transcripts}: Bind media transcripts to source documents via timestamp metadata
+    \item \textbf{Create index}: Generate \texttt{chunks.json} with all text and \texttt{metadata.json} with complete provenance tracking
+\end{enumerate}
+
+\textbf{Output}:
+\begin{itemize}
+    \item \texttt{stage4\_rag\_ready/document\_id/chunks.json}: Complete unified chunk list with metadata
+    \item \texttt{stage4\_rag\_ready/document\_id/metadata.json}: Full provenance (source, stage, location)
+    \item \texttt{stage4\_rag\_ready/document\_id/images/}: All visual elements
+\end{itemize}
 
 \section{Data Preprocessing}
 The preprocessing module transforms raw files into machine-understandable formats. The pipeline splits the workflow into two parallel streams to handle multimodal data:
@@ -413,7 +598,204 @@ The index supports \textbf{Hybrid}, allowing for keyword precision and semantic 
 
 Scores from both retrievers are combined using Min-Max normalization and a weighted sum.
 
+\section{Indexing and Storage Architecture}
 
+\subsection{Indexing Pipeline}
+
+The consolidation and indexing pipeline transforms RAG-ready chunks into searchable indices through a dual-pathway approach:
+
+\begin{table}[H]
+\centering
+\caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
+\label{tab:indexing_artifacts}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
+BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
+Dense Index (Text) & FAISS IndexFlatIP & Binary file (\texttt{.bin}) & Cosine similarity, nearest-neighbor search \\
+Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
+Visual Index (Images) & ColQwen multi-vectors & Tensor store (\texttt{.bin}) & Late-interaction MaxSim matching \\
+Metadata Catalog & Document + chunk + image metadata & JSON files & Source tracking, citation generation \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Text Indexing Workflow}:
+\begin{enumerate}
+    \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
+    \item BM25 inverted index built from chunk text (keyword search)
+    \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
+    \item Hybrid index pre-computed via RRF fusion for fast query-time execution
+\end{enumerate}
+
+\textbf{Visual Indexing Workflow}:
+\begin{enumerate}
+    \item PDF pages rasterized to JPEG (150 DPI, 1 page = 1 image)
+    \item Each page encoded by ColQwen to multi-vector representation
+    \item Vectors stored with minimal indexing (m=0 for HNSW bypass) to reduce memory overhead
+    \item Query-time MaxSim computed on-demand for precision
+\end{enumerate}
+
+\subsection{Storage Architecture}
+
+Phase 2 implements a \textbf{hybrid storage model} combining local processing cache with cloud canonical storage:
+
+\begin{table}[H]
+\centering
+\caption[Hybrid Storage Architecture]{Local vs. Cloud storage division of responsibility.}
+\label{tab:storage_architecture}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Storage Tier} & \textbf{System} & \textbf{Content} & \textbf{Purpose} \\ \midrule
+Local Cache & File system (fast SSD) & Processing artifacts (Stages 1-4) & Speed up pipeline processing \\
+Local Indices & FAISS, ColQwen stores & BM25, Dense, Visual indices & Fast retrieval queries \\
+Cloud Canonical & Amazon S3 & Documents, metadata, indices & Durability, multi-tenancy \\
+Session State & DynamoDB & Chat history, job queue state & Persistent conversation tracking \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Multi-Tenancy Isolation}:
+
+Documents and indices are organized by user and document ID:
+\begin{verbatim}
+s3://bk-mind-documents/
+  users/{user_id}/
+    documents/{document_id}/
+      original/
+      processing/
+      indices/
+      metadata.json
+\end{verbatim}
+
+This structure ensures that document retrieval and index queries are isolated per user, preventing cross-user data leakage.
+
+\textbf{Index Persistence Strategy}:
+
+After indexing completes (Stage 4), the system:
+\begin{enumerate}
+    \item Uploads BM25, Dense, and Visual indices to S3 under \texttt{users/{user\_id}/documents/{doc\_id}/indices/}
+    \item Caches indices in local filesystem for fast retrieval during query execution
+    \item On server restart or query miss, reloads indices from S3
+\end{enumerate}
+
+\section{Asynchronous Indexing Job System}
+
+The Phase 2 system implements a \textbf{Redis-backed job queue} for managing asynchronous indexing operations, enabling non-blocking document processing while maintaining concurrent request limits and durable job state persistence.
+
+\subsection{Purpose and Architecture}
+
+Rather than forcing clients to wait for complete index updates, documents are queued for indexing via the \texttt{IndexingJobService}. This service coordinates three components:
+
+\begin{itemize}
+    \item \textbf{Redis Queue}: Transient job tracking with configurable TTL (default 3600 seconds). Each job receives a unique \texttt{job\_id} and tracks state transitions: \texttt{queued} $\rightarrow$ \texttt{processing} $\rightarrow$ \texttt{completed} or \texttt{failed}.
+
+    \item \textbf{DynamoDB Persistence}: Optional backup to Amazon DynamoDB (\texttt{bk\_mind\_app\_jobs} table) for long-term durability and cross-service job history. Job snapshots include metadata, progress counters, and error details.
+
+    \item \textbf{Concurrency Limits}: Per-user queue depth (\texttt{ASYNC\_INDEXING\_MAX\_PER\_USER}, default 3) and global queue depth (\texttt{ASYNC\_INDEXING\_MAX\_GLOBAL}, default 200) prevent resource exhaustion.
+\end{itemize}
+
+\subsection{Job Lifecycle and Progress Tracking}
+
+Each indexing operation creates a job payload with status tracking. The service provides non-blocking status queries via \texttt{get\_job(job\_id)} and batch polling via \texttt{get\_jobs\_for\_user(user\_id)}, enabling frontend implementations to display real-time progress bars and resume interrupted indexing workflows.
+
+\subsection{Fallback Behavior}
+
+If Redis is unavailable and \texttt{ASYNC\_INDEXING\_FALLBACK\_TO\_BLOCKING=true}, the system gracefully degrades to synchronous processing, ensuring availability over responsiveness. Configuration is environment-driven (\texttt{ASYNC\_INDEXING\_ENABLED}, \texttt{REDIS\_URL}), supporting both container deployments and local development scenarios.
+
+\subsection{Benefits}
+
+\begin{itemize}
+    \item \textbf{Non-blocking UX}: Clients receive immediate acknowledgment; indexing proceeds in background worker pools.
+    \item \textbf{Durability}: DynamoDB persistence ensures jobs survive system restarts.
+    \item \textbf{Multi-tenancy}: Per-user limits prevent single user's large jobs from starving others.
+    \item \textbf{Observability}: Detailed progress metrics and error tracking support operational debugging.
+\end{itemize}
+
+\section{Chat and Conversation Management}
+
+Phase 2 introduces a \textbf{stateful conversation system} backed by Amazon DynamoDB, enabling users to maintain multi-turn chat histories, resume interrupted sessions, and explore context across related queries.
+
+\subsection{Session Architecture}
+
+The chat subsystem organizes conversations into isolated \textbf{sessions}, each anchored by a \texttt{session\_id} and owned by a \texttt{user\_id}. Sessions persist key metadata including creation timestamp, human-readable title (auto-generated or user-provided), and pinned status for favorites.
+
+Messages are stored with bidirectional references, carrying role (\texttt{user} | \texttt{assistant}), content (text body), optional traces (retrieval context, search results, citations), and optional suggestions (follow-up query recommendations).
+
+\subsection{DynamoDB Schema}
+
+The \texttt{ChatHistoryRepository} implements two-table schema for efficiency:
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{p{2cm}p{3cm}p{5cm}}
+        \toprule
+        \textbf{Table} & \textbf{Partition Key} & \textbf{Purpose} \\
+        \midrule
+        \texttt{chat\_sessions} & \texttt{user\_id\#session\_id} & Session metadata, title, timestamps \\
+        \texttt{chat\_messages} & \texttt{session\_id\#timestamp} & Message ordering, role, content, traces \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+This design enables O(1) session lookup and updates, efficient message pagination via cursor-based queries (\texttt{limit}, \texttt{newest\_first}), and TTL-based automatic cleanup of old sessions.
+
+\subsection{Conversation Threading}
+
+The \texttt{ChatHistoryService} orchestrates three core workflows: (1) Session Creation via \texttt{ensure\_session(user\_id, session\_id)} for idempotent session creation, (2) Message Append via \texttt{put\_message(...)} for persisting user queries and assistant responses with optional retrieval metadata, and (3) History Traversal via \texttt{list\_messages()} for returning paginated message sequences.
+
+When generating answers, the service injects recent message history to maintain conversation coherence, enabling natural follow-up questions without re-stating the topic.
+
+\subsection{User Experience Benefits}
+
+\begin{itemize}
+    \item Multi-session support: Organize conversations by topic or date
+    \item Resumability: Close and reopen sessions without losing context
+    \item Searchability: Full-text search over session titles and content
+    \item Mobile-friendly: Stateless backend enables seamless sync across devices
+\end{itemize}
+
+\section{Safety and Content Filtering}
+
+Phase 2 integrates \textbf{AWS Bedrock Guardrails} to enforce safety constraints during LLM generation, mitigating risks of harmful outputs while maintaining transparency to users.
+
+\subsection{Guardrail Integration}
+
+The \texttt{bedrock\_guardrail\_integration} module wraps Bedrock's native guardrail API, automatically injecting safety configuration into all \texttt{converse()} requests. The guardrail identifier, version control (\texttt{GUARDRAIL\_VERSION}, default \texttt{DRAFT}), and toggle control (\texttt{GUARDRAIL\_ENABLED}) allow for policy iteration without code deployment.
+
+\subsection{Content Filtering Mechanisms}
+
+Bedrock Guardrails enforce multi-layer content filtering:
+
+\begin{enumerate}
+    \item \textbf{Input Filtering}: Scan user queries for restricted topics (e.g., violence, sexual content, illegal activities) before forwarding to the LLM.
+
+    \item \textbf{Output Filtering}: Scan generated responses against policy taxonomy, blocking harmful completions and returning fallback messages.
+
+    \item \textbf{Contextual Awareness}: Guardrails understand document context. For educational materials containing sensitive content, filtering policies can be relaxed with explicit user acknowledgment.
+
+    \item \textbf{Custom Filters}: Organizations can define domain-specific filters via the Bedrock console without code changes.
+\end{enumerate}
+
+\subsection{Generation Safety Protocol}
+
+When \texttt{BedrockProvider.create()} invokes the model: (1) Pre-generation validates user query and context against guardrails, returning \texttt{ContentPolicyViolation} if violated, (2) Generation passes model instructions emphasizing factuality and retrieved documents as ground truth, (3) Post-generation applies output filtering and logs violations to CloudWatch, and (4) Audit Trail enables reproducibility and compliance auditing.
+
+\subsection{Compliance and Transparency}
+
+\begin{itemize}
+    \item \textbf{Deterministic Enforcement}: Guardrail decisions logged with decision\_id and policy\_version.
+    \item \textbf{User Notification}: API responses include \texttt{filtered} flag indicating if content was restricted.
+    \item \textbf{Policy Versioning}: Guardrail changes are trackable, enabling rollback if unintended filtering occurs.
+    \item \textbf{Benchmark Alignment}: Guardrails align with industry standards (NIST AI RMF, EU AI Act readiness).
+\end{itemize}
+
+[PLACEHOLDER - Add diagram: Bedrock Guardrail filtering flow (input $\rightarrow$ validation $\rightarrow$ generation $\rightarrow$ output filter $\rightarrow$ audit log)]
 
 \section{Database Schema and Storage}
 The system implementation requires a robust schema design to manage heterogeneous data including user interactions, processed documents, and high-dimensional vector representations. We utilize a \textbf{Hybrid Storage Architecture} to balance persistence, scalability, and low-latency retrieval across three specialized layers:
@@ -690,26 +1072,39 @@ This bucket acts as the primary ingestion point for all raw assets. To ensure st
 
 \textbf{Bucket 2: Processed Storage (\texttt{ai-service-processed-dev})}
 
-The processed bucket stores all intermediate and final artifacts generated by the 5-stage multimodal pipeline. This storage layer is optimized for high-speed retrieval by the Chat Assistant and Lecture Viewer services.
+The processed bucket stores all intermediate and final artifacts generated by the 7-stage multimodal pipeline. This storage layer is optimized for high-speed retrieval by the Chat Assistant and Lecture Viewer services. The 7-stage design includes intelligent conditional routing where Stages 3b (Excel), 3c (DOCX), and 3d (PDF) run only if their respective custom-parsed outputs exist from Stage 1.
 
 \begin{itemize}
     \item \textbf{Global Pipeline Tracking}: Located at the user root, the \texttt{.processing\_cache.json} and \texttt{pipeline\_stats.json} files manage idempotency and performance metrics, allowing the system to skip redundant processing steps.
     \item \textbf{Modular Artifact Hierarchy}: Processed data is organized into logical stages:
     \begin{itemize}
-        \item \textbf{Stage 1 (Normalized)}: Contains standardized \texttt{normalized\_pdfs/}, extracted tables in \texttt{excel\_parsed/}, and a copy of the \texttt{original\_files/} for traceability. It also includes \texttt{normalization\_stats.json} for tracking conversion success rates.
-        \item \textbf{Stage 2 (Media Processed)}: Manages temporal and visual extraction artifacts:
+        \item \textbf{Stage 1 (Normalized)}: Contains standardized \texttt{normalized\_pdfs/}, extracted tables in \texttt{excel\_parsed/}, DOCX metadata in \texttt{docx\_parsed/}, PDF structure in \texttt{pdf\_parsed/}, and a copy of the \texttt{original\_files/} for traceability. It also includes \texttt{normalization\_stats.json} for tracking conversion success rates.
+        \item \textbf{Stage 2 (Media Processed)}: Manages temporal and visual extraction artifacts with noise reduction (80Hz high-pass filter):
         \begin{itemize}
-            \item \texttt{extracted\_audio/}: Raw audio tracks extracted from video containers for transcription.
+            \item \texttt{extracted\_audio/}: Noise-reduced audio tracks extracted from video containers for transcription.
             \item \texttt{extracted\_frames/}: Keyframes rendered from video streams for visual RAG indexing.
-            \item \texttt{transcripts/}: Full textual outputs from the Whisper ASR engine.
+            \item \texttt{transcripts/}: Full textual outputs from the Whisper ASR engine applied to cleaned audio.
             \item \texttt{media\_metadata/}: JSON descriptors of temporal features and extraction parameters.
         \end{itemize}
-        \item \textbf{Stage 3 (Document Processed)}: Stores structural parsing outputs organized by document name:
+        \item \textbf{Stage 3 (Document Processed)}: Stores structural parsing outputs from Docling for non-specialized file types, organized by document name:
         \begin{itemize}
             \item \texttt{\{doc\_name\}/}: Individual directories containing the structured \texttt{.md} file and its \texttt{\_metadata.json} sidecar.
             \item \texttt{logs/}: System-generated \texttt{.log} files and \texttt{batch\_summary.json} reports for auditability and error tracking.
         \end{itemize}
-        \item \textbf{Stage 4 (RAG Ready)}: The final preparation layer containing consolidated, index-ready assets partitioned by document topic. Each document directory includes parity between the \texttt{.md} content and its source \texttt{.pdf} for visual cross-referencing, alongside a \texttt{docling\_additional/} folder containing specialized \texttt{metadata.json} attributes for structural retrieval. It includes \texttt{consolidation\_stats.json} to track the integrity of the final output set.
+        \item \textbf{Stage 3b/3c/3d (Conditional Custom Parsers)}: If detected in Stage 1 outputs, these conditional stages output directly to stage4\_rag\_ready/:
+        \begin{itemize}
+            \item \textbf{Stage 3b (Excel)}: Custom XML parser with table-aware chunking (max 2000 chars), sheet metadata tracking.
+            \item \textbf{Stage 3c (DOCX)}: Custom XML parser with heading-aware chunking, heading hierarchy tracking.
+            \item \textbf{Stage 3d (PDF)}: Custom parser with heading-aware chunking, page-level references.
+        \end{itemize}
+        \item \textbf{Stage 4 (RAG Ready)}: The final consolidation layer merging outputs from all Stage 3 variants (Docling, Excel, DOCX, PDF) into unified RAG-ready assets partitioned by document topic. Each document directory includes:
+        \begin{itemize}
+            \item \texttt{chunks.json}: Consolidated text chunks with metadata tracking source type (docx|pdf|excel|media)
+            \item \texttt{metadata.json}: Provenance and structural metadata from all processing stages
+            \item \texttt{images/}: Unified visual assets from all stages (extracted images, page previews, etc.)
+            \item \texttt{transcripts/}: Links to media transcripts from Stage 2 (if applicable)
+        \end{itemize}
+        It includes \texttt{consolidation\_stats.json} to track the integrity of the final output set.
         \item \textbf{Retrieval Index}: Dedicated storage for serializable indices, including the \texttt{bm25\_index.pkl} and \texttt{documents.json.pkl} map used for efficient lookup.
     \end{itemize}
 \end{itemize}
@@ -940,7 +1335,7 @@ The core API, built with FastAPI, serves as the communication backend between th
         \midrule
         Upload Files & \texttt{POST /api/upload} & Manages multi-part document ingestion to cloud/local storage. \\
         \midrule
-        Run Pipeline & \texttt{POST /api/process} & Orchestrates the 5-stage multimodal extraction and normalization. \\
+        Run Pipeline & \texttt{POST /api/process} & Orchestrates the 7-stage multimodal extraction and normalization with conditional routing. \\
         \midrule
         Build Index & \texttt{POST /api/pipeline/index} & Syncs processed data with Qdrant vector store and BM25 text index. \\
         \midrule
@@ -988,7 +1383,16 @@ Manages the initial ingestion of raw document assets into the system's storage b
 \end{itemize}
 
 \subsection{Run Pipeline [\texttt{POST} \texttt{/api/process}]}
-Initiates the 5-stage multimodal extraction and normalization pipeline for a specific set of assets. The visual orchestration of these pipeline stages is shown in Figure \ref{fig:ui_pipeline}. 
+Initiates the 7-stage multimodal extraction and normalization pipeline for a specific set of assets with intelligent conditional routing. The visual orchestration of these pipeline stages is shown in Figure \ref{fig:ui_pipeline}. Key features:
+\begin{itemize}
+    \item \textbf{Stage 1}: Normalization and format detection - routes files to appropriate handlers
+    \item \textbf{Stage 2}: Media processing with noise reduction (80Hz high-pass filter)
+    \item \textbf{Stage 3}: Main document processing via Docling for non-specialized file types
+    \item \textbf{Stage 3b} (conditional): Excel custom XML parser with table-aware chunking (max 2000 chars)
+    \item \textbf{Stage 3c} (conditional): DOCX custom XML parser with heading-aware chunking
+    \item \textbf{Stage 3d} (conditional): PDF custom parser with heading-aware chunking
+    \item \textbf{Stage 4}: Consolidation merging all stage outputs into RAG-ready format
+\end{itemize} 
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -1054,7 +1458,7 @@ Provides a high-fidelity search interface for granular document exploration, sup
         \item \texttt{mode} (String, Optional): Operation modality (\texttt{retrieval\_only} vs \texttt{retrieval\_generation}).
         \item \texttt{search\_scope} (String, Optional): Target index (\texttt{text}, \texttt{image}, or \texttt{both}).
         \item \texttt{generation\_model} (String, Optional): Override for the default inference model ID.
-        \item \texttt{skip\_reranker} (Boolean, Default: \texttt{false}): Toggles secondary ranking for latency optimization.
+        \item \texttt{skip\_reranker} (Boolean, Default: \texttt{true}): Globally disabled by default for latency optimization. Set to \texttt{false} to enable reranking with \texttt{bge-reranker-large}.
     \end{itemize}
     \item \textbf{Response}:
     \begin{itemize}

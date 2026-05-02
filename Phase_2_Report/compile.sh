@@ -26,7 +26,7 @@ echo "✓ Cleanup complete"
 # Step 1: First pdflatex pass
 echo ""
 echo "[2/5] Running pdflatex (first pass)..."
-if ! pdflatex -interaction=nonstopmode main.tex > /tmp/pdflatex1.log 2>&1; then
+if ! pdflatex -interaction=nonstopmode --shell-escape main.tex > /tmp/pdflatex1.log 2>&1; then
     echo "❌ Error: pdflatex failed"
     if [ -f main.log ]; then
         echo "Last 30 lines of main.log:"
@@ -52,7 +52,7 @@ fi
 # Step 3: Second pdflatex pass
 echo ""
 echo "[4/5] Running pdflatex (second pass)..."
-if ! pdflatex -interaction=nonstopmode main.tex > /tmp/pdflatex2.log 2>&1; then
+if ! pdflatex -interaction=nonstopmode --shell-escape main.tex > /tmp/pdflatex2.log 2>&1; then
     echo "❌ Error: pdflatex failed"
     if [ -f main.log ]; then
         echo "Last 30 lines of main.log:"
@@ -68,7 +68,7 @@ echo "✓ Second pass complete"
 # Step 4: Third pdflatex pass (to resolve all references)
 echo ""
 echo "[5/5] Running pdflatex (final pass)..."
-if ! pdflatex -interaction=nonstopmode main.tex > /tmp/pdflatex3.log 2>&1; then
+if ! pdflatex -interaction=nonstopmode --shell-escape main.tex > /tmp/pdflatex3.log 2>&1; then
     echo "❌ Error: pdflatex failed"
     if [ -f main.log ]; then
         echo "Last 30 lines of main.log:"

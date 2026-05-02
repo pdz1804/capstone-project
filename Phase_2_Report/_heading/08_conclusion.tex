@@ -166,16 +166,43 @@
 %     \end{itemize}
 % \end{itemize}
 % 
-% \section{Summary of Achievements}
-% 
-% The MRAG system represents a significant step forward in personalized educational technology. By bridging the gap between distributed multimodal resources and generative AI, the system provides students with a powerful tool for information synthesis and adaptive learning. The core achievements include:
-% 
-% \begin{itemize}
-%     \item Multimodal Synergy: Successfully unified text, image, and audio data into a single searchable context.
-%     \item Cloud-Native Reliability: Achieved 99\% uptime and data integrity via S3 and Qdrant Cloud integration.
-%     \item Personalized Learning: Delivered automated summarization, MCQ generation, and learning path features tailored to user profiles.
-% \end{itemize}
-% 
-% Future improvements will focus on expanding the system's reasoning capabilities and integrating even larger document corpora to further support the educational mission at HCMUT.
+% \section{Summary of Objectives and Achievements}
+
+This project successfully designed and implemented a Multimodal Retrieval-Augmented Generation (MRAG) system that transforms how students interact with complex educational materials. The system addresses five primary objectives established in the introduction:
+
+\begin{enumerate}
+    \item \textbf{Multimodal Integration:} Successfully unified textual transcripts, visual content, and audio features into a cohesive retrieval index.
+    \item \textbf{Content Extraction:} Implemented 7-stage robust pipeline using Whisper Large-v3, OCR, and ColQwen for high-fidelity extraction.
+    \item \textbf{Hybrid Retrieval:} Deployed sophisticated architecture combining BM25, dense embeddings, and late-interaction visual models.
+    \item \textbf{Grounded Generation:} Integrated Claude 3.5 Sonnet with AWS Bedrock Guardrails for safe, cited responses.
+    \item \textbf{Personalized Study Tools:} Delivered automated summarization, MCQ generation, and learning path recommendations.
+\end{enumerate}
+
+\section{Technical and System Achievements}
+
+\subsection*{Production-Grade Infrastructure}
+The system leverages cloud-native design with Amazon S3 storage, Qdrant Cloud retrieval, DynamoDB persistence, and comprehensive safety guardrails. Key features include 7-stage processing pipeline, Redis-backed async indexing, multi-turn chat with DynamoDB, and AWS Bedrock Guardrails integration.
+
+\section{Limitations and Trade-offs}
+
+The system operates within important constraints: Vietnamese-language optimization, computational resource requirements, multimodal fusion complexity, reranking disabled for latency (code retained for rollback), and cold-start processing time for new materials.
+
+\section{Significance and Impact}
+
+Three key contributions emerge: (1) Practical multimodal RAG at institutional scale, (2) Cloud-native operationalization with multi-tenancy and safety, and (3) Foundation for adaptive learning research.
+
+\section{Future Work}
+
+\subsection*{Short-term} Deploy with student feedback loops and domain-specific fine-tuning.
+\subsection*{Medium-term} Develop semantic video understanding and real-time adaptation.
+\subsection*{Long-term} Extend to federated deployment and LMS integration.
+
+\section*{Concluding Remarks}
+
+The MRAG system represents a meaningful advancement toward intelligent educational technology that honors the multimodal richness of modern instruction. By integrating retrieval with generation and grounding reasoning in institutional content, the system provides students with an intelligent assistant that amplifies learning efficiency.
+
+The work validates multimodal retrieval-augmented generation as a practical, impactful approach to educational challenges. As universities like HCMUT continue expanding digital content, systems of this character will become increasingly essential—not as replacements for teaching, but as bridges connecting distributed knowledge to human learning.
+
+The foundation established here positions the system for institutional deployment and opens research directions in adaptive learning and AI-assisted education that is both technically rigorous and pedagogically grounded.
 
 \newpage
