@@ -112,7 +112,7 @@ At the core of the system lies the \texttt{UnifiedRAGPipeline} class. This compo
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/72-search-flow.png}
+    \includegraphics[width=0.75\textwidth]{img/pdz/72-search-flow.png}
     \caption[Search and Generation Orchestration Flow]{Search and Generation Orchestration Flow.}
     \label{fig:search_flow}
 \end{figure}
@@ -130,7 +130,7 @@ The implementation utilizes a \textbf{Hybrid Cloud Storage Architecture}. Unlike
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/73-local-vs-cloud.png}
+    \includegraphics[width=0.5\textwidth]{img/pdz/73-local-vs-cloud.png}
     \caption[Hybrid Storage Architecture (Local vs. Cloud)]{Hybrid Storage Architecture (Local vs. Cloud).}
     \label{fig:storage_tiers}
 \end{figure}
@@ -138,14 +138,15 @@ The implementation utilizes a \textbf{Hybrid Cloud Storage Architecture}. Unlike
 
 \textbf{4. Logical Subsystems}
 
+The system logic is divided into two specialized engines that operate in parallel during query execution:
+
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/70-retrieval-systems.png}
+    \includegraphics[width=0.75\textwidth]{img/pdz/70-retrieval-systems.png}
     \caption[Retrieval Systems]{Retrieval Systems.}
     \label{fig:retrieval_systems}
 \end{figure}
-
-The system logic is divided into two specialized engines that operate in parallel during query execution:
 
 \textbf{Hybrid Text Retrieval Engine}
 
@@ -158,7 +159,7 @@ The text retrieval engine has been optimized for multi-tenant cloud deployment u
     
     \begin{figure}[H]
         \centering
-        \includegraphics[width=1\textwidth]{img/pdz/71-reranking.png}
+        \includegraphics[width=0.7\textwidth]{img/pdz/71-reranking.png}
         \caption[Cross-Encoder Reranking Architecture]{Cross-Encoder Reranking Architecture.}
         \label{fig:reranking_arch}
     \end{figure}
@@ -251,7 +252,7 @@ To handle temporal media, the system implements a two-step transformation:
 Legacy office formats require conversion before structural analysis. The system utilizes \textbf{LibreOffice} in a headless server environment.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{img/pdz/25-libre.png}
+    \includegraphics[width=0.9\textwidth]{img/pdz/25-libre.png}
     \caption[LibreOffice Document Conversion Process]{LibreOffice Document Conversion Process.}
     \label{fig:libre_process}
 \end{figure}
@@ -297,7 +298,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/58-pipeline-architecture-overview.png}
+    \includegraphics[width=0.3\textwidth]{img/pdz/58-pipeline-architecture-overview.png}
     \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
     \label{fig:pipeline_overview}
 \end{figure}
@@ -369,7 +370,7 @@ Audio (WAV, MP3) & Extension & Pass-through & — & — (→ Stage 2) \\
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/61-media-processing -flow.png}
+    \includegraphics[width=0.55\textwidth]{img/pdz/61-media-processing -flow.png}
     \caption[Stage 2: Media Processing Workflow]{Stage 2: Media Processing Workflow.}
     \label{fig:stage2_media_flow}
 \end{figure}
@@ -468,7 +469,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/66-Excel-processing.png}
+    \includegraphics[width=0.7\textwidth]{img/pdz/66-Excel-processing.png}
     \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
     \label{fig:excel_proc}
 \end{figure}
@@ -497,7 +498,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/67-DOCX-processing.png}
+    \includegraphics[width=0.7\textwidth]{img/pdz/67-DOCX-processing.png}
     \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
     \label{fig:docx_proc}
 \end{figure}
@@ -525,7 +526,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/68-PDF-processing.png}
+    \includegraphics[width=0.7\textwidth]{img/pdz/68-PDF-processing.png}
     \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
     \label{fig:pdf_proc}
 \end{figure}
@@ -2273,7 +2274,7 @@ By placing the WAF at the ALB level, all inbound traffic is filtered before reac
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{img/pdz/47-aws-waf.jpg}
+    \includegraphics[width=1\textwidth]{img/pdz/47-aws-waf.jpg}
     \caption[AWS Web Application Firewall Architecture]{AWS Web Application Firewall (WAF) deployment architecture protecting the BK-MInD ALB.}
     \label{fig:waf_architecture}
 \end{figure}
@@ -2327,7 +2328,7 @@ The WAF also implements a challenge mechanism using CAPTCHA for suspicious but n
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{img/pdz/50-waf-summary-view.png}
+    \includegraphics[width=1\textwidth]{img/pdz/50-waf-summary-view.png}
     \caption[WAF Summary Dashboard]{AWS WAF summary dashboard showing request volume, blocked requests, and CAPTCHA challenges.}
     \label{fig:waf_dashboard}
 \end{figure}
@@ -2345,7 +2346,7 @@ Blocked requests are logged to CloudWatch Logs for forensic analysis, including 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{img/pdz/51-waf-attack-type.png}
+    \includegraphics[width=1\textwidth]{img/pdz/51-waf-attack-type.png}
     \caption[WAF Attack Type Distribution]{WAF dashboard showing distribution of detected attack types.}
     \label{fig:waf_attacks}
 \end{figure}
@@ -2360,7 +2361,7 @@ While AWS WAF protects against technical network-layer attacks, BK-MInD requires
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{img/pdz/48-aws-bedrock-guardrail.jpg}
+    \includegraphics[width=1\textwidth]{img/pdz/48-aws-bedrock-guardrail.jpg}
     \caption[AWS Bedrock Guardrail Architecture]{AWS Bedrock Guardrails providing application-level content filtering for AI model interactions.}
     \label{fig:bedrock_guardrail}
 \end{figure}
@@ -2440,7 +2441,7 @@ AWS DynamoDB tables are configured with server-side encryption using AWS-managed
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{img/pdz/49-security-architecture.jpg}
+    \includegraphics[width=1\textwidth]{img/pdz/49-security-architecture.jpg}
     \caption[Comprehensive Security Architecture]{Multi-layered security architecture combining WAF, Bedrock Guardrails, and data encryption.}
     \label{fig:security_architecture}
 \end{figure}
@@ -2503,7 +2504,7 @@ The architecture sustains 50,000+ requests per second without degradation, far e
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{img/pdz/53-waf-bot-detection.png}
+    \includegraphics[width=1\textwidth]{img/pdz/53-waf-bot-detection.png}
     \caption[WAF Bot Detection Metrics]{WAF bot detection showing automated attack attempts blocked by security controls.}
     \label{fig:waf_bot_detection}
 \end{figure}
@@ -2524,7 +2525,7 @@ All tests confirmed security controls function as designed with no false positiv
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{img/pdz/55-waf-request-location.png}
+    \includegraphics[width=1\textwidth]{img/pdz/55-waf-request-location.png}
     \caption[WAF Geographic Distribution]{WAF showing geographic distribution of requests and blocked traffic sources.}
     \label{fig:waf_geography}
 \end{figure}
