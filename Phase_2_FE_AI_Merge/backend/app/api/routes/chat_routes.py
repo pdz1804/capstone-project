@@ -12,7 +12,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, List
 
-from agent.strands_chat_runtime import build_query_with_history, run_chat_agent
+from agent.strands_chat_runtime import build_query_with_history, rewrite_retrieval_query_with_history, run_chat_agent
 
 
 @contextlib.contextmanager
@@ -161,6 +161,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
     education_context = (req.education_description or "").strip()
     history_svc = _get_chat_history_service()
     prior_messages: list[dict[str, Any]] = []
+    chat_model_id = str((cfg.get("generation", {}) or {}).get("model") or "").strip() or None
 
     if history_svc is not None:
         try:
@@ -201,6 +202,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
             chat_viz_attachments: List[Dict[str, str]] = []
             # Same chat turn: require get_processed_markdown before generate_learning_visualization per document_id.
             viz_markdown_prefetched: set[str] = set()
+            rewrite_cache: Dict[str, Dict[str, Any]] = {}
 
             from strands import tool
 
@@ -209,9 +211,20 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
             def text_rag(query: str, top_k: int = req.top_k) -> str:
                 """Search the knowledge base using hybrid text retrieval (BM25 + semantic).
                 Use for any question about lecture content, documents, notes, or course materials."""
+                compact_query = " ".join(str(query or "").split()).strip()
+                rewrite_info = rewrite_cache.get(compact_query)
+                if rewrite_info is None:
+                    rewrite_info = rewrite_retrieval_query_with_history(
+                        query=compact_query,
+                        history_messages=prior_messages,
+                        region=AGENTCORE_REGION,
+                        model_id=chat_model_id,
+                    )
+                    rewrite_cache[compact_query] = rewrite_info
+                retrieval_query = str(rewrite_info.get("query") or compact_query)
                 with _suppress_pipeline_noise():
                     result = orch.run(
-                        query=query,
+                        query=retrieval_query,
                         top_k=max(1, min(int(top_k), 30)),
                         retriever_type="hybrid",
                         include_images=False,
@@ -225,7 +238,11 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 compact = _compact_text_rows(rows)
                 tool_traces.append({
                     "tool": "text_rag",
-                    "query": query,
+                    "query": retrieval_query,
+                    "original_query": compact_query,
+                    "rewritten_query": str(rewrite_info.get("rewritten_query") or retrieval_query),
+                    "query_rewrite_applied": bool(rewrite_info.get("applied")),
+                    "query_rewrite_reason": str(rewrite_info.get("reason") or ""),
                     "top_k": max(1, min(int(top_k), 30)),
                     "search_scope": "text",
                     "index_backend": "BM25 + Qdrant text collection",
@@ -689,6 +706,14 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 "per image (call visualization again if the user needs separate graphics per file).\n"
                 "- If a tool returns VISUALIZATION_OK, the image is shown automatically in the chat UI — never paste base64 or ![image](data:...) in your answer\n"
                 "- If no relevant content found, suggest running Process + Build Index\n"
+                "- If no relevant content is found in retrieved documents, say that clearly. "
+                "If the question can be answered from general academic knowledge, continue with "
+                "'Based on my general knowledge...' and do not attach document citations to those claims. "
+                "If the question is user-specific, ask the student to process/build indexes instead of guessing\n"
+                "- If retrieved documents conflict, explain which source says what, identify the contradiction, "
+                "then give your best reasoned conclusion\n"
+                "- If retrieved documents conflict with your general knowledge, disclose both: "
+                "'Your document says A, while my general knowledge is B', then explain the likely resolution\n"
                 "- Format in clean markdown: ## headings, - bullets, **bold** key terms\n"
                 "- Never output raw <function_calls> or <function_result> tags\n"
                 "- Never include system logs, pipeline statistics, processing metadata, timing data, "
@@ -725,6 +750,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 memory_id=MEM_ID,
                 region=AGENTCORE_REGION,
                 runtime_arn=AGENTCORE_RUNTIME_ARN,
+                model_id=chat_model_id,
             )
             logger.info("chat_stream: Agent returned result, processing...")
 
