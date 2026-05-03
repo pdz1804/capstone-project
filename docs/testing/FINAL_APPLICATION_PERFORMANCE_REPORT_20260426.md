@@ -11,7 +11,7 @@ BK-MInD was tested across the main user-facing API groups: authentication, user 
 
 The key engineering conclusion is that the platform is already strong for read-heavy and assisted-learning workloads. Search, summary, MCQ, roadmap, and chat remained functional up to **50 concurrent users** in the available result set. The heavier asynchronous pipeline jobs, especially full indexing, are the main capacity-sensitive area. Processing duration increases gradually with concurrency, while full indexing is stable at 20-30 concurrent jobs and reaches an overload condition in the available 40-job run.
 
-This behavior is expected for an AI learning platform. Stateless API calls and retrieval/insight reads scale more smoothly, while document processing and indexing consume CPU, memory, storage I/O, embedding/model calls, and vector database throughput. The platform is therefore suitable for production-style growth if the next scaling phase prioritizes pipeline job isolation, worker autoscaling, queue control, model-serving capacity, and observability.
+This behavior is expected for an AI learning platform. Stateless API calls and retrieval/insight reads scale more smoothly, while document processing and indexing consume CPU, memory, storage I/O, embedding/model calls, and Vector Database throughput. The platform is therefore suitable for production-style growth if the next scaling phase prioritizes pipeline job isolation, worker autoscaling, queue control, model-serving capacity, and observability.
 
 ## Test Tools And Measurement Overview
 
@@ -143,7 +143,7 @@ Indexing is the heaviest measured backend workflow because it prepares searchabl
 
 Indexing scales less smoothly than processing. The 20-job and 30-job runs completed successfully, but the 40-job run failed all jobs after long execution times. This strongly indicates that full indexing is currently the most capacity-sensitive workflow.
 
-The reason is technical: indexing combines processed text/image assets, embedding generation, sparse/dense index updates, Qdrant writes, and potentially multimodal index operations. These operations place pressure on model throughput, memory, network, and vector database capacity.
+The reason is technical: indexing combines processed text/image assets, embedding generation, sparse/dense index updates, Qdrant writes, and potentially multimodal index operations. These operations place pressure on model throughput, memory, network, and Vector Database capacity.
 
 ### Conclusion
 
@@ -316,4 +316,4 @@ The current results are encouraging: the platform already demonstrates stable le
 
 BK-MInD is technically promising and already demonstrates reliable performance across a broad set of core APIs. The measured results support presenting the platform as a functional AI learning system with strong foundations in upload, search, chat, and learning insights.
 
-For production expansion, the recommended path is not a rewrite. The correct next step is targeted scaling: isolate background pipelines, autoscale workers, control indexing concurrency, improve caching, and monitor model/vector database bottlenecks. With these improvements, BK-MInD can grow from a capstone-grade platform into a larger educational AI system capable of serving more courses, more students, and richer multimodal learning workflows.
+For production expansion, the recommended path is not a rewrite. The correct next step is targeted scaling: isolate background pipelines, autoscale workers, control indexing concurrency, improve caching, and monitor model/Vector Database bottlenecks. With these improvements, BK-MInD can grow from a capstone-grade platform into a larger educational AI system capable of serving more courses, more students, and richer multimodal learning workflows.

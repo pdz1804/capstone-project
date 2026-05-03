@@ -15,7 +15,7 @@ Backend:
 - Python 3.11
 - FastAPI (`app/main.py`)
 - Uvicorn runtime
-- Qdrant vector database (`app/repositories/*_index_repository.py`)
+- Qdrant Vector Database (`app/repositories/*_index_repository.py`)
 - Optional AWS services:
   - S3 (storage backend)
   - SageMaker endpoints (ColQwen, Docling, Whisper)

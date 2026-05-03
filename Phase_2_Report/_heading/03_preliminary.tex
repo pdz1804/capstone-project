@@ -1,5 +1,28 @@
 \chapter{Preliminaries}
 
+\section{Terminology and Document Conventions}
+
+To ensure clarity and consistency throughout this report, the following standardized terminology and capitalization conventions are utilized:
+
+\begin{table}[H]
+\centering
+\caption{Standardized Technical Terminology}
+\label{tab:terminology}
+\begin{tabular}{llp{8cm}}
+\toprule
+\textbf{Term} & \textbf{Capitalization} & \textbf{Description / Usage} \\ \midrule
+Vector Database & Capitalized & The high-dimensional similarity search engine (e.g., Qdrant) used for dense retrieval. \\
+BM25 & All Caps & The probabilistic lexical ranking function used for keyword-based sparse retrieval. \\
+\textbf{RAG} & All Caps & Retrieval-Augmented Generation; the core system architecture. \\
+\textbf{LLM} & All Caps & Large Language Model (e.g., GPT-4o-mini, Claude 3.5 Sonnet). \\
+\textbf{Multimodal} & Sentence Case & Systems or processes involving multiple data modalities (text, image, audio, video). \\
+\textbf{Docling} & Title Case & The specialized document parsing library used for structural extraction. \\
+\textbf{ColQwen} & Title Case & The vision-language model architecture used for visual document retrieval. \\
+\textbf{Hybrid Search} & Capitalized & The combination of sparse (BM25) and dense (Vector) retrieval pathways. \\
+\textbf{RRF} / \textbf{DBSF} & All Caps & Reciprocal Rank Fusion and Distribution-Based Score Fusion (fusion algorithms). \\ \bottomrule
+\end{tabular}
+\end{table}
+
 \section{Automatic Speech Recognition}
 \label{sec:asr}
 
@@ -373,7 +396,7 @@ A MRAG pipeline is illustrated in Figure~\ref{fig:MRAG pipeline}\footnote{\url{h
     \label{fig:MRAG pipeline}
 \end{figure}
 
-The pipeline integrates retrieval mechanisms with generative language models to produce accurate and contextually grounded outputs. The process begins with query vectorization, where the user input is encoded into a high-dimensional vector representation using models such as BERT or Sentence Transformers. This query vector is then matched against a pre-indexed vector database to identify semantically similar entries, allowing the system to retrieve the most relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}.
+The pipeline integrates retrieval mechanisms with generative language models to produce accurate and contextually grounded outputs. The process begins with query vectorization, where the user input is encoded into a high-dimensional vector representation using models such as BERT or Sentence Transformers. This query vector is then matched against a pre-indexed Vector Database to identify semantically similar entries, allowing the system to retrieve the most relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}.
 After retrieval, the selected data may undergo preprocessing steps for example, summarization, filtering, or restructuring to ensure compatibility with the downstream language model. The processed information is then incorporated into the input context of an LLM, enabling it to generate responses that combine the retrieved evidence with its own pre-trained knowledge~\cite{izacard2021leveraging}.
 
 The RAG architecture consists of two primary modules: the retriever and the generator. The retriever is responsible for identifying relevant documents or passages from an external knowledge source. It typically operates using methods such as sparse retrieval (e.g., BM25), dense vector retrieval based on embedding similarity, or hybrid/neural retrieval models~\cite{lewis2020rag, luan2021sparse_dense}. These techniques allow the system to efficiently search large-scale corpora and return the most semantically relevant information. The generator then consumes both the user query and the retrieved context to produce the final output. Modern RAG systems usually rely on transformer-based language models, which condition their decoding process on the retrieved evidence to ensure that the generated response is grounded in factual information and remains aligned with the input query~\cite{izacard2022rag_sequence}. By combining retrieval with generation, RAG reduces hallucination rates, improves factual accuracy, and enables the model to access up-to-date or domain-specific knowledge without needing to retrain the entire language model. This makes RAG a practical and scalable solution for knowledge-intensive tasks in machine learning and natural language processing~\cite{izacard2021leveraging, gao2023rag_survey}.
@@ -382,7 +405,7 @@ Moreover, recent advances in MRAG further expand its capabilities. For example, 
 
 \subsection{Retrieval}
 
-Sparse retrieval models represent the classical approach to information retrieval, mapping texts into high-dimensional, sparse vectors based on lexical features~\cite{robertson2009probabilistic, formal2021splade}. These methods, such as TF-IDF and BM25, rely on keyword frequency statistics to determine relevance. The resulting vectors excel at exact keyword matching, making them highly effective and interpretable for queries where specific terms are crucial. More advanced models like SPLADE are also based on this sparse representation paradigm. The underlying scoring function for these models can typically be expressed as an inner product between the sparse vector representations of the query and the document. Retrieval is traditionally performed efficiently using an inverted index. However, they can struggle with keyword mismatches, which means they cannot effectively handle semantic similarity where the exact keywords are not present in the document. The BM25 algorithm is illustrated in Figure~\ref{fig:BM25}\footnote{\url{https://www.geeksforgeeks.org/what-is-bm25-best-matching-25-algorithm/}}.
+Sparse retrieval models represent the classical approach to information retrieval, mapping texts into high-dimensional, sparse vectors based on lexical features~\cite{robertson2009probabilistic, formal2021splade}. These methods, such as TF-IDF and \textbf{BM25}, rely on keyword frequency statistics to determine relevance. The resulting vectors excel at exact keyword matching, making them highly effective and interpretable for queries where specific terms are crucial. More advanced models like SPLADE are also based on this sparse representation paradigm. The underlying scoring function for these models can typically be expressed as an inner product between the sparse vector representations of the query and the document. Retrieval is traditionally performed efficiently using an inverted index. However, they can struggle with keyword mismatches, which means they cannot effectively handle semantic similarity where the exact keywords are not present in the document. The \textbf{BM25} algorithm is illustrated in Figure~\ref{fig:BM25}\footnote{\url{https://www.geeksforgeeks.org/what-is-bm25-best-matching-25-algorithm/}}.
 
 \begin{figure}[h!]
     \centering

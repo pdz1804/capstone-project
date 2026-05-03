@@ -250,7 +250,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - OpenAI for GPT models and APIs
 - Hugging Face for embedding models
 - LangChain and LlamaIndex communities
-- FAISS and Chroma vector database projects
+- FAISS and Chroma Vector Database projects
 
 ## Future Enhancements
 

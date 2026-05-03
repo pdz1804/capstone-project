@@ -14,7 +14,7 @@ Phase 1 focused on the validation of the core retrieval-augmented generation log
 
 \subsection{Phase 1: Foundation and Feasibility}
 
-Phase 1 was characterized by the development of a \textbf{Proof-of-Concept (PoC)} baseline. The primary objective was to validate the technical feasibility of the multimodal retrieval logic and ensure that the integration of text and visual embedding models yielded coherent results. During this stage, the system was implemented as a monolithic Python environment, relying on local filesystem storage for documents and a local instance of a vector database for retrieval. While functional, this architecture suffered from significant limitations:
+Phase 1 was characterized by the development of a \textbf{Proof-of-Concept (PoC)} baseline. The primary objective was to validate the technical feasibility of the multimodal retrieval logic and ensure that the integration of text and visual embedding models yielded coherent results. During this stage, the system was implemented as a monolithic Python environment, relying on local filesystem storage for documents and a local instance of a Vector Database for retrieval. While functional, this architecture suffered from significant limitations:
 
 \begin{itemize}
     \item \textbf{Resource Contention}: Running heavy embedding models (like ColQwen) alongside the API server on a single machine led to significant latency and memory exhaustion.
@@ -1565,12 +1565,12 @@ Synchronizes extracted artifacts into searchable vector and keyword indexes. Thi
     \item \textbf{Response}:
     \begin{itemize}
         \item \texttt{status} (String): The final state of the indexing lifecycle.
-        \item \texttt{results} (Object): Success metrics for text (dense/BM25) and visual indexing stages.
+        \item \texttt{results} (Object): Success metrics for text (dense/\textbf{BM25}) and visual indexing stages.
     \end{itemize}
 \end{itemize}
 
 \subsection{Knowledge Explorer [\texttt{POST} \texttt{/api/search}]}
-Provides a high-fidelity search interface for granular document exploration, supporting hybrid retrieval (BM25 + Dense) and visual context rendering using multimodal embeddings. A visual representation of the search interface is available in Figure \ref{fig:ui_explorer}.
+Provides a high-fidelity search interface for granular document exploration, supporting hybrid retrieval (\textbf{BM25} + Dense) and visual context rendering using multimodal embeddings. A visual representation of the search interface is available in Figure \ref{fig:ui_explorer}.
 
 \begin{itemize}
     \item \textbf{Request Headers}:
@@ -1806,7 +1806,7 @@ The deployment architecture integrates several key cloud components:
 \begin{itemize}
     \item \textbf{AWS Ecosystem}: The core compute and storage backbone, utilizing S3 for object storage and DynamoDB for stateful metadata.
     \item \textbf{GPU Offloading}: Heavy visual embedding tasks are delegated to specific GPU instances to maintain low-latency responses in the Interface Layer.
-    \item \textbf{Vector Persistence (Qdrant Cloud)}: A managed vector database provides low-latency similarity search across distributed text and image collections.
+    \item \textbf{Vector Persistence (Qdrant Cloud)}: A managed Vector Database provides low-latency similarity search across distributed text and image collections.
 \end{itemize}
 
 \subsection{CI/CD Pipeline (GitHub Actions)}
@@ -1914,7 +1914,7 @@ The runtime environment is managed by \textbf{Amazon Elastic Container Service (
 % \end{itemize}
 % 
 % \textbf{Performance and Asynchronous Processing}
-% A RAG application is inherently I/O-bound. The server spends most of its time not computing, but waiting: waiting for a query response from the vector database, waiting for user data from a relational database, and, most significantly, waiting for the Large Language Model (LLM) API to stream back its generated response.
+% A RAG application is inherently I/O-bound. The server spends most of its time not computing, but waiting: waiting for a query response from the Vector Database, waiting for user data from a relational database, and, most significantly, waiting for the Large Language Model (LLM) API to stream back its generated response.
 % 
 % In a traditional synchronous framework like Django, each of these waiting periods would block an entire worker thread. This means that if 10 users send a query simultaneously, the application needs at least 10 worker threads, each consuming significant memory. This model scales poorly, leading to a rapid increase in server costs and a degradation of user experience under load.
 % 
@@ -1967,10 +1967,10 @@ The runtime environment is managed by \textbf{Amazon Elastic Container Service (
 % 
 % \subsection{Cloud Vector Database: Qdrant}
 % 
-% The market for cloud vector databases is highly fragmented, with vendors utilizing fundamentally different programming languages, scaling architectures, and index structures. Evaluating their capacity to handle billion-scale multimodal workloads requires a granular architectural analysis of each platform.
+% The market for cloud \textbf{Vector Databases} is highly fragmented, with vendors utilizing fundamentally different programming languages, scaling architectures, and index structures. Evaluating their capacity to handle billion-scale multimodal workloads requires a granular architectural analysis of each platform.
 % 
 % \textbf{Multi-Embedding Storage and MaxSim Execution}
-% The capacity to efficiently ingest, store, and query the multi-embeddings generated by ColPali is a primary differentiator among vector databases. While platforms like \textbf{Vespa} and \textbf{Milvus} offer robust native solutions via tensor formalism and unified data types respectively, \textbf{Qdrant} uniquely excels through its decoupling of storage and indexing. Acknowledging that indexing heavy multi-vector payloads via HNSW wastes compute and RAM, Qdrant allows architects to explicitly disable graph construction for these payloads. They are utilized exclusively for in-memory, query-time MaxSim reranking against candidates retrieved via a fast single-vector pass. This architectural brilliance prevents the database from collapsing under graph maintenance during ingestion, ensuring high-speed data loading and significantly reduced RAM overhead.
+% The capacity to efficiently ingest, store, and query the multi-embeddings generated by ColPali is a primary differentiator among \textbf{Vector Databases}. While platforms like \textbf{Vespa} and \textbf{Milvus} offer robust native solutions via tensor formalism and unified data types respectively, \textbf{Qdrant} uniquely excels through its decoupling of storage and indexing. Acknowledging that indexing heavy multi-vector payloads via HNSW wastes compute and RAM, Qdrant allows architects to explicitly disable graph construction for these payloads. They are utilized exclusively for in-memory, query-time MaxSim reranking against candidates retrieved via a fast single-vector pass. This architectural brilliance prevents the database from collapsing under graph maintenance during ingestion, ensuring high-speed data loading and significantly reduced RAM overhead.
 % 
 % \begin{table}[H]
 %     \centering
@@ -2057,7 +2057,7 @@ The runtime environment is managed by \textbf{Amazon Elastic Container Service (
 %     }
 % \end{table}
 % 
-% After an exhaustive analysis of architectural design, search mechanism breadth, economic efficiency, and specific multi-vector handling capabilities, we have selected \textbf{Qdrant} as the primary cloud vector database for the production environment. 
+% After an exhaustive analysis of architectural design, search mechanism breadth, economic efficiency, and specific multi-vector handling capabilities, we have selected \textbf{Qdrant} as the primary cloud Vector Database for the production environment. 
 % 
 % \textbf{Strategic Rationale for Selecting Qdrant}:
 % Qdrant serves as the optimal highly performant alternative for our multimodal RAG architecture. Its architectural decision to bypass HNSW indexing for heavy multi-vector payloads demonstrates a deep understanding of memory economics, ensuring high-speed ingestion and reduced RAM overhead. For our team, Qdrant's \texttt{FastEmbed} ecosystem makes ColPali integration exceptionally streamlined, while its Rust-powered engine provides the necessary latency and throughput performance for the system.

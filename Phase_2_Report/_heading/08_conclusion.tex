@@ -13,7 +13,7 @@
 % 
 % During the initial weeks, the focus was on concurrent research and infrastructure setup. While the literature review identified state-of-the-art VLMs and RAG frameworks like LangChain and LlamaIndex, the repository and environment were simultaneously configured. This parallel approach allowed for immediate experimentation with ASR systems like PhoWhisper and OCR tools such as Tesseract and Mistral OCR.
 % 
-% A key milestone was reached in the mid-phase with the deployment of Pipeline v1. This version integrated basic $BM25$ and dense retrieval methods (utilizing $all-MiniLM-L6-v2$ and $BGE-M3$), providing a benchmark for all subsequent optimizations. The team also conducted comparative analysis between frameworks to select the most efficient one for the project’s specific needs. The latter half of the phase focused on stabilizing these components into a unified code repository, transitioning from experimental notebooks to a structured backend API architecture. Additionally, user feedback was solicited through surveys to refine the system design and focus.
+% A key milestone was reached in the mid-phase with the deployment of Pipeline v1. This version integrated basic \textbf{BM25} and dense retrieval methods (utilizing $all-MiniLM-L6-v2$ and $BGE-M3$), providing a benchmark for all subsequent optimizations. The team also conducted comparative analysis between frameworks to select the most efficient one for the project’s specific needs. The latter half of the phase focused on stabilizing these components into a unified code repository, transitioning from experimental notebooks to a structured backend API architecture. Additionally, user feedback was solicited through surveys to refine the system design and focus.
 % \subsection{Phase 1 Learning Milestones and Key Achievements}
 % 
 % Throughout Phase 1, the team achieved several critical learning milestones that informed system design:
@@ -21,7 +21,7 @@
 % \begin{itemize}
 %     \item \textbf{Multimodal Data Processing Integration:} Successfully integrated ASR, OCR, and text extraction pipelines into a unified workflow, demonstrating the feasibility of processing heterogeneous lecture content without significant performance degradation.
 %     
-%     \item \textbf{Retrieval Architecture Selection:} Empirical evaluation revealed that hybrid retrieval (BM25 + dense embeddings + reranking) significantly outperforms single-method approaches, with BM25 capturing keyword relevance while dense methods capture semantic similarity.
+%     \item \textbf{Retrieval Architecture Selection:} Empirical evaluation revealed that hybrid retrieval (\textbf{BM25} + dense embeddings + reranking) significantly outperforms single-method approaches, with \textbf{BM25} capturing keyword relevance while dense methods capture semantic similarity.
 %     
 %     \item \textbf{Framework Evaluation:} Comparative analysis of LangChain and LlamaIndex demonstrated that LlamaIndex offers better modularity for custom RAG pipelines, leading to its selection for Phase 2.
 %     
@@ -49,13 +49,13 @@
 %     \begin{itemize}
 %         \item Successfully implemented audio extraction and integrated ASR capabilities using PhoWhisper, achieving high-quality transcription of Vietnamese lecture content.
 %         \item Deployed and benchmarked multiple OCR solutions on lecture slides, establishing optimal processing configurations for diverse slide formats and content densities.
-%         \item Developed initial retrieval components including BM25 sparse retrieval and dense retrievers using embedding models (all-MiniLM-L6-v2, BGE-M3).
+%         \item Developed initial retrieval components including \textbf{BM25} sparse retrieval and dense retrievers using embedding models (all-MiniLM-L6-v2, BGE-M3).
 %         \item Created ``Hello World'' RAG prototypes in both LangChain and LlamaIndex frameworks, enabling hands-on comparison of architectural patterns and API designs.
 %     \end{itemize}
 % 
 %     \item \textbf{Baseline System Integration and Optimization:}
 %     \begin{itemize}
-%         \item Constructed a unified evaluation framework supporting systematic comparison of BM25 and dense retrievers using standard metrics (MRR, NDCG), enabling data-driven architecture decisions.
+%         \item Constructed a unified evaluation framework supporting systematic comparison of \textbf{BM25} and dense retrievers using standard metrics (MRR, NDCG), enabling data-driven architecture decisions.
 %         \item Conducted extensive reranker experiments and explored multi-embedding approaches (CLIP, BLIP), discovering that hybrid retrieval with reranking significantly improves result quality.
 %         \item Completed comprehensive benchmarking of OCR and ASR alternatives, selecting optimal tools based on accuracy, processing speed, and resource requirements.
 %         \item Architected and implemented a robust multi-format document processor capable of handling text, audio, and video inputs with unified output schemas.
@@ -101,7 +101,7 @@
 % 
 % % Baseline Development
 % \ganttbar[bar/.style={fill=green!40}]{ASR \& OCR Trials}{3}{6} \\
-% \ganttbar[bar/.style={fill=green!40}]{Retrieval Exp (BM25/Dense)}{4}{8} \\
+% \ganttbar[bar/.style={fill=green!40}]{Retrieval Exp (\textbf{BM25}/Dense)}{4}{8} \\
 % \ganttbar[bar/.style={fill=orange!40}]{Pipeline v1 Integration}{6}{10} \\
 % 
 % % Deliverables

@@ -60,7 +60,7 @@ Security requirements (2) cover data protection and privacy including secure fil
 
 Technical requirements define the implementation constraints and technology choices. These requirements provide specific guidance for development team while ensuring consistency across system components. They are organized into three categories:
 
-System Architecture requirements (3) specify the core technology stack including Python 3.9+ runtime with FastAPI framework, React 18+ frontend with Vite build system, and vector database combined with traditional document store. These requirements establish the technical foundation for the system.
+System Architecture requirements (3) specify the core technology stack including Python 3.9+ runtime with FastAPI framework, React 18+ frontend with Vite build system, and Vector Database combined with traditional document store. These requirements establish the technical foundation for the system.
 
 Integration requirements (2) address external service dependencies including OpenAI API for GPT models, Google Gemini API for multimodal processing, Hugging Face for model hosting, and cloud storage for file backup. These requirements ensure that the system can leverage best-in-class AI services while maintaining flexibility.
 

@@ -8,7 +8,7 @@
 
 ## Overview
 
-This module is a self-contained learning laboratory for understanding how multi-vector image embeddings are stored, indexed, and retrieved using the Qdrant vector database. It is designed as an educational companion to the main Phase 2 RAG pipeline, with heavy comments throughout every source file to explain not just what the code does but why each decision was made.
+This module is a self-contained learning laboratory for understanding how multi-vector image embeddings are stored, indexed, and retrieved using the Qdrant Vector Database. It is designed as an educational companion to the main Phase 2 RAG pipeline, with heavy comments throughout every source file to explain not just what the code does but why each decision was made.
 
 The module demonstrates two deployment configurations for the vector store (a local Docker container and the managed Qdrant Cloud service), two execution modes for the ColQwen2 model (local inference and a remote API server), and the full end-to-end flow from raw image files through multi-vector embedding storage and late-interaction MaxSim retrieval.
 

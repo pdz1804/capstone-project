@@ -204,7 +204,7 @@ The Backend Service also has an outbound connection labeled "interact with, CRUD
 
 **The Private Subnets Inference Tier** is a separate bounded region below and to the right of the App Tier. It contains a Network Load Balancer (NLB) that distributes inference jobs, an EC2 Auto Scaling configuration, and an EC2 Auto Scaling Group containing an EC2 Instance. The EC2 Instance hosts three labeled inference services: Whisper base / large for ASR, Docling for document parsing, and Colqwen 2.5 for visual embedding and retrieval.
 
-**The External 3rd Party Cloud VectorDB** block sits entirely outside the AWS boundary and is labeled with the candidates Qdrant and Pinecone, with a connection to the Backend Service. This represents the deliberate design decision to keep the vector database as an externally managed service rather than self-hosting it within the AWS VPC, at least during this phase while the technology choice is still being evaluated.
+**The External 3rd Party Cloud VectorDB** block sits entirely outside the AWS boundary and is labeled with the candidates Qdrant and Pinecone, with a connection to the Backend Service. This represents the deliberate design decision to keep the Vector Database as an externally managed service rather than self-hosting it within the AWS VPC, at least during this phase while the technology choice is still being evaluated.
 
 ### 3.4 Remaining Diagrams
 

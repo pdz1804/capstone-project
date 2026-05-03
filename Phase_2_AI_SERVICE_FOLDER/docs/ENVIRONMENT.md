@@ -10,7 +10,7 @@ Configure the backend with **`backend/.env`** (see `backend/.env.example`) plus 
 
 Other providers (Azure, Ollama) follow the same YAML keys as Phase 2 under `generation:`.
 
-## 2. Qdrant (vector database)
+## 2. Qdrant (Vector Database)
 
 **Primary reference:** `Phase_2_PDZ_003_Test_Qdrant_Cloud` (connection modes, collection creation, multivec ColQwen).
 

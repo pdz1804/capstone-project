@@ -1,7 +1,7 @@
 In the RAG system 
 
 - when we manually perform the RAG system, many things in the performance still like and nearly the same as the other framework they did (like the coding flow and the generation timing phase)
-- but the main difference is that when we need to generating the embedding + storing the embedding (indexing them in the vector database) + retrieving the relevant documents --> those things in the popular framework they have been better because i think that they have do some optimizations on there vectorstore and the algorithm for getting the 'nearest' vectors to our vector queries have been optimized to be faster but still correct --> that is, those popular framework they have consider for us about the trade-offs between the time of creating, indexing, retrieving documents --> the things that we would take millions of times to manually consider from scratch
+- but the main difference is that when we need to generating the embedding + storing the embedding (indexing them in the Vector Database) + retrieving the relevant documents --> those things in the popular framework they have been better because i think that they have do some optimizations on there vectorstore and the algorithm for getting the 'nearest' vectors to our vector queries have been optimized to be faster but still correct --> that is, those popular framework they have consider for us about the trade-offs between the time of creating, indexing, retrieving documents --> the things that we would take millions of times to manually consider from scratch
 
 ==> so my suggestion would be 
 

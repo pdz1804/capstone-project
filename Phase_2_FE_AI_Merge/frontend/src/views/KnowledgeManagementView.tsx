@@ -36,7 +36,7 @@ export default function KnowledgeManagementView({
     },
     'build-index': {
       title: 'Build Index',
-      description: 'Index processed content into the vector database to enable semantic search and RAG.',
+      description: 'Index processed content into the Vector Database to enable semantic search and RAG.',
     },
     explorer: {
       title: 'Knowledge Explorer',
