@@ -282,7 +282,7 @@ Processing is acceptable at moderate concurrency but should be treated as a cont
     }
 \end{table}
 
-Indexing scales less smoothly than processing. The 20-job and 30-job runs completed successfully, but the 40-job run failed all jobs after long execution times. This strongly indicates that full indexing is currently the most capacity-sensitive workflow. The reason is technical: indexing combines processed text/image assets, embedding generation, sparse/dense index updates, Qdrant writes, and potentially multimodal index operations. These operations place pressure on model throughput, memory, network, and vector database capacity.
+Indexing scales less smoothly than processing. The 20-job and 30-job runs completed successfully, but the 40-job run failed all jobs after long execution times. This strongly indicates that full indexing is currently the most capacity-sensitive workflow. The reason is technical: indexing combines processed text/image assets, embedding generation, sparse/dense index updates, Qdrant writes, and potentially multimodal index operations. These operations place pressure on model throughput, memory, network, and Vector Database capacity.
 
 The safe operating point for indexing from current evidence is up to 30 concurrent full-index jobs. The 40-job result is a useful boundary measurement rather than a product failure: it identifies where queue control, worker capacity, and index-write scaling should be improved before opening higher parallelism.
 

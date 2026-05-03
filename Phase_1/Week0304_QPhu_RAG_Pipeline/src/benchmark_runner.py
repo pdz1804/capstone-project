@@ -867,7 +867,7 @@ Future Directions:
                 messages=[
                     {
                         "role": "system", 
-                        "content": "You are a senior AI/ML engineer with expertise in RAG systems, vector databases, and performance analysis. Provide detailed, technical analysis with actionable insights."
+                        "content": "You are a senior AI/ML engineer with expertise in RAG systems, Vector Databases, and performance analysis. Provide detailed, technical analysis with actionable insights."
                     },
                     {
                         "role": "user", 

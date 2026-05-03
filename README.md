@@ -494,7 +494,7 @@ Open-source models, APIs, and platforms that this codebase builds on (see also T
 - **Google** — Gemini (multimodal/API), **Firebase** (authentication in the merged frontend stack), and embedding-related tooling referenced in weekly work.
 - **Hugging Face** — `transformers`, model hubs, and pretrained checkpoints (e.g. ColQwen, sentence encoders).
 - **IBM** — **Docling** and related document-understanding components.
-- **Qdrant** — vector database used in the Phase 2 AI service and merge backend.
+- **Qdrant** — Vector Database used in the Phase 2 AI service and merge backend.
 - **Amazon Web Services** — **S3**, **SageMaker** real-time inference, and (via Terraform) **ECS**, **ECR**, **ALB**, **ACM** for optional cloud deployment.
 - **HashiCorp** — **Terraform** for infrastructure as code in `Phase_2_FE_AI_Merge/terraform/`.
 - **Pyserini / Anserini & Milvus** — retrieval stacks explored in research-week milestones.

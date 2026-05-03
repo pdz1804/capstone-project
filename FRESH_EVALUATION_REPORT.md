@@ -224,7 +224,7 @@ All core technical claims validated against implementation.
 
 | Issue | Severity | Count | Example | Fix Effort |
 |-------|----------|-------|---------|-----------|
-| **Vector Backend Capitalization** | MEDIUM | 5+ instances | "Vector Backend" vs "vector database" | Low (Find & Replace) |
+| **Vector Backend Capitalization** | MEDIUM | 5+ instances | "Vector Backend" vs "Vector Database" | Low (Find & Replace) |
 | **BM25 Capitalization** | MEDIUM | 3 instances | "BM25" vs "bm25" | Low (Find & Replace) |
 | **Hyphenation Inconsistency** | LOW | 5 instances | "cross-attention" vs "cross attention" | Low (standardize) |
 | **Code Block Indentation** | LOW | 3 instances | JSON vs YAML examples differ | Low (standardize) |
@@ -410,14 +410,14 @@ Reasoning:
 
 ### Phase 1: Critical Fixes (Week 1-2)
 - [ ] Fix Section 6.1 "Evaluation" (populate with evaluation methodology)
-- [ ] Standardize terminology (Vector Database, BM25)
+- [x] Standardize terminology (Vector Database, BM25, ASR, OCR, VLM, MRAG)
 - [ ] Add chapter transition statements
 
 ### Phase 2: Core Diagrams & Content (Week 3-4)
 - [ ] Create 5 critical diagrams (pipeline, retrieval, testing, etc.)
-- [ ] Add LLM hyperparameters table
+- [x] Add LLM hyperparameters table
 - [ ] Add API request/response examples
-- [ ] Create simplified overview for Section 2.6
+- [x] Create simplified overview for Section 2.6
 
 ### Phase 3: High-Priority Diagrams & Polish (Week 5-6)
 - [ ] Create 7 additional diagrams (security, storage, cost, etc.)
