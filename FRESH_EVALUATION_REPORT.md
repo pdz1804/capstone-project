@@ -415,7 +415,7 @@ Reasoning:
 
 ### Phase 2: Core Diagrams & Content (Week 3-4)
 - [ ] Create 5 critical diagrams (pipeline, retrieval, testing, etc.)
-- [ ] Add LLM hyperparameters table
+- [x] Add LLM hyperparameters table
 - [ ] Add API request/response examples
 - [x] Create simplified overview for Section 2.6
 

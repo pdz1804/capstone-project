@@ -1450,6 +1450,37 @@ To manage long-running asynchronous tasks—such as full-document re-indexing, m
 \end{table}
 
 
+
+\section{Generative Configuration and Hyperparameters}
+
+The generative synthesis layer is powered by Large Language Models (LLMs) orchestrated via the Bedrock and OpenAI providers. To ensure consistent output quality, factual grounding, and adherence to specific educational personas, the system employs a set of tuned hyperparameters. These parameters are dynamically adjusted based on the specific service being invoked to balance creative engagement with factual precision.
+
+\begin{table}[H]
+    \centering
+    \caption{LLM Hyperparameters for Core System Services}
+    \label{tab:llm_hyperparameters}
+    \scalebox{0.9}{
+    \begin{tabular}{lp{4cm}cccp{4cm}}
+        \toprule
+        \textbf{Service} & \textbf{Primary Model} & \textbf{Temp} & \textbf{Top-P} & \textbf{Max Tokens} & \textbf{Persona Focus} \\
+        \midrule
+        \textbf{Chat Assistant} & Claude 3.5 Sonnet & 0.7 & 0.9 & 4096 & Conversational, Socratic \\
+        \textbf{Knowledge Explorer} & Claude 3.5 Sonnet & 0.0 & 1.0 & 2000 & Fact-driven, Direct \\
+        \textbf{Summary Gen} & Claude 3.5 Sonnet & 0.2 & 1.0 & 3000 & Analytical, Concise \\
+        \textbf{MCQ Generation} & Claude 3.5 Sonnet & 0.2 & 1.0 & 3000 & Structural, Objective \\
+        \textbf{Roadmap Gen} & Claude 3.5 Sonnet & 0.2 & 1.0 & 3000 & Pedagogical, Structured \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+The hyperparameter selection reflects a strategic trade-off between exploration and exploitation:
+\begin{itemize}
+    \item \textbf{Temperature}: Factual services (Summary, MCQ, Roadmap) use a conservative temperature of $0.2$ to minimize hallucinations, while the \textbf{Knowledge Explorer} utilizes a strictly deterministic setting ($0.0$) for maximum grounding. The \textbf{Chat Assistant} uses a higher value ($0.7$) to facilitate engaging, Socratic-style dialogue.
+    \item \textbf{Top-P (Nucleus Sampling)}: Set between $0.9$ and $1.0$ to ensure the model remains within a high-probability semantic manifold while allowing for sufficient linguistic variety in educational explanations.
+    \item \textbf{Max Tokens}: Calibrated for each task, with $3,000$ tokens allocated for comprehensive document-level insights and $4,096$ for extended conversational contexts.
+\end{itemize}
+
 \section{Core API Services}
 The core API, built with FastAPI, serves as the communication backend between the frontend UI, the RAG orchestration logic, and the databases. To ensure a seamless user experience, each major interface tab is powered by a high-fidelity endpoint that manages specific stages of the document lifecycle or analytical intelligence:
 
