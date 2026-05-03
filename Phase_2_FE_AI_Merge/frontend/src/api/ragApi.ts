@@ -23,6 +23,12 @@ const blobGetConfig: Pick<AxiosRequestConfig, 'responseType' | 'transformRequest
   ],
 };
 
+function headerString(value: unknown, fallback: string): string {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return String(value[0] || fallback);
+  return fallback;
+}
+
 const EXT_MIME: Record<string, string> = {
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
@@ -83,6 +89,14 @@ export type FileWithMetadata = {
   indexed_text?: boolean;
   indexed_image?: boolean;
   index_status?: 'none' | 'text' | 'image' | 'all';
+  file_size_bytes?: number;
+  file_hash?: string | null;
+};
+
+export type UploadResponse = {
+  uploaded: Array<{ name: string; size: number }>;
+  count: number;
+  files?: Array<Record<string, unknown>>;
 };
 
 export type FilesWithMetadataResponse = {
@@ -119,12 +133,13 @@ export async function getFiles(quick = false): Promise<FilesResponse> {
   return data;
 }
 
-export async function uploadFiles(fileList: File[]): Promise<void> {
+export async function uploadFiles(fileList: File[]): Promise<UploadResponse> {
   const form = new FormData();
   fileList.forEach((f) => form.append('files', f));
-  await apiClient.post('/upload', form, {
+  const { data } = await apiClient.post<UploadResponse>('/upload', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
+  return data;
 }
 
 export async function deleteFile(path: string): Promise<void> {
@@ -217,7 +232,7 @@ export async function getProcessedFile(
   });
   return {
     body: response.data,
-    mediaType: response.headers['content-type'] || 'application/octet-stream',
+    mediaType: headerString(response.headers['content-type'], 'application/octet-stream'),
   };
 }
 
@@ -232,7 +247,7 @@ export async function getInputFile(
   });
   return {
     body: response.data,
-    mediaType: response.headers['content-type'] || 'application/octet-stream',
+    mediaType: headerString(response.headers['content-type'], 'application/octet-stream'),
   };
 }
 
@@ -362,8 +377,137 @@ export async function getSearchImagePreview(
   });
   return {
     body: response.data,
-    mediaType: response.headers['content-type'] || 'application/octet-stream',
+    mediaType: headerString(response.headers['content-type'], 'application/octet-stream'),
   };
+}
+
+export type RetrievalEvalEvidence = {
+  evidence_id: string;
+  modality: 'text' | 'image';
+  rank?: number;
+  score?: number;
+  retrieval_type?: string;
+  source?: string;
+  source_path?: string;
+  storage_uri?: string;
+  page?: number | null;
+  image_artifact_paths?: string[];
+  text?: string;
+  text_preview?: string;
+  metadata?: Record<string, unknown>;
+};
+
+export type RetrievalEvalLabel = {
+  evidence_id: string;
+  relevance: number;
+  rationale?: string;
+};
+
+export type RetrievalEvalAnswerJudgment = {
+  correctness?: 'correct' | 'partially_correct' | 'incorrect';
+  faithfulness?: 'faithful' | 'partially_faithful' | 'hallucinated';
+  answer_support?: 'fully_supported' | 'partially_supported' | 'not_supported';
+  rationale?: string;
+  error?: string;
+};
+
+export type RetrievalEvalResult = {
+  query_id: string;
+  question: {
+    query_id: string;
+    doc_id: string;
+    category: string;
+    question: string;
+    reference_answer?: string;
+    expected_evidence_hint?: string;
+  };
+  retrieved: {
+    text: RetrievalEvalEvidence[];
+    image: RetrievalEvalEvidence[];
+    telemetry?: Record<string, unknown>;
+  };
+  generated_answer?: { answer?: string; rationale?: string; error?: string };
+  llm_answer_judgment?: RetrievalEvalAnswerJudgment;
+  human_answer_judgment?: RetrievalEvalAnswerJudgment;
+  llm_judgments?: Record<string, { labels?: RetrievalEvalLabel[]; ranked_evidence_ids?: string[] }>;
+  human_judgments?: Record<string, { labels?: RetrievalEvalLabel[]; ranked_evidence_ids?: string[] }>;
+};
+
+export type RetrievalEvalRun = {
+  run_id: string;
+  status?: 'running' | 'completed' | 'failed';
+  error?: string;
+  artifact_path?: string;
+  created_at?: string;
+  updated_at?: string;
+  config?: Record<string, unknown>;
+  active_files?: Array<Record<string, unknown>>;
+  document_summaries?: Array<Record<string, unknown>>;
+  questions?: Array<Record<string, unknown>>;
+  results?: RetrievalEvalResult[];
+  metrics?: Record<string, any>;
+  timings_ms?: Record<string, any>;
+};
+
+export async function createRetrievalEvalRun(body: {
+  top_k?: number;
+  k_values?: number[];
+  retriever_type?: string;
+  questions_per_category?: number;
+  max_documents?: number | null;
+  async_mode?: boolean;
+}): Promise<RetrievalEvalRun> {
+  const { data } = await apiClient.post('/retrieval-eval/runs', {
+    top_k: body.top_k ?? 10,
+    k_values: body.k_values ?? [1, 3, 5, 10],
+    retriever_type: body.retriever_type ?? 'hybrid',
+    questions_per_category: body.questions_per_category ?? 5,
+    max_documents: body.max_documents ?? null,
+    async_mode: body.async_mode ?? false,
+  });
+  return data;
+}
+
+export async function getRetrievalEvalRun(runId: string): Promise<RetrievalEvalRun> {
+  const { data } = await apiClient.get(`/retrieval-eval/runs/${encodeURIComponent(runId)}`);
+  return data;
+}
+
+export async function saveRetrievalEvalLabels(
+  runId: string,
+  body: {
+    query_id: string;
+    modality: 'text' | 'image';
+    labels: RetrievalEvalLabel[];
+    ranked_evidence_ids?: string[];
+  }
+): Promise<RetrievalEvalRun> {
+  const { data } = await apiClient.post(`/retrieval-eval/runs/${encodeURIComponent(runId)}/labels`, {
+    query_id: body.query_id,
+    modality: body.modality,
+    labels: body.labels,
+    ranked_evidence_ids: body.ranked_evidence_ids ?? [],
+  });
+  return data;
+}
+
+export async function saveRetrievalEvalAnswerLabels(
+  runId: string,
+  body: {
+    query_id: string;
+    correctness: 'correct' | 'partially_correct' | 'incorrect';
+    faithfulness: 'faithful' | 'partially_faithful' | 'hallucinated';
+    answer_support: 'fully_supported' | 'partially_supported' | 'not_supported';
+    rationale?: string;
+  }
+): Promise<RetrievalEvalRun> {
+  const { data } = await apiClient.post(`/retrieval-eval/runs/${encodeURIComponent(runId)}/answer-labels`, body);
+  return data;
+}
+
+export async function recomputeRetrievalEvalRun(runId: string): Promise<RetrievalEvalRun> {
+  const { data } = await apiClient.post(`/retrieval-eval/runs/${encodeURIComponent(runId)}/recompute`);
+  return data;
 }
 
 export async function postSummary(payload: {

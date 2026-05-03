@@ -1532,7 +1532,14 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
                             {hasTimecode ? `${fmt(start)} – ${fmt(end)}` : 'Text segment'}
                           </p>
-                          <p className="text-sm text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">{text}</p>
+                          <div className="prose prose-slate prose-sm max-w-none">
+                            <ReactMarkdown
+                              remarkPlugins={MARKDOWN_REMARK_PLUGINS}
+                              components={getLectureMarkdownComponents(source)}
+                            >
+                              {preprocessMarkdown(text, source)}
+                            </ReactMarkdown>
+                          </div>
                         </div>
                       );
                     })}

@@ -338,6 +338,7 @@ export default function App() {
 
   const isAdminUser = currentRole === 'admin';
   const isAdminView = isAdminUser && adminViewMode === 'admin';
+  const canUseRetrievalEval = currentRole === 'admin' || currentRole === 'student';
 
   useEffect(() => {
     if (!isAuthReady || !user) return;
@@ -638,6 +639,7 @@ export default function App() {
                   setFiles={setFiles}
                   activeTab={knowledgeSubTab}
                   onRefreshFiles={refreshFilesFromApi}
+                  canUseRetrievalEval={canUseRetrievalEval}
                 />
               )}
               {currentView === 'lecture' && <LectureView files={files} />}

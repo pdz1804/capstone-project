@@ -4,12 +4,25 @@ import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import { Search, MessageSquare, RefreshCw, Database, Clock3, Sigma, Copy, FileDown } from 'lucide-react';
+import { Search, MessageSquare, RefreshCw, Database, Clock3, Sigma, Copy, FileDown, Beaker, Save, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { FileItem } from '../App';
-import { getGenerationModels, getSearchImagePreview, searchRag } from '../api/ragApi';
+import apiClient from '../api/client';
+import {
+  createRetrievalEvalRun,
+  getRetrievalEvalRun,
+  getGenerationModels,
+  getSearchImagePreview,
+  recomputeRetrievalEvalRun,
+  saveRetrievalEvalAnswerLabels,
+  saveRetrievalEvalLabels,
+  searchRag,
+  type RetrievalEvalEvidence,
+  type RetrievalEvalRun,
+} from '../api/ragApi';
 
 interface SearchViewProps {
   files: FileItem[];
+  canUseRetrievalEval?: boolean;
 }
 
 type SearchMode = 'retrieval_only' | 'retrieval_generation';
@@ -100,7 +113,172 @@ function isLocalHostRuntime(): boolean {
   return host === 'localhost' || host === '127.0.0.1' || host === '::1';
 }
 
-export default function SearchView({ files }: SearchViewProps) {
+type EvalModality = 'text' | 'image';
+
+function getMetricMean(metrics: Record<string, any> | undefined, source: 'llm' | 'human', modality: EvalModality, key: string): string {
+  const value = metrics?.[source]?.[modality]?.aggregate?.[key]?.mean;
+  return typeof value === 'number' ? value.toFixed(3) : '-';
+}
+
+function RetrievalMetricTable({ title, metrics, source }: { title: string; metrics?: Record<string, any>; source: 'llm' | 'human' }) {
+  const ks = ['@1', '@3', '@5', '@10'];
+  const rows = [
+    { label: 'Text recall', modality: 'text' as EvalModality, metric: 'recall' },
+    { label: 'Text nDCG', modality: 'text' as EvalModality, metric: 'ndcg' },
+    { label: 'Image recall', modality: 'image' as EvalModality, metric: 'recall' },
+    { label: 'Image nDCG', modality: 'image' as EvalModality, metric: 'ndcg' },
+  ];
+  return (
+    <div className="overflow-hidden rounded-lg border border-emerald-100 bg-white">
+      <div className="border-b border-emerald-100 bg-emerald-50/50 px-3 py-2 text-xs font-black uppercase tracking-tight text-emerald-800">{title}</div>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="bg-slate-50 text-left text-[10px] uppercase tracking-tight text-slate-500">
+            <th className="px-3 py-2">Metric</th>
+            {ks.map((k) => <th key={k} className="px-3 py-2">{k}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.label} className="border-t border-slate-100">
+              <td className="px-3 py-2 font-semibold text-slate-700">{row.label}</td>
+              {ks.map((k) => (
+                <td key={k} className="px-3 py-2 font-mono text-slate-900">
+                  {getMetricMean(metrics, source, row.modality, `${row.metric}${k}`)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function formatMs(value: unknown): string {
+  const n = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(n)) return '-';
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}s`;
+  return `${Math.round(n)}ms`;
+}
+
+function getEvalTiming(run: RetrievalEvalRun | null, path: string[]): string {
+  let cur: any = run?.timings_ms;
+  for (const key of path) cur = cur?.[key];
+  return formatMs(cur);
+}
+
+function labelKey(queryId: string, modality: EvalModality, evidenceId: string): string {
+  return `${queryId}::${modality}::${evidenceId}`;
+}
+
+function normalizePosixPath(path: string): string {
+  const parts = String(path || '').replace(/\\/g, '/').split('/').filter(Boolean);
+  const out: string[] = [];
+  for (const part of parts) {
+    if (part === '.') continue;
+    if (part === '..') out.pop();
+    else out.push(part);
+  }
+  return out.join('/');
+}
+
+function resolveChunkImageSrc(src: string, sourcePath?: string): string {
+  const raw = String(src || '').trim();
+  if (!raw || raw.startsWith('data:') || raw.startsWith('blob:') || raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('/api/')) {
+    return raw;
+  }
+  if (raw.startsWith('s3://') || raw.startsWith('/')) {
+    return `/api/image?path=${encodeURIComponent(raw)}`;
+  }
+  const cleanSource = String(sourcePath || '').replace(/\\/g, '/');
+  if (cleanSource.startsWith('s3://')) {
+    const body = cleanSource.slice('s3://'.length);
+    const slash = body.indexOf('/');
+    const bucket = slash >= 0 ? body.slice(0, slash) : body;
+    const key = slash >= 0 ? body.slice(slash + 1) : '';
+    const keyBase = key.includes('/') ? key.slice(0, key.lastIndexOf('/')) : '';
+    const joinedKey = normalizePosixPath(keyBase ? `${keyBase}/${raw}` : raw);
+    return `/api/image?path=${encodeURIComponent(`s3://${bucket}/${joinedKey}`)}`;
+  }
+  const base = cleanSource.includes('/') ? cleanSource.slice(0, cleanSource.lastIndexOf('/')) : '';
+  return `/api/processed-file?rel_path=${encodeURIComponent(normalizePosixPath(base ? `${base}/${raw}` : raw))}`;
+}
+
+function preprocessChunkMarkdown(text: string, sourcePath?: string): string {
+  const toImage = (_match: string, rawValue: string) => {
+    const imagePath = String(rawValue || '').split('|')[0]?.trim();
+    return imagePath ? `![image](${resolveChunkImageSrc(imagePath, sourcePath)})` : '';
+  };
+  return String(text || '')
+    .replace(/\[START_IMAGE_PATH\]\s*(.*?)\s*\[END_IMAGE_PATH\]/gs, toImage)
+    .replace(/\[START_IMAGE\]\s*(.*?)\s*\[END_IMAGE\]/gs, toImage)
+    .replace(/\[START_TABLE_CONTENT\]/g, '')
+    .replace(/\[END_TABLE_CONTENT\]/g, '')
+    .replace(/\[START_TABLE\]/g, '')
+    .replace(/\[END_TABLE\]/g, '')
+    .replace(/<!--\s*image\s*-->/gi, '\n\n> Image marker found, but this chunk does not include an artifact path.\n\n');
+}
+
+function ChunkMarkdownImage({ src, alt, sourcePath }: { src?: string; alt?: string; sourcePath?: string }) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  const resolvedSrc = typeof src === 'string' ? resolveChunkImageSrc(src, sourcePath) : '';
+  const isApiImage = resolvedSrc.includes('/api/image?');
+  const isProcessedFile = resolvedSrc.includes('/api/processed-file?');
+  const path = isApiImage ? new URLSearchParams(resolvedSrc.split('?')[1] ?? '').get('path') : null;
+  const relPath = isProcessedFile ? new URLSearchParams(resolvedSrc.split('?')[1] ?? '').get('rel_path') : null;
+
+  useEffect(() => {
+    setBlobUrl(null);
+    setFailed(false);
+    if (!path && !relPath) return;
+    let canceled = false;
+    let objectUrl = '';
+    void apiClient
+      .get(path ? '/image' : '/processed-file', {
+        params: path ? { path } : { rel_path: relPath },
+        responseType: 'blob',
+      })
+      .then(({ data }) => {
+        if (canceled) return;
+        objectUrl = URL.createObjectURL(data);
+        setBlobUrl(objectUrl);
+      })
+      .catch(() => {
+        if (!canceled) setFailed(true);
+      });
+    return () => {
+      canceled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [path, relPath]);
+
+  if (!resolvedSrc) return null;
+  if (!path && !relPath) {
+    return <img src={resolvedSrc} alt={alt || 'chunk image'} className="my-2 max-h-80 max-w-full rounded border border-slate-100 object-contain" />;
+  }
+  if (failed) return <span className="text-xs text-amber-700">Image could not be loaded</span>;
+  if (!blobUrl) return <span className="inline-block h-10 w-24 animate-pulse rounded bg-slate-100" />;
+  return <img src={blobUrl} alt={alt || 'chunk image'} className="my-2 max-h-80 max-w-full rounded border border-slate-100 object-contain" />;
+}
+
+function ChunkMarkdown({ text, sourcePath, compact = false }: { text: string; sourcePath?: string; compact?: boolean }) {
+  return (
+    <div className={`${compact ? 'prose prose-sm' : 'prose prose-slate prose-sm'} max-w-none prose-table:block prose-table:overflow-x-auto prose-th:border prose-th:border-slate-300 prose-th:bg-slate-50 prose-th:px-2 prose-th:py-1 prose-td:border prose-td:border-slate-300 prose-td:px-2 prose-td:py-1`}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkBreaks]}
+        components={{
+          img: ({ src, alt }) => <ChunkMarkdownImage src={typeof src === 'string' ? src : undefined} alt={alt} sourcePath={sourcePath} />,
+        }}
+      >
+        {preprocessChunkMarkdown(text, sourcePath)}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
+export default function SearchView({ files, canUseRetrievalEval = false }: SearchViewProps) {
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -132,6 +310,19 @@ export default function SearchView({ files }: SearchViewProps) {
     };
   } | null>(null);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [evalRun, setEvalRun] = useState<RetrievalEvalRun | null>(null);
+  const [isEvalRunning, setIsEvalRunning] = useState(false);
+  const [isSavingEvalLabels, setIsSavingEvalLabels] = useState(false);
+  const [evalError, setEvalError] = useState<string | null>(null);
+  const [selectedEvalQueryId, setSelectedEvalQueryId] = useState<string>('');
+  const [selectedEvalModality, setSelectedEvalModality] = useState<EvalModality>('text');
+  const [evalMaxDocuments, setEvalMaxDocuments] = useState<number>(1);
+  const [evalQuestionsPerCategory, setEvalQuestionsPerCategory] = useState<number>(5);
+  const [evalRunIdInput, setEvalRunIdInput] = useState('');
+  const [evalDraftLabels, setEvalDraftLabels] = useState<Record<string, number>>({});
+  const [evalDraftRanks, setEvalDraftRanks] = useState<Record<string, number>>({});
+  const [answerDrafts, setAnswerDrafts] = useState<Record<string, Record<string, string>>>({});
+  const [evalImageZoom, setEvalImageZoom] = useState<number>(1.8);
   const answerRenderRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -170,6 +361,50 @@ export default function SearchView({ files }: SearchViewProps) {
       Object.values(imagePreviewUrls).forEach((url) => URL.revokeObjectURL(url));
     };
   }, [imagePreviewUrls]);
+
+  useEffect(() => {
+    const first = evalRun?.results?.[0]?.query_id || '';
+    if (first && !selectedEvalQueryId) {
+      setSelectedEvalQueryId(first);
+    }
+  }, [evalRun?.run_id, selectedEvalQueryId]);
+
+  useEffect(() => {
+    if (!evalRun) return;
+    const labels: Record<string, number> = {};
+    const ranks: Record<string, number> = {};
+    const answers: Record<string, Record<string, string>> = {};
+    for (const result of evalRun.results || []) {
+      const humanAnswer = result.human_answer_judgment || {};
+      answers[result.query_id] = {
+        correctness: humanAnswer.correctness || '',
+        faithfulness: humanAnswer.faithfulness || '',
+        answer_support: humanAnswer.answer_support || '',
+        rationale: humanAnswer.rationale || '',
+      };
+      for (const modality of ['text', 'image'] as EvalModality[]) {
+        const judgment = result.human_judgments?.[modality];
+        for (const item of judgment?.labels || []) {
+          labels[labelKey(result.query_id, modality, item.evidence_id)] = Number(item.relevance || 0);
+        }
+        (judgment?.ranked_evidence_ids || []).forEach((eid, idx) => {
+          ranks[labelKey(result.query_id, modality, eid)] = idx + 1;
+        });
+      }
+    }
+    setEvalDraftLabels(labels);
+    setEvalDraftRanks(ranks);
+    setAnswerDrafts(answers);
+  }, [evalRun?.run_id]);
+
+  const selectedEvalResult = useMemo(() => {
+    return (evalRun?.results || []).find((item) => item.query_id === selectedEvalQueryId) || null;
+  }, [evalRun, selectedEvalQueryId]);
+
+  const selectedEvalEvidence: RetrievalEvalEvidence[] = useMemo(() => {
+    if (!selectedEvalResult) return [];
+    return selectedEvalResult.retrieved?.[selectedEvalModality] || [];
+  }, [selectedEvalResult, selectedEvalModality]);
 
   const saveRecentSearch = (searchQuery: string) => {
     const updated = [searchQuery, ...recentSearches.filter((q) => q !== searchQuery)].slice(0, 5);
@@ -241,6 +476,157 @@ export default function SearchView({ files }: SearchViewProps) {
   const handleRecentSearchClick = (searchQuery: string) => {
     setQuery(searchQuery);
     void runSearch(searchQuery);
+  };
+
+  const runRetrievalEval = async () => {
+    setEvalError(null);
+    setIsEvalRunning(true);
+    try {
+      const run = await createRetrievalEvalRun({
+        top_k: 10,
+        k_values: [1, 3, 5, 10],
+        retriever_type: 'hybrid',
+        questions_per_category: evalQuestionsPerCategory,
+        max_documents: evalMaxDocuments > 0 ? evalMaxDocuments : null,
+        async_mode: true,
+      });
+      setEvalRun(run);
+      setSelectedEvalQueryId(run.results?.[0]?.query_id || '');
+
+      let latest = run;
+      for (let attempt = 0; attempt < 720 && latest.status !== 'completed' && latest.status !== 'failed'; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        latest = await getRetrievalEvalRun(run.run_id);
+        setEvalRun(latest);
+        if (!selectedEvalQueryId && latest.results?.[0]?.query_id) {
+          setSelectedEvalQueryId(latest.results[0].query_id);
+        }
+      }
+      if (latest.status === 'failed') {
+        setEvalError(latest.error || 'Retrieval eval failed');
+      } else if (latest.status !== 'completed') {
+        setEvalError('Retrieval eval is still running. Refresh the run later.');
+      }
+    } catch (e) {
+      const msg =
+        e && typeof e === 'object' && 'response' in e
+          ? String((e as { response?: { data?: { detail?: string } } }).response?.data?.detail || '')
+          : e instanceof Error
+            ? e.message
+            : 'Retrieval eval failed';
+      setEvalError(msg || 'Retrieval eval failed');
+    } finally {
+      setIsEvalRunning(false);
+    }
+  };
+
+  const setEvalLabel = (evidenceId: string, relevance: number) => {
+    if (!selectedEvalResult) return;
+    const key = labelKey(selectedEvalResult.query_id, selectedEvalModality, evidenceId);
+    setEvalDraftLabels((prev) => ({ ...prev, [key]: relevance }));
+    if (relevance > 0) {
+      setEvalDraftRanks((prev) => ({ ...prev, [key]: prev[key] || 1 }));
+    }
+  };
+
+  const saveEvalLabels = async () => {
+    if (!evalRun || !selectedEvalResult) return;
+    setEvalError(null);
+    setIsSavingEvalLabels(true);
+    try {
+      const labels = selectedEvalEvidence.map((item) => {
+        const key = labelKey(selectedEvalResult.query_id, selectedEvalModality, item.evidence_id);
+        return {
+          evidence_id: item.evidence_id,
+          relevance: Number(evalDraftLabels[key] ?? 0),
+          rationale: '',
+        };
+      });
+      const ranked_evidence_ids = selectedEvalEvidence
+        .filter((item) => Number(evalDraftLabels[labelKey(selectedEvalResult.query_id, selectedEvalModality, item.evidence_id)] ?? 0) > 0)
+        .sort((a, b) => {
+          const ka = labelKey(selectedEvalResult.query_id, selectedEvalModality, a.evidence_id);
+          const kb = labelKey(selectedEvalResult.query_id, selectedEvalModality, b.evidence_id);
+          return Number(evalDraftRanks[ka] || 999) - Number(evalDraftRanks[kb] || 999);
+        })
+        .map((item) => item.evidence_id);
+      const updated = await saveRetrievalEvalLabels(evalRun.run_id, {
+        query_id: selectedEvalResult.query_id,
+        modality: selectedEvalModality,
+        labels,
+        ranked_evidence_ids,
+      });
+      setEvalRun(updated);
+    } catch (e) {
+      const msg =
+        e && typeof e === 'object' && 'response' in e
+          ? String((e as { response?: { data?: { detail?: string } } }).response?.data?.detail || '')
+          : e instanceof Error
+            ? e.message
+            : 'Could not save labels';
+      setEvalError(msg || 'Could not save labels');
+    } finally {
+      setIsSavingEvalLabels(false);
+    }
+  };
+
+  const setAnswerDraft = (field: string, value: string) => {
+    if (!selectedEvalResult) return;
+    setAnswerDrafts((prev) => ({
+      ...prev,
+      [selectedEvalResult.query_id]: {
+        ...(prev[selectedEvalResult.query_id] || {}),
+        [field]: value,
+      },
+    }));
+  };
+
+  const saveAnswerJudgment = async () => {
+    if (!evalRun || !selectedEvalResult) return;
+    const draft = answerDrafts[selectedEvalResult.query_id] || {};
+    if (!draft.correctness || !draft.faithfulness || !draft.answer_support) {
+      setEvalError('Please select correctness, faithfulness, and support before saving answer judgment.');
+      return;
+    }
+    setEvalError(null);
+    setIsSavingEvalLabels(true);
+    try {
+      const updated = await saveRetrievalEvalAnswerLabels(evalRun.run_id, {
+        query_id: selectedEvalResult.query_id,
+        correctness: draft.correctness as 'correct' | 'partially_correct' | 'incorrect',
+        faithfulness: draft.faithfulness as 'faithful' | 'partially_faithful' | 'hallucinated',
+        answer_support: draft.answer_support as 'fully_supported' | 'partially_supported' | 'not_supported',
+        rationale: draft.rationale || '',
+      });
+      setEvalRun(updated);
+    } catch (e) {
+      setEvalError(e instanceof Error ? e.message : 'Could not save answer judgment');
+    } finally {
+      setIsSavingEvalLabels(false);
+    }
+  };
+
+  const recomputeEval = async () => {
+    if (!evalRun) return;
+    setEvalError(null);
+    try {
+      setEvalRun(await recomputeRetrievalEvalRun(evalRun.run_id));
+    } catch (e) {
+      setEvalError(e instanceof Error ? e.message : 'Could not recompute metrics');
+    }
+  };
+
+  const loadEvalRunById = async () => {
+    const runId = evalRunIdInput.trim();
+    if (!runId) return;
+    setEvalError(null);
+    try {
+      const run = await getRetrievalEvalRun(runId);
+      setEvalRun(run);
+      setSelectedEvalQueryId(run.results?.[0]?.query_id || '');
+    } catch (e) {
+      setEvalError(e instanceof Error ? e.message : 'Could not load eval run');
+    }
   };
 
   const handleCopyAnswer = async () => {
@@ -415,6 +801,22 @@ export default function SearchView({ files }: SearchViewProps) {
     }
   };
 
+  useEffect(() => {
+    if (selectedEvalModality !== 'image' || !selectedEvalResult) return;
+    for (const item of selectedEvalEvidence) {
+      const key = labelKey(selectedEvalResult.query_id, 'image', item.evidence_id);
+      if (imagePreviewUrls[key] || imagePreviewLoading[key]) continue;
+      void loadSourcePreview(
+        {
+          storage_uri: item.storage_uri,
+          source_path: item.source_path,
+          page: item.page,
+        },
+        key
+      );
+    }
+  }, [selectedEvalModality, selectedEvalResult?.query_id, selectedEvalEvidence, imagePreviewUrls, imagePreviewLoading]);
+
   function AnswerImage({ src, alt }: { src?: string; alt?: string }) {
     const rawSrc = String(src || '');
     const citationId = rawSrc.startsWith('#image-') ? rawSrc.slice(1) : '';
@@ -424,7 +826,7 @@ export default function SearchView({ files }: SearchViewProps) {
 
     useEffect(() => {
       if (!citationId || !citation || previewUrl || isLoading) return;
-      void loadImagePreview(
+      void loadSourcePreview(
         {
           storage_uri: citation.storage_uri,
           source_path: citation.source_path,
@@ -470,6 +872,411 @@ export default function SearchView({ files }: SearchViewProps) {
           (Qdrant + configured LLM). Indexed sources in workspace: <strong>{totalFiles}</strong> input file(s) listed.
         </p>
       </div>
+
+      {canUseRetrievalEval && (
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 border border-emerald-100 shadow-[0_12px_26px_-22px_rgba(16,185,129,0.45)] shrink-0">
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
+              <Beaker className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-tight">Retrieval Eval</h3>
+              <p className="text-xs text-slate-500">
+                LLM judge + human labels for text recall/nDCG and image recall/nDCG.
+                {evalRun?.status && <span className="ml-2 font-bold text-emerald-700">Status: {evalRun.status}</span>}
+              </p>
+            </div>
+            <div className="ml-auto flex flex-wrap items-end gap-2">
+              <label className="text-xs text-slate-600">
+                Max docs
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={evalMaxDocuments}
+                  onChange={(e) => setEvalMaxDocuments(Math.max(1, Math.min(50, Number(e.target.value || 1))))}
+                  className="mt-1 w-20 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2 py-1.5 text-sm"
+                />
+              </label>
+              <label className="text-xs text-slate-600">
+                Q/category
+                <input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={evalQuestionsPerCategory}
+                  onChange={(e) => setEvalQuestionsPerCategory(Math.max(1, Math.min(10, Number(e.target.value || 5))))}
+                  className="mt-1 w-20 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2 py-1.5 text-sm"
+                />
+              </label>
+              <label className="text-xs text-slate-600">
+                Run ID
+                <input
+                  type="text"
+                  value={evalRunIdInput}
+                  onChange={(e) => setEvalRunIdInput(e.target.value)}
+                  placeholder="retrieval_eval_..."
+                  className="mt-1 w-48 rounded-lg border border-emerald-100 bg-white px-2 py-1.5 text-sm"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => void loadEvalRunById()}
+                disabled={!evalRunIdInput.trim()}
+                className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+              >
+                Load run
+              </button>
+              <button
+                type="button"
+                onClick={() => void runRetrievalEval()}
+                disabled={isEvalRunning}
+                className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+              >
+                {isEvalRunning ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Beaker className="w-4 h-4" />}
+                Run eval
+              </button>
+              {evalRun && (
+                <button
+                  type="button"
+                  onClick={() => void recomputeEval()}
+                  className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50"
+                >
+                  <Sigma className="w-4 h-4" />
+                  Recompute
+                </button>
+              )}
+            </div>
+          </div>
+
+          {evalError && (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{evalError}</div>
+          )}
+
+          {evalRun && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+                <RetrievalMetricTable title="LLM retrieval metrics" metrics={evalRun.metrics} source="llm" />
+                <RetrievalMetricTable title="Human retrieval metrics" metrics={evalRun.metrics} source="human" />
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {[
+                  ['Retrieval wall total', getEvalTiming(evalRun, ['retrieval', 'wall_total_ms'])],
+                  ['Text retrieve total', getEvalTiming(evalRun, ['retrieval', 'text', 'total_ms'])],
+                  ['Text embed total', getEvalTiming(evalRun, ['retrieval', 'text', 'embed_ms'])],
+                  ['Text rerank total', getEvalTiming(evalRun, ['retrieval', 'text', 'rerank_ms'])],
+                  ['Image retrieve total', getEvalTiming(evalRun, ['retrieval', 'image', 'total_ms'])],
+                  ['Image embed total', getEvalTiming(evalRun, ['retrieval', 'image', 'embed_ms'])],
+                  ['Image Qdrant total', getEvalTiming(evalRun, ['retrieval', 'image', 'qdrant_ms'])],
+                  ['Image rerank total', getEvalTiming(evalRun, ['retrieval', 'image', 'rerank_ms'])],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-lg border border-slate-100 bg-white px-3 py-2">
+                    <p className="text-[10px] font-bold uppercase tracking-tight text-slate-500">{label}</p>
+                    <p className="text-base font-black text-slate-900">{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(220px,0.9fr)_minmax(0,1.6fr)] gap-4">
+                <div className="rounded-xl border border-emerald-100 bg-white p-3 max-h-96 overflow-auto">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-tight text-slate-600">
+                    Run {evalRun.run_id}
+                  </p>
+                  {evalRun.artifact_path && (
+                    <p className="mb-3 break-all rounded-md bg-slate-50 px-2 py-1 text-[10px] text-slate-500">
+                      Saved JSON: {evalRun.artifact_path}
+                    </p>
+                  )}
+                  {(evalRun.results || []).map((result) => (
+                    <button
+                      type="button"
+                      key={result.query_id}
+                      onClick={() => setSelectedEvalQueryId(result.query_id)}
+                      className={`mb-2 w-full rounded-lg border px-3 py-2 text-left text-xs transition-colors ${
+                        selectedEvalQueryId === result.query_id
+                          ? 'border-emerald-300 bg-emerald-50 text-emerald-900'
+                          : 'border-slate-100 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className="block font-bold">{result.question.category}</span>
+                      <span className="line-clamp-2">{result.question.question}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {selectedEvalResult && (
+                  <div className="rounded-xl border border-emerald-100 bg-white p-4">
+                    <div className="flex flex-wrap items-start gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold uppercase tracking-tight text-emerald-700">
+                          {selectedEvalResult.question.doc_id} · {selectedEvalResult.question.category}
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-slate-900">{selectedEvalResult.question.question}</p>
+                        {selectedEvalResult.question.reference_answer && (
+                          <p className="mt-1 text-xs text-slate-500">{selectedEvalResult.question.reference_answer}</p>
+                        )}
+                      </div>
+                      <div className="inline-flex rounded-lg border border-emerald-100 bg-emerald-50/50 p-1">
+                        {(['text', 'image'] as EvalModality[]).map((m) => (
+                          <button
+                            type="button"
+                            key={m}
+                            onClick={() => setSelectedEvalModality(m)}
+                            className={`rounded-md px-3 py-1.5 text-xs font-bold ${selectedEvalModality === m ? 'bg-emerald-600 text-white' : 'text-emerald-700 hover:bg-white'}`}
+                          >
+                            {m === 'text' ? 'Text chunks' : 'Image pages'}
+                          </button>
+                        ))}
+                      </div>
+	                    </div>
+
+                    <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50/60 p-3">
+                      <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-tight text-slate-500">LLM answer</p>
+                          {selectedEvalResult.generated_answer?.answer ? (
+                            <div className="mt-2 rounded-md bg-white p-3">
+                              <ChunkMarkdown text={selectedEvalResult.generated_answer.answer} compact />
+                            </div>
+                          ) : (
+                            <p className="mt-2 text-sm text-slate-500">No generated answer stored for this run.</p>
+                          )}
+                          {selectedEvalResult.generated_answer?.rationale && (
+                            <p className="mt-2 text-xs text-slate-500">{selectedEvalResult.generated_answer.rationale}</p>
+                          )}
+                        </div>
+                        <div className="space-y-3">
+                          <div className="rounded-md bg-white p-3">
+                            <p className="text-[10px] font-black uppercase tracking-tight text-blue-700">LLM answer judgment</p>
+                            <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-slate-700">
+                              <span>Correctness: <strong>{selectedEvalResult.llm_answer_judgment?.correctness || '-'}</strong></span>
+                              <span>Faithfulness: <strong>{selectedEvalResult.llm_answer_judgment?.faithfulness || '-'}</strong></span>
+                              <span>Support: <strong>{selectedEvalResult.llm_answer_judgment?.answer_support || '-'}</strong></span>
+                            </div>
+                            {selectedEvalResult.llm_answer_judgment?.rationale && (
+                              <p className="mt-2 text-xs text-slate-500">{selectedEvalResult.llm_answer_judgment.rationale}</p>
+                            )}
+                          </div>
+                          <div className="rounded-md bg-white p-3">
+                            <p className="text-[10px] font-black uppercase tracking-tight text-emerald-700">Human answer judgment</p>
+                            <div className="mt-2 grid grid-cols-1 gap-2">
+                              <select
+                                value={answerDrafts[selectedEvalResult.query_id]?.correctness || ''}
+                                onChange={(e) => setAnswerDraft('correctness', e.target.value)}
+                                className="rounded border border-slate-200 px-2 py-1 text-xs"
+                              >
+                                <option value="">Correctness</option>
+                                <option value="correct">correct</option>
+                                <option value="partially_correct">partially_correct</option>
+                                <option value="incorrect">incorrect</option>
+                              </select>
+                              <select
+                                value={answerDrafts[selectedEvalResult.query_id]?.faithfulness || ''}
+                                onChange={(e) => setAnswerDraft('faithfulness', e.target.value)}
+                                className="rounded border border-slate-200 px-2 py-1 text-xs"
+                              >
+                                <option value="">Faithfulness</option>
+                                <option value="faithful">faithful</option>
+                                <option value="partially_faithful">partially_faithful</option>
+                                <option value="hallucinated">hallucinated</option>
+                              </select>
+                              <select
+                                value={answerDrafts[selectedEvalResult.query_id]?.answer_support || ''}
+                                onChange={(e) => setAnswerDraft('answer_support', e.target.value)}
+                                className="rounded border border-slate-200 px-2 py-1 text-xs"
+                              >
+                                <option value="">Support</option>
+                                <option value="fully_supported">fully_supported</option>
+                                <option value="partially_supported">partially_supported</option>
+                                <option value="not_supported">not_supported</option>
+                              </select>
+                              <textarea
+                                value={answerDrafts[selectedEvalResult.query_id]?.rationale || ''}
+                                onChange={(e) => setAnswerDraft('rationale', e.target.value)}
+                                placeholder="Human rationale"
+                                className="min-h-16 rounded border border-slate-200 px-2 py-1 text-xs"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => void saveAnswerJudgment()}
+                                disabled={isSavingEvalLabels}
+                                className="inline-flex items-center justify-center gap-2 rounded bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+                              >
+                                <Save className="h-3 w-3" />
+                                Save answer judgment
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+	                    <div className="mt-4 space-y-3 max-h-[32rem] overflow-auto pr-1">
+	                      {selectedEvalEvidence.map((item) => {
+	                        const key = labelKey(selectedEvalResult.query_id, selectedEvalModality, item.evidence_id);
+	                        const rel = Number(evalDraftLabels[key] ?? 0);
+	                        const llmRel = selectedEvalResult.llm_judgments?.[selectedEvalModality]?.labels?.find((x) => x.evidence_id === item.evidence_id)?.relevance;
+	                        const previewKey = key;
+	                        const displayText = String(item.text || item.text_preview || '');
+                        const hasBareImageMarker = selectedEvalModality === 'text' && /<!--\s*image\s*-->/i.test(displayText);
+                        const hasArtifactImagePath = selectedEvalModality === 'text' && (
+                          Array.isArray(item.image_artifact_paths) && item.image_artifact_paths.length > 0
+                            ? true
+                            : /\[START_IMAGE(?:_PATH)?\]|!\[[^\]]*\]\(/i.test(displayText)
+                        );
+                        const sourcePreviewKey = `${key}::source-preview`;
+                        const sourcePreviewPage = Number(item.page || item.metadata?.page || item.metadata?.page_number || 1);
+                        const chunkSourcePath = String(item.storage_uri || item.source_path || item.source || '');
+                        const canLoadSourcePreview = Boolean(item.storage_uri || item.source_path);
+	                        return (
+	                          <div key={item.evidence_id} className="rounded-lg border border-slate-100 bg-slate-50/50 p-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-xs font-bold text-slate-800">#{item.rank} · {item.evidence_id}</p>
+                              <span className="rounded-full bg-white px-2 py-0.5 text-[10px] text-slate-500">score {Number(item.score || 0).toFixed(4)}</span>
+                              {llmRel !== undefined && (
+                                <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] text-blue-700">LLM rel {llmRel}</span>
+                              )}
+                            </div>
+	                            {selectedEvalModality === 'image' ? (
+	                              <div className="mt-3">
+                                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => setEvalImageZoom((z) => Math.max(1, Number((z - 0.25).toFixed(2))))}
+                                      className="rounded border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-slate-700"
+                                    >
+                                      -
+                                    </button>
+                                    <span className="text-xs font-semibold text-slate-500">{Math.round(evalImageZoom * 100)}%</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => setEvalImageZoom((z) => Math.min(4, Number((z + 0.25).toFixed(2))))}
+                                      className="rounded border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-slate-700"
+                                    >
+                                      +
+                                    </button>
+                                    {imagePreviewUrls[previewKey] && (
+                                      <a href={imagePreviewUrls[previewKey]} target="_blank" rel="noreferrer" className="ml-auto text-xs font-bold text-blue-700 hover:underline">
+                                        Open full size
+                                      </a>
+                                    )}
+                                  </div>
+                                  {imagePreviewUrls[previewKey] ? (
+                                    <div className="max-h-[42rem] overflow-auto rounded border border-slate-100 bg-white">
+                                      <img
+                                        src={imagePreviewUrls[previewKey]}
+                                        alt={item.source || item.evidence_id}
+                                        style={{ width: `${evalImageZoom * 100}%`, maxWidth: 'none' }}
+                                        className="h-auto object-contain"
+                                      />
+                                    </div>
+                                  ) : (
+                                  <div className="rounded border border-slate-100 bg-white px-3 py-6 text-center text-xs text-slate-500">
+                                    {imagePreviewLoading[previewKey] ? 'Loading page image...' : displayText || 'Page image unavailable'}
+                                  </div>
+                                )}
+                              </div>
+	                            ) : displayText ? (
+	                              <div className="mt-2 rounded-md bg-white p-3">
+		                                <ChunkMarkdown text={displayText} sourcePath={chunkSourcePath} compact />
+                                  {hasBareImageMarker && !hasArtifactImagePath && (
+	                                    <div className="mt-3 rounded-lg border border-amber-100 bg-amber-50/50 p-3">
+                                        <p className="mb-2 text-xs text-amber-800">
+                                          This chunk has a bare image marker, but no parsed image artifact path was preserved in the chunk text. DOCX/PDF artifact images render automatically when the chunk contains START_IMAGE_PATH or a markdown image path.
+                                        </p>
+	                                      {imagePreviewUrls[sourcePreviewKey] ? (
+	                                        <img src={imagePreviewUrls[sourcePreviewKey]} alt="source preview" className="max-h-96 w-full rounded border border-amber-100 bg-white object-contain" />
+	                                      ) : (
+	                                        <button
+	                                          type="button"
+	                                          disabled={!canLoadSourcePreview || !!imagePreviewLoading[sourcePreviewKey]}
+	                                          onClick={() =>
+	                                            void loadSourcePreview(
+	                                              {
+	                                                storage_uri: item.storage_uri,
+	                                                source_path: item.source_path,
+	                                                page: sourcePreviewPage,
+	                                              },
+	                                              sourcePreviewKey
+	                                            )
+	                                          }
+	                                          className="rounded border border-amber-200 bg-white px-2 py-1 text-xs font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+	                                        >
+	                                          {imagePreviewLoading[sourcePreviewKey] ? 'Loading source preview...' : 'Load source preview'}
+	                                        </button>
+	                                      )}
+	                                    </div>
+	                                  )}
+	                              </div>
+                            ) : (
+                              <p className="mt-2 text-sm text-slate-700">(no preview)</p>
+                            )}
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setEvalLabel(item.evidence_id, 2)}
+                                className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold ${rel === 2 ? 'bg-emerald-600 text-white' : 'bg-white text-emerald-700 border border-emerald-200'}`}
+                              >
+                                <ThumbsUp className="w-3 h-3" />
+                                Relevant
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEvalLabel(item.evidence_id, 1)}
+                                className={`rounded-md px-2 py-1 text-xs font-bold ${rel === 1 ? 'bg-amber-500 text-white' : 'bg-white text-amber-700 border border-amber-200'}`}
+                              >
+                                Partial
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEvalLabel(item.evidence_id, 0)}
+                                className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold ${rel === 0 ? 'bg-slate-700 text-white' : 'bg-white text-slate-600 border border-slate-200'}`}
+                              >
+                                <ThumbsDown className="w-3 h-3" />
+                                Irrelevant
+                              </button>
+                              {rel > 0 && (
+                                <label className="ml-auto text-xs text-slate-500">
+                                  Human rank
+                                  <input
+                                    type="number"
+                                    min={1}
+                                    value={evalDraftRanks[key] || 1}
+                                    onChange={(e) => setEvalDraftRanks((prev) => ({ ...prev, [key]: Math.max(1, Number(e.target.value || 1)) }))}
+                                    className="ml-2 w-16 rounded border border-slate-200 bg-white px-2 py-1 text-xs"
+                                  />
+                                </label>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {selectedEvalEvidence.length === 0 && (
+                        <p className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-sm text-slate-500">
+                          No {selectedEvalModality} evidence for this query.
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => void saveEvalLabels()}
+                        disabled={isSavingEvalLabels || selectedEvalEvidence.length === 0}
+                        className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+                      >
+                        {isSavingEvalLabels ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                        Save human labels
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 border border-sky-100 shadow-[0_12px_26px_-22px_rgba(14,165,233,0.5)] shrink-0">
         <div className="flex items-center gap-2 mb-4">
@@ -804,10 +1611,13 @@ export default function SearchView({ files }: SearchViewProps) {
                     )}
                     {c.type === 'text' ? (
                       <>
-                        <p className="mt-2 text-sm text-slate-700">
-                          {(expanded ? longText : (c.text || '')).slice(0, expanded ? undefined : 500)}
-                          {!expanded && (longText || '').length > 500 ? '...' : ''}
-                        </p>
+                        <div className="mt-2 rounded-lg bg-slate-50/50 p-3">
+                          <ChunkMarkdown
+                            text={`${(expanded ? longText : (c.text || '')).slice(0, expanded ? undefined : 500)}${!expanded && (longText || '').length > 500 ? '...' : ''}`}
+                            sourcePath={String(c.storage_uri || c.source_path || c.source || '')}
+                            compact
+                          />
+                        </div>
                         {(longText || '').length > 500 && (
                           <button
                             type="button"
