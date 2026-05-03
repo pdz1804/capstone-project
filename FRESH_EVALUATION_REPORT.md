@@ -410,7 +410,7 @@ Reasoning:
 
 ### Phase 1: Critical Fixes (Week 1-2)
 - [ ] Fix Section 6.1 "Evaluation" (populate with evaluation methodology)
-- [x] Standardize terminology (Vector Database, BM25)
+- [x] Standardize terminology (Vector Database, BM25, ASR, OCR, VLM, MRAG)
 - [ ] Add chapter transition statements
 
 ### Phase 2: Core Diagrams & Content (Week 3-4)
