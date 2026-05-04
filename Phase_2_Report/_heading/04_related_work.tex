@@ -52,7 +52,7 @@ A further refinement is cross-attentional fusion, which departs from dual-encode
 
 NotebookLM is an AI-powered note-taking and research assistant developed by Google Labs\footnote{\url{https://blog.google/technology/ai/notebooklm-google-ai/}}, built on the Gemini family of models\footnote{\url{https://deepmind.google/technologies/gemini/}}. Designed to synthesize information from user-uploaded materials, the system emphasizes grounded responses, multimodal comprehension, and support for research workflows. While NotebookLM is marketed as a general-purpose productivity tool, its capabilities overlap with multimodal educational assistants such as our proposed system for HCMUT lectures.
 
-NotebookLM supports diverse input formats, including PDF documents, Google Docs, Google Slides, web URLs, text files, and YouTube links \footnote{\url{https://notebooklm.google.com/get-started}}. The system performs structured ingestion and can interpret textual content as well as visual elements such as tables, diagrams, and slide images. Recent updates introduce multimodal reasoning, enabling question answering based on charts, images, and transcripts rather than purely textual content \footnote{\url{https://blog.google/technology/google-labs/notebooklm-updates/}}.
+NotebookLM supports diverse input formats, including PDF documents, Google Docs, Google Slides, Microsoft Word (.docx), PowerPoint presentations (.pptx), web URLs, YouTube links, EPUB files, CSV files, Google Sheets, markdown files, and images with OCR capabilities \footnote{\url{https://notebooklm.google.com/get-started}}. The system performs structured ingestion and can interpret textual content as well as visual elements such as tables, diagrams, and slide images. Recent updates introduce advanced multimodal reasoning, enabling comprehensive question answering based on charts, graphs, images, diagrams, video transcripts, and mathematical content, with improved support for computational and technical reasoning \footnote{\url{https://blog.google/technology/google-labs/notebooklm-updates/}}.
 
 This multimodal capability aligns with academic materials that combine formulas, diagrams, and spoken explanations. However, NotebookLM treats uploaded materials as isolated documents rather than components of a structured pedagogical sequence, limiting its effectiveness for course-level organization.
 
@@ -92,16 +92,16 @@ Although NotebookLM provides strong baseline functionality, several limitations 
 \label{tab:comparison-notebooklm}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}p{0.45\textwidth}p{0.45\textwidth}@{}}
 \toprule
-\textbf{NotebookLM Limitation} & \textbf{Opportunity for Our System} \\ \midrule
+\textbf{NotebookLM Design Focus} & \textbf{Opportunity for Our System} \\ \midrule
 Manual document uploads & Automatic ingestion from slides, recordings, LMS \\
 Document-centric representation & Course-aware structuring by lecture/week/topic \\
-Limited semantic reasoning for math, code, circuits & Domain-specific multimodal understanding (STEM-focused) \\
+General-purpose technical reasoning & Domain-specific pedagogical sequencing and curriculum alignment \\
 Generic responses without instructor oversight & Instructor feedback loops and domain-tuned prompting \\
-Summaries not pedagogically sequenced & Curriculum-aligned learning path generation \\ \bottomrule
+Individual learning workflows & Institutional integration and cohort-based learning analytics \\ \bottomrule
 \end{tabular*}
 \end{table}
 
-Thus, while NotebookLM is an effective multimodal research assistant, it is not optimized for end-to-end lecture understanding. Our system aims to bridge this gap through structured course-centric knowledge modeling, domain-specific reasoning, and automated ingestion of lecture materials.
+Thus, while NotebookLM is an excellent general-purpose multimodal research assistant optimized for individual learners and researchers, it is not designed for institutional deployment with curriculum-aware features. Our system (BK-MInD) aims to bridge this gap by providing structured course-centric knowledge modeling, pedagogically sequenced learning paths, institutional integration with LMS platforms, and automated ingestion of lecture materials—enabling end-to-end lecture understanding tailored to the needs of educational institutions.
 
 
 
