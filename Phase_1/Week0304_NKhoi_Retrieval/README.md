@@ -96,7 +96,7 @@ BM25 would rank Document 2 higher due to exact keyword matches, even though Docu
 
 - **Improve BM25 Retriever:** We’re judging a fish by its ability to climb a tree. The dataset is biased toward dense retrievers. Choosing or curating a more balanced dataset can help evaluate sparse retrievers more fairly. Tools like Pyserini or search-enabled databases (e.g., Elasticsearch) can also improve BM25 performance.
 
-- **Improve Dense Retriever:** Use vector databases like Milvus to optimize dense retrieval speed and scalability.
+- **Improve Dense Retriever:** Use Vector Databases like Milvus to optimize dense retrieval speed and scalability.
 
 - **Improve Hybrid Retriever:**
   - Tune α in Weighted Sum (e.g., 0.8 or 0.9) to give Dense more weight and reduce BM25’s negative influence.

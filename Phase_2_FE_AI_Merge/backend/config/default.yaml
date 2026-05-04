@@ -261,7 +261,7 @@ output:
   keep_intermediate: true
 
 # ============================================================================
-# QDRANT (vector database — replaces on-disk FAISS for dense text + image)
+# QDRANT (Vector Database — replaces on-disk FAISS for dense text + image)
 # ============================================================================
 qdrant:
   mode: "docker"                    # docker | cloud  (overridable via QDRANT_MODE)

@@ -2,7 +2,7 @@
 # Qdrant Cloud + ColPali Multi-Vector Testing
 # ============================================================
 
-# Qdrant vector database client (>=1.9 required for multi-vector + query_points API)
+# Qdrant Vector Database client (>=1.9 required for multi-vector + query_points API)
 qdrant-client>=1.9.0
 
 # ColPali / ColQwen model — must match Phase_2 version exactly
