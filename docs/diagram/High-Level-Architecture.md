@@ -1,279 +1,209 @@
 # BK-MInD High-Level System Architecture
 
-This document presents a high-level overview of the BK-MInD Multimodal Retrieval-Augmented Generation (MRAG) system architecture, showing the four main layers and their interactions without detailed implementation specifics.
+This document presents the high-level overview of the BK-MInD system, showing the six-tier Clean Architecture pattern used in the actual implementation.
 
 ## System Architecture Diagram
 
 ```mermaid
 graph TB
     Users["👥 Users<br/>Students & Instructors"]
-    
-    subgraph Frontend["🎨 Frontend Layer"]
-        FrontendApp["React SPA<br/>Upload • Search • Chat<br/>Insights • Quiz"]
+  
+    FrontEnd["🎨 Frontend Layer<br/>React 19 + Vite + TailwindCSS<br/>Upload • Search • Chat<br/>Insights • Quiz"]
+  
+    Routes["📡 API Route Layer<br/>FastAPI HTTP Handlers<br/>Auth • File • Process<br/>Search • Chat"]
+  
+    Services["🔧 Service Layer<br/>Business Logic Orchestration<br/>Processing • Search<br/>Indexing • Chat<br/>Knowledge • Feedback"]
+  
+    Repos["💾 Repository Layer<br/>Data Access Abstraction<br/>Text Index • Image Index<br/>Chat History • Jobs<br/>Cache • User Data"]
+  
+    subgraph DataLayer["🗄️ Data Layer"]
+        Redis["🔴 Redis<br/>Job Queue<br/>Search Cache"]
+        Qdrant["🟣 Qdrant<br/>Vector DB<br/>Text & Image"]
+        S3["📦 S3<br/>Documents<br/>Outputs"]
+        DDB["🗄️ DynamoDB<br/>Sessions<br/>Metadata"]
     end
-
-    subgraph Backend["⚙️ Backend API Layer<br/>FastAPI"]
-        APIGateway["REST API Gateway<br/>/api/process, /api/search,<br/>/api/chat, /api/insights, etc."]
-        
-        subgraph Services["Service Layer"]
-            ProcessService["ProcessingService<br/>DocumentProcessingPipeline<br/>7-stage pipeline"]
-            SearchOrch["SearchOrchestrator<br/>Text + Image Search<br/>LLM Generation"]
-            IndexService["IndexingService<br/>Text + Image Indexing"]
-            ChatService["ChatService<br/>Chat History<br/>Multi-turn Conversations"]
-        end
-        
-        subgraph Repos["Repository Layer"]
-            TextRepo["TextIndexRepository<br/>BM25 + Dense Embeddings"]
-            ImageRepo["ImageIndexRepository<br/>ColQwen Embeddings"]
-            DataRepo["DataRepository<br/>User Data, Feedback,<br/>Quiz Results"]
-            JobRepo["JobRepository<br/>Job State & Tracking"]
-        end
-    end
-
-    subgraph External["☁️ External Services"]
-        Redis["🔴 Redis<br/>Async Job Queue<br/>Job State Tracking"]
-        Qdrant["🟣 Qdrant Cloud<br/>Vector Database<br/>Text & Image Indices"]
-        Storage["📦 S3<br/>Document Artifacts<br/>Processing Outputs"]
-        Database["🗄️ DynamoDB<br/>Chat History<br/>User Metadata"]
-        LLM["🤖 Bedrock/API<br/>LLM Generation<br/>Claude/GPT-4o"]
-    end
-
-    subgraph Security["🔒 Security Layer"]
-        Auth["JWT Auth<br/>& RBAC"]
-        WAF["AWS WAF<br/>& CloudFront"]
-        Encryption["TLS Encryption<br/>& KMS"]
-    end
-
-    Users -->|HTTPS| Frontend
-    Frontend -->|REST API calls| APIGateway
-    
-    APIGateway --> ProcessService
-    APIGateway --> SearchOrch
-    APIGateway --> ChatService
-    APIGateway --> IndexService
-    
-    ProcessService -->|uses| Repos
-    SearchOrch -->|uses| Repos
-    IndexService -->|uses| Repos
-    ChatService -->|uses| Repos
-    
-    JobRepo <-->|queues jobs| Redis
-    TextRepo <-->|stores/retrieves| Qdrant
-    ImageRepo <-->|stores/retrieves| Qdrant
-    DataRepo <-->|stores/retrieves| Database
-    ProcessService -->|outputs| Storage
-    IndexService -->|uses| Storage
-    SearchOrch -->|generates with| LLM
-    
-    Auth -.->|validates| APIGateway
-    WAF -.->|filters| Frontend
-    Encryption -.->|protects| External
-    
+  
+    LLM["🤖 LLM<br/>Bedrock/OpenAI"]
+  
+    Auth["🔐 Auth<br/>Firebase SSO<br/>+ Local JWT"]
+    Security["🔒 Security<br/>WAF • TLS • KMS"]
+  
+    Users -->|HTTPS| FrontEnd
+    FrontEnd -->|REST API| Routes
+    Auth -->|Validate| Routes
+    Routes -->|Use| Services
+    Services -->|Use| Repos
+  
+    Repos <-->|Queue & Cache| Redis
+    Repos <-->|Vectors| Qdrant
+    Repos <-->|Files| S3
+    Repos <-->|Data| DDB
+    Services -->|Generate| LLM
+  
+    Security -.->|Protect| FrontEnd
+    Security -.->|Protect| Routes
+    Security -.->|Protect| Repos
+  
     style Users fill:#e1f5ff
-    style Frontend fill:#f3e5f5
-    style Backend fill:#fff3e0
-    style Services fill:#fffacd
-    style Repos fill:#ffe4e1
-    style External fill:#e8f5e9
-    style Security fill:#ffebee
+    style FrontEnd fill:#e8f5e9
+    style Routes fill:#f3e5f5
+    style Services fill:#fff9c4
+    style Repos fill:#ffe0b2
+    style DataLayer fill:#f0f4c3
+    style Redis fill:#ffccbc
+    style Qdrant fill:#d1c4e9
+    style S3 fill:#c8e6c9
+    style DDB fill:#b2dfdb
+    style LLM fill:#b2ebf2
+    style Auth fill:#ffcccc
+    style Security fill:#ffcccc
 ```
 
-## Architecture Overview
+---
 
-### Layer 1: Frontend (React SPA)
-- **Role**: User interface for uploading documents, searching, chatting, generating insights
-- **Technology**: React 19 + Vite + TailwindCSS
-- **Communication**: All interactions via REST API to the backend
-- **Features**: Real-time status updates, streaming chat responses, document preview
+## Architecture Tiers (Six-Tier Clean Architecture)
 
-### Layer 2: Backend API (FastAPI)
+### Tier 1: Frontend Layer (User Interface)
 
-The backend is organized into three logical sub-layers:
+React-based single-page application providing all user-facing features:
 
-#### API Gateway Layer
-- Central entry point for all client requests
-- Route handlers for processing (`/api/process`), search (`/api/search`), chat (`/api/chat`), indexing (`/api/index`)
-- HTTP status management, request validation, authentication
+- **Technology**: React 19, Vite, TailwindCSS 4.1
+- **Features**: Document upload, real-time search, interactive chat, insights generation, quiz creation
+- **Communication**: REST API calls to backend via HTTPS
+- **Real-Time Updates**: Status polling and Server-Sent Events (SSE) for streaming responses
 
-#### Service Layer
-- **ProcessingService**: Orchestrates the 7-stage document processing pipeline (see DOCS_PIPELINES_CONSOLIDATED_DOCUMENT.md)
-- **SearchOrchestrator**: Handles parallel text and image search, delegates to SearchService instances
-- **IndexingService**: Orchestrates text and image indexing into Qdrant
-- **ChatService**: Manages multi-turn conversation history and context
+### Tier 2: API Route Layer (HTTP Interface)
 
-#### Repository Layer (Data Access)
-- **TextIndexRepository**: Interface to Qdrant for text embeddings (BM25 + dense vectors)
-- **ImageIndexRepository**: Interface to Qdrant for image embeddings (ColQwen)
-- **DataRepository**: Interface to DynamoDB for user data, chat history, feedback
-- **JobRepository**: Interface to Redis for async job queuing and state tracking
+FastAPI route handlers providing REST endpoints for all application features:
 
-### Layer 3: External Services (Cloud Infrastructure)
+- **Auth Routes**: `/api/auth/login`, `/api/auth/register` (Firebase SSO + Local JWT)
+- **File Routes**: `/api/files/upload`, `/api/files/list`, `/api/files/delete`
+- **Process Routes**: `/api/process` (document processing jobs)
+- **Search Routes**: `/api/search` (text and image search with LLM generation)
+- **Chat Routes**: `/api/chat` (conversation management)
+- **Insights Routes**: `/api/insights`, `/api/quiz`, `/api/summary`
 
-**Redis** (Async Job Management)
-- In-memory data store for job queuing
-- Tracks async jobs: process, index_all, index_text
-- Job states: `accepted` → `running` → `completed` / `failed`
-- Per-user concurrency limit: 3 jobs; Global limit: 200 jobs
-- Job TTL: 3600 seconds (auto-cleanup)
+All route handlers depend on Service layer via FastAPI `Depends()` injection.
 
-**Qdrant Cloud** (Vector Database)
-- Stores text embeddings (BM25, dense vectors, hybrid indices)
-- Stores image embeddings (ColQwen multi-vector)
-- Provides similarity search for retrieval
+### Tier 3: Service Layer (Business Logic)
 
-**Amazon S3** (Document Storage)
-- Stores original uploads and processed outputs
-- Documents partitioned by user ID
-- Encrypted with customer-managed KMS keys
+Service classes orchestrate domain logic and coordinate between multiple repositories:
 
-**Amazon DynamoDB** (Persistent Storage)
-- Chat history and conversations
+- **ProcessingService**: Manages 7-stage document pipeline
+- **SearchOrchestrator**: Coordinates text + image search and LLM generation
+- **IndexingService**: Orchestrates embedding generation and storage
+- **ChatService**: Manages multi-turn conversations and context
+- **KnowledgeService**: Knowledge base and document operations
+- **FeedbackService**: User feedback collection and analysis
+
+Services contain the core business rules and call repositories for data access.
+
+### Tier 4: Repository Layer (Data Access Abstraction)
+
+Repository classes abstract data storage and provide clean interfaces for services:
+
+- **TextIndexRepository**: BM25, dense embeddings, hybrid RRF indices in Qdrant
+- **ImageIndexRepository**: ColQwen embeddings in Qdrant
+- **ChatHistoryRepository**: Conversation storage in DynamoDB
+- **FileRepository**: Document artifact storage in S3
+- **JobRepository**: Async job state tracking in Redis
+- **SearchCacheRepository**: Search result caching in Redis
+- **UserRepository**: User data and authentication in DynamoDB
+
+Repositories hide the complexity of multiple storage backends behind unified interfaces.
+
+### Tier 5: Data Layer (Cloud Storage & Services)
+
+Managed cloud services providing actual data persistence and caching:
+
+**Redis** - Job queue and search caching
+
+- Async job management: states (accepted → running → completed/failed)
+- Concurrency limits: 3 per-user, 200 global
+- Job TTL: 3600 seconds (automatic cleanup)
+- Search result caching for performance optimization
+
+**Qdrant Cloud** - Vector database
+
+- Text embeddings (BM25, dense, hybrid RRF indices)
+- Image embeddings (ColQwen late-interaction multi-vector)
+- Similarity search capability for retrieval
+
+**Amazon S3** - Cloud object storage
+
+- Document storage (canonical source)
+- Processed outputs (markdown, images, metadata)
+- User-based prefix isolation for multi-tenancy
+- Server-side encryption with customer-managed KMS keys
+
+**Amazon DynamoDB** - NoSQL database
+
+- Chat history and sessionsdate
 - User metadata and settings
 - Feedback and quiz results
-- Fallback job durability (if Redis unavailable)
+- User authentication data (local accounts)
 
-**AWS Bedrock / OpenAI API** (LLM Generation)
-- Generates answers using retrieved context
-- Supports Claude 3.5 Sonnet (via Bedrock) or GPT-4o
-- Streaming response for interactive chat
+### Tier 6: Cross-Cutting Concerns
 
-### Layer 4: Security
+Services that apply across all layers:
 
-**Authentication & Authorization**
-- JWT tokens for API authentication (24-hour expiration)
-- Session management via DynamoDB
-- Role-Based Access Control (RBAC): Student, Instructor, Admin
-- User identity validation via X-User-Id header
+**Authentication (Dual Mechanism)**
 
-**Network Security**
-- AWS CloudFront CDN for edge caching and DDoS protection
-- AWS WAF with rules for SQL injection, XSS, rate limiting, bot filtering
-- TLS 1.2+ for all HTTPS communication
+- **Firebase SSO**: Optional Google authentication via Firebase Admin SDK (identity/firebase_auth.py)
+- **Local Authentication**: Built-in JWT-style tokens with PBKDF2-SHA256 password hashing (100k iterations, identity/local_auth.py)
+- Token TTL: 24 hours (Firebase) or 30 days (Local, configurable)
+- Fallback mechanism: Tries local validation first, then Firebase
+- Both methods can coexist; users choose preferred method at login
 
-**Data Security**
-- Encryption in-transit: TLS/HTTPS
-- Encryption at-rest: S3 (SSE-KMS), DynamoDB (KMS), Qdrant (configured at provisioning)
-- Key management: AWS Secrets Manager for credentials
-- Multi-tenant isolation: S3 prefix-based isolation, DynamoDB partition keys
+**Security**
 
----
+- **AWS WAF**: Edge-level protection (SQL injection, XSS, DDoS, rate limiting, bot filtering)
+- **CloudFront CDN**: Geographic distribution and DDoS mitigation
+- **TLS/HTTPS**: All connections encrypted (minimum TLS 1.2)
+- **KMS Encryption**: At-rest encryption for S3 and DynamoDB
+- **Multi-tenant Isolation**: User data segregated via S3 prefixes and DynamoDB partition keys
+- **API Authentication**: JWT Bearer token validation on every request
 
-## Async Job Processing Flow
+**LLM Generation**
 
-```mermaid
-sequenceDiagram
-    actor User
-    participant Frontend as React Frontend
-    participant API as FastAPI Backend
-    participant Redis as Redis Job Queue
-    participant Worker as Background Worker
-    participant Qdrant as Qdrant Vector DB
-    participant Storage as S3 Storage
-
-    User->>Frontend: Upload document
-    Frontend->>API: POST /api/process
-    API->>Redis: Create job (status: accepted)
-    API-->>Frontend: HTTP 202 + job_id
-    Frontend->>Frontend: Poll for status
-    
-    note over Redis: Job waits in queue
-    Worker->>Redis: Consume job
-    Worker->>Worker: Execute 7-stage pipeline
-    Worker->>Storage: Store outputs
-    Worker->>Qdrant: Store embeddings
-    Worker->>Redis: Update job (status: completed)
-    
-    Frontend->>API: GET /api/process/status/{job_id}
-    API->>Redis: Query job status
-    API-->>Frontend: Status: completed
-    Frontend->>User: Document is ready!
-```
+- **AWS Bedrock**: Claude 3.5 Sonnet integration for answer generation
+- **OpenAI API**: GPT-4o option for alternative LLM providers
+- Streaming responses for interactive chat and real-time answer generation
 
 ---
 
-## Search & Retrieval Flow
+## Key Characteristics
 
-```mermaid
-graph TD
-    Query["User Query"]
-    API["FastAPI /api/search"]
-    Orch["SearchOrchestrator"]
-    TextSearch["TextSearchService<br/>BM25 + Dense"]
-    ImageSearch["ImageSearchService<br/>ColQwen"]
-    Qdrant["Qdrant<br/>Similarity Search"]
-    Merge["Merge & Rank<br/>Results"]
-    LLM["LLM Generation<br/>Answer Synthesis"]
-    Response["Search Results +<br/>Generated Answer"]
-    
-    Query -->|REST API| API
-    API --> Orch
-    Orth --> TextSearch
-    Orth --> ImageSearch
-    TextSearch --> Qdrant
-    ImageSearch --> Qdrant
-    Qdrant -->|Top-K results| Merge
-    Merge --> LLM
-    LLM --> Response
-    Response -->|Stream to User| Query
-    
-    style Query fill:#e3f2fd
-    style API fill:#fff3e0
-    style Orch fill:#f3e5f5
-    style TextSearch fill:#e8f5e9
-    style ImageSearch fill:#e8f5e9
-    style Merge fill:#fce4ec
-    style LLM fill:#f1f8e9
-    style Response fill:#e0f2f1
-```
+| Aspect                         | Details                                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| **Architecture Pattern** | Six-tier Clean Architecture (Frontend → Routes → Services → Repositories → Data Layer + Cross-cutting Concerns) |
+| **Frontend Framework**   | React 19 with Vite and TailwindCSS 4.1                                                                              |
+| **Backend Framework**    | FastAPI (Python 3.10+)                                                                                              |
+| **Authentication**       | Dual mechanism: Firebase SSO + Local JWT with PBKDF2-SHA256                                                         |
+| **Job Management**       | Redis async queue (3 per-user, 200 global, 3600s TTL)                                                               |
+| **Search Caching**       | Redis-based result caching for performance                                                                          |
+| **Storage Strategy**     | Cloud-native: S3 (documents) + DynamoDB (metadata/sessions) + Qdrant (vectors) + Redis (jobs/cache)                 |
+| **Processing Pipeline**  | 7-stage conditional pipeline (26-28 seconds per document)                                                           |
+| **Query Latency**        | Less than 5 seconds (p95)                                                                                           |
+| **Concurrent Users**     | 20+ supported                                                                                                       |
+| **Availability**         | 99.5% with auto-scaling                                                                                             |
+| **Deployment**           | AWS ECS Fargate (frontend & backend) + EC2 (GPU inference)                                                          |
 
 ---
 
-## Technology Stack
+## Data Isolation (Multi-Tenancy)
 
-| Component | Technology |
-|-----------|-----------|
-| **Frontend** | React 19, Vite, TailwindCSS 4.1 |
-| **API Framework** | FastAPI (Python 3.10+) |
-| **Document Processing** | Docling, Whisper, LibreOffice |
-| **Text Embeddings** | Sentence Transformers (all-MiniLM-L6-v2) |
-| **Sparse Search** | BM25 (rank-bm25) |
-| **Dense Search** | FAISS / Qdrant |
-| **Image Embeddings** | ColQwen 2.5 |
-| **Vector Database** | Qdrant Cloud |
-| **Job Queue** | Redis (async jobs) |
-| **Persistent Storage** | S3, DynamoDB |
-| **LLM** | Bedrock (Claude) or OpenAI API (GPT-4o) |
-| **Security** | AWS WAF, CloudFront, KMS |
-| **Deployment** | AWS ECS Fargate + EC2 |
+The system enforces strict data isolation for multiple concurrent users:
 
----
-
-## Key Performance Metrics
-
-| Metric | Value |
-|--------|-------|
-| **Max Concurrent Users** | 20+ |
-| **Document Processing Time** | 26-28 seconds (per document) |
-| **Query Latency (p95)** | <5 seconds |
-| **Per-User Job Limit** | 3 concurrent |
-| **Global Job Limit** | 200 concurrent |
-| **Job TTL** | 3600 seconds |
-| **System Availability** | 99.5% (with auto-scaling) |
-
----
-
-## Design Principles
-
-1. **Asynchronous Processing**: Long-running operations (document processing, indexing) are offloaded to background jobs managed by Redis, allowing the API to remain responsive
-2. **Service-Based Architecture**: Clear separation of concerns between processing, indexing, search, and chat services
-3. **Multi-Tenancy**: User data is isolated at the storage level (S3 prefixes, DynamoDB partition keys)
-4. **Layered Security**: Multiple defensive layers from network edge (WAF) to application (JWT) to data (encryption)
-5. **Conditional Pipeline Routing**: Document processing is optimized by routing only through stages necessary for the detected format
+- **S3 Prefix Isolation**: User documents under `s3://bucket/users/{user_id}/documents/`
+- **DynamoDB Partition Keys**: All data queries include user_id filter
+- **Redis Namespacing**: Job and cache keys include user_id
+- **Qdrant Filtering**: Search queries filter results by user_id metadata
 
 ---
 
 ## References
 
-- **Detailed Component Architecture**: See [Excalidraw-Architecture-Diagram.png](./Excalidraw-Architecture-Diagram.png)
-- **Deployment Infrastructure**: See [Deployment Diagram_v2.png](./Deployment%20Diagram_v2.png)
-- **Phase 2 Report Section 4.3**: System Architecture Design (this high-level overview)
+- **Detailed Component Architecture**: See Excalidraw-Architecture-Diagram.png
+- **Cloud Infrastructure**: See Deployment Diagram_v2.png
+- **Full Description**: See Phase 2 Report Section 4.3

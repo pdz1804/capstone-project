@@ -432,26 +432,15 @@ This section presents the proposed architecture of the BK-MInD MRAG system, orga
 
 \subsection{High-Level Architecture}\label{sec:highlevel_arch}
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\textwidth]{img/pdz/excalidraw-architecture.png}
-    \caption{BK-MInD High-Level System Architecture.}
-    \label{fig:high_level_arch}
-\end{figure}
+The BK-MInD system architecture follows a six-tier Clean Architecture pattern that separates concerns across distinct layers, enabling maintainability, testability, and independent scaling. This architecture is designed to achieve three strategic objectives: (1) \textit{multimodal data ingestion} from diverse educational materials, (2) \textit{asynchronous processing} to support concurrent user operations without bottlenecks, and (3) \textit{production-grade security and scalability} on AWS infrastructure.
 
-The BK-MInD system architecture, illustrated in Figure~\ref{fig:high_level_arch}, is organized into four interconnected layers that span from the user interface to the underlying cloud infrastructure. This architecture is designed to achieve three strategic objectives: (1) \textit{multimodal data ingestion} from diverse educational materials, (2) \textit{asynchronous processing} to support concurrent user operations without bottlenecks, and (3) \textit{production-grade security and scalability} on AWS infrastructure.
+\textbf{Six-Tier Clean Architecture:} BK-MInD follows a six-tier Clean Architecture pattern: (1) Frontend Layer (React 19, Vite, TailwindCSS), (2) API Route Layer (FastAPI HTTP handlers), (3) Service Layer (business logic orchestrators), (4) Repository Layer (data access abstraction), (5) Data Layer (Redis, Qdrant, S3, DynamoDB), and (6) Cross-Cutting Concerns (authentication, security, LLM generation).
 
-\subsubsection{Layer 1: Interface Layer (Frontend)}
+This layered design enables independent scaling, testability, and flexibility in deployment. Frontend communicates via HTTPS REST API. Services coordinate between repositories, which abstract storage details. Redis manages both async jobs (3 per-user, 200 global concurrency, 3600-second TTL) and search result caching. Authentication supports dual mechanisms: Firebase SSO and Local JWT (PBKDF2-SHA256). Security includes AWS WAF, CloudFront CDN, TLS encryption, and KMS-based data protection.
 
-The \textbf{Interface Layer} comprises the React-based frontend, which provides dedicated views for document upload, pipeline monitoring, knowledge exploration, learning roadmap generation, quiz creation, and an interactive chat assistant. All user interactions are routed through a single-page application that communicates with the backend exclusively via REST API calls. The frontend supports real-time status updates through polling mechanisms and streaming responses, enabling students and instructors to observe processing progress and retrieve answers with minimal perceived latency.
+Asynchronous job management is critical to handle concurrent users: while one user's document undergoes the 7-stage pipeline (26--28 seconds), other users' queries and uploads process independently without blocking.
 
-\subsubsection{Layer 2: API and Orchestration Layer}
-
-The \textbf{API and Orchestration Layer} is implemented using FastAPI and acts as the central controller of the system. It exposes asynchronous endpoints for document ingestion (\texttt{/api/process}), index construction (\texttt{/api/index}), query processing (\texttt{/api/search}), and chat (\texttt{/api/chat}). Long-running operations are orchestrated by service classes (\texttt{ProcessingService}, \texttt{SearchOrchestrator}, \texttt{IndexingService}, \texttt{ChatService}), which delegate data access to repository classes that communicate with external services. Asynchronous jobs are managed through \textbf{Redis} (not SQS): job metadata is stored as Redis hash structures with per-user concurrency limits (3 concurrent jobs per user, 200 globally). This asynchronous design is critical to the system's ability to handle concurrent users: while one user's document undergoes the intensive 7-stage pipeline (which may take 26--28 seconds per document), other users' queries and uploads are processed independently without blocking.
-
-\subsubsection{Layer 3: Data Processing and Indexing Layer}
-
-The \textbf{Data Processing and Indexing Layer} implements the 7-stage conditional pipeline (detailed in Section~\ref{sec:pipeline_arch}) that transforms raw educational materials — PDFs, DOCX, PPTX, Excel spreadsheets, audio, and video — into RAG-ready artifacts. The pipeline follows three key design principles:
+\textbf{Data Processing and Indexing Layer:} This layer implements the 7-stage conditional pipeline (detailed in Section~\ref{sec:pipeline_arch}) that transforms raw educational materials — PDFs, DOCX, PPTX, Excel spreadsheets, audio, and video — into RAG-ready artifacts. The pipeline follows three key design principles:
 
 \begin{itemize}
     \item \textbf{Conditional Routing:} Not all documents require all stages. A plain text document skips format-specific parsers, while an Excel spreadsheet activates the specialized Excel processing stage. This conditional execution minimizes wasted computation and optimizes resource utilization.
@@ -463,9 +452,7 @@ The \textbf{Data Processing and Indexing Layer} implements the 7-stage condition
 
 Following processing, the dual-pathway indexing module produces both text indices (BM25 sparse index, FAISS dense embeddings, and Reciprocal Rank Fusion hybrid index) and visual indices (ColQwen 2.5 late-interaction multi-vector embeddings) stored in Qdrant Cloud. This dual representation enables the system to answer keyword-focused queries (e.g., ``What is gradient descent?'') via sparse retrieval while also handling semantic paraphrases (e.g., ``How do you minimize the loss function?'') via dense embedding-based retrieval. The indexing process itself is orchestrated as an asynchronous job, allowing multiple documents to be indexed in parallel without blocking user interactions.
 
-\subsubsection{Layer 4: Cloud Infrastructure Layer}
-
-The \textbf{Cloud Infrastructure Layer} leverages Amazon Web Services for scalable deployment and production-grade availability. The architecture spans multiple availability zones in the us-west-2 (Oregon) region to ensure high availability:
+\textbf{Cloud Infrastructure Layer:} The cloud infrastructure leverages Amazon Web Services for scalable deployment and production-grade availability. The architecture spans multiple availability zones in the us-west-2 (Oregon) region to ensure high availability:
 
 \begin{itemize}
     \item \textbf{Content Delivery and Security Edge:} Amazon CloudFront provides a managed CDN that accelerates content delivery to geographically distributed users, while AWS WAF (Web Application Firewall) sits at the ingress tier to filter malicious traffic patterns including SQL injection, cross-site scripting (XSS), and distributed denial-of-service (DDoS) attacks. Security Group rules further restrict ingress to known sources and enforce egress policies.
@@ -474,18 +461,22 @@ The \textbf{Cloud Infrastructure Layer} leverages Amazon Web Services for scalab
 
     \item \textbf{Compute Services:} Amazon ECS Fargate runs the containerized frontend and backend services in auto-scaling task groups, automatically adjusting the number of running tasks based on CPU, memory, and request count metrics. EC2 Auto Scaling groups host computationally intensive GPU inference services (Whisper ASR and ColQwen visual embeddings) on specialized hardware (ml.g4dn.xlarge instances with single NVIDIA T4 GPU).
 
-    \item \textbf{Async Job Management:} \textbf{Redis} is used as the primary job queue for asynchronous operations. Jobs are stored as Redis hash structures with metadata (status, user\_id, created\_at, results). Per-user concurrency limits (3 concurrent jobs) and global limits (200 concurrent jobs) are enforced via Redis sets. Job state transitions (accepted → running → completed/failed) are tracked in Redis with a default TTL of 3600 seconds for automatic cleanup. For critical deployments requiring durability, Amazon DynamoDB can serve as a fallback for job persistence.
+    \item \textbf{Data Layer (Redis, Qdrant, S3, DynamoDB):} The system employs a polyglot persistence architecture with specialized storage for different data types:
+    \begin{itemize}
+        \item \textbf{Redis}: Primary role is async job queue management with per-user (3 concurrent) and global (200 concurrent) concurrency limits, 3600-second TTL for automatic cleanup. Secondary role is search result caching for performance optimization, enabling rapid retrieval of frequently-accessed query results without re-querying Qdrant.
+        \item \textbf{Qdrant Cloud}: Vector database storing text embeddings (BM25, dense, hybrid RRF indices) and image embeddings (ColQwen multi-vector), enabling similarity-based retrieval without requiring full table scans.
+        \item \textbf{Amazon S3}: Cloud object storage serving as the canonical source for document artifacts and processed outputs (markdown, images, metadata), partitioned by user ID for multi-tenant isolation, with encryption via customer-managed KMS keys.
+        \item \textbf{Amazon DynamoDB}: Managed NoSQL database for chat history, user sessions, quiz results, feedback, and authentication metadata, with automatic cross-AZ replication for fault tolerance.
+    \end{itemize}
 
-    \item \textbf{Data Persistence:} Amazon S3 provides durable, highly available object storage for all document artifacts and processed outputs (markdown, images, metadata), partitioned by user ID for multi-tenant isolation. Objects are encrypted with server-side encryption using customer-managed AWS KMS keys. Amazon DynamoDB stores user metadata, chat histories, quiz results, and feedback with automatic replication across availability zones for fault tolerance.
+    \item \textbf{Load Balancing and Routing:} The AWS Application Load Balancer (ALB) distributes incoming traffic across multiple backend instances, with path-based routing rules directing API calls (\texttt{/api/*}) to the backend service and static/dynamic content to the frontend service. Auto-scaling groups automatically adjust task counts based on CPU, memory, and request count metrics.
 
     \item \textbf{Vector Storage:} Qdrant Cloud is provisioned as an externally managed vector database service, reducing operational overhead while providing reliable multi-tenant vector search with built-in security isolation. Text embeddings (BM25, dense FAISS, and hybrid RRF indices) and image embeddings (ColQwen multi-vector) are stored separately for independent scaling.
 \end{itemize}
 
 Together, these four layers enable BK-MInD to ingest diverse HCMUT lecture materials, build a multimodal knowledge index, and serve interactive educational features with high availability, low latency, and enterprise-grade security.
 
-\subsubsection{Data Flow: Processing Pipeline}
-
-When a student or instructor uploads a document, the system follows this asynchronous data flow:
+\textbf{Processing Pipeline Data Flow:} When a student or instructor uploads a document, the system follows this asynchronous data flow:
 
 \begin{enumerate}
     \item \textbf{Request Intake:} The frontend submits a document upload via REST API call (\texttt{POST /api/process}) to the backend.
@@ -497,9 +488,7 @@ When a student or instructor uploads a document, the system follows this asynchr
     \item \textbf{Availability:} The document becomes immediately queryable through the SearchOrchestrator, which retrieves embeddings from Qdrant and generates answers using the LLM.
 \end{enumerate}
 
-\subsubsection{Data Flow: Retrieval and Generation}
-
-When a student submits a query via \texttt{POST /api/search}:
+\textbf{Retrieval and Generation Data Flow:} When a student submits a query via \texttt{POST /api/search}:
 
 \begin{enumerate}
     \item \textbf{Query Routing:} The request is routed to the SearchOrchestrator service layer, which delegates to TextSearchService and ImageSearchService.
@@ -666,9 +655,7 @@ The LLM reads this aggregated context and generates a natural language answer gr
 
 The BK-MInD system implements a comprehensive security architecture operating across four strategic dimensions: network perimeter defense, authentication and authorization, data protection, and audit and compliance. This layered approach ensures that the system defends against threats at multiple levels — from network-based attacks to unauthorized data access to malicious API abuse. Implementation details and specific configuration parameters for each component are documented in Chapter~6 (Implementation).
 
-\subsubsection{Network Perimeter Security}
-
-\textbf{Edge Filtering (CloudFront + AWS WAF):} All incoming HTTPS traffic is routed through Amazon CloudFront, a managed Content Delivery Network that provides geographic distribution and edge caching. Upstream of CloudFront sits AWS Web Application Firewall (WAF), configured with a comprehensive rule pack protecting against common OWASP Top 10 attack vectors:
+\textbf{Network Perimeter Security:} \textbf{Edge Filtering (CloudFront + AWS WAF):} All incoming HTTPS traffic is routed through Amazon CloudFront, a managed Content Delivery Network that provides geographic distribution and edge caching. Upstream of CloudFront sits AWS Web Application Firewall (WAF), configured with a comprehensive rule pack protecting against common OWASP Top 10 attack vectors:
 
 \begin{itemize}
     \item \textbf{SQL Injection:} Detects and blocks SQL metacharacters in query parameters.
@@ -680,9 +667,14 @@ The BK-MInD system implements a comprehensive security architecture operating ac
 
 \textbf{Load Balancer Security:} The AWS Application Load Balancer (ALB) sits behind CloudFront and is configured to accept traffic only from CloudFront's managed IP prefix list. This architecture prevents attackers from bypassing WAF protections by sending requests directly to the load balancer IP address. Security groups applied to the ALB further restrict ingress to only HTTPS port 443 from CloudFront and egress to only the required backend subnets.
 
-\subsubsection{Authentication and Authorization}
+\textbf{Authentication and Authorization:} \textbf{User Authentication (Dual Mechanism):} The system implements two complementary authentication methods, both of which can operate simultaneously:
 
-\textbf{User Authentication:} The system implements JWT (JSON Web Token)-based authentication for all API requests. Users authenticate via the \texttt{/api/auth/login} endpoint using email and password credentials, receiving a signed JWT token with a 24-hour expiration. Each subsequent API request must include the token in the \texttt{Authorization: Bearer <token>} header. Token validation is performed at the API gateway level before requests are routed to backend services.
+\begin{enumerate}
+    \item \textbf{Firebase SSO (Optional)}: Users can authenticate using Google Sign-In via Firebase Admin SDK. Firebase ID tokens are validated server-side, providing secure third-party authentication without storing passwords.
+    \item \textbf{Local Authentication}: For users without Google accounts or in deployments without Firebase, the system provides built-in local authentication using PBKDF2-SHA256 password hashing (100,000 iterations). Custom JWT-style tokens are issued with claims (user ID, email, expiration) and signed with HMAC-SHA256. Default token TTL is 30 days, configurable via \texttt{LOCAL\_AUTH\_TOKEN\_TTL\_SECONDS}.
+\end{enumerate}
+
+Both authentication methods issue Bearer tokens that must be included in the \texttt{Authorization: Bearer <token>} header for all API requests. The \texttt{get\_current\_user()} dependency handler attempts local token validation first, then falls back to Firebase validation, enabling seamless support for both authentication sources. Token validation is performed at the API gateway level before requests are routed to backend services.
 
 \textbf{Session Management:} For chat and interactive features requiring stateful sessions, the backend maintains session records in Amazon DynamoDB with the user's identity bound to each session. Session tokens are short-lived (typically 1 hour) and automatically revoked on logout, preventing session hijacking and replay attacks.
 
@@ -695,9 +687,7 @@ The BK-MInD system implements a comprehensive security architecture operating ac
 
 Access control is enforced at the API endpoint level, with each route decorated with \texttt{@require\_role(...)} middleware that verifies the user's token contains the required role before allowing execution.
 
-\subsubsection{Data Protection and Encryption}
-
-\textbf{Encryption In-Transit:} All client-to-server and server-to-server communication uses TLS 1.2 or higher. AWS Certificate Manager (ACM) provisions and auto-renews HTTPS certificates for the public domain. Internally, microservice-to-microservice communication within the VPC also uses TLS, enforced through service mesh policies or VPC endpoint configurations, preventing man-in-the-middle attacks on internal traffic.
+\textbf{Data Protection and Encryption:} \textbf{Encryption In-Transit:} All client-to-server and server-to-server communication uses TLS 1.2 or higher. AWS Certificate Manager (ACM) provisions and auto-renews HTTPS certificates for the public domain. Internally, microservice-to-microservice communication within the VPC also uses TLS, enforced through service mesh policies or VPC endpoint configurations, preventing man-in-the-middle attacks on internal traffic.
 
 \textbf{Encryption At-Rest:}
 \begin{itemize}
@@ -708,7 +698,7 @@ Access control is enforced at the API endpoint level, with each route decorated 
 
 \textbf{Key Management:} Encryption keys are managed exclusively through AWS Key Management Service (KMS). No keys are stored in application code or environment variables; instead, the application assumes an IAM role that grants KMS permissions scoped to specific keys and operations. Key rotation policies are configured to automatically rotate keys annually without requiring reencryption of existing data.
 
-\subsubsection{Data Isolation and Access Control}
+\textbf{Data Isolation and Access Control:}
 
 \textbf{Multi-Tenant Isolation:} BK-MInD is designed as a multi-tenant system where each user has isolated access to their own documents and query history. Isolation is enforced through:
 
@@ -718,7 +708,7 @@ Access control is enforced at the API endpoint level, with each route decorated 
     \item \textbf{Vector Database Isolation:} Qdrant Cloud supports payload-based multi-tenancy; vectors are tagged with user metadata and retrieval queries include a user\_id filter, preventing users from searching across another user's indexed documents.
 \end{itemize}
 
-\subsubsection{Content Safety and Abuse Prevention}
+\textbf{Content Safety and Abuse Prevention:}
 
 \textbf{Input Validation:} All user inputs (queries, document metadata, settings) undergo validation against a Pydantic schema before being processed. Type checking, length limits, and character set restrictions prevent injection attacks and resource exhaustion.
 
@@ -730,7 +720,7 @@ Access control is enforced at the API endpoint level, with each route decorated 
     \item \textbf{Toxic Content Detection:} Blocks responses containing profanity, hate speech, or violent content, ensuring the assistant remains appropriate for academic settings.
 \end{itemize}
 
-\subsubsection{Audit and Compliance}
+\textbf{Audit and Compliance:}
 
 \textbf{API Audit Logging:} AWS CloudTrail logs all API calls to AWS services, including authentication events, resource modifications, and data access patterns. These logs are forwarded to a dedicated S3 audit bucket with object lock enabled, preventing tampering with audit records.
 
