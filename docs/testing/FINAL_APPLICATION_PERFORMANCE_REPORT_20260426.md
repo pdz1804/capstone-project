@@ -245,6 +245,54 @@ The insight endpoints were tested as sustained-load APIs with 20/30/40/50 concur
 | Insight endpoints scale well | Summary, MCQ, roadmap all remain 0% errors at 50 users | These APIs are suitable for concurrent educational feature usage |
 | Indexing is the primary bottleneck | 40 full-index jobs all failed in available data | Full indexing needs queue, worker, and vector-write scaling before higher parallelism |
 
+## Understanding Performance Scaling Behavior
+
+The test results show a consistent pattern: response time and job duration increase as concurrency rises. This behavior is **expected and fundamental** to any system with shared resources, and distinguishing between "acceptable scaling" and "critical failures" is important for interpreting the data.
+
+### Why Response Times Increase With Load: The Physics
+
+Every system has finite capacity. When concurrency increases, shared resources—CPU, network bandwidth, model API tokens, database throughput—are divided across more requests. This causes queuing at system bottlenecks:
+
+1. **External API concurrency limits** – The embedding model, LLM provider, and Vector Database each accept a maximum number of simultaneous requests. When that limit is reached, additional requests queue and wait.
+2. **Dependent operation chains** – Each API call may chain multiple expensive operations. For chat, one request triggers: session lookup → retrieval → prompt construction → LLM generation → response streaming. If any step is slow, the entire chain is slow.
+3. **Backend resource sharing** – CPU, memory, and I/O are split across concurrent threads. More threads = less per-thread throughput.
+
+**This is not a code quality issue; it is inherent to distributed systems under load.**
+
+### Acceptable vs. Critical Scaling Patterns
+
+**Acceptable:** Search P95 latency increases from 18s → 30s (20→50 users, +67% increase)
+- Error rate remains 0% at all concurrency levels
+- The system completes all requests successfully
+- Tail latency growth is expected for complex retrieval operations
+- Users experience slower responses under load, but no failures
+
+**Critical:** Indexing duration increases from 98s → 274s (20→40 jobs, +180% increase) *with 100% failure at 40 jobs*
+- The 40-job run completed zero jobs; all failed
+- Duration nearly triples while completion rate falls to zero
+- This indicates **resource exhaustion**, not graceful degradation
+- The system exceeds its capacity and breaks instead of slowing down
+
+### Root Cause Analysis: Why Indexing Fails
+
+Indexing is the most resource-intensive workflow because it chains:
+- Text/image embedding generation (calls embedding model, throughput-limited)
+- Qdrant vector writes (writes to Vector Database, throughput-limited)
+- Metadata persistence (S3 and database I/O)
+- Document conversion and preprocessing
+
+At 40 concurrent indexing jobs:
+- The embedding model API's concurrent request limit is exceeded → requests queue and timeout
+- Qdrant write capacity is saturated → index writes fail or become too slow
+- The system cannot complete any jobs within the timeout window
+
+This is **not graceful degradation** but rather **overload-induced failure**. The safe operating point is 20–30 concurrent jobs, where all jobs complete and duration remains manageable (98–162 seconds).
+
+### Practical Implication for Capstone and Production
+
+- **For a capstone demo** (20–30 simultaneous students): The measured performance is reliable. Students can authenticate, upload, search, and generate insights without failures. If students trigger indexing (e.g., uploading course materials), queue the jobs to no more than 20–30 concurrent indexing operations. Otherwise, expect job failures.
+- **For production deployment**: Implement a job queue (AWS SQS, Bull, Celery) so that indexing requests are enqueued rather than executed immediately. Workers process jobs from the queue at a controlled rate (3–5 concurrent indexing jobs). This converts spikes into backlogs instead of failures.
+
 ## Technical Conclusions
 
 1. **The application is stable for core learner interactions.** Authentication, profile retrieval, stats, upload, search, chat, and insight APIs stayed error-free in the available JMeter exports.

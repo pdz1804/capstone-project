@@ -84,19 +84,12 @@
 \usepackage{fancyhdr, lastpage}
 
 % Markdown Support
-\usepackage[fencedCode,citations,definitionLists,hashEnumerators,smartEllipses,pipeTables,tableCaptions,hybrid]{markdown}
+% Removed: markdown package requires shell-escape (security risk)
+% Use verbatim for code blocks instead
 
 % Section Depth Configuration
-\setcounter{secnumdepth}{4}
-\setcounter{tocdepth}{4}
-\makeatletter
-\newcounter{subsubsubsection}[subsubsection]
-\renewcommand\thesubsubsubsection{\thesubsubsection.\@alph\c@subsubsubsection}
-\newcommand\subsubsubsection{\@startsection{subsubsubsection}{4}{\z@}%
-                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
-                                     {1.5ex \@plus .2ex}%
-                                     {\normalfont\normalsize\bfseries}}
-\makeatother
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
 
 % Custom Commands and Boxes
 \newcommand*\circled[1]{\tikz[baseline=(char.base)]{
@@ -215,6 +208,7 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 
 \include{_heading/00_declaration}
 \include{_heading/01_abstract}
+\include{_heading/00_executive_summary}
 \include{_heading/02_introduction}
 \include{_heading/03_preliminary}
 \include{_heading/04_related_work}

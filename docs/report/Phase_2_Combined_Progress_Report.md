@@ -704,3 +704,160 @@ Full Multimodal RAG Queries: Upgrade the final LLM step to accept the embedded `
 Format Extension (Docx and Born-Digital PDFs): Extend content understanding to docx and born-digital PDFs without relying on Docling. Keep Docling strictly for scanned PDFs (not born-digital) to reduce API calls and improve speed and performance.
 
 Advanced Chunking and Retrieval Strategies: Develop and research more methods of chunking for each type of format (text, tables, charts, diagrams) and corresponding retrieval strategies.
+
+---
+
+## Part 4: Application Performance Testing and Capacity Analysis
+
+### 4.1 Motivation and Testing Strategy
+
+Before Phase 2 closes, the platform must be subjected to realistic load testing to answer a critical business and technical question: what concurrency levels can BK-MInD safely support without performance degradation or failure? This section documents a comprehensive capacity test suite built and executed using Apache JMeter, measuring the performance of core APIs, synchronous uploads, asynchronous processing jobs, and AI-backed learning insights under varying concurrent user and job loads.
+
+The test strategy was designed around two key dimensions. First, it measures interactive endpoints (authentication, search, chat, insights) using sustained concurrent load patterns where multiple simultaneous users send requests continuously over a test duration. Second, it measures asynchronous background jobs (document processing, full indexing) using one-job-per-thread patterns where the system initiates a batch of jobs and tracks their completion via background job records.
+
+### 4.2 Test Scope and Methodology
+
+The performance test suite covers twelve API groups representing the full user journey. Apache JMeter 5.6.3 was used with parameterized thread groups, CSV data set configuration, and JTL result file exports. For asynchronous jobs, Python post-processing scripts extracted job IDs and cross-referenced them with DynamoDB job status records to measure true end-to-end duration.
+
+| Test ID | API / Workload | Concurrency Tested | Test Type |
+|---|---|---:|---|
+| 01 | Authentication (`POST /api/auth/login-local`) | 50 users | Sustained load |
+| 02 | User Profile (`GET /api/users/me`) | 50 users | Sustained load |
+| 03 | Processing Stats (`GET /api/processing-stats`) | 50 users | Sustained load |
+| 04 | File Upload (`POST /api/upload`) | 30, 40, 50 users | Per-user |
+| 05 | Document Processing (background jobs) | 20, 30, 40 jobs | Job tracking |
+| 06 | Full Indexing (background jobs) | 20, 30, 40 jobs | Job tracking |
+| 08 | Search (`POST /api/search`) | 20, 30, 40, 50 users | Sustained load |
+| 09 | Chat Stream (`POST /api/chat/stream`) | 20, 30, 40, 50 users | SSE with latency |
+| 10 | Summary (`POST /api/summary`) | 20, 30, 40, 50 users | Sustained load |
+| 11 | MCQ (`POST /api/mcq`) | 20, 30, 40, 50 users | Sustained load |
+| 12 | Roadmap (`POST /api/learning-roadmap`) | 20, 30, 40, 50 users | Sustained load |
+
+### 4.3 Interactive API Results: Baseline and Insight Endpoints
+
+**Baseline APIs — 0% error rate at 50 concurrent users**
+
+| Endpoint | Samples | Mean (ms) | P95 (ms) | P99 (ms) |
+|---|---:|---:|---:|---:|
+| Auth Login | 357 | 1,891.6 | 2,418 | 2,628 |
+| User Profile | 201 | 1,372.3 | 1,919 | 1,980 |
+| Stats | 291 | 590.0 | 1,033 | 1,112 |
+
+Authentication and profile calls remained under 2.5 seconds at P95, confirming the API layer and identity management are reliable under production load.
+
+**File Upload API — 0% errors across all concurrency levels**
+
+| Concurrent Users | Mean (ms) | P95 (ms) |
+|---:|---:|---:|
+| 30 | 7,404.1 | 9,895 |
+| 40 | 4,919.9 | 7,781 |
+| 50 | 6,198.9 | 9,363 |
+
+Upload latency remained under 10 seconds at P95 with 0 errors, confirming correct per-user S3 isolation and reliable file handling.
+
+**Search API — 0% errors, increasing latency with load**
+
+| Concurrent Users | P50 (ms) | P95 (ms) | P99 (ms) |
+|---:|---:|---:|---:|
+| 20 | 17,455 | 18,040 | 18,067 |
+| 30 | 22,266 | 24,751 | 25,748 |
+| 40 | 20,502 | 27,725 | 28,177 |
+| 50 | 22,112 | 30,119 | 30,162 |
+
+Search P95 increased 67% from 18s to 30.1s (20→50 users), reflecting hybrid retrieval cost: Qdrant vectors, BM25 keyword matching, and LLM-based reranking all contend for shared resources. This scaling is acceptable because error rate remained 0%.
+
+**Chat Stream — Responsive first response, longer completion**
+
+| Concurrent Users | Mean First Byte (ms) | P95 First Byte (ms) | Mean Elapsed (ms) | P95 Elapsed (ms) |
+|---:|---:|---:|---:|---:|
+| 20 | 479.5 | 755 | 21,070.5 | 27,412 |
+| 30 | 653.6 | 1,378 | 30,835.8 | 40,621 |
+| 40 | 1,018.6 | 3,365 | 38,540.8 | 50,352 |
+| 50 | 1,434.3 | 4,223 | 45,318.6 | 61,150 |
+
+Chat completed all requests with 0 errors. First-byte latency (1.4s average at 50 users) is excellent for streaming AI, indicating responsive UX. Full stream duration (45s average) reflects LLM generation, tool execution, and retrieval latency—expected for AI workflows.
+
+**Learning Insight Endpoints — All 0% errors at 50 users**
+
+| API | 20 Users | 30 Users | 40 Users | 50 Users |
+|---|---:|---:|---:|---:|
+| Summary | 6,145.9 ms | 6,248.3 ms | 6,608.5 ms | 6,866.9 ms |
+| MCQ | 3,358.7 ms | 3,644.0 ms | 3,835.2 ms | 4,295.2 ms |
+| Roadmap | 2,507.2 ms | 2,678.3 ms | 3,323.6 ms | 3,178.6 ms |
+
+All three insight endpoints remained stable with 0 errors and manageable latency. MCQ is the fastest (under 4.3s at 50 users), ideal for high-traffic quizzes and practice.
+
+### 4.4 Background Job Results: The Critical Indexing Bottleneck
+
+**Document Processing — Moderate resource contention**
+
+| Requested Jobs | Completed | Failed | Avg Duration (s) | P95 (s) |
+|---:|---:|---:|---:|---:|
+| 20 | 16 | 4 | 36.2 | 38 |
+| 30 | 25 | 5 | 41.5 | 44 |
+| 40 | 29 | 11 | 50.8 | 56 |
+
+Processing duration rises gradually from 36s to 51s (20→40 jobs), failure rate increases (4→11 jobs). This indicates expected resource contention as parallelism increases.
+
+**Full Indexing Jobs — CRITICAL FINDING: Complete failure at 40 jobs**
+
+| Requested Jobs | Completed | Failed | Avg Duration (s) |
+|---:|---:|---:|---:|
+| 20 | 20 | 0 | 98.1 |
+| 30 | 30 | 0 | 161.7 |
+| **40** | **0** | **40** | **274.6** |
+
+**This is the most critical finding in the entire test suite.** Indexing succeeded perfectly at 20 and 30 jobs (0% failure), but failed completely at 40 jobs (100% failure after very long execution times). This indicates resource exhaustion rather than graceful degradation.
+
+**Root cause:** Indexing chains embedding model calls (throughput-limited), Qdrant vector writes (throughput-limited), and document conversion. At 40 concurrent jobs, these resources are exceeded and the system breaks instead of slowing down.
+
+**Safe operating point:** 20–30 concurrent indexing jobs. The system must NOT allow 40+ concurrent indexing operations without job queueing.
+
+### 4.5 Understanding Performance Scaling Behavior
+
+Response time increases as concurrency rises—this is **expected and fundamental** to any system with shared resources. The key distinction is between acceptable scaling and critical failure.
+
+#### Why Response Times Increase
+
+1. **External API concurrency limits** – Embedding model, LLM API, Vector Database all have throughput ceilings. At high concurrency, requests queue.
+2. **Operation chains** – Chat chains: session → retrieval → prompt → LLM → stream. One slow step blocks the entire chain.
+3. **Backend resource sharing** – CPU, memory, I/O split across threads. More threads = less per-thread throughput.
+
+**This is not a code quality issue; it is inherent to distributed systems.**
+
+#### Acceptable vs. Critical Patterns
+
+**Acceptable:** Search P95: 18s → 30s (+67%)
+- Error rate: 0% at all concurrency levels
+- All requests complete successfully
+- Users experience slower responses, not failures
+
+**CRITICAL:** Indexing at 40 jobs: 98s → 274s (+180%) with **100% failure**
+- All 40 jobs failed
+- System exceeded capacity and broke
+- Indicates resource exhaustion, not graceful degradation
+
+### 4.6 Deployment Implications
+
+**For Capstone Classroom Deployment (20–30 students):**
+All measured APIs are reliable. If students trigger indexing, limit to 20–30 concurrent indexing jobs maximum.
+
+**For Production Beyond Capstone:**
+Implement job queue (AWS SQS, Bull, Celery):
+- Enqueue indexing requests instead of executing immediately
+- Process jobs from queue at controlled rate (3–5 concurrent jobs)
+- Convert traffic spikes into backlogs instead of failures
+- Monitor and increase model API concurrency limits
+- Scale Qdrant write capacity separately
+- Add worker pool autoscaling
+
+### 4.7 Cross-API Summary
+
+| Finding | Evidence | Meaning |
+|---|---|---|
+| User-facing APIs stable | 01-04, 08-12: all 0% errors | API layer, auth, user scoping reliable |
+| Upload reliable | 30/40/50: 0% errors | Per-user S3 isolation correct |
+| Search scales predictably | P95: 18s→30s (+67%) | Expected for hybrid retrieval; cache+tuning needed for production |
+| Chat is responsive | First-byte: 1.4s at 50 users | Streaming UX excellent; full completion driven by LLM latency |
+| Insights scale well | Summary, MCQ, Roadmap all 0% errors | Ready for concurrent classroom usage |
+| **Indexing is bottleneck** | **40 jobs: 100% failure** | **CRITICAL: Requires job queue before production deployment** |

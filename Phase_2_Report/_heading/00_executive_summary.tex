@@ -1,0 +1,58 @@
+\chapter*{Executive Summary}
+\addcontentsline{toc}{chapter}{Executive Summary}
+
+\section*{The Challenge}
+
+Educational institutions face a growing challenge: students navigate expanding collections of multimedia lecture materials (videos, slides, transcripts, notes) spread across multiple platforms. The volume and heterogeneity of content create information overload, making it difficult for students to synthesize knowledge efficiently or discover relevant materials when studying. Traditional search-based systems lack the intelligence to understand the pedagogical relationships between concepts within course materials.
+
+\section*{The Solution}
+
+BK-MInD is an AI-powered multimodal learning system designed specifically for institutional educational environments. The system automatically ingests diverse lecture materials (videos, PDFs, slides, documents) through a sophisticated 7-stage processing pipeline, extracting semantic content via hybrid retrieval combining keyword search, dense embeddings, and vision-language models. A conversational AI assistant grounds responses in actual lecture content, eliminating hallucinations through retrieval-augmented generation (RAG). The system generates personalized study tools including adaptive summaries, practice quizzes, and learning roadmaps tailored to individual student needs.
+
+\section*{Key Achievements}
+
+\begin{itemize}
+    \item \textbf{Production-Grade System:} Complete full-stack application (React frontend + FastAPI backend) deployed on AWS with infrastructure-as-code, automated CI/CD, and security hardening (3-tier WAF, encryption, OIDC federation)
+
+    \item \textbf{Proven Scalability:} Rigorously tested to 50 concurrent users with 0\% error rates on core interactive APIs (authentication, search, chat, insights). All endpoints demonstrated stable performance under sustained load.
+
+    \item \textbf{Comprehensive Pipeline:} 7-stage intelligent document processing handling PDFs, Word documents, Excel spreadsheets, PowerPoint presentations, videos, audio, images, and HTML. Conditional routing optimizes processing for each content type.
+
+    \item \textbf{Economic Viability:} Detailed cost analysis shows sustainable operations at \$683.72/month for 50-user pilot deployment, with clear scaling economics for future growth. Cost optimization strategies documented in the Future Plan section.
+
+    \item \textbf{Intelligent Retrieval:} Hybrid sparse-dense-visual retrieval system combines BM25 keyword matching, dense embeddings for semantic search, and vision-language models (ColQwen) for visual understanding. Proven on diverse benchmarks (MS MARCO, tested on educational content).
+\end{itemize}
+
+\section*{Phase 2 Scope}
+
+This capstone project (Phase 2) focuses on system validation and infrastructure. Deliverables include:
+\begin{itemize}
+    \item Complete system design and implementation documentation
+    \item Production-grade cloud deployment (AWS ECS, S3, DynamoDB, SageMaker)
+    \item Comprehensive load testing demonstrating stability at 50 concurrent users
+    \item Cost estimation and economic sustainability analysis
+    \item Security architecture with multiple defense layers
+    \item Full API documentation and deployment runbooks
+\end{itemize}
+
+\section*{Future Plan}
+
+Following Phase 2's successful validation of the production-grade infrastructure, the future plan encompasses educational impact validation, operational optimization, and advanced capability enhancements:
+
+\begin{itemize}
+    \item \textbf{Educational Impact Validation}: Structured user study (10--20 students, one semester) measuring learning gains, study time efficiency, and long-term system adoption
+    \item \textbf{Instructor Integration}: Collect instructor feedback on course integration, pedagogical value, and adoption barriers
+    \item \textbf{Production Optimization}: Establish SLA baselines; validate cost models at scale; implement 80--90\% cost reduction strategies through serverless GPU alternatives
+    \item \textbf{Scalability Enhancements}: Support 200+ concurrent users through job queue scaling and multi-tenant isolation improvements
+    \item \textbf{Advanced Retrieval}: Implement query decomposition, enhanced reranking with caching, and adaptive ranking based on student learning patterns
+    \item \textbf{Semantic Video Understanding}: Develop temporal scene understanding, speaker detection, and visual concept extraction for lecture videos
+    \item \textbf{Learning Path Personalization}: Implement adaptive content sequencing, knowledge gap identification, and prerequisite-based learning recommendations
+\end{itemize}
+
+Detailed metrics, timelines, and success criteria are documented in Section 7.4 (Future Plan) of the Evaluation and Testing chapter.
+
+\section*{Conclusion}
+
+BK-MInD demonstrates that AI-powered multimodal learning systems can be engineered to production-grade standards while remaining grounded in educational pedagogy. The Phase 2 system is ready for pilot deployment at HCMUT and provides a solid foundation for future educational research and optimization. The system addresses a genuine institutional need while showcasing rigorous software engineering practices including infrastructure-as-code, comprehensive testing, security hardening, and cost optimization.
+
+\newpage

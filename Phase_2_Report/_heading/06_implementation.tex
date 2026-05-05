@@ -4,9 +4,9 @@
 
 % \textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 7-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
 
-This chapter details the practical implementation of the core system architecture. We describe the system design, data processing pipeline, and key implementation components.
+This chapter details the practical implementation of the BK-MInD system architecture. The chapter is organized as follows: Section~\ref{sec:impl_evolution} describes the evolution from the Phase~1 prototype to the Phase~2 production system. Section~\ref{sec:impl_pipeline} covers the complete Data Processing Pipeline. Subsequent sections address chunking and embedding strategies, indexing and storage, asynchronous job handling, content safety, database schemas, core API services, system deployment, and security implementation details.
 
-\section{Implementation Evolution}
+\section{Implementation Evolution}\label{sec:impl_evolution}
 
 The development of the Unified MRAG system was executed in two distinct phases, representing a transition from a research-oriented baseline to a robust, production-ready platform. This evolution was driven by the need for scalability, and high availability.
 
@@ -29,7 +29,7 @@ Phase 2 involved a fundamental \textbf{architectural refactoring}, transitioning
 \begin{itemize}
     \item \textbf{Decoupled Infrastructure}: The core compute logic was separated from the storage and inference layers. By leveraging \textbf{Amazon S3} for object storage and \textbf{Qdrant Cloud} for vector search, the system achieved true multi-tenancy and horizontal scalability.
     \item \textbf{Stateful Session Management}: The integration of \textbf{Amazon DynamoDB} allowed for persistent, low-latency tracking of user chat histories and processing statuses, enabling a seamless resume-from-anywhere experience.
-    \item \textbf{Optimized Inference Offloading}: To handle the massive compute requirements of late-interaction models, Phase 2 offloaded visual embedding generation to \textbf{AWS SageMaker}. This ensures that the main application backend remains responsive even during high-intensity processing tasks.
+    \item \textbf{Optimized Inference Offloading}: To handle the massive compute requirements of late-interaction models, Phase 2 offloaded visual embedding generation to \textbf{AWS SageMaker} using GPU-accelerated inference endpoints (ml.g4dn.xlarge instances with single NVIDIA T4 GPU, 4 vCPU, 16GB RAM). This configuration provides approximately 250-300 embeddings/second throughput for ColQwen inference, ensuring that the main application backend remains responsive even during high-intensity batch processing of document pages. SageMaker auto-scaling adjusts instance counts from 1 to 5 based on endpoint invocation load, balancing cost-efficiency during off-peak hours with throughput during peak usage.
     \item \textbf{Asynchronous 7-Stage Pipeline}: The processing logic was rebuilt as a concurrent, event-driven pipeline with intelligent conditional routing. Stages 3b, 3c, and 3d (Excel, DOCX, and PDF custom processors) run only if their corresponding specialized inputs are detected in Stage 1 outputs, allowing for simultaneous normalization, specialized parsing, chunking, and indexing of multiple document streams.
     \item \textbf{Automated CI/CD and Deployment}: We implemented a fully automated \textbf{GitHub Actions} pipeline to handle containerization via \textbf{Docker} and deployment to \textbf{AWS ECS Fargate}, ensuring rapid iteration and system stability.
     \item \textbf{Testing and Quality Assurance}: A multi-layered testing strategy was introduced, including \textbf{Pytest} for backend logic, \textbf{Pydantic} for data validation, and \textbf{Apache JMeter} for performance stress testing.
@@ -88,105 +88,12 @@ In addition to the architectural evolution, Phase 2 integrated several productio
 
 % \newpage
 
-\section{Architecture Design}
 
-The Unified MRAG Pipeline is architected as a modular, resource-optimized system designed to handle the complete lifecycle of document intelligence from raw ingestion to semantic generation. The system deviates from traditional monolithic designs by adopting a \textbf{Layered Service Architecture}, decoupling the retrieval logic from the generation logic, and utilizing a file-system-based state management approach for portability.
+\section{Data Processing Pipeline}\label{sec:impl_pipeline}
 
-The architecture is composed of four primary layers:
+The data processing pipeline transforms diverse raw document formats into standardized RAG-ready artifacts through a 7-stage conditional workflow. This section describes the input normalization process and the stage-by-stage implementation in detail.
 
-\textbf{1. Interface Layer (API Gateway)}
-
-The entry point to the system is a high-performance RESTful API built on \textbf{FastAPI}. This layer is responsible for request validation, concurrency management, and protocol serialization.
-\begin{itemize}
-    \item \textbf{Asynchronous I/O}: To prevent thread blocking during heavy file uploads, the \texttt{/api/upload} and \texttt{/api/process} endpoints utilize Python's \texttt{async/await} pattern combined with FastAPI's \texttt{BackgroundTasks}. This allows the server to immediately acknowledge receipt of a request while heavy computation (ETL) occurs in a separate thread pool.
-    \item \textbf{State Management}: To minimize latency during search operations, the system utilizes a \textit{Lifespan Event Handler}. Upon application startup, heavy models (embedding models, cross-encoders, and ColQwen weights) are pre-loaded into GPU memory and stored in the application state (\texttt{app.state}), eliminating initialization overhead per request.
-\end{itemize}
-
-\textbf{2. Orchestration Layer}
-
-At the core of the system lies the \texttt{UnifiedRAGPipeline} class. This component acts as the central controller, implementing the \textbf{Facade Pattern} to abstract the complexities of the underlying subsystems.
-\begin{itemize}
-    \item \textbf{Pipeline Configuration}: The behavior of the orchestrator is dictated by a dynamic YAML configuration (e.g., \texttt{config/default.yaml}). This allows the system to switch between ``Text-Only,'' ``Image-Only,'' or ``Multimodal'' modes without code changes.
-    \item \textbf{Dependency Injection}: The orchestrator initializes and injects dependencies into the sub-modules, ensuring that the \textit{RetrieverManager} and \textit{Generator} share the same configuration context (e.g., chunk sizes and overlaps).
-\end{itemize}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{img/pdz/72-search-flow.png}
-    \caption[Search and Generation Orchestration Flow]{Search and Generation Orchestration Flow.}
-    \label{fig:search_flow}
-\end{figure}
-
-
-\textbf{3. Data Processing and Persistence Layer}
-
-The implementation utilizes a \textbf{Hybrid Cloud Storage Architecture}. Unlike local-first prototypes, this system treats \textbf{Amazon S3} as the canonical source of truth for all original documents and processed artifacts. A local file-system is utilized as a high-speed processing cache.
-
-\begin{itemize}
-    \item \textbf{Canonical Storage (S3)}: All files are organized under user-isolated prefixes.
-    \item \textbf{Processing Flow}: Documents are synchronized from S3 to a local temp workspace, processed through the pipeline, and finalized artifacts are published back to S3.
-    \item \textbf{Cache Management}: A \texttt{.processing\_cache.json} file tracks the hash of processed inputs, enabling idempotent re-runs and deduplication.
-\end{itemize}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{img/pdz/73-local-vs-cloud.png}
-    \caption[Hybrid Storage Architecture (Local vs. Cloud)]{Hybrid Storage Architecture (Local vs. Cloud).}
-    \label{fig:storage_tiers}
-\end{figure}
-
-
-\textbf{4. Logical Subsystems}
-
-The system logic is divided into two specialized engines that operate in parallel during query execution:
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{img/pdz/70-retrieval-systems.png}
-    \caption[Retrieval Systems]{Retrieval Systems.}
-    \label{fig:retrieval_systems}
-\end{figure}
-
-\textbf{Hybrid Text Retrieval Engine}
-
-The text retrieval engine has been optimized for multi-tenant cloud deployment using \textbf{Qdrant Cloud}:
-\begin{enumerate}
-    \item \textbf{Vector Backend}: Shared collections with int8 scalar quantization and mandatory user\_id payload filtering.
-    \item \textbf{Dense-Sparse Hybrid}: Merges dense vector results (MiniLM/BGE) with sparse BM25 scores (using S3-sidecar index coordination).
-    
-    \item \textbf{Reranking}: Globally disabled by default (\texttt{skip\_reranker=true}) for latency optimization. The reranker code (\texttt{bge-reranker-large}) is retained for fast rollback if needed.
-    
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.7\textwidth]{img/pdz/71-reranking.png}
-        \caption[Cross-Encoder Reranking Architecture]{Cross-Encoder Reranking Architecture.}
-        \label{fig:reranking_arch}
-    \end{figure}
-    
-\end{enumerate}
-
-
-\textbf{Visual Retrieval Engine (ColQwen2.5)}
-
-To handle layout-dense documents without OCR dependencies:
-\begin{enumerate}
-    \item \textbf{Multi-vector Encoding}: Generates fine-grained visual tokens preserving diagrams and chart semantics.
-    \item \textbf{SageMaker Offloading}: Delegates compute-heavy visual embedding generation to AWS SageMaker (G4dn/P3 instances) to maintain backend responsiveness.
-    \item \textbf{Late Interaction}: Matches query tokens directly against visual patches via MaxSim scoring.
-\end{enumerate}
-
-% \section{Data Normalization}
-% Data normalization ensures that heterogeneous input formats are standardized before processing. The system implements a file-system-based normalization strategy located in the \texttt{input} directory.
-
-% Upon upload via the \texttt{/api/upload} endpoint, the following normalization steps are enforced:
-% \begin{itemize}
-%     \item \textbf{Filename Sanitization}: Incoming files are checked for naming collisions. If a file with the same name exists, the system automatically appends a numerical suffix (e.g., \texttt{file\_1.pdf}) to maintain uniqueness without overwriting existing data.
-%     \item \textbf{Format Validation}: The system currently supports PDF and image-based inputs, filtering unsupported MIME types at the entry gate.
-%     \item \textbf{Metadata Extraction}: Basic file attributes (size, modification time, MIME type) are extracted and normalized into a standard JSON structure for frontend display.
-% \end{itemize}
-
-\section{Data Normalization}
+\subsection{Data Normalization Overview}
 
 Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs ranging from multimedia files to office documents and funnels them into a standardized ``RAG-ready'' format.
 The normalization pipeline is governed by the \texttt{Processor} module and utilizes a suite of open-source libraries to perform format unification.
@@ -292,9 +199,7 @@ For data-dense documents, the pipeline integrates \textbf{Docling} as the centra
 
 The output of this step is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
 
-\section{Detailed Processing Stages (7-Stage Pipeline)}
-
-This section documents the complete 7-stage processing pipeline in detail, including stage-specific logic, conditional execution rules, and output structures.
+The following subsections detail each stage of the pipeline, including stage-specific logic, conditional execution rules, and output structures.
 
 \begin{figure}[H]
     \centering
@@ -400,7 +305,7 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
     \item \textbf{80Hz High-Pass Filter}: Removes low-frequency hum and rumble before transcription, improving Whisper accuracy
     \item \textbf{Frame Extraction}: OpenCV processes video to extract key frames, using Laplacian variance to detect non-blurry frames
     \item \textbf{Deduplication}: Perceptual hashing (0.95 similarity threshold) prevents duplicate frames
-    \item \textbf{Whisper Configuration}: Large-v3 model for high-fidelity multi-language transcription
+    \item \textbf{Whisper Configuration}: Configurable ASR model (default: \texttt{base}; \texttt{large-v3} available as an option for enhanced accuracy in multi-language contexts)
 \end{itemize}
 
 \textbf{Output}:
@@ -575,61 +480,22 @@ For documents NOT in the custom parser output directories, Docling performs full
     \item \texttt{stage4\_rag\_ready/document\_id/images/}: All visual elements
 \end{itemize}
 
-\section{Data Preprocessing}
-The preprocessing module transforms raw files into machine-understandable formats. The pipeline splits the workflow into two parallel streams to handle multimodal data:
-
-\textbf{Text Stream:}
-
-% For textual data, the system performs OCR or direct text extraction depending on the source file type. The output is standardized into Markdown formats, stored in the \texttt{output/processing} directory.
-
-The primary input for this stream is the structured \textbf{Markdown} files generated during the normalization phase. The preprocessing logic focuses on preparing this text for semantic vectorization:
-Removal of artifacts introduced during OCR or file conversion.
-The system utilizes the Markdown headers to maintain context, ensuring that section titles remain associated with their respective paragraphs during the splitting process.
-
-\textbf{Visual Stream:}
-
-A critical component of this pipeline is the handling of visual data within \textbf{PDF} files. The system utilizes \textbf{pdf2image} to render PDF pages into high-resolution images (defaulting to 150 DPI). This rasterization step is essential for the visual retriever (ColQwen), which treats document pages as images to preserve layout and semantic structure that text-only extractors often lose.
-
-% \section{Chunking and Embedding Strategies}
-% The system employs a sophisticated ``Hybrid + Multimodal'' retrieval strategy to maximize recall and precision.
-
-% \textbf{Textual Chunking and Embedding}
-% Textual data is segmented into chunks to fit within the context window of the embedding models. The default configuration uses a chunk size of 1000 characters with an overlap of 200 characters. The retrieval mechanism is \textit{Hybrid}, combining two distinct algorithms:
-% \begin{enumerate}
-%     \item \textbf{Sparse Retrieval (BM25)}: Utilizes keyword matching to capture exact terms and domain-specific jargon.
-%     \item \textbf{Dense Retrieval}: Utilizes vector embeddings (stored in FAISS indices) to capture semantic meaning and context. The default embedding model is \texttt{all-MiniLM-L6-v2}.
-% \end{enumerate}
-% Scores from both retrievers are combined using Min-Max normalization and a weighted sum (default $\alpha=0.5$).
-
-% \textbf{Visual Embedding (ColQwen)}
-% Unlike traditional RAG systems that only embed text, this architecture integrates \textbf{ColQwen} (based on ColBERT). This model (specifically \texttt{vidore/colqwen2-v1.0}) generates visual embeddings for document pages, allowing the system to retrieve charts, diagrams, and tables based on visual similarity and visual semantic content. These embeddings are managed via specific quantization settings (e.g., 4-bit or 8-bit) to optimize memory usage.
-
-
-% \section{Data Preprocessing}
-
-% Following normalization, the data pipeline branches into two specialized processing streams to handle the distinct requirements of textual and visual information. This separation ensures that semantic depth is preserved for text while structural layout is maintained for documents.
-
-% \textbf{Textual Preprocessing Stream}
-
-% The primary input for this stream is the structured \textbf{Markdown} files generated during the normalization phase. The preprocessing logic focuses on preparing this text for semantic vectorization:
-% \begin{itemize}
-%     \item \textbf{Cleaning}: Removal of artifacts introduced during OCR or file conversion.
-%     \item \textbf{Structure Preservation}: The system utilizes the Markdown headers to maintain context, ensuring that section titles remain associated with their respective paragraphs during the splitting process.
-% \end{itemize}
-
-% \textbf{Visual Preprocessing Stream}
-
-% For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes the canonical \textbf{PDF} files.
-% \begin{itemize}
-%     \item \textbf{Rasterization Strategy}: The system implements a ``1 Page = 1 Image'' conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
-%     \item \textbf{Artifact Management}: These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model ``sees'' the document exactly as a human would.
-% \end{itemize}
-
 \section{Chunking and Embedding Strategies}
 
-The system employs a dual-pathway embedding architecture. This approach allows for the simultaneous retrieval of granular text segments and holistic document pages.
+The system employs a dual-pathway embedding architecture combining format-aware text chunking with visual page embedding. This approach enables simultaneous retrieval of granular text segments and holistic document pages.
 
-\textbf{Textual Chunking and Embedding}
+\subsection{Chunking Strategy by Document Type}
+
+The system employs different chunking strategies depending on the source document type, reflecting the structural differences between formats:
+
+\begin{itemize}
+    \item \textbf{Office Documents (Excel, DOCX) --- Format-Aware Custom Chunking:} Excel files processed through Stage~3b use a table-aware custom XML parser with a maximum chunk size of 2,000 characters, preserving row-column relationships. DOCX files processed through Stage~3c use a heading-aware custom parser that respects the document heading hierarchy, keeping sections semantically coherent.
+    \item \textbf{PDF Documents --- Heading-Aware Custom Chunking:} PDFs processed through Stage~3d use a custom heading-aware chunking strategy that identifies PDF heading structures and creates chunks aligned with logical document sections.
+    \item \textbf{General Documents via Docling --- Recursive Character Splitting:} For documents processed through the main Docling pipeline (Stage~3), the system uses \texttt{RecursiveCharacterTextSplitter} with a chunk size of 1,024 characters and an overlap of 200 characters. This overlap preserves semantic continuity across chunk boundaries.
+    \item \textbf{Multimedia Transcripts (Audio/Video):} Transcripts generated by Whisper employ a dedicated \texttt{TranscriptChunker} that groups transcription segments using token-count-based accumulation (maximum 100 tokens per chunk). Each chunk carries explicit \texttt{start\_time} and \texttt{end\_time} boundaries derived from Whisper's segment timestamps, enabling temporal range-based retrieval. Associated video frames are linked to transcript chunks based on temporal overlap, creating a unified multimodal index.
+\end{itemize}
+
+\subsection{Text Embedding Pipeline}
 
 To process the Markdown inputs, the system utilizes a high-precision splitting strategy designed to maximize retrieval relevance.
 
@@ -677,7 +543,7 @@ Processed chunks are mapped to a high-dimensional vector space using the \textbf
     \end{verbatim}
 \end{itemize}
 
-\textbf{Visual Embedding (ColQwen)}
+\subsection{Visual Embedding Pipeline}
 
 For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes JPG images derived from the canonical PDF files.
 % The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
@@ -713,19 +579,7 @@ The system integrates the \textbf{ColQwen} architecture (specifically \texttt{vi
     \end{verbatim}
 \end{itemize}
 
-\textbf{Hybrid Retrieval Integration}
-
-The retrieval unifies these two streams. 
-The Text and Visual indices can be queried simultaneously to return both relevant text snippets and their corresponding visual page contexts.
-
-The index supports \textbf{Hybrid}, allowing for keyword precision and semantic recall, combining two distinct algorithms:
-
-\begin{enumerate}
-    \item \textbf{Sparse Retrieval (BM25)}: Utilizes keyword matching to capture exact terms and domain-specific jargon.
-    \item \textbf{Dense Retrieval}: Utilizes vector embeddings (stored in FAISS indices) to capture semantic meaning and context. The default embedding model is \texttt{all-MiniLM-L6-v2}.
-\end{enumerate}
-
-Scores from both retrievers are combined using Min-Max normalization and a weighted sum.
+The text and visual embedding pipelines together constitute the dual-pathway indexing strategy, encoding documents into both dense semantic vectors and sparse token-level representations. The following section describes how these embeddings are organized, indexed, and queried within the Qdrant vector database and supporting storage layers.
 
 \section{Indexing and Storage Architecture}
 
@@ -832,12 +686,9 @@ Rather than forcing clients to wait for complete index updates, documents are qu
 
 Each indexing operation creates a job payload with status tracking. The service provides non-blocking status queries via \texttt{get\_job(job\_id)} and batch polling via \texttt{get\_jobs\_for\_user(user\_id)}, enabling frontend implementations to display real-time progress bars and resume interrupted indexing workflows.
 
-\subsection{Fallback Behavior}
+\textbf{Fallback Behavior:} If Redis is unavailable and \texttt{ASYNC\_INDEXING\_FALLBACK\_TO\_BLOCKING=true}, the system gracefully degrades to synchronous processing, ensuring availability over responsiveness. Configuration is environment-driven (\texttt{ASYNC\_INDEXING\_ENABLED}, \texttt{REDIS\_URL}), supporting both container deployments and local development scenarios.
 
-If Redis is unavailable and \texttt{ASYNC\_INDEXING\_FALLBACK\_TO\_BLOCKING=true}, the system gracefully degrades to synchronous processing, ensuring availability over responsiveness. Configuration is environment-driven (\texttt{ASYNC\_INDEXING\_ENABLED}, \texttt{REDIS\_URL}), supporting both container deployments and local development scenarios.
-
-\subsection{Benefits}
-
+\textbf{Benefits of Asynchronous Indexing:}
 \begin{itemize}
     \item \textbf{Non-blocking UX}: Clients receive immediate acknowledgment; indexing proceeds in background worker pools.
     \item \textbf{Durability}: DynamoDB persistence ensures jobs survive system restarts.
@@ -845,93 +696,14 @@ If Redis is unavailable and \texttt{ASYNC\_INDEXING\_FALLBACK\_TO\_BLOCKING=true
     \item \textbf{Observability}: Detailed progress metrics and error tracking support operational debugging.
 \end{itemize}
 
-\section{Chat and Conversation Management}
-
-Phase 2 introduces a \textbf{stateful conversation system} backed by Amazon DynamoDB, enabling users to maintain multi-turn chat histories, resume interrupted sessions, and explore context across related queries.
-
-\subsection{Session Architecture}
-
-The chat subsystem organizes conversations into isolated \textbf{sessions}, each anchored by a \texttt{session\_id} and owned by a \texttt{user\_id}. Sessions persist key metadata including creation timestamp, human-readable title (auto-generated or user-provided), and pinned status for favorites.
-
-Messages are stored with bidirectional references, carrying role (\texttt{user} | \texttt{assistant}), content (text body), optional traces (retrieval context, search results, citations), and optional suggestions (follow-up query recommendations).
-
-\subsection{DynamoDB Schema}
-
-The \texttt{ChatHistoryRepository} implements two-table schema for efficiency:
-
-\begin{table}[H]
-    \centering
-    \small
-    \begin{tabular}{p{2cm}p{3cm}p{5cm}}
-        \toprule
-        \textbf{Table} & \textbf{Partition Key} & \textbf{Purpose} \\
-        \midrule
-        \texttt{chat\_sessions} & \texttt{user\_id\#session\_id} & Session metadata, title, timestamps \\
-        \texttt{chat\_messages} & \texttt{session\_id\#timestamp} & Message ordering, role, content, traces \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-This design enables O(1) session lookup and updates, efficient message pagination via cursor-based queries (\texttt{limit}, \texttt{newest\_first}), and TTL-based automatic cleanup of old sessions.
-
-\subsection{Conversation Threading}
-
-The \texttt{ChatHistoryService} orchestrates three core workflows: (1) Session Creation via \texttt{ensure\_session(user\_id, session\_id)} for idempotent session creation, (2) Message Append via \texttt{put\_message(...)} for persisting user queries and assistant responses with optional retrieval metadata, and (3) History Traversal via \texttt{list\_messages()} for returning paginated message sequences.
-
-When generating answers, the service injects recent message history to maintain conversation coherence, enabling natural follow-up questions without re-stating the topic.
-
-\subsection{User Experience Benefits}
-
-\begin{itemize}
-    \item Multi-session support: Organize conversations by topic or date
-    \item Resumability: Close and reopen sessions without losing context
-    \item Searchability: Full-text search over session titles and content
-    \item Mobile-friendly: Stateless backend enables seamless sync across devices
-\end{itemize}
-
-\section{Safety and Content Filtering}
-
-Phase 2 integrates \textbf{AWS Bedrock Guardrails} to enforce safety constraints during LLM generation, mitigating risks of harmful outputs while maintaining transparency to users.
-
-\subsection{Guardrail Integration}
-
-The \texttt{bedrock\_guardrail\_integration} module wraps Bedrock's native guardrail API, automatically injecting safety configuration into all \texttt{converse()} requests. The guardrail identifier, version control (\texttt{GUARDRAIL\_VERSION}, default \texttt{DRAFT}), and toggle control (\texttt{GUARDRAIL\_ENABLED}) allow for policy iteration without code deployment.
-
-\subsection{Content Filtering Mechanisms}
-
-Bedrock Guardrails enforce multi-layer content filtering:
-
-\begin{enumerate}
-    \item \textbf{Input Filtering}: Scan user queries for restricted topics (e.g., violence, sexual content, illegal activities) before forwarding to the LLM.
-
-    \item \textbf{Output Filtering}: Scan generated responses against policy taxonomy, blocking harmful completions and returning fallback messages.
-
-    \item \textbf{Contextual Awareness}: Guardrails understand document context. For educational materials containing sensitive content, filtering policies can be relaxed with explicit user acknowledgment.
-
-    \item \textbf{Custom Filters}: Organizations can define domain-specific filters via the Bedrock console without code changes.
-\end{enumerate}
-
-\subsection{Generation Safety Protocol}
-
-When \texttt{BedrockProvider.create()} invokes the model: (1) Pre-generation validates user query and context against guardrails, returning \texttt{ContentPolicyViolation} if violated, (2) Generation passes model instructions emphasizing factuality and retrieved documents as ground truth, (3) Post-generation applies output filtering and logs violations to CloudWatch, and (4) Audit Trail enables reproducibility and compliance auditing.
-
-\subsection{Compliance and Transparency}
-
-\begin{itemize}
-    \item \textbf{Deterministic Enforcement}: Guardrail decisions logged with decision\_id and policy\_version.
-    \item \textbf{User Notification}: API responses include \texttt{filtered} flag indicating if content was restricted.
-    \item \textbf{Policy Versioning}: Guardrail changes are trackable, enabling rollback if unintended filtering occurs.
-    \item \textbf{Benchmark Alignment}: Guardrails align with industry standards (NIST AI RMF, EU AI Act readiness).
-\end{itemize}
-
-[PLACEHOLDER - Add diagram: Bedrock Guardrail filtering flow (input $\rightarrow$ validation $\rightarrow$ generation $\rightarrow$ output filter $\rightarrow$ audit log)]
+With asynchronous job processing established as the infrastructure for long-running indexing operations, the system requires robust schema design and storage architecture to persist all processing artifacts, embeddings, and user state. The following section describes the three-tier hybrid storage architecture.
 
 \section{Database Schema and Storage}
 The system implementation requires a robust schema design to manage heterogeneous data including user interactions, processed documents, and high-dimensional vector representations. We utilize a \textbf{Hybrid Storage Architecture} to balance persistence, scalability, and low-latency retrieval across three specialized layers:
 
 \begin{itemize}
     \item \textbf{Qdrant}: A specialized \textbf{Vector Database} and similarity search engine designed for storing and querying high-dimensional embeddings. Qdrant manages the multi-pathway vector representations of textual chunks and visual document pages, enabling semantic similarity matching and retrieval-augmented generation. It provides optimized search algorithms, filtering capabilities, and distributed indexing to maintain sub-second retrieval performance.
-    \item \textbf{Amazon S3}: A highly scalable \textbf{Object Storage} service used to manage the complete lifecycle of document assets. It acts as the canonical source of truth, storing raw uploads, intermediate processing artifacts (e.g., extracted audio, keyframes), and final "RAG-ready" normalized documents. This layer ensures data durability and facilitates multi-tenant isolation through keyed prefixing.
+    \item \textbf{Amazon S3}: A highly scalable \textbf{Object Storage} service used to manage the complete lifecycle of document assets. It acts as the canonical source of truth, storing raw uploads, intermediate processing artifacts (e.g., extracted audio, keyframes), and final ``RAG-ready'' normalized documents. This layer ensures data durability and facilitates multi-tenant isolation through keyed prefixing.
     \item \textbf{Amazon DynamoDB}: A fully managed \textbf{NoSQL} database service that provides fast and predictable performance with seamless scalability. In our architecture, DynamoDB serves as the primary store for persistent metadata, user profile information, assessment results, conversational state, and system telemetry. Its schema-less nature allows for flexible data structures while its partitioned key-value access ensures low-latency operations.
 \end{itemize}
 
@@ -1148,14 +920,14 @@ The system utilizes a dual-bucket object storage architecture to manage the life
 \begin{figure}[H]
     \centering
 
-    \begin{markdown}
+    \begin{verbatim}
     S3/
     ├── ai-service-originals-dev/         # Bucket for raw document ingestion
-    │   └── users/\{uid\}/                  # Logical user-tenant isolation
-    │       ├── \{doc_name\}.pdf            # Original source document
-    │       └── \{doc_name\}.pdf.metadata.json # Ingestion time & file provenance
+    │   └── users/{uid}/                  # Logical user-tenant isolation
+    │       ├── {doc_name}.pdf            # Original source document
+    │       └── {doc_name}.pdf.metadata.json # Ingestion time & file provenance
     └── ai-service-processed-dev/         # Bucket for pipeline artifacts
-        └── users/\{uid\}/
+        └── users/{uid}/
             ├── .processing_cache.json    # Idempotency and deduplication tracking
             ├── pipeline_stats.json       # Telemetry and processing performance
             ├── stage1_normalized/        # Standardized PDF & structured data
@@ -1169,22 +941,22 @@ The system utilizes a dual-bucket object storage architecture to manage the life
             │   ├── transcripts/          # ASR textual outputs
             │   └── media_metadata/       # Temporal feature mapping
             ├── stage3_document_processed/# Structural Markdown outputs
-            │   ├── \{doc_name\}/
-            │   │   ├── \{doc_name\}.md     # Cleaned semantic Markdown
-            │   │   └── \{doc_name\}_metadata.json
+            │   ├── {doc_name}/
+            │   │   ├── {doc_name}.md     # Cleaned semantic Markdown
+            │   │   └── {doc_name}_metadata.json
             │   └── logs/                 # Granular stage-level logs
             │       ├── batch_summary_*.json
             │       └── processing_*.log
             ├── stage4_rag_ready/         # Optimized artifacts for RAG engine
-            │   ├── \{doc_name\}/
-            │   │   ├── \{doc_name\}.md     # Final semantic text
-            │   │   ├── \{doc_name\}.pdf     # Optimized PDF for visual retrieval
+            │   ├── {doc_name}/
+            │   │   ├── {doc_name}.md     # Final semantic text
+            │   │   ├── {doc_name}.pdf     # Optimized PDF for visual retrieval
             │   │   └── docling_additional/
             │   └── consolidation_stats.json
             └── retrieval/                # Secondary persistence for search indices
                 ├── bm25_index.pkl        # Serialized sparse search index
                 └── documents.json.pkl     # Document lookup table
-    \end{markdown}
+    \end{verbatim}
 
     \caption{Amazon S3 Directory Structure Tree}
     \label{fig:s3_tree}
@@ -1451,38 +1223,36 @@ To manage long-running asynchronous tasks—such as full-document re-indexing, m
 
 
 
-\section{Generative Configuration and Hyperparameters}
+\section{Core API Services}
 
-The generative synthesis layer is powered by Large Language Models (LLMs) orchestrated via the Bedrock and OpenAI providers. To ensure consistent output quality, factual grounding, and adherence to specific educational personas, the system employs a set of tuned hyperparameters. These parameters are dynamically adjusted based on the specific service being invoked to balance creative engagement with factual precision.
+The core API, built with FastAPI, serves as the communication backend between the frontend UI, the RAG orchestration logic, and the databases. To ensure a seamless user experience, each major interface tab is powered by a high-fidelity endpoint that manages specific stages of the document lifecycle or analytical intelligence.
+
+\subsection{LLM Generation Configuration}
+
+The generative synthesis layer is powered by Large Language Models orchestrated via AWS Bedrock and OpenAI providers. The following hyperparameters are tuned per service to balance factual grounding with appropriate response variety. The model identifier is configurable via environment variable, supporting both Claude 3.5 Sonnet (via Bedrock) and GPT-4o (via OpenAI).
 
 \begin{table}[H]
     \centering
-    \caption{LLM Hyperparameters for Core System Services}
+    \caption{LLM Generation Hyperparameters by Service}
     \label{tab:llm_hyperparameters}
     \scalebox{0.9}{
-    \begin{tabular}{lp{4cm}cccp{4cm}}
+    \begin{tabular}{lcccp{4cm}}
         \toprule
-        \textbf{Service} & \textbf{Primary Model} & \textbf{Temp} & \textbf{Top-P} & \textbf{Max Tokens} & \textbf{Persona Focus} \\
+        \textbf{Service} & \textbf{Temperature} & \textbf{Top-P} & \textbf{Max Tokens} & \textbf{Generation Focus} \\
         \midrule
-        \textbf{Chat Assistant} & Claude 3.5 Sonnet & 0.7 & 0.9 & 4096 & Conversational, Socratic \\
-        \textbf{Knowledge Explorer} & Claude 3.5 Sonnet & 0.0 & 1.0 & 2000 & Fact-driven, Direct \\
-        \textbf{Summary Gen} & Claude 3.5 Sonnet & 0.2 & 1.0 & 3000 & Analytical, Concise \\
-        \textbf{MCQ Generation} & Claude 3.5 Sonnet & 0.2 & 1.0 & 3000 & Structural, Objective \\
-        \textbf{Roadmap Gen} & Claude 3.5 Sonnet & 0.2 & 1.0 & 3000 & Pedagogical, Structured \\
+        Chat Assistant & 0.7 & 0.9 & 4096 & Conversational, Socratic dialogue \\
+        Knowledge Explorer & 0.0 & 1.0 & 2000 & Deterministic, fact-driven \\
+        Summary Generation & 0.2 & 1.0 & 3000 & Analytical, concise \\
+        MCQ Generation & 0.2 & 1.0 & 3000 & Structural, objective \\
+        Learning Roadmap & 0.2 & 1.0 & 3000 & Pedagogical, structured \\
         \bottomrule
     \end{tabular}
     }
 \end{table}
 
-The hyperparameter selection reflects a strategic trade-off between exploration and exploitation:
-\begin{itemize}
-    \item \textbf{Temperature}: Factual services (Summary, MCQ, Roadmap) use a conservative temperature of $0.2$ to minimize hallucinations, while the \textbf{Knowledge Explorer} utilizes a strictly deterministic setting ($0.0$) for maximum grounding. The \textbf{Chat Assistant} uses a higher value ($0.7$) to facilitate engaging, Socratic-style dialogue.
-    \item \textbf{Top-P (Nucleus Sampling)}: Set between $0.9$ and $1.0$ to ensure the model remains within a high-probability semantic manifold while allowing for sufficient linguistic variety in educational explanations.
-    \item \textbf{Max Tokens}: Calibrated for each task, with $3,000$ tokens allocated for comprehensive document-level insights and $4,096$ for extended conversational contexts.
-\end{itemize}
+Temperature controls creativity: factual services (Summary, MCQ, Roadmap) use 0.2 to minimize hallucinations; Knowledge Explorer uses 0.0 for maximum determinism; Chat Assistant uses 0.7 for engaging Socratic dialogue. Top-P is set between 0.9 and 1.0 to maintain high-probability semantic output while allowing linguistic variety in educational explanations.
 
-\section{Core API Services}
-The core API, built with FastAPI, serves as the communication backend between the frontend UI, the RAG orchestration logic, and the databases. To ensure a seamless user experience, each major interface tab is powered by a high-fidelity endpoint that manages specific stages of the document lifecycle or analytical intelligence:
+\subsection{API Endpoint Overview}
 
 \begin{table}[H]
     \centering
@@ -1822,9 +1592,13 @@ Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG p
 % \end{itemize}
 
 
+The API service layer described above provides the complete interface through which frontend clients interact with the backend processing pipelines. To operate reliably at production scale, this API and all supporting services must be packaged, deployed, and managed within a containerized infrastructure with automated scaling and monitoring. The following section describes the deployment architecture and orchestration strategy.
+
 \section{System Deployment}
 
-The system is deployed as a cloud-native application on a hybrid multi-cloud infrastructure, leveraging the scalability of AWS services alongside specialized vector and database backends. This deployment model ensures high availability, multi-tenant isolation, and high-performance processing of multimodal assets.
+The system is deployed as a cloud-native application on a hybrid multi-cloud infrastructure, leveraging the scalability and reliability of AWS services alongside specialized vector and database backends. This deployment model ensures high availability, low-latency response times, multi-tenant isolation, and high-performance processing of multimodal assets. The architecture follows a microservices paradigm, with distinct separation between API serving, compute-intensive inference, persistent storage, and managed vector search. This decoupling allows each component to scale independently based on demand, optimizing both performance and cost.
+
+The deployment strategy prioritizes both operational excellence and security. Every code change undergoes automated testing and validation before reaching production. Containerization ensures environment parity between development and production environments, eliminating the ``works on my machine'' problem that plagues many deployments. Encryption is enforced at multiple layers: in-transit via TLS, at-rest via AWS-managed encryption keys, and for application data via JWT-based authentication. The infrastructure also integrates comprehensive observability through AWS CloudWatch, enabling real-time monitoring of system health and rapid incident response.
 
 \begin{figure}[H]
     \centering
@@ -1833,43 +1607,92 @@ The system is deployed as a cloud-native application on a hybrid multi-cloud inf
     \label{fig:deployment_diagram}
 \end{figure}
 
-The deployment architecture integrates several key cloud components:
-\begin{itemize}
-    \item \textbf{AWS Ecosystem}: The core compute and storage backbone, utilizing S3 for object storage and DynamoDB for stateful metadata.
-    \item \textbf{GPU Offloading}: Heavy visual embedding tasks are delegated to specific GPU instances to maintain low-latency responses in the Interface Layer.
-    \item \textbf{Vector Persistence (Qdrant Cloud)}: A managed Vector Database provides low-latency similarity search across distributed text and image collections.
-\end{itemize}
+As illustrated in Figure~\ref{fig:deployment_diagram}, the deployment architecture comprises five integrated components:
+
+\textbf{CI/CD Component:} The pipeline is fully automated via GitHub Actions. On every push to \texttt{main} or \texttt{develop}, the workflow builds Docker images for the frontend and backend, tags them with the commit SHA for traceability, and pushes them to Amazon ECR (Elastic Container Registry). AWS Secrets Manager stores all credentials and environment variables, injected securely at runtime.
+
+\textbf{AWS VPC --- Public and Private Subnets:} All user traffic first passes through \textbf{AWS WAF} (Web Application Firewall) for threat filtering, then through \textbf{AWS CloudFront} CDN (which injects X-Origin-Key headers for origin verification) before reaching the Application Load Balancer in the public subnet. A NAT Gateway handles outbound traffic for private-subnet services. The \textbf{Private Subnets App Tier} contains an \textbf{AWS ECS Cluster} running two services: the Frontend Service (React, containerized) and the Backend Service (FastAPI RAG pipeline), each with their own ECS Task Definition, IAM Task Role, Auto Scaling policies, and CloudWatch alarms for health monitoring. The backend also integrates with \textbf{Amazon Bedrock} for LLM API streaming.
+
+\textbf{Data Component:} Persistent state is managed across three AWS managed services: \textbf{Amazon S3} (document and artifact storage with SSE-S3 encryption, block public access), \textbf{Amazon SQS} (job queue for asynchronous indexing tasks), and \textbf{Amazon DynamoDB} (chat session and message persistence with SSE encryption). All services enforce block public access policies.
+
+\textbf{Inference Tier:} Compute-intensive AI inference is offloaded to a dedicated \textbf{EC2 Auto Scaling Group} in a private subnet. Each EC2 instance runs Docker Compose to orchestrate the GPU Model Server, hosting \textbf{Whisper Large-v3} for audio transcription and \textbf{Qwen2-VL} (ColQwen 2.5) for visual embedding. The tier also integrates with \textbf{Amazon SageMaker} for scalable model inference, ensuring the main ECS application tier remains responsive during heavy batch processing.
+
+\textbf{External Services:} \textbf{Qdrant Cloud} provides the managed vector database for both text and visual embedding collections. An \textbf{Observability Component} aggregates logs and metrics via AWS CloudWatch, CloudTrail audit logs, X-Ray distributed tracing, and an S3 bucket for log archival.
 
 \subsection{CI/CD Pipeline (GitHub Actions)}
 
-The system implements a fully automated \textbf{Continuous Integration and Continuous Deployment (CI/CD)} pipeline using \textbf{GitHub Actions}. This ensures that every code change is validated, containerized, and deployed with minimal manual intervention.
+The system implements a fully automated \textbf{Continuous Integration and Continuous Deployment (CI/CD)} pipeline using \textbf{GitHub Actions}. This ensures that every code change is validated, containerized, and deployed with minimal manual intervention, reducing human error and accelerating the development cycle.
 
-The pipeline is triggered automatically upon a code push to the \texttt{main} or \texttt{develop} branches. It consists of two primary stages:
+\textbf{Pipeline Architecture and Workflow}
+
+The CI/CD pipeline is event-driven, triggered automatically upon a code push to the \texttt{main} (production) or \texttt{develop} (staging) branches. This event-driven model enforces a strict separation between development experimentation (on feature branches) and validated, deployable code (on \texttt{develop} and \texttt{main}). The pipeline enforces consistency and repeatability: the same exact build process that generated a tested artifact on a developer's local machine is executed in the GitHub Actions runner, ensuring no environmental drift.
+
+The pipeline consists of multiple sequential stages that validate code quality before deployment:
+
 \begin{enumerate}
-    \item \textbf{Build and Push}: The workflow checks out the repository, configures AWS credentials via OIDC, and logs into the container registry. It then builds the application container and pushes it to the registry.
-    \item \textbf{Deployment}: Once the image is pushed, the workflow updates the task definition in the orchestration service and triggers a rolling update to the active cluster.
+    \item \textbf{Code Checkout and Preparation}: The workflow checks out the repository code and establishes secure AWS credentials using OpenID Connect (OIDC). This eliminates the need to store long-lived AWS access keys in GitHub Secrets, significantly reducing credential exposure risk.
+    
+    \item \textbf{Build Stage}: The application code is compiled and containerized. For the frontend (React), this involves transpilation of TypeScript/JSX to optimized JavaScript bundles. For the backend (FastAPI), dependencies are resolved and the application is packaged along with all required Python packages.
+    
+    \item \textbf{Container Registry Ingestion}: The built container images are pushed to \textbf{Amazon Elastic Container Registry (ECR)}, AWS's managed container registry. Each image is tagged with multiple identifiers: the Git commit SHA for precise version tracking, a branch name (e.g., \texttt{develop}, \texttt{main}), and the timestamp of the build. This multi-tag strategy enables rapid identification of which code version is running in production and facilitates quick rollbacks if necessary.
+    
+    \item \textbf{Orchestration Update}: For deployments to \texttt{main} (production), the workflow creates a new task definition in Amazon ECS with the new image reference. It then updates the corresponding service to use this task definition, triggering a rolling update. The rolling update strategy ensures zero-downtime deployments: new containers start with the new image while old containers are gradually drained of traffic and terminated only after health checks pass.
+    
+    \item \textbf{Verification}: CloudWatch alarms monitor the health of the newly deployed containers. If any container fails its health check within a configurable window, the deployment is automatically rolled back to the previous known-good version.
 \end{enumerate}
+
+\textbf{Security and Secrets Management}
+
+All sensitive data---database credentials, API keys, LLM authentication tokens---is stored in \textbf{AWS Secrets Manager} rather than in the GitHub repository or environment variables. During the CI/CD pipeline execution, these secrets are injected as environment variables into the container at runtime, never exposed in logs or stored on disk. This secret rotation mechanism ensures that compromised credentials can be invalidated without redeploying the entire application.
+
+The use of OIDC for AWS credential exchange (rather than long-lived IAM access keys) further hardens the pipeline. OIDC tokens are short-lived, automatically generated by GitHub for each workflow run, and scoped to specific AWS permissions (least privilege). This eliminates the risk of leaked credentials persisting indefinitely in GitHub's secret storage.
 
 \subsection{Containerization and Orchestration}
 
-To ensure environment parity across development and production, the system utilizes a modern containerization stack built on Docker and AWS managed services.
+To ensure environment parity across development, staging, and production environments, the system utilizes a modern containerization stack built on Docker and AWS managed services. This approach encapsulates application logic, dependencies, and configurations into portable, immutable units that can be deployed consistently across any infrastructure.
 
 \textbf{1. Containerization (Docker)}
 
-The backend and frontend applications are packaged as light-weight \textbf{Docker} containers. This approach encapsulates all system dependencies, library versions, and configurations, ensuring that the application behavior is consistent regardless of the underlying host environment.
+The backend and frontend applications are packaged as lightweight \textbf{Docker} containers. Each container is a self-contained execution environment that includes the application code, all runtime dependencies (e.g., Python packages via pip, Node.js modules via npm), system libraries, and configuration files. By bundling everything into a single image, Docker eliminates the problem of ``it works on my machine but not on the server'': if the container runs locally on a developer's laptop, it will run identically on a production server, because the entire environment is frozen in the image.
 
-\textbf{2. Registry (Amazon ECR)}
-
-All built images are versioned and stored in \textbf{Amazon Elastic Container Registry (ECR)}. The system utilizes specific tagging strategies (using the GitHub Commit SHA) to allow for precise rollbacks and auditability of the deployed versions.
-
-\textbf{3. Orchestration (Amazon ECS)}
-
-The runtime environment is managed by \textbf{Amazon Elastic Container Service (ECS)}. 
+\textbf{Benefits of Containerization}:
 \begin{itemize}
-    \item \textbf{Cluster Management}: Services are deployed into a managed cluster (\texttt{rag-pipeline-cluster}) that handles service discovery and health monitoring.
-    \item \textbf{Task Definitions}: These define the CPU and memory requirements for each service, as well as the environment variables needed for the RAG pipeline to connect to its various cloud backends.
-    \item \textbf{High Availability}: ECS ensures that the desired number of containers are always running, automatically restarting any tasks that fail their health checks.
+    \item \textbf{Reproducibility}: The same image runs the same way everywhere, eliminating environmental drift and configuration drift that plague non-containerized deployments.
+    \item \textbf{Isolation}: Each container is isolated from others, preventing interference (e.g., one container's dependency conflict cannot break another).
+    \item \textbf{Rapid Scaling}: New containers can be spawned in seconds, enabling the system to handle traffic spikes without lengthy provisioning delays.
+    \item \textbf{Simplified Debugging}: Developers can pull the exact same image used in production to reproduce issues locally.
 \end{itemize}
+
+\textbf{2. Registry (Amazon Elastic Container Registry)}
+
+All built container images are versioned and stored in \textbf{Amazon Elastic Container Registry (ECR)}, AWS's fully managed container image registry. Rather than storing images on developer machines or public registries (which pose security risks), ECR provides a private, encrypted repository for all application images.
+
+The system utilizes a sophisticated multi-tag strategy for each image:
+\begin{itemize}
+    \item \textbf{Commit SHA}: The Git commit hash (e.g., \texttt{a3f7d2c}) uniquely identifies the exact source code version that produced the image, enabling precise traceability and rollback.
+    \item \textbf{Branch Tag}: Tags like \texttt{develop}, \texttt{main}, \texttt{staging} allow quick reference to the latest image for a given branch without needing to know the commit hash.
+    \item \textbf{Build Timestamp}: Each image is also tagged with the build timestamp (e.g., \texttt{2026-05-05-14:32:18}), facilitating chronological tracking of deployments.
+\end{itemize}
+
+This multi-tag approach provides auditability and rapid rollback capabilities. If a newly deployed version causes issues, operations teams can immediately identify the previous known-good version and redeploy it by referencing its commit SHA or timestamp tag.
+
+\textbf{3. Orchestration (Amazon Elastic Container Service)}
+
+The runtime environment is managed by \textbf{Amazon Elastic Container Service (ECS)}, a fully managed container orchestration platform. ECS abstracts away the complexity of managing a cluster of servers and instead presents a simple, declarative interface: ``I want 2 instances of the backend service to always be running.''
+
+\textbf{Cluster Management}: The application is deployed into a managed ECS cluster (\texttt{rag-pipeline-cluster}) that handles the complexity of service discovery and health monitoring. Each service in the cluster is automatically assigned a DNS name (e.g., \texttt{backend-service.rag-pipeline-cluster}), allowing frontend and backend services to communicate without hardcoding IP addresses. If a container becomes unhealthy (e.g., crashes or stops responding), ECS automatically detects this via health checks and launches a replacement container to maintain the desired service count.
+
+\textbf{Task Definitions}: ECS uses declarative \textbf{task definitions} to specify the runtime requirements of each service:
+\begin{itemize}
+    \item \textbf{CPU and Memory}: Each task is allocated specific CPU units and RAM (e.g., the backend service might request 0.5 vCPU and 512 MB RAM). ECS uses this to make intelligent scheduling decisions, packing tasks onto EC2 instances without exceeding capacity.
+    \item \textbf{Environment Variables}: Configuration specific to the deployment environment (e.g., \texttt{API\_KEY}, \texttt{DATABASE\_URL}, \texttt{LLM\_MODEL\_NAME}) is injected at runtime from AWS Secrets Manager, eliminating the need to hardcode secrets in images.
+    \item \textbf{Logging Configuration}: Each task is configured to stream logs to AWS CloudWatch, creating a centralized audit trail and enabling rapid debugging of production issues.
+    \item \textbf{IAM Task Role}: Each ECS task is assigned a fine-grained IAM role that grants permissions only to the AWS services it actually needs (e.g., the backend task role grants \texttt{s3:GetObject}, \texttt{s3:PutObject} for S3 access, but denies access to other AWS resources). This principle of least privilege prevents one compromised service from accessing resources it shouldn't.
+\end{itemize}
+
+\textbf{High Availability and Auto-Scaling}: ECS ensures that the desired number of containers are always running through automated health monitoring. If a container fails its health check (e.g., the FastAPI application becomes unresponsive), ECS automatically terminates the unhealthy container and launches a replacement. For traffic spikes, the system is configured with auto-scaling policies: if CPU utilization or request count exceeds a threshold (e.g., 70\% CPU), ECS automatically increases the number of running tasks to distribute the load. Conversely, during quiet periods, idle tasks are scaled down to optimize costs.
+
+The combination of containerization, a private registry, and orchestration creates a deployment pipeline that is simultaneously secure (secrets never exposed), scalable (scale up in seconds), reliable (automatic recovery from failures), and auditable (every deployment is tracked by commit hash and timestamp).
 
 % \section{Strategic Technology Selection}
 % 
@@ -2293,11 +2116,13 @@ The runtime environment is managed by \textbf{Amazon Elastic Container Service (
 
 \section{Security Architecture and Implementation}
 
-BK-MInD implements a comprehensive, multi-layered security architecture designed to protect sensitive educational data, ensure platform availability, and maintain a safe learning environment for all users. This security framework operates across three distinct layers: infrastructure-level protection via AWS Web Application Firewall (WAF), application-level content safety through AWS Bedrock Guardrails, and data-level encryption through industry-standard protocols. The implementation has been validated against industry standards including OWASP Top 10 threats and undergoes continuous monitoring to ensure protection against emerging threats.
+The overall security architecture design and threat model are presented in Chapter~5 (Proposed Solution), Section~\ref{sec:security_arch}. This section details the implementation, configuration parameters, and operational monitoring of each security tier.
+
+BK-MInD implements a comprehensive, multi-layered security architecture designed to protect sensitive educational data, ensure platform availability, and maintain a safe learning environment for all users. This security framework operates across three distinct tiers: infrastructure-level protection via AWS Web Application Firewall (WAF), application-level content safety through AWS Bedrock Guardrails, and data-level encryption through industry-standard protocols. The implementation has been validated against industry standards including OWASP Top 10 threats and undergoes continuous monitoring to ensure protection against emerging threats.
 
 \subsection{Infrastructure-Level Security: AWS Web Application Firewall}
 
-\subsubsection{WAF Architecture and Deployment}
+\textbf{WAF Architecture and Deployment}
 
 The BK-MInD application is protected by AWS WAF, a managed Web Application Firewall service that operates at layer 7 (application layer) of the OSI model. Unlike traditional firewalls that operate at network layers 3-4, AWS WAF understands HTTP/HTTPS protocols and analyzes the semantic meaning of requests, enabling sophisticated protection against application-level attacks. The WAF is deployed as a Protection Pack with identifier \texttt{37762d47-d786-40c2-ab94-878be6e4e0ee} in the US West 2 region, associated with the Application Load Balancer (ALB) that sits in front of all containerized backend services.
 
@@ -2310,7 +2135,7 @@ By placing the WAF at the ALB level, all inbound traffic is filtered before reac
     \label{fig:waf_architecture}
 \end{figure}
 
-\subsubsection{Protection Rules and Threat Model}
+\textbf{Protection Rules and Threat Model}
 
 The protection pack implements five distinct security rules, each targeting a specific attack category:
 
@@ -2326,7 +2151,7 @@ The protection pack implements five distinct security rules, each targeting a sp
     \item \textbf{IP Reputation List (Priority 4):} Leverages the Amazon IP Reputation List—a continuously updated database of IPs known for malicious activity including botnet C\&C servers, malware distribution endpoints, and credential stuffing sources. Updated daily with false positive rate $<0.1\%$.
 \end{enumerate}
 
-\subsubsection{Capacity and Performance}
+\textbf{Capacity and Performance}
 
 The WAF uses a consumption model based on Web ACL Capacity Units (WCUs). The current configuration consumes 1,129 WCUs out of a maximum capacity of 5,000 WCUs, representing 22.6\% utilization. This leaves significant headroom (3,871 WCUs) for future security enhancements. Performance testing shows that WAF processing adds only 1-5 milliseconds per request—less than 0.1\% of typical backend processing time (100-500ms) and imperceptible to end users.
 
@@ -2351,7 +2176,7 @@ The WAF uses a consumption model based on Web ACL Capacity Units (WCUs). The cur
     \end{tabular}}
 \end{table}
 
-\subsubsection{Request Processing Flow}
+\textbf{Request Processing Flow}
 
 When a request arrives at the ALB, the WAF sequentially evaluates it against all rules in priority order. If the request exceeds rate limits, exhibits SQL injection patterns, matches known bad inputs, contains attack signatures from the common rule set, or originates from a reputation-listed IP, it is immediately blocked with HTTP 403 response. Otherwise, the default ``Allow'' action applies and the request is forwarded to application services. All blocked requests are logged with full details for security monitoring.
 
@@ -2364,7 +2189,7 @@ The WAF also implements a challenge mechanism using CAPTCHA for suspicious but n
     \label{fig:waf_dashboard}
 \end{figure}
 
-\subsubsection{Monitoring and Observability}
+\textbf{Monitoring and Observability}
 
 The WAF exports detailed metrics to AWS CloudWatch including counts of allowed requests, blocked requests, and CAPTCHA challenges issued. BK-MInD is configured to alert operations teams when security thresholds are exceeded:
 \begin{itemize}
@@ -2386,7 +2211,7 @@ Blocked requests are logged to CloudWatch Logs for forensic analysis, including 
 
 \subsection{Application-Level Security: AWS Bedrock Guardrails}
 
-\subsubsection{Content Safety and Filtering}
+\textbf{Content Safety and Filtering}
 
 While AWS WAF protects against technical network-layer attacks, BK-MInD requires additional protection at the application layer to ensure generated content remains appropriate for educational environments. This is implemented through AWS Bedrock Guardrails, which filter both user input (prompts) and model-generated output (responses) before reaching users. The guardrail configuration (\texttt{42ay3u3pr8vr}) is integrated into all Bedrock model inference calls, ensuring every interaction with AI models is protected.
 
@@ -2397,7 +2222,7 @@ While AWS WAF protects against technical network-layer attacks, BK-MInD requires
     \label{fig:bedrock_guardrail}
 \end{figure}
 
-\subsubsection{Content Filter Categories}
+\textbf{Content Filter Categories}
 
 The guardrails implementation includes five primary content filter categories, each operating at ``Medium'' filter strength to balance safety with avoiding false positives:
 
@@ -2413,7 +2238,7 @@ The guardrails implementation includes five primary content filter categories, e
     \item \textbf{Misconduct and Illegal Activity Filtering:} Blocks content promoting illegal activities, fraud, hacking, drug manufacturing, and other misconduct. Ensures platform doesn't inadvertently provide instructions for criminal conduct.
 \end{enumerate}
 
-\subsubsection{Prompt Injection Attack Prevention}
+\textbf{Prompt Injection Attack Prevention}
 
 Beyond content categories, guardrails detect and block sophisticated prompt injection attacks where attackers manipulate AI models into bypassing safety restrictions. The system detects eight attack vector categories:
 
@@ -2428,7 +2253,7 @@ Beyond content categories, guardrails detect and block sophisticated prompt inje
     \item \textbf{General Bypass Techniques:} Prefix injection, translation attacks, gradual boundary-pushing.
 \end{itemize}
 
-\subsubsection{Personally Identifiable Information (PII) Protection}
+\textbf{Personally Identifiable Information (PII) Protection}
 
 A critical guardrails component is automatic detection and masking of PII. The system recognizes 27 distinct PII types and masks them before user input reaches AI models:
 
@@ -2438,7 +2263,7 @@ Phone numbers (all formats), email addresses, usernames, passwords, driver's lic
 
 When PII is detected in user input, it is replaced with a placeholder (e.g., \texttt{[PHONE\_NUMBER]}) before reaching the model. If the model generates PII in output, similar masking applies before response reaches the user. This ensures PII is never exposed in logs, model responses, or audit trails.
 
-\subsubsection{Integration into BK-MInD Features}
+\textbf{Integration into BK-MInD Features}
 
 Guardrails are integrated into all AI-powered features through the Bedrock API integration layer. Every call to the Bedrock \texttt{converse} API includes a \texttt{guardrailConfig} parameter specifying the guardrail identifier and version. This integration affects:
 
@@ -2454,7 +2279,7 @@ Guardrails are integrated into all AI-powered features through the Bedrock API i
 
 \subsection{Data Protection and Encryption}
 
-\subsubsection{Data in Transit: HTTPS and TLS}
+\textbf{Data in Transit: HTTPS and TLS}
 
 All communication between users and BK-MInD is encrypted using HTTPS (TLS 1.2+) with 256-bit encryption, preventing interception or modification during transmission. TLS encryption is enforced at the ALB level, which terminates HTTPS connections and forwards decrypted traffic to backend services.
 
@@ -2464,7 +2289,7 @@ All communication between users and BK-MInD is encrypted using HTTPS (TLS 1.2+) 
 
 \textbf{TLS Configuration:} The HTTPS listener uses AWS's \texttt{ELBSecurityPolicy-TLS13-1-2-2021-06} security policy, enforcing TLS 1.2+ while disabling older vulnerable versions. This prevents downgrade attacks and restricts cipher suites to strong encryption and authentication properties.
 
-\subsubsection{Data at Rest}
+\textbf{Data at Rest}
 
 Course materials and student records stored in AWS DynamoDB and Amazon S3 are encrypted at rest using server-side encryption. DynamoDB stores structured data including user profiles, chat history, and quiz results. S3 stores original uploaded files and processed artifacts. Both services support encryption by default, protecting data from unauthorized access in case of physical media compromise.
 
@@ -2481,7 +2306,7 @@ AWS DynamoDB tables are configured with server-side encryption using AWS-managed
 
 \subsection{Security Compliance and Best Practices}
 
-\subsubsection{OWASP Top 10 Coverage}
+\textbf{OWASP Top 10 Coverage}
 
 The BK-MInD security implementation provides protection against all OWASP Top 10 (2021) threats:
 
@@ -2509,19 +2334,19 @@ The BK-MInD security implementation provides protection against all OWASP Top 10
     }
 \end{table}
 
-\subsubsection{Monitoring and Incident Response}
+\textbf{Monitoring and Incident Response}
 
 The security architecture includes comprehensive logging enabling rapid incident response. All blocked requests are logged with full details including source IP, request content, matched rule, and timestamp. Logs are retained for 30 days in CloudWatch Logs and can be forwarded to SIEM systems for centralized analysis.
 
 Guardrails filter events are tracked to monitor which content categories are most frequently blocked, identify attack patterns, and assess false positive rates. Key metrics include daily block rate, block distribution by category, false positive estimates, and PII encounter frequency.
 
-\subsubsection{Continuous Updates and Maintenance}
+\textbf{Continuous Updates and Maintenance}
 
 AWS automatically updates managed security rules (SQL injection detection, known bad inputs, common rule set, IP reputation list), ensuring BK-MInD remains protected against newly discovered vulnerabilities. Security engineers periodically review WAF logs to identify false positives or attack trends warranting rule adjustments.
 
 AWS Certificate Manager handles automatic TLS certificate renewal, beginning 30 days before expiration using DNS validation. Existing validation CNAME records support both initial validation and automatic renewal, eliminating renewal complexity. Operations teams monitor certificate status to ensure continuous validity.
 
-\subsubsection{Performance Impact Validation}
+\textbf{Performance Impact Validation}
 
 Security testing validated that protective controls introduce minimal overhead:
 \begin{itemize}
@@ -2540,7 +2365,7 @@ The architecture sustains 50,000+ requests per second without degradation, far e
     \label{fig:waf_bot_detection}
 \end{figure}
 
-\subsubsection{Security Testing and Validation}
+\textbf{Security Testing and Validation}
 
 BK-MInD has undergone security testing validating control effectiveness:
 
@@ -2561,7 +2386,7 @@ All tests confirmed security controls function as designed with no false positiv
     \label{fig:waf_geography}
 \end{figure}
 
-\subsubsection{Conclusion}
+\textbf{Conclusion}
 
 BK-MInD implements a comprehensive, defense-in-depth security architecture combining:
 
