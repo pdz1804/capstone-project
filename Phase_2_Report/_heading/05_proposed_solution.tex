@@ -155,6 +155,15 @@ FastAPI solves this problem at its core. It is built on modern Python \texttt{as
 This architectural difference is not merely theoretical; it is reflected in stark performance metrics from independent, industry-standard benchmarks. According to the highly respected TechEmpower benchmarks, which test hundreds of web frameworks in realistic scenarios, FastAPI's performance is in a different league.
 
 In the Round 22 benchmarks (testing against physical hardware), the Uvicorn server running a basic FastAPI application handled \textbf{12,567 requests per second} in the Multiple Queries test. In contrast, Django on Gunicorn (a standard synchronous setup) handled \textbf{1,623 requests per second}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{img/pdz/58-pipeline-architecture-overview.png}
+    \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
+    \label{fig:pipeline_overview}
+\end{figure}
+
+
+The system implements a sophisticated dual-pipeline architecture designed to handle heterogeneous document formats and produce RAG-ready outputs for both text-based and image-based retrieval. The architecture is divided into two primary pipelines: the Data Processing Pipeline and the Embedding-Indexing Pipeline.
 
 This means FastAPI can handle over 8 times the traffic with the same hardware for this common task\footnote{\url{https://www.techempower.com/benchmarks/\#section=data-r22&test=query}}. For our I/O-bound application, this advantage is even more pronounced. The ability to efficiently manage concurrent waiting tasks means we can serve more users simultaneously with lower latency and significantly lower infrastructure costs. This raw performance is essential for delivering the responsive, real-time experience that users expect from an interactive AI assistant.
 
