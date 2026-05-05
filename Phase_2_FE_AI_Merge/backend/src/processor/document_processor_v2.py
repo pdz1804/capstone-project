@@ -707,6 +707,8 @@ class DocumentProcessorV2:
 
         write_docling_outputs_from_sagemaker(self.output_dir, Path(info["file_path"]), payload)
 
+        doc_dir.mkdir(parents=True, exist_ok=True)
+
         meta = {
             "file_path": info["file_path"],
             "file_type": info["file_type"],
