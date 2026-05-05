@@ -191,11 +191,118 @@ The system operates within important constraints: Vietnamese-language optimizati
 
 Three key contributions emerge: (1) Practical multimodal RAG at institutional scale, (2) Cloud-native operationalization with multi-tenancy and safety, and (3) Foundation for adaptive learning research.
 
-\section{Future Work}
+\section{Future Plan}
 
-\subsection*{Short-term} Deploy with student feedback loops and domain-specific fine-tuning.
-\subsection*{Medium-term} Develop semantic video understanding and real-time adaptation.
-\subsection*{Long-term} Extend to federated deployment and LMS integration.
+The Phase 2 system has successfully established a production-grade foundation for multimodal educational RAG. Building on this base, the future plan encompasses three strategic pillars: (1) educational impact validation through structured user studies, (2) operational optimization based on real-world deployment insights, and (3) advanced capability enhancements to expand the system's educational reach.
+
+\subsection{Educational Impact Validation}
+
+The true measure of BK-MInD's value lies in its impact on student learning outcomes and institutional adoption. While Phase 2 focused on system reliability and cost viability through infrastructure testing, future deployment will introduce structured user studies to validate pedagogical effectiveness and optimize the learning experience.
+
+\textbf{Planned User Study Design:} The user study will be conducted with a cohort of 10--20 HCMUT students across multiple courses and academic levels to gather both qualitative and quantitative data on system effectiveness:
+
+\begin{itemize}
+    \item \textbf{Study Duration}: One full semester (13--15 weeks) of real-world usage in a course setting
+    \item \textbf{Primary Metrics}:
+    \begin{itemize}
+        \item \textbf{Learning Gains}: Measure student learning improvement through pre/post assessments and grade comparisons
+        \item \textbf{Study Time Efficiency}: Track time spent preparing with BK-MInD compared to traditional study methods
+        \item \textbf{Feature Utility}: Collect feedback on which tools are most valuable and identify improvement opportunities
+        \item \textbf{System Satisfaction}: Evaluate interface usability, response quality, and reliability
+        \item \textbf{Long-Term Adoption}: Monitor sustained usage patterns and feature discovery over the semester
+    \end{itemize}
+    \item \textbf{Participant Selection}: Students from diverse academic backgrounds and course levels to ensure generalizability of findings
+    \item \textbf{Data Collection Methods}: Surveys, usage analytics, semi-structured interviews, and learning outcome assessments
+\end{itemize}
+
+\textbf{Instructor Feedback and Course Integration:} Beyond student outcomes, the plan includes systematic collection of instructor feedback to optimize pedagogical integration:
+
+\begin{itemize}
+    \item \textbf{Integration Satisfaction}: Measure how readily BK-MInD integrates into existing course workflows
+    \item \textbf{Administrative Overhead}: Assess instructor time investment for course material ingestion and system maintenance
+    \item \textbf{Pedagogical Value}: Validate that the system supports desired learning objectives and educational outcomes
+    \item \textbf{Adoption Barriers}: Identify and address obstacles to institutional deployment
+\end{itemize}
+
+\subsection{Operational Optimization and Scaling}
+
+Following Phase 2's validation of the current architecture, the next phase will focus on operational refinements to support production-scale deployment:
+
+\textbf{Production Monitoring and SLA Establishment:}
+
+\begin{itemize}
+    \item \textbf{Real-World Performance Validation}: Refine performance baselines under actual deployment load, validating that the 20--50 concurrent user testing translates to stable production performance
+    \item \textbf{SLA and Alerting}: Establish service-level agreements for response latency, availability, and error rates; implement automated alerting for threshold violations
+    \item \textbf{Cost Model Validation}: Track actual expenses against Phase 2 forecasts; identify cost optimization opportunities as usage patterns emerge
+    \item \textbf{Infrastructure Tuning}: Optimize auto-scaling policies, concurrency limits, and resource allocation based on real-world usage telemetry
+\end{itemize}
+
+\textbf{Scalability Enhancements:}
+
+\begin{itemize}
+    \item \textbf{Concurrent Indexing}: Implement enhanced job queue management to safely scale document processing beyond the current 30-concurrent-job limit
+    \item \textbf{Multi-Tenant Isolation}: Strengthen resource isolation between user cohorts to prevent noisy-neighbor effects in shared cloud environments
+    \item \textbf{Caching Strategies}: Implement semantic caching for frequently accessed lecture materials to reduce compute and improve response latency
+\end{itemize}
+
+\textbf{Cost Optimization Strategies:}
+
+\begin{itemize}
+    \item \textbf{Serverless GPU Exploration}: Evaluate serverless GPU platforms (RunPod, Modal Labs, Hyperstack) for ColQwen inference to reduce embedding costs by 80--90\%
+    \item \textbf{Reserved Capacity}: Analyze adoption patterns to determine when reserved EC2 and SageMaker instances are more cost-effective than on-demand
+    \item \textbf{Data Pipeline Efficiency}: Optimize storage and data transfer patterns to reduce S3 and DynamoDB costs for high-volume deployments
+\end{itemize}
+
+\subsection{Advanced Capability Enhancements}
+
+Beyond optimization, the plan includes strategic capability improvements to expand educational impact:
+
+\textbf{Semantic Video Understanding:}
+
+\begin{itemize}
+    \item \textbf{Temporal Alignment}: Develop scene-level understanding to synchronize quiz and summary generation with specific video timestamps
+    \item \textbf{Speaker Detection}: Implement speaker identification and analysis to support lecturer-specific learning paths
+    \item \textbf{Visual Concept Extraction}: Extract and index visual concepts from lecture videos for visual-semantic search integration
+\end{itemize}
+
+\textbf{Advanced Retrieval Enhancements:}
+
+\begin{itemize}
+    \item \textbf{Query Decomposition}: Implement multi-hop query understanding to break complex questions into sub-queries for more comprehensive retrieval
+    \item \textbf{Enhanced Reranking}: Re-enable and optimize the reranking pipeline that was disabled for latency in Phase 2, with strategic caching to mitigate performance overhead
+    \item \textbf{Adaptive Ranking}: Develop personalized ranking models that adapt to individual student learning styles and query patterns
+\end{itemize}
+
+\textbf{Learning Path Personalization:}
+
+\begin{itemize}
+    \item \textbf{Adaptive Content Sequencing}: Recommend learning material sequences based on student comprehension levels and learning goals
+    \item \textbf{Knowledge Gap Identification}: Automatically detect learning gaps from quiz performance and suggest targeted review materials
+    \item \textbf{Prerequisite Analysis}: Map topic dependencies to guide students through material in optimal learning order
+\end{itemize}
+
+\subsection{Timeline and Milestones}
+
+The future plan unfolds across two phases:
+
+\begin{itemize}
+    \item \textbf{Weeks 1--4 (Deployment Preparation)}: Finalize ethics approval and informed consent protocols; recruit study participants; configure monitoring and alerting in production environment
+    \item \textbf{Weeks 5--20 (Semester-Long Study)}: Conduct user study with real-world deployment; collect usage analytics, performance metrics, and educational outcomes
+    \item \textbf{Weeks 21--24 (Analysis and Optimization)}: Analyze study results; identify cost optimization opportunities; design enhancements based on findings
+    \item \textbf{Month 6+}: Implement advanced capability improvements (semantic video understanding, query decomposition, learning path personalization) based on validated insights
+\end{itemize}
+
+\subsection{Success Criteria}
+
+The future plan's success will be measured against the following criteria:
+
+\begin{enumerate}
+    \item \textbf{Educational Impact}: Demonstrated measurable improvement in student learning outcomes compared to control groups
+    \item \textbf{System Reliability}: Maintain 99.5\% uptime and sub-2s average response latency in production deployment
+    \item \textbf{Cost Efficiency}: Reduce operational costs per active user by 30--50\% through optimization strategies
+    \item \textbf{Adoption}: Achieve sustained usage by 80\%+ of study participants; secure instructor buy-in for course integration
+    \item \textbf{Scalability}: Successfully support 200+ concurrent users without degradation in service quality
+\end{enumerate}
 
 \section*{Concluding Remarks}
 
