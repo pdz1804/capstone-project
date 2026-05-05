@@ -476,28 +476,28 @@ Following processing, the dual-pathway indexing module produces both text indice
 
 Together, these four layers enable BK-MInD to ingest diverse HCMUT lecture materials, build a multimodal knowledge index, and serve interactive educational features with high availability, low latency, and enterprise-grade security.
 
-\textbf{Processing Pipeline Data Flow:} When a student or instructor uploads a document, the system follows this asynchronous data flow:
+% \textbf{Processing Pipeline Data Flow:} When a student or instructor uploads a document, the system follows this asynchronous data flow:
 
-\begin{enumerate}
-    \item \textbf{Request Intake:} The frontend submits a document upload via REST API call (\texttt{POST /api/process}) to the backend.
-    \item \textbf{Job Queueing:} The API service creates a job record in Redis with status \texttt{accepted} and enqueues it to the job queue. Per-user concurrency limits are checked; if the user already has 3 concurrent jobs, the request is rejected with HTTP 429 (Too Many Requests).
-    \item \textbf{Immediate Response:} The backend immediately returns an HTTP 202 (Accepted) response with a \texttt{job\_id}, allowing the frontend to poll for progress via \texttt{GET /api/process/status/{job\_id}} without blocking.
-    \item \textbf{Asynchronous Processing:} A FastAPI background task consumes the job from Redis queue and transitions the status to \texttt{running}. It executes the 7-stage processing pipeline, storing intermediate outputs to S3 and maintaining progress logs.
-    \item \textbf{Embedding and Indexing:} The consolidation stage outputs are passed to the IndexingService, which generates text and image embeddings and writes them to Qdrant Cloud via the repository layer.
-    \item \textbf{Status Update:} Upon completion, the job status in Redis is updated to \texttt{completed}. The job record expires after 3600 seconds (1 hour), automatically cleaning up old entries.
-    \item \textbf{Availability:} The document becomes immediately queryable through the SearchOrchestrator, which retrieves embeddings from Qdrant and generates answers using the LLM.
-\end{enumerate}
+% \begin{enumerate}
+%     \item \textbf{Request Intake:} The frontend submits a document upload via REST API call (\texttt{POST /api/process}) to the backend.
+%     \item \textbf{Job Queueing:} The API service creates a job record in Redis with status \texttt{accepted} and enqueues it to the job queue. Per-user concurrency limits are checked; if the user already has 3 concurrent jobs, the request is rejected with HTTP 429 (Too Many Requests).
+%     \item \textbf{Immediate Response:} The backend immediately returns an HTTP 202 (Accepted) response with a \texttt{job\_id}, allowing the frontend to poll for progress via \texttt{GET /api/process/status/{job\_id}} without blocking.
+%     \item \textbf{Asynchronous Processing:} A FastAPI background task consumes the job from Redis queue and transitions the status to \texttt{running}. It executes the 7-stage processing pipeline, storing intermediate outputs to S3 and maintaining progress logs.
+%     \item \textbf{Embedding and Indexing:} The consolidation stage outputs are passed to the IndexingService, which generates text and image embeddings and writes them to Qdrant Cloud via the repository layer.
+%     \item \textbf{Status Update:} Upon completion, the job status in Redis is updated to \texttt{completed}. The job record expires after 3600 seconds (1 hour), automatically cleaning up old entries.
+%     \item \textbf{Availability:} The document becomes immediately queryable through the SearchOrchestrator, which retrieves embeddings from Qdrant and generates answers using the LLM.
+% \end{enumerate}
 
-\textbf{Retrieval and Generation Data Flow:} When a student submits a query via \texttt{POST /api/search}:
+% \textbf{Retrieval and Generation Data Flow:} When a student submits a query via \texttt{POST /api/search}:
 
-\begin{enumerate}
-    \item \textbf{Query Routing:} The request is routed to the SearchOrchestrator service layer, which delegates to TextSearchService and ImageSearchService.
-    \item \textbf{Parallel Encoding and Retrieval:} The query is simultaneously encoded by two pathways: (a) text encoding using all-MiniLM-L6-v2 to produce 384-dimensional dense vectors, and (b) visual encoding using ColQwen's query encoder for image-text alignment. Both encoded representations search Qdrant Cloud independently.
-    \item \textbf{Multi-Index Search:} The TextSearchService queries three indices in parallel for maximum recall: (1) sparse BM25 index for keyword matching, (2) dense FAISS index for semantic similarity, and (3) hybrid index combining both via Reciprocal Rank Fusion. The ImageSearchService queries the ColQwen visual index.
-    \item \textbf{Result Aggregation:} The repository layers return top-K results from each index. The SearchOrchestrator merges, deduplicates, and ranks results from both text and visual streams.
-    \item \textbf{LLM Generation:} The aggregated context (text chunks + images) is passed to the generation service (AWS Bedrock Claude 3.5 Sonnet or OpenAI GPT-4o), which synthesizes a natural-language answer grounded in the retrieved evidence.
-    \item \textbf{Streaming Response:} The generated answer is streamed back to the frontend in real time using Server-Sent Events (SSE), along with citation metadata (source document name, page number, timestamp for video sources) enabling users to trace answers back to their source materials and verify accuracy.
-\end{enumerate}
+% \begin{enumerate}
+%     \item \textbf{Query Routing:} The request is routed to the SearchOrchestrator service layer, which delegates to TextSearchService and ImageSearchService.
+%     \item \textbf{Parallel Encoding and Retrieval:} The query is simultaneously encoded by two pathways: (a) text encoding using all-MiniLM-L6-v2 to produce 384-dimensional dense vectors, and (b) visual encoding using ColQwen's query encoder for image-text alignment. Both encoded representations search Qdrant Cloud independently.
+%     \item \textbf{Multi-Index Search:} The TextSearchService queries three indices in parallel for maximum recall: (1) sparse BM25 index for keyword matching, (2) dense FAISS index for semantic similarity, and (3) hybrid index combining both via Reciprocal Rank Fusion. The ImageSearchService queries the ColQwen visual index.
+%     \item \textbf{Result Aggregation:} The repository layers return top-K results from each index. The SearchOrchestrator merges, deduplicates, and ranks results from both text and visual streams.
+%     \item \textbf{LLM Generation:} The aggregated context (text chunks + images) is passed to the generation service (AWS Bedrock Claude 3.5 Sonnet or OpenAI GPT-4o), which synthesizes a natural-language answer grounded in the retrieved evidence.
+%     \item \textbf{Streaming Response:} The generated answer is streamed back to the frontend in real time using Server-Sent Events (SSE), along with citation metadata (source document name, page number, timestamp for video sources) enabling users to trace answers back to their source materials and verify accuracy.
+% \end{enumerate}
 
 \subsection{Pipeline Architecture}\label{sec:pipeline_arch}
 
