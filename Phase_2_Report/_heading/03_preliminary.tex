@@ -4,13 +4,21 @@
 
 To ensure clarity and consistency throughout this report, the following standardized terminology and capitalization conventions are utilized:
 
-\begin{table}[H]
-\centering
-\caption{Standardized Technical Terminology}
-\label{tab:terminology}
-\begin{tabular}{llp{8cm}}
+\begin{longtable}{llp{8cm}}
+\caption{Standardized Technical Terminology} \label{tab:terminology} \\
 \toprule
-\textbf{Term} & \textbf{Capitalization} & \textbf{Description / Usage} \\ \midrule
+\textbf{Term} & \textbf{Capitalization} & \textbf{Description / Usage} \\
+\midrule
+\endfirsthead
+\multicolumn{3}{c}{\textit{Standardized Technical Terminology (continued)}} \\
+\toprule
+\textbf{Term} & \textbf{Capitalization} & \textbf{Description / Usage} \\
+\midrule
+\endhead
+\midrule \multicolumn{3}{r}{\textit{(continued on next page)}} \\
+\endfoot
+\bottomrule
+\endlastfoot
 \textbf{Vector Database} & Capitalized & The high-dimensional similarity search engine (e.g., Qdrant) used for dense retrieval. \\
 \textbf{BM25} & All Caps & The probabilistic lexical ranking function used for keyword-based sparse retrieval. \\
 \textbf{RAG} & All Caps & Retrieval-Augmented Generation; the core system architecture. \\
@@ -23,9 +31,27 @@ To ensure clarity and consistency throughout this report, the following standard
 \textbf{Docling} & Title Case & The specialized document parsing library used for structural extraction. \\
 \textbf{ColQwen} & Title Case & The vision-language model architecture used for visual document retrieval. \\
 \textbf{Hybrid Search} & Capitalized & The combination of sparse (BM25) and dense (Vector) retrieval pathways. \\
-\textbf{RRF} / \textbf{DBSF} & All Caps & Reciprocal Rank Fusion and Distribution-Based Score Fusion (fusion algorithms). \\ \bottomrule
-\end{tabular}
-\end{table}
+\textbf{RRF} / \textbf{DBSF} & All Caps & Reciprocal Rank Fusion and Distribution-Based Score Fusion (fusion algorithms). \\
+\textbf{FAISS} & All Caps & Facebook AI Similarity Search; a library for fast similarity search and clustering of embeddings. \\
+\textbf{HNSW} & All Caps & Hierarchical Navigable Small World; an efficient similarity search algorithm used in vector indices. \\
+\textbf{nDCG} & Notation & Normalized Discounted Cumulative Gain; an information retrieval metric for evaluating ranking quality. \\
+\textbf{MaxSim} & Notation & Maximum Similarity; the token-level scoring mechanism used in late-interaction models like ColBERT. \\
+\textbf{ColBERT} & Title Case & Contextualized Late Interaction over BERT; a dense retrieval architecture using token-level interactions. \\
+\textbf{AWS} & All Caps & Amazon Web Services; the cloud platform used for deployment and infrastructure. \\
+\textbf{S3} & All Caps & Amazon Simple Storage Service; object storage service for document artifacts and processing outputs. \\
+\textbf{ECS} & All Caps & Amazon Elastic Container Service; container orchestration service for running the BK-MInD application. \\
+\textbf{SageMaker} & Title Case & AWS SageMaker; machine learning service used for model hosting and inference scaling. \\
+\textbf{WAF} & All Caps & Web Application Firewall; AWS WAF provides protection against application-level attacks. \\
+\textbf{JWT} & All Caps & JSON Web Token; cryptographic token used for authenticating API requests. \\
+\textbf{TLS} & All Caps & Transport Layer Security; encryption protocol for securing data in transit. \\
+\textbf{SSE} & All Caps & Server-Side Encryption; encryption method for protecting data at rest in Amazon S3. \\
+\textbf{API} & All Caps & Application Programming Interface; the interface through which frontend and backend systems communicate. \\
+\textbf{REST} & All Caps & Representational State Transfer; architectural style for the backend API design. \\
+\textbf{SRT} & All Caps & SubRip Text; subtitle file format used for storing transcription outputs. \\
+\textbf{VTT} & All Caps & Web Video Text Tracks; subtitle file format used for web-based video player integration. \\
+\textbf{DPI} & All Caps & Dots Per Inch; resolution parameter used when rasterizing PDF pages to images. \\
+\textbf{CI/CD} & All Caps & Continuous Integration / Continuous Deployment; automated pipeline for testing and deployment. \\
+\end{longtable}
 
 \section{Automatic Speech Recognition}
 \label{sec:asr}

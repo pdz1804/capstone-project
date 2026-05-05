@@ -192,7 +192,7 @@ To ensure a rigorous and transparent evaluation, the performance test suite was 
 
 To evaluate the system's robustness and scalability under realistic user workloads, a comprehensive load testing suite was executed using \textbf{Apache JMeter}. The testing focused on the core user journeys, ranging from lightweight authentication and profile retrieval to heavy AI-driven processing and indexing pipelines. The following results represent the system's performance across varying concurrency levels, up to 50 simultaneous users.
 
-\subsubsection{Baseline API}
+\textbf{Baseline API}
 
 \begin{table}[H]
     \centering
@@ -215,7 +215,7 @@ Authentication and user profile calls stayed below 2.5 seconds at P95, while pro
 
 The baseline API layer is healthy at 50 concurrent users. These endpoints do not appear to be the primary scalability risk for the application.
 
-\subsubsection{Upload API}
+\textbf{Upload API}
 
 \begin{table}[H]
     \centering
@@ -240,7 +240,7 @@ The upload layer is reliable up to 50 concurrent users in the available test set
 
 
 
-\subsubsection{Document Processing Jobs}
+\textbf{Document Processing Jobs}
 
 \begin{table}[H]
     \centering
@@ -263,7 +263,7 @@ Processing duration rises from approximately 36 seconds at 20 jobs to 51 seconds
 
 Processing is acceptable at moderate concurrency but should be treated as a controlled background workload. The system should not allow unlimited simultaneous processing jobs. Queueing, worker autoscaling, and job-specific retry/error classification will improve stability as usage grows.
 
-\subsubsection{Indexing Jobs}
+\textbf{Indexing Jobs}
 
 \begin{table}[H]
     \centering
@@ -288,7 +288,7 @@ The safe operating point for indexing from current evidence is up to 30 concurre
 
 
 
-\subsubsection{Search API}
+\textbf{Search API}
 
 \begin{table}[H]
     \centering
@@ -312,7 +312,7 @@ Search remained reliable with 0 errors through 50 concurrent users. Latency incr
 
 Search is functionally stable under the tested concurrency. The next optimization target should be latency reduction: cache hit-rate improvement, stricter retrieval defaults for high-load conditions, and separating retrieval-only paths from generation-heavy paths.
 
-\subsubsection{Chat Stream API}
+\textbf{Chat Stream API}
 
 \begin{table}[H]
     \centering
@@ -338,7 +338,7 @@ Chat is operationally stable up to 50 concurrent users. For production growth, t
 
 
 
-\subsubsection{Summary API}
+\textbf{Summary API}
 
 \begin{table}[H]
     \centering
@@ -362,7 +362,7 @@ Summary latency is consistent, with mean latency remaining around 6-7 seconds th
 
 Summary generation is ready for concurrent classroom-style usage, especially when users request structured overviews of already processed materials.
 
-\subsubsection{Multiple Choice Question (MCQ) API}
+\textbf{Multiple Choice Question (MCQ) API}
 
 \begin{table}[H]
     \centering
@@ -386,7 +386,7 @@ MCQ generation is the best-performing AI insight endpoint, with mean latency sta
 
 MCQ generation is a strong candidate for high-traffic educational workflows such as quick quizzes and revision sessions.
 
-\subsubsection{Learning Roadmap API}
+\textbf{Learning Roadmap API}
 
 \begin{table}[H]
     \centering
@@ -470,6 +470,62 @@ To ensure a high-quality user experience, the system's frontend performance was 
 
 As shown in Figures \ref{fig:desktop_performance} and \ref{fig:mobile_performance}, the system maintains high performance scores across all categories, ensuring fast load times and a responsive interface for multimodal document interaction.
 
+
+\subsection{Evaluation Metrics Summary}
+
+This subsection provides a consolidated overview of the metrics evaluated in Phase 2 and those planned for future deployment, establishing clear expectations for system validation.
+
+\begin{table}[H]
+    \centering
+    \caption{Comprehensive Evaluation Metrics: Phase 2 vs. Future Plan}
+    \label{tab:evaluation_metrics}
+    \scalebox{0.85}{
+    \begin{tabular}{lp{4cm}p{9cm}}
+        \toprule
+        \textbf{Metric Category} & \textbf{Phase 2 Status} & \textbf{Future Plan} \\
+        \midrule
+        \textbf{Performance Testing} (Load, Latency) & Complete: JMeter testing at 20--50 concurrent users; 0\% error rates on core APIs & Refine under real deployment load; validate against production usage patterns \\
+        \textbf{Cost Analysis} (AWS breakdown, ROI) & Complete: Itemized monthly expenditure model; GPU and service cost optimization documented & Validate cost model at production scale; track actual vs.\@ forecasted expenses \\
+        \textbf{System Stability} (Error rates, Uptime) & Complete: Comprehensive testing across all major endpoints; bottlenecks identified & Monitor real-world usage; establish SLA baselines and alerting \\
+        \textbf{User Experience} (PageSpeed, Frontend) & Complete: Desktop 99/100, Mobile 90/100 PageSpeed scores; responsive UI verified & Conduct usability study with student cohort; gather interaction feedback \\
+        \textbf{Learning Outcomes} (Grades, Comprehension) & Planned for future deployment & Measure student learning gains; track study time efficiency; assess feature adoption \\
+        \textbf{Educational Effectiveness} (Instructor Feedback) & Planned for future deployment & Collect instructor feedback; measure course integration satisfaction; validate pedagogical value \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\textit{Note: Phase 2 validates system infrastructure and performance under simulated load. Future deployment will measure educational impact through student and instructor feedback, enabling evidence-based optimization of learning outcomes and system adoption.}
+
+\subsection{User Study Planning and Educational Validation}
+
+Beyond infrastructure and performance validation, the true measure of BK-MInD's value lies in its impact on student learning outcomes and institutional adoption. While Phase 2 focused on system reliability and cost viability through load testing, future deployment will introduce a structured user study to validate pedagogical effectiveness and optimize the learning experience.
+
+\textbf{Planned User Study Design}
+
+The user study will be conducted with a cohort of HCMUT students to gather both qualitative and quantitative data on system effectiveness:
+
+\begin{itemize}
+    \item \textbf{Participant Pool}: 10–20 HCMUT students across multiple courses and academic levels
+    \item \textbf{Study Duration}: One full semester (13–15 weeks) of real-world usage in a course setting
+    \item \textbf{Study Instruments}: [PLACEHOLDER: Insert study questionnaire, rubric for learning outcomes, feedback collection methods]
+    \item \textbf{Metrics to Measure}:
+        \begin{itemize}
+            \item Learning gain (pre/post assessment or grade comparison)
+            \item Study time efficiency (time spent preparing with BK-MInD vs. traditional methods)
+            \item Feature utility feedback (which tools are most valuable; which could be improved)
+            \item System satisfaction (interface usability, response quality, reliability)
+            \item Long-term adoption patterns (sustained usage, feature discovery)
+        \end{itemize}
+\end{itemize}
+
+\textbf{Study Materials and Consent}
+
+[PLACEHOLDER: Link to ethics approval, informed consent form, student privacy safeguards, data handling protocols]
+
+\textbf{Timeline}
+
+Study recruitment and design refinement will occur in the weeks immediately following Phase 2 completion. Data collection will begin with the start of the semester in which the study cohort is enrolled. Results will be analyzed and documented by the end of the semester for integration into future optimization recommendations.
 
 \subsection{Testing and Performance Summary}
 
@@ -655,5 +711,122 @@ The following table provides a comparative analysis of GPU operational costs acr
     \end{tabular}
     }
 \end{table}
+
+\section{Future Plan}
+
+The Phase 2 system has successfully established a production-grade foundation for multimodal educational RAG. Building on this base, the future plan encompasses three strategic pillars: (1) educational impact validation through structured user studies, (2) operational optimization based on real-world deployment insights, and (3) advanced capability enhancements to expand the system's educational reach.
+
+\subsection{Educational Impact Validation}
+
+The true measure of BK-MInD's value lies in its impact on student learning outcomes and institutional adoption. While Phase 2 focused on system reliability and cost viability through infrastructure testing, future deployment will introduce structured user studies to validate pedagogical effectiveness and optimize the learning experience.
+
+\subsubsection{Planned User Study Design}
+
+The user study will be conducted with a cohort of 10--20 HCMUT students across multiple courses and academic levels to gather both qualitative and quantitative data on system effectiveness:
+
+\begin{itemize}
+    \item \textbf{Study Duration}: One full semester (13--15 weeks) of real-world usage in a course setting
+    \item \textbf{Primary Metrics}:
+    \begin{itemize}
+        \item \textbf{Learning Gains}: Measure student learning improvement through pre/post assessments and grade comparisons
+        \item \textbf{Study Time Efficiency}: Track time spent preparing with BK-MInD compared to traditional study methods
+        \item \textbf{Feature Utility}: Collect feedback on which tools are most valuable and identify improvement opportunities
+        \item \textbf{System Satisfaction}: Evaluate interface usability, response quality, and reliability
+        \item \textbf{Long-Term Adoption}: Monitor sustained usage patterns and feature discovery over the semester
+    \end{itemize}
+    \item \textbf{Participant Selection}: Students from diverse academic backgrounds and course levels to ensure generalizability of findings
+    \item \textbf{Data Collection Methods}: Surveys, usage analytics, semi-structured interviews, and learning outcome assessments
+\end{itemize}
+
+\subsubsection{Instructor Feedback and Course Integration}
+
+Beyond student outcomes, the plan includes systematic collection of instructor feedback to optimize pedagogical integration:
+
+\begin{itemize}
+    \item \textbf{Integration Satisfaction}: Measure how readily BK-MInD integrates into existing course workflows
+    \item \textbf{Administrative Overhead}: Assess instructor time investment for course material ingestion and system maintenance
+    \item \textbf{Pedagogical Value}: Validate that the system supports desired learning objectives and educational outcomes
+    \item \textbf{Adoption Barriers}: Identify and address obstacles to institutional deployment
+\end{itemize}
+
+\subsection{Operational Optimization and Scaling}
+
+Following Phase 2's validation of the current architecture, the next phase will focus on operational refinements to support production-scale deployment:
+
+\subsubsection{Production Monitoring and SLA Establishment}
+
+\begin{itemize}
+    \item \textbf{Real-World Performance Validation}: Refine performance baselines under actual deployment load, validating that the 20--50 concurrent user testing translates to stable production performance
+    \item \textbf{SLA and Alerting}: Establish service-level agreements for response latency, availability, and error rates; implement automated alerting for threshold violations
+    \item \textbf{Cost Model Validation}: Track actual expenses against Phase 2 forecasts; identify cost optimization opportunities as usage patterns emerge
+    \item \textbf{Infrastructure Tuning}: Optimize auto-scaling policies, concurrency limits, and resource allocation based on real-world usage telemetry
+\end{itemize}
+
+\subsubsection{Scalability Enhancements}
+
+\begin{itemize}
+    \item \textbf{Concurrent Indexing}: Implement enhanced job queue management to safely scale document processing beyond the current 30-concurrent-job limit
+    \item \textbf{Multi-Tenant Isolation}: Strengthen resource isolation between user cohorts to prevent noisy-neighbor effects in shared cloud environments
+    \item \textbf{Caching Strategies}: Implement semantic caching for frequently accessed lecture materials to reduce compute and improve response latency
+\end{itemize}
+
+\subsubsection{Cost Optimization Strategies}
+
+\begin{itemize}
+    \item \textbf{Serverless GPU Exploration}: Evaluate serverless GPU platforms (RunPod, Modal Labs, Hyperstack) for ColQwen inference to reduce embedding costs by 80--90\%
+    \item \textbf{Reserved Capacity}: Analyze adoption patterns to determine when reserved EC2 and SageMaker instances are more cost-effective than on-demand
+    \item \textbf{Data Pipeline Efficiency}: Optimize storage and data transfer patterns to reduce S3 and DynamoDB costs for high-volume deployments
+\end{itemize}
+
+\subsection{Advanced Capability Enhancements}
+
+Beyond optimization, the plan includes strategic capability improvements to expand educational impact:
+
+\subsubsection{Semantic Video Understanding}
+
+\begin{itemize}
+    \item \textbf{Temporal Alignment}: Develop scene-level understanding to synchronize quiz and summary generation with specific video timestamps
+    \item \textbf{Speaker Detection}: Implement speaker identification and analysis to support lecturer-specific learning paths
+    \item \textbf{Visual Concept Extraction}: Extract and index visual concepts from lecture videos for visual-semantic search integration
+\end{itemize}
+
+\subsubsection{Advanced Retrieval Enhancements}
+
+\begin{itemize}
+    \item \textbf{Query Decomposition}: Implement multi-hop query understanding to break complex questions into sub-queries for more comprehensive retrieval
+    \item \textbf{Enhanced Reranking}: Re-enable and optimize the reranking pipeline that was disabled for latency in Phase 2, with strategic caching to mitigate performance overhead
+    \item \textbf{Adaptive Ranking}: Develop personalized ranking models that adapt to individual student learning styles and query patterns
+\end{itemize}
+
+\subsubsection{Learning Path Personalization}
+
+\begin{itemize}
+    \item \textbf{Adaptive Content Sequencing}: Recommend learning material sequences based on student comprehension levels and learning goals
+    \item \textbf{Knowledge Gap Identification}: Automatically detect learning gaps from quiz performance and suggest targeted review materials
+    \item \textbf{Prerequisite Analysis}: Map topic dependencies to guide students through material in optimal learning order
+\end{itemize}
+
+\subsection{Timeline and Milestones}
+
+The future plan unfolds across two phases:
+
+\begin{itemize}
+    \item \textbf{Weeks 1--4 (Deployment Preparation)}: Finalize ethics approval and informed consent protocols; recruit study participants; configure monitoring and alerting in production environment
+    \item \textbf{Weeks 5--20 (Semester-Long Study)}: Conduct user study with real-world deployment; collect usage analytics, performance metrics, and educational outcomes
+    \item \textbf{Weeks 21--24 (Analysis and Optimization)}: Analyze study results; identify cost optimization opportunities; design enhancements based on findings
+    \item \textbf{Month 6+}: Implement advanced capability improvements (semantic video understanding, query decomposition, learning path personalization) based on validated insights
+\end{itemize}
+
+\subsection{Success Criteria}
+
+The future plan's success will be measured against the following criteria:
+
+\begin{enumerate}
+    \item \textbf{Educational Impact}: Demonstrated measurable improvement in student learning outcomes compared to control groups
+    \item \textbf{System Reliability}: Maintain 99.5\% uptime and sub-2s average response latency in production deployment
+    \item \textbf{Cost Efficiency}: Reduce operational costs per active user by 30--50\% through optimization strategies
+    \item \textbf{Adoption}: Achieve sustained usage by 80\%+ of study participants; secure instructor buy-in for course integration
+    \item \textbf{Scalability}: Successfully support 200+ concurrent users without degradation in service quality
+\end{enumerate}
 
 \newpage
