@@ -73,6 +73,103 @@ def _save_picture(image_ref: Any, img_dir: Path, counter: int) -> Optional[Tuple
         return None
 
 
+def _region_to_payload(er: ExtractedRegion) -> Dict[str, Any]:
+    provenance = dict(er.provenance or {})
+    page_no = int(provenance.get("page_no") or er.region.page_no or 1)
+    bbox = provenance.get("bbox") or [0.0, 0.0, 0.0, 0.0]
+    return {
+        "region_id": er.region.region_id,
+        "region_type": er.region.region_type,
+        "page_no": page_no,
+        "bbox": bbox,
+        "text": er.text or "",
+        "markdown_table": er.markdown_table,
+        "latex": er.latex,
+        "image_rel_path": er.image_rel_path,
+        "image_md5": er.image_md5,
+        "ocr_used": bool(er.ocr_used),
+        "provenance": provenance,
+    }
+
+
+def serialize_regions(regions: List[ExtractedRegion]) -> List[Dict[str, Any]]:
+    """Serialize ExtractedRegion objects for the SageMaker JSON contract."""
+    return [_region_to_payload(er) for er in regions]
+
+
+def regions_from_sagemaker_payload(
+    payload: Dict[str, Any],
+    *,
+    output_dir: Optional[str] = None,
+) -> List[ExtractedRegion]:
+    """Convert SageMaker ``regions`` JSON back into ExtractedRegion objects."""
+    additional_files = payload.get("additional_files") or {}
+    if output_dir and isinstance(additional_files, dict):
+        base = Path(output_dir)
+        for rel, b64 in additional_files.items():
+            rel_s = str(rel).replace("\\", "/").lstrip("/")
+            if ".." in rel_s or rel_s.startswith("/"):
+                logger.warning("Skipping unsafe SageMaker region asset path: %s", rel)
+                continue
+            try:
+                target = base / rel_s
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(base64.b64decode(str(b64)))
+            except Exception as exc:
+                logger.debug("Failed to materialize SageMaker asset %s: %s", rel, exc)
+
+    out: List[ExtractedRegion] = []
+    for idx, item in enumerate(payload.get("regions") or []):
+        if not isinstance(item, dict):
+            continue
+        page_no = int(item.get("page_no") or 1)
+        region_type = str(item.get("region_type") or item.get("type") or "text")
+        provenance = dict(item.get("provenance") or {})
+        provenance.setdefault("page_no", page_no)
+        provenance.setdefault("bbox", item.get("bbox") or [0.0, 0.0, 0.0, 0.0])
+        provenance.setdefault("detector", "docling_sagemaker")
+        region = ExtractedLayoutRegion(
+            region_id=str(item.get("region_id") or f"sm_p{page_no}_{idx}"),
+            page_no=page_no,
+            region_type=region_type,
+        )
+        out.append(
+            ExtractedRegion(
+                region=region,
+                text=str(item.get("text") or ""),
+                markdown_table=item.get("markdown_table"),
+                latex=item.get("latex"),
+                image_rel_path=item.get("image_rel_path"),
+                image_md5=item.get("image_md5"),
+                ocr_used=bool(item.get("ocr_used", False)),
+                provenance=provenance,
+            )
+        )
+    return out
+
+
+def extract_regions_from_sagemaker_docling(
+    file_path: str,
+    *,
+    runtime_yaml: Dict[str, Any],
+    output_dir: Optional[str] = None,
+) -> List[ExtractedRegion]:
+    """Invoke SageMaker Docling and return structured regions.
+
+    Requires the endpoint to support ``return_regions=true``. Older endpoints
+    return markdown only; callers should handle the resulting empty region set
+    as a fallback condition.
+    """
+    from .docling_remote import invoke_sagemaker_docling
+
+    payload = invoke_sagemaker_docling(Path(file_path), runtime_yaml, return_regions=True)
+    regions = regions_from_sagemaker_payload(payload, output_dir=output_dir)
+    if not regions:
+        raise RuntimeError("SageMaker Docling response did not include structured regions")
+    logger.info("SageMaker Docling extractor: %d regions", len(regions))
+    return regions
+
+
 def _make_converter(enable_ocr: bool, extract_images: bool):
     """Build a Docling DocumentConverter configured for PDF.
 
@@ -110,7 +207,10 @@ def _make_converter(enable_ocr: bool, extract_images: bool):
     pdf_kwargs: Dict[str, Any] = {
         "do_ocr": enable_ocr,
         "do_table_structure": True,
-        "do_formula_enrichment": True,
+        # Keep local hybrid PDF parsing focused on raw text/table regions.
+        # Formula enrichment pulls a heavy VLM checkpoint and is not needed for
+        # chunking evaluation or section assignment.
+        "do_formula_enrichment": False,
         "generate_picture_images": extract_images,
         "generate_page_images": False,
         "generate_table_images": False,

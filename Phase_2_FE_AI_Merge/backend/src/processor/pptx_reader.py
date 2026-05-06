@@ -21,13 +21,52 @@ import tempfile
 import shutil
 import subprocess
 import json
+import importlib.util
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Tuple, Any
 from enum import Enum
 from pathlib import Path
 import requests
-from app.utilities.gen_s3_url import get_signed_url
-from app.api.v1.ignored_image_router import get_image_urls
+import sys
+
+_THIS_DIR = Path(__file__).resolve().parent
+_UTILS_DIR = _THIS_DIR / "utils"
+
+
+def _load_local_module(module_name: str, file_name: str):
+    spec = importlib.util.spec_from_file_location(module_name, _UTILS_DIR / file_name)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Could not load local module {file_name}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+try:
+    from .utils.heading_detector import detect_heading_level, normalize_line
+except Exception:
+    _heading_detector = _load_local_module("pptx_reader_heading_detector", "heading_detector.py")
+    detect_heading_level = _heading_detector.detect_heading_level
+    normalize_line = _heading_detector.normalize_line
+
+try:
+    from .utils.phash import phash, similarity
+except Exception:
+    _phash = _load_local_module("pptx_reader_phash", "phash.py")
+    phash = _phash.phash
+    similarity = _phash.similarity
+
+try:
+    from .utils.gen_s3_url import get_signed_url  # type: ignore
+except Exception:
+    def get_signed_url(path: str) -> str:
+        return path
+
+try:
+    from .utils.ignored_image_router import get_image_urls  # type: ignore
+except Exception:
+    def get_image_urls(repository_id: str = "") -> List[str]:
+        return []
 
 from pptx import Presentation
 from pptx.util import Emu, Pt
@@ -47,7 +86,6 @@ import cv2
 import numpy as np
 from sklearn.cluster import DBSCAN
 import time
-from app.reader.phash import phash, similarity
 # from app.cm_shared.llm_provider import LLMProvider
 
 # THIS BLOCK IS FOR LOCAL TESTING PURPOSES ONLY.
@@ -59,7 +97,7 @@ except Exception as _import_err:
     import sys, os
     # Attempt to locate project root (the directory that contains 'app')
     try:
-        this_file = Path(_file_).resolve()
+        this_file = Path(__file__).resolve()
     except Exception:
         this_file = None
 
@@ -93,11 +131,6 @@ except Exception as _import_err:
                     + repr(_import_err) + " ; Retry error: " + repr(e)
                 )
         LLMProvider = _MissingLLMProvider
-
-from app.reader.heading_detector import (
-    detect_heading_level,
-    normalize_line,
-)
 
 IMAGE_PATH_START_MARKER = "[START_IMAGE_PATH]"
 IMAGE_PATH_END_MARKER = "[END_IMAGE_PATH]"

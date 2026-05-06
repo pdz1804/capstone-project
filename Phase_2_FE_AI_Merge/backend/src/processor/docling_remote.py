@@ -34,6 +34,8 @@ def _truthy_env(name: str) -> bool:
 def should_use_sagemaker_docling(runtime_yaml: Optional[Dict[str, Any]]) -> bool:
     if _truthy_env("USE_AWS_SAGEMAKER_DOCLING"):
         return True
+    if os.getenv("USE_AWS_SAGEMAKER_DOCLING", "").strip().lower() in ("0", "false", "no"):
+        return False
     if not runtime_yaml:
         return False
     inf = runtime_yaml.get("inference") or {}
@@ -44,7 +46,7 @@ def should_use_sagemaker_docling(runtime_yaml: Optional[Dict[str, Any]]) -> bool
     elif v:
         return True
     doc = (runtime_yaml.get("processing") or {}).get("document") or {}
-    backend = (doc.get("docling_backend") or "local").strip().lower()
+    backend = (doc.get("docling_backend") or "sagemaker").strip().lower()
     if backend == "sagemaker":
         return True
     if (doc.get("docling_remote") or "").strip().lower() in ("1", "true", "yes", "sagemaker"):
@@ -67,7 +69,12 @@ def _endpoint_and_region(runtime_yaml: Dict[str, Any]) -> tuple[str, str]:
     return ep, region
 
 
-def invoke_sagemaker_docling(file_path: Path, runtime_yaml: Dict[str, Any]) -> Dict[str, Any]:
+def invoke_sagemaker_docling(
+    file_path: Path,
+    runtime_yaml: Dict[str, Any],
+    *,
+    return_regions: bool = False,
+) -> Dict[str, Any]:
     ep, region = _endpoint_and_region(runtime_yaml)
     if not ep:
         raise RuntimeError(
@@ -84,6 +91,8 @@ def invoke_sagemaker_docling(file_path: Path, runtime_yaml: Dict[str, Any]) -> D
         "filename": file_path.name,
         "content_base64": base64.b64encode(raw).decode("ascii"),
     }
+    if return_regions:
+        payload["return_regions"] = True
     # Large documents can exceed botocore's default read timeout (~60s).
     # Also disable retries for invoke_endpoint to avoid duplicate non-idempotent
     # Docling processing when a response arrives late.
