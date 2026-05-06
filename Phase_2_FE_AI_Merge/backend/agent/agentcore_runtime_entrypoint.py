@@ -14,11 +14,20 @@ agent runtime independently and switch execution mode through environment config
 
 from __future__ import annotations
 
+import os
+
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
 from strands import Agent
 
 app = BedrockAgentCoreApp()
-agent = Agent()
+agent = Agent(
+    model=(
+        os.getenv("CHAT_AGENT_MODEL")
+        or os.getenv("GENERATION_MODEL")
+        or os.getenv("BEDROCK_MODEL_ID")
+        or None
+    )
+)
 
 
 @app.entrypoint

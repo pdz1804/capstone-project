@@ -73,6 +73,7 @@ class InvocationRequest(BaseModel):
     # Docling
     filename: str = ""
     content_base64: str = ""
+    return_regions: bool = False
 
     # Whisper
     audio_base64: str = ""
@@ -211,6 +212,95 @@ def _iter_exported_paths(value: Any) -> Iterable[Path]:
                 yield from _iter_exported_paths(v)
 
 
+def _first_prov(item: Any) -> tuple[int, list[float]]:
+    prov = getattr(item, "prov", None) or []
+    if not prov:
+        return 1, [0.0, 0.0, 0.0, 0.0]
+    p0 = prov[0]
+    page_no = int(getattr(p0, "page_no", 1) or 1)
+    bbox_obj = getattr(p0, "bbox", None)
+    if bbox_obj is None:
+        return page_no, [0.0, 0.0, 0.0, 0.0]
+    return page_no, [
+        float(getattr(bbox_obj, "l", 0.0) or 0.0),
+        float(getattr(bbox_obj, "t", 0.0) or 0.0),
+        float(getattr(bbox_obj, "r", 0.0) or 0.0),
+        float(getattr(bbox_obj, "b", 0.0) or 0.0),
+    ]
+
+
+def _extract_docling_regions(doc: Any) -> List[Dict[str, Any]]:
+    from docling_core.types.doc.labels import DocItemLabel
+
+    text_labels = {
+        DocItemLabel.TITLE,
+        DocItemLabel.SECTION_HEADER,
+        DocItemLabel.TEXT,
+        DocItemLabel.PARAGRAPH,
+        DocItemLabel.LIST_ITEM,
+        DocItemLabel.CAPTION,
+        DocItemLabel.FOOTNOTE,
+        DocItemLabel.CODE,
+        DocItemLabel.REFERENCE,
+    }
+
+    regions: List[Dict[str, Any]] = []
+    for item, _level in doc.iterate_items():
+        label = getattr(item, "label", None)
+        page_no, bbox = _first_prov(item)
+        region_id = f"p{page_no}_{getattr(item, 'self_ref', id(item))}"
+
+        if label in text_labels:
+            text = (getattr(item, "text", "") or "").strip()
+            if not text:
+                continue
+            region_type = "text"
+            markdown_table = None
+            latex = None
+        elif label == DocItemLabel.TABLE:
+            try:
+                text = (item.export_to_markdown(doc=doc) or "").strip()
+            except Exception:
+                text = ""
+            if not text:
+                continue
+            region_type = "table"
+            markdown_table = text
+            latex = None
+        elif label == DocItemLabel.FORMULA:
+            text = (getattr(item, "text", "") or "").strip()
+            if not text:
+                continue
+            region_type = "formula"
+            markdown_table = None
+            latex = text
+        else:
+            continue
+
+        regions.append(
+            {
+                "region_id": region_id,
+                "region_type": region_type,
+                "page_no": page_no,
+                "bbox": bbox,
+                "text": text,
+                "markdown_table": markdown_table,
+                "latex": latex,
+                "image_rel_path": None,
+                "image_md5": None,
+                "ocr_used": False,
+                "provenance": {
+                    "page_no": page_no,
+                    "bbox": bbox,
+                    "detector": "docling_sagemaker",
+                    "docling_label": str(label),
+                },
+            }
+        )
+    regions.sort(key=lambda r: (int(r.get("page_no") or 1), -float((r.get("bbox") or [0, 0, 0, 0])[1])))
+    return regions
+
+
 def _docling_process_sync(req: InvocationRequest) -> Dict[str, Any]:
     if _docling_processor is None:
         raise RuntimeError("Docling processor is not initialized")
@@ -229,6 +319,9 @@ def _docling_process_sync(req: InvocationRequest) -> Dict[str, Any]:
         info = _docling_processor.process_single_file(source)
         if not info.get("success"):
             raise RuntimeError(info.get("error", "Docling conversion failed"))
+        regions = []
+        if req.return_regions and info.get("doc_object") is not None:
+            regions = _extract_docling_regions(info["doc_object"])
         exported = _docling_processor.export_processed_document(info)
         md_path = Path(exported.get("markdown", ""))
         if not md_path.exists():
@@ -243,7 +336,10 @@ def _docling_process_sync(req: InvocationRequest) -> Dict[str, Any]:
             rel = p.relative_to(md_parent).as_posix() if p.is_relative_to(md_parent) else p.name
             additional_files[rel] = base64.b64encode(p.read_bytes()).decode("ascii")
 
-        return {"markdown": markdown, "additional_files": additional_files}
+        data: Dict[str, Any] = {"markdown": markdown, "additional_files": additional_files}
+        if req.return_regions:
+            data["regions"] = regions
+        return data
     finally:
         shutil.rmtree(workspace, ignore_errors=True)
         # Remove docling export folder to keep endpoint disk usage bounded.
@@ -420,4 +516,3 @@ async def invocations(req: InvocationRequest = Body(...)):
         return data
 
     raise HTTPException(status_code=400, detail=f"Unsupported operation: {req.operation}")
-

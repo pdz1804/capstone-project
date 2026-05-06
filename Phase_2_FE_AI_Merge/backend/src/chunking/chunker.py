@@ -67,6 +67,58 @@ class TextChunker:
         except ImportError:
             logger.info("LangChain not available, using built-in recursive splitter")
             self._langchain_splitter = None
+
+    def _locate_chunk_spans(self, text: str, chunks: List[str]) -> List[Dict[str, Any]]:
+        """Map split chunk text back to exact character spans in the source text.
+
+        LangChain's ``split_text`` returns only strings, and the built-in splitter
+        also post-processes whitespace. For evaluation we need real source spans,
+        so each emitted chunk is located with an exact search while allowing the
+        next chunk to start inside the previous chunk's overlap region.
+        """
+        spans: List[Dict[str, Any]] = []
+        previous_start = 0
+        previous_end = 0
+
+        for chunk in chunks:
+            if not chunk:
+                continue
+
+            search_start = 0 if not spans else max(
+                previous_start + 1,
+                previous_end - self.config.chunk_overlap - len(chunk),
+            )
+            found_at = text.find(chunk, search_start)
+
+            if found_at < 0 and spans:
+                # Repeated text plus overlap can make the expected region hard to
+                # estimate. Move just past the previous start to avoid remapping
+                # to the same occurrence while still permitting overlap.
+                found_at = text.find(chunk, previous_start + 1)
+
+            if found_at < 0:
+                found_at = text.find(chunk)
+
+            if found_at < 0:
+                logger.warning("Could not map chunk back to source offsets")
+                start_char = None
+                end_char = None
+            else:
+                start_char = found_at
+                end_char = found_at + len(chunk)
+                previous_start = start_char
+                previous_end = end_char
+
+            spans.append({
+                "text": chunk,
+                "start_char": start_char,
+                "end_char": end_char,
+                "char_start": start_char,
+                "char_end": end_char,
+                "char_length": len(chunk),
+            })
+
+        return spans
     
     def _split_text_recursive(self, text: str, separators: List[str]) -> List[str]:
         """Recursively split text using separators."""
@@ -140,15 +192,15 @@ class TextChunker:
         
         return overlapped_chunks
     
-    def split_text(self, text: str) -> List[str]:
+    def split_text_with_offsets(self, text: str) -> List[Dict[str, Any]]:
         """
-        Split text into chunks.
+        Split text into chunks and include exact source character offsets.
         
         Args:
             text: The text to split
             
         Returns:
-            List of text chunks
+            List of dicts with text, start_char, end_char, and char_length
         """
         if not text:
             return []
@@ -171,7 +223,19 @@ class TextChunker:
             if len(chunk) >= self.config.min_chunk_size:
                 processed_chunks.append(chunk)
         
-        return processed_chunks
+        return self._locate_chunk_spans(text, processed_chunks)
+
+    def split_text(self, text: str) -> List[str]:
+        """
+        Split text into chunks.
+
+        Args:
+            text: The text to split
+
+        Returns:
+            List of text chunks
+        """
+        return [chunk["text"] for chunk in self.split_text_with_offsets(text)]
     
     def chunk_document(self, document: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
@@ -187,7 +251,7 @@ class TextChunker:
         doc_id = document.get('id', 'unknown')
         source = document.get('source', '')
         
-        text_chunks = self.split_text(text)
+        text_chunks = self.split_text_with_offsets(text)
         
         # Derive uniform metadata fields from document
         original_file = source or document.get('original_file', '')
@@ -197,7 +261,10 @@ class TextChunker:
         uploaded_timestamp = document.get('uploaded_timestamp', datetime.now().isoformat())
 
         chunks = []
-        for i, chunk_text in enumerate(text_chunks):
+        for i, chunk_info in enumerate(text_chunks):
+            chunk_text = chunk_info["text"]
+            start_char = chunk_info.get("start_char")
+            end_char = chunk_info.get("end_char")
             chunk_name = f"{doc_id}_chunk_{i}"
             chunk = {
                 'id': f"{doc_id}_chunk_{i}",
@@ -212,7 +279,10 @@ class TextChunker:
                     'chunk_name': chunk_name,
                     'total_chunks': len(text_chunks),
                     'source': source,
-                    'char_start': sum(len(text_chunks[j]) for j in range(i)),
+                    'char_start': start_char,
+                    'char_end': end_char,
+                    'start_char': start_char,
+                    'end_char': end_char,
                     'char_length': len(chunk_text),
                     # --- Uniform metadata fields ---
                     'document_type': 'document',
@@ -299,4 +369,3 @@ def chunk_documents(
     config = ChunkingConfig(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     chunker = TextChunker(config)
     return chunker.chunk_documents(documents)
-

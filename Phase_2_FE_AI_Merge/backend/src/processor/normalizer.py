@@ -107,6 +107,10 @@ class NormalizerConfig:
     # PDF generation settings
     pdf_page_size: str = "A4"          # A4 or letter
     pdf_margin: float = 0.75           # Margin in inches
+    pdf_content_source: str = "hybrid" # pymupdf | docling | hybrid for born-digital PDF content
+    pdf_reader_enable_ocr: bool = False
+    pdf_reader_extract_images: bool = False
+    runtime_yaml: Optional[Dict] = None
     
     # Output organization
     organize_by_type: bool = True      # Organize output by original file type
@@ -937,15 +941,39 @@ class DocumentNormalizer:
         parsed_output_dir.mkdir(parents=True, exist_ok=True)
 
         try:
+            content_source = (
+                os.getenv("PDF_READER_CONTENT_SOURCE")
+                or self.config.pdf_content_source
+                or "hybrid"
+            ).strip().lower()
+            if content_source not in {"pymupdf", "docling", "hybrid"}:
+                print(
+                    f"  WARNING: invalid PDF_READER_CONTENT_SOURCE={content_source!r}; "
+                    "falling back to hybrid"
+                )
+                content_source = "hybrid"
+
+            enable_ocr = bool(self.config.pdf_reader_enable_ocr)
+            extract_images = bool(self.config.pdf_reader_extract_images)
+            print(
+                "  → PDF content extraction: "
+                f"{content_source} (ocr={enable_ocr}, images={extract_images})"
+            )
+
             reader = CustomPdfReader(
                 CustomPdfConfig(
-                    enable_ocr=False,
-                    extract_images=False,
+                    enable_ocr=enable_ocr,
+                    extract_images=extract_images,
                     extract_tables=False,
-                    content_source="pymupdf",
+                    content_source=content_source,
+                    runtime_yaml=self.config.runtime_yaml,
                 )
             )
-            tree = reader.read(str(file_path), output_dir=str(parsed_output_dir), skip_ocr=True)
+            tree = reader.read(
+                str(file_path),
+                output_dir=str(parsed_output_dir),
+                skip_ocr=not enable_ocr,
+            )
 
             out_json = self.pdf_parsed_dir / f"{stem}.json"
             with open(out_json, "w", encoding="utf-8") as f:

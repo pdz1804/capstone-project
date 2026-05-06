@@ -20,6 +20,12 @@ class ModelPrice:
 
 MODEL_PRICES: List[ModelPrice] = [
     ModelPrice(
+        model_id="zai.glm-4.7",
+        display_name="Z.AI GLM 4.7",
+        input_price_per_million=0.60,
+        output_price_per_million=2.20,
+    ),
+    ModelPrice(
         model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0",
         display_name="Claude Haiku 4.5",
         input_price_per_million=1.00,
