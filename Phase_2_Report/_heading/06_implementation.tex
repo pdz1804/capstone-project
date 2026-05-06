@@ -1,4 +1,4 @@
-\chapter{Implementation}
+﻿\chapter{Implementation}
 
 % \textbf{Phase 1 Scope and Objectives:} This chapter presents the initial implementation phase of the MRAG system. In Phase 1, the primary focus is on \textbf{establishing and validating the core system architecture}, including the data processing pipeline, embedding strategies, and retrieval mechanisms. The implementation prioritizes architectural feasibility and functional correctness. Advanced considerations such as production-grade application development, optimized database storage solutions, and comprehensive system optimization are deliberately deferred to Phase 2. This phased approach allows for iterative refinement based on empirical evaluation of the foundational architecture before committing to infrastructure-level optimizations.
 
@@ -38,7 +38,7 @@ Phase 2 involved a fundamental \textbf{architectural refactoring}, transitioning
 
 The following table summarizes the key technical transitions between the two phases:
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Technical Comparison: Phase 1 (Baseline) vs. Phase 2 (Production)}
     \label{tab:phase_comparison}
@@ -65,7 +65,7 @@ This strategic transition from a local-first prototype to a cloud-native platfor
 
 In addition to the architectural evolution, Phase 2 integrated several production-grade milestones that were absent in the Phase 1 prototype. This included the delivery of a \textbf{complete full-stack application} with a comprehensive suite of functionalities. This was further supported by a rigorous \textbf{technology selection} process for high-concurrency frameworks, the implementation of automated \textbf{CI/CD pipelines} and \textbf{system deployment} via GitHub Actions and AWS ECS, a multi-layered \textbf{testing} strategy (covering unit, data validation, and performance metrics), and a comprehensive \textbf{cost estimation} model to ensure operational viability. These enhancements transition the system from a research tool into a sustainable service.
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Operational and Management Milestones (Phase 2)}
     \label{tab:phase2_milestones}
@@ -110,7 +110,7 @@ At the core of the system lies the \texttt{UnifiedRAGPipeline} class. This compo
     \item \textbf{Dependency Injection}: The orchestrator initializes and injects dependencies into the sub-modules, ensuring that the \textit{RetrieverManager} and \textit{Generator} share the same configuration context (e.g., chunk sizes and overlaps).
 \end{itemize}
 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=0.75\textwidth]{img/pdz/72-search-flow.png}
 %     \caption[Search and Generation Orchestration Flow]{Search and Generation Orchestration Flow.}
@@ -128,7 +128,7 @@ The implementation utilizes a \textbf{Hybrid Cloud Storage Architecture}. Unlike
     \item \textbf{Cache Management}: A \texttt{.processing\_cache.json} file tracks the hash of processed inputs, enabling idempotent re-runs and deduplication.
 \end{itemize}
 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=0.5\textwidth]{img/pdz/73-local-vs-cloud.png}
 %     \caption[Hybrid Storage Architecture (Local vs. Cloud)]{Hybrid Storage Architecture (Local vs. Cloud).}
@@ -141,7 +141,7 @@ The implementation utilizes a \textbf{Hybrid Cloud Storage Architecture}. Unlike
 The system logic is divided into two specialized engines that operate in parallel during query execution:
 
 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=0.75\textwidth]{img/pdz/70-retrieval-systems.png}
 %     \caption[Retrieval Systems]{Retrieval Systems.}
@@ -157,7 +157,7 @@ The text retrieval engine has been optimized for multi-tenant cloud deployment u
     
     \item \textbf{Reranking}: Globally disabled by default (\texttt{skip\_reranker=true}) for latency optimization. The reranker code (\texttt{bge-reranker-large}) is retained for fast rollback if needed.
     
-    % \begin{figure}[H]
+    % \begin{figure}[!ht]
     %     \centering
     %     \includegraphics[width=0.55\textwidth]{img/pdz/71-reranking.png}
     %     \caption[Cross-Encoder Reranking Architecture]{Cross-Encoder Reranking Architecture.}
@@ -229,7 +229,7 @@ To handle temporal media, the system implements a two-step transformation:
 \begin{itemize}
     \item \textbf{Video Extraction}: Raw video files (e.g., MP4) are processed using \textbf{MoviePy}. This extractor separates the visual stream from the audio stream, outputting a \texttt{.WAV} file for transcription and an optional image thumbnail.
     
-    \begin{figure}[H]
+    \begin{figure}[!ht]
         \centering
         \includegraphics[width=1\textwidth]{img/pdz/23-movipy.png}
         \caption[MoviePy Extraction Process]{MoviePy Extraction Process.}
@@ -238,7 +238,7 @@ To handle temporal media, the system implements a two-step transformation:
     
     \item \textbf{Audio Transcription}: The extracted audio or raw \texttt{.WAV} files are passed to \textbf{OpenAI Whisper} ASR engine. Whisper transcribes the speech to text, which is immediately serialized into \textbf{Markdown} format to preserve semantic structure.
     
-    \begin{figure}[H]
+    \begin{figure}[!ht]
         \centering
         \includegraphics[width=1\textwidth]{img/pdz/24-whisper.png}
         \caption[OpenAI Whisper Audio Transcription Process]{OpenAI Whisper Audio Transcription Process.}
@@ -250,7 +250,7 @@ To handle temporal media, the system implements a two-step transformation:
 \textbf{Office Document Normalization}
 
 Legacy office formats require conversion before structural analysis. The system utilizes \textbf{LibreOffice} in a headless server environment.
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/25-libre.png}
     \caption[LibreOffice Document Conversion Process]{LibreOffice Document Conversion Process.}
@@ -263,7 +263,7 @@ Formats such as Microsoft Word (.DOC), PowerPoint (.PPT), and HTML are normalize
 
 For data-dense documents, the pipeline integrates \textbf{Docling} as the central parsing engine:
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/26-docling.png}
     \caption[Docling Document Parsing Process]{Docling Document Parsing Process.}
@@ -294,7 +294,7 @@ The output of this step is a standardized set of \textbf{PDF} files (for visual 
 
 The following sections detail each stage of the pipeline, including stage-specific logic, conditional execution rules, and output structures.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.2\textwidth]{{img/pdz/Report 252 Diagram-Pipeline Architecture Overview.drawio.png}}
     \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
@@ -306,14 +306,14 @@ The following sections detail each stage of the pipeline, including stage-specif
 
 This section documents the complete 7-stage processing pipeline in detail, including stage-specific logic, conditional execution rules, and output structures.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Complete Pipeline Architecture.drawio.png}}
     \caption[7-Stage Processing Pipeline Model]{7-Stage Processing Pipeline Model.}
     \label{fig:pipeline_model}
 \end{figure}
 
-\begin{table}[H]
+\begin{table}[!ht]
 \centering
 \caption[Summary Table: All Stages \& Processing]{Summary of input, processors, and special features for each pipeline stage.}
 \label{tab:pipeline_summary}
@@ -353,7 +353,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 
 \textbf{Processing Logic}:
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
     \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
@@ -361,7 +361,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \end{figure}
 
 
-\begin{table}[H]
+\begin{table}[!ht]
 \centering
 \caption[Stage 1 File Type Routing and Normalization]{Stage 1 routing logic for different input formats.}
 \label{tab:stage1_routing}
@@ -372,14 +372,14 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 DOCX / DOC & File extension & LibreOffice + Docling & \checkmark & \checkmark (Stage 3c) \\
 XLSX / XLS & File extension & LibreOffice + Docling & \checkmark & \checkmark (Stage 3b) \\
 PDF (Digital) & PDF header check & Copy + Docling & \checkmark & \checkmark (Stage 3d) \\
-PPTX / PPT & File extension & LibreOffice & \checkmark & — \\
-HTML & MIME type & BeautifulSoup + Docling & \checkmark & — \\
-Markdown & Extension & Copy as-is & — & — \\
-TXT & Extension & Copy as-is & — & — \\
-CSV & Extension & Pandas & — & — \\
-Images (JPG, PNG) & Extension & img2pdf & \checkmark & — \\
-Video (MP4, AVI) & Extension & MoviePy (audio extraction) & — & — (→ Stage 2) \\
-Audio (WAV, MP3) & Extension & Pass-through & — & — (→ Stage 2) \\
+PPTX / PPT & File extension & LibreOffice & \checkmark & â€” \\
+HTML & MIME type & BeautifulSoup + Docling & \checkmark & â€” \\
+Markdown & Extension & Copy as-is & â€” & â€” \\
+TXT & Extension & Copy as-is & â€” & â€” \\
+CSV & Extension & Pandas & â€” & â€” \\
+Images (JPG, PNG) & Extension & img2pdf & \checkmark & â€” \\
+Video (MP4, AVI) & Extension & MoviePy (audio extraction) & â€” & â€” (â†’ Stage 2) \\
+Audio (WAV, MP3) & Extension & Pass-through & â€” & â€” (â†’ Stage 2) \\
 \bottomrule
 \end{tabular}%
 }
@@ -409,7 +409,7 @@ Audio (WAV, MP3) & Extension & Pass-through & — & — (→ Stage 2) \\
 
 \textbf{Processing Pipeline}:
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.75\textwidth]{{img/pdz/Report 252 Diagram-Media Processing Flow.drawio.png}}
     \caption[Stage 2: Media Processing Workflow]{Stage 2: Media Processing Workflow.}
@@ -417,7 +417,7 @@ Audio (WAV, MP3) & Extension & Pass-through & — & — (→ Stage 2) \\
 \end{figure}
 
 
-\begin{table}[H]
+\begin{table}[!ht]
 \centering
 \caption[Stage 2 Media Processing Workflow]{Media processing steps and transformations.}
 \label{tab:stage2_media}
@@ -454,7 +454,7 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
 
 \subsection{Stage 3: Main Document Processing (Docling)}
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Processing Decision Flow.drawio.png}}
     \caption[Processing Decision Flow for Multimodal Inputs]{Processing Decision Flow for Multimodal Inputs.}
@@ -470,7 +470,7 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
 
 Docling DocumentConverter supports these 10 format families:
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Docling DocumentConverter.drawio.png}}
     \caption[Docling DocumentProcessorV2 Supported Input Formats]{Docling DocumentProcessorV2 Supported Input Formats}
@@ -479,7 +479,7 @@ Docling DocumentConverter supports these 10 format families:
 
 Docling analyzes all normalized documents, with intelligent conditional skipping for documents already processed by Stages 3b/3c/3d (via smart deduplication).
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Smart Deduplication Logic.drawio.png}}
     \caption[Stage 3 Smart Deduplication Logic]{Stage 3 Smart Deduplication Logic.}
@@ -488,7 +488,7 @@ Docling analyzes all normalized documents, with intelligent conditional skipping
 
 For documents NOT in the custom parser output directories, Docling performs full structural analysis. This stage utilizes the \textbf{DocumentProcessorV2} unified router, which automatically selects the optimal backend for each file type:
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-DocumentProcessorV2 Unified Router.drawio.png}}
     \caption[DocumentProcessorV2 Unified Router]{DocumentProcessorV2 Unified Router.}
@@ -516,7 +516,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 \textbf{Purpose}: Parse Excel workbooks using custom XML parser to preserve table structure, column headers, and quantitative relationships.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
     \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
@@ -545,7 +545,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 \textbf{Purpose}: Parse Word documents using custom XML parser to respect heading hierarchies and preserve document structure.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
     \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
@@ -573,7 +573,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 \textbf{Purpose}: Parse born-digital PDFs with internal structure to preserve page references and section hierarchies.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
     \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
@@ -609,7 +609,7 @@ For documents NOT in the custom parser output directories, Docling performs full
     \item \textbf{Create index}: Generate \texttt{chunks.json} with all text and \texttt{metadata.json} with complete provenance tracking
 \end{enumerate}
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/69-consolidation-logic.png}
     \caption[Stage 4: RAG-Ready Consolidation Logic]{Stage 4: RAG-Ready Consolidation Logic.}
@@ -632,7 +632,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 % Create searchable indexes from RAG-ready content using three systems: dense text embeddings (Qdrant), keyword search (BM25), and image embeddings (ColQwen) for visual retrieval.
 
-% \begin{table}[H]
+% \begin{table}[!ht]
 % \centering
 % \caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
 % \label{tab:indexing_artifacts}
@@ -640,7 +640,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 % \begin{tabular}{@{}llll@{}}
 % \toprule
 % \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
+% BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
 % Dense Index (Text) & FAISS IndexFlatIP & Binary file (\texttt{.bin}) & Cosine similarity, nearest-neighbor search \\
 % Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 % Visual Index (Images) & ColQwen multi-vectors & Tensor store (\texttt{.bin}) & Late-interaction MaxSim matching \\
@@ -650,7 +650,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 % }
 % \end{table}
 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=1\textwidth]{img/pdz/70-retrieval-systems.png}
 %     \caption[Indexing Pipeline: Text and Image Indexing]{Indexing Pipeline: Text and Image Indexing.}
@@ -659,7 +659,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 % \textbf{Text Indexing Workflow}:
 % \begin{enumerate}
-%     \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
+%     \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) â†’ 384-dimensional vectors
 %     \item BM25 inverted index built from chunk text (keyword search)
 %     \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
 %     \item Hybrid index pre-computed via RRF fusion for fast query-time execution
@@ -678,14 +678,14 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 % As defined in the system architecture, reranking is \textbf{globally disabled} (\texttt{SKIP\_RERANKER=true} by default) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during search to maintain sub-second response times.
 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=0.55\textwidth]{img/pdz/71-reranking.png}
 %     \caption[Cross-Encoder Reranking Architecture]{Cross-Encoder Reranking Architecture.}
 %     \label{fig:reranking_arch}
 % \end{figure}
 
-% \begin{table}[H]
+% \begin{table}[!ht]
 % \centering
 % \caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
 % \label{tab:indexing_artifacts}
@@ -693,7 +693,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 % \begin{tabular}{@{}llll@{}}
 % \toprule
 % \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
+% BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
 % Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
 % Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 % Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
@@ -725,7 +725,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 %     \item \textbf{Hybrid Retrieval}: Merges the results of dense and sparse retrievers using a weighted fusion approach. In Phase 2, the system utilizes an alpha weight of 0.5, providing a balanced trade-off between keyword precision and semantic recall.
 % \end{itemize}
 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=1\textwidth]{img/pdz/72-search-flow.png}
 %     \caption[Search and Retrieval Pipeline Flow]{Search and Retrieval Pipeline Flow.}
@@ -760,7 +760,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 % Phase 2 implements a \textbf{hybrid storage model} combining local processing cache with cloud canonical storage:
 
-% \begin{table}[H]
+% \begin{table}[!ht]
 % \centering
 % \caption[Hybrid Storage Architecture]{Local vs. Cloud storage division of responsibility.}
 % \label{tab:storage_architecture}
@@ -777,7 +777,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 % }
 % \end{table}
 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=1\textwidth]{img/pdz/73-local-vs-cloud.png}
 %     \caption[Storage Architecture: Local vs. Cloud]{Storage Architecture: Local vs. Cloud.}
@@ -855,7 +855,7 @@ The system employs different chunking strategies depending on the source documen
 
 To process the Markdown inputs, the system utilizes a high-precision splitting strategy designed to maximize retrieval relevance.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/20-textchunk.png}
     \caption[Textual Chunking and Embedding]{Textual Chunking and Embedding.}
@@ -908,7 +908,7 @@ These intermediate image files are stored temporarily to facilitate the vision-b
 
 The visual pathway processes the page images generated to enable multimodal retrieval.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/21-visualemb.png}
     \caption[Visual Embedding (ColQwen)]{Visual Embedding (ColQwen).}
@@ -943,7 +943,7 @@ The text and visual embedding pipelines together constitute the dual-pathway ind
 
 The consolidation and indexing pipeline transforms RAG-ready chunks into searchable indices through a dual-pathway approach:
 
-\begin{table}[H]
+\begin{table}[!ht]
 \centering
 \caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
 \label{tab:indexing_artifacts}
@@ -951,7 +951,7 @@ The consolidation and indexing pipeline transforms RAG-ready chunks into searcha
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
+BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
 Dense Index (Text) & FAISS IndexFlatIP & Binary file (\texttt{.bin}) & Cosine similarity, nearest-neighbor search \\
 Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 Visual Index (Images) & ColQwen multi-vectors & Tensor store (\texttt{.bin}) & Late-interaction MaxSim matching \\
@@ -963,7 +963,7 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
 
 \textbf{Text Indexing Workflow}:
 \begin{enumerate}
-    \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
+    \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) â†’ 384-dimensional vectors
     \item BM25 inverted index built from chunk text (keyword search)
     \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
     \item Hybrid index pre-computed via RRF fusion for fast query-time execution
@@ -981,14 +981,14 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
 
 As defined in the system architecture, reranking is \textbf{globally disabled} (\texttt{SKIP\_RERANKER=true} by default) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during search to maintain sub-second response times.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.45\textwidth]{img/pdz/Report 252 Diagram-Reranking.drawio.png}
     \caption[Reranking Architecture]{Reranking Architecture.}
     \label{fig:reranking_arch}
 \end{figure}
 
-% \begin{table}[H]
+% \begin{table}[!ht]
 % \centering
 % \caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
 % \label{tab:indexing_artifacts}
@@ -996,7 +996,7 @@ As defined in the system architecture, reranking is \textbf{globally disabled} (
 % \begin{tabular}{@{}llll@{}}
 % \toprule
 % \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
+% BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
 % Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
 % Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 % Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
@@ -1028,7 +1028,7 @@ The system supports three primary retrieval modalities to address different quer
     \item \textbf{Hybrid Retrieval}: Merges the results of dense and sparse retrievers using a weighted fusion approach. In Phase 2, the system utilizes an alpha weight of 0.5, providing a balanced trade-off between keyword precision and semantic recall.
 \end{itemize}
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.8\textwidth]{img/pdz/Report 252 Diagram-Search Flow.drawio.png}
     \caption[Search and Retrieval Pipeline Flow]{Search and Retrieval Pipeline Flow.}
@@ -1063,7 +1063,7 @@ Every search response follows a standardized schema that integrates synthesized 
 
 Phase 2 implements a \textbf{hybrid storage model} combining local processing cache with cloud canonical storage:
 
-\begin{table}[H]
+\begin{table}[!ht]
 \centering
 \caption[Hybrid Storage Architecture]{Local vs. Cloud storage division of responsibility.}
 \label{tab:storage_architecture}
@@ -1145,7 +1145,7 @@ With asynchronous job processing established as the infrastructure for long-runn
 
 % The \texttt{ChatHistoryRepository} implements two-table schema for efficiency:
 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \small
 %     \begin{tabular}{p{2cm}p{3cm}p{5cm}}
@@ -1224,7 +1224,7 @@ The system implementation requires a robust schema design to manage heterogeneou
 \subsection{Schema Property Definitions}
 Before detailing the specific collection structures, we define the properties utilized within our schema tables to ensure technical clarity.
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Schema properties used in implementation documentation}
     \label{tab:schema_props}
@@ -1262,7 +1262,7 @@ To support our Hybrid + Multimodal retrieval strategy, we segregate embeddings i
 
 \textbf{Collection: \texttt{edu\_text\_chunks}}
 Stores granular textual chunks extracted from structured Markdown documents. It utilizes a hybrid search approach, combining sparse keyword indexing with the following dense vector configuration.
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Text Vector Collection Properties}
     \label{tab:qdrant_text}
@@ -1276,7 +1276,7 @@ Stores granular textual chunks extracted from structured Markdown documents. It 
 \end{table}
 
 Each indexed text chunk retains critical metadata necessary for strict multi-tenant filtering and file attribution during generative retrieval:
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Text Collection Schema Structure}
     \label{tab:qdrant_text_schema}
@@ -1298,7 +1298,7 @@ Each indexed text chunk retains critical metadata necessary for strict multi-ten
 
 \textbf{Collection: \texttt{edu\_image\_pages}}
 Dedicated to storing high-order visual layouts. It leverages a unique multi-vector representation generated directly from the ColQwen vision-language model, enabling direct visual similarity searches against original PDF structures.
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Image Vector Collection Properties}
     \label{tab:qdrant_image}
@@ -1330,7 +1330,7 @@ Where:
 For a standard processing resolution of $1024 \times 1024$ pixels, $x \approx 5,329$ vectors. This high-density representation ensures that fine-grained structural elements, such as table cells and chart labels, remain distinctly searchable during the late-interaction phase.
 
 The visual index maintains geometric representations (height/width) alongside S3 references, allowing the orchestration layer to securely retrieve the original page images for multimodal language models:
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Image Collection Schema Structure}
     \label{tab:qdrant_image_schema}
@@ -1366,7 +1366,7 @@ The system utilizes a dual-bucket object storage architecture to manage the life
     The orchestration layer manages the synchronization between these buckets, downloading assets to a local temporary workspace for high-speed processing before publishing the final RAG-ready documents to the Processed Bucket.
 \end{itemize}
 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \begin{forest}
 %       for tree={
@@ -1441,45 +1441,45 @@ The system utilizes a dual-bucket object storage architecture to manage the life
 
 % \markdownInput{markdown/s3.md}
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
 
     \begin{verbatim}
     S3/
-    ├── ai-service-originals-dev/         # Bucket for raw document ingestion
-    │   └── users/{uid}/                  # Logical user-tenant isolation
-    │       ├── {doc_name}.pdf            # Original source document
-    │       └── {doc_name}.pdf.metadata.json # Ingestion time & file provenance
-    └── ai-service-processed-dev/         # Bucket for pipeline artifacts
-        └── users/{uid}/
-            ├── .processing_cache.json    # Idempotency and deduplication tracking
-            ├── pipeline_stats.json       # Telemetry and processing performance
-            ├── stage1_normalized/        # Standardized PDF & structured data
-            │   ├── normalized_pdfs/      # Unified format for visual processing
-            │   ├── excel_parsed/         # Structured tables from Office files
-            │   ├── original_files/       # Internal reference copy
-            │   └── normalization_metadata/
-            ├── stage2_media_processed/   # Extracted audiovisual artifacts
-            │   ├── extracted_audio/      # Raw audio for Whisper transcription
-            │   ├── extracted_frames/     # Visual frames for late-interaction RAG
-            │   ├── transcripts/          # ASR textual outputs
-            │   └── media_metadata/       # Temporal feature mapping
-            ├── stage3_document_processed/# Structural Markdown outputs
-            │   ├── {doc_name}/
-            │   │   ├── {doc_name}.md     # Cleaned semantic Markdown
-            │   │   └── {doc_name}_metadata.json
-            │   └── logs/                 # Granular stage-level logs
-            │       ├── batch_summary_*.json
-            │       └── processing_*.log
-            ├── stage4_rag_ready/         # Optimized artifacts for RAG engine
-            │   ├── {doc_name}/
-            │   │   ├── {doc_name}.md     # Final semantic text
-            │   │   ├── {doc_name}.pdf    # Optimized PDF for visual retrieval
-            │   │   └── docling_additional/
-            │   └── consolidation_stats.json
-            └── retrieval/                # Secondary persistence for search indices
-                ├── bm25_index.pkl        # Serialized sparse search index
-                └── documents.json.pkl    # Document lookup table
+    â”œâ”€â”€ ai-service-originals-dev/         # Bucket for raw document ingestion
+    â”‚   â””â”€â”€ users/{uid}/                  # Logical user-tenant isolation
+    â”‚       â”œâ”€â”€ {doc_name}.pdf            # Original source document
+    â”‚       â””â”€â”€ {doc_name}.pdf.metadata.json # Ingestion time & file provenance
+    â””â”€â”€ ai-service-processed-dev/         # Bucket for pipeline artifacts
+        â””â”€â”€ users/{uid}/
+            â”œâ”€â”€ .processing_cache.json    # Idempotency and deduplication tracking
+            â”œâ”€â”€ pipeline_stats.json       # Telemetry and processing performance
+            â”œâ”€â”€ stage1_normalized/        # Standardized PDF & structured data
+            â”‚   â”œâ”€â”€ normalized_pdfs/      # Unified format for visual processing
+            â”‚   â”œâ”€â”€ excel_parsed/         # Structured tables from Office files
+            â”‚   â”œâ”€â”€ original_files/       # Internal reference copy
+            â”‚   â””â”€â”€ normalization_metadata/
+            â”œâ”€â”€ stage2_media_processed/   # Extracted audiovisual artifacts
+            â”‚   â”œâ”€â”€ extracted_audio/      # Raw audio for Whisper transcription
+            â”‚   â”œâ”€â”€ extracted_frames/     # Visual frames for late-interaction RAG
+            â”‚   â”œâ”€â”€ transcripts/          # ASR textual outputs
+            â”‚   â””â”€â”€ media_metadata/       # Temporal feature mapping
+            â”œâ”€â”€ stage3_document_processed/# Structural Markdown outputs
+            â”‚   â”œâ”€â”€ {doc_name}/
+            â”‚   â”‚   â”œâ”€â”€ {doc_name}.md     # Cleaned semantic Markdown
+            â”‚   â”‚   â””â”€â”€ {doc_name}_metadata.json
+            â”‚   â””â”€â”€ logs/                 # Granular stage-level logs
+            â”‚       â”œâ”€â”€ batch_summary_*.json
+            â”‚       â””â”€â”€ processing_*.log
+            â”œâ”€â”€ stage4_rag_ready/         # Optimized artifacts for RAG engine
+            â”‚   â”œâ”€â”€ {doc_name}/
+            â”‚   â”‚   â”œâ”€â”€ {doc_name}.md     # Final semantic text
+            â”‚   â”‚   â”œâ”€â”€ {doc_name}.pdf    # Optimized PDF for visual retrieval
+            â”‚   â”‚   â””â”€â”€ docling_additional/
+            â”‚   â””â”€â”€ consolidation_stats.json
+            â””â”€â”€ retrieval/                # Secondary persistence for search indices
+                â”œâ”€â”€ bm25_index.pkl        # Serialized sparse search index
+                â””â”€â”€ documents.json.pkl    # Document lookup table
     \end{verbatim}
 
     \caption{Amazon S3 Directory Structure Tree}
@@ -1540,7 +1540,7 @@ Stateful operations are managed through a unified cloud architecture, primarily 
 \textbf{User Profile Table}
 Following the Phase 2 architectural consolidation, core identity profiles have been migrated to \textbf{Amazon DynamoDB} under the table name \texttt{phase2-merge-users}. This shift ensures that user profile data resides within the same high-availability cloud ecosystem as conversational state, facilitating unified data management. The profile information is critical as it provides the necessary context for the generative engine, allowing the system to tailor responses based on user-defined education levels and persona traits.
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{User Profile Schema}
     \label{tab:user_profiles}
@@ -1571,7 +1571,7 @@ Following the Phase 2 architectural consolidation, core identity profiles have b
 \textbf{Chatbot Sessions Table}
 To organize chat histories per user and enable high-performance session retrieval, we developed an optimized \textbf{Amazon DynamoDB} table (name: \texttt{chatbot-sessions}). This schema supports stateful UI rendering by tracking the most recent interactions across all user conversational threads.
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Chatbot Sessions Schema}
     \label{tab:chat_sessions}
@@ -1599,7 +1599,7 @@ To organize chat histories per user and enable high-performance session retrieva
 \textbf{Chatbot Messages Table}
 Individual conversational turns (prompts and AI responses) are persisted in a dedicated \textbf{Amazon DynamoDB} table (name: \texttt{chatbot-messages}). This table utilizes a composite key structure to ensure strict message ordering and multi-tenant isolation, allowing the retrieval engine to reconstruct full dialogue histories for the multimodal assistant.
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Chatbot Messages Schema}
     \label{tab:chat_messages}
@@ -1625,7 +1625,7 @@ Individual conversational turns (prompts and AI responses) are persisted in a de
 \textbf{Quiz Results Table}
 To facilitate academic tracking and monitor instructional efficacy, the system utilizes a dedicated \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_quiz\_results}) to store outcomes of generated assessments. This allows for long-term tracking of user proficiency across specific document contexts.
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Quiz Results Schema}
     \label{tab:quiz_results}
@@ -1650,7 +1650,7 @@ To facilitate academic tracking and monitor instructional efficacy, the system u
 \textbf{Feedback Table}
 To facilitate continuous improvement and capture user sentiment, a specialized \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_feedback}) is utilized. This table stores granular feedback on individual conversational turns, including AI-driven classifications of the feedback reasons and suggested remedial actions.
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Feedback Schema}
     \label{tab:feedback_results}
@@ -1687,7 +1687,7 @@ To facilitate continuous improvement and capture user sentiment, a specialized \
 \textbf{App Usage Table}
 To monitor system performance, track resource consumption, and estimate operational costs, the system utilizes an \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_app\_usage}). This table logs granular telemetry for every AI-driven request, capturing token counts, latency metrics, and estimated financial impact.
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{App Usage Schema}
     \label{tab:app_usage}
@@ -1718,9 +1718,9 @@ To monitor system performance, track resource consumption, and estimate operatio
 \newpage
 
 \textbf{App Jobs Table}
-To manage long-running asynchronous tasks—such as full-document re-indexing, multimodal extraction, or batch analysis—the system utilizes an \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_app\_jobs}). This table acts as a task registry, tracking the lifecycle and progress of background operations to ensure system resilience and provide real-time status updates to the user interface.
+To manage long-running asynchronous tasksâ€”such as full-document re-indexing, multimodal extraction, or batch analysisâ€”the system utilizes an \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_app\_jobs}). This table acts as a task registry, tracking the lifecycle and progress of background operations to ensure system resilience and provide real-time status updates to the user interface.
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{App Jobs Schema}
     \label{tab:app_jobs}
@@ -1755,7 +1755,7 @@ The core API, built with FastAPI, serves as the communication backend between th
 
 The generative synthesis layer is powered by Large Language Models orchestrated via AWS Bedrock and OpenAI providers. The following hyperparameters are tuned per service to balance factual grounding with appropriate response variety. The model identifier is configurable via environment variable, supporting both Claude 3.5 Sonnet (via Bedrock) and GPT-4o (via OpenAI).
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{LLM Generation Hyperparameters by Service}
     \label{tab:llm_hyperparameters}
@@ -1779,7 +1779,7 @@ Temperature controls creativity: factual services (Summary, MCQ, Roadmap) use 0.
 % 
 % The generative synthesis layer is powered by Large Language Models (LLMs) orchestrated via the Bedrock and OpenAI providers. To ensure consistent output quality, factual grounding, and adherence to specific educational personas, the system employs a set of tuned hyperparameters. These parameters are dynamically adjusted based on the specific service being invoked to balance creative engagement with factual precision.
 % 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \caption{LLM Hyperparameters for Core System Services}
 %     \label{tab:llm_hyperparameters}
@@ -1807,7 +1807,7 @@ Temperature controls creativity: factual services (Summary, MCQ, Roadmap) use 0.
 
 \subsection{API Endpoint Overview}
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{Mapping of System Interface Tabs to Core API Services}
     \label{tab:ui_api_mapping}
@@ -2153,7 +2153,7 @@ The system is deployed as a cloud-native application on a hybrid multi-cloud inf
 
 The deployment strategy prioritizes both operational excellence and security. Every code change undergoes automated testing and validation before reaching production. Containerization ensures environment parity between development and production environments, eliminating the ``works on my machine'' problem that plagues many deployments. Encryption is enforced at multiple layers: in-transit via TLS, at-rest via AWS-managed encryption keys, and for application data via JWT-based authentication. The infrastructure also integrates comprehensive observability through AWS CloudWatch, enabling real-time monitoring of system health and rapid incident response.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/28-Deployment Diagram_v3.png}
     \caption[System Deployment Architecture]{System Deployment Architecture Diagram.}
@@ -2287,7 +2287,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % Furthermore, industry surveys consistently demonstrate React's dominant position. Stack Overflow's 2023 survey showed that 42.87\% of professional developers use React, compared to 17.64\% for Vue.js. This larger talent pool is a pragmatic and significant advantage for a university-based project like us.
 % 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=1\textwidth]{img/pdz/33-react-survey.png}
 %     \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023)}
@@ -2352,7 +2352,7 @@ The combination of containerization, a private registry, and orchestration creat
 % \textbf{Head-to-Head Comparison Matrix}
 % The following table provides a clear, at-a-glance comparison to justify the selection of FastAPI for our specific application context.
 % 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \caption{FastAPI vs. Django Comparison for RAG Application}
 %     \label{tab:fastapi_vs_django}
@@ -2379,7 +2379,7 @@ The combination of containerization, a private registry, and orchestration creat
 % \textbf{Multi-Embedding Storage and MaxSim Execution}
 % The capacity to efficiently ingest, store, and query the multi-embeddings generated by ColPali is a primary differentiator among \textbf{Vector Databases}. While platforms like \textbf{Vespa} and \textbf{Milvus} offer robust native solutions via tensor formalism and unified data types respectively, \textbf{Qdrant} uniquely excels through its decoupling of storage and indexing. Acknowledging that indexing heavy multi-vector payloads via HNSW wastes compute and RAM, Qdrant allows architects to explicitly disable graph construction for these payloads. They are utilized exclusively for in-memory, query-time MaxSim reranking against candidates retrieved via a fast single-vector pass. This architectural brilliance prevents the database from collapsing under graph maintenance during ingestion, ensuring high-speed data loading and significantly reduced RAM overhead.
 % 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \caption{Multi-Vector Storage and MaxSim Implementation}
 %     \label{tab:multivector_impl}
@@ -2401,7 +2401,7 @@ The combination of containerization, a private registry, and orchestration creat
 % \textbf{Supported Search Mechanisms}
 % A robust multimodal database must support various search paradigms. All major platforms natively support dense, sparse (keyword), and hybrid search mechanisms. The critical differentiator is the underlying hybrid fusion algorithm. \textbf{Qdrant} stands out by supporting advanced fusion techniques such as Reciprocal Rank Fusion (RRF) and Distribution-Based Score Fusion (DBSF), intelligently balancing the unbounded scoring of BM25 against the normalized bounds of cosine similarity. Furthermore, Qdrant leads the industry in metadata filtering via its highly optimized payload indexing, allowing complex JSON-based logical conditions to intersect with vector search without compromising retrieval speed.
 % 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \caption{Search Mechanism Comparison}
 %     \label{tab:search_mechanisms}
@@ -2422,7 +2422,7 @@ The combination of containerization, a private registry, and orchestration creat
 % \textbf{Scalability, Latency, and Economics}
 % Transitioning to production demands rigorous evaluation of latency, scalability, and Total Cost of Ownership (TCO). Driven by its \textbf{Rust-based engine}, Qdrant demonstrates exceptional performance, maintaining 30-40 millisecond p95 latencies and sustaining 8,000 to 15,000 QPS, significantly outperforming Go-based alternatives in tail latency. Economically, Qdrant offers a generous perpetual free tier for prototyping and scales cost-effectively via custom sharding and the Raft consensus protocol, whereas enterprise solutions like Milvus and Vespa carry higher base infrastructure costs.
 % 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \caption{Cloud Scalability, Latency, and Economic Efficiency}
 %     \label{tab:scalability_econ}
@@ -2446,7 +2446,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \textbf{Final Selection and Strategic Recommendation}
 % 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \caption{Holistic Vector Database Comparison Summary}
 %     \label{tab:holistic_db_comp}
@@ -2474,7 +2474,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % To ensure the economic viability of the proposed system, we have established a baseline cost estimation based on a production-grade AWS deployment. The following table summarizes the key assumptions and resource allocations used to forecast the monthly operational expenditure for the \texttt{prod} environment in the \texttt{us-west-2} region, supporting an initial cohort of 50 active users.
 % 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \scalebox{0.8}{
 %     \begin{tabular}{lp{2.5cm}llp{8cm}}
@@ -2540,7 +2540,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % To ground our cost projections in current market rates, we utilize the following pricing reference for the specific AWS services and components used in our architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
 % 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \scalebox{0.8}{
 %     \begin{tabular}{lllp{3.4cm}p{6cm}}
@@ -2586,7 +2586,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
 % 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \scalebox{0.8}{
 %     \begin{tabular}{llp{1.6cm}p{2.7cm}p{4.4cm}rr}
@@ -2616,7 +2616,7 @@ The combination of containerization, a private registry, and orchestration creat
 %     \label{tab:monthly_cost_breakdown}
 % \end{table}
 % 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=1\textwidth]{img/pdz/31-pie-cost.png}
 %     \caption[Monthly Cost Breakdown Visualization]{Monthly Cost Breakdown Visualization (50 Users).}
@@ -2627,7 +2627,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % The following table provides a comparative analysis of GPU operational costs across different cloud providers. This estimation is based on a workload scenario of 50 active users, with each user initiating 20 requests per day and each request requiring 15 seconds of GPU inference time, totaling approximately 125 hours of GPU utilization per month.
 % 
-% \begin{table}[H]
+% \begin{table}[!ht]
 %     \centering
 %     \scalebox{0.8}{
 %     \begin{tabular}{llllrrr}
@@ -2651,14 +2651,14 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
 % 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=1\textwidth]{img/pdz/29-desktop performance.png}
 %     \caption[Desktop Performance Metrics]{Desktop Performance Metrics.}
 %     \label{fig:desktop_performance}
 % \end{figure}
 % 
-% \begin{figure}[H]
+% \begin{figure}[!ht]
 %     \centering
 %     \includegraphics[width=1\textwidth]{img/pdz/30-mobile performance.png}
 %     \caption[Mobile Performance Metrics]{Mobile Performance Metrics.}
@@ -2681,7 +2681,7 @@ The BK-MInD application is protected by AWS WAF, a managed Web Application Firew
 
 By placing the WAF at the ALB level, all inbound traffic is filtered before reaching application servers, providing early detection and blocking of malicious requests. The WAF operates using a default ``Allow'' action, meaning requests are allowed unless they match explicit protection rules. This approach balances security with legitimate user experience.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/47-aws-waf.jpg}
     \caption[AWS Web Application Firewall Architecture]{AWS Web Application Firewall (WAF) deployment architecture protecting the BK-MInD ALB.}
@@ -2701,14 +2701,14 @@ The protection pack implements five distinct security rules, each targeting a sp
 
     \item \textbf{Common Rule Set (Priority 3):} Implements the AWS adaptation of OWASP ModSecurity Core Rule Set (CRS) v3.2, providing industry-standard web application protection. Covers Cross-Site Scripting (XSS), Local File Inclusion (LFI), Remote Code Execution (RCE), and malformed HTTP requests.
 
-    \item \textbf{IP Reputation List (Priority 4):} Leverages the Amazon IP Reputation List—a continuously updated database of IPs known for malicious activity including botnet C\&C servers, malware distribution endpoints, and credential stuffing sources. Updated daily with false positive rate $<0.1\%$.
+    \item \textbf{IP Reputation List (Priority 4):} Leverages the Amazon IP Reputation Listâ€”a continuously updated database of IPs known for malicious activity including botnet C\&C servers, malware distribution endpoints, and credential stuffing sources. Updated daily with false positive rate $<0.1\%$.
 \end{enumerate}
 
 \textbf{Capacity and Performance}
 
-The WAF uses a consumption model based on Web ACL Capacity Units (WCUs). The current configuration consumes 1,129 WCUs out of a maximum capacity of 5,000 WCUs, representing 22.6\% utilization. This leaves significant headroom (3,871 WCUs) for future security enhancements. Performance testing shows that WAF processing adds only 1-5 milliseconds per request—less than 0.1\% of typical backend processing time (100-500ms) and imperceptible to end users.
+The WAF uses a consumption model based on Web ACL Capacity Units (WCUs). The current configuration consumes 1,129 WCUs out of a maximum capacity of 5,000 WCUs, representing 22.6\% utilization. This leaves significant headroom (3,871 WCUs) for future security enhancements. Performance testing shows that WAF processing adds only 1-5 milliseconds per requestâ€”less than 0.1\% of typical backend processing time (100-500ms) and imperceptible to end users.
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{WAF Capacity Utilization and Cost}
     \label{tab:waf_capacity}
@@ -2736,7 +2736,7 @@ When a request arrives at the ALB, the WAF sequentially evaluates it against all
 
 The WAF also implements a challenge mechanism using CAPTCHA for suspicious but not definitively malicious requests. Upon successful CAPTCHA completion, users receive a token valid for 300 seconds, allowing legitimate users to proceed while filtering automated attacks.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/50-waf-summary-view.png}
     \caption[WAF Summary Dashboard]{AWS WAF summary dashboard showing request volume, blocked requests, and CAPTCHA challenges.}
@@ -2754,7 +2754,7 @@ The WAF exports detailed metrics to AWS CloudWatch including counts of allowed r
 
 Blocked requests are logged to CloudWatch Logs for forensic analysis, including request details, matched rule, source IP, and timestamp. This enables security engineers to understand attack patterns and adjust configurations accordingly.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/51-waf-attack-type.png}
     \caption[WAF Attack Type Distribution]{WAF dashboard showing distribution of detected attack types.}
@@ -2769,7 +2769,7 @@ Blocked requests are logged to CloudWatch Logs for forensic analysis, including 
 
 While AWS WAF protects against technical network-layer attacks, BK-MInD requires additional protection at the application layer to ensure generated content remains appropriate for educational environments. This is implemented through AWS Bedrock Guardrails, which filter both user input (prompts) and model-generated output (responses) before reaching users. The guardrail configuration (\texttt{42ay3u3pr8vr}) is integrated into all Bedrock model inference calls, ensuring every interaction with AI models is protected.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/48-aws-bedrock-guardrail.jpg}
     \caption[AWS Bedrock Guardrail Architecture]{AWS Bedrock Guardrails providing application-level content filtering for AI model interactions.}
@@ -2837,7 +2837,7 @@ Guardrails are integrated into all AI-powered features through the Bedrock API i
 
 All communication between users and BK-MInD is encrypted using HTTPS (TLS 1.2+) with 256-bit encryption, preventing interception or modification during transmission. TLS encryption is enforced at the ALB level, which terminates HTTPS connections and forwards decrypted traffic to backend services.
 
-\textbf{Certificate Management:} TLS certificates are provisioned and managed through AWS Certificate Manager (ACM), a managed service that handles issuance, validation, and automatic renewal 30 days before expiration. The certificate covers the primary domain and includes Subject Alternative Names for subdomain coverage. DNS validation is used during provisioning—AWS generates unique CNAME records that are added to the domain registrar's configuration.
+\textbf{Certificate Management:} TLS certificates are provisioned and managed through AWS Certificate Manager (ACM), a managed service that handles issuance, validation, and automatic renewal 30 days before expiration. The certificate covers the primary domain and includes Subject Alternative Names for subdomain coverage. DNS validation is used during provisioningâ€”AWS generates unique CNAME records that are added to the domain registrar's configuration.
 
 \textbf{HTTP to HTTPS Enforcement:} All HTTP traffic (port 80) is redirected to HTTPS using permanent 301 redirects, ensuring all authenticated sessions and sensitive data transfers occur over encrypted connections.
 
@@ -2847,9 +2847,9 @@ All communication between users and BK-MInD is encrypted using HTTPS (TLS 1.2+) 
 
 Course materials and student records stored in AWS DynamoDB and Amazon S3 are encrypted at rest using server-side encryption. DynamoDB stores structured data including user profiles, chat history, and quiz results. S3 stores original uploaded files and processed artifacts. Both services support encryption by default, protecting data from unauthorized access in case of physical media compromise.
 
-AWS DynamoDB tables are configured with server-side encryption using AWS-managed keys. S3 buckets are configured with default encryption (SSE-S3 or SSE-KMS), encrypting all objects automatically. Both services handle encryption transparently—there is no additional application-layer encryption burden. Encrypted data is backed up in encrypted form, and restoration automatically maintains encryption protection.
+AWS DynamoDB tables are configured with server-side encryption using AWS-managed keys. S3 buckets are configured with default encryption (SSE-S3 or SSE-KMS), encrypting all objects automatically. Both services handle encryption transparentlyâ€”there is no additional application-layer encryption burden. Encrypted data is backed up in encrypted form, and restoration automatically maintains encryption protection.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/49-security-architecture.jpg}
     \caption[Comprehensive Security Architecture]{Multi-layered security architecture combining WAF, Bedrock Guardrails, and data encryption.}
@@ -2864,7 +2864,7 @@ AWS DynamoDB tables are configured with server-side encryption using AWS-managed
 
 The BK-MInD security implementation provides protection against all OWASP Top 10 (2021) threats:
 
-\begin{table}[H]
+\begin{table}[!ht]
     \centering
     \caption{OWASP Top 10 Protection Coverage}
     \label{tab:owasp_coverage}
@@ -2912,7 +2912,7 @@ Security testing validated that protective controls introduce minimal overhead:
 
 The architecture sustains 50,000+ requests per second without degradation, far exceeding deployment needs. The actual throughput bottleneck remains the backend application and database infrastructure, not security controls.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/53-waf-bot-detection.png}
     \caption[WAF Bot Detection Metrics]{WAF bot detection showing automated attack attempts blocked by security controls.}
@@ -2933,7 +2933,7 @@ BK-MInD has undergone security testing validating control effectiveness:
 
 All tests confirmed security controls function as designed with no false positives impacting legitimate educational use.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/55-waf-request-location.png}
     \caption[WAF Geographic Distribution]{WAF showing geographic distribution of requests and blocked traffic sources.}

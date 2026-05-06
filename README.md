@@ -23,103 +23,13 @@ Research-week folders (`Week03*`, `Week05*`, `Week07*`) map to these requirement
 
 ## 🏗️ System Architecture
 
-The following view aligns the implementation shape with the SRS: multimodal **ingest → process → index → retrieve → generate**, plus **auth**, **persistence**, and optional **AWS** hosting.
+BK-MInD follows a **six-tier Clean Architecture** pattern that separates concerns across distinct layers, enabling maintainability, testability, and independent scaling. The system is designed to achieve: **(1) multimodal data ingestion** from diverse educational materials, **(2) asynchronous processing** to support concurrent operations without bottlenecks, and **(3) production-grade security and scalability** on AWS infrastructure.
 
-```mermaid
-flowchart TB
-  subgraph users [Users]
-    Learner[Learner / Instructor]
-  end
+### High-Level System Architecture
 
-  subgraph presentation [Presentation layer TR-002]
-    WebUI["React + Vite + Tailwind (FR-021/022)"]
-    Auth["Auth: Firebase / session (NFR-007)"]
-  end
+The following diagram shows the complete system topology aligning with the SRS: multimodal **ingest → process → index → retrieve → generate**, organized across six architectural tiers plus cross-cutting concerns for auth, security, and persistence.
 
-  subgraph api [API layer TR-001]
-    GW["FastAPI: REST, jobs, health"]
-  end
-
-  subgraph processing [Content processing FR-001 to FR-008]
-    Ingest["Ingest: media, PDFs, Office (FR-021)"]
-    Norm["Normalize, dedupe (FR-006)"]
-    ASR["ASR + timed exports (FR-001)"]
-    Doc["Layout, OCR, optional VLM (FR-002/005)"]
-    Sheet["Spreadsheets to MD (FR-003/004)"]
-    AVAlign["Audio–slide sync (FR-007/008)"]
-    Corpus["Corpus: MD + PDF refs"]
-  end
-
-  subgraph indexing [Indexing TR-003]
-    TextChunk["Text chunks + metadata"]
-    ImgChunk["Image pages for VL retrieval"]
-    Vec["Vector DB e.g. Qdrant"]
-    Sparse["Sparse e.g. BM25"]
-    Obj["Blobs: S3 or local (TR-004)"]
-  end
-
-  subgraph retrieval [Retrieval FR-009 to FR-011]
-    QProc["Query understanding"]
-    TRet["BM25 / dense / hybrid"]
-    VRet["Visual retrieval (FR-010)"]
-    Fuse["Fusion + ranking"]
-  end
-
-  subgraph compute_optional [Optional GPU TR-007]
-    SM["SageMaker: Docling, Whisper, ColQwen"]
-  end
-
-  subgraph generation [QA and learning FR-012 to FR-027]
-    RAG["Answers + citations (FR-012/013)"]
-    Chat["Chat orchestration (FR-014)"]
-    Sum["Summaries + nav (FR-023/024)"]
-    Learn["Paths, quiz, dashboard (FR-025-027)"]
-    LLM["LLMs / APIs (TR-004)"]
-  end
-
-  subgraph nfr [Ops NFR / TR-006–007]
-    Docker["Containers + health (TR-006)"]
-    AWS["AWS: ECS, ALB, ECR, ACM, SM"]
-    Obs["Logs + monitoring (NFR-003)"]
-  end
-
-  Learner --> WebUI
-  WebUI --> Auth
-  WebUI --> GW
-  Auth --> GW
-  GW --> Ingest
-  Ingest --> Norm
-  Norm --> ASR
-  Norm --> Doc
-  Norm --> Sheet
-  ASR --> AVAlign
-  Doc --> AVAlign
-  Sheet --> Corpus
-  AVAlign --> Corpus
-  Corpus --> TextChunk
-  Corpus --> ImgChunk
-  TextChunk --> Vec
-  TextChunk --> Sparse
-  ImgChunk --> Vec
-  Corpus --> Obj
-  GW --> QProc
-  QProc --> TRet
-  QProc --> VRet
-  TRet --> Fuse
-  VRet --> Fuse
-  Doc -. optional remote .-> SM
-  ASR -. optional remote .-> SM
-  VRet -. optional remote .-> SM
-  Fuse --> RAG
-  RAG --> LLM
-  Chat --> QProc
-  Chat --> RAG
-  RAG --> Sum
-  RAG --> Learn
-  GW --> Obs
-  GW --> Docker
-  GW --> AWS
-```
+![BK-MInD High-Level Architecture - Six-Tier Clean Architecture](Phase_2_Report/img/pdz/Report%20252%20Diagram-High%20Level%20Architecture.png)
 
 **Layer summary**
 
@@ -133,6 +43,17 @@ flowchart TB
 | Deployment             | Containers, cloud LB TLS, optional managed GPU | TR-006–TR-007, NFR-002–NFR-003                 |
 
 For HTTPS and custom domains on AWS, see [`docs/deployment-alb-acm-custom-domain.md`](docs/deployment-alb-acm-custom-domain.md).
+
+---
+
+### AWS Deployment Architecture
+
+The latest deployment architecture (v3) shows production-grade cloud infrastructure on AWS with ECS Fargate, ALB, ElastiCache, vector databases, and auto-scaling:
+
+![AWS Deployment Architecture Diagram](docs/diagram/Deployment%20Diagram_v3.png)
+
+**Additional Diagrams:**
+- [`docs/diagram/`](docs/diagram/) — Complete diagram collection including document processing flows and system documentation
 
 ---
 
