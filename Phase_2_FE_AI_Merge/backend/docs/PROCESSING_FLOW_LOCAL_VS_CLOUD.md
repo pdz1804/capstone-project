@@ -188,7 +188,10 @@ Input selection logic (deduplicated):
 5. Skip Excel files already parsed by custom parser.
 
 ### Local Docling mode
-- Uses `MultimodalDocumentProcessor` (in-process Docling).
+- Uses in-process Docling.
+- Applies to both:
+  - `MultimodalDocumentProcessor` (legacy Stage 3 path)
+  - `DocumentProcessorV2` Docling-routed files/fallbacks
 - For each file:
   - Convert with Docling converter (fallback pipeline if primary fails).
   - Export markdown as `<doc>/<doc>.md`.
@@ -199,6 +202,7 @@ Input selection logic (deduplicated):
   - `USE_AWS_SAGEMAKER_DOCLING=true`
   - inference config flags
   - `processing.document.docling_backend: sagemaker`
+- Applies to both the legacy Stage 3 path and the V2 router's Docling branch.
 - Calls `invoke_sagemaker_docling()` with operation `process-document`.
 - Writes output via `write_docling_outputs_from_sagemaker()`:
   - `<doc>/<doc>.md`

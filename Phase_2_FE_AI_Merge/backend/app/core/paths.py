@@ -155,6 +155,17 @@ def merged_runtime_settings(yaml_config: Dict[str, Any] | None = None) -> Dict[s
     q = cfg.setdefault("qdrant", {})
     inf = cfg.setdefault("inference", {})
 
+    def _env_bool(name: str) -> bool | None:
+        raw = os.getenv(name)
+        if raw is None:
+            return None
+        value = raw.strip().lower()
+        if value in ("1", "true", "yes"):
+            return True
+        if value in ("0", "false", "no"):
+            return False
+        return None
+
     if os.getenv("QDRANT_MODE"):
         q["mode"] = os.getenv("QDRANT_MODE", "").strip().lower()
     if os.getenv("QDRANT_HOST"):
@@ -170,23 +181,23 @@ def merged_runtime_settings(yaml_config: Dict[str, Any] | None = None) -> Dict[s
     if os.getenv("QDRANT_IMAGE_COLLECTION"):
         q["image_collection"] = os.getenv("QDRANT_IMAGE_COLLECTION", "")
 
-    sm = os.getenv("USE_AWS_SAGEMAKER_INFERENCE", "").strip().lower() in ("1", "true", "yes")
-    if sm:
-        inf["use_aws_sagemaker"] = True
+    sm = _env_bool("USE_AWS_SAGEMAKER_INFERENCE")
+    if sm is not None:
+        inf["use_aws_sagemaker"] = sm
     if os.getenv("AWS_REGION"):
         inf["aws_region"] = os.getenv("AWS_REGION", "")
     if os.getenv("SAGEMAKER_ENDPOINT_NAME"):
         inf["sagemaker_endpoint_name"] = os.getenv("SAGEMAKER_ENDPOINT_NAME", "")
 
-    sm_doc = os.getenv("USE_AWS_SAGEMAKER_DOCLING", "").strip().lower() in ("1", "true", "yes")
-    if sm_doc:
-        inf["use_aws_sagemaker_docling"] = True
+    sm_doc = _env_bool("USE_AWS_SAGEMAKER_DOCLING")
+    if sm_doc is not None:
+        inf["use_aws_sagemaker_docling"] = sm_doc
     if os.getenv("SAGEMAKER_DOCLING_ENDPOINT_NAME"):
         inf["sagemaker_docling_endpoint_name"] = os.getenv("SAGEMAKER_DOCLING_ENDPOINT_NAME", "")
 
-    sm_whisper = os.getenv("USE_AWS_SAGEMAKER_WHISPER", "").strip().lower() in ("1", "true", "yes")
-    if sm_whisper:
-        inf["use_aws_sagemaker_whisper"] = True
+    sm_whisper = _env_bool("USE_AWS_SAGEMAKER_WHISPER")
+    if sm_whisper is not None:
+        inf["use_aws_sagemaker_whisper"] = sm_whisper
     if os.getenv("SAGEMAKER_WHISPER_ENDPOINT_NAME"):
         inf["sagemaker_whisper_endpoint_name"] = os.getenv("SAGEMAKER_WHISPER_ENDPOINT_NAME", "")
 
