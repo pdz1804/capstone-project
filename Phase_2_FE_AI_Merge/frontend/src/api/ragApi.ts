@@ -454,7 +454,7 @@ export async function createRetrievalEvalRun(body: {
   k_values?: number[];
   retriever_type?: string;
   questions_per_category?: number;
-  max_documents?: number | null;
+  selected_document_ids?: string[];
   async_mode?: boolean;
 }): Promise<RetrievalEvalRun> {
   const { data } = await apiClient.post('/retrieval-eval/runs', {
@@ -462,7 +462,7 @@ export async function createRetrievalEvalRun(body: {
     k_values: body.k_values ?? [1, 3, 5, 10],
     retriever_type: body.retriever_type ?? 'hybrid',
     questions_per_category: body.questions_per_category ?? 5,
-    max_documents: body.max_documents ?? null,
+    selected_document_ids: body.selected_document_ids ?? [],
     async_mode: body.async_mode ?? false,
   });
   return data;

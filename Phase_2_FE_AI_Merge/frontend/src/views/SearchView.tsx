@@ -22,7 +22,8 @@ import {
 
 interface SearchViewProps {
   files: FileItem[];
-  canUseRetrievalEval?: boolean;
+  showRetrievalEval?: boolean;
+  showSearch?: boolean;
 }
 
 type SearchMode = 'retrieval_only' | 'retrieval_generation';
@@ -278,7 +279,11 @@ function ChunkMarkdown({ text, sourcePath, compact = false }: { text: string; so
   );
 }
 
-export default function SearchView({ files, canUseRetrievalEval = false }: SearchViewProps) {
+export default function SearchView({
+  files,
+  showRetrievalEval = false,
+  showSearch = true,
+}: SearchViewProps) {
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -316,7 +321,7 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
   const [evalError, setEvalError] = useState<string | null>(null);
   const [selectedEvalQueryId, setSelectedEvalQueryId] = useState<string>('');
   const [selectedEvalModality, setSelectedEvalModality] = useState<EvalModality>('text');
-  const [evalMaxDocuments, setEvalMaxDocuments] = useState<number>(1);
+  const [selectedEvalDocumentId, setSelectedEvalDocumentId] = useState<string>('');
   const [evalQuestionsPerCategory, setEvalQuestionsPerCategory] = useState<number>(5);
   const [evalRunIdInput, setEvalRunIdInput] = useState('');
   const [evalDraftLabels, setEvalDraftLabels] = useState<Record<string, number>>({});
@@ -368,6 +373,27 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
       setSelectedEvalQueryId(first);
     }
   }, [evalRun?.run_id, selectedEvalQueryId]);
+
+  const eligibleEvalFiles = useMemo(
+    () =>
+      files.filter(
+        (file) =>
+          !!file.documentFolder &&
+          (file.status === 'processed' || file.status === 'indexed'),
+      ),
+    [files],
+  );
+
+  useEffect(() => {
+    if (!eligibleEvalFiles.length) {
+      if (selectedEvalDocumentId) setSelectedEvalDocumentId('');
+      return;
+    }
+    const exists = eligibleEvalFiles.some((file) => file.documentFolder === selectedEvalDocumentId);
+    if (!exists) {
+      setSelectedEvalDocumentId(eligibleEvalFiles[0]?.documentFolder || '');
+    }
+  }, [eligibleEvalFiles, selectedEvalDocumentId]);
 
   useEffect(() => {
     if (!evalRun) return;
@@ -480,6 +506,10 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
 
   const runRetrievalEval = async () => {
     setEvalError(null);
+    if (!selectedEvalDocumentId) {
+      setEvalError('Please choose one eligible file before starting retrieval evaluation.');
+      return;
+    }
     setIsEvalRunning(true);
     try {
       const run = await createRetrievalEvalRun({
@@ -487,7 +517,7 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
         k_values: [1, 3, 5, 10],
         retriever_type: 'hybrid',
         questions_per_category: evalQuestionsPerCategory,
-        max_documents: evalMaxDocuments > 0 ? evalMaxDocuments : null,
+        selected_document_ids: [selectedEvalDocumentId],
         async_mode: true,
       });
       setEvalRun(run);
@@ -866,14 +896,16 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
 
   return (
     <div className="w-full h-full flex flex-col space-y-6 pb-12">
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 border border-sky-100 shadow-[0_12px_26px_-22px_rgba(14,165,233,0.5)] shrink-0 space-y-2">
-        <p className="text-xs text-slate-500">
-          Retrieval + generation use your FastAPI backend <code className="bg-slate-100 px-1 rounded">POST /api/search</code>{' '}
-          (Qdrant + configured LLM). Indexed sources in workspace: <strong>{totalFiles}</strong> input file(s) listed.
-        </p>
-      </div>
+      {showSearch && (
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 border border-sky-100 shadow-[0_12px_26px_-22px_rgba(14,165,233,0.5)] shrink-0 space-y-2">
+          <p className="text-xs text-slate-500">
+            Retrieval + generation use your FastAPI backend <code className="bg-slate-100 px-1 rounded">POST /api/search</code>{' '}
+            (Qdrant + configured LLM). Indexed sources in workspace: <strong>{totalFiles}</strong> input file(s) listed.
+          </p>
+        </div>
+      )}
 
-      {canUseRetrievalEval && (
+      {showRetrievalEval && (
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 border border-emerald-100 shadow-[0_12px_26px_-22px_rgba(16,185,129,0.45)] shrink-0">
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
@@ -882,21 +914,28 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
             <div>
               <h3 className="text-sm font-bold text-slate-800 uppercase tracking-tight">Retrieval Eval</h3>
               <p className="text-xs text-slate-500">
-                LLM judge + human labels for text recall/nDCG and image recall/nDCG.
+                LLM judge + human labels for text recall/nDCG and image recall/nDCG. Only processed or indexed files are shown.
                 {evalRun?.status && <span className="ml-2 font-bold text-emerald-700">Status: {evalRun.status}</span>}
               </p>
             </div>
             <div className="ml-auto flex flex-wrap items-end gap-2">
               <label className="text-xs text-slate-600">
-                Max docs
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={evalMaxDocuments}
-                  onChange={(e) => setEvalMaxDocuments(Math.max(1, Math.min(50, Number(e.target.value || 1))))}
-                  className="mt-1 w-20 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2 py-1.5 text-sm"
-                />
+                File
+                <select
+                  value={selectedEvalDocumentId}
+                  onChange={(e) => setSelectedEvalDocumentId(e.target.value)}
+                  className="mt-1 w-56 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2 py-1.5 text-sm"
+                >
+                  {eligibleEvalFiles.length === 0 ? (
+                    <option value="">No eligible files</option>
+                  ) : (
+                    eligibleEvalFiles.map((file) => (
+                      <option key={file.documentFolder} value={file.documentFolder}>
+                        {file.name}
+                      </option>
+                    ))
+                  )}
+                </select>
               </label>
               <label className="text-xs text-slate-600">
                 Q/category
@@ -930,7 +969,7 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
               <button
                 type="button"
                 onClick={() => void runRetrievalEval()}
-                disabled={isEvalRunning}
+                disabled={isEvalRunning || !selectedEvalDocumentId}
                 className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
               >
                 {isEvalRunning ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Beaker className="w-4 h-4" />}
@@ -1278,7 +1317,9 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
         </div>
       )}
 
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 border border-sky-100 shadow-[0_12px_26px_-22px_rgba(14,165,233,0.5)] shrink-0">
+      {showSearch && (
+        <>
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 border border-sky-100 shadow-[0_12px_26px_-22px_rgba(14,165,233,0.5)] shrink-0">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
             <MessageSquare className="w-5 h-5 fill-blue-600/20" />
@@ -1428,9 +1469,9 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
             </button>
           </div>
         </form>
-      </div>
+          </div>
 
-      {recentSearches.length > 0 && (
+          {recentSearches.length > 0 && (
         <div className="flex flex-wrap gap-2 items-center text-sm text-slate-600">
           <span className="font-medium">Recent:</span>
           {recentSearches.map((q) => (
@@ -1449,13 +1490,13 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
             </span>
           ))}
         </div>
-      )}
+          )}
 
-      {error && (
+          {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 text-red-800 text-sm px-4 py-3">{error}</div>
-      )}
+          )}
 
-      {!isSearching && telemetry && (
+          {!isSearching && telemetry && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="rounded-xl border border-sky-100 bg-white px-4 py-3 flex items-center gap-2 shadow-[0_10px_24px_-20px_rgba(14,165,233,0.45)]">
             <Clock3 className="w-4 h-4 text-sky-600" />
@@ -1474,9 +1515,9 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
             </span>
           </div>
         </div>
-      )}
+          )}
 
-      {!isSearching && (answer != null || citations.length > 0) && (
+          {!isSearching && (answer != null || citations.length > 0) && (
         <div className="space-y-6">
           {answer != null && (
             <div className="bg-white rounded-2xl border border-sky-100 shadow-[0_14px_28px_-22px_rgba(14,165,233,0.45)] overflow-hidden">
@@ -1729,6 +1770,8 @@ export default function SearchView({ files, canUseRetrievalEval = false }: Searc
             </div>
           </div>
         </div>
+          )}
+        </>
       )}
     </div>
   );
