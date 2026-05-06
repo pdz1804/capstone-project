@@ -1,7 +1,7 @@
 # BK-MInD Capstone Defense - Professional Slide Deck Prompt (Refined)
 
 **Project:** BK-MInD - Educational Content Processing & RAG System  
-**Event:** HCMUT CS251 Capstone Defense | April 28, 2026  
+**Event:** HCMUT CS252 Capstone Defense | April 28, 2026  
 **Target Audience:** Lecturers, colleagues, evaluation committees  
 **Duration:** 20-25 min presentation + Q&A  
 **Slide Count:** 28-32 slides (including backup slides)  
