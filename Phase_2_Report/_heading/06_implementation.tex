@@ -93,7 +93,7 @@ In addition to the architectural evolution, Phase 2 integrated several productio
 
 The data processing pipeline transforms diverse raw document formats into standardized RAG-ready artifacts through a 7-stage conditional workflow. This section describes the input normalization process and the stage-by-stage implementation in detail.
 
-\subsection{Data Normalization Overview}
+% \subsection{Data Normalization Overview}
 \textbf{1. Interface Layer (API Gateway)}
 
 The entry point to the system is a high-performance RESTful API built on \textbf{FastAPI}. This layer is responsible for request validation, concurrency management, and protocol serialization.
@@ -292,30 +292,33 @@ For data-dense documents, the pipeline integrates \textbf{Docling} as the centra
 
 The output of this step is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
 
-The following subsections detail each stage of the pipeline, including stage-specific logic, conditional execution rules, and output structures.
+The following sections detail each stage of the pipeline, including stage-specific logic, conditional execution rules, and output structures.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\textwidth]{{img/pdz/Report 252 Diagram-Pipeline Architecture Overview.drawio.png}}
+    \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
+    \label{fig:pipeline_overview}
+\end{figure}
+
 \section{Detailed Processing Stages (7-Stage Pipeline)}
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.3\textwidth]{img/pdz/58-pipeline-architecture-overview.png}
-%     \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
-%     \label{fig:pipeline_overview}
-% \end{figure}
 
 This section documents the complete 7-stage processing pipeline in detail, including stage-specific logic, conditional execution rules, and output structures.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/59-7-stage-pipeline-model.png}
+    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Complete Pipeline Architecture.drawio.png}}
     \caption[7-Stage Processing Pipeline Model]{7-Stage Processing Pipeline Model.}
     \label{fig:pipeline_model}
 \end{figure}
 
 \begin{table}[H]
 \centering
-\caption[Summary Table: All 7 Stages \& Processing]{Summary of input, processors, and special features for each pipeline stage.}
+\caption[Summary Table: All Stages \& Processing]{Summary of input, processors, and special features for each pipeline stage.}
 \label{tab:pipeline_summary}
-\resizebox{\textwidth}{!}{%
+% \resizebox{\textwidth}{!}{%
+\scalebox{0.6}{
 \begin{tabular}{@{}llllll@{}}
 \toprule
 \textbf{Stage} & \textbf{Name} & \textbf{Input} & \textbf{Processor(s)} & \textbf{Output} & \textbf{Special Features} \\ \midrule
@@ -326,7 +329,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \textbf{3c} & DOCX Processing & docx\_parsed/ JSON & DocxPreprocessor & stage4\_rag\_ready/ & Heading-aware hierarchy tracking \\
 \textbf{3d} & PDF Processing & pdf\_parsed/ JSON & PdfPreprocessor & stage4\_rag\_ready/ & Heading-aware, page-level tracking \\
 \textbf{4} & Consolidation & All Stage 3 + 2 & Stage4Consolidator & stage4\_rag\_ready/ & Merges sources, links media to text \\
-\textbf{Indexing} & Indexing & RAG-ready documents & Qdrant + BM25 + ColQwen & Searchable collections & Text (dense+keyword) + image indexing \\
+\textbf{Index} & Indexing & RAG-ready documents & Qdrant + BM25 + ColQwen & Searchable collections & Text (dense+keyword) + image indexing \\
 \textbf{Search} & Search & Query + indexes & SearchService + LLM & Results with citations & Hybrid fusion, multimodal output \\ \bottomrule
 \end{tabular}%
 }
@@ -352,7 +355,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/60-file-type-routing.png}
+    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
     \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
     \label{fig:stage1_routing_viz}
 \end{figure}
@@ -397,11 +400,18 @@ Audio (WAV, MP3) & Extension & Pass-through & — & — (→ Stage 2) \\
 
 \textbf{Purpose}: Extract audio tracks, perform noise reduction, transcribe speech to text, extract key frames from video.
 
+% \textbf{Supported Media Types}
+
+% \begin{itemize}
+%     \item \textbf{Video Formats:} \texttt{.mp4}, \texttt{.avi}, \texttt{.mov}, \texttt{.mkv}, \texttt{.flv}, \texttt{.wmv}, \texttt{.webm}
+%     \item \textbf{Audio Formats:} \texttt{.wav}, \texttt{.mp3}, \texttt{.m4a}, \texttt{.flac}, \texttt{.ogg}, \texttt{.aac}
+% \end{itemize}
+
 \textbf{Processing Pipeline}:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.55\textwidth]{img/pdz/61-media-processing -flow.png}
+    \includegraphics[width=0.75\textwidth]{{img/pdz/Report 252 Diagram-Media Processing Flow.drawio.png}}
     \caption[Stage 2: Media Processing Workflow]{Stage 2: Media Processing Workflow.}
     \label{fig:stage2_media_flow}
 \end{figure}
@@ -446,14 +456,7 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/64-DocumentProcessorV2-unified-router.png}
-    \caption[DocumentProcessorV2 Unified Router]{DocumentProcessorV2 Unified Router.}
-    \label{fig:doc_router}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/65-processing-decision-flow.png}
+    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Processing Decision Flow.drawio.png}}
     \caption[Processing Decision Flow for Multimodal Inputs]{Processing Decision Flow for Multimodal Inputs.}
     \label{fig:decision_flow}
 \end{figure}
@@ -465,10 +468,12 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
 
 \textbf{Processing Logic}:
 
+Docling DocumentConverter supports these 10 format families:
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/62-docling-DocumentConverter.png}
-    \caption[Docling DocumentConverter Architecture]{Docling DocumentConverter Architecture.}
+    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Docling DocumentConverter.drawio.png}}
+    \caption[Docling DocumentProcessorV2 Supported Input Formats]{Docling DocumentProcessorV2 Supported Input Formats}
     \label{fig:docling_arch}
 \end{figure}
 
@@ -476,12 +481,20 @@ Docling analyzes all normalized documents, with intelligent conditional skipping
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/63-smart-deduplication-logic.png}
+    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Smart Deduplication Logic.drawio.png}}
     \caption[Stage 3 Smart Deduplication Logic]{Stage 3 Smart Deduplication Logic.}
     \label{fig:smart_dedup}
 \end{figure}
 
 For documents NOT in the custom parser output directories, Docling performs full structural analysis. This stage utilizes the \textbf{DocumentProcessorV2} unified router, which automatically selects the optimal backend for each file type:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-DocumentProcessorV2 Unified Router.drawio.png}}
+    \caption[DocumentProcessorV2 Unified Router]{DocumentProcessorV2 Unified Router.}
+    \label{fig:doc_router}
+\end{figure}
+
 \begin{itemize}
     \item \textbf{Vision Processor}: Handles images and rasterized PDFs with VLM-based layout analysis. It supports optional offloading to \textbf{AWS SageMaker} for heavy inference tasks and implements \textbf{adaptive GPU memory management} to prevent OOM errors during batch processing.
     \item \textbf{Structured Processors}: Specialized handlers for CSV (table reconstruction), HTML (BeautifulSoup extraction), and AsciiDoc (logical structure parsing).
@@ -505,7 +518,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{img/pdz/66-Excel-processing.png}
+    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
     \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
     \label{fig:excel_proc}
 \end{figure}
@@ -534,7 +547,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{img/pdz/67-DOCX-processing.png}
+    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
     \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
     \label{fig:docx_proc}
 \end{figure}
@@ -562,7 +575,7 @@ For documents NOT in the custom parser output directories, Docling performs full
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{img/pdz/68-PDF-processing.png}
+    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
     \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
     \label{fig:pdf_proc}
 \end{figure}
@@ -611,13 +624,13 @@ For documents NOT in the custom parser output directories, Docling performs full
     \item \texttt{stage4\_rag\_ready/document\_id/images/}: All visual elements
 \end{itemize}
 
-\section{Chunking and Embedding Strategies}
+% \section{Chunking and Embedding Strategies}
 
-\subsection{Indexing Pipeline}
+% \subsection{Indexing Pipeline}
 
 % The consolidation and indexing pipeline transforms RAG-ready chunks into searchable indices through a dual-pathway approach:
 
-Create searchable indexes from RAG-ready content using three systems: dense text embeddings (Qdrant), keyword search (BM25), and image embeddings (ColQwen) for visual retrieval.
+% Create searchable indexes from RAG-ready content using three systems: dense text embeddings (Qdrant), keyword search (BM25), and image embeddings (ColQwen) for visual retrieval.
 
 % \begin{table}[H]
 % \centering
@@ -637,164 +650,164 @@ Create searchable indexes from RAG-ready content using three systems: dense text
 % }
 % \end{table}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/70-retrieval-systems.png}
-    \caption[Indexing Pipeline: Text and Image Indexing]{Indexing Pipeline: Text and Image Indexing.}
-    \label{fig:indexing_pipeline}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{img/pdz/70-retrieval-systems.png}
+%     \caption[Indexing Pipeline: Text and Image Indexing]{Indexing Pipeline: Text and Image Indexing.}
+%     \label{fig:indexing_pipeline}
+% \end{figure}
 
-\textbf{Text Indexing Workflow}:
-\begin{enumerate}
-    \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
-    \item BM25 inverted index built from chunk text (keyword search)
-    \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
-    \item Hybrid index pre-computed via RRF fusion for fast query-time execution
-\end{enumerate}
+% \textbf{Text Indexing Workflow}:
+% \begin{enumerate}
+%     \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
+%     \item BM25 inverted index built from chunk text (keyword search)
+%     \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
+%     \item Hybrid index pre-computed via RRF fusion for fast query-time execution
+% \end{enumerate}
 
-\textbf{Visual Indexing Workflow}:
-\begin{enumerate}
-    \item PDF pages rasterized to JPEG (150 DPI, 1 page = 1 image)
-    \item Each page encoded by ColQwen to multi-vector representation
-    \item Vectors stored with minimal indexing (m=0 for HNSW bypass) to reduce memory overhead
-    \item Query-time MaxSim computed on-demand for precision
-\end{enumerate}
-
-
-\textbf{Reranking}
-
-As defined in the system architecture, reranking is \textbf{globally disabled} (\texttt{SKIP\_RERANKER=true} by default) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during search to maintain sub-second response times.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.55\textwidth]{img/pdz/71-reranking.png}
-    \caption[Cross-Encoder Reranking Architecture]{Cross-Encoder Reranking Architecture.}
-    \label{fig:reranking_arch}
-\end{figure}
-
-\begin{table}[H]
-\centering
-\caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
-\label{tab:indexing_artifacts}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}llll@{}}
-\toprule
-\textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
-Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
-Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
-Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
-Metadata Catalog & Document + chunk + image metadata & JSON files on S3 & Source tracking, citation generation \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
-\textbf{Index Persistence Strategy}:
-
-After indexing completes (Stage 4), the system:
-\begin{enumerate}
-    \item Uploads BM25, Dense, and Visual indices to S3 under \texttt{users/{user\_id}/documents/{doc\_id}/indices/}
-    \item Caches indices in local filesystem for fast retrieval during query execution
-    \item On server restart or query miss, reloads indices from S3
-\end{enumerate}
-
-\subsection{Search and Retrieval Pipeline}
-
-The search pipeline orchestrates the concurrent retrieval of textual and visual information, optionally followed by generative synthesis. The workflow is designed for low-latency response times while maintaining high factual grounding.
-
-\textbf{Retrieval Strategies}
-
-The system supports three primary retrieval modalities to address different query types:
-\begin{itemize}
-    \item \textbf{Dense Retrieval}: Best for semantic understanding and handling synonymy. It uses the \texttt{all-MiniLM-L6-v2} model to match query embeddings against the Qdrant text collection.
-    \item \textbf{Sparse Retrieval (BM25)}: Optimized for exact keyword matching, technical jargon, and specific entity retrieval.
-    \item \textbf{Hybrid Retrieval}: Merges the results of dense and sparse retrievers using a weighted fusion approach. In Phase 2, the system utilizes an alpha weight of 0.5, providing a balanced trade-off between keyword precision and semantic recall.
-\end{itemize}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/72-search-flow.png}
-    \caption[Search and Retrieval Pipeline Flow]{Search and Retrieval Pipeline Flow.}
-    \label{fig:search_flow}
-\end{figure}
-
-\textbf{Search Flow and Operational Modes}
-As illustrated in Figure \ref{fig:search_flow}, the search orchestrator (\texttt{SearchService}) processes queries through a multi-step pipeline:
-\begin{enumerate}
-    \item \textbf{Decision Node: Search Scope}: Evaluates the query intent to target either the text index, image index, or a parallel multimodal retrieval.
-    \item \textbf{Decision Node: Retriever Type}: Determines the retrieval algorithm (\texttt{BM25}, \texttt{Dense}, or \texttt{Hybrid}) based on the query complexity and user configuration.
-    \item \textbf{Parallel Retrieval}:
-    \begin{itemize}
-        \item \textbf{Text Pathway}: Executes the selected retrieval logic on the text index, returning top $K$ chunks (default $K=10$).
-        \item \textbf{Visual Pathway}: Executes a late-interaction search on the ColQwen image index if visual context is requested.
-    \end{itemize}
-    \item \textbf{Reranking (Optional)}: To further refine the results, a cross-encoder model (\texttt{bge-reranker-large}) can be applied to the merged candidate set (as illustrated in Figure \ref{fig:reranking_arch}). However, in the Phase 2 production environment, this step is \textbf{globally disabled by default} (\texttt{skip\_reranker=true}) to maintain sub-second retrieval latency.
-    \item \textbf{Result Merging}: Contextualizes text chunks with their corresponding visual pages based on source metadata.
-    \item \textbf{Mode Selection}:
-    \begin{itemize}
-        \item \textbf{Retrieval Only}: Immediately returns the merged text and image artifacts to the client.
-        \item \textbf{Retrieval-Generation}: Injects the retrieved context into a Large Language Model (e.g., Claude 3.5 Sonnet) to synthesize a grounded answer with citations.
-    \end{itemize}
-\end{enumerate}
-
-\textbf{Response Structure and Metadata Tracking}
-
-Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the "source-of-truth" for all generated answers.
+% \textbf{Visual Indexing Workflow}:
+% \begin{enumerate}
+%     \item PDF pages rasterized to JPEG (150 DPI, 1 page = 1 image)
+%     \item Each page encoded by ColQwen to multi-vector representation
+%     \item Vectors stored with minimal indexing (m=0 for HNSW bypass) to reduce memory overhead
+%     \item Query-time MaxSim computed on-demand for precision
+% \end{enumerate}
 
 
-\subsection{Storage Architecture}
+% \textbf{Reranking}
 
-Phase 2 implements a \textbf{hybrid storage model} combining local processing cache with cloud canonical storage:
+% As defined in the system architecture, reranking is \textbf{globally disabled} (\texttt{SKIP\_RERANKER=true} by default) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during search to maintain sub-second response times.
 
-\begin{table}[H]
-\centering
-\caption[Hybrid Storage Architecture]{Local vs. Cloud storage division of responsibility.}
-\label{tab:storage_architecture}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}llll@{}}
-\toprule
-\textbf{Storage Tier} & \textbf{System} & \textbf{Content} & \textbf{Purpose} \\ \midrule
-Local Cache & File system (fast SSD) & Processing artifacts (Stages 1-4) & Speed up pipeline processing \\
-Local Indices & FAISS, ColQwen stores & BM25, Dense, Visual indices & Fast retrieval queries \\
-Cloud Canonical & Amazon S3 & Documents, metadata, indices & Durability, multi-tenancy \\
-Session State & DynamoDB & Chat history, job queue state & Persistent conversation tracking \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.55\textwidth]{img/pdz/71-reranking.png}
+%     \caption[Cross-Encoder Reranking Architecture]{Cross-Encoder Reranking Architecture.}
+%     \label{fig:reranking_arch}
+% \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/73-local-vs-cloud.png}
-    \caption[Storage Architecture: Local vs. Cloud]{Storage Architecture: Local vs. Cloud.}
-    \label{fig:storage_arch_viz}
-\end{figure}
+% \begin{table}[H]
+% \centering
+% \caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
+% \label{tab:indexing_artifacts}
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{@{}llll@{}}
+% \toprule
+% \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
+% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
+% Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
+% Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
+% Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
+% Metadata Catalog & Document + chunk + image metadata & JSON files on S3 & Source tracking, citation generation \\
+% \bottomrule
+% \end{tabular}%
+% }
+% \end{table}
 
-\textbf{Multi-Tenancy Isolation}:
+% \textbf{Index Persistence Strategy}:
 
-Documents and indices are organized by user and document ID,this structure ensures that document retrieval and index queries are isolated per user, preventing cross-user data leakage.
-\begin{itemize}
-    \item Each user has isolated temp workspace during processing
-    \item S3 prefixes prevent cross-user data access
-    \item Optional: Qdrant collections per user (\texttt{QDRANT\_ISOLATE\_BY\_USER=true})
-\end{itemize}
+% After indexing completes (Stage 4), the system:
+% \begin{enumerate}
+%     \item Uploads BM25, Dense, and Visual indices to S3 under \texttt{users/{user\_id}/documents/{doc\_id}/indices/}
+%     \item Caches indices in local filesystem for fast retrieval during query execution
+%     \item On server restart or query miss, reloads indices from S3
+% \end{enumerate}
+
+% \subsection{Search and Retrieval Pipeline}
+
+% The search pipeline orchestrates the concurrent retrieval of textual and visual information, optionally followed by generative synthesis. The workflow is designed for low-latency response times while maintaining high factual grounding.
+
+% \textbf{Retrieval Strategies}
+
+% The system supports three primary retrieval modalities to address different query types:
+% \begin{itemize}
+%     \item \textbf{Dense Retrieval}: Best for semantic understanding and handling synonymy. It uses the \texttt{all-MiniLM-L6-v2} model to match query embeddings against the Qdrant text collection.
+%     \item \textbf{Sparse Retrieval (BM25)}: Optimized for exact keyword matching, technical jargon, and specific entity retrieval.
+%     \item \textbf{Hybrid Retrieval}: Merges the results of dense and sparse retrievers using a weighted fusion approach. In Phase 2, the system utilizes an alpha weight of 0.5, providing a balanced trade-off between keyword precision and semantic recall.
+% \end{itemize}
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{img/pdz/72-search-flow.png}
+%     \caption[Search and Retrieval Pipeline Flow]{Search and Retrieval Pipeline Flow.}
+%     \label{fig:search_flow}
+% \end{figure}
+
+% \textbf{Search Flow and Operational Modes}
+% As illustrated in Figure \ref{fig:search_flow}, the search orchestrator (\texttt{SearchService}) processes queries through a multi-step pipeline:
+% \begin{enumerate}
+%     \item \textbf{Decision Node: Search Scope}: Evaluates the query intent to target either the text index, image index, or a parallel multimodal retrieval.
+%     \item \textbf{Decision Node: Retriever Type}: Determines the retrieval algorithm (\texttt{BM25}, \texttt{Dense}, or \texttt{Hybrid}) based on the query complexity and user configuration.
+%     \item \textbf{Parallel Retrieval}:
+%     \begin{itemize}
+%         \item \textbf{Text Pathway}: Executes the selected retrieval logic on the text index, returning top $K$ chunks (default $K=10$).
+%         \item \textbf{Visual Pathway}: Executes a late-interaction search on the ColQwen image index if visual context is requested.
+%     \end{itemize}
+%     \item \textbf{Reranking (Optional)}: To further refine the results, a cross-encoder model (\texttt{bge-reranker-large}) can be applied to the merged candidate set (as illustrated in Figure \ref{fig:reranking_arch}). However, in the Phase 2 production environment, this step is \textbf{globally disabled by default} (\texttt{skip\_reranker=true}) to maintain sub-second retrieval latency.
+%     \item \textbf{Result Merging}: Contextualizes text chunks with their corresponding visual pages based on source metadata.
+%     \item \textbf{Mode Selection}:
+%     \begin{itemize}
+%         \item \textbf{Retrieval Only}: Immediately returns the merged text and image artifacts to the client.
+%         \item \textbf{Retrieval-Generation}: Injects the retrieved context into a Large Language Model (e.g., Claude 3.5 Sonnet) to synthesize a grounded answer with citations.
+%     \end{itemize}
+% \end{enumerate}
+
+% \textbf{Response Structure and Metadata Tracking}
+
+% Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the "source-of-truth" for all generated answers.
 
 
-\section{Data Preprocessing}
-The preprocessing module transforms raw files into machine-understandable formats. The pipeline splits the workflow into two parallel streams to handle multimodal data:
+% \subsection{Storage Architecture}
 
-\textbf{Text Stream:}
+% Phase 2 implements a \textbf{hybrid storage model} combining local processing cache with cloud canonical storage:
 
-% For textual data, the system performs OCR or direct text extraction depending on the source file type. The output is standardized into Markdown formats, stored in the \texttt{output/processing} directory.
+% \begin{table}[H]
+% \centering
+% \caption[Hybrid Storage Architecture]{Local vs. Cloud storage division of responsibility.}
+% \label{tab:storage_architecture}
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{@{}llll@{}}
+% \toprule
+% \textbf{Storage Tier} & \textbf{System} & \textbf{Content} & \textbf{Purpose} \\ \midrule
+% Local Cache & File system (fast SSD) & Processing artifacts (Stages 1-4) & Speed up pipeline processing \\
+% Local Indices & FAISS, ColQwen stores & BM25, Dense, Visual indices & Fast retrieval queries \\
+% Cloud Canonical & Amazon S3 & Documents, metadata, indices & Durability, multi-tenancy \\
+% Session State & DynamoDB & Chat history, job queue state & Persistent conversation tracking \\
+% \bottomrule
+% \end{tabular}%
+% }
+% \end{table}
 
-The primary input for this stream is the structured \textbf{Markdown} files generated during the normalization phase. The preprocessing logic focuses on preparing this text for semantic vectorization:
-Removal of artifacts introduced during OCR or file conversion.
-The system utilizes the Markdown headers to maintain context, ensuring that section titles remain associated with their respective paragraphs during the splitting process.
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{img/pdz/73-local-vs-cloud.png}
+%     \caption[Storage Architecture: Local vs. Cloud]{Storage Architecture: Local vs. Cloud.}
+%     \label{fig:storage_arch_viz}
+% \end{figure}
 
-\textbf{Visual Stream:}
+% \textbf{Multi-Tenancy Isolation}:
 
-A critical component of this pipeline is the handling of visual data within \textbf{PDF} files. The system utilizes \textbf{pdf2image} to render PDF pages into high-resolution images (defaulting to 150 DPI). This rasterization step is essential for the visual retriever (ColQwen), which treats document pages as images to preserve layout and semantic structure that text-only extractors often lose.
+% Documents and indices are organized by user and document ID,this structure ensures that document retrieval and index queries are isolated per user, preventing cross-user data leakage.
+% \begin{itemize}
+%     \item Each user has isolated temp workspace during processing
+%     \item S3 prefixes prevent cross-user data access
+%     \item Optional: Qdrant collections per user (\texttt{QDRANT\_ISOLATE\_BY\_USER=true})
+% \end{itemize}
+
+
+% \section{Data Preprocessing}
+% The preprocessing module transforms raw files into machine-understandable formats. The pipeline splits the workflow into two parallel streams to handle multimodal data:
+
+% \textbf{Text Stream:}
+
+% % For textual data, the system performs OCR or direct text extraction depending on the source file type. The output is standardized into Markdown formats, stored in the \texttt{output/processing} directory.
+
+% The primary input for this stream is the structured \textbf{Markdown} files generated during the normalization phase. The preprocessing logic focuses on preparing this text for semantic vectorization:
+% Removal of artifacts introduced during OCR or file conversion.
+% The system utilizes the Markdown headers to maintain context, ensuring that section titles remain associated with their respective paragraphs during the splitting process.
+
+% \textbf{Visual Stream:}
+
+% A critical component of this pipeline is the handling of visual data within \textbf{PDF} files. The system utilizes \textbf{pdf2image} to render PDF pages into high-resolution images (defaulting to 150 DPI). This rasterization step is essential for the visual retriever (ColQwen), which treats document pages as images to preserve layout and semantic structure that text-only extractors often lose.
 
 % \section{Chunking and Embedding Strategies}
 % The system employs a sophisticated ``Hybrid + Multimodal'' retrieval strategy to maximize recall and precision.
@@ -822,6 +835,8 @@ A critical component of this pipeline is the handling of visual data within \tex
 %     \item \textbf{Cleaning}: Removal of artifacts introduced during OCR or file conversion.
 %     \item \textbf{Structure Preservation}: The system utilizes the Markdown headers to maintain context, ensuring that section titles remain associated with their respective paragraphs during the splitting process.
 % \end{itemize}
+
+\section{Chunking and Embedding Strategies}
 
 The system employs a dual-pathway embedding architecture combining format-aware text chunking with visual page embedding. This approach enables simultaneous retrieval of granular text segments and holistic document pages.
 
@@ -961,6 +976,88 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
     \item Vectors stored with minimal indexing (m=0 for HNSW bypass) to reduce memory overhead
     \item Query-time MaxSim computed on-demand for precision
 \end{enumerate}
+
+\textbf{Reranking}
+
+As defined in the system architecture, reranking is \textbf{globally disabled} (\texttt{SKIP\_RERANKER=true} by default) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during search to maintain sub-second response times.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/pdz/71-reranking.png}
+    \caption[Cross-Encoder Reranking Architecture]{Cross-Encoder Reranking Architecture.}
+    \label{fig:reranking_arch}
+\end{figure}
+
+% \begin{table}[H]
+% \centering
+% \caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
+% \label{tab:indexing_artifacts}
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{@{}llll@{}}
+% \toprule
+% \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
+% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
+% Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
+% Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
+% Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
+% Metadata Catalog & Document + chunk + image metadata & JSON files on S3 & Source tracking, citation generation \\
+% \bottomrule
+% \end{tabular}%
+% }
+% \end{table}
+
+\textbf{Index Persistence Strategy}:
+
+After indexing completes (Stage 4), the system:
+\begin{enumerate}
+    \item Uploads BM25, Dense, and Visual indices to S3 under \texttt{users/{user\_id}/documents/{doc\_id}/indices/}
+    \item Caches indices in local filesystem for fast retrieval during query execution
+    \item On server restart or query miss, reloads indices from S3
+\end{enumerate}
+
+\subsection{Search and Retrieval Pipeline}
+
+The search pipeline orchestrates the concurrent retrieval of textual and visual information, optionally followed by generative synthesis. The workflow is designed for low-latency response times while maintaining high factual grounding.
+
+\textbf{Retrieval Strategies}
+
+The system supports three primary retrieval modalities to address different query types:
+\begin{itemize}
+    \item \textbf{Dense Retrieval}: Best for semantic understanding and handling synonymy. It uses the \texttt{all-MiniLM-L6-v2} model to match query embeddings against the Qdrant text collection.
+    \item \textbf{Sparse Retrieval (BM25)}: Optimized for exact keyword matching, technical jargon, and specific entity retrieval.
+    \item \textbf{Hybrid Retrieval}: Merges the results of dense and sparse retrievers using a weighted fusion approach. In Phase 2, the system utilizes an alpha weight of 0.5, providing a balanced trade-off between keyword precision and semantic recall.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/pdz/72-search-flow.png}
+    \caption[Search and Retrieval Pipeline Flow]{Search and Retrieval Pipeline Flow.}
+    \label{fig:search_flow}
+\end{figure}
+
+\textbf{Search Flow and Operational Modes}
+As illustrated in Figure \ref{fig:search_flow}, the search orchestrator (\texttt{SearchService}) processes queries through a multi-step pipeline:
+\begin{enumerate}
+    \item \textbf{Decision Node: Search Scope}: Evaluates the query intent to target either the text index, image index, or a parallel multimodal retrieval.
+    \item \textbf{Decision Node: Retriever Type}: Determines the retrieval algorithm (\texttt{BM25}, \texttt{Dense}, or \texttt{Hybrid}) based on the query complexity and user configuration.
+    \item \textbf{Parallel Retrieval}:
+    \begin{itemize}
+        \item \textbf{Text Pathway}: Executes the selected retrieval logic on the text index, returning top $K$ chunks (default $K=10$).
+        \item \textbf{Visual Pathway}: Executes a late-interaction search on the ColQwen image index if visual context is requested.
+    \end{itemize}
+    \item \textbf{Reranking (Optional)}: To further refine the results, a cross-encoder model (\texttt{bge-reranker-large}) can be applied to the merged candidate set (as illustrated in Figure \ref{fig:reranking_arch}). However, in the Phase 2 production environment, this step is \textbf{globally disabled by default} (\texttt{skip\_reranker=true}) to maintain sub-second retrieval latency.
+    \item \textbf{Result Merging}: Contextualizes text chunks with their corresponding visual pages based on source metadata.
+    \item \textbf{Mode Selection}:
+    \begin{itemize}
+        \item \textbf{Retrieval Only}: Immediately returns the merged text and image artifacts to the client.
+        \item \textbf{Retrieval-Generation}: Injects the retrieved context into a Large Language Model (e.g., Claude 3.5 Sonnet) to synthesize a grounded answer with citations.
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Response Structure and Metadata Tracking}
+
+Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the "source-of-truth" for all generated answers.
+
 
 \subsection{Storage Architecture}
 
@@ -1260,7 +1357,7 @@ The visual index maintains geometric representations (height/width) alongside S3
 The system utilizes a dual-bucket object storage architecture to manage the lifecycle of document assets. This approach decouples raw ingestion from the downstream processing pipeline, ensuring data integrity and enabling scalable multi-tenancy.
 
 \begin{itemize}
-    \item \textbf{Tenant Isolation}: Files are logically partitioned using the prefix for each user. This ensures strict data segregation and facilitates efficient cleanup of ephemeral processing artifacts.
+    \item \textbf{Tenant Isolation}: Files are logically partitioned using the prefix for each user. This ensures strict data segregation and facilitates efficient cleanup of processing artifacts.
     \item \textbf{Dual-Bucket Lifecycle}: 
     \begin{itemize}
         \item \textbf{Originals Bucket}: Acts as the immutable source of truth for all raw user uploads.
@@ -1377,12 +1474,12 @@ The system utilizes a dual-bucket object storage architecture to manage the life
             ├── stage4_rag_ready/         # Optimized artifacts for RAG engine
             │   ├── {doc_name}/
             │   │   ├── {doc_name}.md     # Final semantic text
-            │   │   ├── {doc_name}.pdf     # Optimized PDF for visual retrieval
+            │   │   ├── {doc_name}.pdf    # Optimized PDF for visual retrieval
             │   │   └── docling_additional/
             │   └── consolidation_stats.json
             └── retrieval/                # Secondary persistence for search indices
                 ├── bm25_index.pkl        # Serialized sparse search index
-                └── documents.json.pkl     # Document lookup table
+                └── documents.json.pkl    # Document lookup table
     \end{verbatim}
 
     \caption{Amazon S3 Directory Structure Tree}
