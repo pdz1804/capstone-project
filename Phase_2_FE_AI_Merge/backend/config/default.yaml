@@ -63,7 +63,7 @@ processing:
   # Document processor settings
   document:
     # Docling execution: "local" (in-process Docling) or "sagemaker" (see inference.sagemaker_docling_endpoint_name)
-    docling_backend: "local"
+    docling_backend: "sagemaker"
     enable_ocr: true
     enable_vlm: false               # Disable VLM for lower latency (enable when richer image understanding is needed)
     enable_asr: true
@@ -287,12 +287,9 @@ inference:
   # Primary endpoint. For single-endpoint mode, all services can share this.
   sagemaker_endpoint_name: "phase2-multimodal-rt"
   # Optional dedicated endpoint for Docling. If empty, backend falls back to sagemaker_endpoint_name.
-  use_aws_sagemaker_docling: false    # Prefer env USE_AWS_SAGEMAKER_DOCLING=true
+  use_aws_sagemaker_docling: true     # Prefer env USE_AWS_SAGEMAKER_DOCLING
   sagemaker_docling_endpoint_name: ""
   # Optional dedicated endpoint for Whisper ASR. If empty, backend falls back to sagemaker_endpoint_name.
   use_aws_sagemaker_whisper: false    # Prefer env USE_AWS_SAGEMAKER_WHISPER=true
   sagemaker_whisper_endpoint_name: ""
   hybrid_alpha: 0.5                 # weight for dense vs BM25 in hybrid (0..1)
-
-
-

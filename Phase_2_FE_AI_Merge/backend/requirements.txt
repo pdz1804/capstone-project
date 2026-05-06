@@ -63,6 +63,8 @@ rapidocr-onnxruntime
 faiss-cpu
 rank-bm25
 datasets
+apted>=1.0.3
+Levenshtein>=0.25.1
 
 openai
 google-genai>=1.20.0

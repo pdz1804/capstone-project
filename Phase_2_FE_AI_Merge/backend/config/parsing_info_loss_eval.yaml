@@ -1,0 +1,48 @@
+parsing_info_loss_eval:
+  scoring:
+    missing_group_policy: renormalize
+    weak_gt_policy: separate
+    groups:
+      text:
+        enabled: true
+        weight: 30
+        metric: text_f1
+      table:
+        enabled: true
+        weight: 25
+        metric: teds_edit
+        teds_weight: 0.7
+        edit_weight: 0.3
+      read_order:
+        enabled: true
+        weight: 15
+        metric: pairwise_order_accuracy
+      section_hierarchy:
+        enabled: true
+        weight: 15
+        node_recall_weight: 0.6
+        path_accuracy_weight: 0.4
+      figure_captioning:
+        enabled: true
+        weight: 15
+        metric: pair_f1
+
+  table_conversion:
+    input: parsed_json
+    output: canonical_html
+    recover_spans: true
+    emit_debug_html: true
+
+  gt:
+    office:
+      mode: task_specific_native_extractors
+    pdf:
+      mode: weak
+      omnidocbench_gt_json:
+      omnidocbench_image_root:
+
+  reporting:
+    max_examples_per_metric: 20
+    write_prediction_html: true
+    write_match_debug: true
+

@@ -40,7 +40,7 @@ def get_config() -> Dict[str, Any]:
                 "sagemaker_docling_endpoint": inf.get("sagemaker_docling_endpoint_name"),
                 "use_aws_sagemaker_whisper": bool(inf.get("use_aws_sagemaker_whisper")),
                 "sagemaker_whisper_endpoint": inf.get("sagemaker_whisper_endpoint_name"),
-                "docling_backend": proc_doc.get("docling_backend", "local"),
+                "docling_backend": proc_doc.get("docling_backend", "sagemaker"),
                 "generation_provider": gen.get("provider"),
                 "generation_model": gen.get("model"),
             },

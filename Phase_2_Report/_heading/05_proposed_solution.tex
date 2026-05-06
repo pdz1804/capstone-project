@@ -155,13 +155,13 @@ FastAPI solves this problem at its core. It is built on modern Python \texttt{as
 This architectural difference is not merely theoretical; it is reflected in stark performance metrics from independent, industry-standard benchmarks. According to the highly respected TechEmpower benchmarks, which test hundreds of web frameworks in realistic scenarios, FastAPI's performance is in a different league.
 
 In the Round 22 benchmarks (testing against physical hardware), the Uvicorn server running a basic FastAPI application handled \textbf{12,567 requests per second} in the Multiple Queries test. In contrast, Django on Gunicorn (a standard synchronous setup) handled \textbf{1,623 requests per second}.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.3\textwidth]{img/pdz/58-pipeline-architecture-overview.png}
-    \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
-    \label{fig:pipeline_overview}
-\end{figure}
 
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.3\textwidth]{img/pdz/58-pipeline-architecture-overview.png}
+%     \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
+%     \label{fig:pipeline_overview}
+% \end{figure}
 
 The system implements a sophisticated dual-pipeline architecture designed to handle heterogeneous document formats and produce RAG-ready outputs for both text-based and image-based retrieval. The architecture is divided into two primary pipelines: the Data Processing Pipeline and the Embedding-Indexing Pipeline.
 
@@ -431,6 +431,13 @@ Our data indicates that ColBERTv2 provides the highest retrieval quality, surpas
 This section presents the proposed architecture of the BK-MInD MRAG system, organized from a high-level system overview down to specific architectural components for retrieval and security. Implementation details, processing parameters, and deployment specifications are documented in Chapter~6 (Implementation).
 
 \subsection{High-Level Architecture}\label{sec:highlevel_arch}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/pdz/Report 252 Diagram-High Level Architecture.drawio.png}
+    \caption[High-Level Architecture]{High-Level Architecture.}
+    \label{fig:highlevel_architecture}
+\end{figure}
 
 The BK-MInD system architecture follows a six-tier Clean Architecture pattern that separates concerns across distinct layers, enabling maintainability, testability, and independent scaling. This architecture is designed to achieve three strategic objectives: (1) \textit{multimodal data ingestion} from diverse educational materials, (2) \textit{asynchronous processing} to support concurrent user operations without bottlenecks, and (3) \textit{production-grade security and scalability} on AWS infrastructure.
 

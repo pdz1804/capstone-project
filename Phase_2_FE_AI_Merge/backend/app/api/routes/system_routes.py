@@ -25,11 +25,20 @@ def _effective_sagemaker(cfg: dict) -> bool:
 def _effective_sagemaker_docling(cfg: dict) -> bool:
     if os.getenv("USE_AWS_SAGEMAKER_DOCLING", "").strip().lower() in ("1", "true", "yes"):
         return True
+    if os.getenv("USE_AWS_SAGEMAKER_DOCLING", "").strip().lower() in ("0", "false", "no"):
+        return False
     inf = cfg.get("inference", {}) or {}
     v = inf.get("use_aws_sagemaker_docling")
     if isinstance(v, str):
-        return v.strip().lower() in ("1", "true", "yes")
-    return bool(v)
+        if v.strip().lower() in ("1", "true", "yes"):
+            return True
+        if v.strip().lower() in ("0", "false", "no"):
+            return False
+    if v:
+        return True
+    doc = (cfg.get("processing", {}) or {}).get("document", {}) or {}
+    backend = str(doc.get("docling_backend", "sagemaker")).strip().lower()
+    return backend == "sagemaker" or str(doc.get("docling_remote", "")).strip().lower() in ("1", "true", "yes", "sagemaker")
 
 
 def _effective_sagemaker_whisper(cfg: dict) -> bool:
