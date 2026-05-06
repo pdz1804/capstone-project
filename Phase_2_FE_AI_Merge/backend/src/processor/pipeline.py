@@ -525,6 +525,8 @@ class DocumentProcessingPipeline:
         print("Normalizing documents to PDF and Markdown formats...")
         
         try:
+            if self.config.normalizer_config is not None:
+                self.config.normalizer_config.runtime_yaml = self.config.runtime_yaml
             normalizer = DocumentNormalizer(
                 input_dir=self.input_dir,
                 output_dir=self.stage_dirs["normalized"],
@@ -1330,6 +1332,10 @@ Examples:
     parser.add_argument("--asr-model", type=str, default="base", 
                        choices=["tiny", "base", "small", "medium", "large", "large-v3"],
                        help="Whisper ASR model size")
+    parser.add_argument("--media-max-chunk-tokens", type=int, default=None,
+                       help="Maximum estimated tokens per media transcript chunk")
+    parser.add_argument("--media-max-chunk-duration-sec", type=float, default=None,
+                       help="Maximum seconds per media transcript chunk; keeps whole ASR segments intact")
     
     # Features
     parser.add_argument("--no-frames", action="store_true", help="Don't extract video frames")
@@ -1366,6 +1372,10 @@ Examples:
         config.document_config.use_gpu = False
     
     config.media_config.asr_model = args.asr_model
+    if args.media_max_chunk_tokens is not None:
+        config.media_config.max_chunk_tokens = args.media_max_chunk_tokens
+    if args.media_max_chunk_duration_sec is not None:
+        config.media_config.max_chunk_duration_sec = args.media_max_chunk_duration_sec
     config.media_config.extract_frames = not args.no_frames
     config.media_config.frame_interval = args.frame_interval
     

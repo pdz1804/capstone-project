@@ -32,6 +32,7 @@ from app.api.routes import (
     insights_routes,
     pipeline_routes,
     quiz_routes,
+    retrieval_eval_routes,
     search_routes,
     status_routes,
     system_routes,
@@ -230,6 +231,7 @@ app.include_router(search_routes.router)
 app.include_router(images_routes.router)
 app.include_router(insights_routes.router)
 app.include_router(quiz_routes.router)
+app.include_router(retrieval_eval_routes.router)
 app.include_router(chat_routes.router)
 app.include_router(chat_history_routes.router)
 app.include_router(feedback_routes.router)

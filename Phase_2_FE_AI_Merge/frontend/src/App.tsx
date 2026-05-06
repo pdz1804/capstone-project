@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import {
   Activity,
+  Beaker,
   LayoutDashboard,
   Database,
   BookOpen,
@@ -48,6 +49,7 @@ export type ViewType =
   | 'profile'
   | 'adminDashboard'
   | 'adminInvocations'
+  | 'adminRetrievalEval'
   | 'adminUsers'
   | 'adminKnowledge'
   | 'adminFeedback';
@@ -63,6 +65,7 @@ const VIEW_PATHS: Record<ViewType, string> = {
   profile: '/profile',
   adminDashboard: '/admin/dashboard',
   adminInvocations: '/admin/invocations',
+  adminRetrievalEval: '/admin/retrieval-evaluation',
   adminUsers: '/admin/users',
   adminKnowledge: '/admin/knowledge',
   adminFeedback: '/admin/feedback',
@@ -85,6 +88,7 @@ const FeedbacksView = lazy(() => import('./views/FeedbacksView'));
 const ProfileView = lazy(() => import('./views/ProfileView'));
 const AdminDashboardView = lazy(() => import('./views/AdminDashboardView'));
 const AdminInvocationsView = lazy(() => import('./views/AdminInvocationsView'));
+const AdminRetrievalEvaluationView = lazy(() => import('./views/AdminRetrievalEvaluationView'));
 const AdminUsersManagementView = lazy(() => import('./views/AdminUsersManagementView'));
 const AdminKnowledgeManagementView = lazy(() => import('./views/AdminKnowledgeManagementView'));
 const AdminFeedbackManagementView = lazy(() => import('./views/AdminFeedbackManagementView'));
@@ -113,6 +117,7 @@ function routeToState(pathname: string): {
   if (clean === '/profile') return { view: 'profile', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/admin/dashboard') return { view: 'adminDashboard', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/admin/invocations') return { view: 'adminInvocations', knowledgeSubTab: 'dashboard', isKnown: true };
+  if (clean === '/admin/retrieval-evaluation') return { view: 'adminRetrievalEval', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/admin/users') return { view: 'adminUsers', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/admin/knowledge') return { view: 'adminKnowledge', knowledgeSubTab: 'dashboard', isKnown: true };
   if (clean === '/admin/feedback') return { view: 'adminFeedback', knowledgeSubTab: 'dashboard', isKnown: true };
@@ -338,7 +343,6 @@ export default function App() {
 
   const isAdminUser = currentRole === 'admin';
   const isAdminView = isAdminUser && adminViewMode === 'admin';
-
   useEffect(() => {
     if (!isAuthReady || !user) return;
     if (!isAdminView && location.pathname.startsWith('/admin')) {
@@ -393,6 +397,7 @@ export default function App() {
   const adminNavItems = [
     { id: 'adminDashboard', label: 'Application Dashboard', icon: LayoutDashboard },
     { id: 'adminInvocations', label: 'API Invocations', icon: Activity },
+    { id: 'adminRetrievalEval', label: 'Retrieval Evaluation', icon: Beaker },
     { id: 'adminUsers', label: 'User Management', icon: UserCircle2 },
     { id: 'adminKnowledge', label: 'Knowledge Management', icon: Database },
     { id: 'adminFeedback', label: 'Feedback Management', icon: BarChart3 },
@@ -648,6 +653,9 @@ export default function App() {
               {currentView === 'feedbacks' && <FeedbacksView />}
               {currentView === 'adminDashboard' && <AdminDashboardView />}
               {currentView === 'adminInvocations' && <AdminInvocationsView />}
+              {currentView === 'adminRetrievalEval' && (
+                <AdminRetrievalEvaluationView files={files} onRefreshFiles={refreshFilesFromApi} />
+              )}
               {currentView === 'adminUsers' && <AdminUsersManagementView />}
               {currentView === 'adminKnowledge' && <AdminKnowledgeManagementView />}
               {currentView === 'adminFeedback' && <AdminFeedbackManagementView />}

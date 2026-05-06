@@ -41,7 +41,11 @@ def test_generate_error_path_returns_json_safe_contents(monkeypatch: pytest.Monk
 
 
 @pytest.mark.unit
-def test_bedrock_text_only_model_skips_vision_inputs(monkeypatch: pytest.MonkeyPatch):
+def test_bedrock_text_only_model_falls_back_for_vision_inputs(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+):
+    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "test")
     gen = RAGGenerator(
         GenerationConfig(
             provider="bedrock",
@@ -51,13 +55,16 @@ def test_bedrock_text_only_model_skips_vision_inputs(monkeypatch: pytest.MonkeyP
         )
     )
 
-    seen = {"image_paths": None}
+    seen = {"image_paths": None, "model": None}
 
     def _fake_call(_prompt, image_paths=None):
         seen["image_paths"] = image_paths
+        seen["model"] = gen.config.model_name
         return "ok"
 
     monkeypatch.setattr(gen, "_call_llm", _fake_call)
+    image_path = tmp_path / "figure.png"
+    image_path.write_bytes(b"fake-image-bytes")
 
     docs = [
         {
@@ -72,7 +79,7 @@ def test_bedrock_text_only_model_skips_vision_inputs(monkeypatch: pytest.MonkeyP
             "id": "img-1",
             "text": "[Image Page 1 from deck]",
             "source": "deck.pdf",
-            "source_path": "C:/does-not-matter/deck.pdf",
+            "source_path": str(image_path),
             "page": 1,
             "score": 0.7,
             "retrieval_type": "colqwen_qdrant",
@@ -83,4 +90,5 @@ def test_bedrock_text_only_model_skips_vision_inputs(monkeypatch: pytest.MonkeyP
     out = gen.generate("summarize", docs)
 
     assert out.get("answer") == "ok"
-    assert seen["image_paths"] is None
+    assert seen["model"] == "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+    assert seen["image_paths"] == [str(image_path)]

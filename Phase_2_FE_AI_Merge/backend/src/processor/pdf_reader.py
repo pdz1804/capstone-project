@@ -67,6 +67,7 @@ class CustomPdfConfig:
     #   docling: Docling for text+tables+formulas+pictures.
     #   hybrid : Docling first, fallback to pymupdf blocks on Docling failure.
     content_source: str = "pymupdf"
+    runtime_yaml: Optional[Dict[str, Any]] = None
 
 
 class CustomPdfReader:
@@ -113,6 +114,15 @@ class CustomPdfReader:
         source = (self.config.content_source or "pymupdf").lower()
 
         if source == "docling":
+            from .docling_remote import should_use_sagemaker_docling
+            if should_use_sagemaker_docling(self.config.runtime_yaml):
+                from .docling_regions import extract_regions_from_sagemaker_docling
+                return extract_regions_from_sagemaker_docling(
+                    pdf_path,
+                    runtime_yaml=self.config.runtime_yaml or {},
+                    output_dir=output_dir,
+                )
+
             from .docling_regions import extract_regions_from_docling
             return extract_regions_from_docling(
                 pdf_path,
@@ -123,6 +133,15 @@ class CustomPdfReader:
 
         if source == "hybrid":
             try:
+                from .docling_remote import should_use_sagemaker_docling
+                if should_use_sagemaker_docling(self.config.runtime_yaml):
+                    from .docling_regions import extract_regions_from_sagemaker_docling
+                    return extract_regions_from_sagemaker_docling(
+                        pdf_path,
+                        runtime_yaml=self.config.runtime_yaml or {},
+                        output_dir=output_dir,
+                    )
+
                 from .docling_regions import extract_regions_from_docling
                 return extract_regions_from_docling(
                     pdf_path,

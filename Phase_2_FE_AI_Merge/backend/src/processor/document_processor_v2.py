@@ -65,6 +65,21 @@ class ProcessingConfigV2:
         if self.docling_config is None:
             from .document_processor import ProcessingConfig
             self.docling_config = ProcessingConfig()
+        if self.runtime_yaml is None:
+            try:
+                from app.core.paths import merged_runtime_settings
+
+                self.runtime_yaml = merged_runtime_settings()
+            except Exception:
+                self.runtime_yaml = {
+                    "processing": {"document": {"docling_backend": "sagemaker"}},
+                    "inference": {
+                        "use_aws_sagemaker_docling": True,
+                        "aws_region": os.getenv("AWS_REGION", "us-west-2"),
+                        "sagemaker_endpoint_name": os.getenv("SAGEMAKER_ENDPOINT_NAME", "phase2-multimodal-rt"),
+                        "sagemaker_docling_endpoint_name": os.getenv("SAGEMAKER_DOCLING_ENDPOINT_NAME", ""),
+                    },
+                }
 
 
 # ---------------------------------------------------------------------------
@@ -112,6 +127,7 @@ class DocumentProcessorV2:
             "processed_files": 0,
             "failed_files": 0,
             "processing_time": 0,
+            "sagemaker_used": 0,
             "file_types": {},
             "errors": [],
         }
@@ -242,11 +258,18 @@ class DocumentProcessorV2:
 
     def _run_docx_reader(
         self, file_path: Path, out_dir: Path,
-    ) -> List[Dict[str, Any]]:
+    ) -> Dict[str, Any]:
         from .docx_reader_v2 import DocxParser
 
         parser = DocxParser()
-        return parser.extract_docx_text(str(file_path), output_dir=str(out_dir))
+        result = parser.extract_docx_text(str(file_path), output_dir=str(out_dir))
+
+        # Handle both old list format and new dict format
+        if isinstance(result, dict):
+            return result
+        else:
+            # Backward compatibility: wrap old list format in dict
+            return {"content_tree": result, "bookmarks": [], "track_changes": []}
 
     def _run_xlsx_reader(
         self, file_path: Path, out_dir: Path,
@@ -740,13 +763,25 @@ class DocumentProcessorV2:
 
         exported: Dict[str, str] = {}
 
-        # Parsed content
-        content = info.get("content_tree") or info.get("excel_sheets")
-        if content is not None:
+        # Parsed content - save full dict structure including bookmarks and track_changes
+        parsed_data = {}
+        if "content_tree" in info:
+            parsed_data["content_tree"] = info["content_tree"]
+        if "bookmarks" in info:
+            parsed_data["bookmarks"] = info["bookmarks"]
+        if "track_changes" in info:
+            parsed_data["track_changes"] = info["track_changes"]
+        if "excel_sheets" in info:
+            parsed_data["excel_sheets"] = info["excel_sheets"]
+
+        if parsed_data:
             parsed_path = doc_dir / f"{safe_stem}_parsed.json"
             with open(parsed_path, "w", encoding="utf-8") as f:
-                json.dump(content, f, ensure_ascii=False, indent=2, default=str)
+                json.dump(parsed_data, f, ensure_ascii=False, indent=2, default=str)
             exported["parsed_json"] = str(parsed_path)
+
+        # For backward compatibility, also extract content for markdown
+        content = info.get("content_tree") or info.get("excel_sheets")
 
         markdown_text = self._build_custom_markdown(
             content_tree=info.get("content_tree"),
@@ -871,6 +906,7 @@ class DocumentProcessorV2:
             "results": [],
             "errors": [],
             "exported_files": {},
+            "sagemaker_used": 0,
         }
 
         logger.info("Starting V2 batch processing of %d files", len(file_paths))
@@ -883,6 +919,9 @@ class DocumentProcessorV2:
                 exported = self.export_processed_document(info)
                 info["exported_files"] = exported
                 results["processed_files"] += 1
+                if info.get("docling_mode") == "sagemaker":
+                    results["sagemaker_used"] += 1
+                    self.stats["sagemaker_used"] += 1
                 results["results"].append(info)
                 self.stats["processed_files"] += 1
             else:
@@ -919,8 +958,10 @@ class DocumentProcessorV2:
         used_fallback: bool = False,
         error: Optional[str] = None,
         docling_mode: Optional[str] = None,
+        bookmarks: Optional[List[Dict]] = None,
+        track_changes: Optional[List[Dict]] = None,
     ) -> Dict[str, Any]:
-        return {
+        result = {
             "file_path": str(file_path),
             "file_type": file_type,
             "processor_used": processor_used,
@@ -936,6 +977,11 @@ class DocumentProcessorV2:
             "file_size": file_size,
             "docling_mode": docling_mode,
         }
+        if bookmarks is not None:
+            result["bookmarks"] = bookmarks
+        if track_changes is not None:
+            result["track_changes"] = track_changes
+        return result
 
     @staticmethod
     def _build_error_result(

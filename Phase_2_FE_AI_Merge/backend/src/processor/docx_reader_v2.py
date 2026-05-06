@@ -16,7 +16,7 @@ import zipfile
 import numpy as np
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union, Any
 from lxml import etree
 from dataclasses import dataclass
 from itertools import chain, islice
@@ -698,6 +698,9 @@ class DocxParser(object):
         self._numbering_helper: Optional[NumberingHelper] = None
         self._strike_style_ids: Set[str] = set()
         self._style_to_heading_level: Dict[str, int] = {}
+        # Store bookmarks and track changes for OfficeDocBench evaluation
+        self._bookmarks: List[Dict[str, Any]] = []
+        self._track_changes: List[Dict[str, Any]] = []
 
         # Style -> (numId, ilvl) mapping for styles that have numbering defined
         self._style_to_numpr: Dict[str, Tuple[str, int]] = {}
@@ -754,7 +757,7 @@ class DocxParser(object):
         self,
         docx_path: str,
         output_dir: Optional[str] = None,
-    ) -> List[dict]:
+    ) -> Dict[str, Any]:
         """
         Extract content from a DOCX (or legacy .doc) file.
 
@@ -827,12 +830,13 @@ class DocxParser(object):
                 self._auto_caption_numbering_detected = self._detect_auto_caption_numbering_fields(document_xml)
 
                 # Parse document
-                tree = self._parse_document(document_xml, docx_zip, rels, output_dir)
+                result = self._parse_document(document_xml, docx_zip, rels, output_dir)
 
+                tree = result.get("content_tree", [])
                 # Post-process the tree
                 self._postprocess_tree(tree)
 
-                return tree
+                return result
 
         except Exception as e:
             log.error(f"Failed to parse DOCX: {e}")
@@ -1438,6 +1442,7 @@ class DocxParser(object):
         stack: List,
         pending_drawing_ps: List,
         overlay_suppress_active: bool,
+        tree: List,
     ) -> int:
         """Handle a <w:tbl> element in the main body loop.
 
@@ -1448,7 +1453,7 @@ class DocxParser(object):
             return 1
         # Flush before table so buffered diagram doesn't leak past table boundary.
         self._flush_pending_drawing_ps(pending_drawing_ps, stack)
-        return max(1, self._handle_table_element(children, i, stack))
+        return max(1, self._handle_table_element(children, i, stack, tree))
 
     def _parse_document(
         self,
@@ -1471,6 +1476,9 @@ class DocxParser(object):
 
         # First pass: extract ToC entries to build numbering ground truth
         self._extract_toc_entries(root)
+        # Extract bookmarks and track changes
+        self._bookmarks = self._extract_bookmarks(root)
+        self._track_changes = self._extract_track_changes(root)
         # Reset heading counters for second pass
         self._heading_counters = [0] * 9
 
@@ -1513,7 +1521,7 @@ class DocxParser(object):
 
             if child.tag == create_ns(W_NS, "tbl"):
                 i += self._process_tbl_element(
-                    children, i, stack, pending_drawing_ps, overlay_suppress_active
+                    children, i, stack, pending_drawing_ps, overlay_suppress_active, tree
                 )
                 continue
 
@@ -1530,7 +1538,7 @@ class DocxParser(object):
                         sdt_child = sdt_children[sdt_j]
                         if sdt_child.tag == create_ns(W_NS, "tbl"):
                             sdt_j += self._process_tbl_element(
-                                sdt_children, sdt_j, stack, pending_drawing_ps, overlay_suppress_active
+                                sdt_children, sdt_j, stack, pending_drawing_ps, overlay_suppress_active, tree
                             )
                         elif sdt_child.tag == create_ns(W_NS, "p"):
                             advance, overlay_suppress_active, overlay_suppress_level = self._process_p_element(
@@ -1551,7 +1559,14 @@ class DocxParser(object):
         self._flush_pending_drawing_ps(pending_drawing_ps, stack)
 
         # Prune empty nodes
-        return self._prune_tree(tree)
+        tree = self._prune_tree(tree)
+
+        # Return dict with content_tree, bookmarks, and track_changes
+        return {
+            "content_tree": tree,
+            "bookmarks": self._bookmarks,
+            "track_changes": self._track_changes
+        }
 
     # ---------- _parse_document helper methods ----------
 
@@ -1703,7 +1718,7 @@ class DocxParser(object):
         return True
 
 
-    def _handle_table_element(self, children, i: int, stack: List) -> int:
+    def _handle_table_element(self, children, i: int, stack: List, tree: List) -> int:
         """Handle a table element, returning the number of children consumed."""
         md_blocks, consumed, grid = self._parse_table_chain(children, i)
 
@@ -1714,6 +1729,18 @@ class DocxParser(object):
             if stack:
                 self._append_to_node_content(stack[-1][1], block)
                 stack[-1][1]["content"] = self._merge_ver_marker(stack[-1][1]["content"])
+            else:
+                # No heading yet - create implicit root node for
+                node = {
+                    "heading_text": "",
+                    "heading_level": 0,
+                    "children": [],
+                    "content": ""
+                }
+                tree.append(node)
+                stack.append((0, node))
+                self._append_to_node_content(node, block)
+                node["content"] = self._merge_ver_marker(node["content"])
         else:
             for table_md in md_blocks:
                 block = (
@@ -1724,6 +1751,18 @@ class DocxParser(object):
                 if stack:
                     self._append_to_node_content(stack[-1][1], block)
                     stack[-1][1]["content"] = self._merge_ver_marker(stack[-1][1]["content"])
+                else:
+                    # No heading yet - create implicit root node for table content
+                    node = {
+                        "heading_text": "",
+                        "heading_level": 0,
+                        "children": [],
+                        "content": ""
+                    }
+                    tree.append(node)
+                    stack.append((0, node))
+                    self._append_to_node_content(node, block)
+                    node["content"] = self._merge_ver_marker(node["content"])
         return consumed
 
     # ---------- Image-only table helpers ----------
@@ -5967,6 +6006,53 @@ class DocxParser(object):
                         results.append(text)
 
         return results
+
+    def _extract_bookmarks(self, root) -> List[Dict[str, Any]]:
+        """Extract all bookmarks from the document."""
+        bookmarks = []
+        ns = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
+
+        # Find all bookmarkStart elements
+        for bm_start in root.xpath('//w:bookmarkStart', namespaces=ns):
+            bm_id = bm_start.get(f"{{{ns['w']}}}id")
+            bm_name = bm_start.get(f"{{{ns['w']}}}name")
+            if bm_name:
+                bookmarks.append({"name": bm_name})
+
+        return bookmarks
+
+    def _extract_track_changes(self, root) -> List[Dict[str, Any]]:
+        """Extract track changes from the document."""
+        track_changes = []
+        ns = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
+
+        # Find all track change elements (ins, del, moveFrom, moveTo)
+        for elem in root.xpath('//w:ins | //w:del | //w:moveFrom | //w:moveTo', namespaces=ns):
+            change_type = elem.tag.replace(f"{{{ns['w']}}}", "")
+            change_data = {"type": change_type}
+
+            # Extract author if available
+            author = elem.get(f"{{{ns['w']}}}author")
+            if author:
+                change_data["author"] = author
+
+            # Extract date if available
+            date = elem.get(f"{{{ns['w']}}}date")
+            if date:
+                change_data["date"] = date
+
+            # Extract text content
+            text = self._node_text_content(elem)
+            if text:
+                change_data["text"] = text
+
+            track_changes.append(change_data)
+
+        return track_changes
+
+    def get_bookmarks_and_track_changes(self) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+        """Return collected bookmarks and track changes."""
+        return self._bookmarks, self._track_changes
 
 
 def main():

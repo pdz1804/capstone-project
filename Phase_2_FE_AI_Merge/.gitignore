@@ -1,0 +1,21 @@
+# Local evaluation datasets and generated outputs.
+data/
+backend/data/
+backend/input/
+backend/output/
+backend/retrieval_eval_results.json
+backend/document_intelligence_eval_results.json
+backend/*_eval_results.json
+*_eval_results.json
+!backend/evals/parsing/media/
+!backend/evals/parsing/media/**
+
+# External benchmark checkouts stay local; guides document how to restore them.
+third_party/
+
+# Local agent/cache state.
+.codex
+.codex/
+.pytest_cache/
+__pycache__/
+*.py[cod]

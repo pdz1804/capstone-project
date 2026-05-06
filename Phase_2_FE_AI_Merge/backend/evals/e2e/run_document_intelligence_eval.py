@@ -7,7 +7,7 @@ import json
 import sys
 from pathlib import Path
 
-BACKEND_ROOT = Path(__file__).resolve().parents[1]
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
@@ -16,6 +16,7 @@ from src.evaluation.document_intelligence import (
     DocumentIntelligenceEvalConfig,
     run_document_intelligence_eval,
 )
+from app.services.document_intelligence_eval_service import DocumentIntelligenceEvalService
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -54,6 +55,37 @@ def main() -> int:
     provider = (args.provider or generation.get("provider") or "openai").strip().lower()
     model = (args.model or generation.get("model") or "").strip() or None
 
+    # Use database-based service if user_id is provided
+    if args.user_id:
+        print(f"Running evaluation for user_id: {args.user_id} (database mode)")
+        service = DocumentIntelligenceEvalService(yaml_config=runtime, user_id=args.user_id)
+        run = service.create_run(
+            questions_per_section=args.questions_per_section,
+            max_documents=args.max_documents,
+            max_sections_per_document=args.max_sections_per_document,
+            top_k=args.top_k,
+            retriever_type=args.retriever_type,
+            provider=provider,
+            model=model,
+        )
+        print(
+            json.dumps(
+                {
+                    "run_id": run.get("run_id"),
+                    "user_id": run.get("user_id"),
+                    "status": run.get("status"),
+                    "phase": args.phase,
+                    "output_dir": run.get("artifact_path"),
+                    "summary": run.get("summary"),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0
+
+    # Original file-based mode
+    print("Running evaluation in file-based mode")
     config = DocumentIntelligenceEvalConfig(
         input_path=str(Path(args.input).resolve()),
         parsed_root=str(Path(args.parsed_root).resolve()),
