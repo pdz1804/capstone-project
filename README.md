@@ -1,4 +1,4 @@
-# Capstone Project - HCMUT CS251
+# Capstone Project - HCMUT CS252
 
 > **Educational Content Processing & Retrieval-Augmented Generation System**
 > A comprehensive research platform for multimodal lecture processing, intelligent retrieval, and RAG pipeline development.
@@ -321,7 +321,7 @@ Use **`Phase_2_FE_AI_Merge`** as the maintained application tree for local devel
 ## 🚀 Quick Start
 
 **📚 For capstone presentations / documentation review:**
-Start with **[`docs/INDEX.md`](docs/INDEX.md)** (navigation guide) → **[`docs/CAPSTONE_PRESENTATION_GUIDE.md`](docs/CAPSTONE_PRESENTATION_GUIDE.md)** (presentation strategy and document checklist).
+Start with **[`docs/README.md`](docs/README.md)** (documentation hub) → **[`docs/report/`](docs/report/)** folder for Phase 2 reports and presentation guides.
 
 **👨‍💻 For development setup:**
 Prerequisites follow **[`docs/requirements.md`](docs/requirements.md)** (TR-001–TR-005, NFR-005–NFR-006): **Python 3.9+**, **FastAPI** backend; **React 18+**, **Vite**, **Tailwind** frontend; **FFmpeg**, **Tesseract**, **Poppler** for media; **GPU** optional locally if you offload heavy inference to APIs or **SageMaker** ([`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)). **Docker** and **Terraform** are for packaging and cloud layout (TR-006–TR-007).
@@ -389,7 +389,7 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 
 ## 🎓 Academic Context
 
-**Course**: CS251 - Capstone Project
+**Course**: CS252 - Capstone Project
 **Institution**: Ho Chi Minh City University of Technology (HCMUT)
 **Focus**: Applied AI for Educational Content Processing
 **Domain**: Information Retrieval, NLP, Multimodal Learning, RAG Systems
@@ -416,24 +416,23 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 **Core Documentation**
 
 - **[`docs/README.md`](docs/README.md)** — Documentation hub and overview.
-- **[`docs/FEATURES.md`](docs/FEATURES.md)** ⭐ — Comprehensive feature documentation: all 18 features with implementation details, APIs, configurations.
+- **[`docs/requirements.md`](docs/requirements.md)** ⭐ — Software Requirements Specification: functional, non-functional, technical constraints (37 requirements total).
 
 **Authoritative Technical Documents**
 
 - **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)** — Product scope, user workflows, architecture summary, features, quality attributes, and engineering assessment.
 - **[`docs/technical/API_REFERENCE.md`](docs/technical/API_REFERENCE.md)** — Maintainer-level API reference covering authentication, files, processing, indexing, search, chat, insights, feedback, and operational guidance.
-- **[`docs/requirements.md`](docs/requirements.md)** — Software Requirements Specification: functional, non-functional, technical constraints, and verification criteria (37 requirements total).
-- **[`docs/technical/GUARDRAIL_CONFIGURATION.md`](docs/technical/GUARDRAIL_CONFIGURATION.md)** ⭐ — AWS Bedrock guardrails configuration, content safety filters, PII protection, implementation details.
+- **[`docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md`](docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)** ⭐ — AWS Bedrock guardrails configuration, content safety filters, PII protection, implementation details.
 
 **Testing and performance evidence**
 
-- **[`docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)** — Final application performance report for technical lead review and capstone protection day.
+- **[`docs/report/FRESH_EVALUATION_REPORT_2026_05_07.md`](docs/report/FRESH_EVALUATION_REPORT_2026_05_07.md)** — Final evaluation report with component testing, performance benchmarks, and production readiness assessment.
 - **[`docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md)** — JMeter runbook and result exports for Process, Index, and Search.
 - **[`docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md)** — JMeter runbook and result exports for Auth, User, Stats, Upload, Chat, and Insights.
 
 **Architecture and deployment**
 
-- **[`docs/diagram/README_SYSTEM_DOCUMENTATION.md`](docs/diagram/README_SYSTEM_DOCUMENTATION.md)** — System documentation and diagram index.
+- **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)** — System architecture, technology stack, and design patterns.
 - **[`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](docs/technical/DOCS_deployment-alb-acm-custom-domain.md)** — ACM certificates, DNS validation, ALB HTTP→HTTPS, custom domains.
 - **[`docs/technical/DOCS_search-cache-redis-setup.md`](docs/technical/DOCS_search-cache-redis-setup.md)** — Redis/ElastiCache search cache setup and operational notes.
 
@@ -505,6 +504,6 @@ Open-source models, APIs, and platforms that this codebase builds on (see also T
 ---
 
 **Version:** 1.0
-**Last Updated:** April 28, 2026
+**Last Updated:** May 7, 2026
 
 **Team:** MKhoi, NKhoi, QPhu.
