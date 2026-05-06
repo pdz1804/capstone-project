@@ -192,6 +192,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
 
     async def event_stream():
         def emit(payload: Dict[str, Any]) -> str:
+            logger.info("[DEBUG] Emitting event type: %s, payload: %s", payload.get("type"), payload)
             return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
         yield emit({"type": "session", "session_id": session_id})
@@ -826,7 +827,8 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
             yield emit({"type": "done"})
 
         except Exception as e:
-            logger.exception("chat stream failed")
+            logger.exception("[DEBUG] chat stream failed with exception: %s", e)
+            logger.info("[DEBUG] Exception type: %s, message: %s", type(e).__name__, str(e))
             yield emit({"type": "error", "message": str(e)})
 
     return StreamingResponse(

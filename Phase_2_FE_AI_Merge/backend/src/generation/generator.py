@@ -21,6 +21,8 @@ from app.services.citation_uris import sanitize_metadata_for_api
 
 logger = logging.getLogger(__name__)
 
+BEDROCK_VISION_FALLBACK_MODEL = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+
 
 def _env_has_value(name: str) -> bool:
     return bool(str(os.getenv(name, "") or "").strip())
@@ -60,16 +62,22 @@ def _aws_credentials_configured() -> bool:
 
 def _looks_like_bedrock_model(model_name: str) -> bool:
     model = (model_name or "").strip().lower()
-    return model.startswith(("us.", "eu.", "apac.")) or "anthropic.claude" in model
+    return model.startswith(("us.", "eu.", "apac.", "zai.", "google.gemma")) or "anthropic.claude" in model
+
+
 def _bedrock_model_supports_vision(model_id: str) -> bool:
     """Best-effort capability gate for Bedrock models in this app."""
     mid = str(model_id or "").strip().lower()
     if not mid:
         return True
-    # Known text-only in our allowed set.
-    if mid.startswith("google.gemma") or mid.startswith("zai.glm"):
+    # Known text-only Bedrock models in our allowed set.
+    if mid.startswith(("google.gemma", "zai.glm")):
         return False
     return True
+
+
+def _bedrock_vision_fallback_model() -> str:
+    return (os.getenv("BEDROCK_VISION_FALLBACK_MODEL") or BEDROCK_VISION_FALLBACK_MODEL).strip()
 
 
 def _looks_like_bedrock_payload_too_large(exc: Exception) -> bool:
@@ -756,6 +764,21 @@ class RAGGenerator:
         
         logger.info(f"Retrieved docs: {len(retrieved_docs)} total, {len(text_docs)} text, {len(image_docs)} images, {len(embedded_image_paths)} embedded spreadsheet images")
         
+        has_image_inputs = bool(image_docs or embedded_image_paths)
+        if (
+            has_image_inputs
+            and self.config.provider == "bedrock"
+            and not _bedrock_model_supports_vision(self.config.model_name)
+        ):
+            fallback_model = _bedrock_vision_fallback_model()
+            if fallback_model and fallback_model != self.config.model_name:
+                logger.info(
+                    "Model %s is text-only but request has image inputs; falling back to vision model %s",
+                    self.config.model_name,
+                    fallback_model,
+                )
+                self.config.model_name = fallback_model
+
         allow_vision_inputs = not (
             self.config.provider == "bedrock" and not _bedrock_model_supports_vision(self.config.model_name)
         )
@@ -845,15 +868,22 @@ class RAGGenerator:
                     image_paths.append(path)
                     image_descriptions.append(f"[Image {len(image_paths)}] {desc}")
         
-        # Add embedded images from spreadsheet chunks
-        for emb_img in embedded_image_paths:
-            emb_path = Path(emb_img)
-            if emb_path.exists():
-                image_paths.append(str(emb_path))
-                image_descriptions.append(
-                    f"[Image {len(image_paths)}] Embedded spreadsheet image: {emb_path.name}"
-                )
-                logger.info(f"Added embedded spreadsheet image: {emb_path.name}")
+        # Add embedded images from spreadsheet chunks only for vision-capable models.
+        if allow_vision_inputs:
+            for emb_img in embedded_image_paths:
+                emb_path = Path(emb_img)
+                if emb_path.exists():
+                    image_paths.append(str(emb_path))
+                    image_descriptions.append(
+                        f"[Image {len(image_paths)}] Embedded spreadsheet image: {emb_path.name}"
+                    )
+                    logger.info(f"Added embedded spreadsheet image: {emb_path.name}")
+        elif embedded_image_paths:
+            logger.info(
+                "Model %s is treated as text-only; skipping %s embedded spreadsheet image inputs",
+                self.config.model_name,
+                len(embedded_image_paths),
+            )
 
         # Format context from text docs only
         if use_citations:

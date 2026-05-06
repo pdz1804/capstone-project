@@ -647,14 +647,23 @@ export default function ChatAssistantView() {
         });
       };
 
+      console.log('[DEBUG] Starting stream read loop');
+      let readCount = 0;
+      let eventCount = 0;
+
       while (true) {
         const { value, done } = await reader.read();
-        if (done) break;
+        if (done) {
+          console.log('[DEBUG] Stream done. Total reads:', readCount, 'Total events:', eventCount);
+          break;
+        }
+        readCount++;
         buf += decoder.decode(value, { stream: true });
         const parts = buf.split('\n\n');
         buf = parts.pop() || '';
 
         for (const evt of parts) {
+          eventCount++;
           const line = evt
             .split('\n')
             .find((x) => x.startsWith('data:'));
@@ -674,9 +683,11 @@ export default function ChatAssistantView() {
           } = {};
           try {
             payload = JSON.parse(payloadText);
-          } catch {
+          } catch (e) {
+            console.error('[DEBUG] JSON parse failed for payload:', payloadText, 'Error:', e);
             continue;
           }
+          console.log('[DEBUG] Received event type:', payload.type);
           if (payload.type === 'session' && payload.session_id) {
             setSessionId(payload.session_id);
           } else if (payload.type === 'token') {
@@ -695,11 +706,13 @@ export default function ChatAssistantView() {
               payload.model_text,
             );
           } else if (payload.type === 'error') {
+            console.error('[DEBUG] Received error event from backend:', payload.message);
             throw new Error(payload.message || 'Chat agent error');
           }
         }
       }
 
+      console.log('[DEBUG] Stream processing complete. finalHadToken:', finalHadToken, 'streamHadInlineImage:', streamHadInlineImage);
       if (!finalHadToken && !streamHadInlineImage) {
         appendAssistant('No response generated. Ensure Strands is installed and RAG indexes are available.', true);
       }
@@ -708,7 +721,12 @@ export default function ChatAssistantView() {
         await loadSessions(null, false);
       }
     } catch (error) {
-      console.error("Chat Error:", error);
+      console.error("[DEBUG] Chat Error caught:", error);
+      console.error("[DEBUG] Error name:", error instanceof Error ? error.name : typeof error);
+      console.error("[DEBUG] Error message:", error instanceof Error ? error.message : String(error));
+      if (error instanceof Error) {
+        console.error("[DEBUG] Error stack:", error.stack);
+      }
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',

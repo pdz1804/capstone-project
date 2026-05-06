@@ -9,7 +9,6 @@ interface KnowledgeManagementViewProps {
   setFiles: React.Dispatch<React.SetStateAction<FileItem[]>>;
   activeTab: KnowledgeSubTab;
   onRefreshFiles: () => Promise<void>;
-  canUseRetrievalEval?: boolean;
 }
 
 export default function KnowledgeManagementView({
@@ -17,7 +16,6 @@ export default function KnowledgeManagementView({
   setFiles,
   activeTab,
   onRefreshFiles,
-  canUseRetrievalEval = false,
 }: KnowledgeManagementViewProps) {
   useEffect(() => {
     void onRefreshFiles();
@@ -69,7 +67,7 @@ export default function KnowledgeManagementView({
         {activeTab === 'build-index' && (
           <LibraryView files={files} setFiles={setFiles} onRefreshFiles={onRefreshFiles} controlMode="index" />
         )}
-        {activeTab === 'explorer' && <SearchView files={files} canUseRetrievalEval={canUseRetrievalEval} />}
+        {activeTab === 'explorer' && <SearchView files={files} />}
       </div>
     </div>
   );
