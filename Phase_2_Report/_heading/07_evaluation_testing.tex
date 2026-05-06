@@ -118,6 +118,8 @@
 
 To ensure a rigorous and transparent evaluation, the performance test suite was architected using \textbf{Apache JMeter}, a leading open-source application designed to load test functional behavior and measure performance. JMeter was selected for its ability to simulate heavy concurrent workloads on the BK-MInD backend, providing high-fidelity data on response times, throughput, and resource utilization across various operational scenarios. The methodology focused on simulating high-concurrency environments to identify the system's operational boundaries, utilizing custom Python orchestration scripts to process the raw output logs into actionable insights.
 
+The performance testing environment is supported by a specialized toolchain designed for high-concurrency simulation and granular metrics extraction, as summarized in Table~\ref{tab:test_tools}.
+
 \begin{table}[H]
     \centering
     \caption{Performance Testing Toolchain}
@@ -136,6 +138,8 @@ To ensure a rigorous and transparent evaluation, the performance test suite was 
     \end{tabular}
     }
 \end{table}
+
+To provide a standardized evaluation of the system's operational efficiency, we define a set of core performance metrics used throughout the testing phase, detailed in Table~\ref{tab:metrics_explained}.
 
 \begin{table}[H]
     \centering
@@ -156,8 +160,12 @@ To ensure a rigorous and transparent evaluation, the performance test suite was 
     }
 \end{table}
 
+The evaluation is structured into several distinct test scenarios targeting different system components, as outlined in the testing plan in Table~\ref{tab:test_plan}.
+
 \begin{table}[H]
     \centering
+    \caption{Performance Testing Plan and Objectives}
+    \label{tab:test_plan}
     \scalebox{0.85}{
     \begin{tabular}{lp{6cm}p{6cm}}
         \toprule
@@ -172,8 +180,12 @@ To ensure a rigorous and transparent evaluation, the performance test suite was 
     }
 \end{table}
 
+The reliability of the collected performance data is ensured through a multi-layered verification strategy that correlates JMeter logs with backend state transitions, as presented in Table~\ref{tab:test_evidence}.
+
 \begin{table}[H]
     \centering
+    \caption{Test Evidence and Verification Methods}
+    \label{tab:test_evidence}
     \scalebox{0.85}{
     \begin{tabular}{lp{6cm}p{6cm}}
         \toprule
@@ -193,6 +205,8 @@ To ensure a rigorous and transparent evaluation, the performance test suite was 
 To evaluate the system's robustness and scalability under realistic user workloads, a comprehensive load testing suite was executed using \textbf{Apache JMeter}. The testing focused on the core user journeys, ranging from lightweight authentication and profile retrieval to heavy AI-driven processing and indexing pipelines. The following results represent the system's performance across varying concurrency levels, up to 50 simultaneous users.
 
 \textbf{Baseline API}
+
+The initial phase of evaluation establishes a performance baseline for core interactive endpoints under nominal conditions, with the results summarized in Table~\ref{tab:baseline_perf}.
 
 \begin{table}[H]
     \centering
@@ -216,6 +230,8 @@ Authentication and user profile calls stayed below 2.5 seconds at P95, while pro
 The baseline API layer is healthy at 50 concurrent users. These endpoints do not appear to be the primary scalability risk for the application.
 
 \textbf{Upload API}
+
+The file upload subsystem was tested against varying concurrency levels to evaluate its handling of binary data streams and cloud storage persistence, with the results shown in Table~\ref{tab:upload_perf}.
 
 \begin{table}[H]
     \centering
@@ -242,6 +258,8 @@ The upload layer is reliable up to 50 concurrent users in the available test set
 
 \textbf{Document Processing Jobs}
 
+Document processing, being a resource-intensive background task, was evaluated based on job success rates and completion durations, as summarized in Table~\ref{tab:processing_perf}.
+
 \begin{table}[H]
     \centering
     \caption{Document Processing Performance Matrix}
@@ -264,6 +282,8 @@ Processing duration rises from approximately 36 seconds at 20 jobs to 51 seconds
 Processing is acceptable at moderate concurrency but should be treated as a controlled background workload. The system should not allow unlimited simultaneous processing jobs. Queueing, worker autoscaling, and job-specific retry/error classification will improve stability as usage grows.
 
 \textbf{Indexing Jobs}
+
+Full-text and visual indexing performance metrics, which highlight the system's current capacity limits for vectorization, are presented in Table~\ref{tab:indexing_perf}.
 
 \begin{table}[H]
     \centering
@@ -290,6 +310,8 @@ The safe operating point for indexing from current evidence is up to 30 concurre
 
 \textbf{Search API}
 
+The performance of the multimodal search engine across different user loads, measuring the end-to-end latency from query to result, is detailed in Table~\ref{tab:search_perf}.
+
 \begin{table}[H]
     \centering
     \caption{Search Performance Matrix}
@@ -313,6 +335,8 @@ Search remained reliable with 0 errors through 50 concurrent users. Latency incr
 Search is functionally stable under the tested concurrency. The next optimization target should be latency reduction: cache hit-rate improvement, stricter retrieval defaults for high-load conditions, and separating retrieval-only paths from generation-heavy paths.
 
 \textbf{Chat Stream API}
+
+The responsiveness of the AI chat interface, specifically its ability to maintain low first-byte latency while streaming complex reasoning, is documented in Table~\ref{tab:chat_stream_perf}.
 
 \begin{table}[H]
     \centering
@@ -340,6 +364,8 @@ Chat is operationally stable up to 50 concurrent users. For production growth, t
 
 \textbf{Summary API}
 
+Performance metrics for the automated lecture summarization service, reflecting its stability under concurrent demand, are shown in Table~\ref{tab:summary_perf}.
+
 \begin{table}[H]
     \centering
     \caption{Summary Performance Matrix}
@@ -364,6 +390,8 @@ Summary generation is ready for concurrent classroom-style usage, especially whe
 
 \textbf{Multiple Choice Question (MCQ) API}
 
+The efficiency of the MCQ generation endpoint, which supports rapid educational content creation, is summarized in Table~\ref{tab:mcq_perf}.
+
 \begin{table}[H]
     \centering
     \caption{Multiple Choice Question Performance Matrix}
@@ -387,6 +415,8 @@ MCQ generation is the best-performing AI insight endpoint, with mean latency sta
 MCQ generation is a strong candidate for high-traffic educational workflows such as quick quizzes and revision sessions.
 
 \textbf{Learning Roadmap API}
+
+Learning roadmap generation latencies and success rates under load are presented in Table~\ref{tab:roadmap_perf}.
 
 \begin{table}[H]
     \centering
@@ -416,8 +446,12 @@ Roadmap generation has strong production potential, supporting many concurrent l
 
 The following analysis synthesizes the results across all API groups to identify system-wide trends and develop mitigation strategies for production risks.
 
+A synthesis of the key findings from the cross-API performance evaluation is provided in Table~\ref{tab:api_findings}, highlighting both stable areas and identified bottlenecks.
+
 \begin{table}[H]
     \centering
+    \caption{Cross-API Performance Findings}
+    \label{tab:api_findings}
     \scalebox{0.85}{
     \begin{tabular}{lp{6cm}p{6cm}}
         \toprule
@@ -431,6 +465,8 @@ The following analysis synthesizes the results across all API groups to identify
     \end{tabular}
     }
 \end{table}
+
+Based on the observed performance boundaries, Table~\ref{tab:risks_mitigations} outlines the primary production risks and the corresponding technical mitigation strategies.
 
 \begin{table}[H]
     \centering
