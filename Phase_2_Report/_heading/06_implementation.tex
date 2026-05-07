@@ -541,6 +541,14 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \item Metadata: \texttt{sheet\_name}, \texttt{row\_range}, \texttt{table\_id}
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
+    \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
+    \label{fig:excel_proc}
+\end{figure}
+
+
 \subsection{Stage 3c: DOCX Processing (Conditional)}
 
 \textbf{Trigger}: Only executes if \texttt{docx\_parsed/} directory exists (populated in Stage 1)
@@ -569,6 +577,14 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \item Metadata: \texttt{heading\_level}, \texttt{heading\_path}, \texttt{section\_title}
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
+    \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
+    \label{fig:docx_proc}
+\end{figure}
+
+
 \subsection{Stage 3d: PDF Processing (Conditional)}
 
 \textbf{Trigger}: Only executes if \texttt{pdf\_parsed/} directory exists (populated in Stage 1 for structured PDFs)
@@ -596,6 +612,14 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \item \texttt{document\_id/chunks.json}: Page-aware chunks
     \item Metadata: \texttt{page\_number}, \texttt{section\_level}, \texttt{total\_pages}
 \end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
+    \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
+    \label{fig:pdf_proc}
+\end{figure}
+
 
 \subsection{Stage 4: RAG-Ready Consolidation}
 
@@ -2183,7 +2207,7 @@ Blocked requests are logged to CloudWatch Logs for forensic analysis, including 
     \label{fig:waf_attacks}
 \end{figure}
 
-\newpage
+% \newpage
 
 \subsection{Application-Level Security: AWS Bedrock Guardrails}
 
@@ -2251,7 +2275,7 @@ Guardrails are integrated into all AI-powered features through the Bedrock API i
     \item \textbf{Feedback Analysis:} Protects PII while filtering inappropriate submissions
 \end{itemize}
 
-\newpage
+% \newpage
 
 \subsection{Data Protection and Encryption}
 
@@ -2278,7 +2302,7 @@ AWS DynamoDB tables are configured with server-side encryption using AWS-managed
     \label{fig:security_architecture}
 \end{figure}
 
-\newpage
+% \newpage
 
 \subsection{Security Compliance and Best Practices}
 
