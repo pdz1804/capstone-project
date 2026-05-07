@@ -121,14 +121,44 @@ function getMetricMean(metrics: Record<string, any> | undefined, source: 'llm' |
   return typeof value === 'number' ? value.toFixed(3) : '-';
 }
 
-function RetrievalMetricTable({ title, metrics, source }: { title: string; metrics?: Record<string, any>; source: 'llm' | 'human' }) {
-  const ks = ['@1', '@3', '@5', '@10'];
+function evalModalitiesForScope(scope: string | undefined): EvalModality[] {
+  if (scope === 'text') return ['text'];
+  if (scope === 'image') return ['image'];
+  return ['text', 'image'];
+}
+
+function evalScopeFromRun(run: RetrievalEvalRun | null, fallback: SearchScope = 'both'): SearchScope {
+  const scope = String(run?.config?.search_scope || fallback);
+  return scope === 'text' || scope === 'image' || scope === 'both' ? scope : fallback;
+}
+
+function evalKValuesFromRun(run: RetrievalEvalRun | null): number[] {
+  const raw = run?.config?.k_values;
+  if (!Array.isArray(raw)) return [1, 3, 5, 7, 10];
+  const values = raw.map((value) => Number(value)).filter((value) => Number.isFinite(value) && value > 0);
+  return values.length > 0 ? values : [1, 3, 5, 7, 10];
+}
+
+function RetrievalMetricTable({
+  title,
+  metrics,
+  source,
+  modalities,
+  kValues,
+}: {
+  title: string;
+  metrics?: Record<string, any>;
+  source: 'llm' | 'human';
+  modalities: EvalModality[];
+  kValues: number[];
+}) {
+  const ks = kValues.map((k) => `@${k}`);
   const rows = [
     { label: 'Text recall', modality: 'text' as EvalModality, metric: 'recall' },
     { label: 'Text nDCG', modality: 'text' as EvalModality, metric: 'ndcg' },
     { label: 'Image recall', modality: 'image' as EvalModality, metric: 'recall' },
     { label: 'Image nDCG', modality: 'image' as EvalModality, metric: 'ndcg' },
-  ];
+  ].filter((row) => modalities.includes(row.modality));
   return (
     <div className="overflow-hidden rounded-lg border border-emerald-100 bg-white">
       <div className="border-b border-emerald-100 bg-emerald-50/50 px-3 py-2 text-xs font-black uppercase tracking-tight text-emerald-800">{title}</div>
@@ -321,7 +351,10 @@ export default function SearchView({
   const [evalError, setEvalError] = useState<string | null>(null);
   const [selectedEvalQueryId, setSelectedEvalQueryId] = useState<string>('');
   const [selectedEvalModality, setSelectedEvalModality] = useState<EvalModality>('text');
-  const [selectedEvalDocumentId, setSelectedEvalDocumentId] = useState<string>('');
+  const [selectedEvalDocumentIds, setSelectedEvalDocumentIds] = useState<string[]>([]);
+  const [reuseGeneratedQuestions, setReuseGeneratedQuestions] = useState<boolean>(true);
+  const [evalSearchScope, setEvalSearchScope] = useState<SearchScope>('both');
+  const [evalRetrieverType, setEvalRetrieverType] = useState<RetrieverType>('hybrid');
   const [evalQuestionsPerCategory, setEvalQuestionsPerCategory] = useState<number>(5);
   const [evalRunIdInput, setEvalRunIdInput] = useState('');
   const [evalDraftLabels, setEvalDraftLabels] = useState<Record<string, number>>({});
@@ -386,14 +419,14 @@ export default function SearchView({
 
   useEffect(() => {
     if (!eligibleEvalFiles.length) {
-      if (selectedEvalDocumentId) setSelectedEvalDocumentId('');
+      if (selectedEvalDocumentIds.length > 0) setSelectedEvalDocumentIds([]);
       return;
     }
-    const exists = eligibleEvalFiles.some((file) => file.documentFolder === selectedEvalDocumentId);
-    if (!exists) {
-      setSelectedEvalDocumentId(eligibleEvalFiles[0]?.documentFolder || '');
+    const validIds = selectedEvalDocumentIds.filter((id) => eligibleEvalFiles.some((file) => file.documentFolder === id));
+    if (validIds.length !== selectedEvalDocumentIds.length) {
+      setSelectedEvalDocumentIds(validIds);
     }
-  }, [eligibleEvalFiles, selectedEvalDocumentId]);
+  }, [eligibleEvalFiles, selectedEvalDocumentIds]);
 
   useEffect(() => {
     if (!evalRun) return;
@@ -426,6 +459,16 @@ export default function SearchView({
   const selectedEvalResult = useMemo(() => {
     return (evalRun?.results || []).find((item) => item.query_id === selectedEvalQueryId) || null;
   }, [evalRun, selectedEvalQueryId]);
+
+  const evalRunScope = evalScopeFromRun(evalRun, evalSearchScope);
+  const activeEvalModalities = useMemo(() => evalModalitiesForScope(evalRunScope), [evalRunScope]);
+  const evalMetricKValues = useMemo(() => evalKValuesFromRun(evalRun), [evalRun]);
+
+  useEffect(() => {
+    if (!activeEvalModalities.includes(selectedEvalModality)) {
+      setSelectedEvalModality(activeEvalModalities[0] || 'text');
+    }
+  }, [activeEvalModalities, selectedEvalModality]);
 
   const selectedEvalEvidence: RetrievalEvalEvidence[] = useMemo(() => {
     if (!selectedEvalResult) return [];
@@ -506,19 +549,21 @@ export default function SearchView({
 
   const runRetrievalEval = async () => {
     setEvalError(null);
-    if (!selectedEvalDocumentId) {
-      setEvalError('Please choose one eligible file before starting retrieval evaluation.');
+    if (selectedEvalDocumentIds.length === 0) {
+      setEvalError('Please choose at least one eligible file before starting retrieval evaluation.');
       return;
     }
     setIsEvalRunning(true);
     try {
       const run = await createRetrievalEvalRun({
         top_k: 10,
-        k_values: [1, 3, 5, 10],
-        retriever_type: 'hybrid',
+        k_values: [1, 3, 5, 7, 10],
+        retriever_type: evalRetrieverType,
+        search_scope: evalSearchScope,
         questions_per_category: evalQuestionsPerCategory,
-        selected_document_ids: [selectedEvalDocumentId],
+        selected_document_ids: selectedEvalDocumentIds,
         async_mode: true,
+        reuse_generated_questions: reuseGeneratedQuestions,
       });
       setEvalRun(run);
       setSelectedEvalQueryId(run.results?.[0]?.query_id || '');
@@ -923,39 +968,90 @@ export default function SearchView({
                 )}
               </p>
             </div>
-            <div className="ml-auto flex flex-wrap items-end gap-2">
-              <label className="text-xs text-slate-600">
-                File
-                <select
-                  value={selectedEvalDocumentId}
-                  onChange={(e) => setSelectedEvalDocumentId(e.target.value)}
-                  className="mt-1 w-56 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2 py-1.5 text-sm"
-                >
-                  {eligibleEvalFiles.length === 0 ? (
-                    <option value="">No eligible files</option>
-                  ) : (
-                    eligibleEvalFiles.map((file) => (
-                      <option key={file.documentFolder} value={file.documentFolder}>
-                        {file.name}
-                      </option>
-                    ))
-                  )}
-                </select>
-              </label>
-              <label className="text-xs text-slate-600">
-                Q/category
-                <input
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={evalQuestionsPerCategory}
-                  onChange={(e) => setEvalQuestionsPerCategory(Math.max(1, Math.min(10, Number(e.target.value || 5))))}
-                  className="mt-1 w-20 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2 py-1.5 text-sm"
+            <div className="ml-auto flex flex-col items-end gap-2">
+              <div className="flex flex-col gap-1 w-[320px] max-h-40 overflow-y-auto border border-emerald-100 rounded-lg p-2 bg-emerald-50/50 text-xs custom-scrollbar">
+                {eligibleEvalFiles.length === 0 ? (
+                  <span className="text-slate-500 p-1">No eligible files</span>
+                ) : (
+                  <>
+                    <label className="flex items-center gap-2 p-1 hover:bg-emerald-100/50 rounded cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedEvalDocumentIds.length === eligibleEvalFiles.length && eligibleEvalFiles.length > 0} 
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedEvalDocumentIds(eligibleEvalFiles.map(f => f.documentFolder || ''));
+                          else setSelectedEvalDocumentIds([]);
+                        }}
+                        className="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="font-bold">Select All</span>
+                    </label>
+                    {eligibleEvalFiles.map((file) => (
+                      <label key={file.documentFolder} className="flex items-center gap-2 p-1 hover:bg-emerald-100/50 rounded cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedEvalDocumentIds.includes(file.documentFolder || '')} 
+                          onChange={(e) => {
+                            if (e.target.checked) setSelectedEvalDocumentIds(prev => [...prev, file.documentFolder || '']);
+                            else setSelectedEvalDocumentIds(prev => prev.filter(id => id !== file.documentFolder));
+                          }}
+                          className="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500"
+                        />
+                        <span className="truncate">{file.name}</span>
+                      </label>
+                    ))}
+                  </>
+                )}
+              </div>
+              <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer mt-1">
+                <input 
+                  type="checkbox" 
+                  checked={reuseGeneratedQuestions} 
+                  onChange={(e) => setReuseGeneratedQuestions(e.target.checked)}
+                  className="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500"
                 />
+                Use previous generated questions if available
               </label>
-              <label className="text-xs text-slate-600">
-                Run ID
-                <input
+              <div className="flex flex-wrap items-end gap-2">
+                <label className="text-xs text-slate-600">
+                  Search scope
+                  <select
+                    value={evalSearchScope}
+                    onChange={(e) => setEvalSearchScope(e.target.value as SearchScope)}
+                    className="mt-1 w-44 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2 py-1.5 text-sm"
+                  >
+                    <option value="both">Both text + image</option>
+                    <option value="text">Text only</option>
+                    <option value="image">Image only</option>
+                  </select>
+                </label>
+                <label className="text-xs text-slate-600">
+                  Text retrieval
+                  <select
+                    value={evalRetrieverType}
+                    onChange={(e) => setEvalRetrieverType(e.target.value as RetrieverType)}
+                    disabled={evalSearchScope === 'image'}
+                    className="mt-1 w-36 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2 py-1.5 text-sm disabled:opacity-50"
+                  >
+                    <option value="bm25">Keyword</option>
+                    <option value="dense">Semantic</option>
+                    <option value="hybrid">Hybrid</option>
+                  </select>
+                </label>
+                <label className="text-xs text-slate-600">
+                  Q/category
+                  <input
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={evalQuestionsPerCategory}
+                    onChange={(e) => setEvalQuestionsPerCategory(Math.max(1, Math.min(10, Number(e.target.value || 5))))}
+                    className="mt-1 w-20 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2 py-1.5 text-sm"
+                  />
+                </label>
+                <label className="text-xs text-slate-600">
+                  Run ID
+                  <input
                   type="text"
                   value={evalRunIdInput}
                   onChange={(e) => setEvalRunIdInput(e.target.value)}
@@ -974,7 +1070,7 @@ export default function SearchView({
               <button
                 type="button"
                 onClick={() => void runRetrievalEval()}
-                disabled={isEvalRunning || !selectedEvalDocumentId}
+                disabled={isEvalRunning || selectedEvalDocumentIds.length === 0}
                 className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
               >
                 {isEvalRunning ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Beaker className="w-4 h-4" />}
@@ -990,6 +1086,7 @@ export default function SearchView({
                   Recompute
                 </button>
               )}
+              </div>
             </div>
           </div>
 
@@ -1000,20 +1097,24 @@ export default function SearchView({
           {evalRun && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-                <RetrievalMetricTable title="LLM retrieval metrics" metrics={evalRun.metrics} source="llm" />
-                <RetrievalMetricTable title="Human retrieval metrics" metrics={evalRun.metrics} source="human" />
+                <RetrievalMetricTable title="LLM retrieval metrics" metrics={evalRun.metrics} source="llm" modalities={activeEvalModalities} kValues={evalMetricKValues} />
+                <RetrievalMetricTable title="Human retrieval metrics" metrics={evalRun.metrics} source="human" modalities={activeEvalModalities} kValues={evalMetricKValues} />
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {[
                   ['Retrieval wall total', getEvalTiming(evalRun, ['retrieval', 'wall_total_ms'])],
-                  ['Text retrieve total', getEvalTiming(evalRun, ['retrieval', 'text', 'total_ms'])],
-                  ['Text embed total', getEvalTiming(evalRun, ['retrieval', 'text', 'embed_ms'])],
-                  ['Text rerank total', getEvalTiming(evalRun, ['retrieval', 'text', 'rerank_ms'])],
-                  ['Image retrieve total', getEvalTiming(evalRun, ['retrieval', 'image', 'total_ms'])],
-                  ['Image embed total', getEvalTiming(evalRun, ['retrieval', 'image', 'embed_ms'])],
-                  ['Image Qdrant total', getEvalTiming(evalRun, ['retrieval', 'image', 'qdrant_ms'])],
-                  ['Image rerank total', getEvalTiming(evalRun, ['retrieval', 'image', 'rerank_ms'])],
+                  ...(activeEvalModalities.includes('text') ? [
+                    ['Text retrieve total', getEvalTiming(evalRun, ['retrieval', 'text', 'total_ms'])],
+                    ['Text embed total', getEvalTiming(evalRun, ['retrieval', 'text', 'embed_ms'])],
+                    ['Text rerank total', getEvalTiming(evalRun, ['retrieval', 'text', 'rerank_ms'])],
+                  ] : []),
+                  ...(activeEvalModalities.includes('image') ? [
+                    ['Image retrieve total', getEvalTiming(evalRun, ['retrieval', 'image', 'total_ms'])],
+                    ['Image embed total', getEvalTiming(evalRun, ['retrieval', 'image', 'embed_ms'])],
+                    ['Image Qdrant total', getEvalTiming(evalRun, ['retrieval', 'image', 'qdrant_ms'])],
+                    ['Image rerank total', getEvalTiming(evalRun, ['retrieval', 'image', 'rerank_ms'])],
+                  ] : []),
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-lg border border-slate-100 bg-white px-3 py-2">
                     <p className="text-[10px] font-bold uppercase tracking-tight text-slate-500">{label}</p>
@@ -1032,12 +1133,12 @@ export default function SearchView({
                       Saved JSON: {evalRun.artifact_path}
                     </p>
                   )}
-                  {evalRun.config?.judge_model && (
+                  {evalRun.config?.judge_model ? (
                     <p className="mb-3 rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-800">
                       Judge: {String(evalRun.config.judge_model)}
                       {evalRun.config.judge_guardrail_enabled === false ? ' · guardrail off' : ''}
                     </p>
-                  )}
+                  ) : null}
                   {evalRun.status === 'completed' && (evalRun.results || []).length === 0 && (
                     <p className="rounded-md border border-amber-200 bg-amber-50 px-2 py-2 text-xs text-amber-800">
                       Run completed without generated queries/results. Re-run eval after backend reload, or check the report error fields.
@@ -1072,18 +1173,20 @@ export default function SearchView({
                           <p className="mt-1 text-xs text-slate-500">{selectedEvalResult.question.reference_answer}</p>
                         )}
                       </div>
-                      <div className="inline-flex rounded-lg border border-emerald-100 bg-emerald-50/50 p-1">
-                        {(['text', 'image'] as EvalModality[]).map((m) => (
-                          <button
-                            type="button"
-                            key={m}
-                            onClick={() => setSelectedEvalModality(m)}
-                            className={`rounded-md px-3 py-1.5 text-xs font-bold ${selectedEvalModality === m ? 'bg-emerald-600 text-white' : 'text-emerald-700 hover:bg-white'}`}
-                          >
-                            {m === 'text' ? 'Text chunks' : 'Image pages'}
-                          </button>
-                        ))}
-                      </div>
+                      {activeEvalModalities.length > 1 && (
+                        <div className="inline-flex rounded-lg border border-emerald-100 bg-emerald-50/50 p-1">
+                          {activeEvalModalities.map((m) => (
+                            <button
+                              type="button"
+                              key={m}
+                              onClick={() => setSelectedEvalModality(m)}
+                              className={`rounded-md px-3 py-1.5 text-xs font-bold ${selectedEvalModality === m ? 'bg-emerald-600 text-white' : 'text-emerald-700 hover:bg-white'}`}
+                            >
+                              {m === 'text' ? 'Text chunks' : 'Image pages'}
+                            </button>
+                          ))}
+                        </div>
+                      )}
 	                    </div>
 
                     <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50/60 p-3">
