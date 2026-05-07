@@ -1448,40 +1448,40 @@ The system utilizes a dual-bucket object storage architecture to manage the life
 
     \begin{verbatim}
     S3/
-    â”œâ”€â”€ ai-service-originals-dev/         # Bucket for raw document ingestion
-    â”‚   â””â”€â”€ users/{uid}/                  # Logical user-tenant isolation
-    â”‚       â”œâ”€â”€ {doc_name}.pdf            # Original source document
-    â”‚       â””â”€â”€ {doc_name}.pdf.metadata.json # Ingestion time & file provenance
-    â””â”€â”€ ai-service-processed-dev/         # Bucket for pipeline artifacts
-        â””â”€â”€ users/{uid}/
-            â”œâ”€â”€ .processing_cache.json    # Idempotency and deduplication tracking
-            â”œâ”€â”€ pipeline_stats.json       # Telemetry and processing performance
-            â”œâ”€â”€ stage1_normalized/        # Standardized PDF & structured data
-            â”‚   â”œâ”€â”€ normalized_pdfs/      # Unified format for visual processing
-            â”‚   â”œâ”€â”€ excel_parsed/         # Structured tables from Office files
-            â”‚   â”œâ”€â”€ original_files/       # Internal reference copy
-            â”‚   â””â”€â”€ normalization_metadata/
-            â”œâ”€â”€ stage2_media_processed/   # Extracted audiovisual artifacts
-            â”‚   â”œâ”€â”€ extracted_audio/      # Raw audio for Whisper transcription
-            â”‚   â”œâ”€â”€ extracted_frames/     # Visual frames for late-interaction RAG
-            â”‚   â”œâ”€â”€ transcripts/          # ASR textual outputs
-            â”‚   â””â”€â”€ media_metadata/       # Temporal feature mapping
-            â”œâ”€â”€ stage3_document_processed/# Structural Markdown outputs
-            â”‚   â”œâ”€â”€ {doc_name}/
-            â”‚   â”‚   â”œâ”€â”€ {doc_name}.md     # Cleaned semantic Markdown
-            â”‚   â”‚   â””â”€â”€ {doc_name}_metadata.json
-            â”‚   â””â”€â”€ logs/                 # Granular stage-level logs
-            â”‚       â”œâ”€â”€ batch_summary_*.json
-            â”‚       â””â”€â”€ processing_*.log
-            â”œâ”€â”€ stage4_rag_ready/         # Optimized artifacts for RAG engine
-            â”‚   â”œâ”€â”€ {doc_name}/
-            â”‚   â”‚   â”œâ”€â”€ {doc_name}.md     # Final semantic text
-            â”‚   â”‚   â”œâ”€â”€ {doc_name}.pdf    # Optimized PDF for visual retrieval
-            â”‚   â”‚   â””â”€â”€ docling_additional/
-            â”‚   â””â”€â”€ consolidation_stats.json
-            â””â”€â”€ retrieval/                # Secondary persistence for search indices
-                â”œâ”€â”€ bm25_index.pkl        # Serialized sparse search index
-                â””â”€â”€ documents.json.pkl    # Document lookup table
+    ├── ai-service-originals-dev/         # Bucket for raw document ingestion
+    │   └── users/{uid}/                  # Logical user-tenant isolation
+    │       ├── {doc_name}.pdf            # Original source document
+    │       └── {doc_name}.pdf.metadata.json # Ingestion time & file provenance
+    └── ai-service-processed-dev/         # Bucket for pipeline artifacts
+        └── users/{uid}/
+            ├── .processing_cache.json    # Idempotency and deduplication tracking
+            ├── pipeline_stats.json       # Telemetry and processing performance
+            ├── stage1_normalized/        # Standardized PDF & structured data
+            │   ├── normalized_pdfs/      # Unified format for visual processing
+            │   ├── excel_parsed/         # Structured tables from Office files
+            │   ├── original_files/       # Internal reference copy
+            │   └── normalization_metadata/
+            ├── stage2_media_processed/   # Extracted audiovisual artifacts
+            │   ├── extracted_audio/      # Raw audio for Whisper transcription
+            │   ├── extracted_frames/     # Visual frames for late-interaction RAG
+            │   ├── transcripts/          # ASR textual outputs
+            │   └── media_metadata/       # Temporal feature mapping
+            ├── stage3_document_processed/# Structural Markdown outputs
+            │   ├── {doc_name}/
+            │   │   ├── {doc_name}.md     # Cleaned semantic Markdown
+            │   │   └── {doc_name}_metadata.json
+            │   └── logs/                 # Granular stage-level logs
+            │       ├── batch_summary_*.json
+            │       └── processing_*.log
+            ├── stage4_rag_ready/         # Optimized artifacts for RAG engine
+            │   ├── {doc_name}/
+            │   │   ├── {doc_name}.md     # Final semantic text
+            │   │   ├── {doc_name}.pdf    # Optimized PDF for visual retrieval
+            │   │   └── docling_additional/
+            │   └── consolidation_stats.json
+            └── retrieval/                # Secondary persistence for search indices
+                ├── bm25_index.pkl        # Serialized sparse search index
+                └── documents.json.pkl    # Document lookup table
     \end{verbatim}
 
     \caption{Amazon S3 Directory Structure Tree}
