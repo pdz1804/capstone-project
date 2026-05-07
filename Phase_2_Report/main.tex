@@ -201,6 +201,7 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \restoregeometry
 \end{titlepage}
 
+\pagenumbering{gobble}
 \tableofcontents
 \listoffigures
 \listoftables
@@ -210,6 +211,9 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \include{_heading/00_declaration}
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
 \include{_heading/01_abstract}
 \include{_heading/00_executive_summary}
 \include{_heading/02_introduction}
