@@ -1,11 +1,11 @@
-\chapter{Conclusion}
+﻿\chapter{Conclusion}
 % 
 % This chapter summarizes the achievements and learning outcomes from Phase 1 of the project, and outlines the strategic execution plan for Phase 2. The project is divided into two distinct phases: Phase 1 focused on foundational research, feasibility studies, and the development of a baseline RAG system with emphasis on establishing the core architecture. Phase 2 will shift toward multimodal integration, system scaling, production-grade application development, and rigorous performance evaluation. 
 % 
 % The project follows an iterative development methodology, allowing for parallel progress in data engineering and algorithmic refinement to ensure a cohesive final system.
 % 
 % % =========================
-% % PHASE 1 – STRATEGIC OVERVIEW
+% % PHASE 1 â€“ STRATEGIC OVERVIEW
 % % =========================
 % \section{Phase 1: Foundation and Baseline Development (September -- December)}
 % 
@@ -13,7 +13,7 @@
 % 
 % During the initial weeks, the focus was on concurrent research and infrastructure setup. While the literature review identified state-of-the-art VLMs and RAG frameworks like LangChain and LlamaIndex, the repository and environment were simultaneously configured. This parallel approach allowed for immediate experimentation with ASR systems like PhoWhisper and OCR tools such as Tesseract and Mistral OCR.
 % 
-% A key milestone was reached in the mid-phase with the deployment of Pipeline v1. This version integrated basic \textbf{BM25} and dense retrieval methods (utilizing $all-MiniLM-L6-v2$ and $BGE-M3$), providing a benchmark for all subsequent optimizations. The team also conducted comparative analysis between frameworks to select the most efficient one for the project’s specific needs. The latter half of the phase focused on stabilizing these components into a unified code repository, transitioning from experimental notebooks to a structured backend API architecture. Additionally, user feedback was solicited through surveys to refine the system design and focus.
+% A key milestone was reached in the mid-phase with the deployment of Pipeline v1. This version integrated basic \textbf{BM25} and dense retrieval methods (utilizing $all-MiniLM-L6-v2$ and $BGE-M3$), providing a benchmark for all subsequent optimizations. The team also conducted comparative analysis between frameworks to select the most efficient one for the projectâ€™s specific needs. The latter half of the phase focused on stabilizing these components into a unified code repository, transitioning from experimental notebooks to a structured backend API architecture. Additionally, user feedback was solicited through surveys to refine the system design and focus.
 % \subsection{Phase 1 Learning Milestones and Key Achievements}
 % 
 % Throughout Phase 1, the team achieved several critical learning milestones that informed system design:
@@ -75,7 +75,7 @@
 % \end{itemize}
 % 
 % % =========================
-% % PHASE 1 – PARALLEL GANTT
+% % PHASE 1 â€“ PARALLEL GANTT
 % % =========================
 % \begin{figure}[H]
 % \centering
@@ -113,7 +113,7 @@
 % \end{figure}
 % 
 % % =========================
-% % PHASE 2 – FUTURE WORK
+% % PHASE 2 â€“ FUTURE WORK
 % % =========================
 % \section{Phase 2: System Scaling and Cloud Integration (January -- May)}
 % 
@@ -180,14 +180,15 @@ This project successfully designed and implemented a Multimodal Retrieval-Augmen
 
 \section{Technical and System Achievements}
 
-\subsection*{Production-Grade Infrastructure}
+\textbf{Production-Grade Infrastructure}
+
 The system leverages cloud-native design with Amazon S3 storage, Qdrant Cloud retrieval, DynamoDB persistence, and comprehensive safety guardrails. Key features include 7-stage processing pipeline, Redis-backed async indexing, multi-turn chat with DynamoDB, and AWS Bedrock Guardrails integration.
 
-\section{Limitations and Trade-offs}
+\textbf{Limitations and Trade-offs}
 
 The system operates within important constraints: Vietnamese-language optimization, computational resource requirements, multimodal fusion complexity, reranking disabled for latency (code retained for rollback), and cold-start processing time for new materials.
 
-\section{Significance and Impact}
+\textbf{Significance and Impact}
 
 Three key contributions emerge: (1) Practical multimodal RAG at institutional scale, (2) Cloud-native operationalization with multi-tenancy and safety, and (3) Foundation for adaptive learning research.
 
@@ -308,7 +309,7 @@ The future plan's success will be measured against the following criteria:
 
 The MRAG system represents a meaningful advancement toward intelligent educational technology that honors the multimodal richness of modern instruction. By integrating retrieval with generation and grounding reasoning in institutional content, the system provides students with an intelligent assistant that amplifies learning efficiency.
 
-The work validates multimodal retrieval-augmented generation as a practical, impactful approach to educational challenges. As universities like HCMUT continue expanding digital content, systems of this character will become increasingly essential—not as replacements for teaching, but as bridges connecting distributed knowledge to human learning.
+The work validates multimodal retrieval-augmented generation as a practical, impactful approach to educational challenges. As universities like HCMUT continue expanding digital content, systems of this character will become increasingly essentialâ€”not as replacements for teaching, but as bridges connecting distributed knowledge to human learning.
 
 The foundation established here positions the system for institutional deployment and opens research directions in adaptive learning and AI-assisted education that is both technically rigorous and pedagogically grounded.
 

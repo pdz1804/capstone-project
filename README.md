@@ -1,4 +1,4 @@
-# Capstone Project - HCMUT CS251
+# Capstone Project - HCMUT CS252
 
 > **Educational Content Processing & Retrieval-Augmented Generation System**
 > A comprehensive research platform for multimodal lecture processing, intelligent retrieval, and RAG pipeline development.
@@ -23,103 +23,13 @@ Research-week folders (`Week03*`, `Week05*`, `Week07*`) map to these requirement
 
 ## 🏗️ System Architecture
 
-The following view aligns the implementation shape with the SRS: multimodal **ingest → process → index → retrieve → generate**, plus **auth**, **persistence**, and optional **AWS** hosting.
+BK-MInD follows a **six-tier Clean Architecture** pattern that separates concerns across distinct layers, enabling maintainability, testability, and independent scaling. The system is designed to achieve: **(1) multimodal data ingestion** from diverse educational materials, **(2) asynchronous processing** to support concurrent operations without bottlenecks, and **(3) production-grade security and scalability** on AWS infrastructure.
 
-```mermaid
-flowchart TB
-  subgraph users [Users]
-    Learner[Learner / Instructor]
-  end
+### High-Level System Architecture
 
-  subgraph presentation [Presentation layer TR-002]
-    WebUI["React + Vite + Tailwind (FR-021/022)"]
-    Auth["Auth: Firebase / session (NFR-007)"]
-  end
+The following diagram shows the complete system topology aligning with the SRS: multimodal **ingest → process → index → retrieve → generate**, organized across six architectural tiers plus cross-cutting concerns for auth, security, and persistence.
 
-  subgraph api [API layer TR-001]
-    GW["FastAPI: REST, jobs, health"]
-  end
-
-  subgraph processing [Content processing FR-001 to FR-008]
-    Ingest["Ingest: media, PDFs, Office (FR-021)"]
-    Norm["Normalize, dedupe (FR-006)"]
-    ASR["ASR + timed exports (FR-001)"]
-    Doc["Layout, OCR, optional VLM (FR-002/005)"]
-    Sheet["Spreadsheets to MD (FR-003/004)"]
-    AVAlign["Audio–slide sync (FR-007/008)"]
-    Corpus["Corpus: MD + PDF refs"]
-  end
-
-  subgraph indexing [Indexing TR-003]
-    TextChunk["Text chunks + metadata"]
-    ImgChunk["Image pages for VL retrieval"]
-    Vec["Vector DB e.g. Qdrant"]
-    Sparse["Sparse e.g. BM25"]
-    Obj["Blobs: S3 or local (TR-004)"]
-  end
-
-  subgraph retrieval [Retrieval FR-009 to FR-011]
-    QProc["Query understanding"]
-    TRet["BM25 / dense / hybrid"]
-    VRet["Visual retrieval (FR-010)"]
-    Fuse["Fusion + ranking"]
-  end
-
-  subgraph compute_optional [Optional GPU TR-007]
-    SM["SageMaker: Docling, Whisper, ColQwen"]
-  end
-
-  subgraph generation [QA and learning FR-012 to FR-027]
-    RAG["Answers + citations (FR-012/013)"]
-    Chat["Chat orchestration (FR-014)"]
-    Sum["Summaries + nav (FR-023/024)"]
-    Learn["Paths, quiz, dashboard (FR-025-027)"]
-    LLM["LLMs / APIs (TR-004)"]
-  end
-
-  subgraph nfr [Ops NFR / TR-006–007]
-    Docker["Containers + health (TR-006)"]
-    AWS["AWS: ECS, ALB, ECR, ACM, SM"]
-    Obs["Logs + monitoring (NFR-003)"]
-  end
-
-  Learner --> WebUI
-  WebUI --> Auth
-  WebUI --> GW
-  Auth --> GW
-  GW --> Ingest
-  Ingest --> Norm
-  Norm --> ASR
-  Norm --> Doc
-  Norm --> Sheet
-  ASR --> AVAlign
-  Doc --> AVAlign
-  Sheet --> Corpus
-  AVAlign --> Corpus
-  Corpus --> TextChunk
-  Corpus --> ImgChunk
-  TextChunk --> Vec
-  TextChunk --> Sparse
-  ImgChunk --> Vec
-  Corpus --> Obj
-  GW --> QProc
-  QProc --> TRet
-  QProc --> VRet
-  TRet --> Fuse
-  VRet --> Fuse
-  Doc -. optional remote .-> SM
-  ASR -. optional remote .-> SM
-  VRet -. optional remote .-> SM
-  Fuse --> RAG
-  RAG --> LLM
-  Chat --> QProc
-  Chat --> RAG
-  RAG --> Sum
-  RAG --> Learn
-  GW --> Obs
-  GW --> Docker
-  GW --> AWS
-```
+![BK-MInD High-Level Architecture - Six-Tier Clean Architecture](Phase_2_Report/img/pdz/Report%20252%20Diagram-High%20Level%20Architecture.png)
 
 **Layer summary**
 
@@ -133,6 +43,17 @@ flowchart TB
 | Deployment             | Containers, cloud LB TLS, optional managed GPU | TR-006–TR-007, NFR-002–NFR-003                 |
 
 For HTTPS and custom domains on AWS, see [`docs/deployment-alb-acm-custom-domain.md`](docs/deployment-alb-acm-custom-domain.md).
+
+---
+
+### AWS Deployment Architecture
+
+The latest deployment architecture (v3) shows production-grade cloud infrastructure on AWS with ECS Fargate, ALB, ElastiCache, vector databases, and auto-scaling:
+
+![AWS Deployment Architecture Diagram](docs/diagram/Deployment%20Diagram_v3.png)
+
+**Additional Diagrams:**
+- [`docs/diagram/`](docs/diagram/) — Complete diagram collection including document processing flows and system documentation
 
 ---
 
@@ -321,7 +242,7 @@ Use **`Phase_2_FE_AI_Merge`** as the maintained application tree for local devel
 ## 🚀 Quick Start
 
 **📚 For capstone presentations / documentation review:**
-Start with **[`docs/INDEX.md`](docs/INDEX.md)** (navigation guide) → **[`docs/CAPSTONE_PRESENTATION_GUIDE.md`](docs/CAPSTONE_PRESENTATION_GUIDE.md)** (presentation strategy and document checklist).
+Start with **[`docs/README.md`](docs/README.md)** (documentation hub) → **[`docs/report/`](docs/report/)** folder for Phase 2 reports and presentation guides.
 
 **👨‍💻 For development setup:**
 Prerequisites follow **[`docs/requirements.md`](docs/requirements.md)** (TR-001–TR-005, NFR-005–NFR-006): **Python 3.9+**, **FastAPI** backend; **React 18+**, **Vite**, **Tailwind** frontend; **FFmpeg**, **Tesseract**, **Poppler** for media; **GPU** optional locally if you offload heavy inference to APIs or **SageMaker** ([`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)). **Docker** and **Terraform** are for packaging and cloud layout (TR-006–TR-007).
@@ -389,7 +310,7 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 
 ## 🎓 Academic Context
 
-**Course**: CS251 - Capstone Project
+**Course**: CS252 - Capstone Project
 **Institution**: Ho Chi Minh City University of Technology (HCMUT)
 **Focus**: Applied AI for Educational Content Processing
 **Domain**: Information Retrieval, NLP, Multimodal Learning, RAG Systems
@@ -416,24 +337,23 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 **Core Documentation**
 
 - **[`docs/README.md`](docs/README.md)** — Documentation hub and overview.
-- **[`docs/FEATURES.md`](docs/FEATURES.md)** ⭐ — Comprehensive feature documentation: all 18 features with implementation details, APIs, configurations.
+- **[`docs/requirements.md`](docs/requirements.md)** ⭐ — Software Requirements Specification: functional, non-functional, technical constraints (37 requirements total).
 
 **Authoritative Technical Documents**
 
 - **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)** — Product scope, user workflows, architecture summary, features, quality attributes, and engineering assessment.
 - **[`docs/technical/API_REFERENCE.md`](docs/technical/API_REFERENCE.md)** — Maintainer-level API reference covering authentication, files, processing, indexing, search, chat, insights, feedback, and operational guidance.
-- **[`docs/requirements.md`](docs/requirements.md)** — Software Requirements Specification: functional, non-functional, technical constraints, and verification criteria (37 requirements total).
-- **[`docs/technical/GUARDRAIL_CONFIGURATION.md`](docs/technical/GUARDRAIL_CONFIGURATION.md)** ⭐ — AWS Bedrock guardrails configuration, content safety filters, PII protection, implementation details.
+- **[`docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md`](docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)** ⭐ — AWS Bedrock guardrails configuration, content safety filters, PII protection, implementation details.
 
 **Testing and performance evidence**
 
-- **[`docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)** — Final application performance report for technical lead review and capstone protection day.
+- **[`docs/report/FRESH_EVALUATION_REPORT_2026_05_07.md`](docs/report/FRESH_EVALUATION_REPORT_2026_05_07.md)** — Final evaluation report with component testing, performance benchmarks, and production readiness assessment.
 - **[`docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md)** — JMeter runbook and result exports for Process, Index, and Search.
 - **[`docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md)** — JMeter runbook and result exports for Auth, User, Stats, Upload, Chat, and Insights.
 
 **Architecture and deployment**
 
-- **[`docs/diagram/README_SYSTEM_DOCUMENTATION.md`](docs/diagram/README_SYSTEM_DOCUMENTATION.md)** — System documentation and diagram index.
+- **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)** — System architecture, technology stack, and design patterns.
 - **[`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](docs/technical/DOCS_deployment-alb-acm-custom-domain.md)** — ACM certificates, DNS validation, ALB HTTP→HTTPS, custom domains.
 - **[`docs/technical/DOCS_search-cache-redis-setup.md`](docs/technical/DOCS_search-cache-redis-setup.md)** — Redis/ElastiCache search cache setup and operational notes.
 
@@ -505,6 +425,6 @@ Open-source models, APIs, and platforms that this codebase builds on (see also T
 ---
 
 **Version:** 1.0
-**Last Updated:** April 28, 2026
+**Last Updated:** May 7, 2026
 
 **Team:** MKhoi, NKhoi, QPhu.
