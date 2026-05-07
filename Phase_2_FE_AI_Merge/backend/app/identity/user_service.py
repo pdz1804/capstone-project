@@ -220,10 +220,14 @@ class UserService:
         for user in all_users:
             if user.uid == keep_uid:
                 continue
-            is_admin = (user.role or "").strip().lower() == "admin"
             same_email = str(user.email or "").strip().lower() == default_email
             same_username = str(user.username or "").strip().lower() == default_username
-            if is_admin or same_email or same_username:
+            # Only remove true duplicates of the default admin identity.
+            #
+            # Important: do NOT delete other admin users. Admins may be promoted via the UI,
+            # and deleting them would cause their role to "revert" after a restart (record
+            # gets recreated on next login with default role).
+            if same_email or same_username:
                 self.user_repo.delete(user.uid)
 
         final_user = self.user_repo.get_by_id(keep_uid)

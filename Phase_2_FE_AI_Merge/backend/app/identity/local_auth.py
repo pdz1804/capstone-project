@@ -9,8 +9,10 @@ import os
 import secrets
 import time
 from typing import Any, Dict
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
+_DEV_SECRET_WARNING_EMITTED = False
 
 
 def _b64u(data: bytes) -> str:
@@ -26,6 +28,7 @@ class LocalAuthService:
     """Simple local account auth (PBKDF2 + signed token)."""
 
     def __init__(self) -> None:
+        global _DEV_SECRET_WARNING_EMITTED
         secret_env = os.getenv("LOCAL_AUTH_SECRET", "").strip()
         is_production = os.getenv("ENV", "development").lower() in ("production", "prod")
 
@@ -37,12 +40,32 @@ class LocalAuthService:
                     "Generate a strong 32-byte random secret and set it in your .env file.\n"
                     "Example: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
                 )
-            # Development: generate a temporary secret (log it for reference)
-            self._secret = secrets.token_urlsafe(32)
-            logger.warning(
-                f"LOCAL_AUTH_SECRET not set; generated temporary dev secret. "
-                f"DO NOT USE IN PRODUCTION: {self._secret}"
-            )
+            # Development: persist a generated secret to disk so tokens survive restarts.
+            # This avoids confusing "random 401s" after a backend restart while keeping
+            # production strict (env var required).
+            try:
+                backend_root = Path(__file__).resolve().parents[2]  # backend/
+                secret_path = backend_root / ".local_auth_secret"
+                if secret_path.exists():
+                    self._secret = secret_path.read_text(encoding="utf-8").strip()
+                else:
+                    self._secret = secrets.token_urlsafe(32)
+                    secret_path.write_text(self._secret, encoding="utf-8")
+                if not _DEV_SECRET_WARNING_EMITTED:
+                    _DEV_SECRET_WARNING_EMITTED = True
+                    logger.warning(
+                        "LOCAL_AUTH_SECRET not set; using dev secret from %s (do not use in production).",
+                        str(secret_path),
+                    )
+            except Exception:
+                # Fall back to a temporary secret if the file cannot be read/written.
+                self._secret = secrets.token_urlsafe(32)
+                if not _DEV_SECRET_WARNING_EMITTED:
+                    _DEV_SECRET_WARNING_EMITTED = True
+                    logger.warning(
+                        "LOCAL_AUTH_SECRET not set; generated temporary dev secret (tokens won't survive restarts). "
+                        "DO NOT USE IN PRODUCTION."
+                    )
         elif secret_env == "dev-local-auth-secret-change-me":
             raise RuntimeError(
                 "LOCAL_AUTH_SECRET still contains the default insecure value. "

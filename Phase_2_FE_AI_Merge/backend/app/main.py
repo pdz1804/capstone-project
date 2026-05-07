@@ -45,7 +45,14 @@ from app.identity.user_repository_factory import get_user_repository_from_env
 from app.identity.user_service import UserService
 from app.services.app_usage_service import AppUsageService
 
-logging.basicConfig(level=logging.INFO)
+_log_level_name = (os.getenv("LOG_LEVEL") or "INFO").upper()
+_log_level = getattr(logging, _log_level_name, logging.INFO)
+logging.basicConfig(level=_log_level)
+# Silence very chatty third-party loggers unless explicitly raised.
+logging.getLogger("botocore.credentials").setLevel(max(logging.WARNING, _log_level))
+logging.getLogger("boto3").setLevel(max(logging.WARNING, _log_level))
+logging.getLogger("botocore").setLevel(max(logging.WARNING, _log_level))
+logging.getLogger("urllib3").setLevel(max(logging.WARNING, _log_level))
 logger = logging.getLogger(__name__)
 USAGE_SERVICE: AppUsageService | None = None
 

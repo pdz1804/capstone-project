@@ -453,17 +453,21 @@ export async function createRetrievalEvalRun(body: {
   top_k?: number;
   k_values?: number[];
   retriever_type?: string;
+  search_scope?: 'text' | 'image' | 'both';
   questions_per_category?: number;
   selected_document_ids?: string[];
   async_mode?: boolean;
+  reuse_generated_questions?: boolean;
 }): Promise<RetrievalEvalRun> {
   const { data } = await apiClient.post('/retrieval-eval/runs', {
     top_k: body.top_k ?? 10,
-    k_values: body.k_values ?? [1, 3, 5, 10],
+    k_values: body.k_values ?? [1, 3, 5, 7, 10],
     retriever_type: body.retriever_type ?? 'hybrid',
+    search_scope: body.search_scope ?? 'both',
     questions_per_category: body.questions_per_category ?? 5,
     selected_document_ids: body.selected_document_ids ?? [],
     async_mode: body.async_mode ?? false,
+    reuse_generated_questions: body.reuse_generated_questions ?? true,
   });
   return data;
 }

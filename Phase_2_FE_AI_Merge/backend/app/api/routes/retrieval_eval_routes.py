@@ -26,9 +26,11 @@ class RetrievalEvalRunRequest(BaseModel):
     top_k: int = Field(10, ge=1, le=50)
     k_values: List[int] = Field(default_factory=lambda: list(DEFAULT_K_VALUES))
     retriever_type: str = Field("hybrid", description="Text retriever: bm25 | dense | hybrid")
+    search_scope: Literal["text", "image", "both"] = Field("both", description="Indexes to evaluate: text, image, or both")
     questions_per_category: int = Field(5, ge=1, le=10)
     selected_document_ids: List[str] = Field(default_factory=list)
     async_mode: bool = False
+    reuse_generated_questions: bool = Field(True, description="Prioritize reusing questions generated from previous runs for the same document")
 
 
 class HumanLabel(BaseModel):
@@ -59,8 +61,10 @@ def _run_eval_background(
     top_k: int,
     k_values: List[int],
     retriever_type: str,
+    search_scope: str,
     questions_per_category: int,
     selected_document_ids: List[str],
+    reuse_generated_questions: bool = True,
 ) -> None:
     service = RetrievalEvalService(user_id=user_id)
     try:
@@ -69,8 +73,10 @@ def _run_eval_background(
             top_k=top_k,
             k_values=k_values,
             retriever_type=retriever_type,
+            search_scope=search_scope,
             questions_per_category=questions_per_category,
             selected_document_ids=selected_document_ids,
+            reuse_generated_questions=reuse_generated_questions,
         )
     except Exception as exc:
         service.mark_run_failed(run_id, exc)
@@ -92,6 +98,7 @@ def create_retrieval_eval_run(
                 top_k=req.top_k,
                 k_values=req.k_values,
                 retriever_type=req.retriever_type,
+                search_scope=req.search_scope,
                 questions_per_category=req.questions_per_category,
                 selected_document_ids=req.selected_document_ids,
             )
@@ -102,16 +109,20 @@ def create_retrieval_eval_run(
                 top_k=req.top_k,
                 k_values=req.k_values,
                 retriever_type=req.retriever_type,
+                search_scope=req.search_scope,
                 questions_per_category=req.questions_per_category,
                 selected_document_ids=req.selected_document_ids,
+                reuse_generated_questions=req.reuse_generated_questions,
             )
             return pending
         return RetrievalEvalService(user_id=user_id).create_run(
             top_k=req.top_k,
             k_values=req.k_values,
             retriever_type=req.retriever_type,
+            search_scope=req.search_scope,
             questions_per_category=req.questions_per_category,
             selected_document_ids=req.selected_document_ids,
+            reuse_generated_questions=req.reuse_generated_questions,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc

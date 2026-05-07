@@ -21,7 +21,7 @@ from app.services.search_orchestrator import SearchOrchestrator
 logger = logging.getLogger(__name__)
 
 QUESTION_CATEGORIES = ("simple", "complex_intent", "reasoning", "cross_file_reasoning")
-DEFAULT_K_VALUES = (1, 3, 5, 10)
+DEFAULT_K_VALUES = (1, 3, 5, 7, 10)
 MAX_CONTEXT_CHARS_PER_DOC = 80_000
 MAX_SUMMARY_CONTEXT_CHARS = 45_000
 
@@ -401,11 +401,13 @@ class RetrievalEvalService:
         top_k: int,
         k_values: Sequence[int] | None,
         retriever_type: str,
+        search_scope: str,
         questions_per_category: int,
         selected_document_ids: Sequence[str] | None = None,
     ) -> Dict[str, Any]:
         k_values = tuple(sorted({int(k) for k in (k_values or DEFAULT_K_VALUES) if int(k) > 0})) or DEFAULT_K_VALUES
         top_k = max(int(top_k or 10), max(k_values))
+        search_scope = search_scope if search_scope in {"text", "image", "both"} else "both"
         selected_doc_ids = _normalize_selected_doc_ids(selected_document_ids)
         run = {
             "run_id": run_id,
@@ -417,7 +419,7 @@ class RetrievalEvalService:
                 "top_k": top_k,
                 "k_values": list(k_values),
                 "retriever_type": retriever_type,
-                "search_scope": "both",
+                "search_scope": search_scope,
                 "questions_per_category": questions_per_category,
                 "selected_document_ids": selected_doc_ids,
                 "async_mode": True,
@@ -558,6 +560,7 @@ Markdown:
         doc: Dict[str, Any],
         all_summaries: Sequence[Dict[str, Any]],
         questions_per_category: int,
+        missing_counts: Dict[str, int] | None = None,
     ) -> List[Dict[str, Any]]:
         summary_text = "\n".join(
             f"- {s.get('doc_id')}: {s.get('summary')}" for s in all_summaries if str(s.get("summary") or "").strip()
@@ -572,6 +575,9 @@ Markdown:
         counts = {cat: 0 for cat in QUESTION_CATEGORIES}
 
         for category in QUESTION_CATEGORIES:
+            needed = missing_counts.get(category, questions_per_category) if missing_counts else questions_per_category
+            if needed <= 0:
+                continue
             prompt = f"""
 Generate retrieval-evaluation questions for the target document.
 
@@ -588,7 +594,7 @@ Return JSON only:
 }}
 
 Requirements:
-- Generate exactly {questions_per_category} questions.
+- Generate exactly {needed} questions.
 - Every item must have category exactly "{category}".
 - Category meaning: {category_guidance[category]}
 - Keep questions precise enough for retrieval evaluation.
@@ -622,7 +628,8 @@ Target document processed markdown:
 
             for item in items or []:
                 cat = str(item.get("category") or "").strip() or category
-                if cat != category or counts[category] >= questions_per_category:
+                needed = missing_counts.get(category, questions_per_category) if missing_counts else questions_per_category
+                if cat != category or counts[category] >= needed:
                     continue
                 question = str(item.get("question") or "").strip()
                 if not question:
@@ -640,17 +647,22 @@ Target document processed markdown:
                         "generation_source": "llm",
                     }
                 )
-        missing_categories = [category for category, count in counts.items() if count < questions_per_category]
+        missing_categories = []
+        for category, count in counts.items():
+            needed = missing_counts.get(category, questions_per_category) if missing_counts else questions_per_category
+            if count < needed:
+                missing_categories.append((category, needed, count))
+
         if missing_categories:
             logger.warning(
                 "using fallback retrieval eval questions for %s missing_categories=%s",
                 doc["doc_id"],
-                ",".join(missing_categories),
+                ",".join(cat for cat, _, _ in missing_categories),
             )
             fallback = _fallback_questions_for_doc(doc, questions_per_category)
             fallback_by_id = {str(item.get("query_id") or ""): item for item in fallback}
-            for category in missing_categories:
-                for idx in range(counts[category] + 1, questions_per_category + 1):
+            for category, needed, count in missing_categories:
+                for idx in range(count + 1, needed + 1):
                     item = fallback_by_id.get(f"{doc['doc_id']}:{category}:{idx}")
                     if item:
                         out.append(item)
@@ -843,16 +855,13 @@ Retrieved evidence:
                 "error": str(exc),
             }
 
-    def _run_retrieval(self, question: Dict[str, Any], top_k: int, retriever_type: str) -> Dict[str, Any]:
-        # Skip image-only retriever type - always run both text and image together
-        if retriever_type == "image":
-            retriever_type = "hybrid"  # Use hybrid for combined retrieval
-        search_scope = "both"  # Always search both text and image
-
+    def _run_retrieval(self, question: Dict[str, Any], top_k: int, retriever_type: str, search_scope: str) -> Dict[str, Any]:
+        search_scope = search_scope if search_scope in {"text", "image", "both"} else "both"
+        text_retriever = retriever_type if retriever_type in {"bm25", "dense", "hybrid"} else "hybrid"
         out = SearchOrchestrator(self.cfg, user_id=self.user_id).run(
             query=str(question.get("question") or ""),
             top_k=top_k,
-            retriever_type=retriever_type,
+            retriever_type=text_retriever,
             include_images=True,
             images_for_generation=0,
             mode="retrieval_only",
@@ -873,15 +882,20 @@ Retrieved evidence:
         top_k: int = 10,
         k_values: Sequence[int] | None = None,
         retriever_type: str = "hybrid",
+        search_scope: str = "both",
         questions_per_category: int = 5,
         max_documents: int | None = None,
         selected_document_ids: Sequence[str] | None = None,
         skip_knowledge_lookup: bool = False,
+        reuse_generated_questions: bool = True,
     ) -> Dict[str, Any]:
         k_values = tuple(sorted({int(k) for k in (k_values or DEFAULT_K_VALUES) if int(k) > 0}))
         if not k_values:
             k_values = DEFAULT_K_VALUES
         top_k = max(int(top_k or 10), max(k_values))
+        retriever_type = retriever_type if retriever_type in {"bm25", "dense", "hybrid"} else "hybrid"
+        search_scope = search_scope if search_scope in {"text", "image", "both"} else "both"
+        modalities = ("text", "image") if search_scope == "both" else (search_scope,)
         questions_per_category = max(1, min(10, int(questions_per_category or 5)))
         run_id = run_id or self.new_run_id()
         gc, gen = _generation_config(self.cfg)
@@ -899,9 +913,49 @@ Retrieved evidence:
                 )
             raise ValueError("No processed documents found for retrieval evaluation")
         summaries = [self._summarize_doc(gen, doc) for doc in docs]
+        
+        reused_questions_by_doc: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
+        if reuse_generated_questions and self.root.exists():
+            for p in sorted(self.root.glob("*/report.json"), key=lambda x: x.stat().st_mtime, reverse=True):
+                try:
+                    prev_run = _read_json(p)
+                    for q in prev_run.get("questions") or []:
+                        doc_id = str(q.get("doc_id") or "")
+                        cat = str(q.get("category") or "")
+                        if doc_id and cat:
+                            cat_dict = reused_questions_by_doc.setdefault(doc_id, {})
+                            cat_dict.setdefault(cat, []).append(q)
+                except Exception:
+                    pass
+
         questions: List[Dict[str, Any]] = []
         for doc in docs:
-            questions.extend(self._generate_questions(gen, doc, summaries, questions_per_category))
+            doc_id = doc["doc_id"]
+            existing = reused_questions_by_doc.get(doc_id, {})
+            # extract reusable ones up to requested counts
+            reused_for_doc: List[Dict[str, Any]] = []
+            counts = {cat: 0 for cat in QUESTION_CATEGORIES}
+            for cat in QUESTION_CATEGORIES:
+                for eq in existing.get(cat, []):
+                    if counts[cat] < questions_per_category:
+                        counts[cat] += 1
+                        clone = dict(eq)
+                        clone["query_id"] = f"{doc_id}:{cat}:{counts[cat]}"
+                        reused_for_doc.append(clone)
+            
+            questions.extend(reused_for_doc)
+            
+            # generate missing if any
+            if sum(counts.values()) < questions_per_category * len(QUESTION_CATEGORIES):
+                needed_per_cat = {cat: questions_per_category - counts[cat] for cat in QUESTION_CATEGORIES}
+                new_questions = self._generate_questions(gen, doc, summaries, questions_per_category, missing_counts=needed_per_cat)
+                for nq in new_questions:
+                    cat = str(nq.get("category"))
+                    if counts.get(cat, 0) < questions_per_category:
+                        counts[cat] = counts.get(cat, 0) + 1
+                        nq["query_id"] = f"{doc_id}:{cat}:{counts[cat]}"
+                        questions.append(nq)
+
         if not questions:
             raise RuntimeError(
                 "Retrieval eval could not generate any questions from the selected processed document. "
@@ -910,9 +964,10 @@ Retrieved evidence:
 
         results: List[Dict[str, Any]] = []
         for question in questions:
-            retrieved = self._run_retrieval(question, top_k, retriever_type)
+            retrieved = self._run_retrieval(question, top_k, retriever_type, search_scope)
             llm_judgments: Dict[str, Any] = {}
-            for modality in ("text", "image"):
+            human_judgments: Dict[str, Any] = {}
+            for modality in modalities:
                 relevance = self._judge_relevance(gen, question, modality, retrieved[modality])
                 ranking = self._judge_ranking(gen, question, modality, retrieved[modality], relevance.get("labels") or [])
                 llm_judgments[modality] = {
@@ -923,6 +978,7 @@ Retrieved evidence:
                     "relevance_error": relevance.get("error") or "",
                     "ranking_error": ranking.get("error") or "",
                 }
+                human_judgments[modality] = {"labels": [], "ranked_evidence_ids": []}
             answer = self._generate_answer(gen, question, retrieved)
             answer_judgment = self._judge_answer(gen, question, answer.get("answer") or "", retrieved)
             results.append(
@@ -934,7 +990,7 @@ Retrieved evidence:
                     "human_answer_judgment": {},
                     "retrieved": retrieved,
                     "llm_judgments": llm_judgments,
-                    "human_judgments": {"text": {"labels": [], "ranked_evidence_ids": []}, "image": {"labels": [], "ranked_evidence_ids": []}},
+                    "human_judgments": human_judgments,
                 }
             )
 
@@ -948,7 +1004,7 @@ Retrieved evidence:
                 "top_k": top_k,
                 "k_values": list(k_values),
                 "retriever_type": retriever_type,
-                "search_scope": "both",
+                "search_scope": search_scope,
                 "questions_per_category": questions_per_category,
                 "max_documents": max_documents,
                 "selected_document_ids": selected_doc_ids,
@@ -1008,14 +1064,16 @@ Retrieved evidence:
 
     def compute_metrics(self, run: Dict[str, Any]) -> Dict[str, Any]:
         k_values = [int(k) for k in ((run.get("config") or {}).get("k_values") or DEFAULT_K_VALUES)]
+        search_scope = str((run.get("config") or {}).get("search_scope") or "both")
+        modalities = ("text", "image") if search_scope == "both" else (search_scope if search_scope in {"text", "image"} else "text",)
         metrics: Dict[str, Any] = {}
         for source in ("llm", "human"):
-            rows: Dict[str, List[Dict[str, Any]]] = {"text": [], "image": []}
+            rows: Dict[str, List[Dict[str, Any]]] = {modality: [] for modality in modalities}
             for result in run.get("results") or []:
                 question = result.get("question") or {}
                 judgment_key = f"{source}_judgments"
                 judgments = result.get(judgment_key) or {}
-                for modality in ("text", "image"):
+                for modality in modalities:
                     evidence = ((result.get("retrieved") or {}).get(modality) or [])
                     labels = ((judgments.get(modality) or {}).get("labels") or [])
                     if source == "human" and not labels:
@@ -1029,7 +1087,7 @@ Retrieved evidence:
                         }
                     )
             metrics[source] = {}
-            for modality in ("text", "image"):
+            for modality in modalities:
                 metrics[source][modality] = {
                     "aggregate": _aggregate_metric_rows(rows[modality]),
                     "by_category": _grouped_metric_summary(rows[modality], "category"),

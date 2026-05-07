@@ -195,6 +195,7 @@ class GenerationConfig:
     api_key: Optional[str] = None
     base_url: Optional[str] = None
     bedrock_region: Optional[str] = None
+    enable_guardrails: bool = True
     
     # Generation parameters
     temperature: float = 0.0
@@ -640,8 +641,8 @@ class RAGGenerator:
                     "temperature": float(self.config.temperature),
                 },
             }
-            # Add guardrail if enabled
-            guardrail_cfg = get_guardrail_config()
+            # Add guardrail if enabled for this generator instance.
+            guardrail_cfg = get_guardrail_config() if self.config.enable_guardrails else None
             if guardrail_cfg:
                 request["guardrailConfig"] = guardrail_cfg
             
