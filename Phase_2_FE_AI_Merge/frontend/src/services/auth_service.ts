@@ -45,8 +45,10 @@ const loadFirebaseDeps = async (): Promise<FirebaseDeps> => {
 };
 
 class AuthService {
+  private transientUser: AuthUser | null = null;
+
   private getCurrentUnifiedUser(): AuthUser | null {
-    return this.getLocalUser();
+    return this.transientUser || this.getLocalUser();
   }
 
   private hasGoogleAuthHint(): boolean {
@@ -103,15 +105,29 @@ class AuthService {
   async login(): Promise<UserEntity> {
     const { signInWithGoogle } = await loadFirebaseDeps();
 
-    // 1. Sign in with Google (Firebase)
-    const firebaseUser = await signInWithGoogle();
-    const idToken = await firebaseUser.getIdToken(true);
-    
-    // 2. Call backend to sync user
-    const backendUser = await userRepo.loginWithGoogleToken(idToken, firebaseUser.uid);
+    // Set the hint early so that if onAuthStateChanged fires immediately,
+    // the API client knows to use Firebase auth.
     this.setGoogleAuthHint(true);
-    this.clearLocalSession();
-    return backendUser;
+
+    try {
+      // 1. Sign in with Google (Firebase)
+      const firebaseUser = await signInWithGoogle();
+      const idToken = await firebaseUser.getIdToken(true);
+      
+      // 2. Call backend to sync user
+      const backendUser = await userRepo.loginWithGoogleToken(idToken, firebaseUser.uid);
+      this.transientUser = this.toAuthUser(backendUser);
+      // Google sign-in uses Firebase for auth; we don't persist an app-token session.
+      // Dispatch an event so listeners (like App.tsx) can update immediately without
+      // relying on timing of Firebase's onAuthStateChanged emissions.
+      window.dispatchEvent(new Event(LOCAL_AUTH_EVENT));
+      this.clearLocalSession();
+      return backendUser;
+    } catch (error) {
+      // If login fails/is cancelled, clear the hint
+      this.setGoogleAuthHint(false);
+      throw error;
+    }
   }
 
   async registerWithAppAccount(email: string, password: string, displayName?: string): Promise<UserEntity> {
@@ -138,6 +154,7 @@ class AuthService {
       }
     }
     this.setGoogleAuthHint(false);
+    this.transientUser = null;
     this.clearLocalSession();
   }
 
@@ -154,7 +171,10 @@ class AuthService {
             if (firebaseUser) {
               callback(firebaseUser as AuthUser);
             } else {
-              callback(this.getLocalUser());
+              // Firebase can emit `null` transiently during initialization. If we have
+              // a unified user (transient Google user or local session), prefer that
+              // over immediately downgrading to guest.
+              callback(this.getCurrentUnifiedUser());
             }
           });
         })
@@ -190,7 +210,12 @@ class AuthService {
       const { auth } = await loadFirebaseDeps();
       const readyFn = (auth as any).authStateReady;
       if (typeof readyFn === 'function') {
-        await readyFn.call(auth);
+        // Firebase can occasionally hang here (especially in dev/offline/misconfigured envs).
+        // Never block the whole app boot indefinitely: fall back after a short timeout.
+        await Promise.race([
+          Promise.resolve(readyFn.call(auth)),
+          new Promise<void>((resolve) => setTimeout(resolve, 1500)),
+        ]);
       }
       return auth.currentUser ? (auth.currentUser as AuthUser) : null;
     } catch (error) {
