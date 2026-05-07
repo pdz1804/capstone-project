@@ -6,13 +6,13 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+dotenv.config({ path: path.join(__dirname, ".env") });
+
 function normalizeProxyTarget(rawTarget?: string): URL {
-  const fallback = rawTarget?.trim() || "http://127.0.0.1:5000";
+  const fallback = rawTarget?.trim() || "http://127.0.0.1:5001";
   const normalized = fallback.endsWith("/api") ? fallback.slice(0, -4) : fallback;
   return new URL(normalized);
 }
@@ -23,7 +23,7 @@ async function startServer() {
   const PORT = Number(process.env.PORT || process.env.FE_PORT || 5173);
   const projectRoot = __dirname;
   const apiProxyTarget = normalizeProxyTarget(
-    process.env.API_PROXY_TARGET || process.env.VITE_API_PROXY_TARGET || process.env.VITE_API_BASE_URL
+    process.env.API_PROXY_TARGET || process.env.VITE_API_PROXY_TARGET
   );
 
   app.use("/api", (req, res) => {

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import math
+import os
 import re
 import uuid
 from datetime import datetime, timezone
@@ -29,6 +30,10 @@ _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*(\{.*?\}|\[.*?\])\s*```", re.DOTALL
 _IMAGE_ARTIFACT_RE = re.compile(
     r"\[START_IMAGE(?:_PATH)?\]\s*(.*?)\s*\[END_IMAGE(?:_PATH)?\]|!\[[^\]]*\]\(([^)]+)\)|<img[^>]+src=[\"']([^\"']+)[\"']",
     re.IGNORECASE | re.DOTALL,
+)
+_REFUSAL_RE = re.compile(
+    r"\b(sorry|cannot|can't|unable|violates?\s+our\s+polic|policy|guardrail|i\s+can'?t)\b",
+    re.IGNORECASE,
 )
 
 
@@ -73,6 +78,65 @@ def _clip(text: Any, limit: int) -> str:
     #     return value
     # return value[:limit].rstrip() + "\n\n[TRUNCATED]"
     return value
+
+
+def _looks_like_refusal(raw: Any) -> bool:
+    text = str(raw or "").strip()
+    return bool(text and _REFUSAL_RE.search(text))
+
+
+def _clean_context_lines(text: Any, limit: int = 8) -> List[str]:
+    lines: List[str] = []
+    seen: set[str] = set()
+    for raw_line in str(text or "").splitlines():
+        line = re.sub(r"<!--.*?-->", " ", raw_line).strip()
+        line = re.sub(r"^#{1,6}\s*", "", line).strip()
+        line = re.sub(r"\s+", " ", line)
+        if (
+            len(line) < 24
+            or line.startswith(("File:", "Path:", "---", "|"))
+            or line.lower().startswith(("table_", "image_"))
+        ):
+            continue
+        key = line.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        lines.append(line[:360])
+        if len(lines) >= limit:
+            break
+    return lines
+
+
+def _fallback_questions_for_doc(doc: Dict[str, Any], questions_per_category: int) -> List[Dict[str, Any]]:
+    lines = _clean_context_lines(doc.get("context"), limit=max(8, questions_per_category * len(QUESTION_CATEGORIES) + 2))
+    if not lines:
+        return []
+
+    display = str(doc.get("display_name") or doc.get("doc_id") or "the selected document")
+    templates = {
+        "simple": "What key point is stated in {display} about this excerpt: {snippet}",
+        "complex_intent": "What does {display} explain about this topic, and which detail supports it: {snippet}",
+        "reasoning": "Based on {display}, what conclusion can be drawn from this excerpt: {snippet}",
+        "cross_file_reasoning": "Within the active evaluation set, how is this part of {display} relevant to the broader document context: {snippet}",
+    }
+    out: List[Dict[str, Any]] = []
+    for category in QUESTION_CATEGORIES:
+        for idx in range(questions_per_category):
+            snippet = lines[(len(out) + idx) % len(lines)]
+            out.append(
+                {
+                    "query_id": f"{doc['doc_id']}:{category}:{idx + 1}",
+                    "doc_id": doc["doc_id"],
+                    "category": category,
+                    "question": templates[category].format(display=display, snippet=snippet),
+                    "reference_answer": snippet,
+                    "expected_evidence_hint": snippet,
+                    "generation_raw": "fallback: generated from processed markdown because the judge model did not return valid question JSON",
+                    "generation_source": "fallback",
+                }
+            )
+    return out
 
 
 def _safe_int(value: Any, default: int = 0) -> int:
@@ -132,9 +196,20 @@ def _generation_config(cfg: Dict[str, Any]):
     from src.generation.generator import GenerationConfig, RAGGenerator
 
     gyaml = cfg.get("generation", {}) or {}
+    eval_model = str(
+        os.getenv("RETRIEVAL_EVAL_GENERATION_MODEL")
+        or gyaml.get("model")
+        or "gpt-4o-mini"
+    ).strip()
+    eval_provider = str(
+        os.getenv("RETRIEVAL_EVAL_GENERATION_PROVIDER")
+        or gyaml.get("provider")
+        or "openai"
+    ).strip()
+    disable_guardrail = str(os.getenv("RETRIEVAL_EVAL_DISABLE_GUARDRAIL", "false")).lower() in {"true", "1", "yes"}
     gc = GenerationConfig(
-        provider=str(gyaml.get("provider", "openai")),
-        model_name=str(gyaml.get("model", "gpt-4o-mini")),
+        provider=eval_provider,
+        model_name=eval_model or str(gyaml.get("model", "gpt-4o-mini")),
         api_key=gyaml.get("api_key"),
         base_url=gyaml.get("base_url"),
         bedrock_region=(gyaml.get("bedrock_region") or None),
@@ -142,6 +217,7 @@ def _generation_config(cfg: Dict[str, Any]):
         max_tokens=int(gyaml.get("max_tokens", 3000)),
         enable_citations=False,
         base_dir=str(BACKEND_ROOT),
+        enable_guardrails=not disable_guardrail,
     )
     return gc, RAGGenerator(gc)
 
@@ -531,6 +607,14 @@ Target document processed markdown:
                 raw = gen._call_llm(prompt)
                 payload = _json_or_empty(raw)
                 items = payload.get("items") if isinstance(payload, dict) else []
+                if not items:
+                    logger.warning(
+                        "question generation returned no items for %s/%s reason=%s raw=%s",
+                        doc["doc_id"],
+                        category,
+                        "refusal" if _looks_like_refusal(raw) else "empty_json",
+                        _clip(raw, 240),
+                    )
             except Exception as exc:
                 logger.warning("question generation failed for %s/%s: %s", doc["doc_id"], category, exc)
                 items = []
@@ -553,8 +637,23 @@ Target document processed markdown:
                         "reference_answer": str(item.get("reference_answer") or "").strip(),
                         "expected_evidence_hint": str(item.get("expected_evidence_hint") or "").strip(),
                         "generation_raw": raw if counts[category] == 1 else "",
+                        "generation_source": "llm",
                     }
                 )
+        missing_categories = [category for category, count in counts.items() if count < questions_per_category]
+        if missing_categories:
+            logger.warning(
+                "using fallback retrieval eval questions for %s missing_categories=%s",
+                doc["doc_id"],
+                ",".join(missing_categories),
+            )
+            fallback = _fallback_questions_for_doc(doc, questions_per_category)
+            fallback_by_id = {str(item.get("query_id") or ""): item for item in fallback}
+            for category in missing_categories:
+                for idx in range(counts[category] + 1, questions_per_category + 1):
+                    item = fallback_by_id.get(f"{doc['doc_id']}:{category}:{idx}")
+                    if item:
+                        out.append(item)
         return out
 
     def _judge_relevance(
@@ -803,6 +902,11 @@ Retrieved evidence:
         questions: List[Dict[str, Any]] = []
         for doc in docs:
             questions.extend(self._generate_questions(gen, doc, summaries, questions_per_category))
+        if not questions:
+            raise RuntimeError(
+                "Retrieval eval could not generate any questions from the selected processed document. "
+                "Check the judge model response and processed markdown content."
+            )
 
         results: List[Dict[str, Any]] = []
         for question in questions:
@@ -850,6 +954,7 @@ Retrieved evidence:
                 "selected_document_ids": selected_doc_ids,
                 "judge_provider": gc.provider,
                 "judge_model": gc.model_name,
+                "judge_guardrail_enabled": bool(getattr(gc, "enable_guardrails", True)),
             },
             "active_files": [
                 {
