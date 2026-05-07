@@ -292,14 +292,14 @@ For data-dense documents, the pipeline integrates \textbf{Docling} as the centra
 
 The output of this step is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
 
-The following sections detail each stage of the pipeline, including stage-specific logic, conditional execution rules, and output structures.
+% The following sections detail each stage of the pipeline, including stage-specific logic, conditional execution rules, and output structures.
 
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.2\textwidth]{{img/pdz/Report 252 Diagram-Pipeline Architecture Overview.drawio.png}}
-    \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
-    \label{fig:pipeline_overview}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.2\textwidth]{{img/pdz/Report 252 Diagram-Pipeline Architecture Overview.drawio.png}}
+%     \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
+%     \label{fig:pipeline_overview}
+% \end{figure}
 
 \section{Detailed Processing Stages (7-Stage Pipeline)}
 
@@ -308,7 +308,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Complete Pipeline Architecture.drawio.png}}
+    \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-Complete Pipeline Architecture.drawio.png}}
     \caption[7-Stage Processing Pipeline Model]{7-Stage Processing Pipeline Model.}
     \label{fig:pipeline_model}
 \end{figure}
@@ -355,7 +355,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
+    \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
     \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
     \label{fig:stage1_routing_viz}
 \end{figure}
@@ -468,25 +468,27 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
 
 \textbf{Processing Logic}:
 
-Docling DocumentConverter supports these 10 format families:
+% Docling DocumentConverter supports these 10 format families:
 
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Docling DocumentConverter.drawio.png}}
-    \caption[Docling DocumentProcessorV2 Supported Input Formats]{Docling DocumentProcessorV2 Supported Input Formats}
-    \label{fig:docling_arch}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Docling DocumentConverter.drawio.png}}
+%     \caption[Docling DocumentProcessorV2 Supported Input Formats]{Docling DocumentProcessorV2 Supported Input Formats}
+%     \label{fig:docling_arch}
+% \end{figure}
 
-Docling analyzes all normalized documents, with intelligent conditional skipping for documents already processed by Stages 3b/3c/3d (via smart deduplication).
+% Docling analyzes all normalized documents, with intelligent conditional skipping for documents already processed by Stages 3b/3c/3d (via smart deduplication).
 
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Smart Deduplication Logic.drawio.png}}
-    \caption[Stage 3 Smart Deduplication Logic]{Stage 3 Smart Deduplication Logic.}
-    \label{fig:smart_dedup}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Smart Deduplication Logic.drawio.png}}
+%     \caption[Stage 3 Smart Deduplication Logic]{Stage 3 Smart Deduplication Logic.}
+%     \label{fig:smart_dedup}
+% \end{figure}
 
-For documents NOT in the custom parser output directories, Docling performs full structural analysis. This stage utilizes the \textbf{DocumentProcessorV2} unified router, which automatically selects the optimal backend for each file type:
+% For documents NOT in the custom parser output directories, Docling performs full structural analysis. This stage utilizes the \textbf{DocumentProcessorV2} unified router, which automatically selects the optimal backend for each file type:
+
+For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling performs full structural analysis. This stage utilizes the \textbf{DocumentProcessorV2} unified router, which automatically selects the optimal backend for each file type:
 
 \begin{figure}[!ht]
     \centering
@@ -609,12 +611,12 @@ For documents NOT in the custom parser output directories, Docling performs full
     \item \textbf{Create index}: Generate \texttt{chunks.json} with all text and \texttt{metadata.json} with complete provenance tracking
 \end{enumerate}
 
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/69-consolidation-logic.png}
-    \caption[Stage 4: RAG-Ready Consolidation Logic]{Stage 4: RAG-Ready Consolidation Logic.}
-    \label{fig:consolidation_logic}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{img/pdz/69-consolidation-logic.png}
+%     \caption[Stage 4: RAG-Ready Consolidation Logic]{Stage 4: RAG-Ready Consolidation Logic.}
+%     \label{fig:consolidation_logic}
+% \end{figure}
 
 
 \textbf{Output}:
@@ -977,16 +979,16 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
     \item Query-time MaxSim computed on-demand for precision
 \end{enumerate}
 
-\textbf{Reranking}
+% \textbf{Reranking}
 
-As defined in the system architecture, reranking is \textbf{globally disabled} (\texttt{SKIP\_RERANKER=true} by default) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during search to maintain sub-second response times.
+% As defined in the system architecture, reranking is \textbf{globally disabled} (\texttt{SKIP\_RERANKER=true} by default) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during search to maintain sub-second response times.
 
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.45\textwidth]{img/pdz/Report 252 Diagram-Reranking.drawio.png}
-    \caption[Reranking Architecture]{Reranking Architecture.}
-    \label{fig:reranking_arch}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.45\textwidth]{img/pdz/Report 252 Diagram-Reranking.drawio.png}
+%     \caption[Reranking Architecture]{Reranking Architecture.}
+%     \label{fig:reranking_arch}
+% \end{figure}
 
 % \begin{table}[!ht]
 % \centering
