@@ -916,6 +916,11 @@ export default function SearchView({
               <p className="text-xs text-slate-500">
                 LLM judge + human labels for text recall/nDCG and image recall/nDCG. Only processed or indexed files are shown.
                 {evalRun?.status && <span className="ml-2 font-bold text-emerald-700">Status: {evalRun.status}</span>}
+                {evalRun && (
+                  <span className="ml-2 font-bold text-slate-600">
+                    Queries: {evalRun.questions?.length || 0} · Results: {evalRun.results?.length || 0}
+                  </span>
+                )}
               </p>
             </div>
             <div className="ml-auto flex flex-wrap items-end gap-2">
@@ -1025,6 +1030,17 @@ export default function SearchView({
                   {evalRun.artifact_path && (
                     <p className="mb-3 break-all rounded-md bg-slate-50 px-2 py-1 text-[10px] text-slate-500">
                       Saved JSON: {evalRun.artifact_path}
+                    </p>
+                  )}
+                  {evalRun.config?.judge_model && (
+                    <p className="mb-3 rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-800">
+                      Judge: {String(evalRun.config.judge_model)}
+                      {evalRun.config.judge_guardrail_enabled === false ? ' · guardrail off' : ''}
+                    </p>
+                  )}
+                  {evalRun.status === 'completed' && (evalRun.results || []).length === 0 && (
+                    <p className="rounded-md border border-amber-200 bg-amber-50 px-2 py-2 text-xs text-amber-800">
+                      Run completed without generated queries/results. Re-run eval after backend reload, or check the report error fields.
                     </p>
                   )}
                   {(evalRun.results || []).map((result) => (
