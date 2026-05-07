@@ -13,7 +13,7 @@ This section evaluates the quality of document parsing and structural extraction
 
 OmniDocBench is a large-scale PDF parsing benchmark spanning 1,650 pages with diverse document types including academic papers, books, presentations, exams, and magazines in both English and Chinese. Each document is annotated with block-level and span-level categories, reading order, and table/formula structure. We evaluated \textbf{DocumentProcessorV2} in Hybrid Mode, which combines \textbf{ItemSequencer} (structural hierarchy using PyMuPDF) with \textbf{Docling} (text and table extraction with OCR enabled, VLM disabled).
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{OmniDocBench Parsing Evaluation (1650 Pages, DocumentProcessorV2 Hybrid)}
     \label{tab:omnidocbench_results}
@@ -38,7 +38,7 @@ The results reveal a system that excels at structural tasks but struggles with t
 
 OfficeDocBench evaluates classical office document parsing across DOCX, XLSX, and PPTX formats. We evaluated 42 files (28 DOCX, 6 XLSX, 8 PPTX) representing 62\% of the full benchmark corpus. The evaluation measures text preservation, structural recall, element accuracy, and feature detection across various document complexities.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{OfficeDocBench Results by Format}
     \label{tab:officedocbench_results}
@@ -69,7 +69,7 @@ Text retrieval was evaluated across three strategies on 40 synthetic questions g
 
 \textbf{BM25 (Sparse Retrieval) - Full Metrics}
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{BM25 Text Retrieval Performance (All K Values with Standard Deviation)}
     \label{tab:bm25_text_full}
@@ -94,7 +94,7 @@ Text retrieval was evaluated across three strategies on 40 synthetic questions g
 
 \textbf{Dense (Semantic Retrieval) - Full Metrics}
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Dense Retrieval Performance (All K Values with Standard Deviation)}
     \label{tab:dense_text_full}
@@ -119,7 +119,7 @@ Text retrieval was evaluated across three strategies on 40 synthetic questions g
 
 \textbf{Comparative Analysis: BM25 vs. Dense}
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{BM25 vs. Dense Retriever Comparison}
     \label{tab:bm25_dense_comparison}
@@ -144,7 +144,7 @@ Image retrieval was evaluated using ColQwen2 (a vision-language model) on the sa
 
 \textbf{BM25 Image Retrieval - Full Metrics}
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{BM25 Image Retrieval Performance (All K Values with Standard Deviation)}
     \label{tab:bm25_image_full}
@@ -169,7 +169,7 @@ Image retrieval was evaluated using ColQwen2 (a vision-language model) on the sa
 
 \textbf{Dense Image Retrieval - Full Metrics}
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Dense Image Retrieval Performance (All K Values with Standard Deviation)}
     \label{tab:dense_image_full}
@@ -200,7 +200,7 @@ Image retrieval achieves 77.5\%--80.0\% recall@10 across strategies, indicating 
 
 Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB each). The pipeline extracted audio, ran Whisper ASR for transcription, chunked transcripts temporally, and extracted frames at 100-frame intervals.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Media Parsing Quality Metrics (42 Lecture Videos)}
     \label{tab:media_results}
@@ -226,7 +226,7 @@ ASR quality is good: 16.63\% WER (word error rate) is typical for Whisper tiny o
 
 To validate generalization beyond the MITFLD benchmark, media evaluation was conducted on a single MIT OpenCourseWare lecture from an alternative source. This evaluation provides comparative insights into ASR quality and temporal alignment across different audio conditions.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{OCW vs. MITFLD Media Evaluation Comparison}
     \label{tab:ocw_mitfld_comparison}
@@ -252,7 +252,7 @@ Beyond ASR and temporal metrics, the system extracts frames from video content a
 
 \textbf{Frame Extraction Pipeline Statistics}
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Frame Extraction and Processing Pipeline (42 Videos)}
     \label{tab:frame_extraction_stats}
@@ -280,7 +280,7 @@ The frame extraction pipeline processed all 42 videos without failures, extracti
 
 \textbf{Frame Alignment Metrics (Full MITFLD: 42 videos, 298 evaluation items)}
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Frame Alignment Quality Across Retrieval Depths}
     \label{tab:frame_alignment}
@@ -310,7 +310,7 @@ This section evaluates how well the chunking strategy isolates relevant informat
 
 Document chunking determines whether a retriever finds the exact passage needed to answer a question, or must sift through irrelevant neighbors. We compared two strategies on 111 synthetic query-span pairs from 3 documents (434K characters total): recursive markdown chunking (production baseline) and semantic cluster chunking (research variant).
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Chunking Quality: Recursive vs. Semantic (111 Queries)}
     \label{tab:chunking_results}
@@ -333,7 +333,7 @@ Both strategies achieve similar hit rates (72\%). Semantic chunking provides sli
 
 End-to-end evaluation measures complete system correctness: retrieval + generation + answer quality. We generated 660 questions from 132 sections across 2 documents, then evaluated answers on three dimensions: correctness (factual accuracy), faithfulness (grounding in retrieved context), and answer support (whether retrieval provided sufficient information).
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{End-to-End RAG Performance (660 Questions)}
     \label{tab:e2e_results}
@@ -390,7 +390,7 @@ To ensure a rigorous and transparent evaluation, the performance test suite was 
 
 The performance testing environment is supported by a specialized toolchain designed for high-concurrency simulation and granular metrics extraction, as summarized in Table~\ref{tab:test_tools}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Performance Testing Toolchain}
     \label{tab:test_tools}
@@ -411,7 +411,7 @@ The performance testing environment is supported by a specialized toolchain desi
 
 To provide a standardized evaluation of the system's operational efficiency, we define a set of core performance metrics used throughout the testing phase, detailed in Table~\ref{tab:metrics_explained}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Key Performance Metrics}
     \label{tab:metrics_explained}
@@ -432,7 +432,7 @@ To provide a standardized evaluation of the system's operational efficiency, we 
 
 The evaluation is structured into several distinct test scenarios targeting different system components, as outlined in the testing plan in Table~\ref{tab:test_plan}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Performance Testing Plan and Objectives}
     \label{tab:test_plan}
@@ -452,7 +452,7 @@ The evaluation is structured into several distinct test scenarios targeting diff
 
 The reliability of the collected performance data is ensured through a multi-layered verification strategy that correlates JMeter logs with backend state transitions, as presented in Table~\ref{tab:test_evidence}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Test Evidence and Verification Methods}
     \label{tab:test_evidence}
@@ -478,7 +478,7 @@ To evaluate the system's robustness and scalability under realistic user workloa
 
 The initial phase of evaluation establishes a performance baseline for core interactive endpoints under nominal conditions, with the results summarized in Table~\ref{tab:baseline_perf}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Baseline API Performance Matrix}
     \label{tab:baseline_perf}
@@ -503,7 +503,7 @@ The baseline API layer is healthy at 50 concurrent users. These endpoints do not
 
 The file upload subsystem was tested against varying concurrency levels to evaluate its handling of binary data streams and cloud storage persistence, with the results shown in Table~\ref{tab:upload_perf}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Upload API Performance Matrix}
     \label{tab:upload_perf}
@@ -530,7 +530,7 @@ The upload layer is reliable up to 50 concurrent users in the available test set
 
 Document processing, being a resource-intensive background task, was evaluated based on job success rates and completion durations, as summarized in Table~\ref{tab:processing_perf}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Document Processing Performance Matrix}
     \label{tab:processing_perf}
@@ -555,7 +555,7 @@ Processing is acceptable at moderate concurrency but should be treated as a cont
 
 Full-text and visual indexing performance metrics, which highlight the system's current capacity limits for vectorization, are presented in Table~\ref{tab:indexing_perf}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Indexing Performance Matrix}
     \label{tab:indexing_perf}
@@ -582,7 +582,7 @@ The safe operating point for indexing from current evidence is up to 30 concurre
 
 The performance of the multimodal search engine across different user loads, measuring the end-to-end latency from query to result, is detailed in Table~\ref{tab:search_perf}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Search Performance Matrix}
     \label{tab:search_perf}
@@ -608,7 +608,7 @@ Search is functionally stable under the tested concurrency. The next optimizatio
 
 The responsiveness of the AI chat interface, specifically its ability to maintain low first-byte latency while streaming complex reasoning, is documented in Table~\ref{tab:chat_stream_perf}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Chat Stream Performance Matrix (Full Request)}
     \label{tab:chat_stream_perf}
@@ -636,7 +636,7 @@ Chat is operationally stable up to 50 concurrent users. For production growth, t
 
 Performance metrics for the automated lecture summarization service, reflecting its stability under concurrent demand, are shown in Table~\ref{tab:summary_perf}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Summary Performance Matrix}
     \label{tab:summary_perf}
@@ -662,7 +662,7 @@ Summary generation is ready for concurrent classroom-style usage, especially whe
 
 The efficiency of the MCQ generation endpoint, which supports rapid educational content creation, is summarized in Table~\ref{tab:mcq_perf}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Multiple Choice Question Performance Matrix}
     \label{tab:mcq_perf}
@@ -688,7 +688,7 @@ MCQ generation is a strong candidate for high-traffic educational workflows such
 
 Learning roadmap generation latencies and success rates under load are presented in Table~\ref{tab:roadmap_perf}.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Learning Roadmap Performance Matrix}
     \label{tab:roadmap_perf}
@@ -718,7 +718,7 @@ The following analysis synthesizes the results across all API groups to identify
 
 A synthesis of the key findings from the cross-API performance evaluation is provided in Table~\ref{tab:api_findings}, highlighting both stable areas and identified bottlenecks.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Cross-API Performance Findings}
     \label{tab:api_findings}
@@ -738,7 +738,7 @@ A synthesis of the key findings from the cross-API performance evaluation is pro
 
 Based on the observed performance boundaries, Table~\ref{tab:risks_mitigations} outlines the primary production risks and the corresponding technical mitigation strategies.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Production Risks and Mitigations}
     \label{tab:risks_mitigations}
@@ -760,14 +760,14 @@ Based on the observed performance boundaries, Table~\ref{tab:risks_mitigations} 
 
 To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
 
-\begin{figure}[!ht]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/29-desktop performance.png}
     \caption[Desktop Performance Metrics]{Desktop Performance Metrics.}
     \label{fig:desktop_performance}
 \end{figure}
 
-\begin{figure}[!ht]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/30-mobile performance.png}
     \caption[Mobile Performance Metrics]{Mobile Performance Metrics.}
@@ -781,7 +781,7 @@ As shown in Figures \ref{fig:desktop_performance} and \ref{fig:mobile_performanc
 
 This subsection provides a consolidated overview of the metrics evaluated in Phase 2 and those planned for future deployment, establishing clear expectations for system validation.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Comprehensive Evaluation Metrics: Phase 2 vs. Future Plan}
     \label{tab:evaluation_metrics}
@@ -847,7 +847,7 @@ The comprehensive evaluation of BK-MInD leads to the following engineering concl
 
 To ensure the economic viability of the proposed system, we have established a baseline cost estimation based on a production-grade AWS deployment. The following table summarizes the key assumptions and resource allocations used to forecast the monthly operational expenditure for the \texttt{prod} environment in the \texttt{us-west-2} region, supporting an initial cohort of 50 active users.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Cost Estimation Assumptions}
     \label{tab:cost_assumptions}
@@ -913,7 +913,7 @@ To ensure the economic viability of the proposed system, we have established a b
 
 To ground our cost projections in current market rates, we utilize the following pricing reference for the specific AWS services and components used in our architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{AWS Pricing Reference (us-west-2)}
     \label{tab:aws_pricing_ref}
@@ -959,7 +959,7 @@ To ground our cost projections in current market rates, we utilize the following
 
 Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{Monthly Cost Breakdown - 50 Users}
     \label{tab:monthly_cost_breakdown}
@@ -989,7 +989,7 @@ Based on the defined assumptions and current pricing, the following table provid
     }
 \end{table}
 
-\begin{figure}[!ht]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/31-pie-cost.png}
     \caption[Monthly Cost Breakdown Visualization]{Monthly Cost Breakdown Visualization (50 Users).}
@@ -1000,7 +1000,7 @@ Based on the defined assumptions and current pricing, the following table provid
 
 The following table provides a comparative analysis of GPU operational costs across different cloud providers. This estimation is based on a workload scenario of 50 active users, with each user initiating 20 requests per day and each request requiring 15 seconds of GPU inference time, totaling approximately 125 hours of GPU utilization per month.
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month)}
     \label{tab:gpu_optimization}
@@ -1075,7 +1075,7 @@ Monthly operational cost for 50 active users totals \$683.72, with SageMaker GPU
 
 % \noindent\textbf{Primary Risks and Mitigations:}
 
-% \begin{table}[!ht]
+% \begin{table}[H]
 %     \centering
 %     \caption{Pilot Deployment Risk Matrix}
 %     \label{tab:pilot_risks}
