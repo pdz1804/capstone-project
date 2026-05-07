@@ -7,7 +7,7 @@
 
 \subsection{Document Parsing and Extraction Evaluation}
 
-This section evaluates the quality of document parsing and structural extraction, which form the foundation of the entire RAG pipeline. Poor parsing quality leads to missing evidence, misaligned text blocks, and incorrect reading orderâ€”all of which degrade downstream retrieval and generation. We evaluate parsing across two comprehensive benchmarks: OmniDocBench for PDF documents and OfficeDocBench for office formats (DOCX, XLSX, PPTX).
+This section evaluates the quality of document parsing and structural extraction, which form the foundation of the entire RAG pipeline. Poor parsing quality leads to missing evidence, misaligned text blocks, and incorrect reading order-all of which degrade downstream retrieval and generation. We evaluate parsing across two comprehensive benchmarks: OmniDocBench for PDF documents and OfficeDocBench for office formats (DOCX, XLSX, PPTX).
 
 \textbf{OmniDocBench Results}
 
@@ -23,10 +23,10 @@ OmniDocBench is a large-scale PDF parsing benchmark spanning 1,650 pages with di
         \textbf{Metric} & \textbf{Score} & \textbf{Weight} & \textbf{Interpretation} \\
         \midrule
         \textbf{Overall Score} & 58.91\% & Combined & Strong foundation with identified bottleneck \\
-        Read Order & 92.60\% & 15\% & Exceptionalâ€”preserves logical flow in complex layouts \\
+        Read Order & 92.60\% & 15\% & Exceptional-preserves logical flow in complex layouts \\
         Table Score & 76.86\% & 25\% & Reliable table extraction with TEDS/grid accuracy \\
         Section Hierarchy & 90.14\% & 15\% & Excellent heading/structure preservation \\
-        Text Score & 47.43\% & 30\% & Bottleneckâ€”OCR and formula fidelity challenges \\
+        Text Score & 47.43\% & 30\% & Bottleneck-OCR and formula fidelity challenges \\
         \bottomrule
     \end{tabular}
     }
@@ -67,7 +67,7 @@ This section evaluates whether the system can reliably retrieve relevant text an
 
 Text retrieval was evaluated across three strategies on 40 synthetic questions generated from 2 active documents (14 total files). The queries span four difficulty categories: simple factual lookup, complex multi-part questions, reasoning-based queries, and cross-document reasoning. Evaluation metrics include Recall@K (proportion of relevant documents found in top K results) and nDCG@K (ranking quality considering both relevance and position).
 
-\textbf{BM25 (Sparse Retrieval) â€” Full Metrics}
+\textbf{BM25 (Sparse Retrieval) - Full Metrics}
 
 \begin{table}[!ht]
     \centering
@@ -92,7 +92,7 @@ Text retrieval was evaluated across three strategies on 40 synthetic questions g
     }
 \end{table}
 
-\textbf{Dense (Semantic Retrieval) â€” Full Metrics}
+\textbf{Dense (Semantic Retrieval) - Full Metrics}
 
 \begin{table}[!ht]
     \centering
@@ -136,13 +136,13 @@ Text retrieval was evaluated across three strategies on 40 synthetic questions g
     }
 \end{table}
 
-Both BM25 and Dense achieve perfect recall at K=10, meaning all relevant information is eventually found within the top 10 results. BM25 slightly outperforms Dense in nDCG@10 (84.84\% vs 81.92\%), indicating superior ranking quality for this internal benchmark. Neither retriever excels at top-1 precision (approximately 24\%), revealing that single-shot retrieval is unreliable for direct factual lookupâ€”expected because ranking relevant documents first requires understanding query intent and semantic proximity. Hybrid retrieval via Reciprocal Rank Fusion (RRF) combines BM25's keyword precision with Dense's semantic understanding, providing the best balance for production systems.
+Both BM25 and Dense achieve perfect recall at K=10, meaning all relevant information is eventually found within the top 10 results. BM25 slightly outperforms Dense in nDCG@10 (84.84\% vs 81.92\%), indicating superior ranking quality for this internal benchmark. Neither retriever excels at top-1 precision (approximately 24\%), revealing that single-shot retrieval is unreliable for direct factual lookup-expected because ranking relevant documents first requires understanding query intent and semantic proximity. Hybrid retrieval via Reciprocal Rank Fusion (RRF) combines BM25's keyword precision with Dense's semantic understanding, providing the best balance for production systems.
 
 \textbf{Image Retrieval Results}
 
 Image retrieval was evaluated using ColQwen2 (a vision-language model) on the same 40-query set. PDF pages were converted to images and indexed semantically. The following tables show complete metrics for both BM25-based and Dense-based image retrieval strategies.
 
-\textbf{BM25 Image Retrieval â€” Full Metrics}
+\textbf{BM25 Image Retrieval - Full Metrics}
 
 \begin{table}[!ht]
     \centering
@@ -167,7 +167,7 @@ Image retrieval was evaluated using ColQwen2 (a vision-language model) on the sa
     }
 \end{table}
 
-\textbf{Dense Image Retrieval â€” Full Metrics}
+\textbf{Dense Image Retrieval - Full Metrics}
 
 \begin{table}[!ht]
     \centering
@@ -209,7 +209,7 @@ Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB
         \toprule
         \textbf{Metric} & \textbf{Value} & \textbf{Interpretation} \\
         \midrule
-        Mean WER (Word Error Rate) & 16.63\% & Goodâ€”typical for Whisper tiny on CPU \\
+        Mean WER (Word Error Rate) & 16.63\% & Good-typical for Whisper tiny on CPU \\
         Mean CER (Character Error Rate) & 11.26\% & Reliable character-level transcription \\
         Temporal Hit Rate & 100.0\%\footnote{Temporal Hit Rate measures chunk recall (whether any chunk overlaps the target time window). Temporal IoU (34.84\%) measures precision (tightness of boundaries). The 100\% hit rate reflects excellent coverage; the 34.84\% IoU indicates chunks often span broader windows than necessary, acceptable for retrieval but limiting for sub-minute precision.} & All gold windows matched in chunks \\
         Temporal IoU & 34.84\% & Chunks align with expected time windows \\
@@ -220,7 +220,7 @@ Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB
     }
 \end{table}
 
-ASR quality is good: 16.63\% WER (word error rate) is typical for Whisper tiny on CPU and acceptable for educational lecture retrieval. Temporal coverage is excellent (100\% hit rate for chunk recall), though temporal precision is moderate (34.84\% Temporal IoU), meaning chunks often span broader time windows than the exact targetâ€”acceptable for content retrieval but limiting for sub-minute precision seeking. Frame extraction succeeded on all 42 videos with proper timestamp metadata, enabling visual-temporal retrieval for video content.
+ASR quality is good: 16.63\% WER (word error rate) is typical for Whisper tiny on CPU and acceptable for educational lecture retrieval. Temporal coverage is excellent (100\% hit rate for chunk recall), though temporal precision is moderate (34.84\% Temporal IoU), meaning chunks often span broader time windows than the exact target-acceptable for content retrieval but limiting for sub-minute precision seeking. Frame extraction succeeded on all 42 videos with proper timestamp metadata, enabling visual-temporal retrieval for video content.
 
 \textbf{OCW Single-Lecture Media Evaluation}
 
@@ -368,17 +368,17 @@ The comprehensive evaluation across document parsing, multimodal retrieval, chun
 
 \textbf{Key Findings:}
 
-\textit{(1) Parsing Quality Establishes Foundationâ€”Strength in Structure, Bottleneck in Text Fidelity.} OmniDocBench parsing reaches 58.91\% overall accuracy, with exceptional read-order preservation (92.60\%) and strong table extraction (76.86\%), but text-level extraction lags at 47.43\% due to formula complexity and OCR limitations. Office document parsing (DOCX: 60.98\%) significantly outperforms spreadsheets (XLSX: 43.10\%), reflecting the structural complexity of merged cells and formula content. These results confirm that the parsing pipeline sets the upper bound for all downstream retrieval and generation quality.
+\textit{(1) Parsing Quality Establishes Foundation-Strength in Structure, Bottleneck in Text Fidelity.} OmniDocBench parsing reaches 58.91\% overall accuracy, with exceptional read-order preservation (92.60\%) and strong table extraction (76.86\%), but text-level extraction lags at 47.43\% due to formula complexity and OCR limitations. Office document parsing (DOCX: 60.98\%) significantly outperforms spreadsheets (XLSX: 43.10\%), reflecting the structural complexity of merged cells and formula content. These results confirm that the parsing pipeline sets the upper bound for all downstream retrieval and generation quality.
 
-\textit{(2) Retrieval Achieves Excellent Recall and Ranking Qualityâ€”Text Dominates Image by 18\% nDCG@10.} Text retrieval achieves perfect recall@10 (100\%) across both BM25 (nDCG@10: 84.84\%) and Dense embedding (81.92\%) strategies, with BM25 showing marginal advantage. Image retrieval reaches 77.5\%--80.0\% recall@10 but underperforms on nDCG (67.14\% BM25, 62.58\% Dense), indicating text as the primary retrieval signal. Hybrid retrieval via Reciprocal Rank Fusion combines keyword precision and semantic understanding, providing the optimal balance for production systems.
+\textit{(2) Retrieval Achieves Excellent Recall and Ranking Quality-Text Dominates Image by 18\% nDCG@10.} Text retrieval achieves perfect recall@10 (100\%) across both BM25 (nDCG@10: 84.84\%) and Dense embedding (81.92\%) strategies, with BM25 showing marginal advantage. Image retrieval reaches 77.5\%--80.0\% recall@10 but underperforms on nDCG (67.14\% BM25, 62.58\% Dense), indicating text as the primary retrieval signal. Hybrid retrieval via Reciprocal Rank Fusion combines keyword precision and semantic understanding, providing the optimal balance for production systems.
 
-\textit{(3) End-to-End RAG Reveals Retrieval as Primary Optimization Lever.} System correctness reaches 72.7\% with exceptional faithfulness of 99.5\% and zero hallucinationsâ€”proving that generation is grounded and reliable. The high faithfulness-to-correctness gap indicates that retrieval failures and incomplete context, not generation errors, drive the 22.4\% incorrect-answer rate. This clear diagnostic points to retrieval precision and chunking strategy as the direct path to improving correctness toward 80%+ levels.
+\textit{(3) End-to-End RAG Reveals Retrieval as Primary Optimization Lever.} System correctness reaches 72.7\% with exceptional faithfulness of 99.5\% and zero hallucinations-proving that generation is grounded and reliable. The high faithfulness-to-correctness gap indicates that retrieval failures and incomplete context, not generation errors, drive the 22.4\% incorrect-answer rate. This clear diagnostic points to retrieval precision and chunking strategy as the direct path to improving correctness toward 80%+ levels.
 
 \textit{(4) Media Parsing Demonstrates Strong Temporal Coverage with Generalizable Pipeline.} ASR quality across 42 lecture videos reaches 16.63\% WER (acceptable for educational content), temporal hit rate is perfect (100\%), and frame extraction maintains near-perfect attachment rates (97.65\%--98.32\%). OCW single-lecture validation confirms pipeline robustness across different audio sources despite WER variations (21.81\% OCW vs 16.63\% MITFLD), demonstrating the system's ability to generalize beyond controlled environments.
 
 \textit{(5) Chunking Strategy Successfully Balances Recall and Cost.} Recursive markdown chunking and semantic clustering achieve near-equivalent hit rates (~72\%), but recursive chunking is selected for production due to superior precision (18.71\% vs 15.89\% IoU) and lower token cost (755 vs 1,006 average characters per chunk), enabling more cost-efficient generation.
 
-\textbf{Readiness Assessment:} The evaluation phase confirms that the system is \textbf{functionally sound and diagnostically clear}. Component-level quality is established; the next validation gate is operational robustnessâ€”confirming that these metrics persist under production-scale concurrency and workload. The following section reports comprehensive performance testing results, which stress-test the system at 20--50 concurrent users and identify scalability boundaries essential for pilot deployment planning.
+\textbf{Readiness Assessment:} The evaluation phase confirms that the system is \textbf{functionally sound and diagnostically clear}. Component-level quality is established; the next validation gate is operational robustness-confirming that these metrics persist under production-scale concurrency and workload. The following section reports comprehensive performance testing results, which stress-test the system at 20--50 concurrent users and identify scalability boundaries essential for pilot deployment planning.
 
 \newpage
 
@@ -812,8 +812,8 @@ Beyond infrastructure and performance validation, the true measure of BK-MInD's 
 The user study will be conducted with a cohort of HCMUT students to gather both qualitative and quantitative data on system effectiveness:
 
 \begin{itemize}
-    \item \textbf{Participant Pool}: 10â€“20 HCMUT students across multiple courses and academic levels
-    \item \textbf{Study Duration}: One full semester (13â€“15 weeks) of real-world usage in a course setting
+    \item \textbf{Participant Pool}: 10-20 HCMUT students across multiple courses and academic levels
+    \item \textbf{Study Duration}: One full semester (13-15 weeks) of real-world usage in a course setting
     \item \textbf{Study Instruments}: [PLACEHOLDER: Insert study questionnaire, rubric for learning outcomes, feedback collection methods]
     \item \textbf{Metrics to Measure}:
         \begin{itemize}
@@ -1020,7 +1020,7 @@ The following table provides a comparative analysis of GPU operational costs acr
 
 \section{Chapter Synthesis}
 
-The three dimensions of Phase 2 validationâ€”component-level evaluation, operational performance testing, and cost estimationâ€”converge on a clear assessment: \textbf{BK-MInD is ready for pilot deployment} with identified optimization targets and infrastructure priorities.
+The three dimensions of Phase 2 validation-component-level evaluation, operational performance testing, and cost estimation-converge on a clear assessment: \textbf{BK-MInD is ready for pilot deployment} with identified optimization targets and infrastructure priorities.
 
 \textbf{Evaluation Dimension (Â§6.1): Functional Quality Confirmed, Retrieval Identified as Optimization Lever.}
 

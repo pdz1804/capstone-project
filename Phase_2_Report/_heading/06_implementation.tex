@@ -372,14 +372,14 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 DOCX / DOC & File extension & LibreOffice + Docling & \checkmark & \checkmark (Stage 3c) \\
 XLSX / XLS & File extension & LibreOffice + Docling & \checkmark & \checkmark (Stage 3b) \\
 PDF (Digital) & PDF header check & Copy + Docling & \checkmark & \checkmark (Stage 3d) \\
-PPTX / PPT & File extension & LibreOffice & \checkmark & â€” \\
-HTML & MIME type & BeautifulSoup + Docling & \checkmark & â€” \\
-Markdown & Extension & Copy as-is & â€” & â€” \\
-TXT & Extension & Copy as-is & â€” & â€” \\
-CSV & Extension & Pandas & â€” & â€” \\
-Images (JPG, PNG) & Extension & img2pdf & \checkmark & â€” \\
-Video (MP4, AVI) & Extension & MoviePy (audio extraction) & â€” & â€” (â†’ Stage 2) \\
-Audio (WAV, MP3) & Extension & Pass-through & â€” & â€” (â†’ Stage 2) \\
+PPTX / PPT & File extension & LibreOffice & \checkmark & - \\
+HTML & MIME type & BeautifulSoup + Docling & \checkmark & - \\
+Markdown & Extension & Copy as-is & - & - \\
+TXT & Extension & Copy as-is & - & - \\
+CSV & Extension & Pandas & - & - \\
+Images (JPG, PNG) & Extension & img2pdf & \checkmark & - \\
+Video (MP4, AVI) & Extension & MoviePy (audio extraction) & - & - (→ Stage 2) \\
+Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
 \bottomrule
 \end{tabular}%
 }
@@ -642,7 +642,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 % \begin{tabular}{@{}llll@{}}
 % \toprule
 % \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
+% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
 % Dense Index (Text) & FAISS IndexFlatIP & Binary file (\texttt{.bin}) & Cosine similarity, nearest-neighbor search \\
 % Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 % Visual Index (Images) & ColQwen multi-vectors & Tensor store (\texttt{.bin}) & Late-interaction MaxSim matching \\
@@ -661,7 +661,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 % \textbf{Text Indexing Workflow}:
 % \begin{enumerate}
-%     \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) â†’ 384-dimensional vectors
+%     \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
 %     \item BM25 inverted index built from chunk text (keyword search)
 %     \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
 %     \item Hybrid index pre-computed via RRF fusion for fast query-time execution
@@ -695,7 +695,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 % \begin{tabular}{@{}llll@{}}
 % \toprule
 % \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
+% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
 % Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
 % Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 % Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
@@ -953,7 +953,7 @@ The consolidation and indexing pipeline transforms RAG-ready chunks into searcha
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
+BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
 Dense Index (Text) & FAISS IndexFlatIP & Binary file (\texttt{.bin}) & Cosine similarity, nearest-neighbor search \\
 Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 Visual Index (Images) & ColQwen multi-vectors & Tensor store (\texttt{.bin}) & Late-interaction MaxSim matching \\
@@ -965,7 +965,7 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
 
 \textbf{Text Indexing Workflow}:
 \begin{enumerate}
-    \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) â†’ 384-dimensional vectors
+    \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
     \item BM25 inverted index built from chunk text (keyword search)
     \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
     \item Hybrid index pre-computed via RRF fusion for fast query-time execution
@@ -998,7 +998,7 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
 % \begin{tabular}{@{}llll@{}}
 % \toprule
 % \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
+% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
 % Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
 % Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 % Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
@@ -1720,7 +1720,7 @@ To monitor system performance, track resource consumption, and estimate operatio
 \newpage
 
 \textbf{App Jobs Table}
-To manage long-running asynchronous tasksâ€”such as full-document re-indexing, multimodal extraction, or batch analysisâ€”the system utilizes an \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_app\_jobs}). This table acts as a task registry, tracking the lifecycle and progress of background operations to ensure system resilience and provide real-time status updates to the user interface.
+To manage long-running asynchronous tasks-such as full-document re-indexing, multimodal extraction, or batch analysis-the system utilizes an \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_app\_jobs}). This table acts as a task registry, tracking the lifecycle and progress of background operations to ensure system resilience and provide real-time status updates to the user interface.
 
 \begin{table}[!ht]
     \centering
@@ -2703,12 +2703,12 @@ The protection pack implements five distinct security rules, each targeting a sp
 
     \item \textbf{Common Rule Set (Priority 3):} Implements the AWS adaptation of OWASP ModSecurity Core Rule Set (CRS) v3.2, providing industry-standard web application protection. Covers Cross-Site Scripting (XSS), Local File Inclusion (LFI), Remote Code Execution (RCE), and malformed HTTP requests.
 
-    \item \textbf{IP Reputation List (Priority 4):} Leverages the Amazon IP Reputation Listâ€”a continuously updated database of IPs known for malicious activity including botnet C\&C servers, malware distribution endpoints, and credential stuffing sources. Updated daily with false positive rate $<0.1\%$.
+    \item \textbf{IP Reputation List (Priority 4):} Leverages the Amazon IP Reputation List-a continuously updated database of IPs known for malicious activity including botnet C\&C servers, malware distribution endpoints, and credential stuffing sources. Updated daily with false positive rate $<0.1\%$.
 \end{enumerate}
 
 \textbf{Capacity and Performance}
 
-The WAF uses a consumption model based on Web ACL Capacity Units (WCUs). The current configuration consumes 1,129 WCUs out of a maximum capacity of 5,000 WCUs, representing 22.6\% utilization. This leaves significant headroom (3,871 WCUs) for future security enhancements. Performance testing shows that WAF processing adds only 1-5 milliseconds per requestâ€”less than 0.1\% of typical backend processing time (100-500ms) and imperceptible to end users.
+The WAF uses a consumption model based on Web ACL Capacity Units (WCUs). The current configuration consumes 1,129 WCUs out of a maximum capacity of 5,000 WCUs, representing 22.6\% utilization. This leaves significant headroom (3,871 WCUs) for future security enhancements. Performance testing shows that WAF processing adds only 1-5 milliseconds per request-less than 0.1\% of typical backend processing time (100-500ms) and imperceptible to end users.
 
 \begin{table}[!ht]
     \centering
@@ -2839,7 +2839,7 @@ Guardrails are integrated into all AI-powered features through the Bedrock API i
 
 All communication between users and BK-MInD is encrypted using HTTPS (TLS 1.2+) with 256-bit encryption, preventing interception or modification during transmission. TLS encryption is enforced at the ALB level, which terminates HTTPS connections and forwards decrypted traffic to backend services.
 
-\textbf{Certificate Management:} TLS certificates are provisioned and managed through AWS Certificate Manager (ACM), a managed service that handles issuance, validation, and automatic renewal 30 days before expiration. The certificate covers the primary domain and includes Subject Alternative Names for subdomain coverage. DNS validation is used during provisioningâ€”AWS generates unique CNAME records that are added to the domain registrar's configuration.
+\textbf{Certificate Management:} TLS certificates are provisioned and managed through AWS Certificate Manager (ACM), a managed service that handles issuance, validation, and automatic renewal 30 days before expiration. The certificate covers the primary domain and includes Subject Alternative Names for subdomain coverage. DNS validation is used during provisioning-AWS generates unique CNAME records that are added to the domain registrar's configuration.
 
 \textbf{HTTP to HTTPS Enforcement:} All HTTP traffic (port 80) is redirected to HTTPS using permanent 301 redirects, ensuring all authenticated sessions and sensitive data transfers occur over encrypted connections.
 
@@ -2849,7 +2849,7 @@ All communication between users and BK-MInD is encrypted using HTTPS (TLS 1.2+) 
 
 Course materials and student records stored in AWS DynamoDB and Amazon S3 are encrypted at rest using server-side encryption. DynamoDB stores structured data including user profiles, chat history, and quiz results. S3 stores original uploaded files and processed artifacts. Both services support encryption by default, protecting data from unauthorized access in case of physical media compromise.
 
-AWS DynamoDB tables are configured with server-side encryption using AWS-managed keys. S3 buckets are configured with default encryption (SSE-S3 or SSE-KMS), encrypting all objects automatically. Both services handle encryption transparentlyâ€”there is no additional application-layer encryption burden. Encrypted data is backed up in encrypted form, and restoration automatically maintains encryption protection.
+AWS DynamoDB tables are configured with server-side encryption using AWS-managed keys. S3 buckets are configured with default encryption (SSE-S3 or SSE-KMS), encrypting all objects automatically. Both services handle encryption transparently-there is no additional application-layer encryption burden. Encrypted data is backed up in encrypted form, and restoration automatically maintains encryption protection.
 
 \begin{figure}[!ht]
     \centering

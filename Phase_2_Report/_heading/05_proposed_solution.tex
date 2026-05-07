@@ -4,7 +4,7 @@ This chapter presents the proposed solution for BK-MInD, a Multimodal Retrieval-
 
 \section{Justification for Retrieval-Augmented Generation}
 
-While LLMs possess remarkable generative capabilities, they suffer from inherent limitations such as knowledge cutoffs, hallucinations, and a lack of access to proprietary data. To address these issues, several methodologies exist. This section analyzes alternative approaches â€” Fine-Tuning, Semantic Search, Prompt Engineering, and Domain-Specific Pre-training â€” and justifies the selection of RAG as the superior architectural choice for this project.
+While LLMs possess remarkable generative capabilities, they suffer from inherent limitations such as knowledge cutoffs, hallucinations, and a lack of access to proprietary data. To address these issues, several methodologies exist. This section analyzes alternative approaches - Fine-Tuning, Semantic Search, Prompt Engineering, and Domain-Specific Pre-training - and justifies the selection of RAG as the superior architectural choice for this project.
 
 \subsection{Comparative Analysis of Alternatives}
 
@@ -67,7 +67,7 @@ RAG is chosen because it offers the optimal balance of accuracy, cost-efficiency
 
 \section{Technology Selection}
 
-Selecting the right technology stack is critical to the performance, maintainability, and scalability of the BK-MInD system. This section justifies the choice of React for the frontend, FastAPI for the backend, and Qdrant as the cloud vector database â€” three components that together provide an optimized foundation for a multimodal educational RAG application. Each selection is grounded in a direct comparison with primary alternatives, demonstrating superiority across the key criteria of performance, developer experience, and architectural fit.
+Selecting the right technology stack is critical to the performance, maintainability, and scalability of the BK-MInD system. This section justifies the choice of React for the frontend, FastAPI for the backend, and Qdrant as the cloud vector database - three components that together provide an optimized foundation for a multimodal educational RAG application. Each selection is grounded in a direct comparison with primary alternatives, demonstrating superiority across the key criteria of performance, developer experience, and architectural fit.
 
 \subsection{Frontend: React}
 
@@ -422,7 +422,7 @@ Our data indicates that ColBERTv2 provides the highest retrieval quality, surpas
 \begin{itemize}
     \item \textbf{Superior Metrics:} ColBERTv2 achieved the highest \textbf{nDCG@3 of 0.9638}, outperforming the best reranking pipeline ($0.9248$).
     \item \textbf{Solving the Information Bottleneck:} Standard two-stage pipelines suffer from a bottleneck: if the first-stage retriever (e.g., BGE-Small) fails to find the relevant document in the top 30 candidates, the Reranker never sees it. ColBERT avoids this by using a ``Late Interaction'' mechanism. It calculates the MaxSim between query tokens and document tokens directly.
-    \item \textbf{Granularity:} ColBERT matches at the token level using the MaxSim scoring mechanism described in the methodology section. This allows it to identify a relevant document even if only a small paragraph within it matches the query â€” a nuance often lost when compressing a whole document into a single vector (Dense Retrieval).
+    \item \textbf{Granularity:} ColBERT matches at the token level using the MaxSim scoring mechanism described in the methodology section. This allows it to identify a relevant document even if only a small paragraph within it matches the query - a nuance often lost when compressing a whole document into a single vector (Dense Retrieval).
     \item \textbf{Operational Note:} It is worth noting that while ColBERT's retrieval time is efficient ($6.5s$ on GPU), the indexing process is resource-intensive. In our environment, indexing required $\approx35$ minutes on CPU\footnote{Due to FAISS-GPU limitations on the Colab instance, indexing fell back to CPU.} compared to mere seconds/minutes for standard dense models. Despite this setup cost, ColBERT represents the state-of-the-art for retrieval accuracy on this dataset.
 \end{itemize}
 
@@ -447,14 +447,14 @@ This layered design enables independent scaling, testability, and flexibility in
 
 Asynchronous job management is critical to handle concurrent users: while one user's document undergoes the 7-stage pipeline (26--28 seconds), other users' queries and uploads process independently without blocking.
 
-\textbf{Data Processing and Indexing Layer:} This layer implements the 7-stage conditional pipeline (detailed in Section~\ref{sec:pipeline_arch}) that transforms raw educational materials â€” PDFs, DOCX, PPTX, Excel spreadsheets, audio, and video â€” into RAG-ready artifacts. The pipeline follows three key design principles:
+\textbf{Data Processing and Indexing Layer:} This layer implements the 7-stage conditional pipeline (detailed in Section~\ref{sec:pipeline_arch}) that transforms raw educational materials - PDFs, DOCX, PPTX, Excel spreadsheets, audio, and video - into RAG-ready artifacts. The pipeline follows three key design principles:
 
 \begin{itemize}
     \item \textbf{Conditional Routing:} Not all documents require all stages. A plain text document skips format-specific parsers, while an Excel spreadsheet activates the specialized Excel processing stage. This conditional execution minimizes wasted computation and optimizes resource utilization.
 
     \item \textbf{Format-Specific Optimization:} Each input format carries structural metadata (e.g., table cells in Excel, heading hierarchies in DOCX, page boundaries in PDF) that generic parsers cannot capture. Custom processors in Stages 3b, 3c, and 3d preserve this structure, yielding higher-quality chunks for subsequent retrieval.
 
-    \item \textbf{Multimodal Fusion:} The pipeline consolidates heterogeneous outputs â€” structured text from documents, transcripts from audio/video, extracted images and diagrams â€” into a unified, indexed knowledge base that supports both text and visual retrieval.
+    \item \textbf{Multimodal Fusion:} The pipeline consolidates heterogeneous outputs - structured text from documents, transcripts from audio/video, extracted images and diagrams - into a unified, indexed knowledge base that supports both text and visual retrieval.
 \end{itemize}
 
 Following processing, the dual-pathway indexing module produces both text indices (BM25 sparse index, FAISS dense embeddings, and Reciprocal Rank Fusion hybrid index) and visual indices (ColQwen 2.5 late-interaction multi-vector embeddings) stored in Qdrant Cloud. This dual representation enables the system to answer keyword-focused queries (e.g., ``What is gradient descent?'') via sparse retrieval while also handling semantic paraphrases (e.g., ``How do you minimize the loss function?'') via dense embedding-based retrieval. The indexing process itself is orchestrated as an asynchronous job, allowing multiple documents to be indexed in parallel without blocking user interactions.
@@ -526,7 +526,7 @@ The MRAG system implements a \textbf{7-stage conditional processing pipeline} th
 
     \item \textbf{Conditional Routing}: Not all documents require all stages. By implementing conditional execution, the system processes only what is necessary. A plain text file skips Stages 3b/3c/3d entirely, while an Excel spreadsheet runs the specialized Stage 3b parser. This design minimizes wasted computation.
 
-    \item \textbf{Multimodal Fusion}: Stage 2 extracts multimedia content (audio transcripts, video frames) that Stage 3 cannot handle. Stage 4 consolidates all outputs â€” text from all sources, images from document pages and extracted diagrams, and transcripts from media â€” into a unified, retrievable index.
+    \item \textbf{Multimodal Fusion}: Stage 2 extracts multimedia content (audio transcripts, video frames) that Stage 3 cannot handle. Stage 4 consolidates all outputs - text from all sources, images from document pages and extracted diagrams, and transcripts from media - into a unified, retrievable index.
 \end{enumerate}
 
 \begin{table}[!ht]
@@ -610,7 +610,7 @@ The system offers three complementary text retrieval strategies, each addressing
 
 \textit{1. Sparse (BM25) Retrieval}: BM25 is a probabilistic ranking function based on term frequency and inverse document frequency. It excels when queries contain specific keywords, entity names, or exact phrases. Strengths include robust exact term matching; weakness is failure on semantic paraphrases.
 
-\textit{2. Dense (Embedding-Based) Retrieval}: Dense retrieval encodes both queries and documents as continuous vectors in a high-dimensional space. It captures semantic meaning and handles paraphrased queries effectively, though it is susceptible to ``semantic drift'' â€” retrieving documents that are topically similar but factually incorrect.
+\textit{2. Dense (Embedding-Based) Retrieval}: Dense retrieval encodes both queries and documents as continuous vectors in a high-dimensional space. It captures semantic meaning and handles paraphrased queries effectively, though it is susceptible to ``semantic drift'' - retrieving documents that are topically similar but factually incorrect.
 
 \textit{3. Hybrid Retrieval (BM25 + Dense + RRF)}: The system implements \textbf{Reciprocal Rank Fusion (RRF)}, a fusion algorithm that combines BM25 and dense retrieval results. For each document, RRF calculates:
 
@@ -649,7 +649,7 @@ After retrieval, the system aggregates top-K text chunks and top-K visual pages 
     \item \textbf{LLM Selection}: The system supports multiple LLM providers (OpenAI GPT-4o, Anthropic Claude, Google Gemini, or local models via Ollama).
 \end{enumerate}
 
-The LLM reads this aggregated context and generates a natural language answer grounded in the retrieved evidence. Importantly, the LLM includes precise citations â€” linking every factual claim to the specific chunk or page from which it was derived. This ensures traceability and enables users to verify the system's reasoning.
+The LLM reads this aggregated context and generates a natural language answer grounded in the retrieved evidence. Importantly, the LLM includes precise citations - linking every factual claim to the specific chunk or page from which it was derived. This ensures traceability and enables users to verify the system's reasoning.
 
 \subsection{Security Architecture}\label{sec:security_arch}
 
@@ -660,7 +660,7 @@ The LLM reads this aggregated context and generates a natural language answer gr
     \label{fig:security_arch}
 \end{figure}
 
-The BK-MInD system implements a comprehensive security architecture operating across four strategic dimensions: network perimeter defense, authentication and authorization, data protection, and audit and compliance. This layered approach ensures that the system defends against threats at multiple levels â€” from network-based attacks to unauthorized data access to malicious API abuse. Implementation details and specific configuration parameters for each component are documented in Chapter~6 (Implementation).
+The BK-MInD system implements a comprehensive security architecture operating across four strategic dimensions: network perimeter defense, authentication and authorization, data protection, and audit and compliance. This layered approach ensures that the system defends against threats at multiple levels - from network-based attacks to unauthorized data access to malicious API abuse. Implementation details and specific configuration parameters for each component are documented in Chapter~6 (Implementation).
 
 \textbf{Network Perimeter Security:} \textbf{Edge Filtering (CloudFront + AWS WAF):} All incoming HTTPS traffic is routed through Amazon CloudFront, a managed Content Delivery Network that provides geographic distribution and edge caching. Upstream of CloudFront sits AWS Web Application Firewall (WAF), configured with a comprehensive rule pack protecting against common OWASP Top 10 attack vectors:
 
