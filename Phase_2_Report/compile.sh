@@ -6,6 +6,42 @@
 # Change to script directory
 cd "$(dirname "$0")"
 
+show_latex_error() {
+    local logfile="$1"
+
+    if [ -f "$logfile" ]; then
+        echo "Relevant errors from $logfile:"
+        grep -nE "^!|^l\\.|Fatal error|Runaway argument|File ended while scanning|Text line contains an invalid character|Undefined control sequence|LaTeX Error|Package .* Error" "$logfile" | head -40
+        echo ""
+        echo "Last 30 lines of $logfile:"
+        tail -30 "$logfile"
+    else
+        echo "No log file found at $logfile"
+    fi
+}
+
+run_pdflatex() {
+    local label="$1"
+    local output_log="$2"
+    local retry_log="${output_log%.log}-retry.log"
+
+    echo "$label"
+    if ! pdflatex -interaction=nonstopmode --shell-escape main.tex > "$output_log" 2>&1; then
+        if grep -qE "File ended while scanning use of \\\\@writefile|Text line contains an invalid character" "$output_log"; then
+            echo "⚠ Auxiliary file read failed; retrying pdflatex once..."
+            if pdflatex -interaction=nonstopmode --shell-escape main.tex > "$retry_log" 2>&1; then
+                echo "✓ Retry succeeded"
+                return 0
+            fi
+            output_log="$retry_log"
+        fi
+
+        echo "❌ Error: pdflatex failed"
+        show_latex_error "$output_log"
+        exit 1
+    fi
+}
+
 echo "=========================================="
 echo "Compiling LaTeX document..."
 echo "=========================================="
@@ -13,10 +49,10 @@ echo "=========================================="
 # Step 0: Clean up auxiliary files
 echo ""
 echo "[1/5] Cleaning up auxiliary files..."
-if [ -f main.aux ]; then
-    rm main.aux
-    echo "✓ Removed main.aux"
-fi
+rm -f main.aux main.bbl main.bcf main.blg main.fdb_latexmk main.fls main.lof \
+      main.log main.lot main.out main.run.xml main.toc main.synctex.gz \
+      main.synctex.gz\(busy\)
+echo "✓ Removed main auxiliary files"
 if [ -d _heading ]; then
     rm -f _heading/*.aux
     echo "✓ Removed .aux files from _heading/"
@@ -25,60 +61,28 @@ echo "✓ Cleanup complete"
 
 # Step 1: First pdflatex pass
 echo ""
-echo "[2/5] Running pdflatex (first pass)..."
-if ! pdflatex -interaction=nonstopmode --shell-escape main.tex > /tmp/pdflatex1.log 2>&1; then
-    echo "❌ Error: pdflatex failed"
-    if [ -f main.log ]; then
-        echo "Last 30 lines of main.log:"
-        tail -30 main.log
-    else
-        echo "Last 30 lines of output:"
-        tail -30 /tmp/pdflatex1.log
-    fi
-    exit 1
-fi
+run_pdflatex "[2/5] Running pdflatex (first pass)..." /tmp/pdflatex1.log
 echo "✓ First pass complete"
 
 # Step 2: Run biber for bibliography
 echo ""
 echo "[3/5] Running biber for bibliography..."
 if ! biber main > /tmp/biber.log 2>&1; then
-    echo "⚠ Warning: biber had issues (this might be okay if no citations changed)"
-    echo "Check /tmp/biber.log for details"
-else
-    echo "✓ Bibliography processed"
+    echo "❌ Error: biber failed"
+    echo "Last 40 lines of /tmp/biber.log:"
+    tail -40 /tmp/biber.log
+    exit 1
 fi
+echo "✓ Bibliography processed"
 
 # Step 3: Second pdflatex pass
 echo ""
-echo "[4/5] Running pdflatex (second pass)..."
-if ! pdflatex -interaction=nonstopmode --shell-escape main.tex > /tmp/pdflatex2.log 2>&1; then
-    echo "❌ Error: pdflatex failed"
-    if [ -f main.log ]; then
-        echo "Last 30 lines of main.log:"
-        tail -30 main.log
-    else
-        echo "Last 30 lines of output:"
-        tail -30 /tmp/pdflatex2.log
-    fi
-    exit 1
-fi
+run_pdflatex "[4/5] Running pdflatex (second pass)..." /tmp/pdflatex2.log
 echo "✓ Second pass complete"
 
 # Step 4: Third pdflatex pass (to resolve all references)
 echo ""
-echo "[5/5] Running pdflatex (final pass)..."
-if ! pdflatex -interaction=nonstopmode --shell-escape main.tex > /tmp/pdflatex3.log 2>&1; then
-    echo "❌ Error: pdflatex failed"
-    if [ -f main.log ]; then
-        echo "Last 30 lines of main.log:"
-        tail -30 main.log
-    else
-        echo "Last 30 lines of output:"
-        tail -30 /tmp/pdflatex3.log
-    fi
-    exit 1
-fi
+run_pdflatex "[5/5] Running pdflatex (final pass)..." /tmp/pdflatex3.log
 echo "✓ Final pass complete"
 
 echo ""

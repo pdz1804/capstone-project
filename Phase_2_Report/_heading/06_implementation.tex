@@ -186,120 +186,120 @@ To handle layout-dense documents without OCR dependencies:
 %     \item \textbf{Metadata Extraction}: Basic file attributes (size, modification time, MIME type) are extracted and normalized into a standard JSON structure for frontend display.
 % \end{itemize}
 
-\section{Data Normalization}
+% \section{Data Normalization}
 
-Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs ranging from multimedia files to office documents and funnels them into a standardized ``RAG-ready'' format.
-The normalization pipeline is governed by the \texttt{Processor} module and utilizes a suite of open-source libraries to perform format unification.
+% Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs ranging from multimedia files to office documents and funnels them into a standardized ``RAG-ready'' format.
+% The normalization pipeline is governed by the \texttt{Processor} module and utilizes a suite of open-source libraries to perform format unification.
 
-Upon upload via the API, raw files undergo immediate sanitization:
-\begin{itemize}
-    \item \textbf{Filename Sanitization}: To prevent filesystem collisions and encoding errors, filenames are normalized to ASCII characters, and duplicate uploads are handled via an incremental suffix strategy.
-    \item \textbf{Type Validation}: The system acts as a gatekeeper, filtering files based on magic numbers to ensure only supported formats proceed to the processing stage.
-\end{itemize}
-
-
-To facilitate both Visual (ColQwen) and Textual (Dense/Sparse) retrieval, all inputs are converted into two canonical formats: \textbf{PDF} (for visual representation) and \textbf{Markdown} (for semantic text content).
-
-The specific normalization strategies per file type are as follows:
-
-% \textbf{Office and Document Formats}
-
-% Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly. 
-% The system utilizes \textbf{LibreOffice} in headless mode (server-side).
-% These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
+% Upon upload via the API, raw files undergo immediate sanitization:
+% \begin{itemize}
+%     \item \textbf{Filename Sanitization}: To prevent filesystem collisions and encoding errors, filenames are normalized to ASCII characters, and duplicate uploads are handled via an incremental suffix strategy.
+%     \item \textbf{Type Validation}: The system acts as a gatekeeper, filtering files based on magic numbers to ensure only supported formats proceed to the processing stage.
+% \end{itemize}
 
 
-% \textbf{Multimedia (Audio and Video)}
+% To facilitate both Visual (ColQwen) and Textual (Dense/Sparse) retrieval, all inputs are converted into two canonical formats: \textbf{PDF} (for visual representation) and \textbf{Markdown} (for semantic text content).
 
-% Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
-% \textbf{MoviePy} is employed to separate audio tracks from video containers.
-% The \textbf{OpenAI Whisper} model (Automatic Speech Recognition) processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
+% The specific normalization strategies per file type are as follows:
 
-% \textbf{Structural Parsing (Docling)}
+% % \textbf{Office and Document Formats}
 
-% For complex documents like scientific PDFs, HTML pages, or Table-heavy reports, simple text extraction is insufficient.
-% The pipeline integrates \textbf{Docling}, a specialized document parsing library.
-% Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
-% It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
+% % Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly. 
+% % The system utilizes \textbf{LibreOffice} in headless mode (server-side).
+% % These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
 
 
-\textbf{Multimedia Processing}
+% % \textbf{Multimedia (Audio and Video)}
 
-To handle temporal media, the system implements a two-step transformation:
-\begin{itemize}
-    \item \textbf{Video Extraction}: Raw video files (e.g., MP4) are processed using \textbf{MoviePy}. This extractor separates the visual stream from the audio stream, outputting a \texttt{.WAV} file for transcription and an optional image thumbnail.
+% % Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
+% % \textbf{MoviePy} is employed to separate audio tracks from video containers.
+% % The \textbf{OpenAI Whisper} model (Automatic Speech Recognition) processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
+
+% % \textbf{Structural Parsing (Docling)}
+
+% % For complex documents like scientific PDFs, HTML pages, or Table-heavy reports, simple text extraction is insufficient.
+% % The pipeline integrates \textbf{Docling}, a specialized document parsing library.
+% % Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
+% % It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
+
+
+% \textbf{Multimedia Processing}
+
+% To handle temporal media, the system implements a two-step transformation:
+% \begin{itemize}
+%     \item \textbf{Video Extraction}: Raw video files (e.g., MP4) are processed using \textbf{MoviePy}. This extractor separates the visual stream from the audio stream, outputting a \texttt{.WAV} file for transcription and an optional image thumbnail.
     
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=1\textwidth]{img/pdz/23-movipy.png}
-        \caption[MoviePy Extraction Process]{MoviePy Extraction Process.}
-        \label{fig:movipy_process}
-    \end{figure}
+%     \begin{figure}[H]
+%         \centering
+%         \includegraphics[width=1\textwidth]{img/pdz/23-movipy.png}
+%         \caption[MoviePy Extraction Process]{MoviePy Extraction Process.}
+%         \label{fig:movipy_process}
+%     \end{figure}
     
-    \item \textbf{Audio Transcription}: The extracted audio or raw \texttt{.WAV} files are passed to \textbf{OpenAI Whisper} ASR engine. Whisper transcribes the speech to text, which is immediately serialized into \textbf{Markdown} format to preserve semantic structure.
+%     \item \textbf{Audio Transcription}: The extracted audio or raw \texttt{.WAV} files are passed to \textbf{OpenAI Whisper} ASR engine. Whisper transcribes the speech to text, which is immediately serialized into \textbf{Markdown} format to preserve semantic structure.
     
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=1\textwidth]{img/pdz/24-whisper.png}
-        \caption[OpenAI Whisper Audio Transcription Process]{OpenAI Whisper Audio Transcription Process.}
-        \label{fig:whisper_process}
-    \end{figure}
+%     \begin{figure}[H]
+%         \centering
+%         \includegraphics[width=1\textwidth]{img/pdz/24-whisper.png}
+%         \caption[OpenAI Whisper Audio Transcription Process]{OpenAI Whisper Audio Transcription Process.}
+%         \label{fig:whisper_process}
+%     \end{figure}
 
-\end{itemize}
+% \end{itemize}
 
-\textbf{Office Document Normalization}
+% \textbf{Office Document Normalization}
 
-Legacy office formats require conversion before structural analysis. The system utilizes \textbf{LibreOffice} in a headless server environment.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/pdz/25-libre.png}
-    \caption[LibreOffice Document Conversion Process]{LibreOffice Document Conversion Process.}
-    \label{fig:libre_process}
-\end{figure}
+% Legacy office formats require conversion before structural analysis. The system utilizes \textbf{LibreOffice} in a headless server environment.
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{img/pdz/25-libre.png}
+%     \caption[LibreOffice Document Conversion Process]{LibreOffice Document Conversion Process.}
+%     \label{fig:libre_process}
+% \end{figure}
 
-Formats such as Microsoft Word (.DOC), PowerPoint (.PPT), and HTML are normalized into standard \textbf{PDF} documents to freeze layout and fonts.
+% Formats such as Microsoft Word (.DOC), PowerPoint (.PPT), and HTML are normalized into standard \textbf{PDF} documents to freeze layout and fonts.
 
-\textbf{Complex Document Parsing}
+% \textbf{Complex Document Parsing}
 
-For data-dense documents, the pipeline integrates \textbf{Docling} as the central parsing engine:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/26-docling.png}
-    \caption[Docling Document Parsing Process]{Docling Document Parsing Process.}
-    \label{fig:docling_process}
-\end{figure}
-
-\begin{itemize}
-    \item \textbf{Inputs}: Handles 10 distinct format families including PDF, Microsoft Word (.DOCX), PowerPoint (.PPTX), Excel (.XLSX), Web Pages (.HTML), Markdown (.MD), CSV, Images (OCR-ready), AsciiDoc (.ADOC), and WebVTT (.VTT) subtitles.
-    \item \textbf{Outputs}: Docling deconstructs these inputs into three distinct normalized artifacts:
-    \begin{enumerate}
-        \item \textbf{Structured Markdown}: For semantic text analysis.
-        \item \textbf{Table Objects}: For preserving row/column relationships.
-        \item \textbf{Isolated Images}: For downstream visual indexing.
-    \end{enumerate}
-\end{itemize}
-
-% \textbf{Output Artifacts}
-
-% Every input file results in a unified set of artifacts in the rag ready directory:
-% \begin{enumerate}
-%     \item \textbf{PDF}: Used for visual embedding (ColQwen) and user preview.
-%     \item \textbf{Structured Markdown}: Used for text embedding (BM25/Dense) and LLM context injection.
-%     \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
-% \end{enumerate}
-
-
-The output of this step is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
-
-% The following sections detail each stage of the pipeline, including stage-specific logic, conditional execution rules, and output structures.
+% For data-dense documents, the pipeline integrates \textbf{Docling} as the central parsing engine:
 
 % \begin{figure}[H]
 %     \centering
-%     \includegraphics[width=0.2\textwidth]{{img/pdz/Report 252 Diagram-Pipeline Architecture Overview.drawio.png}}
-%     \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
-%     \label{fig:pipeline_overview}
+%     \includegraphics[width=1\textwidth]{img/pdz/26-docling.png}
+%     \caption[Docling Document Parsing Process]{Docling Document Parsing Process.}
+%     \label{fig:docling_process}
 % \end{figure}
+
+% \begin{itemize}
+%     \item \textbf{Inputs}: Handles 10 distinct format families including PDF, Microsoft Word (.DOCX), PowerPoint (.PPTX), Excel (.XLSX), Web Pages (.HTML), Markdown (.MD), CSV, Images (OCR-ready), AsciiDoc (.ADOC), and WebVTT (.VTT) subtitles.
+%     \item \textbf{Outputs}: Docling deconstructs these inputs into three distinct normalized artifacts:
+%     \begin{enumerate}
+%         \item \textbf{Structured Markdown}: For semantic text analysis.
+%         \item \textbf{Table Objects}: For preserving row/column relationships.
+%         \item \textbf{Isolated Images}: For downstream visual indexing.
+%     \end{enumerate}
+% \end{itemize}
+
+% % \textbf{Output Artifacts}
+
+% % Every input file results in a unified set of artifacts in the rag ready directory:
+% % \begin{enumerate}
+% %     \item \textbf{PDF}: Used for visual embedding (ColQwen) and user preview.
+% %     \item \textbf{Structured Markdown}: Used for text embedding (BM25/Dense) and LLM context injection.
+% %     \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
+% % \end{enumerate}
+
+
+% The output of this step is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
+
+% % The following sections detail each stage of the pipeline, including stage-specific logic, conditional execution rules, and output structures.
+
+% % \begin{figure}[H]
+% %     \centering
+% %     \includegraphics[width=0.2\textwidth]{{img/pdz/Report 252 Diagram-Pipeline Architecture Overview.drawio.png}}
+% %     \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
+% %     \label{fig:pipeline_overview}
+% % \end{figure}
 
 \section{Detailed Processing Stages (7-Stage Pipeline)}
 
@@ -1201,42 +1201,42 @@ With asynchronous job processing established as the infrastructure for long-runn
 %     \item Mobile-friendly: Stateless backend enables seamless sync across devices
 % \end{itemize}
 
-\section{Safety and Content Filtering}
+% \section{Safety and Content Filtering}
 
-Phase 2 integrates \textbf{AWS Bedrock Guardrails} to enforce safety constraints during LLM generation, mitigating risks of harmful outputs while maintaining transparency to users.
+% Phase 2 integrates \textbf{AWS Bedrock Guardrails} to enforce safety constraints during LLM generation, mitigating risks of harmful outputs while maintaining transparency to users.
 
-\subsection{Guardrail Integration}
+% \subsection{Guardrail Integration}
 
-The \texttt{bedrock\_guardrail\_integration} module wraps Bedrock's native guardrail API, automatically injecting safety configuration into all \texttt{converse()} requests. The guardrail identifier, version control (\texttt{GUARDRAIL\_VERSION}, default \texttt{DRAFT}), and toggle control (\texttt{GUARDRAIL\_ENABLED}) allow for policy iteration without code deployment.
+% The \texttt{bedrock\_guardrail\_integration} module wraps Bedrock's native guardrail API, automatically injecting safety configuration into all \texttt{converse()} requests. The guardrail identifier, version control (\texttt{GUARDRAIL\_VERSION}, default \texttt{DRAFT}), and toggle control (\texttt{GUARDRAIL\_ENABLED}) allow for policy iteration without code deployment.
 
-\subsection{Content Filtering Mechanisms}
+% \subsection{Content Filtering Mechanisms}
 
-Bedrock Guardrails enforce multi-layer content filtering:
+% Bedrock Guardrails enforce multi-layer content filtering:
 
-\begin{enumerate}
-    \item \textbf{Input Filtering}: Scan user queries for restricted topics (e.g., violence, sexual content, illegal activities) before forwarding to the LLM.
+% \begin{enumerate}
+%     \item \textbf{Input Filtering}: Scan user queries for restricted topics (e.g., violence, sexual content, illegal activities) before forwarding to the LLM.
 
-    \item \textbf{Output Filtering}: Scan generated responses against policy taxonomy, blocking harmful completions and returning fallback messages.
+%     \item \textbf{Output Filtering}: Scan generated responses against policy taxonomy, blocking harmful completions and returning fallback messages.
 
-    \item \textbf{Contextual Awareness}: Guardrails understand document context. For educational materials containing sensitive content, filtering policies can be relaxed with explicit user acknowledgment.
+%     \item \textbf{Contextual Awareness}: Guardrails understand document context. For educational materials containing sensitive content, filtering policies can be relaxed with explicit user acknowledgment.
 
-    \item \textbf{Custom Filters}: Organizations can define domain-specific filters via the Bedrock console without code changes.
-\end{enumerate}
+%     \item \textbf{Custom Filters}: Organizations can define domain-specific filters via the Bedrock console without code changes.
+% \end{enumerate}
 
-\subsection{Generation Safety Protocol}
+% \subsection{Generation Safety Protocol}
 
-When \texttt{BedrockProvider.create()} invokes the model: (1) Pre-generation validates user query and context against guardrails, returning \texttt{ContentPolicyViolation} if violated, (2) Generation passes model instructions emphasizing factuality and retrieved documents as ground truth, (3) Post-generation applies output filtering and logs violations to CloudWatch, and (4) Audit Trail enables reproducibility and compliance auditing.
+% When \texttt{BedrockProvider.create()} invokes the model: (1) Pre-generation validates user query and context against guardrails, returning \texttt{ContentPolicyViolation} if violated, (2) Generation passes model instructions emphasizing factuality and retrieved documents as ground truth, (3) Post-generation applies output filtering and logs violations to CloudWatch, and (4) Audit Trail enables reproducibility and compliance auditing.
 
-\subsection{Compliance and Transparency}
+% \subsection{Compliance and Transparency}
 
-\begin{itemize}
-    \item \textbf{Deterministic Enforcement}: Guardrail decisions logged with decision\_id and policy\_version.
-    \item \textbf{User Notification}: API responses include \texttt{filtered} flag indicating if content was restricted.
-    \item \textbf{Policy Versioning}: Guardrail changes are trackable, enabling rollback if unintended filtering occurs.
-    \item \textbf{Benchmark Alignment}: Guardrails align with industry standards (NIST AI RMF, EU AI Act readiness).
-\end{itemize}
+% \begin{itemize}
+%     \item \textbf{Deterministic Enforcement}: Guardrail decisions logged with decision\_id and policy\_version.
+%     \item \textbf{User Notification}: API responses include \texttt{filtered} flag indicating if content was restricted.
+%     \item \textbf{Policy Versioning}: Guardrail changes are trackable, enabling rollback if unintended filtering occurs.
+%     \item \textbf{Benchmark Alignment}: Guardrails align with industry standards (NIST AI RMF, EU AI Act readiness).
+% \end{itemize}
 
-[PLACEHOLDER - Add diagram: Bedrock Guardrail filtering flow (input $\rightarrow$ validation $\rightarrow$ generation $\rightarrow$ output filter $\rightarrow$ audit log)]
+% [PLACEHOLDER - Add diagram: Bedrock Guardrail filtering flow (input $\rightarrow$ validation $\rightarrow$ generation $\rightarrow$ output filter $\rightarrow$ audit log)]
 
 \section{Database Schema and Storage}
 The system implementation requires a robust schema design to manage heterogeneous data including user interactions, processed documents, and high-dimensional vector representations. We utilize a \textbf{Hybrid Storage Architecture} to balance persistence, scalability, and low-latency retrieval across three specialized layers:
@@ -1344,7 +1344,7 @@ The variable $x$ in the multi-vector representation represents the total number 
     x = \left( \lceil H / P \rceil \times \lceil W / P \rceil \right) + N_{special}
 \end{equation}
 
-Where:
+where
 \begin{itemize}
     \item \textbf{$x$}: The total count of vectors stored in the Qdrant collection for a single page.
     \item \textbf{$H$}: The height of the document page image after processing (typically 448 or 1024 pixels).
