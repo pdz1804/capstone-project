@@ -378,8 +378,8 @@ Markdown & Extension & Copy as-is & - & - \\
 TXT & Extension & Copy as-is & - & - \\
 CSV & Extension & Pandas & - & - \\
 Images (JPG, PNG) & Extension & img2pdf & \checkmark & - \\
-Video (MP4, AVI) & Extension & MoviePy (audio extraction) & - & - (â†’ Stage 2) \\
-Audio (WAV, MP3) & Extension & Pass-through & - & - (â†’ Stage 2) \\
+Video (MP4, AVI) & Extension & MoviePy (audio extraction) & - & - (→ Stage 2) \\
+Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
 \bottomrule
 \end{tabular}%
 }
@@ -642,7 +642,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 % \begin{tabular}{@{}llll@{}}
 % \toprule
 % \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
+% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
 % Dense Index (Text) & FAISS IndexFlatIP & Binary file (\texttt{.bin}) & Cosine similarity, nearest-neighbor search \\
 % Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 % Visual Index (Images) & ColQwen multi-vectors & Tensor store (\texttt{.bin}) & Late-interaction MaxSim matching \\
@@ -661,7 +661,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 % \textbf{Text Indexing Workflow}:
 % \begin{enumerate}
-%     \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) â†’ 384-dimensional vectors
+%     \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
 %     \item BM25 inverted index built from chunk text (keyword search)
 %     \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
 %     \item Hybrid index pre-computed via RRF fusion for fast query-time execution
@@ -695,7 +695,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 % \begin{tabular}{@{}llll@{}}
 % \toprule
 % \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
+% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
 % Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
 % Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 % Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
@@ -953,7 +953,7 @@ The consolidation and indexing pipeline transforms RAG-ready chunks into searcha
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
+BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
 Dense Index (Text) & FAISS IndexFlatIP & Binary file (\texttt{.bin}) & Cosine similarity, nearest-neighbor search \\
 Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 Visual Index (Images) & ColQwen multi-vectors & Tensor store (\texttt{.bin}) & Late-interaction MaxSim matching \\
@@ -965,7 +965,7 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
 
 \textbf{Text Indexing Workflow}:
 \begin{enumerate}
-    \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) â†’ 384-dimensional vectors
+    \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
     \item BM25 inverted index built from chunk text (keyword search)
     \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
     \item Hybrid index pre-computed via RRF fusion for fast query-time execution
@@ -998,7 +998,7 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
 % \begin{tabular}{@{}llll@{}}
 % \toprule
 % \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term â†’ docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
+% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
 % Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
 % Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
 % Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
