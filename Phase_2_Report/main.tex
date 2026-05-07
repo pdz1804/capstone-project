@@ -18,6 +18,8 @@
 % Math and Theorem Environments
 \usepackage{amsmath, amssymb, amsthm, bm}
 \usepackage{mathtools}
+\usepackage[none]{hyphenat}
+
 \DeclareMathOperator{\Erf}{erf}
 \DeclareMathOperator{\Erfc}{erfc}
 \DeclarePairedDelimiterXPP\erf[1]{\Erf\mkern1mu}(){}{#1}
@@ -121,8 +123,9 @@
 \usepackage[style=ext-numeric-comp,giveninits=true,maxbibnames=10,sorting=none]{biblatex}
 \addbibresource{references.bib}
 
-\setlength{\parskip}{0.5em}       % Paragraph spacing
+\setlength{\parskip}{0.4em}       % Paragraph spacing
 \setlength{\parindent}{1.5em}     % Enable paragraph indentation (thụt đầu dòng)
+\sloppy
 
 \begin{document}
 
@@ -148,7 +151,7 @@ HO CHI MINH CITY UNIVERSITY OF TECHNOLOGY \\
 FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \end{minipage}
 
-\begin{figure}[h!]
+\begin{figure}[H]
 \noindent\hspace{-0.4cm}
 \begin{minipage}{\textwidth}
 \centering
@@ -175,13 +178,13 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 
 \vspace{0.5cm}
 
-\begin{table}[h]
+\begin{table}[H]
 \begin{tabular}{rrl}
   
-\hspace{4 cm} & Committee: & Committee 8CC Specialized Project \\
-& & Assoc. Prof. Le Hong Trang \\
-& & Dr. Tran Tuan Anh \\
-& & Dr. Nguyen Duc Dung \\[0.3cm]
+\hspace{4 cm} & Committee: & Committee 10CC Computer Science \\
+& & Dr. Truong Vinh Lan \\
+& & Dr. Mai Xuan Toan \\
+& & Dr. Nguyen Quoc Minh \\[0.3cm]
 & Supervisors: & Dr. Nguyen An Khuong \\
 & & Nguyen Trang Sy Lam - Motohashi Lab's Research Assistant \\[0.3cm]
 & Students: & Nguyen Quang Phu - 2252621 \\
