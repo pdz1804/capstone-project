@@ -166,9 +166,11 @@
 %     \end{itemize}
 % \end{itemize}
 % 
-% \section{Summary of Objectives and Achievements}
+\section{Summary of Objectives and Achievements}
 
-This project successfully designed and implemented a Multimodal Retrieval-Augmented Generation (MRAG) system that transforms how students interact with complex educational materials. The system addresses five primary objectives established in the introduction:
+This project successfully designed and implemented an MRAG system that transforms how students interact with complex educational materials. More importantly, the project moved beyond a proof-of-concept prototype and produced an integrated educational platform with real ingestion, retrieval, generation, deployment, and evaluation components. The final system demonstrates that multimodal lecture materials can be processed into a searchable and pedagogically useful knowledge base while preserving grounding through citations and institutional content boundaries.
+
+The system addresses five primary objectives established in the introduction:
 
 \begin{enumerate}
     \item \textbf{Multimodal Integration:} Successfully unified textual transcripts, visual content, and audio features into a cohesive retrieval index.
@@ -191,6 +193,18 @@ The system operates within important constraints: Vietnamese-language optimizati
 \textbf{Significance and Impact}
 
 Three key contributions emerge: (1) Practical multimodal RAG at institutional scale, (2) Cloud-native operationalization with multi-tenancy and safety, and (3) Foundation for adaptive learning research.
+
+\section{Team Learning Outcomes}
+
+Beyond the implemented system, one of the most important outcomes of the project was the team's technical and research growth. The team learned that building a practical MRAG system is not only a matter of selecting strong models, but also of designing reliable data flow, preserving traceability, managing latency, and making careful trade-offs between retrieval quality, infrastructure cost, and user experience.
+
+First, the team learned how difficult heterogeneous educational data can be in practice. Lecture materials contain slides, scanned pages, diagrams, tables, speech, timestamps, and course-specific terminology. This required the team to combine OCR, ASR, document parsing, chunking, metadata extraction, and multimodal indexing into a unified pipeline rather than treating each file type as an isolated case.
+
+Second, the team learned that retrieval quality depends on system design as much as on model accuracy. Experiments with sparse, dense, hybrid, and visual retrieval showed that no single retrieval method is sufficient for educational content. BM25 remains important for exact technical terms, dense embeddings improve semantic matching, and visual retrieval is necessary for diagrams and layout-heavy materials. The project therefore taught the team to evaluate retrieval as an end-to-end engineering problem involving parsing quality, chunk granularity, metadata, ranking, and generation grounding.
+
+Third, the team gained practical experience in production-oriented AI engineering. Cloud storage, asynchronous processing, vector database integration, safety guardrails, load testing, cost estimation, and frontend usability all shaped the final architecture. The load tests were especially valuable because they revealed that the hardest problem was not ordinary chat latency, but background processing and indexing under concurrency.
+
+Finally, the team learned to reason about trade-offs transparently. Some technically attractive components, such as reranking, were retained but disabled by default because their latency cost was not justified for the current interactive workload. Similarly, the single-GPU indexing design was sufficient for Phase 2 validation, but it exposed the need for distributed GPU workers and incremental indexing in future versions.
 
 \section{Future Plan}
 
@@ -241,7 +255,10 @@ Following Phase 2's validation of the current architecture, the next phase will 
 \textbf{Scalability Enhancements:}
 
 \begin{itemize}
+    \item \textbf{Distributed GPU Worker Pool}: Address the single-GPU dependency identified in Section~\ref{sec:architecture_constraints} by separating GPU-heavy tasks into a pool of distributed workers. Visual embedding generation, ASR inference, and large-batch document vectorization can be scheduled across multiple GPU instances using a queue-based dispatcher. This would allow horizontal scaling during heavy ingestion periods while keeping the main API service responsive.
+    \item \textbf{Incremental Indexing}: Replace full index regeneration with document-level and chunk-level incremental updates. Each processed document should maintain stable chunk identifiers, content hashes, embedding versions, and index metadata so that only newly added, modified, or deleted chunks are re-embedded and rewritten to Qdrant/BM25 storage. This directly addresses the index rebuilding overhead described in Section~\ref{sec:architecture_constraints}.
     \item \textbf{Concurrent Indexing}: Implement enhanced job queue management to safely scale document processing beyond the current 30-concurrent-job limit
+    \item \textbf{Index Sharding and Batch Writes}: Partition large collections by course, user cohort, or document type and use controlled batch writes to reduce memory pressure, avoid oversized in-memory index loads, and improve vector database throughput during peak ingestion.
     \item \textbf{Multi-Tenant Isolation}: Strengthen resource isolation between user cohorts to prevent noisy-neighbor effects in shared cloud environments
     \item \textbf{Caching Strategies}: Implement semantic caching for frequently accessed lecture materials to reduce compute and improve response latency
 \end{itemize}
