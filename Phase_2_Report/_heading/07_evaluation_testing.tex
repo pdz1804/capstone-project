@@ -786,7 +786,7 @@ This subsection provides a consolidated overview of the metrics evaluated in Pha
     \caption{Comprehensive Evaluation Metrics: Phase 2 vs. Future Plan}
     \label{tab:evaluation_metrics}
     \scalebox{0.85}{
-    \begin{tabular}{lp{4cm}p{9cm}}
+    \begin{tabular}{lp{2.5cm}p{7cm}}
         \toprule
         \textbf{Metric Category} & \textbf{Phase 2 Status} & \textbf{Future Plan} \\
         \midrule
@@ -814,7 +814,7 @@ The user study will be conducted with a cohort of HCMUT students to gather both 
 \begin{itemize}
     \item \textbf{Participant Pool}: 10-20 HCMUT students across multiple courses and academic levels
     \item \textbf{Study Duration}: One full semester (13-15 weeks) of real-world usage in a course setting
-    \item \textbf{Study Instruments}: [PLACEHOLDER: Insert study questionnaire, rubric for learning outcomes, feedback collection methods]
+    % \item \textbf{Study Instruments}: [PLACEHOLDER: Insert study questionnaire, rubric for learning outcomes, feedback collection methods]
     \item \textbf{Metrics to Measure}:
         \begin{itemize}
             \item Learning gain (pre/post assessment or grade comparison)
@@ -825,9 +825,9 @@ The user study will be conducted with a cohort of HCMUT students to gather both 
         \end{itemize}
 \end{itemize}
 
-\textbf{Study Materials and Consent}
+% \textbf{Study Materials and Consent}
 
-[PLACEHOLDER: Link to ethics approval, informed consent form, student privacy safeguards, data handling protocols]
+% [PLACEHOLDER: Link to ethics approval, informed consent form, student privacy safeguards, data handling protocols]
 
 \textbf{Timeline}
 
@@ -1018,27 +1018,27 @@ The following table provides a comparative analysis of GPU operational costs acr
     }
 \end{table}
 
-\section{Chapter Synthesis}
+% \section{Chapter Summary}
 
-The three dimensions of Phase 2 validation-component-level evaluation, operational performance testing, and cost estimation-converge on a clear assessment: \textbf{BK-MInD is ready for pilot deployment} with identified optimization targets and infrastructure priorities.
+% The three dimensions of Phase 2 validation-component-level evaluation, operational performance testing, and cost estimation-converge on a clear assessment: \textbf{BK-MInD is ready for pilot deployment} with identified optimization targets and infrastructure priorities.
 
-\textbf{Evaluation Dimension (Â§6.1): Functional Quality Confirmed, Retrieval Identified as Optimization Lever.}
+% \textbf{Evaluation Dimension (Â§6.1): Functional Quality Confirmed, Retrieval Identified as Optimization Lever.}
 
-Document parsing establishes a solid foundation (58.91\% OmniDocBench, 60.98\% DOCX), with exceptional structural fidelity (92.60\% read order) but text-level challenges (47.43\% text score) limiting further gains. Multimodal retrieval achieves excellent recall@10 (100\% text, 77.5\%--80.0\% image) with text nDCG@10 of 84.84\% (BM25) outperforming dense embeddings by 2.92\%. End-to-end RAG validation reveals the system's core strength: 99.5\% faithfulness with zero hallucinations demonstrates reliable grounding, while 72.7\% correctness with 82\% fully-supported answers identifies retrieval precision and chunking depth as the primary optimization targets. Media processing validates across 42 videos with 100\% temporal coverage (16.63\% WER) and near-perfect frame alignment (97.65\%--98.32\%), with OCW generalization confirming robustness across audio sources.
+% Document parsing establishes a solid foundation (58.91\% OmniDocBench, 60.98\% DOCX), with exceptional structural fidelity (92.60\% read order) but text-level challenges (47.43\% text score) limiting further gains. Multimodal retrieval achieves excellent recall@10 (100\% text, 77.5\%--80.0\% image) with text nDCG@10 of 84.84\% (BM25) outperforming dense embeddings by 2.92\%. End-to-end RAG validation reveals the system's core strength: 99.5\% faithfulness with zero hallucinations demonstrates reliable grounding, while 72.7\% correctness with 82\% fully-supported answers identifies retrieval precision and chunking depth as the primary optimization targets. Media processing validates across 42 videos with 100\% temporal coverage (16.63\% WER) and near-perfect frame alignment (97.65\%--98.32\%), with OCW generalization confirming robustness across audio sources.
 
-\textbf{Verdict:} System is \textbf{functionally sound}. Quality pathway forward is clear: improve retrieval depth and chunking strategy to push correctness toward 80\%+.
+% \textbf{Verdict:} System is \textbf{functionally sound}. Quality pathway forward is clear: improve retrieval depth and chunking strategy to push correctness toward 80\%+.
 
-\textbf{Testing Dimension (Â§6.2): Operational Stability Confirmed to 50 Concurrent Users; Indexing Identified as Capacity Bottleneck.}
+% \textbf{Testing Dimension (Â§6.2): Operational Stability Confirmed to 50 Concurrent Users; Indexing Identified as Capacity Bottleneck.}
 
-Core interactive APIs (authentication, profile, stats) demonstrate zero error rates with sub-2.6s P95 latency at 50 concurrent users. Search and chat streaming remain stable (0\% error, P95 latencies 30.1s and 4.2s respectively), validating the multimodal retrieval and LLM orchestration under load. Background processing (document processing, indexing, media extraction) identifies indexing as the capacity-sensitive workflow: 100\% success at 30 concurrent jobs, 0\% at 40 jobs. This clear boundary enables controlled queue management for production. Frontend performance (PageSpeed Insights) reaches 99/100 desktop and 90/100 mobile, confirming responsive user experience across devices.
+% Core interactive APIs (authentication, profile, stats) demonstrate zero error rates with sub-2.6s P95 latency at 50 concurrent users. Search and chat streaming remain stable (0\% error, P95 latencies 30.1s and 4.2s respectively), validating the multimodal retrieval and LLM orchestration under load. Background processing (document processing, indexing, media extraction) identifies indexing as the capacity-sensitive workflow: 100\% success at 30 concurrent jobs, 0\% at 40 jobs. This clear boundary enables controlled queue management for production. Frontend performance (PageSpeed Insights) reaches 99/100 desktop and 90/100 mobile, confirming responsive user experience across devices.
 
-\textbf{Verdict:} System is \textbf{operationally stable for 50-user cohorts}. Capacity management strategy required: strict queue limits on indexing (30 jobs max), autoscaling for worker pools, and batch-write optimization for vector indexes.
+% \textbf{Verdict:} System is \textbf{operationally stable for 50-user cohorts}. Capacity management strategy required: strict queue limits on indexing (30 jobs max), autoscaling for worker pools, and batch-write optimization for vector indexes.
 
-\textbf{Cost Dimension (Â§6.3): Sustainable Economics at \$683.72/Month for 50 Users; GPU Dominates at 78.62\%.}
+% \textbf{Cost Dimension (Â§6.3): Sustainable Economics at \$683.72/Month for 50 Users; GPU Dominates at 78.62\%.}
 
-Monthly operational cost for 50 active users totals \$683.72, with SageMaker GPU inference (\$537.57, 78.62\%) dominating the budget. This cost is sustainable for a pilot cohort and scales sub-linearly: GPU utilization is primarily request-dependent, not concurrent-user-dependent. Alternative GPU providers (RunPod Serverless at \$73.80, Hyperstack at \$109.50) offer cost reductions of 86\%--80\%, representing \$428--464 monthly savings if inference latency trade-offs are acceptable. The testing bottleneck (indexing at 30 concurrent jobs) maps to a predictable cost: the 50-user cohort averages approximately 40 documents/day, translating to 15--20 indexing jobs/day, well within safe operating limits without requiring GPU scaling.
+% Monthly operational cost for 50 active users totals \$683.72, with SageMaker GPU inference (\$537.57, 78.62\%) dominating the budget. This cost is sustainable for a pilot cohort and scales sub-linearly: GPU utilization is primarily request-dependent, not concurrent-user-dependent. Alternative GPU providers (RunPod Serverless at \$73.80, Hyperstack at \$109.50) offer cost reductions of 86\%--80\%, representing \$428--464 monthly savings if inference latency trade-offs are acceptable. The testing bottleneck (indexing at 30 concurrent jobs) maps to a predictable cost: the 50-user cohort averages approximately 40 documents/day, translating to 15--20 indexing jobs/day, well within safe operating limits without requiring GPU scaling.
 
-\textbf{Verdict:} System is \textbf{cost-justified for pilot deployment}. Economics improve at scale; GPU cost optimization deferred to Phase 3 post-deployment analysis.
+% \textbf{Verdict:} System is \textbf{cost-justified for pilot deployment}. Economics improve at scale; GPU cost optimization deferred to Phase 3 post-deployment analysis.
 
 % \noindent\textbf{Production Readiness Statement}
 

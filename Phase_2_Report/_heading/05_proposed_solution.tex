@@ -309,7 +309,7 @@ After an exhaustive analysis of architectural design, search mechanism breadth, 
 \textbf{Strategic Rationale for Selecting Qdrant}:
 Qdrant serves as the optimal highly performant alternative for our multimodal RAG architecture. Its architectural decision to bypass HNSW indexing for heavy multi-vector payloads demonstrates a deep understanding of memory economics, ensuring high-speed ingestion and reduced RAM overhead. For our team, Qdrant's native support for late-interaction multi-vector embeddings makes ColQwen integration exceptionally streamlined, while its Rust-powered engine provides the necessary latency and throughput performance for the system.
 
-Having selected the core technology stack (React frontend, FastAPI backend, and Qdrant vector database), the following section presents empirical benchmarks of embedding and retrieval configurations to validate these technology choices and inform the architectural design decisions documented in Section~\ref{sec:system_arch}.
+Having selected the core technology stack (React frontend, FastAPI backend, and Qdrant vector database), the following section presents empirical benchmarks of embedding and retrieval configurations to validate these technology choices and inform the architectural design decisions.
 
 \section{Experiments on Embeddings and Retrieval Methods}
 
@@ -432,9 +432,9 @@ This section presents the proposed architecture of the BK-MInD MRAG system, orga
 
 \subsection{High-Level Architecture}\label{sec:highlevel_arch}
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{img/pdz/Report 252 Diagram-High Level Architecture.png}
+    \includegraphics[width=0.9\textwidth]{img/pdz/Report 252 Diagram-High Level Architecture.png}
     \caption[High-Level Architecture]{High-Level Architecture.}
     \label{fig:highlevel_architecture}
 \end{figure}
@@ -512,7 +512,7 @@ The system implements a dual-pipeline architecture designed to handle heterogene
 
 \textbf{Data Processing Pipeline}
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{img/pdz/19-normalization.png}
     \caption{Data Processing Pipeline Normalization Stage.}
@@ -552,7 +552,7 @@ For detailed specifications of each stage including routing tables, processing p
 
 \textbf{Embedding-Indexing Pipeline}
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{img/pdz/27-chunkemb.png}
     \caption{Dual-Pathway Embedding and Indexing Architecture.}
@@ -578,7 +578,7 @@ The complete pipeline produces the following RAG-ready artifacts:
 
 \subsection{Retrieval and Generation Flow}
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/22-architecture.png}
     \caption{Overall MRAG System Architecture: Retrieval and Generation Flow.}
@@ -653,7 +653,7 @@ The LLM reads this aggregated context and generates a natural language answer gr
 
 \subsection{Security Architecture}\label{sec:security_arch}
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{img/pdz/49-security-arch.jpg}
     \caption{BK-MInD Three-Tier Security Architecture.}
@@ -772,6 +772,7 @@ The experimental findings above directly inform the hardware and software specif
 \end{itemize}
 
 \subsection{System Architecture Constraints}
+\label{sec:architecture_constraints}
 
 \textbf{Advantages:}
 \begin{itemize}

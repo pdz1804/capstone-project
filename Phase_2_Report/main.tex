@@ -18,6 +18,8 @@
 % Math and Theorem Environments
 \usepackage{amsmath, amssymb, amsthm, bm}
 \usepackage{mathtools}
+\usepackage[none]{hyphenat}
+
 \DeclareMathOperator{\Erf}{erf}
 \DeclareMathOperator{\Erfc}{erfc}
 \DeclarePairedDelimiterXPP\erf[1]{\Erf\mkern1mu}(){}{#1}
@@ -121,8 +123,9 @@
 \usepackage[style=ext-numeric-comp,giveninits=true,maxbibnames=10,sorting=none]{biblatex}
 \addbibresource{references.bib}
 
-\setlength{\parskip}{0.5em}       % Paragraph spacing
+\setlength{\parskip}{0.4em}       % Paragraph spacing
 \setlength{\parindent}{1.5em}     % Enable paragraph indentation (thụt đầu dòng)
+\sloppy
 
 \begin{document}
 
@@ -130,7 +133,7 @@
 
 \begin{titlepage}
 % Temporarily adjust margins for this page only
-\newgeometry{top=2cm, bottom=4cm, left=2cm, right=2.5cm} % Adjust as needed
+\newgeometry{top=2cm, bottom=2cm, left=2cm, right=2.5cm} % Adjust as needed
 
 % Add border using TikZ (creates page frame with inset to avoid clipping)
 \begin{tikzpicture}[remember picture, overlay]
@@ -148,7 +151,7 @@ HO CHI MINH CITY UNIVERSITY OF TECHNOLOGY \\
 FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \end{minipage}
 
-\begin{figure}[h!]
+\begin{figure}[H]
 \noindent\hspace{-0.4cm}
 \begin{minipage}{\textwidth}
 \centering
@@ -173,15 +176,15 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \end{tabular}
 \end{minipage}
 
-\vspace{0.5cm}
+\vspace{0.1cm}
 
-\begin{table}[h]
+\begin{table}[H]
 \begin{tabular}{rrl}
   
-\hspace{4 cm} & Committee: & Committee 8CC Specialized Project \\
-& & Assoc. Prof. Le Hong Trang \\
-& & Dr. Tran Tuan Anh \\
-& & Dr. Nguyen Duc Dung \\[0.3cm]
+\hspace{4 cm} & Committee: & Committee 10CC Computer Science \\
+& & Dr. Truong Vinh Lan \\
+& & Dr. Mai Xuan Toan \\
+& & Dr. Nguyen Quoc Minh \\[0.3cm]
 & Supervisors: & Dr. Nguyen An Khuong \\
 & & Nguyen Trang Sy Lam - Motohashi Lab's Research Assistant \\[0.3cm]
 & Students: & Nguyen Quang Phu - 2252621 \\
@@ -190,14 +193,14 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \end{tabular}
 \end{table}
 
-\vspace{0.5cm}
-
+\vfill
 \begin{center}
 {\footnotesize HO CHI MINH CITY, MAY 2026}
 \end{center}
 \restoregeometry
 \end{titlepage}
 
+\pagenumbering{gobble}
 \tableofcontents
 \listoffigures
 \listoftables
@@ -207,6 +210,9 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \include{_heading/00_declaration}
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
 \include{_heading/01_abstract}
 \include{_heading/00_executive_summary}
 \include{_heading/02_introduction}

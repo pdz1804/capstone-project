@@ -1,7 +1,5 @@
 \chapter{Interface of BK-MInD}\label{chap:interface}
 
-% \section{Interface}
-% The following figures provide a comprehensive visual overview of the BK-MInD system's user interface, demonstrating the core modules for document ingestion, processing, exploration, and interactive learning.
 
 \begin{figure}[H]
     \centering
@@ -93,3 +91,507 @@
     \caption{Cost Analysis}
     \label{fig:ui_cost}
 \end{figure}
+
+
+\chapter{Database Schema Definitions}\label{chap:database_schemas}
+The following sections outline the detailed schema properties for the core system tables.
+
+\textbf{User Profile Table}
+Following the Phase 2 architectural consolidation, core identity profiles have been migrated to \textbf{Amazon DynamoDB} under the table name \texttt{phase2-merge-users}. This shift ensures that user profile data resides within the same high-availability cloud ecosystem as conversational state, facilitating unified data management. The profile information is critical as it provides the necessary context for the generative engine, allowing the system to tailor responses based on user-defined education levels and persona traits.
+
+\begin{table}[H]
+    \centering
+    \caption{User Profile Schema}
+    \label{tab:user_profiles}
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        uid & String & Partition Key. Unique identifier generated at registration. \\
+        \midrule
+        username & String & Unique username for local login and identity references. \\
+        email & String & User's registered email address. \\
+        displayName & String & The user's visible display name. \\
+        photoURL & String & URL to the user's avatar/profile image. \\
+        role & Enum & Role definition: \texttt{student}, \texttt{admin}, or \texttt{instructor}. \\
+        isActive & Boolean & Account status; indicates if the user is active. \\
+        persona & String & Selected AI persona trait (e.g., Socratic, Direct) to guide the LLM's tone. \\
+        educationDescription & String & Academic background provided by the user to adapt explanation complexity. \\
+        authProvider & String & Source of authentication (e.g., \texttt{google}, \texttt{local}). \\
+        createdAt & String (ISO) & Timestamp identifying when the account was created. \\
+        lastLogin & String (ISO) & Timestamp of the last successful conversational session. \\
+        passwordHash & String & Securely hashed credentials (exclusive to \texttt{local} auth providers). \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\newpage
+
+\textbf{Chatbot Sessions Table}
+To organize chat histories per user and enable high-performance session retrieval, we developed an optimized \textbf{Amazon DynamoDB} table (name: \texttt{chatbot-sessions}). This schema supports stateful UI rendering by tracking the most recent interactions across all user conversational threads.
+
+\begin{table}[H]
+    \centering
+    \caption{Chatbot Sessions Schema}
+    \label{tab:chat_sessions}
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        user\_id & String & Partition Key. Identifies the owner of the chat. \\
+        session\_id & String & Sort Key. Unique identifier for the chat session. \\
+        \midrule
+        created\_at & String (ISO) & Timestamp identifying when the session was initialized. \\
+        last\_message\_at & String (ISO) & Timestamp of the most recent message in the session. \\
+        last\_message\_preview & String & Truncated text of the last message for UI previews. \\
+        last\_message\_role & String & Role (\texttt{user} or \texttt{assistant}) of the last sender. \\
+        message\_count & Number & Total number of messages exchanged in this session. \\
+        pinned & Boolean & Indicates whether the user has pinned this chat. \\
+        title & String & Short text describing the session context. \\
+        updated\_at & String (ISO) & Timestamp of the last conversational interaction. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\newpage
+
+\textbf{Chatbot Messages Table}
+Individual conversational turns (prompts and AI responses) are persisted in a dedicated \textbf{Amazon DynamoDB} table (name: \texttt{chatbot-messages}). This table utilizes a composite key structure to ensure strict message ordering and multi-tenant isolation, allowing the retrieval engine to reconstruct full dialogue histories for the multimodal assistant.
+
+\begin{table}[H]
+    \centering
+    \caption{Chatbot Messages Schema}
+    \label{tab:chat_messages}
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        session\_id & String & Partition Key. Link to the parent chat session. \\
+        message\_id & String & Sort Key. Unique identifier for the message. \\
+        \midrule
+        content & String & The Markdown body of the message. \\
+        created\_at & String (ISO) & Timestamp identifying the message sequence. \\
+        role & String & Identifier for sender: \texttt{user}, \texttt{assistant}, or \texttt{system}. \\
+        suggestions & List & Optional array of follow-up query suggestions or actions. \\
+        traces & List & Internal analytical traces or retrieval source references for debugging. \\
+        user\_id & String & Reference to the owner of the message for secondary filtering. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\newpage
+
+\textbf{Quiz Results Table}
+To facilitate academic tracking and monitor instructional efficacy, the system utilizes a dedicated \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_quiz\_results}) to store outcomes of generated assessments. This allows for long-term tracking of user proficiency across specific document contexts.
+
+\begin{table}[H]
+    \centering
+    \caption{Quiz Results Schema}
+    \label{tab:quiz_results}
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        user\_id & String & Partition Key. Identifies the user associated with the assessment. \\
+        attempt\_id & String & Sort Key. Unique identifier for the specific quiz attempt session. \\
+        \midrule
+        created\_at & String (ISO) & Timestamp identifying precisely when the attempt was submitted. \\
+        document\_id & String & Reference to the source document from which the assessment was derived. \\
+        file\_id & Number & Internal identifier for the specific file artifact being tested. \\
+        score & Number & Total number of correct answers achieved by the user. \\
+        total & Number & The aggregate number of questions presented during the assessment. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\newpage
+
+\textbf{Feedback Table}
+To facilitate continuous improvement and capture user sentiment, a specialized \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_feedback}) is utilized. This table stores granular feedback on individual conversational turns, including AI-driven classifications of the feedback reasons and suggested remedial actions.
+
+\begin{table}[H]
+    \centering
+    \caption{Feedback Schema}
+    \label{tab:feedback_results}
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        user\_id & String & Partition Key. Identifies the user who provided feedback. \\
+        feedback\_id & String & Sort Key. Unique identifier for the feedback entry. \\
+        \midrule
+        message\_id & String & Reference to the specific AI message being evaluated. \\
+        session\_id & String & Reference to the parent conversational session. \\
+        query & String & The user's original query that prompted the response. \\
+        reason\_code & String & Categorized reason for the feedback (e.g., \texttt{other}, \texttt{incorrect}). \\
+        response & String & The AI's generated response being evaluated. \\
+        vote & String & User sentiment or feedback type (e.g., \texttt{general}, \texttt{like}, \texttt{dislike}). \\
+        feedback\_text & String & Qualitative text provided by the user. \\
+        scope & String & The application area or feature (e.g., \texttt{Knowledge Explorer}). \\
+        is\_active & Boolean & Indicates if the feedback entry is currently valid for analysis. \\
+        category & String & High-level classification (e.g., \texttt{Content Quality}). \\
+        sub\_category & String & Granular classification (e.g., \texttt{Missing Visual Examples}). \\
+        analysis\_summary & String & AI-generated summary of the feedback implications. \\
+        classification\_status & String & Status of the AI classification pipeline (\texttt{completed}). \\
+        classifier\_model & String & Model ID used for feedback analysis. \\
+        suggested\_action & String & Recommended system improvement based on feedback. \\
+        created\_at & String (ISO) & Timestamp of feedback submission. \\
+        updated\_at & String (ISO) & Timestamp of the last classification or update. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\newpage
+
+\textbf{App Usage Table}
+To monitor system performance, track resource consumption, and estimate operational costs, the system utilizes an \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_app\_usage}). This table logs granular telemetry for every AI-driven request, capturing token counts, latency metrics, and estimated financial impact.
+
+\begin{table}[H]
+    \centering
+    \caption{App Usage Schema}
+    \label{tab:app_usage}
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        usage\_id & String & Partition Key. Unique identifier for the usage log entry. \\
+        \midrule
+        user\_id & String & Identifier of the user who initiated the request. \\
+        day\_bucket & String & Date-based partition (YYYY-MM-DD) for temporal analysis. \\
+        duration\_ms & Number & Total request latency in milliseconds. \\
+        estimated\_cost\_usd & Number & Calculated cost of the LLM interaction in USD. \\
+        feature & String & The specific system feature utilized (e.g., \texttt{learning\_insights}). \\
+        invoked\_at & String (ISO) & Precise timestamp of the request invocation. \\
+        invoked\_at\_epoch & Number & Unix timestamp for efficient numerical filtering. \\
+        method & String & HTTP method (e.g., \texttt{POST}). \\
+        model\_id & String & The specific LLM or embedding model utilized. \\
+        path & String & The API endpoint path accessed (e.g., \texttt{/api/insights/summary}). \\
+        request\_id & String & Unique correlation ID for cross-service tracing. \\
+        status\_code & Number & HTTP status code returned to the client (e.g., \texttt{200}). \\
+        token\_in & Number & Total input tokens processed by the model. \\
+        token\_out & Number & Total output tokens generated by the model. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\newpage
+
+\textbf{App Jobs Table}
+To manage long-running asynchronous tasks-such as full-document re-indexing, multimodal extraction, or batch analysis-the system utilizes an \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_app\_jobs}). This table acts as a task registry, tracking the lifecycle and progress of background operations to ensure system resilience and provide real-time status updates to the user interface.
+
+\begin{table}[H]
+    \centering
+    \caption{App Jobs Schema}
+    \label{tab:app_jobs}
+    \begin{tabular}{llp{8cm}}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
+        \midrule
+        job\_id & String & Partition Key. Unique identifier for the asynchronous task. \\
+        \midrule
+        user\_id & String & Reference to the user who initiated the job. \\
+        job\_type & String & Category of the task (e.g., \texttt{index\_all}, \texttt{process\_video}). \\
+        status & String & Operational state: \texttt{pending}, \texttt{running}, \texttt{completed}, or \texttt{failed}. \\
+        progress & Map & Dynamic metrics tracking completion percentage and sub-task status. \\
+        params & Map & Input parameters and configuration flags used for the execution. \\
+        result & Map & Final output artifacts or references generated by the job. \\
+        error & String & Detailed error trace or failure reason if the job fails. \\
+        created\_at & String (ISO) & Timestamp of job registration. \\
+        started\_at & String (ISO) & Timestamp when processing commenced. \\
+        updated\_at & String (ISO) & Timestamp of the most recent progress update. \\
+        completed\_at & String (ISO) & Timestamp of final task completion. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\chapter{API Specifications}\label{chap:api_specs}
+The following sections provide comprehensive specifications for the Core API endpoints.
+
+\subsection{Upload Files [\texttt{POST} \texttt{/api/upload}]}
+Manages the initial ingestion of raw document assets into the system's storage backend (local filesystem or Amazon S3). This service supports high-concurrency multi-file uploads and ensures that all assets are logically partitioned by user identity. The corresponding user interface for document ingestion is illustrated in Figure \ref{fig:ui_upload}.
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): The logical tenant ID used for workspace isolation and storage partitioning. Defaults to \texttt{default}.
+    \end{itemize}
+    \item \textbf{Request Body (multipart/form-data)}:
+    \begin{itemize}
+        \item \texttt{files} (Binary Array, Required): A collection of document assets to be streamed directly to persistent storage.
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{Response} (String): A confirmation message indicating the successful ingestion of the files.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Run Pipeline [\texttt{POST} \texttt{/api/process}]}
+Initiates the 7-stage multimodal extraction and normalization pipeline for a specific set of assets with intelligent conditional routing. The visual orchestration of these pipeline stages is shown in Figure \ref{fig:ui_pipeline}. Key features:
+\begin{itemize}
+    \item \textbf{Stage 1}: Normalization and format detection - routes files to appropriate handlers
+    \item \textbf{Stage 2}: Media processing with noise reduction (80Hz high-pass filter)
+    \item \textbf{Stage 3}: Main document processing via Docling for non-specialized file types
+    \item \textbf{Stage 3b} (conditional): Excel custom XML parser with table-aware chunking (max 2000 chars)
+    \item \textbf{Stage 3c} (conditional): DOCX custom XML parser with heading-aware chunking
+    \item \textbf{Stage 3d} (conditional): PDF custom parser with heading-aware chunking
+    \item \textbf{Stage 4}: Consolidation merging all stage outputs into RAG-ready format
+\end{itemize} 
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Identifier for multi-tenant workspace isolation.
+    \end{itemize}
+    \item \textbf{Query Parameters}:
+    \begin{itemize}
+        \item \texttt{force} (Boolean, Default: \texttt{false}): Toggles re-processing of already processed structural artifacts.
+    \end{itemize}
+    \item \textbf{Request Body}:
+    \begin{itemize}
+        \item \texttt{selected\_paths} (String Array, Optional): Specific file paths within the tenant workspace to process. 
+        \item \texttt{mode} (String, Optional): Pipeline fidelity level (\texttt{standard} or \texttt{fast}).
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{status} (String): Overall pipeline state (\texttt{completed} or \texttt{failed}).
+        \item \texttt{results} (Object): Granular execution statistics for each multimodal stage.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Build Index [\texttt{POST} \texttt{/api/index}]}
+Synchronizes extracted artifacts into searchable vector and keyword indexes. This service manages both the Qdrant visual/text collections and the BM25 sparse index. The indexing management dashboard is presented in Figure \ref{fig:ui_index}.
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Identifier for multi-tenant index isolation.
+    \end{itemize}
+    \item \textbf{Query Parameters}:
+    \begin{itemize}
+        \item \texttt{force} (Boolean, Default: \texttt{false}): If \texttt{true}, forces re-indexing of artifacts even if they exist in the vector store.
+    \end{itemize}
+    \item \textbf{Request Body}:
+    \begin{itemize}
+        \item \texttt{selected\_paths} (String Array, Optional): Absolute paths to specific normalized artifacts for indexing.
+        \item \texttt{selected\_names} (String Array, Optional): Match artifacts by original document filenames. 
+        \item \texttt{mode} (String, Optional): Indexing modality (\texttt{standard} or \texttt{fast}).
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{status} (String): The final state of the indexing lifecycle.
+        \item \texttt{results} (Object): Success metrics for text (dense/\textbf{BM25}) and visual indexing stages.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Knowledge Explorer [\texttt{POST} \texttt{/api/search}]}
+Provides a high-fidelity search interface for granular document exploration, supporting hybrid retrieval (\textbf{BM25} + Dense) and visual context rendering using multimodal embeddings. A visual representation of the search interface is available in Figure \ref{fig:ui_explorer}.
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and search auditing.
+    \end{itemize}
+    \item \textbf{Request Body}:
+    \begin{itemize}
+        \item \texttt{query} (String, Required): The natural language query from the end-user.
+        \item \texttt{top\_k} (Integer, Optional): Number of candidate chunks to retrieve for ranking.
+        \item \texttt{retriever\_type} (String, Optional): Retrieval logic (\texttt{bm25}, \texttt{dense}, or \texttt{hybrid}).
+        \item \texttt{include\_images} (Boolean, Optional): Toggles the use of visual tokens in search.
+        \item \texttt{images\_for\_generation} (Integer, Optional): Number of visual contexts to provide to the generator.
+        \item \texttt{mode} (String, Optional): Operation modality (\texttt{retrieval\_only} vs \texttt{retrieval\_generation}).
+        \item \texttt{search\_scope} (String, Optional): Target index (\texttt{text}, \texttt{image}, or \texttt{both}).
+        \item \texttt{generation\_model} (String, Optional): Override for the default inference model ID.
+        \item \texttt{skip\_reranker} (Boolean, Default: \texttt{true}): Globally disabled by default for latency optimization. Set to \texttt{false} to enable reranking with \texttt{bge-reranker-large}.
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{generation} (Object): The synthesized answer and associated model metadata.
+        \item \texttt{telemetry} (Object): Performance metrics for retrieval and generation phases.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Summary Generation [\texttt{POST} \texttt{/api/insights/summary}]}
+Generates context-aware abstracts and targeted summaries by synthesizing the structured outputs. The interface for summary generation is detailed in Figure \ref{fig:ui_summary}. This service utilizes the high-fidelity context of a specific document to generate while respecting thematic focus and stylistic constraints.
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and backend prefixing.
+    \end{itemize}
+    \item \textbf{Request Body}:
+    \begin{itemize}
+        \item \texttt{document\_id} (String, Required): Unique identifier for the source document context.
+        \item \texttt{focus\_query} (String, Optional): Specific themes or keywords to emphasize.
+        \item \texttt{depth} (String, Optional): Complexity level (\texttt{brief}, \texttt{detailed}, or \texttt{comprehensive}).
+        \item \texttt{top\_k} (Integer, Optional): Number of high-relevance chunks to consider for synthesis.
+        \item \texttt{tone} (String, Optional): Stylistic orientation (\texttt{neutral}, \texttt{formal}, or \texttt{friendly}).
+        \item \texttt{target\_length} (String, Optional): Approximate output length (\texttt{short}, \texttt{medium}, or \texttt{long}).
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{Response} (String): The context-aware summary generated by the AI engine.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Lecture Viewer [\texttt{GET} \texttt{/api/processed-file}]}
+Provides a secure mechanism to download or inline-preview single file artifacts (e.g., high-resolution Markdown, page images, or original assets) located within the multi-tenant processing tree. The integrated viewer interface for multimodal artifacts is shown in Figure \ref{fig:ui_viewer}. The service is strictly tenant-safe; it rejects all path traversal attempts and ensures that S3 keys remain confined to the user-specific processing prefix.
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Identifier for multi-tenant path isolation and S3 key prefixing.
+    \end{itemize}
+    \item \textbf{Query Parameters}:
+    \begin{itemize}
+        \item \texttt{rel\_path} (String, Required): Forward-slashed relative path within the tenant workspace (e.g., \texttt{stage4/doc.md}).
+    \end{itemize}
+    \item \textbf{Security Constraints}: 
+    \begin{itemize}
+        \item \textbf{Traversal Prevention}: Programmatic rejection of \texttt{..} sequences to prevent directory escape.
+        \item \textbf{Tenant Lockdown}: Forced prefixing with the user-specific storage root (S3 or Local).
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{File stream} (Binary): The raw requested asset delivered with appropriate MIME types for inline rendering.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Learning Path [\texttt{POST} \texttt{/api/insights/learning-roadmap}]}
+Synthesizes a structured educational progression and roadmap based on specific document contexts and user goals. The generated roadmap interface for personalized learning is illustrated in Figure \ref{fig:ui_roadmap}. This pedagogical service leverages the LLM's reasoning capabilities to formulate a logical sequence of prerequisite and core topics.
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and backend prefixing.
+    \end{itemize}
+    \item \textbf{Request Body}:
+    \begin{itemize}
+        \item \texttt{student\_profile} (String, Optional): Context regarding the user's expertise or educational background.
+        \item \texttt{goals} (String, Required): Desired learning outcomes or topics for mastery.
+        \item \texttt{document\_id} (String, Optional): Identifier to scope the roadmap to a specific document context.
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{Response} (String): The synthesized pedagogical roadmap delivered in structured Markdown.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Multiple Choice Questions [\texttt{POST} \texttt{/api/insights/mcq}]}
+Synthesizes dynamic multiple-choice quizzes and rationales based on specific document contexts. The automated quiz generation interface is presented in Figure \ref{fig:ui_mcq}. This service is designed for automated knowledge validation, supporting various difficulty levels and stylistic orientations.
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and backend prefixing.
+    \end{itemize}
+    \item \textbf{Request Body}:
+    \begin{itemize}
+        \item \texttt{topic} (String, Required): Primary educational theme for question validation.
+        \item \texttt{num\_questions} (Integer, Default: \texttt{5}): Total items to generate (Range: 1--20).
+        \item \texttt{difficulty} (String, Optional): Target cognitive difficulty (\texttt{basic}, \texttt{intermediate}, or \texttt{advanced}).
+        \item \texttt{document\_id} (String, Optional): Identifier to scope generation to a specific document context.
+        \item \texttt{question\_style} (String, Optional): Formatting tone (\texttt{exam}, \texttt{conceptual}, or \texttt{mixed}).
+        \item \texttt{include\_explanations} (Boolean, Default: \texttt{true}): Toggles the inclusion of detailed rationales.
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{Response} (String): The generated quiz delivered as a JSON-compatible Markdown list.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Chat Assistant [\texttt{POST} \texttt{/api/chat/stream}]}
+The primary RAG orchestration endpoint for streaming conversational interaction and long-term memory management. The conversational interface for the RAG assistant is detailed in Figure \ref{fig:ui_chat}. This service utilizes DynamoDB for session state and prompt injection for personalized personalization.
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for session isolation and storage access.
+    \end{itemize}
+    \item \textbf{Request Body}:
+    \begin{itemize}
+        \item \texttt{query} (String, Required): The natural language query or question from the end-user.
+        \item \texttt{session\_id} (String, Required): Unique identifier for the chat session for memory continuity.
+        \item \texttt{top\_k} (Integer, Default: \texttt{8}): Number of relevant document chunks to inject into the context.
+        \item \texttt{persona} (String, Optional): Stylistic tone override (e.g., \texttt{professor}, \texttt{concise}).
+        \item \texttt{education\_description} (String, Optional): Student background context for personalization.
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{response} (String): Server-Sent Events (SSE) stream of generated AI answer tokens.
+    \end{itemize}
+\end{itemize}
+
+\textbf{Execution Workflow:}
+\begin{enumerate}
+    \item \textbf{State Validation}: Confirm user tenancy and session integrity.
+    \item \textbf{Hybrid Search}: Parallel retrieval across text (dense vector + BM25) and visual (ColQwen) indexes.
+    \item \textbf{Augmentation}: Context injection into the dynamic LLM prompt template.
+    \item \textbf{Streaming}: Real-time response delivery via Server-Sent Events (SSE).
+\end{enumerate}
+
+\subsection{Feedbacks [\texttt{POST} \texttt{/api/feedback}]}
+Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG performance. The sentiment collection interface for system improvement is shown in Figure \ref{fig:ui_feedback}. This service captures both structured sentiment (votes) and unstructured qualitative data to drive system improvements.
+
+\begin{itemize}
+    \item \textbf{Request Headers}:
+    \begin{itemize}
+        \item \texttt{X-User-Id} (String, Optional): Multi-tenant identifier for workspace isolation and audit logging.
+    \end{itemize}
+    \item \textbf{Request Body}:
+    \begin{itemize}
+        \item \texttt{vote} (String, Required): Sentiment classification (\texttt{like}, \texttt{dislike}, or \texttt{general}).
+        \item \texttt{session\_id} (String, Required): UUID mapping to the parent Chatbot Session.
+        \item \texttt{message\_id} (String, Required): UUID mapping to the specific conversational turn.
+        \item \texttt{query} (String, Optional): Snapshot of the user prompt associated with the feedback.
+        \item \texttt{response} (String, Optional): Snapshot of the AI response associated with the feedback.
+        \item \texttt{reason\_code} (String, Optional): Category identifier (e.g., \texttt{inaccurate}, \texttt{hallucination}).
+        \item \texttt{reason\_text} (String, Optional): Justification text from the user.
+        \item \texttt{scope} (String, Optional): Targeted system component (e.g., \texttt{retrieval}, \texttt{generation}).
+        \item \texttt{feedback\_text} (String, Optional): Extended unstructured comments.
+    \end{itemize}
+    \item \textbf{Response}:
+    \begin{itemize}
+        \item \texttt{user\_id} (String): Logical tenant identifier for the feedback owner.
+        \item \texttt{feedback\_id} (String): System-generated unique identifier for the record.
+        \item \texttt{session\_id} (String): UUID link to the parent Chatbot Session.
+        \item \texttt{message\_id} (String): UUID link to the specific conversational turn.
+        \item \texttt{vote} (String): Echoed sentiment classification.
+        \item \texttt{reason\_code} (String): Categorization code provided during submission.
+        \item \texttt{reason\_text} (String): Justification text provided during submission.
+        \item \texttt{scope} (String): Targeted system component (e.g., retrieval, generation).
+        \item \texttt{feedback\_text} (String): Complete user comments.
+        \item \texttt{query} (String): Snapshot of the original user prompt.
+        \item \texttt{response} (String): Snapshot of the original AI response.
+        \item \texttt{is\_active} (Boolean): Retention flag indicating if the feedback is currently visible.
+        \item \texttt{category} (String): AI-classified logic category (e.g., \texttt{Accuracy}).
+        \item \texttt{sub\_category} (String): Granular classification (e.g., \texttt{Math Error}).
+        \item \texttt{suggested\_action} (String): AI-generated prescriptive improvement step.
+        \item \texttt{analysis\_summary} (String): Narrative synthesis of the feedback generated by the LLM.
+        \item \texttt{classifier\_model} (String): The ID of the model used for automated categorization.
+        \item \texttt{classification\_status} (String): Pipeline state (\texttt{pending}, \texttt{completed}).
+        \item \texttt{classification\_error} (String): Error trace if the AI analysis failed.
+        \item \texttt{created\_at} (String): ISO-8601 timestamp of record creation.
+        \item \texttt{updated\_at} (String): ISO-8601 timestamp of the last record update.
+        \item \texttt{version} (Integer): Optimistic concurrency version for DynamoDB.
+    \end{itemize}
+\end{itemize}
+
+% \section{Interface}
+% The following figures provide a comprehensive visual overview of the BK-MInD system's user interface, demonstrating the core modules for document ingestion, processing, exploration, and interactive learning.
+
+\chapter{Contribution}\label{chap:contribution}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{|c|l|c|X|>{\centering\arraybackslash}p{1.8cm}|}
+\hline
+\textbf{No.} & \textbf{Full name} & \textbf{ID} & \textbf{Task} & \textbf{Progress}\\
+\hline
+1 & Nguyen Quang Phu & 2252621 & Implement overall processing pipeline and system architecture; Setting up infrastructure; Implement Testing; Write report & 100\%\\
+\hline
+2 & Nguyen Ngoc Khoi & 2252378 & Parser for Office documents, PDF documents; Implement Evaluation; Write report & 100\%\\
+\hline
+3 & Nguyen Minh Khoi & 2252377 & System design and modelling; Implement frontend and backend web; Main PIC for report & 100\%\\
+\hline
+\end{tabularx}
+\end{center}
