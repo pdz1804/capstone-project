@@ -47,7 +47,7 @@ The following table summarizes the key architectural decisions that led to the a
 
 \begin{table}[H]
 \centering
-\caption{Comparison of RAG against alternative LLM enhancement strategies}
+\caption{Comparison of RAG against alternative LLM enhancement strategies.}
 \label{tab:rag_comparison}
 \scalebox{0.8}{
 \begin{tabular}{lcccc}
@@ -113,7 +113,7 @@ Furthermore, industry surveys consistently demonstrate React's dominant position
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/33-react-survey.png}
-    \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023)}
+    \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023).}
     \label{fig:react_survey}
 \end{figure}
 
@@ -190,7 +190,7 @@ The following table provides a clear, at-a-glance comparison to justify the sele
 
 \begin{table}[H]
     \centering
-    \caption{FastAPI vs. Django Comparison for RAG Application}
+    \caption{FastAPI vs. Django Comparison for RAG Application.}
     \label{tab:fastapi_vs_django}
     \scalebox{0.8}{
     \begin{tabular}{p{3cm}p{4.5cm}p{4.5cm}p{6cm}}
@@ -218,7 +218,7 @@ The capacity to efficiently ingest, store, and query the multi-embeddings genera
 
 \begin{table}[H]
     \centering
-    \caption{Multi-Vector Storage and MaxSim Implementation}
+    \caption{Multi-Vector Storage and MaxSim Implementation.}
     \label{tab:multivector_impl}
     \scalebox{0.8}{
     \begin{tabular}{llll}
@@ -241,7 +241,7 @@ A robust multimodal database must support various search paradigms. All major pl
 
 \begin{table}[H]
     \centering
-    \caption{Search Mechanism Comparison}
+    \caption{Search Mechanism Comparison.}
     \label{tab:search_mechanisms}
     \scalebox{0.8}{
     \begin{tabular}{llllll}
@@ -263,7 +263,7 @@ Transitioning to production demands rigorous evaluation of latency, scalability,
 
 \begin{table}[H]
     \centering
-    \caption{Cloud Scalability, Latency, and Economic Efficiency}
+    \caption{Cloud Scalability, Latency, and Economic Efficiency.}
     \label{tab:scalability_econ}
     \scalebox{0.8}{
     \begin{tabular}{llllp{4cm}}
@@ -288,7 +288,7 @@ Developer experience dictates integration speed. While Weaviate offers simplifie
 
 \begin{table}[H]
     \centering
-    \caption{Holistic Vector Database Comparison Summary}
+    \caption{Holistic Vector Database Comparison Summary.}
     \label{tab:holistic_db_comp}
     \scalebox{0.8}{
     \begin{tabular}{llllll}
@@ -531,7 +531,7 @@ The MRAG system implements a \textbf{7-stage conditional processing pipeline} th
 
 \begin{table}[H]
 \centering
-\caption{7-Stage Pipeline Summary}
+\caption{7-Stage Pipeline Summary.}
 \label{tab:7stage_quick}
 \scalebox{0.8}{
 \begin{tabular}{llp{6cm}l}
@@ -792,3 +792,4 @@ The experimental findings above directly inform the hardware and software specif
     \item \textbf{Model Size Constraints}: The system's embedding models are fixed at deployment time. Switching to larger models (e.g., upgrading from MiniLM to BGE-Large for embedding) requires reindexing the entire corpus. Reranking is globally disabled by default (\texttt{skip\_reranker=true}) for latency optimization, though the code is retained for fast rollback.
     \item \textbf{Limited Multi-Tenancy}: The file-system-based storage architecture lacks built-in isolation mechanisms. Deploying the system for multiple independent clients requires separate instances or manual namespace management.
 \end{itemize}
+

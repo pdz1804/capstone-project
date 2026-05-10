@@ -1,5 +1,8 @@
 \documentclass[openany]{mitthesis}
 
+% silence package removed - was causing compilation deadlock with MiKTeX
+% If csquotes warning appears, it's harmless for this document
+
 % Encoding and Language Settings
 \usepackage[utf8]{inputenc}       % Enables UTF-8 encoding
 \usepackage[T5]{fontenc}          % Supports Vietnamese characters
@@ -44,8 +47,6 @@
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-
-\usepackage{csquotes}
 
 % Code Listings
 \usepackage{listings}
@@ -100,7 +101,7 @@
 \usepackage[most]{tcolorbox}
 \newtcolorbox{cmt}[1]{
   boxrule=0pt, boxsep=0pt, colback=gray,
-  detach title, before upper={\tcbtitle \ },
+  detach title, before upper={\tcbtitle~},
   fonttitle=\bfseries\sffamily, coltitle=pr, title=#1,
   borderline west={2.5pt}{0pt}{pr}, enhanced jigsaw,
   before skip=10pt, after skip=10pt, breakable
@@ -120,8 +121,10 @@
 \sloppy                             % Allow more flexible spacing
 
 %%%%%%%%%%% Bibliography %%%%%%%%%%%%
+% Note: csquotes omitted to avoid T5 encoding warnings with Vietnamese text
 \usepackage[style=ext-numeric-comp,giveninits=true,maxbibnames=10,sorting=none]{biblatex}
 \addbibresource{references.bib}
+
 
 \setlength{\parskip}{0.4em}       % Paragraph spacing
 \setlength{\parindent}{1.5em}     % Enable paragraph indentation (thụt đầu dòng)
@@ -163,16 +166,16 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \begin{minipage}{\dimexpr\textwidth+1cm\relax}
 \centering
 \begin{tabular}{c}
-\hspace*{-0.3cm}\textbf{{\Large REPORT}}\\[6pt]
-\textbf{{\Large CAPSTONE PROJECT (CO4337)}}\\[0.5cm]
+\hspace*{-0.3cm}\textbf{\Large REPORT}\\[6pt]
+\textbf{\Large CAPSTONE PROJECT (CO4337)}\\[0.5cm]
 \hline
 \\[0.4cm]
-\textbf{{\LARGE BK-MIND: A MULTIMODAL}}\\[4pt]
-\textbf{{\LARGE DATA UNDERSTANDING SYSTEM}}\\[4pt]
-\textbf{{\LARGE FOR HCMUT LECTURES}}\\[0.5cm]
+\textbf{\LARGE BK--MIND: A MULTIMODAL}\\[4pt]
+\textbf{\LARGE DATA UNDERSTANDING SYSTEM}\\[4pt]
+\textbf{\LARGE FOR HCMUT LECTURES}\\[0.5cm]
 \hline
 \\[0.4cm]
-\textbf{{MAJOR: COMPUTER SCIENCE}}\\[0.3cm]
+\textbf{MAJOR: COMPUTER SCIENCE}\\[0.3cm]
 \end{tabular}
 \end{minipage}
 
@@ -180,16 +183,16 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 
 \begin{table}[H]
 \begin{tabular}{rrl}
-  
+
 \hspace{4 cm} & Committee: & Committee 10CC Computer Science \\
-& & Dr. Truong Vinh Lan \\
-& & Dr. Mai Xuan Toan \\
-& & Dr. Nguyen Quoc Minh \\[0.3cm]
-& Supervisors: & Dr. Nguyen An Khuong \\
-& & Nguyen Trang Sy Lam - Motohashi Lab's Research Assistant \\[0.3cm]
-& Students: & Nguyen Quang Phu - 2252621 \\
-& & Nguyen Ngoc Khoi - 2252378 \\
-& & Nguyen Minh Khoi - 2252377 \\
+& & Ph.D. Truong Vinh Lan \\
+& & M.Sc. Mai Xuan Toan \\
+& & Ph.D. Nguyen Quoc Minh \\[0.3cm]
+& Supervisors: & Ph.D. Nguyen An Khuong \\
+& & Nguyen Trang Sy Lam -- Motohashi Lab's Research Assistant \\[0.3cm]
+& Students: & Nguyen Quang Phu -- 2252621 \\
+& & Nguyen Ngoc Khoi -- 2252378 \\
+& & Nguyen Minh Khoi -- 2252377 \\
 \end{tabular}
 \end{table}
 

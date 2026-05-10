@@ -1,94 +1,94 @@
-\chapter{Interface of BK-MInD}\label{chap:interface}
+﻿\chapter{Interface of BK-MInD}\label{chap:interface}
 
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/44-ui-dashboard.png}
-    \caption{Dashboard}
+    \caption{Dashboard.}
     \label{fig:ui_dashboard}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/34-ui-upload.png}
-    \caption{Upload Files}
+    \caption{Upload Files.}
     \label{fig:ui_upload}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/35-ui-run-pipeline.png}
-    \caption{Run Pipeline}
+    \caption{Run Pipeline.}
     \label{fig:ui_pipeline}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/36-ui-index.png}
-    \caption{Build Index}
+    \caption{Build Index.}
     \label{fig:ui_index}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/37-ui-knowledge-explorer.png}
-    \caption{Knowledge Explorer}
+    \caption{Knowledge Explorer.}
     \label{fig:ui_explorer}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/38-ui-lecture-viewer.png}
-    \caption{Lecture Viewer}
+    \caption{Lecture Viewer.}
     \label{fig:ui_viewer}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/43-ui-sumary.png}
-    \caption{Summary Generation}
+    \caption{Summary Generation.}
     \label{fig:ui_summary}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/39-ui-roadmap.png}
-    \caption{Learning Roadmap}
+    \caption{Learning Roadmap.}
     \label{fig:ui_roadmap}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/42-ui-mcq.png}
-    \caption{Multiple Choice Questions Generation}
+    \caption{Multiple Choice Questions Generation.}
     \label{fig:ui_mcq}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/40-ui-chat.png}
-    \caption{Chat Assistant}
+    \caption{Chat Assistant.}
     \label{fig:ui_chat}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/41-ui-feedback.png}
-    \caption{Feedback}
+    \caption{Feedback.}
     \label{fig:ui_feedback}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/45-ui-admin.png}
-    \caption{Administrative Interface}
+    \caption{Administrative Interface.}
     \label{fig:ui_admin}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/46-ui-cost.png}
-    \caption{Cost Analysis}
+    \caption{Cost Analysis.}
     \label{fig:ui_cost}
 \end{figure}
 
@@ -101,7 +101,7 @@ Following the Phase 2 architectural consolidation, core identity profiles have b
 
 \begin{table}[H]
     \centering
-    \caption{User Profile Schema}
+    \caption{User Profile Schema.}
     \label{tab:user_profiles}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -132,7 +132,7 @@ To organize chat histories per user and enable high-performance session retrieva
 
 \begin{table}[H]
     \centering
-    \caption{Chatbot Sessions Schema}
+    \caption{Chatbot Sessions Schema.}
     \label{tab:chat_sessions}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -160,7 +160,7 @@ Individual conversational turns (prompts and AI responses) are persisted in a de
 
 \begin{table}[H]
     \centering
-    \caption{Chatbot Messages Schema}
+    \caption{Chatbot Messages Schema.}
     \label{tab:chat_messages}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -186,7 +186,7 @@ To facilitate academic tracking and monitor instructional efficacy, the system u
 
 \begin{table}[H]
     \centering
-    \caption{Quiz Results Schema}
+    \caption{Quiz Results Schema.}
     \label{tab:quiz_results}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -211,7 +211,7 @@ To facilitate continuous improvement and capture user sentiment, a specialized \
 
 \begin{table}[H]
     \centering
-    \caption{Feedback Schema}
+    \caption{Feedback Schema.}
     \label{tab:feedback_results}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -248,7 +248,7 @@ To monitor system performance, track resource consumption, and estimate operatio
 
 \begin{table}[H]
     \centering
-    \caption{App Usage Schema}
+    \caption{App Usage Schema.}
     \label{tab:app_usage}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -281,7 +281,7 @@ To manage long-running asynchronous tasks-such as full-document re-indexing, mul
 
 \begin{table}[H]
     \centering
-    \caption{App Jobs Schema}
+    \caption{App Jobs Schema.}
     \label{tab:app_jobs}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -307,7 +307,7 @@ To manage long-running asynchronous tasks-such as full-document re-indexing, mul
 \chapter{API Specifications}\label{chap:api_specs}
 The following sections provide comprehensive specifications for the Core API endpoints.
 
-\subsection{Upload Files [\texttt{POST} \texttt{/api/upload}]}
+\section{Upload Files [\texttt{POST} \texttt{/api/upload}]}
 Manages the initial ingestion of raw document assets into the system's storage backend (local filesystem or Amazon S3). This service supports high-concurrency multi-file uploads and ensures that all assets are logically partitioned by user identity. The corresponding user interface for document ingestion is illustrated in Figure \ref{fig:ui_upload}.
 
 \begin{itemize}
@@ -325,7 +325,7 @@ Manages the initial ingestion of raw document assets into the system's storage b
     \end{itemize}
 \end{itemize}
 
-\subsection{Run Pipeline [\texttt{POST} \texttt{/api/process}]}
+\section{Run Pipeline [\texttt{POST} \texttt{/api/process}]}
 Initiates the 7-stage multimodal extraction and normalization pipeline for a specific set of assets with intelligent conditional routing. The visual orchestration of these pipeline stages is shown in Figure \ref{fig:ui_pipeline}. Key features:
 \begin{itemize}
     \item \textbf{Stage 1}: Normalization and format detection - routes files to appropriate handlers
@@ -358,7 +358,7 @@ Initiates the 7-stage multimodal extraction and normalization pipeline for a spe
     \end{itemize}
 \end{itemize}
 
-\subsection{Build Index [\texttt{POST} \texttt{/api/index}]}
+\section{Build Index [\texttt{POST} \texttt{/api/index}]}
 Synchronizes extracted artifacts into searchable vector and keyword indexes. This service manages both the Qdrant visual/text collections and the BM25 sparse index. The indexing management dashboard is presented in Figure \ref{fig:ui_index}.
 
 \begin{itemize}
@@ -383,7 +383,7 @@ Synchronizes extracted artifacts into searchable vector and keyword indexes. Thi
     \end{itemize}
 \end{itemize}
 
-\subsection{Knowledge Explorer [\texttt{POST} \texttt{/api/search}]}
+\section{Knowledge Explorer [\texttt{POST} \texttt{/api/search}]}
 Provides a high-fidelity search interface for granular document exploration, supporting hybrid retrieval (\textbf{BM25} + Dense) and visual context rendering using multimodal embeddings. A visual representation of the search interface is available in Figure \ref{fig:ui_explorer}.
 
 \begin{itemize}
@@ -410,7 +410,7 @@ Provides a high-fidelity search interface for granular document exploration, sup
     \end{itemize}
 \end{itemize}
 
-\subsection{Summary Generation [\texttt{POST} \texttt{/api/insights/summary}]}
+\section{Summary Generation [\texttt{POST} \texttt{/api/insights/summary}]}
 Generates context-aware abstracts and targeted summaries by synthesizing the structured outputs. The interface for summary generation is detailed in Figure \ref{fig:ui_summary}. This service utilizes the high-fidelity context of a specific document to generate while respecting thematic focus and stylistic constraints.
 
 \begin{itemize}
@@ -433,7 +433,7 @@ Generates context-aware abstracts and targeted summaries by synthesizing the str
     \end{itemize}
 \end{itemize}
 
-\subsection{Lecture Viewer [\texttt{GET} \texttt{/api/processed-file}]}
+\section{Lecture Viewer [\texttt{GET} \texttt{/api/processed-file}]}
 Provides a secure mechanism to download or inline-preview single file artifacts (e.g., high-resolution Markdown, page images, or original assets) located within the multi-tenant processing tree. The integrated viewer interface for multimodal artifacts is shown in Figure \ref{fig:ui_viewer}. The service is strictly tenant-safe; it rejects all path traversal attempts and ensures that S3 keys remain confined to the user-specific processing prefix.
 
 \begin{itemize}
@@ -456,7 +456,7 @@ Provides a secure mechanism to download or inline-preview single file artifacts 
     \end{itemize}
 \end{itemize}
 
-\subsection{Learning Path [\texttt{POST} \texttt{/api/insights/learning-roadmap}]}
+\section{Learning Path [\texttt{POST} \texttt{/api/insights/learning-roadmap}]}
 Synthesizes a structured educational progression and roadmap based on specific document contexts and user goals. The generated roadmap interface for personalized learning is illustrated in Figure \ref{fig:ui_roadmap}. This pedagogical service leverages the LLM's reasoning capabilities to formulate a logical sequence of prerequisite and core topics.
 
 \begin{itemize}
@@ -476,7 +476,7 @@ Synthesizes a structured educational progression and roadmap based on specific d
     \end{itemize}
 \end{itemize}
 
-\subsection{Multiple Choice Questions [\texttt{POST} \texttt{/api/insights/mcq}]}
+\section{Multiple Choice Questions [\texttt{POST} \texttt{/api/insights/mcq}]}
 Synthesizes dynamic multiple-choice quizzes and rationales based on specific document contexts. The automated quiz generation interface is presented in Figure \ref{fig:ui_mcq}. This service is designed for automated knowledge validation, supporting various difficulty levels and stylistic orientations.
 
 \begin{itemize}
@@ -499,7 +499,7 @@ Synthesizes dynamic multiple-choice quizzes and rationales based on specific doc
     \end{itemize}
 \end{itemize}
 
-\subsection{Chat Assistant [\texttt{POST} \texttt{/api/chat/stream}]}
+\section{Chat Assistant [\texttt{POST} \texttt{/api/chat/stream}]}
 The primary RAG orchestration endpoint for streaming conversational interaction and long-term memory management. The conversational interface for the RAG assistant is detailed in Figure \ref{fig:ui_chat}. This service utilizes DynamoDB for session state and prompt injection for personalized personalization.
 
 \begin{itemize}
@@ -529,7 +529,7 @@ The primary RAG orchestration endpoint for streaming conversational interaction 
     \item \textbf{Streaming}: Real-time response delivery via Server-Sent Events (SSE).
 \end{enumerate}
 
-\subsection{Feedbacks [\texttt{POST} \texttt{/api/feedback}]}
+\section{Feedbacks [\texttt{POST} \texttt{/api/feedback}]}
 Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG performance. The sentiment collection interface for system improvement is shown in Figure \ref{fig:ui_feedback}. This service captures both structured sentiment (votes) and unstructured qualitative data to drive system improvements.
 
 \begin{itemize}
