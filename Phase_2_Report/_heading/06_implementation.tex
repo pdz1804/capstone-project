@@ -291,7 +291,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \caption[Summary Table: All Stages \& Processing]{Summary of input, processors, and special features for each pipeline stage.}
 \label{tab:pipeline_summary}
 % \resizebox{\textwidth}{!}{%
-\scalebox{0.6}{
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{@{}llllll@{}}
 \toprule
 \textbf{Stage} & \textbf{Name} & \textbf{Input} & \textbf{Processor(s)} & \textbf{Output} & \textbf{Special Features} \\ \midrule
@@ -305,7 +305,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \textbf{Index} & Indexing & RAG-ready documents & Qdrant + BM25 + ColQwen & Searchable collections & Text (dense+keyword) + image indexing \\
 \textbf{Search} & Search & Query + indexes & SearchService + LLM & Results with citations & Hybrid fusion, multimodal output \\ \bottomrule
 \end{tabular}%
-}
+\end{adjustbox}
 \end{table}
 
 \textbf{Key Design Principles}:
@@ -325,8 +325,6 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \textbf{Purpose}: Detect file types, route to appropriate processors, and generate multiple canonical forms (PDF for visual processing, Markdown for text processing, specialized JSON for custom parsers).
 
 % \textbf{Processing Logic}:
-
-\textbf{Processing}:
 
 % \begin{figure}[H]
 %     \centering
@@ -359,7 +357,7 @@ Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
 }
 \end{table}
 
-
+\textbf{Processing}:
 
 \begin{figure}[H]
     \centering
@@ -367,9 +365,6 @@ Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
     \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
     \label{fig:stage1_routing_viz}
 \end{figure}
-
-
-
 
 \textbf{Output}:
 \begin{itemize}
@@ -434,7 +429,7 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{{img/pdz/Report 252 Diagram-Media Processing Flow.drawio.png}}
+    \includegraphics[width=0.75\textwidth]{{img/pdz/Report 252 Diagram-Media Processing Flow.png}}
     \caption[Stage 2: Media Processing Workflow]{Stage 2: Media Processing Workflow.}
     \label{fig:stage2_media_flow}
 \end{figure}
