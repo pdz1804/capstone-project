@@ -351,7 +351,9 @@ TXT & Extension & Copy as-is & - & - \\
 CSV & Extension & Pandas & - & - \\
 Images (JPG, PNG) & Extension & img2pdf & \checkmark & - \\
 Video (MP4, AVI) & Extension & MoviePy (audio extraction) & - & - (→ Stage 2) \\
-Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
+Audio (WAV, MP3...) & Extension & Pass-through & - & - (→ Stage 2) \\
+AsciiDoc & Extension & Docling & - & - \\
+LaTeX & Extension & Docling & - & - \\
 \bottomrule
 \end{tabular}%
 }
@@ -1326,7 +1328,7 @@ Dedicated to storing high-order visual layouts. It leverages a unique multi-vect
         \toprule
         \textbf{Vector Name} & \textbf{Dim} & \textbf{Distance} & \textbf{Description} \\
         \midrule
-        colpali\_multivec & 128*x & Dot & Multi-vector representations (128 dims $\times$ $x$ visual tokens) for ColQwen late-interaction. \\
+        colpali\_multivec & 128 $\times$ $x$ & Dot & Multi-vector representations (128 dims $\times$ $x$ visual tokens) for ColQwen late-interaction. \\
         \bottomrule
     \end{tabular}
 \end{table}
