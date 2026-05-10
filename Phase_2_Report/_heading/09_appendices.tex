@@ -1,5 +1,44 @@
-﻿\chapter{Interface of BK-MInD}\label{chap:interface}
+﻿\chapter{Contribution}\label{chap:contribution}
 
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}p{0.8cm}|>{\centering\arraybackslash}p{3.8cm}|>{\centering\arraybackslash}p{2.6cm}|>{\centering\arraybackslash}X|>{\centering\arraybackslash}p{2.1cm}|}
+\hline
+\textbf{No.} & \textbf{Full name} & \textbf{Student ID} & \textbf{Tasks} & \textbf{Progress}\\
+\hline
+1 & Nguyen Quang Phu & 2252621 &
+\begin{itemize}[leftmargin=*, nosep, topsep=0pt]
+    \item Implement overall processing pipeline, system architecture, deployment architecture
+    \item Setting up infrastructure
+    \item Implement System Testing
+    \item Foundations for Media-typed Document Processing
+    \item Write report
+\end{itemize}
+& 100\%\\
+\hline
+2 & Nguyen Ngoc Khoi & 2252378 &
+\begin{itemize}[leftmargin=*, nosep, topsep=0pt]
+    \item Parser for Office documents, PDF documents
+    \item Enhance Media-typed Document Processing
+    \item Implement Processing Pipeline Evaluation
+    \item Enhance UI/UX capabilities
+    \item Write report
+\end{itemize}
+& 100\%\\
+\hline
+3 & Nguyen Minh Khoi & 2252377 &
+\begin{itemize}[leftmargin=*, nosep, topsep=0pt]
+    \item System design and modelling
+    \item Implement frontend and backend web application
+    \item Main Person-in-charge for report and documentation
+\end{itemize}
+& 100\%\\
+\hline
+\end{tabularx}
+\end{center}
+
+\chapter{Interface of BK-MInD}\label{chap:interface}
 
 \begin{figure}[H]
     \centering
@@ -582,22 +621,21 @@ Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG p
     \end{itemize}
 \end{itemize}
 
-% \section{Interface}
-% The following figures provide a comprehensive visual overview of the BK-MInD system's user interface, demonstrating the core modules for document ingestion, processing, exploration, and interactive learning.
 
-\chapter{Contribution}\label{chap:contribution}
+\chapter{PageSpeed Insights Audit}\label{app:pagespeed_insights}
 
-\begin{center}
-\renewcommand{\arraystretch}{1.5}
-\begin{tabularx}{\textwidth}{|c|l|c|X|}
-\hline
-\textbf{No.} & \textbf{Full name} & \textbf{ID} & \textbf{Main PIC of Tasks}\\
-\hline
-1 & Nguyen Quang Phu & 2252621 & Implement overall processing pipeline and system architecture; Setting up infrastructure; Implement Testing; Write report \\
-\hline
-2 & Nguyen Ngoc Khoi & 2252378 & Parser for Office documents, PDF documents; Implement Evaluation; Write report \\
-\hline
-3 & Nguyen Minh Khoi & 2252377 & System design and modelling; Implement frontend and backend web; Main PIC for report \\
-\hline
-\end{tabularx}
-\end{center}
+This appendix contains the complete Google PageSpeed Insights audit screenshots referenced in the main evaluation chapter. These figures provide the detailed desktop and mobile frontend performance dashboards underlying the summarized discussion in the system validation section.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{img/pdz/29-desktop performance.png}
+    \caption[Desktop PageSpeed Insights Audit]{Google PageSpeed Insights desktop audit results.}
+    \label{fig:desktop_performance}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{img/pdz/30-mobile performance.png}
+    \caption[Mobile PageSpeed Insights Audit]{Google PageSpeed Insights mobile audit results.}
+    \label{fig:mobile_performance}
+\end{figure}

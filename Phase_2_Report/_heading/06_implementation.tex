@@ -291,7 +291,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \caption[Summary Table: All Stages \& Processing]{Summary of input, processors, and special features for each pipeline stage.}
 \label{tab:pipeline_summary}
 % \resizebox{\textwidth}{!}{%
-\scalebox{0.6}{
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{@{}llllll@{}}
 \toprule
 \textbf{Stage} & \textbf{Name} & \textbf{Input} & \textbf{Processor(s)} & \textbf{Output} & \textbf{Special Features} \\ \midrule
@@ -305,7 +305,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \textbf{Index} & Indexing & RAG-ready documents & Qdrant + BM25 + ColQwen & Searchable collections & Text (dense+keyword) + image indexing \\
 \textbf{Search} & Search & Query + indexes & SearchService + LLM & Results with citations & Hybrid fusion, multimodal output \\ \bottomrule
 \end{tabular}%
-}
+\end{adjustbox}
 \end{table}
 
 \textbf{Key Design Principles}:
@@ -325,8 +325,6 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \textbf{Purpose}: Detect file types, route to appropriate processors, and generate multiple canonical forms (PDF for visual processing, Markdown for text processing, specialized JSON for custom parsers).
 
 % \textbf{Processing Logic}:
-
-\textbf{Processing}:
 
 % \begin{figure}[H]
 %     \centering
@@ -353,13 +351,15 @@ TXT & Extension & Copy as-is & - & - \\
 CSV & Extension & Pandas & - & - \\
 Images (JPG, PNG) & Extension & img2pdf & \checkmark & - \\
 Video (MP4, AVI) & Extension & MoviePy (audio extraction) & - & - (→ Stage 2) \\
-Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
+Audio (WAV, MP3...) & Extension & Pass-through & - & - (→ Stage 2) \\
+AsciiDoc & Extension & Docling & - & - \\
+LaTeX & Extension & Docling & - & - \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
-
+\textbf{Processing}:
 
 \begin{figure}[H]
     \centering
@@ -367,9 +367,6 @@ Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
     \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
     \label{fig:stage1_routing_viz}
 \end{figure}
-
-
-
 
 \textbf{Output}:
 \begin{itemize}
@@ -434,7 +431,7 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{{img/pdz/Report 252 Diagram-Media Processing Flow.drawio.png}}
+    \includegraphics[width=0.75\textwidth]{{img/pdz/Report 252 Diagram-Media Processing Flow.png}}
     \caption[Stage 2: Media Processing Workflow]{Stage 2: Media Processing Workflow.}
     \label{fig:stage2_media_flow}
 \end{figure}
@@ -1327,11 +1324,11 @@ Dedicated to storing high-order visual layouts. It leverages a unique multi-vect
     \centering
     \caption{Image Vector Collection Properties.}
     \label{tab:qdrant_image}
-    \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
+    \begin{tabular}{lp{1.5cm}p{1.8cm}p{5.5cm}}
         \toprule
         \textbf{Vector Name} & \textbf{Dim} & \textbf{Distance} & \textbf{Description} \\
         \midrule
-        colpali\_multivec & 128*x & Dot & Multi-vector representations (128 dims $\times$ $x$ visual tokens) for ColQwen late-interaction. \\
+        colpali\_multivec & 128 $\times$ $x$ & Dot & Multi-vector representations (128 dims $\times$ $x$ visual tokens) for ColQwen late-interaction. \\
         \bottomrule
     \end{tabular}
 \end{table}
