@@ -91,6 +91,11 @@ export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 
 // Google Auth Provider
 export const googleProvider = new GoogleAuthProvider();
+// Explicitly request email scope to ensure email is included in the ID token
+googleProvider.addScope('email');
+googleProvider.setCustomParameters({
+  'prompt': 'consent' // Always prompt user to select account
+});
 
 async function syncGoogleUserProfile(user: { uid: string; email: string | null; displayName: string | null }) {
   const userRef = doc(db, 'users', user.uid);
