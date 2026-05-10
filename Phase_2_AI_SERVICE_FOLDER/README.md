@@ -1,4 +1,4 @@
-# Phase 2 — AI Service (refactored)
+# Phase 2   AI Service (refactored)
 
 This folder is the **refactored Phase 2** deliverable: a **layered backend** (API → Service → Repository → Qdrant + files), **Qdrant** as the Vector Database (no on-disk FAISS for dense text), **configurable ColQwen inference** (local GPU vs **AWS SageMaker** endpoint), optional **S3-backed file storage** with **per-user prefixes**, and a **React** UI.
 
@@ -16,9 +16,9 @@ For maintained infrastructure-as-code, use `Phase_2_FE_AI_Merge/terraform`. This
 
 ## Quick start
 
-1. **Qdrant** — Docker locally or **Qdrant Cloud** (`QDRANT_MODE=cloud`, URL + API key). See `docs/ENVIRONMENT.md` and `Phase_2_PDZ_003_Test_Qdrant_Cloud`.
-2. **Backend** — `cd backend`, venv, `pip install -r requirements.txt`, copy `.env.example` → `.env`, then `python run_api.py` (or `uvicorn app.main:app --reload --port 8000`).
-3. **Frontend** — `cd frontend`, `npm install`, `npm run dev`.
+1. **Qdrant**   Docker locally or **Qdrant Cloud** (`QDRANT_MODE=cloud`, URL + API key). See `docs/ENVIRONMENT.md` and `Phase_2_PDZ_003_Test_Qdrant_Cloud`.
+2. **Backend**   `cd backend`, venv, `pip install -r requirements.txt`, copy `.env.example` → `.env`, then `python run_api.py` (or `uvicorn app.main:app --reload --port 8000`).
+3. **Frontend**   `cd frontend`, `npm install`, `npm run dev`.
 
 ## Storage: local disk vs Amazon S3
 
@@ -26,7 +26,7 @@ For maintained infrastructure-as-code, use `Phase_2_FE_AI_Merge/terraform`. This
 | Mode                | Env                          | Where uploads live                                                           | Where pipeline runs                                                                                          |
 | ------------------- | ---------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | **Local** (default) | `FILE_STORAGE_BACKEND=local` | `backend/input/`                                                             | `backend/output/` (processing + retrieval)                                                                   |
-| **S3**              | `FILE_STORAGE_BACKEND=s3`    | **S3 originals bucket** (plus optional `S3_INPUT_PREFIX` + per-user segment) | **Ephemeral directory** under OS temp: `%TEMP%\phase2_ai_workspace\<user>\...` — **not** next to source code |
+| **S3**              | `FILE_STORAGE_BACKEND=s3`    | **S3 originals bucket** (plus optional `S3_INPUT_PREFIX` + per-user segment) | **Ephemeral directory** under OS temp: `%TEMP%\phase2_ai_workspace\<user>\...`   **not** next to source code |
 
 
 With S3:
@@ -43,7 +43,7 @@ Send header `**X-User-Id`** (sanitized: letters, digits, `.`, `_`, `-`) on uploa
 
 With S3, keys are normally under `**users/<id>/**` after your bucket prefixes (`S3_USER_ISOLATION=true`, default). Set `S3_USER_ISOLATION=false` only for a single shared prefix (legacy/smoke tests).
 
-Optional **vector isolation**: `QDRANT_ISOLATE_BY_USER=true` suffixes collection names per user (default is off — one shared `edu_text_chunks` / `edu_image_pages` unless you enable this).
+Optional **vector isolation**: `QDRANT_ISOLATE_BY_USER=true` suffixes collection names per user (default is off   one shared `edu_text_chunks` / `edu_image_pages` unless you enable this).
 
 More detail: `docs/STORAGE_ARCHITECTURE.md` and `backend/.env.example`.
 
@@ -55,7 +55,7 @@ That is **expected**.
 - **Generation and pdf2image** still call **Poppler / Pillow / pdf2image** on a **file path**. Those tools do not read `s3://` directly. The app uses the **local copy** that was synced from S3 during `process` (same path layout as under `processing/stage4_rag_ready/...`).
 - Logs therefore mention the **local workspace path** for rendering; they should also mention the **canonical S3 URI** where implemented (see `RAGGenerator` image logs).
 
-ColQwen and sentence-transformers similarly run **on the API host** (or SageMaker for ColQwen if configured) — they are not “rendering inside S3.”
+ColQwen and sentence-transformers similarly run **on the API host** (or SageMaker for ColQwen if configured)   they are not “rendering inside S3.”
 
 ## Citations (text + vision)
 
@@ -79,13 +79,13 @@ These sit on top of the core upload → process → index → search flow:
 
 ## Documentation
 
-- [Backend README](backend/README.md) — architecture, indexing, inference, storage, **HTTP API reference**.
-- [Frontend README](frontend/README.md) — env vars and scripts.
+- [Backend README](backend/README.md)   architecture, indexing, inference, storage, **HTTP API reference**.
+- [Frontend README](frontend/README.md)   env vars and scripts.
 - [API schema](docs/API_SCHEMA.md)
 - [Environment variables](docs/ENVIRONMENT.md)
 
 ## Reference projects in this repo
 
-- `Phase_2_PDZ_002_Model_Deploy` — SageMaker container / `server.py` / `test_sagemaker_endpoint.py`
-- `Phase_2_PDZ_003_Test_Qdrant_Cloud` — Qdrant Cloud + ColQwen multivec patterns
+- `Phase_2_PDZ_002_Model_Deploy`   SageMaker container / `server.py` / `test_sagemaker_endpoint.py`
+- `Phase_2_PDZ_003_Test_Qdrant_Cloud`   Qdrant Cloud + ColQwen multivec patterns
 

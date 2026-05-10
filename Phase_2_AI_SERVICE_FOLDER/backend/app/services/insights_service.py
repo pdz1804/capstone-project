@@ -211,7 +211,7 @@ class InsightsService:
         return {"roadmap": self._openai_direct(prompt) or "", "document_id": doc}
 
     def analytics_placeholder(self) -> Dict[str, Any]:
-        """FR-020: requires session store — schema only for now."""
+        """FR-020: requires session store   schema only for now."""
         return {
             "message": "Performance analytics need persisted quiz sessions; endpoint reserved for future work.",
             "metrics": [],

@@ -465,7 +465,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-DocumentProcessorV2 Unified Router.drawio.png}}
+    \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-DocumentProcessorV2 Unified Router.drawio.png}}
     \caption[DocumentProcessorV2 Unified Router]{DocumentProcessorV2 Unified Router.}
     \label{fig:doc_router}
 \end{figure}
@@ -491,12 +491,12 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \textbf{Purpose}: Parse Excel workbooks using custom XML parser to preserve table structure, column headers, and quantitative relationships.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
-    \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
-    \label{fig:excel_proc}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
+%     \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
+%     \label{fig:excel_proc}
+% \end{figure}
 
 
 \textbf{Processing Strategy}:
@@ -514,6 +514,13 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \item Metadata: \texttt{sheet\_name}, \texttt{row\_range}, \texttt{table\_id}
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
+    \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
+    \label{fig:excel_proc}
+\end{figure}
+
 
 \subsection{Stage 3c: DOCX Processing (Conditional)}
 
@@ -521,12 +528,12 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \textbf{Purpose}: Parse Word documents using custom XML parser to respect heading hierarchies and preserve document structure.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
-    \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
-    \label{fig:docx_proc}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
+%     \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
+%     \label{fig:docx_proc}
+% \end{figure}
 
 
 \textbf{Processing Strategy}:
@@ -543,6 +550,13 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \item Metadata: \texttt{heading\_level}, \texttt{heading\_path}, \texttt{section\_title}
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
+    \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
+    \label{fig:docx_proc}
+\end{figure}
+
 
 \subsection{Stage 3d: PDF Processing (Conditional)}
 
@@ -550,12 +564,12 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \textbf{Purpose}: Parse born-digital PDFs with internal structure to preserve page references and section hierarchies.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
-    \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
-    \label{fig:pdf_proc}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
+%     \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
+%     \label{fig:pdf_proc}
+% \end{figure}
 
 
 \textbf{Processing Strategy}:
@@ -571,6 +585,13 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \item \texttt{document\_id/chunks.json}: Page-aware chunks
     \item Metadata: \texttt{page\_number}, \texttt{section\_level}, \texttt{total\_pages}
 \end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
+    \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
+    \label{fig:pdf_proc}
+\end{figure}
 
 
 \subsection{Stage 4: RAG-Ready Consolidation}

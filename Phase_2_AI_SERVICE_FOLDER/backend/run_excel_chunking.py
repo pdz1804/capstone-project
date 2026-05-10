@@ -108,7 +108,7 @@ def run_chunking_only(json_path: Path, chunk_size: int, chunk_overlap: int,
     for i, sheet in enumerate(sheets):
         name = sheet.get("sheet_name", f"Sheet{i}")
         content_len = len(sheet.get("content", ""))
-        print(f"  Sheet {i}: '{name}' — {content_len:,} chars")
+        print(f"  Sheet {i}: '{name}'   {content_len:,} chars")
 
     # Run chunker
     chunks = chunk_excel_json(

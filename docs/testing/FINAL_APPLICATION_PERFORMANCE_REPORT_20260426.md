@@ -251,7 +251,7 @@ The test results show a consistent pattern: response time and job duration incre
 
 ### Why Response Times Increase With Load: The Physics
 
-Every system has finite capacity. When concurrency increases, shared resources—CPU, network bandwidth, model API tokens, database throughput—are divided across more requests. This causes queuing at system bottlenecks:
+Every system has finite capacity. When concurrency increases, shared resources CPU, network bandwidth, model API tokens, database throughput are divided across more requests. This causes queuing at system bottlenecks:
 
 1. **External API concurrency limits** – The embedding model, LLM provider, and Vector Database each accept a maximum number of simultaneous requests. When that limit is reached, additional requests queue and wait.
 2. **Dependent operation chains** – Each API call may chain multiple expensive operations. For chat, one request triggers: session lookup → retrieval → prompt construction → LLM generation → response streaming. If any step is slow, the entire chain is slow.

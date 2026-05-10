@@ -37,21 +37,21 @@
 - **Current (Lines 5-6):** "Modern educational environments present two fundamental challenges related to information processing and retrieval. First, students conducting self-directed learning face the task of navigating distributed multimodal educational resources..."
 - **Issue:** Too abstract, uses jargon without explanation
 - **Action:** Rewrite as:
-  > "Students learning on their own often struggle to find and organize course materials. These materials—videos, notes, slides, PDFs—are scattered across different websites and platforms. Gathering them all in one place takes too much time and effort."
+  > "Students learning on their own often struggle to find and organize course materials. These materials videos, notes, slides, PDFs are scattered across different websites and platforms. Gathering them all in one place takes too much time and effort."
 - **Files Affected:** `_heading/02_introduction.tex`
 
 #### Action 1.2: Replace Jargon "Manual Information Synthesis"
 - **Current (Line 5):** "students must perform manual information synthesis across different modalities...This manual synthesis process creates high cognitive load"
 - **Issue:** "Manual information synthesis" and "cognitive load" are academic jargon
 - **Action:** Rewrite as:
-  > "Students have to manually connect information from different sources—like watching a video lecture and then finding related notes. This requires a lot of mental effort and makes learning harder."
+  > "Students have to manually connect information from different sources like watching a video lecture and then finding related notes. This requires a lot of mental effort and makes learning harder."
 - **Files Affected:** `_heading/02_introduction.tex`
 
 #### Action 1.3: Introduce MRAG Before Using It
 - **Current (Line 9):** "This technical foundation motivates our investigation into integrating Retrieval-Augmented Generation (RAG) techniques with multimodal representation learning..."
 - **Issue:** RAG introduced without explanation; "multimodal representation learning" is undefined
 - **Action:** Rewrite as:
-  > "We investigated using an AI retrieval system (called RAG—which we explain in Chapter 2) that can search through videos, images, and text together."
+  > "We investigated using an AI retrieval system (called RAG which we explain in Chapter 2) that can search through videos, images, and text together."
 - **Files Affected:** `_heading/02_introduction.tex`
 
 #### Action 1.4: Add Examples to Objectives
@@ -65,7 +65,7 @@
 - **Current (Lines 46-47):** "RAG Adaptation to Multimodal Contexts...Our approach employs a dual-stream indexing architecture that processes text and visual content through separate pathways"
 - **Issue:** Too technical for introduction; "dual-stream indexing architecture" unexplained
 - **Action:** Rewrite as:
-  > "Most search tools only work with text. But educational materials have videos, images, and diagrams too. Our system searches all of these together—it processes text and images separately, then combines the results."
+  > "Most search tools only work with text. But educational materials have videos, images, and diagrams too. Our system searches all of these together it processes text and images separately, then combines the results."
 - **Files Affected:** `_heading/02_introduction.tex`
 
 ### 🟡 MEDIUM PRIORITY (8 issues)
@@ -97,7 +97,7 @@
 #### Action 1.10: Fix Inconsistent LLM Terminology
 - **Current (Line 9):** Uses "MLLMs" without definition, then switches to "LLM"
 - **Issue:** Inconsistent terminology
-- **Action:** First use: "Multimodal Large Language Models (LLMs)—AI systems that can understand text, images, and audio—have recently improved dramatically."
+- **Action:** First use: "Multimodal Large Language Models (LLMs) AI systems that can understand text, images, and audio have recently improved dramatically."
 - **Files Affected:** `_heading/02_introduction.tex`
 
 #### Action 1.11: Simplify "Challenges and Solutions" Transition
@@ -131,7 +131,7 @@
 - **Current (Lines 1-55):** 55+ acronyms in alphabetical table with no context
 - **Issue:** Overwhelming; no guidance on what's essential vs. optional
 - **Action:**
-  1. Add intro paragraph: "This chapter introduces key concepts. Don't memorize every term—focus on the **essential** concepts marked with an asterisk. You'll learn others as we use them."
+  1. Add intro paragraph: "This chapter introduces key concepts. Don't memorize every term focus on the **essential** concepts marked with an asterisk. You'll learn others as we use them."
   2. Reorganize by concept instead of alphabetically:
      - "Text Retrieval Terms" (TF-IDF, BM25, etc.)
      - "AI Model Terms" (Transformer, BERT, etc.)
@@ -222,7 +222,7 @@
 - **Current (Lines 464-467):** "Relevance is computed as the inner product $s_{\mathrm{dense}} = \langle e_p, e_q \rangle$"
 - **Issue:** No explanation of what inner product is
 - **Action:** Replace with:
-  > "Relevance is computed by comparing two numerical vectors—the query and the document. Similar vectors point in the same direction, so we measure how aligned they are."
+  > "Relevance is computed by comparing two numerical vectors the query and the document. Similar vectors point in the same direction, so we measure how aligned they are."
 - **Files Affected:** `_heading/03_preliminary.tex`
 
 #### Action 2.13: Simplify Reranker Concept
@@ -334,7 +334,7 @@
 - **Current (Lines 13-16):** "For video lectures...Models such as M2HF index video segments into dense vectors...Text queries are mapped into the same embedding space"
 - **Issue:** "Dense vectors," "embedding space," "cross-modal retrieval" undefined
 - **Action:** Replace with:
-  > "When searching through lecture videos, the system needs to find relevant parts (clips) based on a student's question. It converts both the question and the video into a form that can be compared—like converting them to maps where similar things are close together."
+  > "When searching through lecture videos, the system needs to find relevant parts (clips) based on a student's question. It converts both the question and the video into a form that can be compared like converting them to maps where similar things are close together."
 - **Files Affected:** `_heading/04_related_work.tex`
 
 #### Action 3.4: Rewrite Feature-Level Fusion Section
@@ -364,7 +364,7 @@
 - **Current (Lines 22-24):** Dense explanation with technical framing
 - **Issue:** Good example buried in technical language
 - **Action:** Simplify to:
-  > "In the second stage, a more careful AI looks at the top results to reorder them. It can catch subtle differences—like whether a slide just mentions photosynthesis or actually explains it—that a fast search might miss."
+  > "In the second stage, a more careful AI looks at the top results to reorder them. It can catch subtle differences like whether a slide just mentions photosynthesis or actually explains it that a fast search might miss."
 - **Files Affected:** `_heading/04_related_work.tex`
 
 #### Action 3.8: Simplify Modality Balancing Explanation
@@ -411,14 +411,14 @@
 - **Current (Line 2):** MRAG used immediately without sufficient introduction
 - **Issue:** Readers unfamiliar with RAG are confused
 - **Action:** Add intro paragraph:
-  > "This chapter describes our **Multimodal Retrieval-Augmented Generation (MRAG) system**—which combines large language models with a knowledge database to answer questions with cited sources. This design allows our system to process and retrieve information from diverse HCMUT educational materials while maintaining accuracy and transparency."
+  > "This chapter describes our **Multimodal Retrieval-Augmented Generation (MRAG) system** which combines large language models with a knowledge database to answer questions with cited sources. This design allows our system to process and retrieve information from diverse HCMUT educational materials while maintaining accuracy and transparency."
 - **Files Affected:** `_heading/05_proposed_solution.tex`
 
 #### Action 4.2: Explain "Lost in the Middle" Phenomenon
 - **Current (Line 25):** "Studies show that as the context length increases, the model's ability to reason over the data ('Lost in the Middle' phenomenon) decreases"
 - **Issue:** Phenomenon presented as fact without explanation
 - **Action:** Replace with:
-  > "Studies show that when too much context is provided, LLMs struggle to locate relevant information deep within the text—a phenomenon called 'Lost in the Middle.' This occurs because AI models can focus on all positions, but effectiveness decreases when important information is buried among thousands of tokens."
+  > "Studies show that when too much context is provided, LLMs struggle to locate relevant information deep within the text a phenomenon called 'Lost in the Middle.' This occurs because AI models can focus on all positions, but effectiveness decreases when important information is buried among thousands of tokens."
 - **Files Affected:** `_heading/05_proposed_solution.tex`
 
 #### Action 4.3: Clarify "Black Box" Language
@@ -441,7 +441,7 @@
 - **Current (Line 29):** "Semantic search utilizes Vector Databases to retrieve documents"
 - **Issue:** No explanation of what a Vector Database is
 - **Action:** Add definition:
-  > "Semantic search uses **Vector Databases**—specialized storage systems that convert text into numerical 'vectors' (arrays of numbers). The system measures similarity between vectors to find documents with similar meaning, even if the wording differs."
+  > "Semantic search uses **Vector Databases** specialized storage systems that convert text into numerical 'vectors' (arrays of numbers). The system measures similarity between vectors to find documents with similar meaning, even if the wording differs."
 - **Files Affected:** `_heading/05_proposed_solution.tex`
 
 #### Action 4.6: Simplify "Grounding the Generation"
@@ -462,7 +462,7 @@
 - **Current (Line 175):** "Django REST Framework (DRF)...which involves writing separate Serializer classes"
 - **Issue:** DRF defined once in parentheses; "Serializer classes" not explained
 - **Action:** Expand to:
-  > "In Django, you need the Django REST Framework (DRF), which requires writing separate 'Serializer' classes—code that manually converts Python objects into JSON. FastAPI skips this boilerplate and handles conversion automatically."
+  > "In Django, you need the Django REST Framework (DRF), which requires writing separate 'Serializer' classes code that manually converts Python objects into JSON. FastAPI skips this boilerplate and handles conversion automatically."
 - **Files Affected:** `_heading/05_proposed_solution.tex`
 
 #### Action 4.9: Add Intuition to RRF Formula
@@ -522,7 +522,7 @@
 - **Current (Line 241):** "Mean Temporal IoU & 56.59%"
 - **Issue:** IoU undefined; 56.59% meaningfulness unclear
 - **Action:** Change to:
-  > "Mean Temporal IoU (Intersection over Union) at 56.59%—measuring how precisely transcript chunks align with target time windows"
+  > "Mean Temporal IoU (Intersection over Union) at 56.59% measuring how precisely transcript chunks align with target time windows"
 - **Files Affected:** `_heading/07_evaluation_testing.tex`
 
 #### Action 6.2: Break Up Dense Failure Analysis Paragraph
@@ -536,7 +536,7 @@
 - **Current (Lines 212-213):** "Mean WER (Word Error Rate) & 16.63%"
 - **Issue:** WER defined minimally; meaningfulness unclear
 - **Action:** Expand to:
-  > "Mean WER (Word Error Rate)—percentage of incorrectly transcribed words—is 16.63%, which is acceptable for CPU-based speech recognition."
+  > "Mean WER (Word Error Rate) percentage of incorrectly transcribed words is 16.63%, which is acceptable for CPU-based speech recognition."
 - **Files Affected:** `_heading/07_evaluation_testing.tex`
 
 #### Action 6.4: Clarify Top-1 Precision Failure
@@ -551,7 +551,7 @@
 - **Issue:** nDCG definition is one line; no intuition. RRF introduced without definition.
 - **Action:** Expand both:
   > "**nDCG@K** (normalized Discounted Cumulative Gain): a ranking score where top results count more. If the right answer is position 5, you get more credit than if it's position 10. Higher is better."
-  > "**RRF** (Reciprocal Rank Fusion): a method that combines keyword search and semantic search by averaging their rankings—gets benefits of both."
+  > "**RRF** (Reciprocal Rank Fusion): a method that combines keyword search and semantic search by averaging their rankings gets benefits of both."
 - **Files Affected:** `_heading/07_evaluation_testing.tex`
 
 #### Action 6.6: Break Up Dense Technical Sequence
@@ -567,7 +567,7 @@
 - **Current (Lines 63-64):** "Retrieval quality directly impacts answer correctness...if the right passages are not retrieved"
 - **Issue:** States fact without illustration; students don't internalize dependency
 - **Action:** Add example:
-  > "Retrieval is the foundation. If the system can't find the relevant lecture material, the AI assistant can't answer your question—no matter how good the AI is. For example, if you ask 'What is photosynthesis?' but the system retrieves a paragraph about mitochondria instead, the AI will explain mitochondria, not photosynthesis."
+  > "Retrieval is the foundation. If the system can't find the relevant lecture material, the AI assistant can't answer your question no matter how good the AI is. For example, if you ask 'What is photosynthesis?' but the system retrieves a paragraph about mitochondria instead, the AI will explain mitochondria, not photosynthesis."
 - **Files Affected:** `_heading/07_evaluation_testing.tex`
 
 #### Action 6.8: Clarify Image Retrieval Trade-Off
@@ -607,7 +607,7 @@
 - **Current (Lines 198-199):** "The team learned that building a practical MRAG system is not only a matter of selecting strong models, but also of designing reliable data flow, preserving traceability, managing latency, and making careful trade-offs between retrieval quality, infrastructure cost, and user experience."
 - **Issue:** 5+ concepts in one sentence; overwhelming
 - **Action:** Rewrite as:
-  > "The team's biggest learning wasn't about picking the best models—it was about the engineering: (1) ensuring data moves reliably through the pipeline, (2) keeping track of where results come from (traceability), (3) keeping responses fast (latency), and (4) balancing quality, cost, and usability."
+  > "The team's biggest learning wasn't about picking the best models it was about the engineering: (1) ensuring data moves reliably through the pipeline, (2) keeping track of where results come from (traceability), (3) keeping responses fast (latency), and (4) balancing quality, cost, and usability."
 - **Files Affected:** `_heading/08_conclusion.tex`
 
 #### Action 7.2: Define "Heterogeneous Data"
@@ -621,7 +621,7 @@
 - **Current (Line 203):** "evaluate retrieval as an end-to-end engineering problem involving parsing quality, chunk granularity, metadata, ranking, and generation grounding."
 - **Issue:** Lists 5 concepts without explaining how they connect
 - **Action:** Replace with:
-  > "Retrieval success depends on the entire pipeline: If parsing is bad (step 1), retrieval fails. If chunking is poor (step 2), ranking fails. If metadata is missing (step 3), search can't filter. If ranking is wrong (step 4), the AI gets the wrong paragraph. And if generation isn't grounded (step 5), the AI ignores what it retrieved. You can't improve retrieval by tweaking one part—you must optimize the whole chain."
+  > "Retrieval success depends on the entire pipeline: If parsing is bad (step 1), retrieval fails. If chunking is poor (step 2), ranking fails. If metadata is missing (step 3), search can't filter. If ranking is wrong (step 4), the AI gets the wrong paragraph. And if generation isn't grounded (step 5), the AI ignores what it retrieved. You can't improve retrieval by tweaking one part you must optimize the whole chain."
 - **Files Affected:** `_heading/08_conclusion.tex`
 
 #### Action 7.4: Contextualize User Study Metrics
@@ -658,7 +658,7 @@
 - **Current (Lines 189-191):** Lists limitations without explaining impact
 - **Issue:** Limitations listed without workarounds or context
 - **Action:** Expand each with impact:
-  > "Key limitations: (1) The system was built for Vietnamese lectures—other languages require retraining. (2) It needs significant computing power (GPU servers cost ~$684/month for 50 users). (3) Combining text, images, and video is complex and sometimes slow. (4) We turned off reranking because it made searches too slow—we can turn it back on if needed. (5) New lectures take time to process before they're searchable."
+  > "Key limitations: (1) The system was built for Vietnamese lectures other languages require retraining. (2) It needs significant computing power (GPU servers cost ~$684/month for 50 users). (3) Combining text, images, and video is complex and sometimes slow. (4) We turned off reranking because it made searches too slow we can turn it back on if needed. (5) New lectures take time to process before they're searchable."
 - **Files Affected:** `_heading/08_conclusion.tex`
 
 #### Action 7.9: Verify Cross-References

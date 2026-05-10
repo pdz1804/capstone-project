@@ -424,7 +424,7 @@ def create_token(uid: str, email: str, ...):
 - ✅ FastAPI 0.1x, Uvicorn standard
 - ✅ Qdrant client 1.9.0+
 - ✅ boto3 for AWS (1.34.0+)
-- ⚠️ Multiple optional providers (OpenAI, Bedrock, SageMaker) — ensure at least one configured
+- ⚠️ Multiple optional providers (OpenAI, Bedrock, SageMaker)   ensure at least one configured
 - ⚠️ docling and transformers are heavy; cold start may be slow (~30s first request)
 
 ---

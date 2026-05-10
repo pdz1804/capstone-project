@@ -16,7 +16,7 @@ This document records how public DNS (Hostinger), AWS Certificate Manager (ACM),
 |--------|--------|
 | ALB name | `rag-pipeline-alb` |
 | ALB DNS (example) | `rag-pipeline-alb-1719237910.us-west-2.elb.amazonaws.com` |
-| Region | `us-west-2` (Oregon) — ALB DNS name must match this region |
+| Region | `us-west-2` (Oregon)   ALB DNS name must match this region |
 | Certificate scope | `k2p-bkmind-learning-platform.com` and `www.k2p-bkmind-learning-platform.com` |
 | HTTP :80 | Redirect **301** to **HTTPS** on **443** (force TLS) |
 | HTTPS :443 | Forwards to target group (e.g. frontend); ACM cert on listener; TLS policy e.g. `ELBSecurityPolicy-TLS13-1-2-2021-06` |
@@ -57,8 +57,8 @@ Exact **host** field at providers varies: some want the full `_xxx.example.com`,
 
 ## Related repo docs
 
-- `AWS_DEPLOYMENT_SETUP.md` — broader Terraform, ECS, and CI/CD context
-- `Phase_2_FE_AI_Merge/terraform/` — ALB and listener definitions as code (keep code and console in sync when possible)
+- `AWS_DEPLOYMENT_SETUP.md`   broader Terraform, ECS, and CI/CD context
+- `Phase_2_FE_AI_Merge/terraform/`   ALB and listener definitions as code (keep code and console in sync when possible)
 
 ---
 

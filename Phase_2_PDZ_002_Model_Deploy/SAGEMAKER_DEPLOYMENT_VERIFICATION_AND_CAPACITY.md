@@ -217,12 +217,12 @@ Query    : What is the main topic of this document?
   VRAM used   : 2.45 GB allocated  /  2.57 GB reserved  /  19.62 GB free
   GPU util    : 0%
 
-[Step 1/3] embed-query — 'What is the main topic of this document?' ...
+[Step 1/3] embed-query   'What is the main topic of this document?' ...
   ✓ Query embedded in 425 ms
     n_tokens  : 19
     embed_dim : 128
 
-[Step 2/3] embed-images + score — processing 5 image(s) ...
+[Step 2/3] embed-images + score   processing 5 image(s) ...
   [1/5] page_001_full.png  (649 KB) ...  embed=3033 ms  score=865 ms  (patches=755, score=16.886)
   [2/5] page_002_full.png  (884 KB) ...  embed=936 ms  score=1526 ms  (patches=755, score=16.895)
   [3/5] page_003_full.png  (823 KB) ...  embed=2382 ms  score=723 ms  (patches=755, score=16.854)

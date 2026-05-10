@@ -2,8 +2,8 @@
 PDF Classification Module
 
 Classifies PDFs as born-digital, scanned (with/without OCR), or hybrid
-by analysing **content-stream operators** — the actual drawing instructions
-inside each page — rather than pixel-level heuristics.
+by analysing **content-stream operators**   the actual drawing instructions
+inside each page   rather than pixel-level heuristics.
 
 Key signals (ranked by reliability):
 
@@ -233,7 +233,7 @@ class PdfClassifier:
         return pdf_type, confidence
 
     # ------------------------------------------------------------------
-    # Page-level content-stream analysis  (TIER 1 — definitive)
+    # Page-level content-stream analysis  (TIER 1   definitive)
     # ------------------------------------------------------------------
 
     def _analyze_page(self, doc: fitz.Document, page_idx: int) -> Dict[str, Any]:
@@ -277,7 +277,7 @@ class PdfClassifier:
         elif text_ops > 0:
             page_type = PageType.BORN_DIGITAL
         elif bt_count > 0 and len(fonts) > 0:
-            # BT/ET blocks exist but no Tj/TJ — unusual but treat as born-digital
+            # BT/ET blocks exist but no Tj/TJ   unusual but treat as born-digital
             page_type = PageType.BORN_DIGITAL
         else:
             page_type = PageType.UNCERTAIN
@@ -308,7 +308,7 @@ class PdfClassifier:
         return sorted(indices)
 
     # ------------------------------------------------------------------
-    # Global metadata helpers (TIER 3 — tie-breakers)
+    # Global metadata helpers (TIER 3   tie-breakers)
     # ------------------------------------------------------------------
 
     def _get_pdf_version(self, doc: fitz.Document) -> str:

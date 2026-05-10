@@ -1,4 +1,4 @@
-"""Request/response models — mirrored in docs/API_SCHEMA.md."""
+"""Request/response models   mirrored in docs/API_SCHEMA.md."""
 
 from __future__ import annotations
 
@@ -67,11 +67,11 @@ class SummaryRequest(BaseModel):
     )
     tone: str = Field(
         "neutral",
-        description="neutral | formal | friendly — style guidance for the summary.",
+        description="neutral | formal | friendly   style guidance for the summary.",
     )
     target_length: str = Field(
         "medium",
-        description="short | medium | long — approximate output length.",
+        description="short | medium | long   approximate output length.",
     )
 
 
@@ -85,7 +85,7 @@ class McqRequest(BaseModel):
     )
     question_style: str = Field(
         "exam",
-        description="exam | conceptual | mixed — how questions should read.",
+        description="exam | conceptual | mixed   how questions should read.",
     )
     include_explanations: bool = Field(
         True,

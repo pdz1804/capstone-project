@@ -108,7 +108,7 @@ They are **complementary** -- both are needed.
 
 ## Diagram 1: System Architecture Diagram
 
-This diagram shows the **full target application architecture** — not just AI services.
+This diagram shows the **full target application architecture**   not just AI services.
 The system currently runs locally for AI services only (Phase 2 local development).
 Planned application features (user management, learning paths, summaries, etc.) are
 shown with dashed borders to indicate they are not yet implemented.
@@ -116,7 +116,7 @@ shown with dashed borders to indicate they are not yet implemented.
 Note: Whisper (ASR), Docling (document parsing with OCR + VLM), and ColQwen (visual
 retrieval model) all require GPU acceleration, so they are co-located on the same GPU server.
 
-Note: Stage 2 (Media Processing) reads from the **original raw input directory** — not from
+Note: Stage 2 (Media Processing) reads from the **original raw input directory**   not from
 Stage 1 output. Stage 3 (Docling) reads from Stage 1 normalized PDFs. Stage 4 consolidates
 all stage outputs.
 
@@ -354,7 +354,7 @@ graph TB
 
 ## Diagram 2: Deployment Diagram
 
-This diagram shows the **full target deployment architecture** — not just AI services.
+This diagram shows the **full target deployment architecture**   not just AI services.
 It accurately reflects what is already provisioned via Terraform (ECS Fargate, ALB, ECR,
 CloudWatch, Auto-Scaling) and what exists separately (EC2 GPU instance).
 Whisper, Docling, and ColQwen are co-located on the same GPU server since all require GPU.

@@ -1,8 +1,8 @@
-# AI Service Pipelines — Comprehensive & Accurate Documentation
+# AI Service Pipelines   Comprehensive & Accurate Documentation
 
 **Version:** 3.0 (Verified with Actual Code)  
 **Date:** May 2026  
-**Scope:** Phase 2 AI Service — 7-stage processing + indexing + search pipelines
+**Scope:** Phase 2 AI Service   7-stage processing + indexing + search pipelines
 
 ---
 
@@ -365,19 +365,19 @@ Stage 3 is the **intelligent document processing hub** that handles multiple fil
 
 **Stage 3 consists of 4 parallel paths:**
 
-1. **Stage 3 (Main)**: DocumentProcessorV2 Unified Router — processes normalized PDFs, markdown, and original files (CSV, AsciiDoc, VTT, Images) that are **not handled by Stage 3b/3c/3d custom parsers**
+1. **Stage 3 (Main)**: DocumentProcessorV2 Unified Router   processes normalized PDFs, markdown, and original files (CSV, AsciiDoc, VTT, Images) that are **not handled by Stage 3b/3c/3d custom parsers**
 
-2. **Stage 3b (Excel)**: ExcelPreprocessor — runs **only if** Excel files were detected and parsed in Stage 1 (JSON in `excel_parsed/`)
+2. **Stage 3b (Excel)**: ExcelPreprocessor   runs **only if** Excel files were detected and parsed in Stage 1 (JSON in `excel_parsed/`)
 
-3. **Stage 3c (DOCX)**: DocxPreprocessor — runs **only if** Word documents were detected and parsed in Stage 1 (JSON in `docx_parsed/`)
+3. **Stage 3c (DOCX)**: DocxPreprocessor   runs **only if** Word documents were detected and parsed in Stage 1 (JSON in `docx_parsed/`)
 
-4. **Stage 3d (PDF)**: PdfPreprocessor — runs **only if** PDF files were detected and parsed in Stage 1 (JSON in `pdf_parsed/`)
+4. **Stage 3d (PDF)**: PdfPreprocessor   runs **only if** PDF files were detected and parsed in Stage 1 (JSON in `pdf_parsed/`)
 
-**Key Design**: Stages 3b/3c/3d run **conditionally** — they only execute if their specialized input exists. Meanwhile, Stage 3 (V2 Router) handles all other file types. Both output directly to `stage4_rag_ready/`, which Stage 4 then consolidates.
+**Key Design**: Stages 3b/3c/3d run **conditionally**   they only execute if their specialized input exists. Meanwhile, Stage 3 (V2 Router) handles all other file types. Both output directly to `stage4_rag_ready/`, which Stage 4 then consolidates.
 
 **Processing Timeline**:
 - Stage 3 (V2 Router) runs first, handling normalized PDFs, Markdown, and passthrough files
-- Stages 3b, 3c, and 3d run **sequentially after** Stage 3 (conditional — only if their parsed inputs exist from Stage 1)
+- Stages 3b, 3c, and 3d run **sequentially after** Stage 3 (conditional   only if their parsed inputs exist from Stage 1)
   - Stage 3b: ExcelPreprocessor (if `excel_parsed/` exists)
   - Stage 3c: DocxPreprocessor (if `docx_parsed/` exists)
   - Stage 3d: PdfPreprocessor (if `pdf_parsed/` exists)

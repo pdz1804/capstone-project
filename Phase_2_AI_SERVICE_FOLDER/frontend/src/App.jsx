@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
-import { 
-  Upload, 
-  Search, 
-  FileText, 
-  Image, 
-  FolderOpen, 
+import {
+  Upload,
+  Search,
+  FileText,
+  Image,
+  FolderOpen,
   Loader2,
   CheckCircle,
   XCircle,
@@ -35,7 +35,7 @@ import InsightsPanel from './components/InsightsPanel'
 import ProcessedFilePreviewModal from './components/ProcessedFilePreviewModal'
 import { getApiBase } from './apiBase'
 
-// API base — see apiBase.js (avoids VITE_API_URL=http://host:8000 missing /api)
+// API base   see apiBase.js (avoids VITE_API_URL=http://host:8000 missing /api)
 const API_BASE = getApiBase()
 
 /** Merge newly uploaded rows into input list (keyed by path). */
@@ -55,7 +55,7 @@ const getFileIcon = (type) => {
   return File
 }
 
-// Stage info with colors — stage3 is full-doc markdown (Docling), not index “chunks” (those come from Build Index).
+// Stage info with colors   stage3 is full-doc markdown (Docling), not index “chunks” (those come from Build Index).
 const stageInfo = {
   'stage1_normalized': {
     label: 'Normalized',
@@ -74,7 +74,7 @@ const stageInfo = {
     color: 'blue',
     step: 3,
     blurb:
-      'Structured markdown per document (e.g. Docling output). These are not retrieval chunks — chunking happens when you Build Index.',
+      'Structured markdown per document (e.g. Docling output). These are not retrieval chunks   chunking happens when you Build Index.',
   },
   'stage4_rag_ready': {
     label: 'RAG-ready bundle',
@@ -224,7 +224,7 @@ function App() {
       fetchProcessingStats(),
       fetchProcessedLayout(),
     ]).finally(() => setDataLoading(false))
-    
+
     let interval = null
     const startPolling = () => {
       if (interval) clearInterval(interval)
@@ -233,7 +233,7 @@ function App() {
     }
     const stopPolling = () => { if (interval) { clearInterval(interval); interval = null } }
     startPolling()
-    
+
     const handleVisibilityChange = () => {
       if (document.hidden) { stopPolling() } else { fetchPipelineStatus(false); startPolling() }
     }
@@ -282,7 +282,7 @@ function App() {
     for (let file of uploadFiles) formData.append('files', file)
     setUploadProgress({ uploading: true, progress: 0 })
     try {
-      // Do not set Content-Type manually — axios must add the multipart boundary.
+      // Do not set Content-Type manually   axios must add the multipart boundary.
       const r = await axios.post(`${API_BASE}/upload`, formData, {
         onUploadProgress: (p) =>
           setUploadProgress({ uploading: true, progress: Math.round((p.loaded * 100) / p.total) }),
@@ -571,11 +571,10 @@ function App() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2.5 px-5 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
-                activeTab === tab.id
+              className={`flex items-center space-x-2.5 px-5 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${activeTab === tab.id
                   ? 'bg-sky-500 text-white shadow-lg shadow-sky-200/50 scale-105'
                   : 'text-slate-600 hover:text-sky-600 hover:bg-white/60'
-              }`}
+                }`}
             >
               <tab.icon className={`w-4.5 h-4.5 ${activeTab === tab.id ? 'text-white' : 'text-slate-500'}`} />
               <span>{tab.label}</span>
@@ -599,597 +598,597 @@ function App() {
 
         {!dataLoading && (
           <>
-        {/* ━━━ Upload Tab ━━━ */}
-        {activeTab === 'upload' && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-top-4">
-            {/* Upload Area */}
-            <div className="glass-strong rounded-3xl card-shadow card-shadow-hover p-10">
-              <div className="flex items-center space-x-3 mb-8">
-                <div className="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center shadow-lg shadow-sky-200/50">
-                  <Upload className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-800">Upload Documents</h2>
-                  <p className="text-sm text-slate-500 mt-0.5">Add files to process and index</p>
-                </div>
-              </div>
-              <label className="block">
-                <div 
-                  className="border-2 border-dashed border-sky-300/60 rounded-3xl p-16 text-center hover:border-sky-400 hover:bg-sky-50/50 transition-all duration-300 group relative overflow-hidden"
-                  onDrop={handleDrop}
-                  onDragOver={(e) => e.preventDefault()}
-                >
-                  <div className="absolute inset-0 bg-sky-500/0 group-hover:bg-sky-500/5 transition-all duration-500"></div>
-                  <div className="relative z-10">
-                    <div className="w-20 h-20 mx-auto mb-6 bg-sky-100 rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 group-hover:bg-sky-200 transition-all duration-500 shadow-lg shadow-sky-200/30">
-                      <Upload className="w-10 h-10 text-sky-500 group-hover:text-sky-600 transition-colors" />
+            {/* ━━━ Upload Tab ━━━ */}
+            {activeTab === 'upload' && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-top-4">
+                {/* Upload Area */}
+                <div className="glass-strong rounded-3xl card-shadow card-shadow-hover p-10">
+                  <div className="flex items-center space-x-3 mb-8">
+                    <div className="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center shadow-lg shadow-sky-200/50">
+                      <Upload className="w-5 h-5 text-white" />
                     </div>
-                    <p className="text-slate-700 font-bold text-lg mb-2 group-hover:text-sky-700 transition-colors">Drop files here or click to upload</p>
-                    <p className="text-sm text-slate-500 group-hover:text-slate-600 transition-colors">PDF, DOCX, PPTX, TXT, images, videos and more</p>
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-800">Upload Documents</h2>
+                      <p className="text-sm text-slate-500 mt-0.5">Add files to process and index</p>
+                    </div>
                   </div>
-                  <input id="file-upload" type="file" multiple onChange={handleUpload} className="hidden" accept=".pdf,.docx,.pptx,.txt,.md,.png,.jpg,.jpeg,.mp4,.avi,.mov,.xlsx,.doc,.xls,.ppt" />
-                </div>
-              </label>
-              
-              {uploadProgress && (
-                <div className="mt-8 space-y-4 animate-in slide-in-from-bottom">
-                  {uploadProgress.uploading && (
-                    <div className="flex items-center space-x-5 p-5 bg-sky-50 rounded-2xl border-2 border-sky-200/60 card-shadow">
-                      <div className="relative">
-                        <Loader2 className="w-6 h-6 animate-spin text-sky-500 flex-shrink-0" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-sm font-bold text-slate-700">Uploading files...</span>
-                          <span className="text-lg font-bold text-sky-600">{uploadProgress.progress}%</span>
+                  <label className="block">
+                    <div
+                      className="border-2 border-dashed border-sky-300/60 rounded-3xl p-16 text-center hover:border-sky-400 hover:bg-sky-50/50 transition-all duration-300 group relative overflow-hidden"
+                      onDrop={handleDrop}
+                      onDragOver={(e) => e.preventDefault()}
+                    >
+                      <div className="absolute inset-0 bg-sky-500/0 group-hover:bg-sky-500/5 transition-all duration-500"></div>
+                      <div className="relative z-10">
+                        <div className="w-20 h-20 mx-auto mb-6 bg-sky-100 rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 group-hover:bg-sky-200 transition-all duration-500 shadow-lg shadow-sky-200/30">
+                          <Upload className="w-10 h-10 text-sky-500 group-hover:text-sky-600 transition-colors" />
                         </div>
-                        <div className="h-3 bg-white/80 rounded-full overflow-hidden shadow-inner">
-                          <div className="h-full bg-sky-500 transition-all duration-500 shadow-lg shadow-sky-300/50" style={{ width: `${uploadProgress.progress}%` }} />
-                        </div>
+                        <p className="text-slate-700 font-bold text-lg mb-2 group-hover:text-sky-700 transition-colors">Drop files here or click to upload</p>
+                        <p className="text-sm text-slate-500 group-hover:text-slate-600 transition-colors">PDF, DOCX, PPTX, TXT, images, videos and more</p>
                       </div>
+                      <input id="file-upload" type="file" multiple onChange={handleUpload} className="hidden" accept=".pdf,.docx,.pptx,.txt,.md,.png,.jpg,.jpeg,.mp4,.avi,.mov,.xlsx,.doc,.xls,.ppt" />
                     </div>
-                  )}
-                  {uploadProgress.success && (
-                    <div className="flex items-center space-x-4 p-5 bg-emerald-50 rounded-2xl border-2 border-emerald-200/60 card-shadow animate-in zoom-in-95">
-                      <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200/50">
-                        <CheckCircle className="w-6 h-6 text-white" />
-                      </div>
-                      <span className="text-sm font-bold text-emerald-700">Upload complete!</span>
-                    </div>
-                  )}
-                  {uploadProgress.error && (
-                    <div className="flex items-center space-x-4 p-5 bg-red-50 rounded-2xl border-2 border-red-200/60 card-shadow animate-in zoom-in-95">
-                      <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center shadow-lg shadow-red-200/50">
-                        <XCircle className="w-6 h-6 text-white" />
-                      </div>
-                      <span className="text-sm font-bold text-red-700">Upload failed: {uploadProgress.error}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+                  </label>
 
-            {/* Input Files List */}
-            <div className="glass-strong rounded-3xl card-shadow p-8">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-sky-100 rounded-2xl flex items-center justify-center shadow-sm">
-                    <FolderOpen className="w-6 h-6 text-sky-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center space-x-3">
-                      <span>Input Files</span>
-                      <span className="px-4 py-1.5 bg-sky-500 text-white text-sm rounded-full font-bold shadow-lg shadow-sky-200/50">{files.input?.length || 0}</span>
-                    </h2>
-                    <p className="text-sm text-slate-500 mt-1">Files ready for processing</p>
-                  </div>
-                </div>
-                <button onClick={handleProcess} disabled={loading || !files.input?.length}
-                  className="px-8 py-3.5 bg-sky-500 text-white rounded-xl font-bold hover:shadow-xl hover:shadow-sky-200/50 disabled:opacity-50 flex items-center space-x-2.5 transition-all duration-300 hover:scale-105 active:scale-95 disabled:hover:scale-100">
-                  {loading ? (<><Loader2 className="w-5 h-5 animate-spin" /><span>Processing...</span></>) : (<><Zap className="w-5 h-5" /><span>Process</span></>)}
-                </button>
-              </div>
-              
-              {files.input?.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2 scrollbar-thin">
-                  {files.input.map((file, idx) => {
-                    const FileIcon = getFileIcon(file.type)
-                    return (
-                      <div key={idx} className="flex items-center justify-between p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-sky-200 hover:shadow-lg card-shadow-hover transition-all duration-300 group animate-in fade-in" style={{ animationDelay: `${idx * 50}ms` }}>
-                        <div className="flex items-center space-x-4 flex-1 min-w-0">
-                          <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center shadow-sm border border-sky-200/50 flex-shrink-0">
-                            <FileIcon className="w-6 h-6 text-sky-600" />
+                  {uploadProgress && (
+                    <div className="mt-8 space-y-4 animate-in slide-in-from-bottom">
+                      {uploadProgress.uploading && (
+                        <div className="flex items-center space-x-5 p-5 bg-sky-50 rounded-2xl border-2 border-sky-200/60 card-shadow">
+                          <div className="relative">
+                            <Loader2 className="w-6 h-6 animate-spin text-sky-500 flex-shrink-0" />
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-slate-800 text-sm truncate">{file.name}</p>
-                            <p className="text-xs text-slate-500 font-medium mt-1">{file.size}</p>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-sm font-bold text-slate-700">Uploading files...</span>
+                              <span className="text-lg font-bold text-sky-600">{uploadProgress.progress}%</span>
+                            </div>
+                            <div className="h-3 bg-white/80 rounded-full overflow-hidden shadow-inner">
+                              <div className="h-full bg-sky-500 transition-all duration-500 shadow-lg shadow-sky-300/50" style={{ width: `${uploadProgress.progress}%` }} />
+                            </div>
                           </div>
                         </div>
-                        <button onClick={() => handleDeleteFile(file.path)} className="p-2.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 ml-3 flex-shrink-0" title="Delete file">
-                          <Trash2 className="w-5 h-5" />
-                        </button>
+                      )}
+                      {uploadProgress.success && (
+                        <div className="flex items-center space-x-4 p-5 bg-emerald-50 rounded-2xl border-2 border-emerald-200/60 card-shadow animate-in zoom-in-95">
+                          <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200/50">
+                            <CheckCircle className="w-6 h-6 text-white" />
+                          </div>
+                          <span className="text-sm font-bold text-emerald-700">Upload complete!</span>
+                        </div>
+                      )}
+                      {uploadProgress.error && (
+                        <div className="flex items-center space-x-4 p-5 bg-red-50 rounded-2xl border-2 border-red-200/60 card-shadow animate-in zoom-in-95">
+                          <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center shadow-lg shadow-red-200/50">
+                            <XCircle className="w-6 h-6 text-white" />
+                          </div>
+                          <span className="text-sm font-bold text-red-700">Upload failed: {uploadProgress.error}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Input Files List */}
+                <div className="glass-strong rounded-3xl card-shadow p-8">
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-sky-100 rounded-2xl flex items-center justify-center shadow-sm">
+                        <FolderOpen className="w-6 h-6 text-sky-600" />
                       </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-800 flex items-center space-x-3">
+                          <span>Input Files</span>
+                          <span className="px-4 py-1.5 bg-sky-500 text-white text-sm rounded-full font-bold shadow-lg shadow-sky-200/50">{files.input?.length || 0}</span>
+                        </h2>
+                        <p className="text-sm text-slate-500 mt-1">Files ready for processing</p>
+                      </div>
+                    </div>
+                    <button onClick={handleProcess} disabled={loading || !files.input?.length}
+                      className="px-8 py-3.5 bg-sky-500 text-white rounded-xl font-bold hover:shadow-xl hover:shadow-sky-200/50 disabled:opacity-50 flex items-center space-x-2.5 transition-all duration-300 hover:scale-105 active:scale-95 disabled:hover:scale-100">
+                      {loading ? (<><Loader2 className="w-5 h-5 animate-spin" /><span>Processing...</span></>) : (<><Zap className="w-5 h-5" /><span>Process</span></>)}
+                    </button>
+                  </div>
+
+                  {files.input?.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2 scrollbar-thin">
+                      {files.input.map((file, idx) => {
+                        const FileIcon = getFileIcon(file.type)
+                        return (
+                          <div key={idx} className="flex items-center justify-between p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-sky-200 hover:shadow-lg card-shadow-hover transition-all duration-300 group animate-in fade-in" style={{ animationDelay: `${idx * 50}ms` }}>
+                            <div className="flex items-center space-x-4 flex-1 min-w-0">
+                              <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center shadow-sm border border-sky-200/50 flex-shrink-0">
+                                <FileIcon className="w-6 h-6 text-sky-600" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold text-slate-800 text-sm truncate">{file.name}</p>
+                                <p className="text-xs text-slate-500 font-medium mt-1">{file.size}</p>
+                              </div>
+                            </div>
+                            <button onClick={() => handleDeleteFile(file.path)} className="p-2.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 ml-3 flex-shrink-0" title="Delete file">
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-16 text-slate-400 animate-in fade-in">
+                      <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 rounded-3xl flex items-center justify-center opacity-50">
+                        <FolderOpen className="w-10 h-10 text-slate-400" />
+                      </div>
+                      <p className="font-semibold text-lg text-slate-500">No files uploaded yet</p>
+                      <p className="text-sm text-slate-400 mt-2">Upload files to get started</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ━━━ Processed Files Tab ━━━ */}
+            {activeTab === 'processed' && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                {/* Pipeline Actions */}
+                <div className="bg-sky-50 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-200 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-800 mb-1">Pipeline Actions</h3>
+                      <p className="text-sm text-slate-600">Manage document processing workflow</p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <button onClick={handleProcess} disabled={loading || !files.input?.length}
+                        className="px-6 py-2.5 bg-sky-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-sky-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95">
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                        <span>Process Files</span>
+                      </button>
+                      <button onClick={handleIndex} disabled={loading}
+                        className="px-6 py-2.5 bg-indigo-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-indigo-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95">
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                        <span>Build Index</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Settings Panel (Stats + Config) */}
+                <SettingsPanel
+                  pipelineConfig={pipelineConfig}
+                  showConfig={showConfig}
+                  setShowConfig={setShowConfig}
+                  processingStats={processingStats}
+                />
+
+                {(processedLayoutError || processedDisplay?._fallback) && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 shadow-sm">
+                    <p className="font-semibold text-amber-900">Processed view fallback</p>
+                    <p className="mt-1 text-amber-900/90">
+                      {processedLayoutError
+                        ? `Could not load GET /api/processed-documents (${processedLayoutError}). `
+                        : 'The structured snapshot reported no artifacts while the file list still has items, or the API is outdated. '}
+                      Showing a grouped view built from GET /api/files. Use the refresh button after restarting the backend so
+                      <code className="mx-1 rounded bg-amber-100/80 px-1 font-mono text-xs">/api/processed-documents</code>
+                      is available.
+                    </p>
+                  </div>
+                )}
+
+                {/* Counts   aligned with storage layout (users/…/processing) */}
+                <div className="flex flex-wrap gap-3">
+                  <div className="px-4 py-3 rounded-xl bg-white border border-sky-100 shadow-sm">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Input files</p>
+                    <p className="text-2xl font-bold text-sky-700">{processedDisplay?.input_file_count ?? files.input?.length ?? 0}</p>
+                    <p className="text-[10px] text-slate-400 mt-1 leading-snug">In input/ (uploads)</p>
+                  </div>
+                  <div className="px-4 py-3 rounded-xl bg-white border border-sky-100 shadow-sm">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Document groups</p>
+                    <p className="text-2xl font-bold text-blue-700">{processedDisplay?.document_count ?? 0}</p>
+                    {processedDisplay?.named_document_folders != null &&
+                      processedDisplay.named_document_folders !== processedDisplay.document_count && (
+                        <p className="text-[10px] text-slate-400 mt-1 leading-snug">
+                          {processedDisplay.named_document_folders} named folder{processedDisplay.named_document_folders === 1 ? '' : 's'} + pipeline-wide
+                        </p>
+                      )}
+                    <p className="text-[10px] text-slate-400 mt-1 leading-snug">Matches sidebar rows</p>
+                  </div>
+                  <div className="px-4 py-3 rounded-xl bg-white border border-indigo-100 shadow-sm">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Processing artifacts</p>
+                    <p className="text-2xl font-bold text-indigo-700">{processedDisplay?.artifact_count ?? 0}</p>
+                    <p className="text-[10px] text-slate-400 mt-1 leading-snug">All files under processing/</p>
+                  </div>
+                </div>
+                {processedDisplay?.count_hints && (
+                  <div className="rounded-xl border border-slate-200/80 bg-slate-50/90 px-4 py-3 text-xs text-slate-600 space-y-2 max-w-4xl">
+                    <p>
+                      <span className="font-semibold text-slate-700">Stage cards: </span>
+                      {processedDisplay.count_hints.stage_totals}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-slate-700">Document groups: </span>
+                      {processedDisplay.count_hints.document_groups}
+                    </p>
+                  </div>
+                )}
+
+                {/* Filter Buttons */}
+                <div className="flex items-center space-x-2 flex-wrap gap-2">
+                  <span className="text-sm font-medium text-slate-600">Filter:</span>
+                  <button
+                    type="button"
+                    onClick={() => setProcessedFilter('all')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${processedFilter === 'all' ? 'bg-sky-500 text-white shadow-lg shadow-sky-200/50' : 'bg-white/60 text-slate-600 border border-sky-100 hover:bg-sky-50'}`}
+                  >
+                    All ({processedDisplay?.artifact_count ?? files.processed?.length ?? 0})
+                  </button>
+                  {Object.entries(stageInfo).map(([stage, info]) => {
+                    const count = processedDisplay?.stage_totals?.[stage] ?? 0
+                    if (count === 0) return null
+                    const active = { sky: 'bg-sky-500 text-white shadow-lg shadow-sky-200/50', cyan: 'bg-cyan-500 text-white shadow-lg shadow-cyan-200/50', blue: 'bg-blue-500 text-white shadow-lg shadow-blue-200/50', indigo: 'bg-indigo-500 text-white shadow-lg shadow-indigo-200/50' }
+                    const inactive = { sky: 'bg-white/60 text-slate-600 border border-sky-100 hover:bg-sky-50', cyan: 'bg-white/60 text-slate-600 border border-cyan-100 hover:bg-cyan-50', blue: 'bg-white/60 text-slate-600 border border-blue-100 hover:bg-blue-50', indigo: 'bg-white/60 text-slate-600 border border-indigo-100 hover:bg-indigo-50' }
+                    return (
+                      <button key={stage} type="button" onClick={() => setProcessedFilter(stage)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${processedFilter === stage ? active[info.color] : inactive[info.color]}`}>
+                        {info.label} ({count})
+                      </button>
                     )
                   })}
                 </div>
-              ) : (
-                <div className="text-center py-16 text-slate-400 animate-in fade-in">
-                  <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 rounded-3xl flex items-center justify-center opacity-50">
-                    <FolderOpen className="w-10 h-10 text-slate-400" />
+
+                {/* Processing Pipeline Visual + master–detail */}
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-6">
+                  <h3 className="text-lg font-semibold text-slate-800">Processing Pipeline</h3>
+                  <p className="text-xs text-slate-500 mt-1 mb-6 leading-relaxed">
+                    Folders follow{' '}
+                    <code className="rounded bg-slate-100 px-1 font-mono text-[11px]">stage1_normalized</code>
+                    {' → '}
+                    <code className="rounded bg-slate-100 px-1 font-mono text-[11px]">stage4_rag_ready</code>
+                    . Numbers below count <span className="font-medium text-slate-600">files on disk</span>. The header{' '}
+                    <span className="font-medium text-slate-600">Chunks</span> value is how many text segments were written to the
+                    index (after chunking)   usually much larger than a single stage-3 <code className="font-mono text-[11px]">.md</code>{' '}
+                    per document.
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                    {Object.entries(stageInfo).map(([stage, info]) => {
+                      const count = processedDisplay?.stage_totals?.[stage] ?? 0
+                      const colors = { sky: 'bg-sky-100 text-sky-700 border-sky-200', cyan: 'bg-cyan-100 text-cyan-700 border-cyan-200', blue: 'bg-blue-100 text-blue-700 border-blue-200', indigo: 'bg-indigo-100 text-indigo-700 border-indigo-200' }
+                      return (
+                        <div key={stage} className={`${colors[info.color]} border p-4 rounded-xl text-center relative`}>
+                          <div className="text-3xl font-bold mb-1">{count}</div>
+                          <div className="text-xs font-medium">{info.label}</div>
+                          {info.step < 4 && <ArrowRight className="hidden sm:block absolute -right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />}
+                        </div>
+                      )
+                    })}
                   </div>
-                  <p className="font-semibold text-lg text-slate-500">No files uploaded yet</p>
-                  <p className="text-sm text-slate-400 mt-2">Upload files to get started</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
-        {/* ━━━ Processed Files Tab ━━━ */}
-        {activeTab === 'processed' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
-            {/* Pipeline Actions */}
-            <div className="bg-sky-50 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-200 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-1">Pipeline Actions</h3>
-                  <p className="text-sm text-slate-600">Manage document processing workflow</p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <button onClick={handleProcess} disabled={loading || !files.input?.length}
-                    className="px-6 py-2.5 bg-sky-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-sky-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95">
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-                    <span>Process Files</span>
-                  </button>
-                  <button onClick={handleIndex} disabled={loading}
-                    className="px-6 py-2.5 bg-indigo-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-indigo-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95">
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                    <span>Build Index</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Settings Panel (Stats + Config) */}
-            <SettingsPanel
-              pipelineConfig={pipelineConfig}
-              showConfig={showConfig}
-              setShowConfig={setShowConfig}
-              processingStats={processingStats}
-            />
-
-            {(processedLayoutError || processedDisplay?._fallback) && (
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 shadow-sm">
-                <p className="font-semibold text-amber-900">Processed view fallback</p>
-                <p className="mt-1 text-amber-900/90">
-                  {processedLayoutError
-                    ? `Could not load GET /api/processed-documents (${processedLayoutError}). `
-                    : 'The structured snapshot reported no artifacts while the file list still has items, or the API is outdated. '}
-                  Showing a grouped view built from GET /api/files. Use the refresh button after restarting the backend so
-                  <code className="mx-1 rounded bg-amber-100/80 px-1 font-mono text-xs">/api/processed-documents</code>
-                  is available.
-                </p>
-              </div>
-            )}
-
-            {/* Counts — aligned with storage layout (users/…/processing) */}
-            <div className="flex flex-wrap gap-3">
-              <div className="px-4 py-3 rounded-xl bg-white border border-sky-100 shadow-sm">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Input files</p>
-                <p className="text-2xl font-bold text-sky-700">{processedDisplay?.input_file_count ?? files.input?.length ?? 0}</p>
-                <p className="text-[10px] text-slate-400 mt-1 leading-snug">In input/ (uploads)</p>
-              </div>
-              <div className="px-4 py-3 rounded-xl bg-white border border-sky-100 shadow-sm">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Document groups</p>
-                <p className="text-2xl font-bold text-blue-700">{processedDisplay?.document_count ?? 0}</p>
-                {processedDisplay?.named_document_folders != null &&
-                  processedDisplay.named_document_folders !== processedDisplay.document_count && (
-                    <p className="text-[10px] text-slate-400 mt-1 leading-snug">
-                      {processedDisplay.named_document_folders} named folder{processedDisplay.named_document_folders === 1 ? '' : 's'} + pipeline-wide
-                    </p>
-                  )}
-                <p className="text-[10px] text-slate-400 mt-1 leading-snug">Matches sidebar rows</p>
-              </div>
-              <div className="px-4 py-3 rounded-xl bg-white border border-indigo-100 shadow-sm">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Processing artifacts</p>
-                <p className="text-2xl font-bold text-indigo-700">{processedDisplay?.artifact_count ?? 0}</p>
-                <p className="text-[10px] text-slate-400 mt-1 leading-snug">All files under processing/</p>
-              </div>
-            </div>
-            {processedDisplay?.count_hints && (
-              <div className="rounded-xl border border-slate-200/80 bg-slate-50/90 px-4 py-3 text-xs text-slate-600 space-y-2 max-w-4xl">
-                <p>
-                  <span className="font-semibold text-slate-700">Stage cards: </span>
-                  {processedDisplay.count_hints.stage_totals}
-                </p>
-                <p>
-                  <span className="font-semibold text-slate-700">Document groups: </span>
-                  {processedDisplay.count_hints.document_groups}
-                </p>
-              </div>
-            )}
-
-            {/* Filter Buttons */}
-            <div className="flex items-center space-x-2 flex-wrap gap-2">
-              <span className="text-sm font-medium text-slate-600">Filter:</span>
-              <button
-                type="button"
-                onClick={() => setProcessedFilter('all')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${processedFilter === 'all' ? 'bg-sky-500 text-white shadow-lg shadow-sky-200/50' : 'bg-white/60 text-slate-600 border border-sky-100 hover:bg-sky-50'}`}
-              >
-                All ({processedDisplay?.artifact_count ?? files.processed?.length ?? 0})
-              </button>
-              {Object.entries(stageInfo).map(([stage, info]) => {
-                const count = processedDisplay?.stage_totals?.[stage] ?? 0
-                if (count === 0) return null
-                const active = { sky: 'bg-sky-500 text-white shadow-lg shadow-sky-200/50', cyan: 'bg-cyan-500 text-white shadow-lg shadow-cyan-200/50', blue: 'bg-blue-500 text-white shadow-lg shadow-blue-200/50', indigo: 'bg-indigo-500 text-white shadow-lg shadow-indigo-200/50' }
-                const inactive = { sky: 'bg-white/60 text-slate-600 border border-sky-100 hover:bg-sky-50', cyan: 'bg-white/60 text-slate-600 border border-cyan-100 hover:bg-cyan-50', blue: 'bg-white/60 text-slate-600 border border-blue-100 hover:bg-blue-50', indigo: 'bg-white/60 text-slate-600 border border-indigo-100 hover:bg-indigo-50' }
-                return (
-                  <button key={stage} type="button" onClick={() => setProcessedFilter(stage)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${processedFilter === stage ? active[info.color] : inactive[info.color]}`}>
-                    {info.label} ({count})
-                  </button>
-                )
-              })}
-            </div>
-
-            {/* Processing Pipeline Visual + master–detail */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-6">
-              <h3 className="text-lg font-semibold text-slate-800">Processing Pipeline</h3>
-              <p className="text-xs text-slate-500 mt-1 mb-6 leading-relaxed">
-                Folders follow{' '}
-                <code className="rounded bg-slate-100 px-1 font-mono text-[11px]">stage1_normalized</code>
-                {' → '}
-                <code className="rounded bg-slate-100 px-1 font-mono text-[11px]">stage4_rag_ready</code>
-                . Numbers below count <span className="font-medium text-slate-600">files on disk</span>. The header{' '}
-                <span className="font-medium text-slate-600">Chunks</span> value is how many text segments were written to the
-                index (after chunking) — usually much larger than a single stage-3 <code className="font-mono text-[11px]">.md</code>{' '}
-                per document.
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-                {Object.entries(stageInfo).map(([stage, info]) => {
-                  const count = processedDisplay?.stage_totals?.[stage] ?? 0
-                  const colors = { sky: 'bg-sky-100 text-sky-700 border-sky-200', cyan: 'bg-cyan-100 text-cyan-700 border-cyan-200', blue: 'bg-blue-100 text-blue-700 border-blue-200', indigo: 'bg-indigo-100 text-indigo-700 border-indigo-200' }
-                  return (
-                    <div key={stage} className={`${colors[info.color]} border p-4 rounded-xl text-center relative`}>
-                      <div className="text-3xl font-bold mb-1">{count}</div>
-                      <div className="text-xs font-medium">{info.label}</div>
-                      {info.step < 4 && <ArrowRight className="hidden sm:block absolute -right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />}
-                    </div>
-                  )
-                })}
-              </div>
-
-              {(processedDisplay?.artifact_count ?? 0) > 0 || (files.processed?.length ?? 0) > 0 ? (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                  <div className="lg:col-span-4 space-y-2 max-h-[min(560px,70vh)] overflow-y-auto pr-1">
-                    <p className="text-sm font-semibold text-slate-600 mb-2">Your documents</p>
-                    {documentsForFilter.length > 0 ? (
-                      documentsForFilter.map((doc) => {
-                        const active = selectedProcessedDoc?.id === doc.id
-                        const badges = (processedDisplay?.stage_order || Object.keys(stageInfo)).filter((st) => (doc.stages?.[st]?.file_count || 0) > 0)
-                        return (
-                          <button
-                            key={doc.id}
-                            type="button"
-                            onClick={() => setSelectedProcessedDocId(doc.id)}
-                            className={`w-full text-left p-4 rounded-xl border transition-all ${active ? 'border-sky-400 bg-sky-50 ring-2 ring-sky-300/60 shadow-md' : 'border-slate-200 bg-white hover:border-sky-200 hover:shadow-sm'}`}
-                          >
-                            <p className="font-semibold text-slate-800 truncate" title={doc.display_name || doc.id}>{doc.display_name || doc.id}</p>
-                            <p className="text-xs text-slate-500 mt-1">{doc.total_files ?? 0} files</p>
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {badges.map((st) => {
-                                const inf = stageInfo[st] || { label: st, color: 'sky' }
-                                const cc = { sky: 'bg-sky-100 text-sky-800', cyan: 'bg-cyan-100 text-cyan-800', blue: 'bg-blue-100 text-blue-800', indigo: 'bg-indigo-100 text-indigo-800' }
-                                return (
-                                  <span key={st} className={`px-2 py-0.5 rounded text-[10px] font-medium ${cc[inf.color] || cc.sky}`}>{inf.label}</span>
-                                )
-                              })}
-                            </div>
-                          </button>
-                        )
-                      })
-                    ) : (
-                      <div className="text-center py-8 text-slate-400 text-sm">
-                        <AlertCircle className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                        No documents match this filter
-                      </div>
-                    )}
-                  </div>
-                  <div className="lg:col-span-8 min-h-[320px]">
-                    {processedDisplay?.root_files?.length > 0 && (
-                      <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
-                        <h4 className="text-sm font-semibold text-slate-700 mb-2">Workspace root files</h4>
-                        <ul className="text-xs text-slate-600 space-y-2 font-mono break-all">
-                          {processedDisplay.root_files.map((f, i) => (
-                            <li key={i} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white px-2 py-2">
-                              <span>
-                                {f.relative_path} <span className="text-slate-400">({f.size})</span>
-                              </span>
+                  {(processedDisplay?.artifact_count ?? 0) > 0 || (files.processed?.length ?? 0) > 0 ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                      <div className="lg:col-span-4 space-y-2 max-h-[min(560px,70vh)] overflow-y-auto pr-1">
+                        <p className="text-sm font-semibold text-slate-600 mb-2">Your documents</p>
+                        {documentsForFilter.length > 0 ? (
+                          documentsForFilter.map((doc) => {
+                            const active = selectedProcessedDoc?.id === doc.id
+                            const badges = (processedDisplay?.stage_order || Object.keys(stageInfo)).filter((st) => (doc.stages?.[st]?.file_count || 0) > 0)
+                            return (
                               <button
+                                key={doc.id}
                                 type="button"
-                                onClick={() => setProcessedPreviewFile(f)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 border border-sky-100 shrink-0"
+                                onClick={() => setSelectedProcessedDocId(doc.id)}
+                                className={`w-full text-left p-4 rounded-xl border transition-all ${active ? 'border-sky-400 bg-sky-50 ring-2 ring-sky-300/60 shadow-md' : 'border-slate-200 bg-white hover:border-sky-200 hover:shadow-sm'}`}
                               >
-                                <Eye className="w-3.5 h-3.5" />
-                                Preview
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {selectedProcessedDoc ? (
-                      <div className="space-y-5">
-                        <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                          <h4 className="text-lg font-bold text-slate-800 truncate">{selectedProcessedDoc.display_name || selectedProcessedDoc.id}</h4>
-                          <span className="text-sm text-slate-500 shrink-0">{selectedProcessedDoc.total_files} files</span>
-                        </div>
-                        {(processedDisplay?.stage_order || Object.keys(stageInfo)).map((stageKey) => {
-                          const stData = selectedProcessedDoc.stages?.[stageKey]
-                          if (!stData?.files?.length) return null
-                          const info = stageInfo[stageKey] || { label: stageKey, color: 'sky' }
-                          const headColors = { sky: 'border-sky-200 bg-sky-50/80', cyan: 'border-cyan-200 bg-cyan-50/80', blue: 'border-blue-200 bg-blue-50/80', indigo: 'border-indigo-200 bg-indigo-50/80' }
-                          return (
-                            <div key={stageKey} className={`rounded-xl border ${headColors[info.color] || headColors.sky} overflow-hidden`}>
-                              <div className="px-4 py-2 border-b border-white/60 flex justify-between items-start gap-3">
-                                <div className="min-w-0">
-                                  <span className="text-sm font-bold text-slate-800">{info.label}</span>
-                                  {info.blurb ? (
-                                    <p className="text-[11px] text-slate-500 mt-1 leading-snug">{info.blurb}</p>
-                                  ) : null}
+                                <p className="font-semibold text-slate-800 truncate" title={doc.display_name || doc.id}>{doc.display_name || doc.id}</p>
+                                <p className="text-xs text-slate-500 mt-1">{doc.total_files ?? 0} files</p>
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {badges.map((st) => {
+                                    const inf = stageInfo[st] || { label: st, color: 'sky' }
+                                    const cc = { sky: 'bg-sky-100 text-sky-800', cyan: 'bg-cyan-100 text-cyan-800', blue: 'bg-blue-100 text-blue-800', indigo: 'bg-indigo-100 text-indigo-800' }
+                                    return (
+                                      <span key={st} className={`px-2 py-0.5 rounded text-[10px] font-medium ${cc[inf.color] || cc.sky}`}>{inf.label}</span>
+                                    )
+                                  })}
                                 </div>
-                                <span className="text-xs text-slate-500 shrink-0">{stData.files.length} files</span>
-                              </div>
-                              <ul className="p-3 space-y-2 max-h-72 overflow-y-auto bg-white/90">
-                                {stData.files.map((f, i) => (
-                                  <li key={i} className="text-sm rounded-lg border border-slate-100 p-3 bg-white">
-                                    <div className="flex justify-between gap-2 items-start">
-                                      <span className="font-medium text-slate-800 truncate min-w-0">{f.name}</span>
-                                      <div className="flex items-center gap-2 shrink-0">
-                                        <button
-                                          type="button"
-                                          onClick={() => setProcessedPreviewFile(f)}
-                                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 border border-sky-100"
-                                        >
-                                          <Eye className="w-3.5 h-3.5" />
-                                          Preview
-                                        </button>
-                                        <span className="text-xs text-slate-400 whitespace-nowrap">{f.modified}</span>
-                                      </div>
-                                    </div>
-                                    <p className="text-xs text-slate-500 mt-1 break-all font-mono">{f.relative_path}</p>
-                                    <div className="flex justify-between mt-1 text-xs text-slate-400">
-                                      <span>{f.size}</span>
-                                      <span>{f.type || '—'}</span>
-                                    </div>
-                                    {f.preview ? (
-                                      <pre className="mt-2 text-xs text-slate-600 bg-slate-50 p-2 rounded max-h-28 overflow-auto whitespace-pre-wrap">{f.preview}</pre>
-                                    ) : null}
-                                  </li>
-                                ))}
-                              </ul>
+                              </button>
+                            )
+                          })
+                        ) : (
+                          <div className="text-center py-8 text-slate-400 text-sm">
+                            <AlertCircle className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                            No documents match this filter
+                          </div>
+                        )}
+                      </div>
+                      <div className="lg:col-span-8 min-h-[320px]">
+                        {processedDisplay?.root_files?.length > 0 && (
+                          <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <h4 className="text-sm font-semibold text-slate-700 mb-2">Workspace root files</h4>
+                            <ul className="text-xs text-slate-600 space-y-2 font-mono break-all">
+                              {processedDisplay.root_files.map((f, i) => (
+                                <li key={i} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white px-2 py-2">
+                                  <span>
+                                    {f.relative_path} <span className="text-slate-400">({f.size})</span>
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setProcessedPreviewFile(f)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 border border-sky-100 shrink-0"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                    Preview
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {selectedProcessedDoc ? (
+                          <div className="space-y-5">
+                            <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                              <h4 className="text-lg font-bold text-slate-800 truncate">{selectedProcessedDoc.display_name || selectedProcessedDoc.id}</h4>
+                              <span className="text-sm text-slate-500 shrink-0">{selectedProcessedDoc.total_files} files</span>
                             </div>
-                          )
-                        })}
+                            {(processedDisplay?.stage_order || Object.keys(stageInfo)).map((stageKey) => {
+                              const stData = selectedProcessedDoc.stages?.[stageKey]
+                              if (!stData?.files?.length) return null
+                              const info = stageInfo[stageKey] || { label: stageKey, color: 'sky' }
+                              const headColors = { sky: 'border-sky-200 bg-sky-50/80', cyan: 'border-cyan-200 bg-cyan-50/80', blue: 'border-blue-200 bg-blue-50/80', indigo: 'border-indigo-200 bg-indigo-50/80' }
+                              return (
+                                <div key={stageKey} className={`rounded-xl border ${headColors[info.color] || headColors.sky} overflow-hidden`}>
+                                  <div className="px-4 py-2 border-b border-white/60 flex justify-between items-start gap-3">
+                                    <div className="min-w-0">
+                                      <span className="text-sm font-bold text-slate-800">{info.label}</span>
+                                      {info.blurb ? (
+                                        <p className="text-[11px] text-slate-500 mt-1 leading-snug">{info.blurb}</p>
+                                      ) : null}
+                                    </div>
+                                    <span className="text-xs text-slate-500 shrink-0">{stData.files.length} files</span>
+                                  </div>
+                                  <ul className="p-3 space-y-2 max-h-72 overflow-y-auto bg-white/90">
+                                    {stData.files.map((f, i) => (
+                                      <li key={i} className="text-sm rounded-lg border border-slate-100 p-3 bg-white">
+                                        <div className="flex justify-between gap-2 items-start">
+                                          <span className="font-medium text-slate-800 truncate min-w-0">{f.name}</span>
+                                          <div className="flex items-center gap-2 shrink-0">
+                                            <button
+                                              type="button"
+                                              onClick={() => setProcessedPreviewFile(f)}
+                                              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 border border-sky-100"
+                                            >
+                                              <Eye className="w-3.5 h-3.5" />
+                                              Preview
+                                            </button>
+                                            <span className="text-xs text-slate-400 whitespace-nowrap">{f.modified}</span>
+                                          </div>
+                                        </div>
+                                        <p className="text-xs text-slate-500 mt-1 break-all font-mono">{f.relative_path}</p>
+                                        <div className="flex justify-between mt-1 text-xs text-slate-400">
+                                          <span>{f.size}</span>
+                                          <span>{f.type || ' '}</span>
+                                        </div>
+                                        {f.preview ? (
+                                          <pre className="mt-2 text-xs text-slate-600 bg-slate-50 p-2 rounded max-h-28 overflow-auto whitespace-pre-wrap">{f.preview}</pre>
+                                        ) : null}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+                            <Layers className="w-14 h-14 mb-3 opacity-25" />
+                            <p className="font-medium">Select a document</p>
+                            <p className="text-sm mt-1 text-center max-w-sm">Choose a folder on the left to see normalized → RAG-ready files in order.</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-slate-400">
+                      <Layers className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                      <p>No processed files yet</p>
+                      <p className="text-sm mt-2">Upload files and run processing to see results here</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ━━━ Indexed Files Tab ━━━ */}
+            {activeTab === 'indexed' && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                {/* Index Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Text Index */}
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-8 hover:shadow-lg hover:border-sky-200 transition-all duration-300">
+                    <div className="flex items-center space-x-4 mb-6">
+                      <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center"><FileText className="w-6 h-6 text-sky-600" /></div>
+                      <div><h3 className="font-semibold text-slate-800">Text Index</h3><p className="text-sm text-slate-400">BM25 + Qdrant dense + hybrid</p></div>
+                    </div>
+                    {pipelineStatus?.text_index ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="p-4 bg-sky-50 rounded-xl border border-sky-100"><div className="text-sm text-sky-600 font-medium mb-1">Chunks</div><p className="text-3xl font-bold text-sky-700">{pipelineStatus.text_index.chunks || 0}</p></div>
+                          <div className="p-4 bg-blue-50 rounded-xl border border-blue-100"><div className="text-sm text-blue-600 font-medium mb-1">Documents</div><p className="text-3xl font-bold text-blue-700">{pipelineStatus.text_index.docs || 0}</p></div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {pipelineStatus.text_index.retrievers?.map((r, i) => <span key={i} className="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-lg text-sm font-medium">{r}</span>)}
+                        </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-                        <Layers className="w-14 h-14 mb-3 opacity-25" />
-                        <p className="font-medium">Select a document</p>
-                        <p className="text-sm mt-1 text-center max-w-sm">Choose a folder on the left to see normalized → RAG-ready files in order.</p>
+                      <div className="text-center py-6"><AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" /><p className="text-slate-400 text-sm">No text index available</p></div>
+                    )}
+                  </div>
+
+                  {/* Image Index */}
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-8 hover:shadow-lg hover:border-sky-200 transition-all duration-300">
+                    <div className="flex items-center space-x-4 mb-6">
+                      <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center"><Image className="w-6 h-6 text-indigo-600" /></div>
+                      <div><h3 className="font-semibold text-slate-800">Image Index</h3><p className="text-sm text-slate-400">ColQwen → Qdrant (MaxSim)</p></div>
+                    </div>
+                    {pipelineStatus?.image_index ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100"><div className="text-sm text-indigo-600 font-medium mb-1">Pages</div><p className="text-3xl font-bold text-indigo-700">{pipelineStatus.image_index.pages || 0}</p></div>
+                          <div className="p-4 bg-purple-50 rounded-xl border border-purple-100"><div className="text-sm text-purple-600 font-medium mb-1">Vector DB</div><p className="text-lg font-bold text-purple-700 leading-tight">{pipelineStatus.image_index.vector_store || 'qdrant'}</p></div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium">ColQwen</span>
+                          <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium">MaxSim</span>
+                        </div>
                       </div>
+                    ) : (
+                      <div className="text-center py-6"><AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" /><p className="text-slate-400 text-sm">No image index available</p></div>
                     )}
                   </div>
                 </div>
-              ) : (
-                <div className="text-center py-12 text-slate-400">
-                  <Layers className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                  <p>No processed files yet</p>
-                  <p className="text-sm mt-2">Upload files and run processing to see results here</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
-        {/* ━━━ Indexed Files Tab ━━━ */}
-        {activeTab === 'indexed' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
-            {/* Index Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Text Index */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-8 hover:shadow-lg hover:border-sky-200 transition-all duration-300">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center"><FileText className="w-6 h-6 text-sky-600" /></div>
-                  <div><h3 className="font-semibold text-slate-800">Text Index</h3><p className="text-sm text-slate-400">BM25 + Qdrant dense + hybrid</p></div>
-                </div>
-                {pipelineStatus?.text_index ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 bg-sky-50 rounded-xl border border-sky-100"><div className="text-sm text-sky-600 font-medium mb-1">Chunks</div><p className="text-3xl font-bold text-sky-700">{pipelineStatus.text_index.chunks || 0}</p></div>
-                      <div className="p-4 bg-blue-50 rounded-xl border border-blue-100"><div className="text-sm text-blue-600 font-medium mb-1">Documents</div><p className="text-3xl font-bold text-blue-700">{pipelineStatus.text_index.docs || 0}</p></div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {pipelineStatus.text_index.retrievers?.map((r, i) => <span key={i} className="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-lg text-sm font-medium">{r}</span>)}
+                {/* Indexed Files List */}
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-lg font-semibold text-slate-800 flex items-center space-x-3">
+                      <Database className="w-5 h-5 text-sky-500" /><span>Indexed Documents</span>
+                    </h2>
+                    <div className="flex items-center space-x-2">
+                      <button onClick={() => handleRebuildSpecificIndex('text')} disabled={loading}
+                        className="px-4 py-2.5 bg-sky-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-sky-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95" title="Rebuild text index only">
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}<span>Rebuild Text</span>
+                      </button>
+                      <button onClick={() => handleRebuildSpecificIndex('image')} disabled={loading}
+                        className="px-4 py-2.5 bg-indigo-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-indigo-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95" title="Rebuild image index only">
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}<span>Rebuild Image</span>
+                      </button>
+                      <button onClick={handleIndex} disabled={loading}
+                        className="px-4 py-2.5 bg-slate-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-slate-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95" title="Rebuild all indexes">
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}<span>Rebuild All</span>
+                      </button>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-center py-6"><AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" /><p className="text-slate-400 text-sm">No text index available</p></div>
-                )}
-              </div>
 
-              {/* Image Index */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-8 hover:shadow-lg hover:border-sky-200 transition-all duration-300">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center"><Image className="w-6 h-6 text-indigo-600" /></div>
-                  <div><h3 className="font-semibold text-slate-800">Image Index</h3><p className="text-sm text-slate-400">ColQwen → Qdrant (MaxSim)</p></div>
-                </div>
-                {pipelineStatus?.image_index ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100"><div className="text-sm text-indigo-600 font-medium mb-1">Pages</div><p className="text-3xl font-bold text-indigo-700">{pipelineStatus.image_index.pages || 0}</p></div>
-                      <div className="p-4 bg-purple-50 rounded-xl border border-purple-100"><div className="text-sm text-purple-600 font-medium mb-1">Vector DB</div><p className="text-lg font-bold text-purple-700 leading-tight">{pipelineStatus.image_index.vector_store || 'qdrant'}</p></div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium">ColQwen</span>
-                      <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium">MaxSim</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-6"><AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" /><p className="text-slate-400 text-sm">No image index available</p></div>
-                )}
-              </div>
-            </div>
-
-            {/* Indexed Files List */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-sky-100 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-slate-800 flex items-center space-x-3">
-                  <Database className="w-5 h-5 text-sky-500" /><span>Indexed Documents</span>
-                </h2>
-                <div className="flex items-center space-x-2">
-                  <button onClick={() => handleRebuildSpecificIndex('text')} disabled={loading}
-                    className="px-4 py-2.5 bg-sky-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-sky-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95" title="Rebuild text index only">
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}<span>Rebuild Text</span>
-                  </button>
-                  <button onClick={() => handleRebuildSpecificIndex('image')} disabled={loading}
-                    className="px-4 py-2.5 bg-indigo-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-indigo-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95" title="Rebuild image index only">
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}<span>Rebuild Image</span>
-                  </button>
-                  <button onClick={handleIndex} disabled={loading}
-                    className="px-4 py-2.5 bg-slate-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-slate-200/50 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95" title="Rebuild all indexes">
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}<span>Rebuild All</span>
-                  </button>
-                </div>
-              </div>
-
-              {files.indexed?.length > 0 ? (
-                <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                  {files.indexed.map((file, idx) => (
-                    <div key={idx} className={`p-4 rounded-xl border transition-all duration-200 hover:shadow-md ${file.type === 'image' ? 'bg-indigo-50 border-indigo-100 hover:border-indigo-200' : 'bg-sky-50 border-sky-100 hover:border-sky-200'}`}>
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center space-x-3 min-w-0 flex-1">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${file.type === 'image' ? 'bg-indigo-100' : 'bg-sky-100'}`}>
-                            {file.type === 'image' ? <Image className="w-5 h-5 text-indigo-600" /> : <FileText className="w-5 h-5 text-sky-600" />}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-medium text-slate-800 break-all">{file.name}</p>
-                            <p className="text-sm text-slate-400">{file.type === 'image' ? `${file.pages} pages` : `${file.chunks} chunks`}</p>
+                  {files.indexed?.length > 0 ? (
+                    <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                      {files.indexed.map((file, idx) => (
+                        <div key={idx} className={`p-4 rounded-xl border transition-all duration-200 hover:shadow-md ${file.type === 'image' ? 'bg-indigo-50 border-indigo-100 hover:border-indigo-200' : 'bg-sky-50 border-sky-100 hover:border-sky-200'}`}>
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center space-x-3 min-w-0 flex-1">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${file.type === 'image' ? 'bg-indigo-100' : 'bg-sky-100'}`}>
+                                {file.type === 'image' ? <Image className="w-5 h-5 text-indigo-600" /> : <FileText className="w-5 h-5 text-sky-600" />}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-medium text-slate-800 break-all">{file.name}</p>
+                                <p className="text-sm text-slate-400">{file.type === 'image' ? `${file.pages} pages` : `${file.chunks} chunks`}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              {file.type === 'text' && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveTextFromIndex(file.name)}
+                                  disabled={loading}
+                                  className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-40"
+                                  title="Remove this source from text index (Qdrant + BM25)"
+                                >
+                                  <Trash2 className="w-5 h-5" />
+                                </button>
+                              )}
+                              {file.type === 'image' && (
+                                <button
+                                  type="button"
+                                  onClick={handleClearImageIndex}
+                                  disabled={loading}
+                                  className="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg border border-red-100 disabled:opacity-40"
+                                  title="Remove all pages from vision index"
+                                >
+                                  Clear vision index
+                                </button>
+                              )}
+                              <span className={`px-3 py-1.5 rounded-lg text-sm font-medium ${file.type === 'image' ? 'bg-indigo-100 text-indigo-700' : 'bg-sky-100 text-sky-700'}`}>
+                                {file.type === 'image' ? 'Vision' : 'Text'}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {file.type === 'text' && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveTextFromIndex(file.name)}
-                              disabled={loading}
-                              className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-40"
-                              title="Remove this source from text index (Qdrant + BM25)"
-                            >
-                              <Trash2 className="w-5 h-5" />
-                            </button>
-                          )}
-                          {file.type === 'image' && (
-                            <button
-                              type="button"
-                              onClick={handleClearImageIndex}
-                              disabled={loading}
-                              className="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg border border-red-100 disabled:opacity-40"
-                              title="Remove all pages from vision index"
-                            >
-                              Clear vision index
-                            </button>
-                          )}
-                          <span className={`px-3 py-1.5 rounded-lg text-sm font-medium ${file.type === 'image' ? 'bg-indigo-100 text-indigo-700' : 'bg-sky-100 text-sky-700'}`}>
-                            {file.type === 'image' ? 'Vision' : 'Text'}
-                          </span>
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    <div className="text-center py-12 text-slate-400">
+                      <Database className="w-12 h-12 mx-auto mb-3 opacity-20" /><p>No indexed documents</p>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="text-center py-12 text-slate-400">
-                  <Database className="w-12 h-12 mx-auto mb-3 opacity-20" /><p>No indexed documents</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+              </div>
+            )}
 
-        {/* ━━━ Search Tab ━━━ */}
-        {activeTab === 'search' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
-            <SearchBar query={query} setQuery={setQuery} onSearch={handleSearch} searchLoading={searchLoading} />
+            {/* ━━━ Search Tab ━━━ */}
+            {activeTab === 'search' && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                <SearchBar query={query} setQuery={setQuery} onSearch={handleSearch} searchLoading={searchLoading} />
 
-            {results && (
-              <div className="space-y-6">
-                <AnswerPanel answer={results.answer} onCitationClick={handleCitationClick} />
+                {results && (
+                  <div className="space-y-6">
+                    <AnswerPanel answer={results.answer} onCitationClick={handleCitationClick} />
 
-                {/* Citations */}
-                {results.contents && Object.keys(results.contents).length > 0 && (
-                  <div id="citations-section" className="bg-white rounded-2xl shadow-sm border border-sky-100 p-8">
-                    <h3 className="text-lg font-semibold mb-6 flex items-center space-x-3 text-slate-800">
-                      <Hash className="w-5 h-5 text-sky-500" /><span>Citations</span>
-                    </h3>
-                    
-                    {/* Text Citations */}
-                    {Object.entries(results.contents).filter(([, v]) => v.type === 'text').length > 0 && (
-                      <div className="mb-8">
-                        <h4 className="text-md font-semibold mb-4 text-slate-700 flex items-center space-x-2">
-                          <FileText className="w-4 h-4 text-sky-500" /><span>Text Chunks</span>
-                        </h4>
-                        <div className="space-y-3">
-                          {Object.entries(results.contents).filter(([, v]) => v.type === 'text').map(([citationKey, citation]) => (
-                            <CitationCard
-                              key={citationKey}
-                              citationKey={citationKey}
-                              citation={citation}
-                              expanded={expandedCitations[citationKey]}
-                              onToggle={toggleCitationExpand}
-                              metadataExpanded={expandedCitationMetadata[citationKey]}
-                              onToggleMetadata={toggleCitationMetadata}
-                              contentExpanded={expandedCitationContent[citationKey]}
-                              onExpandContent={(key) => setExpandedCitationContent(prev => ({ ...prev, [key]: true }))}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    {/* Citations */}
+                    {results.contents && Object.keys(results.contents).length > 0 && (
+                      <div id="citations-section" className="bg-white rounded-2xl shadow-sm border border-sky-100 p-8">
+                        <h3 className="text-lg font-semibold mb-6 flex items-center space-x-3 text-slate-800">
+                          <Hash className="w-5 h-5 text-sky-500" /><span>Citations</span>
+                        </h3>
 
-                    {/* Image Citations */}
-                    {Object.entries(results.contents).filter(([, v]) => v.type === 'image').length > 0 && (
-                      <div>
-                        <h4 className="text-md font-semibold mb-4 text-slate-700 flex items-center space-x-2">
-                          <Image className="w-4 h-4 text-indigo-500" /><span>Images</span>
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {Object.entries(results.contents).filter(([, v]) => v.type === 'image').map(([citationKey, citation]) => (
-                            <ImageCitation
-                              key={citationKey}
-                              citationKey={citationKey}
-                              citation={citation}
-                              expanded={expandedCitations[citationKey]}
-                              onToggle={toggleCitationExpand}
-                              metadataExpanded={expandedCitationMetadata[citationKey]}
-                              onToggleMetadata={toggleCitationMetadata}
-                              apiBase={API_BASE}
-                            />
-                          ))}
-                        </div>
+                        {/* Text Citations */}
+                        {Object.entries(results.contents).filter(([, v]) => v.type === 'text').length > 0 && (
+                          <div className="mb-8">
+                            <h4 className="text-md font-semibold mb-4 text-slate-700 flex items-center space-x-2">
+                              <FileText className="w-4 h-4 text-sky-500" /><span>Text Chunks</span>
+                            </h4>
+                            <div className="space-y-3">
+                              {Object.entries(results.contents).filter(([, v]) => v.type === 'text').map(([citationKey, citation]) => (
+                                <CitationCard
+                                  key={citationKey}
+                                  citationKey={citationKey}
+                                  citation={citation}
+                                  expanded={expandedCitations[citationKey]}
+                                  onToggle={toggleCitationExpand}
+                                  metadataExpanded={expandedCitationMetadata[citationKey]}
+                                  onToggleMetadata={toggleCitationMetadata}
+                                  contentExpanded={expandedCitationContent[citationKey]}
+                                  onExpandContent={(key) => setExpandedCitationContent(prev => ({ ...prev, [key]: true }))}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Image Citations */}
+                        {Object.entries(results.contents).filter(([, v]) => v.type === 'image').length > 0 && (
+                          <div>
+                            <h4 className="text-md font-semibold mb-4 text-slate-700 flex items-center space-x-2">
+                              <Image className="w-4 h-4 text-indigo-500" /><span>Images</span>
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {Object.entries(results.contents).filter(([, v]) => v.type === 'image').map(([citationKey, citation]) => (
+                                <ImageCitation
+                                  key={citationKey}
+                                  citationKey={citationKey}
+                                  citation={citation}
+                                  expanded={expandedCitations[citationKey]}
+                                  onToggle={toggleCitationExpand}
+                                  metadataExpanded={expandedCitationMetadata[citationKey]}
+                                  onToggleMetadata={toggleCitationMetadata}
+                                  apiBase={API_BASE}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
                 )}
               </div>
             )}
-          </div>
-        )}
 
-        {activeTab === 'insights' && (
-          <InsightsPanel apiBase={API_BASE} processedLayout={processedDisplay} />
-        )}
+            {activeTab === 'insights' && (
+              <InsightsPanel apiBase={API_BASE} processedLayout={processedDisplay} />
+            )}
           </>
         )}
       </div>
@@ -1217,7 +1216,7 @@ function App() {
             </div>
             <div className="p-6">
               <div className="bg-slate-50 rounded-xl overflow-hidden">
-                <img 
+                <img
                   src={`${API_BASE}/pdf-page-image?pdf_name=${encodeURIComponent(previewImage.source)}&page=${previewImage.page}`}
                   alt={`Page ${previewImage.page} of ${previewImage.source}`}
                   className="w-full h-auto"

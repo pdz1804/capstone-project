@@ -1,4 +1,4 @@
-# Phase 2 AI Service — Backend
+# Phase 2 AI Service   Backend
 
 ## Architecture
 
@@ -21,8 +21,8 @@ config/default.yaml    # Pipeline + Qdrant + inference settings
 
 Set `FILE_STORAGE_BACKEND` in `.env` (see `.env.example`).
 
-- **Local** — `backend/input` and `backend/output` are created and used end-to-end.
-- **S3** — uploads and published artifacts live in **S3**; the pipeline syncs to a **per-user directory under the system temp folder** for Docling/pdf2image/ColQwen. Logs may show those temp paths even when citations show `s3://...` (pdf2image reads local files; S3 is the durable object store).
+- **Local**   `backend/input` and `backend/output` are created and used end-to-end.
+- **S3**   uploads and published artifacts live in **S3**; the pipeline syncs to a **per-user directory under the system temp folder** for Docling/pdf2image/ColQwen. Logs may show those temp paths even when citations show `s3://...` (pdf2image reads local files; S3 is the durable object store).
 
 Per-user isolation: HTTP header **`X-User-Id`**. S3 keys default to `users/<id>/...` under your configured prefixes (`S3_USER_ISOLATION=true`).
 
@@ -50,7 +50,7 @@ install_requirements.bat
 
 If `myenv` lives elsewhere, set **`MYENV_PYTHON`** to that `python.exe`, then run `install_requirements.ps1` again.
 
-Always prefer **`python -m pip`** for the venv you intend — avoid a global `pip` that points at another Python.
+Always prefer **`python -m pip`** for the venv you intend   avoid a global `pip` that points at another Python.
 
 ## Run locally
 
@@ -92,7 +92,7 @@ All **`/api/*`** routes (except where noted) respect the storage user from heade
 
 | Method | Path | Query / body | Response / notes |
 |--------|------|--------------|------------------|
-| GET | `/api/files` | **`quick`** (bool): if `true`, only lists **input/**; skips processed scan, `documents.json`, and Qdrant image count (faster right after upload). | `{ "input": [...], "processed": [...], "indexed": [...] }` — flat rows with paths, sizes, stages where applicable. |
+| GET | `/api/files` | **`quick`** (bool): if `true`, only lists **input/**; skips processed scan, `documents.json`, and Qdrant image count (faster right after upload). | `{ "input": [...], "processed": [...], "indexed": [...] }`   flat rows with paths, sizes, stages where applicable. |
 | GET | `/api/processed-documents` | **`preview`** (bool): if `true`, embed short text snippets for `.md` / `.json` / `.txt` (slower on large trees). | Snapshot: **`input_file_count`**, **`artifact_count`**, **`document_count`** (sidebar rows including pipeline-wide group), **`named_document_folders`** (stage3/4 document folders only), **`stage_order`**, **`stage_totals`**, **`root_files`**, **`documents`** (each with `id`, `display_name`, `total_files`, **`stages`** map per pipeline stage with `file_count` + `files` rows), **`count_hints`**. Each file row includes **`relative_path`** (posix, under `processing/`), **`name`**, **`size`**, **`size_bytes`**, **`modified`**, **`type`**, **`storage`**. |
 | GET | `/api/processed-file` | **`rel_path`** (required): path under **`processing/`** using forward slashes, e.g. `stage3_document_processed/MyDoc/MyDoc.md` or `.processing_cache.json`. No `..` or empty segments. | Raw bytes, **`Content-Type`** from file or object metadata, **`Content-Disposition: inline`**. **403** if path escapes processing tree or S3 key outside prefix; **404** missing; **413** if larger than **`MAX_PROCESSED_FILE_PREVIEW_BYTES`** (default 50MB). |
 | POST | `/api/upload` | `multipart/form-data`, field **`files`** (repeatable). | `{ "uploaded", "count", "files" }`. |
@@ -150,13 +150,13 @@ Optional: `pytest -m unit` (markers in `pytest.ini`). Pass extra pytest args to 
 
 Use the same **`X-User-Id`** (if any) for upload → process → index → search.
 
-1. `POST /api/upload` — **local:** `backend/input/` · **S3:** object in originals bucket (+ sync to temp input on process).
-2. `POST /api/process` — normalization → **local:** `backend/output/processing/...` · **S3:** temp workspace then `publish` to processed bucket.
-3. `POST /api/index` (or text + image separately) — builds Qdrant collections, **`documents.json`**, BM25. With S3, chunk/image metadata gets **`storage_uri`** for UI citations (re-run index after changing storage or paths).
+1. `POST /api/upload`   **local:** `backend/input/` · **S3:** object in originals bucket (+ sync to temp input on process).
+2. `POST /api/process`   normalization → **local:** `backend/output/processing/...` · **S3:** temp workspace then `publish` to processed bucket.
+3. `POST /api/index` (or text + image separately)   builds Qdrant collections, **`documents.json`**, BM25. With S3, chunk/image metadata gets **`storage_uri`** for UI citations (re-run index after changing storage or paths).
 
 ## Search / generation and “local rendering”
 
-`/api/search` loads text models and (if enabled) **ColQwen** on the API host, queries **Qdrant Cloud** (or self-hosted), and may call **pdf2image** on **local paths** under the user workspace to build images for the vision LLM. That does **not** mean PDFs are “processed only locally forever” — S3 holds the published PDFs; the temp copy is what Poppler and the generator open.
+`/api/search` loads text models and (if enabled) **ColQwen** on the API host, queries **Qdrant Cloud** (or self-hosted), and may call **pdf2image** on **local paths** under the user workspace to build images for the vision LLM. That does **not** mean PDFs are “processed only locally forever”   S3 holds the published PDFs; the temp copy is what Poppler and the generator open.
 
 ## Inference: local vs SageMaker
 

@@ -1,11 +1,11 @@
 """
-config.py — Central Configuration (supports Docker + Qdrant Cloud)
+config.py   Central Configuration (supports Docker + Qdrant Cloud)
 ====================================================================
 
 This module loads all settings from a .env file (using python-dotenv)
 and exposes them as a clean Python dataclass called `Config`.
 
-TWO MODES — controlled by QDRANT_MODE in your .env:
+TWO MODES   controlled by QDRANT_MODE in your .env:
 
   QDRANT_MODE=docker
     Connects to a local Qdrant container via host:port (no API key).
@@ -83,7 +83,7 @@ class Config:
     # -----------------------------------------------------------
 
     # Hostname where the Qdrant Docker container is reachable
-    # Default is localhost — override if running Docker on a remote machine
+    # Default is localhost   override if running Docker on a remote machine
     qdrant_host: str = field(
         default_factory=lambda: os.getenv("QDRANT_HOST", "localhost")
     )
@@ -122,7 +122,7 @@ class Config:
     # COLPALI / COLQWEN MODEL
     # -----------------------------------------------------------
 
-    # HuggingFace model ID — must match Phase_2 config
+    # HuggingFace model ID   must match Phase_2 config
     colqwen_model: str = field(
         default_factory=lambda: os.getenv("COLQWEN_MODEL", "vidore/colqwen2-v1.0")
     )
@@ -169,12 +169,12 @@ class Config:
     # - "float32"  : always safe, even on CPU (2x more RAM than float16)
     torch_dtype: str = "bfloat16"
 
-    # Model weight quantization (uses BitsAndBytes — same options as Phase_2)
+    # Model weight quantization (uses BitsAndBytes   same options as Phase_2)
     # NOTE: This is DIFFERENT from Qdrant's vector storage quantization!
     #   - Model weight quantization  → reduces GPU memory used by the neural network
     #   - Qdrant storage quantization → reduces disk/RAM used by stored vectors in DB
     load_in_4bit: bool = False   # 4-bit NF4 quantization (needs bitsandbytes)
-    # 8-bit int8 is ON by default — ~8 GB VRAM instead of ~16 GB, minimal accuracy loss.
+    # 8-bit int8 is ON by default   ~8 GB VRAM instead of ~16 GB, minimal accuracy loss.
     # BitsAndBytes handles device placement; the explicit .to("cuda") is skipped automatically.
     # Set False only if bitsandbytes is not installed or you want full bfloat16 precision.
     load_in_8bit: bool = True    # 8-bit LLM.int8() quantization (needs bitsandbytes)
@@ -182,8 +182,8 @@ class Config:
     # -----------------------------------------------------------
     # INFERENCE MODE
     # -----------------------------------------------------------
-    # "local"  — load ColQwen2 directly on this machine (requires a GPU).
-    # "remote" — call a remote HTTP API server that hosts the model on a GPU.
+    # "local"    load ColQwen2 directly on this machine (requires a GPU).
+    # "remote"   call a remote HTTP API server that hosts the model on a GPU.
     #            Set INFERENCE_URL to the server base URL, e.g. http://10.0.0.5:8080
     #
     # The remote server must expose:
@@ -286,7 +286,7 @@ class Config:
 
     def __repr__(self) -> str:
         """
-        Safe string representation — masks the API key so it's not accidentally logged.
+        Safe string representation   masks the API key so it's not accidentally logged.
         """
         key = self.qdrant_api_key
         masked = (key[:6] + "..." + key[-4:]) if len(key) > 10 else "***"

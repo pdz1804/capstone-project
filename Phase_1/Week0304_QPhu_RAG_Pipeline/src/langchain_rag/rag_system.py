@@ -164,7 +164,7 @@ class LangChainRAG:
         
         # Split documents
         split_docs = text_splitter.split_documents(langchain_docs)
-        # Do not stop vector_processing_time here — embedding and index creation
+        # Do not stop vector_processing_time here   embedding and index creation
         # are performed in create_vector_store() and should be included in the
         # combined vector_processing_time. We'll stop the timer there.
             

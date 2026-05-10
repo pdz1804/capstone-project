@@ -142,7 +142,7 @@ def _split_into_segments(text: str) -> List[Dict[str, Any]]:
 
         end_idx = remaining.find(TABLE_CONTENT_END, start_idx)
         if end_idx == -1:
-            # Malformed — treat rest as text
+            # Malformed   treat rest as text
             segments.append({"type": "text", "content": remaining[start_idx:]})
             break
 
@@ -290,7 +290,7 @@ class DocxTableChunker(TextChunker):
         raw = IMAGE_PATH_PATTERN.findall(text)
         paths: List[str] = []
         for entry in raw:
-            # Format is: path|hash  —  we want just the path
+            # Format is: path|hash     we want just the path
             parts = entry.strip().split("|")
             if parts:
                 paths.append(parts[0].strip())
@@ -367,7 +367,7 @@ class DocxTableChunker(TextChunker):
                         },
                     })
             else:
-                # Plain text segment — use formula-aware splitter so that
+                # Plain text segment   use formula-aware splitter so that
                 # $\n...\n$ blocks are never cut across chunk boundaries.
                 text_parts = _split_text_formula_aware(
                     super().split_text, seg["content"]
