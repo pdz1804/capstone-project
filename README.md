@@ -48,9 +48,9 @@ For HTTPS and custom domains on AWS, see [`docs/deployment-alb-acm-custom-domain
 
 ### AWS Deployment Architecture
 
-The latest deployment architecture (v3) shows production-grade cloud infrastructure on AWS with ECS Fargate, ALB, ElastiCache, vector databases, and auto-scaling:
+The latest deployment architecture (v4) shows production-grade cloud infrastructure on AWS with ECS Fargate, ALB, ElastiCache, vector databases, and auto-scaling:
 
-![AWS Deployment Architecture Diagram](docs/diagram/Deployment%20Diagram_v3.png)
+![AWS Deployment Architecture Diagram](docs/diagram/Deployment%20Diagram_v4.png)
 
 **Additional Diagrams:**
 - [`docs/diagram/`](docs/diagram/)   Complete diagram collection including document processing flows and system documentation
@@ -425,6 +425,6 @@ Open-source models, APIs, and platforms that this codebase builds on (see also T
 ---
 
 **Version:** 1.0
-**Last Updated:** May 7, 2026
+**Last Updated:** May 10, 2026
 
 **Team:** MKhoi, NKhoi, QPhu.
