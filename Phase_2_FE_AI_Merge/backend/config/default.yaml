@@ -73,6 +73,17 @@ processing:
     export_markdown: true
     export_images: false            # Disable image extraction to reduce processing time
     export_tables: false            # Disable table extraction to reduce processing time
+    v2:
+      prefer_custom_readers: true
+      excel_reader_mode: "xml"
+      pptx_llm_validate_headers: false
+      pdf_content_source: "hybrid"
+      pdf_docling_batch_size: 8
+      pdf_max_docling_concurrency: null
+      pdf_docling_batched_min_pages: 12
+      pdf_do_formula_enrichment: false
+      pdf_vlm_page_filter: "visual_or_formula_pages"
+      pdf_vlm_batch_size: 4
 
 # ============================================================================
 # ASYNC INDEXING JOB CONFIGURATION

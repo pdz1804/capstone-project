@@ -107,9 +107,17 @@ class NormalizerConfig:
     # PDF generation settings
     pdf_page_size: str = "A4"          # A4 or letter
     pdf_margin: float = 0.75           # Margin in inches
-    pdf_content_source: str = "hybrid" # pymupdf | docling | hybrid for born-digital PDF content
+    pdf_content_source: str = "hybrid" # pymupdf | docling | hybrid | hybrid_batched for born-digital PDF content
     pdf_reader_enable_ocr: bool = False
     pdf_reader_extract_images: bool = False
+    pdf_docling_batch_size: int = 8
+    pdf_max_docling_concurrency: Optional[int] = None
+    pdf_docling_batched_min_pages: int = 12
+    pdf_reader_enable_vlm: bool = False
+    pdf_do_formula_enrichment: bool = False
+    pdf_vlm_model: str = "HuggingFaceTB/SmolVLM-256M-Instruct"
+    pdf_vlm_batch_size: int = 4
+    pdf_vlm_page_filter: str = "visual_or_formula_pages"
     runtime_yaml: Optional[Dict] = None
     
     # Output organization
@@ -946,7 +954,7 @@ class DocumentNormalizer:
                 or self.config.pdf_content_source
                 or "hybrid"
             ).strip().lower()
-            if content_source not in {"pymupdf", "docling", "hybrid"}:
+            if content_source not in {"pymupdf", "docling", "hybrid", "hybrid_batched"}:
                 print(
                     f"  WARNING: invalid PDF_READER_CONTENT_SOURCE={content_source!r}; "
                     "falling back to hybrid"
@@ -967,6 +975,14 @@ class DocumentNormalizer:
                     extract_tables=False,
                     content_source=content_source,
                     runtime_yaml=self.config.runtime_yaml,
+                    docling_batch_size=self.config.pdf_docling_batch_size,
+                    max_docling_concurrency=self.config.pdf_max_docling_concurrency,
+                    docling_batched_min_pages=self.config.pdf_docling_batched_min_pages,
+                    enable_vlm=self.config.pdf_reader_enable_vlm,
+                    do_formula_enrichment=self.config.pdf_do_formula_enrichment,
+                    vlm_model=self.config.pdf_vlm_model,
+                    vlm_batch_size=self.config.pdf_vlm_batch_size,
+                    vlm_page_filter=self.config.pdf_vlm_page_filter,
                 )
             )
             tree = reader.read(
