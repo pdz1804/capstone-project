@@ -32,6 +32,7 @@ from app.services.colqwen_inference import ColQwenInferenceService
 from app.services.document_chunks import load_documents_for_indexing
 from app.storage import get_file_storage
 from app.storage.service import S3FileStorage
+from src.processor.utils import sanitize_filename_stem
 
 logger = logging.getLogger(__name__)
 
@@ -94,8 +95,13 @@ def _stem(name: str) -> str:
     return p.stem.lower() if p.suffix else p.name.lower()
 
 
+def _stem_original_case(name: str) -> str:
+    p = Path((name or "").strip())
+    return p.stem if p.suffix else p.name
+
+
 def _normalizer_safe_stem(stem: str, max_length: int = 50) -> str:
-    s = (stem or "").strip()
+    s = sanitize_filename_stem(stem or "")
     if not s:
         return "untitled"
     if len(s) <= max_length:
@@ -113,13 +119,13 @@ def _build_selection(selected_paths: Sequence[str] | None, selected_names: Seque
         if n:
             names.add(n)
             stems.add(_stem(n))
-            stems.add(_normalizer_safe_stem(_stem(n)))
+            stems.add(_normalizer_safe_stem(_stem_original_case(_name_from_path_or_uri(raw))))
     for raw in (selected_names or []):
         n = _name_from_path_or_uri(raw).lower()
         if n:
             names.add(n)
             stems.add(_stem(n))
-            stems.add(_normalizer_safe_stem(_stem(n)))
+            stems.add(_normalizer_safe_stem(_stem_original_case(_name_from_path_or_uri(raw))))
     return names, stems
 
 
