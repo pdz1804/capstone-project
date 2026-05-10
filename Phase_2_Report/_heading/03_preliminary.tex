@@ -66,7 +66,7 @@ Automatic Speech Recognition (ASR) converts spoken language into text. It has ev
     \label{fig:ASR_Pipeline}
 \end{figure}
 
-ASR is the task of converting an acoustic signal into a sequence of words. Formally, the goal of an ASR system is to determine the most probable word sequence $\hat{W}$ given an input acoustic observation $X$
+ASR is the task of converting an acoustic signal into a sequence of words. In simple terms, the system tries to find the sequence of words (W) that is most likely given the audio (X). It looks for: "What words would most likely produce this audio sound?" Formally, the goal of an ASR system is to determine the most probable word sequence $\hat{W}$ given an input acoustic observation $X$
 
 \begin{equation*}
     \hat{W} = \arg\max_{W} P(W|X).
@@ -92,7 +92,7 @@ Early ASR systems used Gaussian Mixture Models with Hidden Markov Models (GMM--H
 
 End-to-end ASR directly maps audio to text with a single neural model. The main paradigms are CTC, which removes the need for frame-level alignments~\cite{graves2006ctc}; attention-based encoder--decoder models such as LAS, which model output dependencies through attention~\cite{chan2015las}; and transducer models such as RNN-T, which support streaming and low-latency inference~\cite{graves2012rnnt, he2019transformertransducer}.
 
-End-to-End ASR using Connectionist Temporal Classification (CTC) models the probability of a label sequence $Y$ by summing over all possible alignments $\pi$ that collapse to $Y$
+End-to-End ASR using Connectionist Temporal Classification (CTC) is a technique that helps the model learn to match audio to text without being told exactly where each letter occurs in the audio. It's like finding the transcript without needing word-by-word timestamps. CTC models the probability of a label sequence $Y$ by summing over all possible alignments $\pi$ that collapse to $Y$
 
 \begin{equation*}
     P(Y|X) = \sum_{\pi \in \mathcal{B}^{-1}(Y)} P(\pi|X)
@@ -190,6 +190,9 @@ Key research directions include self-supervised learning to reduce labeled-data 
 
 \section{Transformer}
 \label{sec:transformer}
+
+Transformers are a breakthrough AI architecture used in modern language and vision models. Understanding how they work helps explain why our system is effective. Before diving into details, here's the structure:
+
 The Transformer model described in this section is based on \emph{Attention Is All You Need}~\cite{vaswani2017attentionNeurIPS}. It replaces recurrent sequence processing with self-attention, enabling parallel training and effective modeling of long-range dependencies in tasks such as translation, generation, and language understanding.
 
 \begin{figure}[H]
@@ -264,7 +267,7 @@ This mechanism allows the model to capture multiple types of relationships simul
 
 Specialized retrieval pipelines often need to combine visual, audio, motion, and ASR-text signals rather than relying on a single encoder. For video retrieval, M2HF uses multi-stream feature extraction, attentional fusion, and multi-level feature/decision fusion to produce richer retrieval signals~\cite{liu2022m2hf}.
 
-Cross-attentional models are especially useful for reranking. Unlike dual encoders, cross-encoders jointly process the query and document, allowing token-level interactions that capture fine semantic distinctions. This improves precision but is computationally expensive, so cross-attention is usually applied to a smaller candidate set after first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}\footnote{\url{https://www.pinecone.io/learn/series/rag/rerankers/}}. 
+Cross-attentional models are especially useful for reranking. There are two main ways AI models compare text: **Independent comparison** (each text separately) or **Joint comparison** (texts together). Joint comparison (called cross-attention) is more accurate but slower. Cross-encoders jointly process the query and document, allowing token-level interactions that capture fine semantic distinctions. This improves precision but is computationally expensive, so cross-attention is usually applied to a smaller candidate set after first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}\footnote{\url{https://www.pinecone.io/learn/series/rag/rerankers/}}. 
 
 Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$
 
@@ -312,7 +315,7 @@ where $0 \leq \alpha \leq 1$ is a learnable fusion coefficient.
 
 Multimodal embeddings represent heterogeneous inputs in a shared space for cross-modal retrieval. CLIP established a strong baseline by jointly training image and text encoders on large-scale paired data, enabling zero-shot image--text retrieval and serving as a backbone for later systems~\cite{radford2021clip}.
 
-
+To search across different types of information (text, images, audio), we need to represent them in a way the AI system can understand. We use numerical vectors (arrays of numbers) to represent each piece of information.
 
 Each input modality $m \in \{\text{text}, \text{audio}, \text{vision}\}$ is encoded into a latent vector using a modality-specific encoder
 \begin{equation*}
@@ -334,7 +337,8 @@ We fuse modality embeddings into a shared representation
 \end{equation*}
 where $[z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}]$ is the concatenation operator, $g([z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}])$ is a fusion network (e.g., MLP or cross-attention module), and $\phi$ denotes fusion parameters.
 
-To align representations across modalities, we apply a contrastive loss
+To align representations across modalities, we use a technique called "contrastive learning." To make sure the AI learns to match similar information across modalities, we use a technique called 'contrastive learning.' It teaches the model to make similar things close together and different things far apart.
+
 \begin{equation*}
     \mathcal{L}_{\text{contrast}} = -\sum_{i=1}^{N} \log
     \frac{\exp(\mathrm{sim}(z_i^{(a)}, z_i^{(t)}) / \tau)}
@@ -606,6 +610,7 @@ supporting structural learning in applications \cite{he2024retrieval_coding}.
 
 Thus, augmentation acts as a knowledge refinement stage that improves grounding, reduces hallucination risk, and increases domain robustness \cite{gao2023rag_survey}.
 
+Once we retrieve relevant documents, we need an AI to read them and write answers in the student's own words. This is where generation comes in.
 
 \subsection{Generation}
 

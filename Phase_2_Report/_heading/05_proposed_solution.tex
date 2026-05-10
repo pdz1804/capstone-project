@@ -1,5 +1,7 @@
 ﻿\chapter{Proposed Solution}
 
+This chapter describes our **Multimodal Retrieval-Augmented Generation (MRAG) system**—which combines large language models with a knowledge database to answer questions with cited sources. This design allows our system to process and retrieve information from diverse HCMUT educational materials while maintaining accuracy and transparency.
+
 This chapter presents the proposed solution for BK-MInD, a Multimodal Retrieval-Augmented Generation (MRAG) system designed to process and retrieve information from diverse HCMUT educational materials. The chapter first justifies the selection of RAG as the core architectural paradigm over alternative approaches, then presents the rationale for choosing the three key technology components. The system architecture is described across four perspectives: a high-level overview, the data processing and dual-pathway embedding pipelines, the retrieval and generation flow, and the security design. Experimental evidence supporting retrieval architecture decisions is provided, and the chapter concludes with the technical requirements for deployment.
 
 \section{Justification for Retrieval-Augmented Generation}
@@ -14,7 +16,7 @@ Fine-tuning involves retraining a pre-trained LLM on a specific dataset to adjus
 \begin{itemize}
     \item \textbf{Static Knowledge Base:} Fine-tuned models immediately become outdated upon training completion. Updating the knowledge requires a computationally expensive retraining process. In contrast, RAG allows for \textit{dynamic updates} - simply adding a document to the database makes it immediately retrievable without modifying the model weights.
     \item \textbf{Hallucination Risk:} Fine-tuning increases the probability of the model adopting a specific tone, but it does not guarantee factual accuracy. The model can still hallucinate information effectively. RAG mitigates this by grounding the generation in retrieved evidence.
-    \item \textbf{Explainability:} A fine-tuned model outputs an answer based on ``black box'' internal weights. RAG provides citation and source attribution (retrieved chunks), which is critical for verifying accuracy in our application.
+    \item \textbf{Explainability:} Fine-tuned models encode knowledge in their internal weights, making it impossible to trace where a specific answer came from. RAG, by contrast, retrieves the actual source documents, so you can verify the claim by reading the original text. This transparency is critical for academic integrity.
 \end{itemize}
 
 \textbf{RAG vs. Prompt Engineering (Context Stuffing)}
@@ -22,7 +24,7 @@ Prompt engineering involves optimizing the textual input to guide the LLM's outp
 
 \begin{itemize}
     \item \textbf{Context Window Limitations:} Although context windows are growing (e.g., 128k tokens), it is infeasible to pass an entire corpus (e.g., 50,000 documents) into a single prompt. RAG acts as a filter, selecting only the most relevant snippets to fit within the model's constraints.
-    \item \textbf{Performance Degradation:} Studies show that as the context length increases, the model's ability to reason over the data (``Lost in the Middle'' phenomenon) decreases. RAG ensures the model focuses only on highly relevant, condensed information.
+    \item \textbf{Performance Degradation:} Studies show that when too much context is provided, LLMs struggle to locate relevant information deep within the text—a phenomenon called 'Lost in the Middle.' This occurs because AI models can focus on all positions, but effectiveness decreases when important information is buried among thousands of tokens. RAG ensures the model focuses only on highly relevant, condensed information.
 \end{itemize}
 
 \textbf{RAG vs. Semantic Search (Traditional Information Retrieval)}
@@ -612,7 +614,7 @@ The system offers three complementary text retrieval strategies, each addressing
 
 \textit{2. Dense (Embedding-Based) Retrieval}: Dense retrieval encodes both queries and documents as continuous vectors in a high-dimensional space. It captures semantic meaning and handles paraphrased queries effectively, though it is susceptible to ``semantic drift'' - retrieving documents that are topically similar but factually incorrect.
 
-\textit{3. Hybrid Retrieval (BM25 + Dense + RRF)}: The system implements \textbf{Reciprocal Rank Fusion (RRF)}, a fusion algorithm that combines BM25 and dense retrieval results. For each document, RRF calculates:
+\textit{3. Hybrid Retrieval (BM25 + Dense + RRF)}: The system implements \textbf{Reciprocal Rank Fusion (RRF)}, a fusion algorithm that combines BM25 and dense retrieval results. Reciprocal Rank Fusion (RRF) combines BM25 and dense results by assigning a score to each result based on its rank position. Results ranked higher (lower rank number) get higher scores. The constant k (60) is a smoothing factor that prevents low-ranked results from getting zero score and allows high-ranked results from both methods to be boosted. For each document, RRF calculates:
 
 \[
 \text{RRF}(d) = \frac{1}{k + \text{rank\_BM25}(d)} + \frac{1}{k + \text{rank\_Dense}(d)}
