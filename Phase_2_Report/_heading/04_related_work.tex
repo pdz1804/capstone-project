@@ -48,7 +48,7 @@ In summary, the ecosystem of benchmarks has rapidly expanded to reflect educatio
 
 \subsection{Modality Fusion}
   
-A central challenge in multimodal retrieval is determining how to effectively fuse information from different modalities. There are two main ways to combine information from different sources: (1) **Early fusion**: combine them before searching. (2) **Late fusion**: search separately then combine results. Early fusion can pick up on interactions (like what sound is happening where in a video), but it's more complex.
+A central challenge in multimodal retrieval is determining how to effectively fuse information from different modalities. There are two main ways to combine information from different sources: (1) \textbf{Early fusion}: combine them before searching. (2) \textbf{Late fusion}: search separately then combine results. Early fusion can pick up on interactions (like what sound is happening where in a video), but it's more complex.
 
 Early fusion, or feature-level fusion, merges modalities prior to computing similarity. This approach yields joint representations that more richly encode cross-modal interactions. For example, the M2HF model for video retrieval combines CLIP-based visual features with audio features to generate audio-guided visual representations that highlight sound-producing regions within frames, and fuses motion features derived from optical flow with visual features to emphasize movement. In this way, a video segment can be embedded as a single vector capturing synchronized cues across modalities, which is particularly useful in lecture settings where spoken language, slide text, and gestures jointly define relevance.
 
