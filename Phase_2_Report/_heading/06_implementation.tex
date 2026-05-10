@@ -324,15 +324,16 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 
 \textbf{Purpose}: Detect file types, route to appropriate processors, and generate multiple canonical forms (PDF for visual processing, Markdown for text processing, specialized JSON for custom parsers).
 
-\textbf{Processing Logic}:
+% \textbf{Processing Logic}:
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
-    \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
-    \label{fig:stage1_routing_viz}
-\end{figure}
+\textbf{Processing}:
 
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
+%     \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
+%     \label{fig:stage1_routing_viz}
+% \end{figure}
 
 \begin{table}[H]
 \centering
@@ -358,6 +359,18 @@ Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
 }
 \end{table}
 
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
+    \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
+    \label{fig:stage1_routing_viz}
+\end{figure}
+
+
+
+
 \textbf{Output}:
 \begin{itemize}
     \item \texttt{normalized\_pdfs/}: PDF versions for visual processing
@@ -380,15 +393,9 @@ Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
 %     \item \textbf{Audio Formats:} \texttt{.wav}, \texttt{.mp3}, \texttt{.m4a}, \texttt{.flac}, \texttt{.ogg}, \texttt{.aac}
 % \end{itemize}
 
-\textbf{Processing Pipeline}:
+% \textbf{Processing Pipeline}:
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{{img/pdz/Report 252 Diagram-Media Processing Flow.drawio.png}}
-    \caption[Stage 2: Media Processing Workflow]{Stage 2: Media Processing Workflow.}
-    \label{fig:stage2_media_flow}
-\end{figure}
-
+\textbf{Processing}:
 
 \begin{table}[H]
 \centering
@@ -425,6 +432,13 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
     \item \texttt{media\_metadata/}: Timestamp bindings, speaker identification
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{{img/pdz/Report 252 Diagram-Media Processing Flow.drawio.png}}
+    \caption[Stage 2: Media Processing Workflow]{Stage 2: Media Processing Workflow.}
+    \label{fig:stage2_media_flow}
+\end{figure}
+
 \subsection{Stage 3: Main Document Processing (Docling)}
 
 \begin{figure}[H]
@@ -439,7 +453,9 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
 
 \textbf{Purpose}: Perform deep structural analysis, extract tables with hierarchy preservation, isolate images, handle general document types not requiring custom parsers.
 
-\textbf{Processing Logic}:
+% \textbf{Processing Logic}:
+
+\textbf{Processing}:
 
 % Docling DocumentConverter supports these 10 format families:
 
@@ -499,7 +515,10 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 % \end{figure}
 
 
-\textbf{Processing Strategy}:
+% \textbf{Processing Strategy}:
+
+\textbf{Processing}:
+
 \begin{itemize}
     \item \textbf{Sheet-aware parsing}: Extract each sheet independently with sheet name metadata
     \item \textbf{Table detection}: Identify table boundaries via cell formulas and formatting
@@ -536,7 +555,9 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 % \end{figure}
 
 
-\textbf{Processing Strategy}:
+% \textbf{Processing Strategy}:
+
+\textbf{Processing}:
 \begin{itemize}
     \item \textbf{Heading extraction}: Build heading tree (Heading 1, 2, 3, etc.)
     \item \textbf{Boundary-aware chunking}: Split at heading boundaries, not arbitrary character limits
@@ -572,7 +593,9 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 % \end{figure}
 
 
-\textbf{Processing Strategy}:
+% \textbf{Processing Strategy}:
+
+\textbf{Processing}:
 \begin{itemize}
     \item \textbf{Metadata extraction}: Analyze PDF outlines and internal section markers
     \item \textbf{Page tracking}: Maintain explicit page numbers for every chunk
@@ -600,7 +623,10 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \textbf{Purpose}: Merge all processing outputs, consolidate metadata, prepare unified retrieval index.
 
-\textbf{Consolidation Logic}:
+% \textbf{Consolidation Logic}:
+
+\textbf{Processing}:
+
 \begin{enumerate}
     \item \textbf{Merge chunks}: Combine text chunks from all sources (Docling + custom parsers) with deduplicated provenance
     \item \textbf{Collect images}: Gather all extracted images (from document pages, figures, video frames) with page references
