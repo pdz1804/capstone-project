@@ -434,9 +434,11 @@ The GPU Model Server is drawn as a fourth separate bounded box and is labeled as
 
 #### 2.4.3 Deployment Diagram
 
-![Deployment Diagram v2](../diagram/Deployment Diagram_v2.png)
+![Deployment Diagram v4](../diagram/Deployment Diagram_v4.png)
 
-The Deployment Diagram maps the logical architecture onto concrete AWS infrastructure. The diagram uses the standard AWS icon set and organizes all components into labeled bounded regions. The overall layout is divided into three zones: the CI/CD Component sitting outside the AWS boundary, the AWS Cloud Region (us-west-2) occupying the center and right, and an External 3rd Party Cloud VectorDB block representing services hosted outside of AWS entirely.
+**Updated May 10, 2026:** Deployment Diagram v4 reflects the latest infrastructure status with Qdrant Cloud confirmed as the vector database solution, updated security architecture including WAF and KMS encryption layers, and refined ECS task configurations for both frontend and backend services.
+
+The Deployment Diagram maps the logical architecture onto concrete AWS infrastructure. The diagram uses the standard AWS icon set and organizes all components into labeled bounded regions. The overall layout is divided into three zones: the CI/CD Component sitting outside the AWS boundary, the AWS Cloud Region (us-west-2) occupying the center and right, and an External 3rd Party Cloud VectorDB block (Qdrant Cloud) representing the managed vector database service hosted outside of AWS.
 
 The CI/CD Component shows the developer workflow that feeds images into AWS. Developers push code to the GitHub Repository, which triggers GitHub Actions running on ubuntu-latest runners to execute a Docker build and push job. The job retrieves environment configuration values from AWS Secrets Manager, builds the Docker image, and pushes it with the latest tag to the AWS ECR repositories in the Image Registry. Container image pulls are routed through private VPC-internal endpoints rather than going out to the public internet.
 
@@ -464,7 +466,7 @@ In addition to the two completed diagrams, the thesis requires six more diagrams
 
 The cloud infrastructure for Phase 2 is managed entirely using Terraform, a declarative Infrastructure as Code (IaC) tool. The decision to use IaC rather than provisioning resources manually through the AWS Management Console was driven by several engineering requirements. First, infrastructure defined in code is version-controlled alongside the application code, meaning every change to the cloud environment is traceable, reviewable, and reversible. Second, IaC enables the infrastructure configuration to be reproduced identically in a new environment with a single command. Third, it eliminates configuration drift, the common production problem where the actual state of cloud resources diverges from the documented state because manual changes were made without being recorded.
 
-As of the successful deployment on February 15, 2026, Terraform has provisioned 36 AWS resources into the us-west-2 (Oregon) region. This represents approximately 60% of the complete infrastructure shown in the Deployment Diagram. The remaining 40% consists of the planned services that are architecturally identified but not yet provisioned.
+As of the latest update on May 10, 2026, Terraform has provisioned core AWS resources including ECS Fargate for containerized services, Application Load Balancer for traffic management, DynamoDB for NoSQL data, S3 for object storage, and CloudFront CDN for content delivery. The vector database has been confirmed as Qdrant Cloud (external managed service). The infrastructure is continuously being optimized based on performance evaluations and security requirements identified in the Phase 2 evaluation reports.
 
 #### 2.5.2 Module Organization
 
@@ -580,7 +582,7 @@ The Terraform state is currently stored in a local file. Before the infrastructu
 | GitHub Actions CI/CD Workflows | Designed, pending activation | Deactivated pending baseline manual deployment verification |
 | Terraform Infrastructure Provisioning | ~60% complete | 36 resources active; GPU, RDS, SQS, Cognito, CloudFront pending |
 | System Architecture Diagram | Complete | Full Excalidraw diagram produced covering all 4 logical layers |
-| Deployment Diagram v2 | Complete | Active vs. planned infrastructure clearly distinguished |
+| Deployment Diagram v4 | Complete | Updated with Qdrant Cloud confirmation, security architecture, and latest ECS configuration |
 | Remaining Thesis Diagrams | Planned, not yet produced | Use Case, Sequence, ERD, RAG Pipeline, Component, Activity diagrams |
 
 The immediate next steps are as follows. The first priority is to push the initial Docker images to ECR, perform a manual force-new-deployment on both ECS services, verify that all ALB target groups report healthy, and confirm that the frontend and API respond correctly on the published ALB URL. Once this baseline deployment is confirmed, the GitHub Actions workflows can be activated and all subsequent code changes will flow automatically through the CI/CD pipeline. In parallel, the media processing pipeline will be integrated into the FastAPI backend as an asynchronous background task, triggered by file upload events. The Terraform state will be migrated to the remote S3 backend before the infrastructure pipeline is enabled. Finally, the six remaining thesis diagrams will be produced, beginning with the Multimodal RAG Pipeline Architecture Diagram as the highest-priority artifact for communicating the core AI contribution of the project.
