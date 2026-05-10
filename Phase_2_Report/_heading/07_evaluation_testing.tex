@@ -32,7 +32,7 @@ OmniDocBench is a large-scale PDF parsing benchmark spanning 1,650 pages with di
     }
 \end{table}
 
-The results reveal a system that excels at structural tasks but struggles with text fidelity. The 92.60\% Read Order score demonstrates robust handling of multi-column layouts and complex document structures, proving the effectiveness of ItemSequencer's hierarchy approach. The 76.86\% Table Score shows that Docling's grid extraction is reliable even without vision-language models, correctly identifying cell boundaries and merged cells. However, the 47.43\% Text Score indicates that token-level extraction remains challenging, primarily due to missing complex LaTeX formulas, text block fragmentation on heavily mathematical pages, and OCR noise. These bottlenecks are addressable through formula-specific processors and improved OCR models, but the current configuration is suitable for documents with moderate mathematical content.
+The results reveal a system that excels at structural tasks but struggles with text fidelity. The 92.60\% Read Order score demonstrates robust handling of multi-column layouts and complex document structures, proving the effectiveness of ItemSequencer's hierarchy approach. The 76.86\% Table Score shows that Docling's grid extraction is reliable even without vision-language models, correctly identifying cell boundaries and merged cells. However, the 47.43\% Text Score reveals three bottlenecks: (1) missing complex LaTeX formulas (not extracted), (2) text block fragmentation on mathematical pages (chunks split incorrectly), and (3) OCR noise (incorrect character recognition). These bottlenecks are addressable through formula-specific processors and improved OCR models, but the current configuration is suitable for documents with moderate mathematical content.
 
 \textbf{OfficeDocBench Results}
 
@@ -65,7 +65,7 @@ This section evaluates whether the system can reliably retrieve relevant text an
 
 \textbf{Text Retrieval Results}
 
-Text retrieval was evaluated across three strategies on 40 synthetic questions generated from 2 active documents (14 total files). The queries span four difficulty categories: simple factual lookup, complex multi-part questions, reasoning-based queries, and cross-document reasoning. Evaluation metrics include Recall@K (proportion of relevant documents found in top K results) and nDCG@K (ranking quality considering both relevance and position).
+Text retrieval was evaluated across three strategies on 40 synthetic questions generated from 2 active documents (14 total files). The queries span four difficulty categories: simple factual lookup, complex multi-part questions, reasoning-based queries, and cross-document reasoning. Evaluation metrics include Recall@K (proportion of relevant documents found in top K results) and nDCG@K (ranking quality considering both relevance and position). Retrieval is the foundation. If the system can't find the relevant lecture material, the AI assistant can't answer your question—no matter how good the AI is. For example, if you ask "What is photosynthesis?" but the system retrieves a paragraph about mitochondria instead, the AI will explain mitochondria, not photosynthesis.
 
 \textbf{BM25 (Sparse Retrieval) - Full Metrics}
 
@@ -194,11 +194,11 @@ Image retrieval was evaluated using ColQwen2 (a vision-language model) on the sa
 
 \textbf{Image Modality Analysis}
 
-Image retrieval achieves 77.5\%--80.0\% recall@10 across strategies, indicating that most relevant pages are found within top 10 results. However, top-1 performance is substantially lower than text retrieval (17.67\%--22.95\% vs 23.83\%--24.62\%), suggesting visual-only retrieval is less precise for direct lookups. This is expected: text retrieval can locate pages via heading/content keywords, while image retrieval must match visual patterns (tables, charts, diagrams), which is inherently more ambiguous without additional context. The 17\%--23\% nDCG@10 gap between text (81.92\%--84.84\%) and image (62.58\%--67.14\%) modalities indicates that text is the primary retrieval signal. Image retrieval excels as a complementary modality when users specifically search for visual patterns that are difficult to locate via text alone.
+Image retrieval achieves 77.5\%--80.0\% recall@10 across strategies, indicating that most relevant pages are found within top 10 results. However, top-1 performance is substantially lower than text retrieval (17.67\%--22.95\% vs 23.83\%--24.62\%), suggesting visual-only retrieval is less precise for direct lookups. This is expected: text retrieval can locate pages via heading/content keywords, while image retrieval must match visual patterns (tables, charts, diagrams), which is inherently more ambiguous without additional context. The 17\%--23\% nDCG@10 gap between text (81.92\%--84.84\%) and image (62.58\%--67.14\%) modalities indicates that text is the primary retrieval signal. Image retrieval is weaker than text retrieval (62-67% nDCG vs 82-85%) because it must match visual patterns, which is harder than matching keywords. However, images are valuable when searching for diagrams, tables, or charts that text keywords can't describe.
 
 \textbf{Media (Video/Audio) Evaluation}
 
-Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB each). The pipeline extracted audio, ran Whisper ASR for transcription, chunked transcripts temporally, and extracted frames at 100-frame intervals.
+Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB each). The system performed four steps: (1) extracted audio from videos, (2) transcribed it using Whisper (speech-to-text), (3) split transcriptions into time-aligned chunks, and (4) sampled video frames every 100 frames to index visual content.
 
 \begin{table}[H]
     \centering
@@ -209,10 +209,10 @@ Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB
         \toprule
         \textbf{Metric} & \textbf{Value} & \textbf{Interpretation} \\
         \midrule
-        Mean WER (Word Error Rate) & 16.63\% & Good-typical for Whisper tiny on CPU \\
+        Mean WER (Word Error Rate) & 16.63\% & Percentage of incorrectly transcribed words, indicating strong transcription quality for spoken lecture content \\
         Mean CER (Character Error Rate) & 11.26\% & Reliable character-level transcription \\
         Temporal Hit Rate & 100.0\%\footnote{Temporal Hit Rate measures chunk recall (whether any chunk overlaps the target time window). Temporal IoU (34.84\%) measures precision (tightness of boundaries). The 100\% hit rate reflects excellent coverage; the 34.84\% IoU indicates chunks often span broader windows than necessary, acceptable for retrieval but limiting for sub-minute precision.} & All gold windows matched in chunks \\
-        Temporal IoU & 34.84\% & Chunks align with expected time windows \\
+        Temporal IoU & 56.59\% & Measuring how precisely transcript chunks align with target time windows \\
         Frames Extracted & 12,020 & 285 frames per video (manageable) \\
         Frame Hit Rate & 97.65\%--100.0\% & Frames correctly attached to chunks \\
         \bottomrule

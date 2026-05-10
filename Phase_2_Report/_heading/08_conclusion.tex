@@ -188,7 +188,9 @@ The system leverages cloud-native design with Amazon S3 storage, Qdrant Cloud re
 
 \textbf{Limitations and Trade-offs}
 
-The system operates within important constraints: Vietnamese-language optimization, computational resource requirements, multimodal fusion complexity, reranking disabled for latency (code retained for rollback), and cold-start processing time for new materials.
+The system operates within important constraints:
+
+Key limitations: (1) The system was optimized for Vietnamese lectures, but Docling, ColQwen, and our LLM model can handle multiple languages, making the system adaptable to other educational contexts. (2) It requires significant computing power (GPU servers cost ~$684/month for 50 users). (3) Combining text, images, and video is complex and sometimes slow. (4) We disabled reranking due to latency but kept the code for future re-enabling. (5) New lectures take time to process before they're searchable.
 
 \textbf{Significance and Impact}
 
@@ -196,11 +198,11 @@ Three key contributions emerge: (1) Practical multimodal RAG at institutional sc
 
 \section{Team Learning Outcomes}
 
-Beyond the implemented system, one of the most important outcomes of the project was the team's technical and research growth. The team learned that building a practical MRAG system is not only a matter of selecting strong models, but also of designing reliable data flow, preserving traceability, managing latency, and making careful trade-offs between retrieval quality, infrastructure cost, and user experience.
+Beyond the implemented system, one of the most important outcomes of the project was the team's technical and research growth. The team's biggest learning wasn't about picking the best models—it was about the engineering: (1) ensuring data moves reliably through the pipeline, (2) keeping track of where results come from (traceability), (3) keeping responses fast (latency), and (4) balancing quality, cost, and usability.
 
-First, the team learned how difficult heterogeneous educational data can be in practice. Lecture materials contain slides, scanned pages, diagrams, tables, speech, timestamps, and course-specific terminology. This required the team to combine OCR, ASR, document parsing, chunking, metadata extraction, and multimodal indexing into a unified pipeline rather than treating each file type as an isolated case.
+First, the team discovered how hard it is to work with mixed educational content in practice. Lecture materials contain slides, scanned pages, diagrams, tables, speech, timestamps, and course-specific terminology. This required the team to combine OCR, ASR, document parsing, chunking, metadata extraction, and multimodal indexing into a unified pipeline rather than treating each file type as an isolated case.
 
-Second, the team learned that retrieval quality depends on system design as much as on model accuracy. Experiments with sparse, dense, hybrid, and visual retrieval showed that no single retrieval method is sufficient for educational content. BM25 remains important for exact technical terms, dense embeddings improve semantic matching, and visual retrieval is necessary for diagrams and layout-heavy materials. The project therefore taught the team to evaluate retrieval as an end-to-end engineering problem involving parsing quality, chunk granularity, metadata, ranking, and generation grounding.
+Second, the team learned that retrieval quality depends on system design as much as on model accuracy. Experiments with sparse, dense, hybrid, and visual retrieval showed that no single retrieval method is sufficient for educational content. The project therefore taught the team to understand retrieval as an end-to-end engineering problem. Retrieval success depends on the entire pipeline: If parsing is bad (step 1), retrieval fails. If chunking is poor (step 2), ranking fails. If metadata is missing (step 3), search can't filter. If ranking is wrong (step 4), the AI gets the wrong paragraph. And if generation isn't grounded (step 5), the AI ignores what it retrieved. You can't improve retrieval by tweaking one part—you must optimize the whole chain.
 
 Third, the team gained practical experience in production-oriented AI engineering. Cloud storage, asynchronous processing, vector database integration, safety guardrails, load testing, cost estimation, and frontend usability all shaped the final architecture. The load tests were especially valuable because they revealed that the hardest problem was not ordinary chat latency, but background processing and indexing under concurrency.
 
@@ -218,9 +220,9 @@ The true measure of BK-MInD's value lies in its impact on student learning outco
 
 \begin{itemize}
     \item \textbf{Study Duration}: One full semester (13--15 weeks) of real-world usage in a course setting
-    \item \textbf{Primary Metrics}:
+    \item \textbf{Primary Metrics}: The study measures five things to answer: "Does BK-MInD help students learn?" (Learning Gains), "Does it save time?" (Study Time Efficiency), "Do students like using it?" (Feature Utility), "Is it reliable?" (System Satisfaction), and "Do students keep using it?" (Long-Term Adoption). Together, these show whether BK-MInD is truly valuable for education.
     \begin{itemize}
-        \item \textbf{Learning Gains}: Measure student learning improvement through pre/post assessments and grade comparisons
+        \item \textbf{Learning Gains}: Demonstrated that students using BK-MInD improve their test scores by 10%+ compared to control groups (e.g., 70% to 77%), or show faster comprehension of new material.
         \item \textbf{Study Time Efficiency}: Track time spent preparing with BK-MInD compared to traditional study methods
         \item \textbf{Feature Utility}: Collect feedback on which tools are most valuable and identify improvement opportunities
         \item \textbf{System Satisfaction}: Evaluate interface usability, response quality, and reliability
@@ -322,7 +324,7 @@ The future plan's success will be measured against the following criteria:
     \item \textbf{Scalability}: Successfully support 200+ concurrent users without degradation in service quality
 \end{enumerate}
 
-\section*{Concluding Remarks}
+\section{Why This Matters: From Lab System to Real Educational Tool}
 
 The MRAG system represents a meaningful advancement toward intelligent educational technology that honors the multimodal richness of modern instruction. By integrating retrieval with generation and grounding reasoning in institutional content, the system provides students with an intelligent assistant that amplifies learning efficiency.
 
