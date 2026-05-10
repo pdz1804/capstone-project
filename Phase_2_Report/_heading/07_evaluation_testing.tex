@@ -65,56 +65,54 @@ This section evaluates whether the system can reliably retrieve relevant text an
 
 \textbf{Text Retrieval Results}
 
-Text retrieval was evaluated across three strategies on 40 synthetic questions generated from 2 active documents (14 total files). The queries span four difficulty categories: simple factual lookup, complex multi-part questions, reasoning-based queries, and cross-document reasoning. Evaluation metrics include Recall@K (proportion of relevant documents found in top K results) and nDCG@K (ranking quality considering both relevance and position). Retrieval is the foundation. If the system can't find the relevant lecture material, the AI assistant can't answer your question no matter how good the AI is. For example, if you ask "What is photosynthesis?" but the system retrieves a paragraph about mitochondria instead, the AI will explain mitochondria, not photosynthesis.
+Text retrieval was evaluated across three strategies (Text - Keyword Search, Text - Semantic Search, Image) on 2430 synthetic questions generated from 20 active documents. We use GPT-4o-mini to generate those queries for each parsed section of each document. The queries span four difficulty categories: simple factual lookup, complex multi-part questions, reasoning-based queries, and cross-document reasoning. Evaluation metrics include Recall@K (proportion of relevant documents found in top K results) and nDCG@K (ranking quality considering both relevance and position).
 
-\textbf{BM25 (Sparse Retrieval) - Full Metrics}
+Retrieval is the foundation. If the system can't find the relevant lecture material, the AI assistant can't answer your question no matter how good the AI is. For example, if you ask "What is photosynthesis?" but the system retrieves a paragraph about mitochondria instead, the AI will explain mitochondria, not photosynthesis.
 
 \begin{table}[H]
     \centering
-    \caption{BM25 Text Retrieval Performance (All K Values with Standard Deviation).}
+    \caption{BM25 Text Retrieval Performance (All K Values with Standard Deviation)}
     \label{tab:bm25_text_full}
-    \scalebox{0.88}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lrr}
         \toprule
         \textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
         \midrule
-        Recall@1 & 23.83\% & Â±24.23\% \\
-        Recall@3 & 46.98\% & Â±27.21\% \\
-        Recall@5 & 69.66\% & Â±20.26\% \\
-        Recall@10 & 100.0\% & Â±0.00\% \\
+        Recall@1 & 23.83\% & ±24.23\% \\
+        Recall@3 & 46.98\% & ±27.21\% \\
+        Recall@5 & 69.66\% & ±20.26\% \\
+        Recall@10 & 100.0\% & ±0.00\% \\
         \midrule
-        nDCG@1 & 76.67\% & Â±38.87\% \\
-        nDCG@3 & 67.96\% & Â±30.79\% \\
-        nDCG@5 & 74.89\% & Â±22.67\% \\
-        nDCG@10 & \textbf{84.84\%} & Â±16.74\% \\
+        nDCG@1 & 76.67\% & ±38.87\% \\
+        nDCG@3 & 67.96\% & ±30.79\% \\
+        nDCG@5 & 74.89\% & ±22.67\% \\
+        nDCG@10 & \textbf{84.84\%} & ±16.74\% \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
-\textbf{Dense (Semantic Retrieval) - Full Metrics}
-
 \begin{table}[H]
     \centering
-    \caption{Dense Retrieval Performance (All K Values with Standard Deviation).}
+    \caption{Dense Text Retrieval Performance (All K Values with Standard Deviation)}
     \label{tab:dense_text_full}
-    \scalebox{0.88}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lrr}
         \toprule
         \textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
         \midrule
-        Recall@1 & 24.62\% & Â±24.90\% \\
-        Recall@3 & 50.05\% & Â±31.33\% \\
-        Recall@5 & 70.85\% & Â±24.72\% \\
-        Recall@10 & 100.0\% & Â±0.00\% \\
+        Recall@1 & 24.62\% & ±24.90\% \\
+        Recall@3 & 50.05\% & ±31.33\% \\
+        Recall@5 & 70.85\% & ±24.72\% \\
+        Recall@10 & 100.0\% & ±0.00\% \\
         \midrule
-        nDCG@1 & 66.67\% & Â±42.16\% \\
-        nDCG@3 & 65.81\% & Â±33.28\% \\
-        nDCG@5 & 70.82\% & Â±25.64\% \\
-        nDCG@10 & \textbf{81.92\%} & Â±18.56\% \\
+        nDCG@1 & 66.67\% & ±42.16\% \\
+        nDCG@3 & 65.81\% & ±33.28\% \\
+        nDCG@5 & 70.82\% & ±25.64\% \\
+        nDCG@10 & \textbf{81.92\%} & ±18.56\% \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
 \textbf{Comparative Analysis: BM25 vs. Dense}
@@ -142,59 +140,58 @@ Both BM25 and Dense achieve perfect recall at K=10, meaning all relevant informa
 
 Image retrieval was evaluated using ColQwen2 (a vision-language model) on the same 40-query set. PDF pages were converted to images and indexed semantically. The following tables show complete metrics for both BM25-based and Dense-based image retrieval strategies.
 
-\textbf{BM25 Image Retrieval - Full Metrics}
+
+Image retrieval was evaluated using ColQwen2 on the same 2430-queries set. PDF pages were converted to images and indexed semantically.
 
 \begin{table}[H]
     \centering
-    \caption{BM25 Image Retrieval Performance (All K Values with Standard Deviation).}
+    \caption{Image Retrieval Performance with ColQwen2}
     \label{tab:bm25_image_full}
-    \scalebox{0.88}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lrr}
         \toprule
         \textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
         \midrule
-        Recall@1 & 22.95\% & Â±33.59\% \\
-        Recall@3 & 38.86\% & Â±35.16\% \\
-        Recall@5 & 53.84\% & Â±36.89\% \\
-        Recall@10 & 80.00\% & Â±40.00\% \\
+        Recall@1 & 22.95\% & ±33.59\% \\
+        Recall@3 & 38.86\% & ±35.16\% \\
+        Recall@5 & 53.84\% & ±36.89\% \\
+        Recall@10 & 80.00\% & ±40.00\% \\
         \midrule
-        nDCG@1 & 56.67\% & Â±46.67\% \\
-        nDCG@3 & 54.95\% & Â±38.03\% \\
-        nDCG@5 & 58.66\% & Â±37.30\% \\
-        nDCG@10 & \textbf{67.14\%} & Â±37.25\% \\
+        nDCG@1 & 56.67\% & ±46.67\% \\
+        nDCG@3 & 54.95\% & ±38.03\% \\
+        nDCG@5 & 58.66\% & ±37.30\% \\
+        nDCG@10 & \textbf{67.14\%} & ±37.25\% \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
-\textbf{Dense Image Retrieval - Full Metrics}
+% \textbf{Dense Image Retrieval - Full Metrics}
 
-\begin{table}[H]
-    \centering
-    \caption{Dense Image Retrieval Performance (All K Values with Standard Deviation).}
-    \label{tab:dense_image_full}
-    \scalebox{0.88}{
-    \begin{tabular}{lrr}
-        \toprule
-        \textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
-        \midrule
-        Recall@1 & 17.67\% & Â±26.27\% \\
-        Recall@3 & 34.50\% & Â±33.05\% \\
-        Recall@5 & 48.23\% & Â±34.54\% \\
-        Recall@10 & 77.50\% & Â±41.76\% \\
-        \midrule
-        nDCG@1 & 51.67\% & Â±47.11\% \\
-        nDCG@3 & 49.10\% & Â±37.62\% \\
-        nDCG@5 & 54.30\% & Â±36.14\% \\
-        nDCG@10 & \textbf{62.58\%} & Â±37.35\% \\
-        \bottomrule
-    \end{tabular}
-    }
-\end{table}
+% \begin{table}[H]
+%     \centering
+%     \caption{Dense Image Retrieval Performance (All K Values with Standard Deviation)}
+%     \label{tab:dense_image_full}
+%     \begin{adjustbox}{max width=\linewidth}
+%     \begin{tabular}{lrr}
+%         \toprule
+%         \textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
+%         \midrule
+%         Recall@1 & 17.67\% & ±26.27\% \\
+%         Recall@3 & 34.50\% & ±33.05\% \\
+%         Recall@5 & 48.23\% & ±34.54\% \\
+%         Recall@10 & 77.50\% & ±41.76\% \\
+%         \midrule
+%         nDCG@1 & 51.67\% & ±47.11\% \\
+%         nDCG@3 & 49.10\% & ±37.62\% \\
+%         nDCG@5 & 54.30\% & ±36.14\% \\
+%         nDCG@10 & \textbf{62.58\%} & ±37.35\% \\
+%         \bottomrule
+%     \end{tabular}
+%     \end{adjustbox}
+% \end{table}
 
-\textbf{Image Modality Analysis}
-
-Image retrieval achieves 77.5\%--80.0\% recall@10 across strategies, indicating that most relevant pages are found within top 10 results. However, top-1 performance is substantially lower than text retrieval (17.67\%--22.95\% vs 23.83\%--24.62\%), suggesting visual-only retrieval is less precise for direct lookups. This is expected: text retrieval can locate pages via heading/content keywords, while image retrieval must match visual patterns (tables, charts, diagrams), which is inherently more ambiguous without additional context. The 17\%--23\% nDCG@10 gap between text (81.92\%--84.84\%) and image (62.58\%--67.14\%) modalities indicates that text is the primary retrieval signal. Image retrieval is weaker than text retrieval (62-67% nDCG vs 82-85%) because it must match visual patterns, which is harder than matching keywords. However, images are valuable when searching for diagrams, tables, or charts that text keywords can't describe.
+Image retrieval achieves 80.0\% recall@10 across strategies, indicating that most relevant pages are found within top 10 results. However, top-1 performance is substantially lower than text retrieval (22.95\% vs 23.83\%--24.62\%), suggesting visual-only retrieval is less precise for direct lookups. This is expected: text retrieval can locate pages via heading/content keywords, while image retrieval must match visual patterns (tables, charts, diagrams), which is inherently more ambiguous without additional context. Hence, text is the primary retrieval signal, while image retrieval excels as a complementary modality when users specifically search for visual patterns that are difficult to locate via text alone. Images are valuable when searching for diagrams, tables, or charts that text keywords can't describe.
 
 \textbf{Media (Video/Audio) Evaluation}
 
@@ -204,53 +201,53 @@ Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB
     \centering
     \caption{Media Parsing Quality Metrics (42 Lecture Videos).}
     \label{tab:media_results}
-    \scalebox{0.90}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lrr}
         \toprule
         \textbf{Metric} & \textbf{Value} & \textbf{Interpretation} \\
         \midrule
         Mean WER (Word Error Rate) & 16.63\% & Percentage of incorrectly transcribed words, indicating strong transcription quality for spoken lecture content \\
         Mean CER (Character Error Rate) & 11.26\% & Reliable character-level transcription \\
-        Temporal Hit Rate & 100.0\%\footnote{Temporal Hit Rate measures chunk recall (whether any chunk overlaps the target time window). Temporal IoU (34.84\%) measures precision (tightness of boundaries). The 100\% hit rate reflects excellent coverage; the 34.84\% IoU indicates chunks often span broader windows than necessary, acceptable for retrieval but limiting for sub-minute precision.} & All gold windows matched in chunks \\
-        Temporal IoU & 56.59\% & Measuring how precisely transcript chunks align with target time windows \\
+        Temporal Hit Rate & 100.0\%\tablefootnote{Temporal Hit Rate measures chunk recall (whether any chunk overlaps the target time window). Temporal IoU (34.84\%) measures precision (tightness of boundaries). The 100\% hit rate reflects excellent coverage; the 34.84\% IoU indicates chunks often span broader windows than necessary, acceptable for retrieval but limiting for sub-minute precision.} & All gold windows matched in chunks \\
+        Temporal IoU & 34.84\% & Measuring how precisely transcript chunks align with target time windows \\
         Frames Extracted & 12,020 & 285 frames per video (manageable) \\
         Frame Hit Rate & 97.65\%--100.0\% & Frames correctly attached to chunks \\
         \bottomrule
     \end{tabular}
-    }
+\end{adjustbox}
 \end{table}
 
 ASR quality is good: 16.63\% WER (word error rate) is typical for Whisper tiny on CPU and acceptable for educational lecture retrieval. Temporal coverage is excellent (100\% hit rate for chunk recall), though temporal precision is moderate (34.84\% Temporal IoU), meaning chunks often span broader time windows than the exact target-acceptable for content retrieval but limiting for sub-minute precision seeking. Frame extraction succeeded on all 42 videos with proper timestamp metadata, enabling visual-temporal retrieval for video content.
 
-\textbf{OCW Single-Lecture Media Evaluation}
+% \textbf{OCW Single-Lecture Media Evaluation}
 
-To validate generalization beyond the MITFLD benchmark, media evaluation was conducted on a single MIT OpenCourseWare lecture from an alternative source. This evaluation provides comparative insights into ASR quality and temporal alignment across different audio conditions.
+% To validate generalization beyond the MITFLD benchmark, media evaluation was conducted on a single MIT OpenCourseWare lecture from an alternative source. This evaluation provides comparative insights into ASR quality and temporal alignment across different audio conditions.
 
-\begin{table}[H]
-    \centering
-    \caption{OCW vs. MITFLD Media Evaluation Comparison.}
-    \label{tab:ocw_mitfld_comparison}
-    \scalebox{0.90}{
-    \begin{tabular}{lrrr}
-        \toprule
-        \textbf{Metric} & \textbf{MITFLD (42 videos)} & \textbf{OCW (1 video)} & \textbf{Interpretation} \\
-        \midrule
-        Mean WER & 16.63\% & 21.81\% & OCW audio lower clarity \\
-        Mean CER & 11.26\% & 17.38\% & Reflects higher WER \\
-        Temporal Hit Rate & 100.00\% & 100.00\% & Both achieve perfect coverage \\
-        Mean Temporal IoU & 34.84\% & \textbf{56.59\%} & OCW has tighter boundaries \\
-        \bottomrule
-    \end{tabular}
-    }
-\end{table}
+% \begin{table}[H]
+%     \centering
+%     \caption{OCW vs. MITFLD Media Evaluation Comparison.}
+%     \label{tab:ocw_mitfld_comparison}
+%     \scalebox{0.90}{
+%     \begin{tabular}{lrrr}
+%         \toprule
+%         \textbf{Metric} & \textbf{MITFLD (42 videos)} & \textbf{OCW (1 video)} & \textbf{Interpretation} \\
+%         \midrule
+%         Mean WER & 16.63\% & 21.81\% & OCW audio lower clarity \\
+%         Mean CER & 11.26\% & 17.38\% & Reflects higher WER \\
+%         Temporal Hit Rate & 100.00\% & 100.00\% & Both achieve perfect coverage \\
+%         Mean Temporal IoU & 34.84\% & \textbf{56.59\%} & OCW has tighter boundaries \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+% \end{table}
 
-The OCW evaluation reveals an interesting trade-off: while the audio has lower clarity (21.81\% WER vs 16.63\%), temporal alignment is substantially tighter (56.59\% IoU vs 34.84\%). This suggests clearer fragment boundaries in the OCW lecture's transcript structure, despite noisier audio. Both sources maintain 100\% temporal hit rate, confirming that the chunking strategy reliably captures all gold windows regardless of audio quality variation. This validates that the media pipeline is robust across different lecture sources and audio conditions.
+% The OCW evaluation reveals an interesting trade-off: while the audio has lower clarity (21.81\% WER vs 16.63\%), temporal alignment is substantially tighter (56.59\% IoU vs 34.84\%). This suggests clearer fragment boundaries in the OCW lecture's transcript structure, despite noisier audio. Both sources maintain 100\% temporal hit rate, confirming that the chunking strategy reliably captures all gold windows regardless of audio quality variation. This validates that the media pipeline is robust across different lecture sources and audio conditions.
 
 \textbf{Frame Extraction and Alignment Validation}
 
 Beyond ASR and temporal metrics, the system extracts frames from video content and validates their temporal alignment with transcript chunks. This subsection reports frame extraction pipeline statistics and weak-supervised frame alignment metrics.
 
-\textbf{Frame Extraction Pipeline Statistics}
+% \textbf{Frame Extraction Pipeline Statistics}
 
 \begin{table}[H]
     \centering
@@ -302,42 +299,43 @@ The frame extraction pipeline processed all 42 videos without failures, extracti
 
 Frame alignment shows excellent attachment quality: 100\% chunk hit rate indicates that all retrieved chunks overlap the target time window, and frame attachment reaches 97.65\%--98.32\% coverage across retrieval depths. Mean frame distance remains near zero (0.00s--0.05s), confirming precise temporal synchronization. The 22.58\% Best Chunk IoU at @10 indicates moderate boundary tightness, similar to the full temporal IoU of 34.84\% observed in media evaluation. This validates that the frame extraction pipeline successfully attaches visual content to transcript chunks with high fidelity.
 
-\subsection{System-Level Evaluation: Chunking and End-to-End RAG}
 
-This section evaluates how well the chunking strategy isolates relevant information without excessive context, and measures end-to-end RAG quality from question to final answer.
+\subsection{End-to-End Evaluation}
 
-\textbf{Chunking Strategy Evaluation}
+% This section evaluates how well the chunking strategy isolates relevant information without excessive context, and measures end-to-end RAG quality from question to final answer.
 
-Document chunking determines whether a retriever finds the exact passage needed to answer a question, or must sift through irrelevant neighbors. We compared two strategies on 111 synthetic query-span pairs from 3 documents (434K characters total): recursive markdown chunking (production baseline) and semantic cluster chunking (research variant).
+% \textbf{Chunking Strategy Evaluation}
+
+% Document chunking determines whether a retriever finds the exact passage needed to answer a question, or must sift through irrelevant neighbors. We compared two strategies on 111 synthetic query-span pairs from 3 documents (434K characters total): recursive markdown chunking (production baseline) and semantic cluster chunking (research variant).
+
+% \begin{table}[H]
+%     \centering
+%     \caption{Chunking Quality: Recursive vs. Semantic (111 Queries)}
+%     \label{tab:chunking_results}
+%     \begin{adjustbox}{max width=\linewidth}
+%     \begin{tabular}{lrrrr}
+%         \toprule
+%         \textbf{Strategy} & \textbf{Hit@1} & \textbf{Span Recall@1} & \textbf{Span IoU@1} & \textbf{Avg Chars} \\
+%         \midrule
+%         Recursive Markdown & 72.07\% & 69.43\% & 18.71\% & 755 \\
+%         Semantic Cluster & 72.97\% & 71.07\% & 15.89\% & 1,006 \\
+%         \textbf{Winner (Tie)} & \textbf{Semantic} & \textbf{Semantic} & \textbf{Recursive} & \textbf{Recursive} \\
+%         \bottomrule
+%     \end{tabular}
+%     \end{adjustbox}
+% \end{table}
+
+% Both strategies achieve similar hit rates (72\%). Semantic chunking provides slightly better recall (71.07\% vs 69.43\%), recovering more of the target span. However, recursive chunking achieves better precision (18.71\% vs 15.89\% IoU) because it retrieves fewer irrelevant characters, improving LLM efficiency. Semantic chunking retrieves approximately 33\% more average characters per chunk (1,006 vs 755), making recursive chunking more cost-efficient for generation. The production pipeline uses recursive chunking for its balance of simplicity and precision; semantic chunking remains a research direction for improving recall on long-answer questions.
+
+% \textbf{End-to-End RAG Evaluation}
+
+End-to-end evaluation measures complete system correctness: retrieval + generation \& answer quality. We generated 6600 questions from 1320 sections across 20 documents, then used GPT-4o-mini to evaluate answers on three dimensions: correctness (factual accuracy), faithfulness (grounding in retrieved context), and answer support (whether retrieval provided sufficient information).
 
 \begin{table}[H]
     \centering
-    \caption{Chunking Quality: Recursive vs. Semantic (111 Queries).}
-    \label{tab:chunking_results}
-    \scalebox{0.90}{
-    \begin{tabular}{lrrrr}
-        \toprule
-        \textbf{Strategy} & \textbf{Hit@1} & \textbf{Span Recall@1} & \textbf{Span IoU@1} & \textbf{Avg Chars} \\
-        \midrule
-        Recursive Markdown & 72.07\% & 69.43\% & 18.71\% & 755 \\
-        Semantic Cluster & 72.97\% & 71.07\% & 15.89\% & 1,006 \\
-        \textbf{Winner (Tie)} & \textbf{Semantic} & \textbf{Semantic} & \textbf{Recursive} & \textbf{Recursive} \\
-        \bottomrule
-    \end{tabular}
-    }
-\end{table}
-
-Both strategies achieve similar hit rates (72\%). Semantic chunking provides slightly better recall (71.07\% vs 69.43\%), recovering more of the target span. However, recursive chunking achieves better precision (18.71\% vs 15.89\% IoU) because it retrieves fewer irrelevant characters, improving LLM efficiency. Semantic chunking retrieves approximately 33\% more average characters per chunk (1,006 vs 755), making recursive chunking more cost-efficient for generation. The production pipeline uses recursive chunking for its balance of simplicity and precision; semantic chunking remains a research direction for improving recall on long-answer questions.
-
-\textbf{End-to-End RAG Evaluation}
-
-End-to-end evaluation measures complete system correctness: retrieval + generation + answer quality. We generated 660 questions from 132 sections across 2 documents, then evaluated answers on three dimensions: correctness (factual accuracy), faithfulness (grounding in retrieved context), and answer support (whether retrieval provided sufficient information).
-
-\begin{table}[H]
-    \centering
-    \caption{End-to-End RAG Performance (660 Questions).}
+\textbf{Key Design Principles}:0 Questions)}
     \label{tab:e2e_results}
-    \scalebox{0.90}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lrr}
         \toprule
         \textbf{Dimension} & \textbf{Metric} & \textbf{Rate} \\
@@ -355,30 +353,29 @@ End-to-end evaluation measures complete system correctness: retrieval + generati
         & Not Supported & 16.4\% \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
 The system achieves 72.7\% correctness, meaning answers are factually accurate for most questions. Critically, faithfulness reaches 99.5\% with zero hallucinations, indicating that the RAG pipeline is highly reliable and grounded in retrieved evidence. This high faithfulness-to-correctness ratio (99.5\% vs 72.7\%) reveals that most errors come from retrieval failures or incomplete context (16.4\% of answers lack full support) rather than generation failing to ground answers. This diagnosis suggests that improving retrieval quality and chunking precision will directly lift correctness toward higher levels.
 
 The 82\% fully-supported rate confirms that the retrieval system successfully locates relevant passages for most queries, validating the combination of parsing, chunking, and retrieval strategies. The 22.4\% incorrect rate is primarily driven by questions whose answers require information not retrieved (16.4\%) or only partially retrieved (1.7\%), indicating retrieval as the primary optimization target for future improvements.
 
-\subsection{Evaluation Summary and Readiness Assessment}
+% \subsection{Evaluation Summary and Readiness Assessment}
+% The comprehensive evaluation across document parsing, multimodal retrieval, chunking strategy, and end-to-end RAG generation establishes that the BK-MInD system achieves \textbf{high-quality component-level performance} with clear diagnostic insights for production readiness.
 
-The comprehensive evaluation across document parsing, multimodal retrieval, chunking strategy, and end-to-end RAG generation establishes that the BK-MInD system achieves \textbf{high-quality component-level performance} with clear diagnostic insights for production readiness.
+% \textbf{Key Findings:}
 
-\textbf{Key Findings:}
+% \textit{(1) Parsing Quality Establishes Foundation-Strength in Structure, Bottleneck in Text Fidelity.} OmniDocBench parsing reaches 58.91\% overall accuracy, with exceptional read-order preservation (92.60\%) and strong table extraction (76.86\%), but text-level extraction lags at 47.43\% due to formula complexity and OCR limitations. Office document parsing (DOCX: 60.98\%) significantly outperforms spreadsheets (XLSX: 43.10\%), reflecting the structural complexity of merged cells and formula content. These results confirm that the parsing pipeline sets the upper bound for all downstream retrieval and generation quality.
 
-\textit{(1) Parsing Quality Establishes Foundation-Strength in Structure, Bottleneck in Text Fidelity.} OmniDocBench parsing reaches 58.91\% overall accuracy, with exceptional read-order preservation (92.60\%) and strong table extraction (76.86\%), but text-level extraction lags at 47.43\% due to formula complexity and OCR limitations. Office document parsing (DOCX: 60.98\%) significantly outperforms spreadsheets (XLSX: 43.10\%), reflecting the structural complexity of merged cells and formula content. These results confirm that the parsing pipeline sets the upper bound for all downstream retrieval and generation quality.
+% \textit{(2) Retrieval Achieves Excellent Recall and Ranking Quality-Text Dominates Image by 18\% nDCG@10.} Text retrieval achieves perfect recall@10 (100\%) across both BM25 (nDCG@10: 84.84\%) and Dense embedding (81.92\%) strategies, with BM25 showing marginal advantage. Image retrieval reaches 77.5\%--80.0\% recall@10 but underperforms on nDCG (67.14\% BM25, 62.58\% Dense), indicating text as the primary retrieval signal. Hybrid retrieval via Reciprocal Rank Fusion combines keyword precision and semantic understanding, providing the optimal balance for production systems.
 
-\textit{(2) Retrieval Achieves Excellent Recall and Ranking Quality-Text Dominates Image by 18\% nDCG@10.} Text retrieval achieves perfect recall@10 (100\%) across both BM25 (nDCG@10: 84.84\%) and Dense embedding (81.92\%) strategies, with BM25 showing marginal advantage. Image retrieval reaches 77.5\%--80.0\% recall@10 but underperforms on nDCG (67.14\% BM25, 62.58\% Dense), indicating text as the primary retrieval signal. Hybrid retrieval via Reciprocal Rank Fusion combines keyword precision and semantic understanding, providing the optimal balance for production systems.
+% \textit{(3) End-to-End RAG Reveals Retrieval as Primary Optimization Lever.} System correctness reaches 72.7\% with exceptional faithfulness of 99.5\% and zero hallucinations-proving that generation is grounded and reliable. The high faithfulness-to-correctness gap indicates that retrieval failures and incomplete context, not generation errors, drive the 22.4\% incorrect-answer rate. This clear diagnostic points to retrieval precision and chunking strategy as the direct path to improving correctness toward 80%+ levels.
 
-\textit{(3) End-to-End RAG Reveals Retrieval as Primary Optimization Lever.} System correctness reaches 72.7\% with exceptional faithfulness of 99.5\% and zero hallucinations-proving that generation is grounded and reliable. The high faithfulness-to-correctness gap indicates that retrieval failures and incomplete context, not generation errors, drive the 22.4\% incorrect-answer rate. This clear diagnostic points to retrieval precision and chunking strategy as the direct path to improving correctness toward 80%+ levels.
+% \textit{(4) Media Parsing Demonstrates Strong Temporal Coverage with Generalizable Pipeline.} ASR quality across 42 lecture videos reaches 16.63\% WER (acceptable for educational content), temporal hit rate is perfect (100\%), and frame extraction maintains near-perfect attachment rates (97.65\%--98.32\%). OCW single-lecture validation confirms pipeline robustness across different audio sources despite WER variations (21.81\% OCW vs 16.63\% MITFLD), demonstrating the system's ability to generalize beyond controlled environments.
 
-\textit{(4) Media Parsing Demonstrates Strong Temporal Coverage with Generalizable Pipeline.} ASR quality across 42 lecture videos reaches 16.63\% WER (acceptable for educational content), temporal hit rate is perfect (100\%), and frame extraction maintains near-perfect attachment rates (97.65\%--98.32\%). OCW single-lecture validation confirms pipeline robustness across different audio sources despite WER variations (21.81\% OCW vs 16.63\% MITFLD), demonstrating the system's ability to generalize beyond controlled environments.
+% \textit{(5) Chunking Strategy Successfully Balances Recall and Cost.} Recursive markdown chunking and semantic clustering achieve near-equivalent hit rates (~72\%), but recursive chunking is selected for production due to superior precision (18.71\% vs 15.89\% IoU) and lower token cost (755 vs 1,006 average characters per chunk), enabling more cost-efficient generation.
 
-\textit{(5) Chunking Strategy Successfully Balances Recall and Cost.} Recursive markdown chunking and semantic clustering achieve near-equivalent hit rates (~72\%), but recursive chunking is selected for production due to superior precision (18.71\% vs 15.89\% IoU) and lower token cost (755 vs 1,006 average characters per chunk), enabling more cost-efficient generation.
-
-\textbf{Readiness Assessment:} The evaluation phase confirms that the system is \textbf{functionally sound and diagnostically clear}. Component-level quality is established; the next validation gate is operational robustness-confirming that these metrics persist under production-scale concurrency and workload. The following section reports comprehensive performance testing results, which stress-test the system at 20--50 concurrent users and identify scalability boundaries essential for pilot deployment planning.
+% \textbf{Readiness Assessment:} The evaluation phase confirms that the system is \textbf{functionally sound and diagnostically clear}. Component-level quality is established; the next validation gate is operational robustness-confirming that these metrics persist under production-scale concurrency and workload. The following section reports comprehensive performance testing results, which stress-test the system at 20--50 concurrent users and identify scalability boundaries essential for pilot deployment planning.
 
 \newpage
 
@@ -760,22 +757,9 @@ Based on the observed performance boundaries, Table~\ref{tab:risks_mitigations} 
 
 To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/29-desktop performance.png}
-    \caption[Desktop Performance Metrics]{Desktop Performance Metrics.}
-    \label{fig:desktop_performance}
-\end{figure}
+The audit confirms strong frontend responsiveness across device classes. In the desktop environment, the application achieved an overall PageSpeed score of \textbf{99/100}, indicating excellent rendering efficiency, low layout instability, and strong compliance with technical best practices. In the mobile environment, the system achieved \textbf{90/100}, demonstrating that the interface remains performant and usable under more constrained device and network conditions.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/30-mobile performance.png}
-    \caption[Mobile Performance Metrics]{Mobile Performance Metrics.}
-    \label{fig:mobile_performance}
-\end{figure}
-
-As shown in Figures \ref{fig:desktop_performance} and \ref{fig:mobile_performance}, the system maintains high performance scores across all categories, ensuring fast load times and a responsive interface for multimodal document interaction.
-
+Across both audit modes, the results show that the BK-MInD frontend sustains fast load behavior while maintaining strong accessibility, SEO readiness, and implementation quality. The complete PageSpeed Insights screenshots for desktop and mobile are provided in Appendix~\ref{app:pagespeed_insights} for detailed visual inspection.
 
 \subsection{Evaluation Metrics Summary}
 
@@ -785,8 +769,8 @@ This subsection provides a consolidated overview of the metrics evaluated in Pha
     \centering
     \caption{Comprehensive Evaluation Metrics: Phase 2 vs. Future Plan.}
     \label{tab:evaluation_metrics}
-    \scalebox{0.85}{
-    \begin{tabular}{lp{2.5cm}p{7cm}}
+    \begin{adjustbox}{max width=\linewidth}
+    \begin{tabular}{lp{4.5cm}p{7cm}}
         \toprule
         \textbf{Metric Category} & \textbf{Phase 2 Status} & \textbf{Future Plan} \\
         \midrule
@@ -798,7 +782,7 @@ This subsection provides a consolidated overview of the metrics evaluated in Pha
         \textbf{Educational Effectiveness} (Instructor Feedback) & Planned for future deployment & Collect instructor feedback; measure course integration satisfaction; validate pedagogical value \\
         \bottomrule
     \end{tabular}
-    }
+\end{adjustbox}
 \end{table}
 
 \textit{Note: Phase 2 validates system infrastructure and performance under simulated load. Future deployment will measure educational impact through student and instructor feedback, enabling evidence-based optimization of learning outcomes and system adoption.}
@@ -917,7 +901,7 @@ To ground our cost projections in current market rates, we utilize the following
     \centering
     \caption{AWS Pricing Reference (us-west-2).}
     \label{tab:aws_pricing_ref}
-    \scalebox{0.8}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lllp{3.4cm}p{6cm}}
         \toprule
         \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
@@ -952,7 +936,7 @@ To ground our cost projections in current market rates, we utilize the following
         Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
         \bottomrule
     \end{tabular}
-    }
+\end{adjustbox}
 \end{table}
 
 \newpage
@@ -963,7 +947,7 @@ Based on the defined assumptions and current pricing, the following table provid
     \centering
     \caption{Monthly Cost Breakdown - 50 Users.}
     \label{tab:monthly_cost_breakdown}
-    \scalebox{0.8}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{llp{1.6cm}p{2.7cm}p{4.4cm}rr}
         \toprule
         \textbf{Category} & \textbf{Component} & \textbf{Quantity} & \textbf{Unit Price} & \textbf{Base Calculation} & \textbf{Cost} & \textbf{\%} \\
@@ -986,7 +970,7 @@ Based on the defined assumptions and current pricing, the following table provid
         \textbf{TOTAL} & & & & & \textbf{\$683.72} & \textbf{100.00\%} \\
         \bottomrule
     \end{tabular}
-    }
+\end{adjustbox}
 \end{table}
 
 \begin{figure}[H]
@@ -1004,7 +988,7 @@ The following table provides a comparative analysis of GPU operational costs acr
     \centering
     \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month).}
     \label{tab:gpu_optimization}
-    \scalebox{0.8}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{llllrrr}
         \toprule
         \textbf{Provider} & \textbf{GPU Type} & \textbf{Pricing Model} & \textbf{Pricing Unit} & \textbf{Always-On} & \textbf{50-User Cost} & \textbf{Savings vs AWS} \\
@@ -1015,7 +999,7 @@ The following table provides a comparative analysis of GPU operational costs acr
         Hyperstack & RTX A4000 & Dedicated & \$0.15 / hr & \$109.50 & \$109.50 & \$428.07 \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
 % \section{Chapter Summary}
