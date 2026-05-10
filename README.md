@@ -332,47 +332,48 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 
 **📖 Start Here:**
 
-- **[`docs/INDEX.md`](docs/INDEX.md)** ⭐   **Central documentation index** with reading paths by role, quick navigation, and complete documentation map. Use this to find what you need.
-
-**Core Documentation**
-
 - **[`docs/README.md`](docs/README.md)**   Documentation hub and overview.
 - **[`docs/requirements.md`](docs/requirements.md)** ⭐   Software Requirements Specification: functional, non-functional, technical constraints (37 requirements total).
 
 **Authoritative Technical Documents**
 
-- **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)**   Product scope, user workflows, architecture summary, features, quality attributes, and engineering assessment.
+- **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)** ⭐   Product scope, user workflows, architecture summary, features, quality attributes, and engineering assessment.
 - **[`docs/technical/API_REFERENCE.md`](docs/technical/API_REFERENCE.md)**   Maintainer-level API reference covering authentication, files, processing, indexing, search, chat, insights, feedback, and operational guidance.
-- **[`docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md`](docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)** ⭐   AWS Bedrock guardrails configuration, content safety filters, PII protection, implementation details.
+- **[`docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md`](docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)**   AWS Bedrock guardrails configuration, content safety filters, PII protection, implementation details.
 
-**Testing and performance evidence**
+**Testing and Performance Evidence**
 
 - **[`docs/report/FRESH_EVALUATION_REPORT_2026_05_07.md`](docs/report/FRESH_EVALUATION_REPORT_2026_05_07.md)**   Final evaluation report with component testing, performance benchmarks, and production readiness assessment.
-- **[`docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md)**   JMeter runbook and result exports for Process, Index, and Search.
-- **[`docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md)**   JMeter runbook and result exports for Auth, User, Stats, Upload, Chat, and Insights.
+- **[`docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md)**   JMeter runbook and result exports for Process, Index, and Search APIs.
+- **[`docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md)**   JMeter runbook and result exports for Auth, User, Stats, Upload, Chat, and Insights APIs.
 
-**Architecture and deployment**
+**Architecture and Deployment**
 
-- **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)**   System architecture, technology stack, and design patterns.
-- **[`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](docs/technical/DOCS_deployment-alb-acm-custom-domain.md)**   ACM certificates, DNS validation, ALB HTTP→HTTPS, custom domains.
+- **[`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](docs/technical/DOCS_deployment-alb-acm-custom-domain.md)**   ACM certificates, DNS validation, ALB HTTP→HTTPS, and custom domain setup.
 - **[`docs/technical/DOCS_search-cache-redis-setup.md`](docs/technical/DOCS_search-cache-redis-setup.md)**   Redis/ElastiCache search cache setup and operational notes.
+- **[`docs/technical/DOCS_REDIS_ASYNC_JOB_SYSTEM_GUIDE.md`](docs/technical/DOCS_REDIS_ASYNC_JOB_SYSTEM_GUIDE.md)**   Async job tracking system (Redis-based), job lifecycle, and monitoring.
 
-**Cost estimation**
+**Security and WAF Configuration**
+
+- **[`docs/technical/DOCS_TECHNICAL_WAF_CONFIGURATION.md`](docs/technical/DOCS_TECHNICAL_WAF_CONFIGURATION.md)**   AWS WAF rules, IP whitelisting, DDoS protection, and security group configuration.
+- **[`docs/technical/SECURITY_SECTION_CAPSTONE_REPORT.md`](docs/technical/SECURITY_SECTION_CAPSTONE_REPORT.md)**   Security architecture, threat modeling, and compliance considerations.
+
+**Cost Estimation**
 
 - **[`docs/others/AWS_Cost_Estimation_50_Users_Professional.xlsx`](docs/others/AWS_Cost_Estimation_50_Users_Professional.xlsx)**   Detailed cost analysis and scalability projections for 50 concurrent users.
 
-**Merged production application (`Phase_2_FE_AI_Merge/`)**
+**Merged Production Application (`Phase_2_FE_AI_Merge/`)**
 
 - **[`Phase_2_FE_AI_Merge/README.md`](Phase_2_FE_AI_Merge/README.md)**   Top-level map: frontend, backend, SageMaker pack, Terraform; local quick paths.
 - **[`Phase_2_FE_AI_Merge/MERGE_SUMMARY.md`](Phase_2_FE_AI_Merge/MERGE_SUMMARY.md)**   What was integrated from FE and AI service tracks.
 - **[`Phase_2_FE_AI_Merge/backend/README.md`](Phase_2_FE_AI_Merge/backend/README.md)**   FastAPI layout, Qdrant/BM25/hybrid/image retrieval, S3 vs local storage.
-- **[`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md)**   AWS resources (ECR, ECS, ALB, optional HTTPS, optional SageMaker) and safe Terraform checks.
-- **[`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)**   Unified container, ECR push, deploy/delete scripts, backend environment variables.
+- **[`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md)**   AWS resources (ECR, ECS, ALB, optional HTTPS, optional SageMaker) and Terraform checks.
+- **[`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)**   Unified container, ECR push, deploy/delete scripts, and backend environment variables.
 
-**Research milestones and utilities**
+**Research Milestones and Utilities**
 
-- READMEs inside **`Week0304_*`**, **`Week0506_*`**, **`Week070809_QPhu_Processor/`**, and **`downloads/`** (datasets and paper references).
-- **`DETAILED_PIPELINE_FLOWS.md`**, **`Week0506_*/`** comparison markdowns, and other week-specific notes where present.
+- READMEs inside **`Week0304_*`**, **`Week0506_*`**, **`Week070809_QPhu_Processor/`**, and **`downloads/`** directories (datasets and paper references).
+- **`Phase_1/Week0304_QPhu_RAG_Pipeline/DETAILED_PIPELINE_FLOWS.md`** — Detailed RAG pipeline flow diagrams and explanations.
 
 ---
 
