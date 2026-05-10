@@ -7,10 +7,13 @@ import logging
 import math
 import os
 import re
+import threading
+import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Sequence
+from typing import Any, Callable, Dict, List, Sequence, TypeVar
 
 from app.core.paths import BACKEND_ROOT, merged_runtime_settings, sanitize_storage_user_id, workspace_paths_for_user
 from app.services.knowledge_service import KnowledgeService
@@ -24,6 +27,14 @@ QUESTION_CATEGORIES = ("simple", "complex_intent", "reasoning", "cross_file_reas
 DEFAULT_K_VALUES = (1, 3, 5, 7, 10)
 MAX_CONTEXT_CHARS_PER_DOC = 80_000
 MAX_SUMMARY_CONTEXT_CHARS = 45_000
+LLM_EVAL_CONCURRENCY = 10
+LOG_LLM_PROMPTS = str(os.getenv("RETRIEVAL_EVAL_LOG_LLM_PROMPTS", "false")).strip().lower() in {"1", "true", "yes", "on"}
+try:
+    LOG_LLM_PROMPT_CHARS = max(200, int(os.getenv("RETRIEVAL_EVAL_LOG_LLM_PROMPT_CHARS", "1200") or "1200"))
+except ValueError:
+    LOG_LLM_PROMPT_CHARS = 1200
+
+_T = TypeVar("_T")
 
 _JSON_BLOCK_RE = re.compile(r"(\{.*\}|\[.*\])", re.DOTALL)
 _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*(\{.*?\}|\[.*?\])\s*```", re.DOTALL | re.IGNORECASE)
@@ -78,6 +89,13 @@ def _clip(text: Any, limit: int) -> str:
     #     return value
     # return value[:limit].rstrip() + "\n\n[TRUNCATED]"
     return value
+
+
+def _clip_for_log(text: Any, limit: int) -> str:
+    value = str(text or "").strip()
+    if len(value) <= limit:
+        return value
+    return value[:limit].rstrip() + " [TRUNCATED]"
 
 
 def _looks_like_refusal(raw: Any) -> bool:
@@ -183,6 +201,40 @@ def _doc_key_candidates(value: Any) -> set[str]:
     out.add(_norm_doc_key(stem))
     out.add(_norm_doc_key(re.sub(r"[_\s-]+\d+$", "", stem)))
     return {x for x in out if x}
+
+
+def _without_normalizer_hash(key: str) -> str:
+    """
+    Stage 1 truncates long filenames and appends an 8-char md5 suffix.
+    After ``_norm_doc_key`` that suffix is a trailing token, e.g.
+    ``real time object detection in disaster zo ca6faaea``.
+    """
+    tokens = str(key or "").strip().split()
+    if len(tokens) >= 2 and re.fullmatch(r"[0-9a-f]{8}", tokens[-1] or ""):
+        return " ".join(tokens[:-1]).strip()
+    return str(key or "").strip()
+
+
+def _doc_keys_match(left: set[str], right: set[str]) -> bool:
+    if left & right:
+        return True
+    left_clean = {_without_normalizer_hash(x) for x in left if x}
+    right_clean = {_without_normalizer_hash(x) for x in right if x}
+    if left_clean & right_clean:
+        return True
+    # Long original filenames may only share the un-hashed truncated prefix
+    # with the processed folder id. Require a substantial prefix to avoid
+    # matching unrelated short titles.
+    for a in left_clean:
+        if len(a) < 24:
+            continue
+        for b in right_clean:
+            if len(b) < 24:
+                continue
+            shorter, longer = (a, b) if len(a) <= len(b) else (b, a)
+            if longer.startswith(shorter):
+                return True
+    return False
 
 
 def _knowledge_doc_keys(row: Dict[str, Any]) -> set[str]:
@@ -372,6 +424,80 @@ class RetrievalEvalService:
         self.user_id = sanitize_storage_user_id(user_id)
         self.paths = workspace_paths_for_user(self.user_id)
         self.root = self.paths.output_dir / "evaluation" / "retrieval_eval"
+        self._llm_semaphore = threading.BoundedSemaphore(LLM_EVAL_CONCURRENCY)
+        self._progress_lock = threading.Lock()
+        self._progress_counts: Dict[str, int] = {}
+        self._current_run_id = ""
+
+    def _parallel_map(self, funcs: Sequence[Callable[[], _T]]) -> List[_T]:
+        if not funcs:
+            return []
+        if len(funcs) == 1:
+            return [funcs[0]()]
+        with ThreadPoolExecutor(max_workers=min(LLM_EVAL_CONCURRENCY, len(funcs))) as executor:
+            futures = [executor.submit(func) for func in funcs]
+            return [future.result() for future in futures]
+
+    def _next_progress(self, key: str) -> int:
+        with self._progress_lock:
+            value = self._progress_counts.get(key, 0) + 1
+            self._progress_counts[key] = value
+            return value
+
+    def _log_llm_prompt(
+        self,
+        *,
+        phase: str,
+        prompt: str,
+        run_id: str = "",
+        doc_id: str = "",
+        query_id: str = "",
+        category: str = "",
+        modality: str = "",
+    ) -> None:
+        logger.info(
+            "retrieval eval LLM prompt phase=%s run_id=%s user_id=%s doc_id=%s query_id=%s category=%s modality=%s chars=%d",
+            phase,
+            run_id or self._current_run_id,
+            self.user_id,
+            doc_id,
+            query_id,
+            category,
+            modality,
+            len(prompt),
+        )
+        if LOG_LLM_PROMPTS:
+            logger.info(
+                "retrieval eval LLM prompt body phase=%s run_id=%s preview=%r",
+                phase,
+                run_id or self._current_run_id,
+                _clip_for_log(prompt, LOG_LLM_PROMPT_CHARS),
+            )
+
+    def _call_llm_bounded(
+        self,
+        gen: Any,
+        prompt: str,
+        image_paths: List[str] | None = None,
+        *,
+        phase: str = "llm",
+        run_id: str = "",
+        doc_id: str = "",
+        query_id: str = "",
+        category: str = "",
+        modality: str = "",
+    ) -> str:
+        self._log_llm_prompt(
+            phase=phase,
+            prompt=prompt,
+            run_id=run_id,
+            doc_id=doc_id,
+            query_id=query_id,
+            category=category,
+            modality=modality,
+        )
+        with self._llm_semaphore:
+            return gen._call_llm(prompt, image_paths=image_paths)
 
     def _run_path(self, run_id: str) -> Path:
         safe = re.sub(r"[^a-zA-Z0-9_.-]", "_", str(run_id or "").strip())
@@ -476,6 +602,9 @@ class RetrievalEvalService:
         """Get processed documents available for retrieval evaluation."""
         snapshot = build_processed_documents_snapshot(self.user_id, include_preview=False)
         selected_doc_ids = set(_normalize_selected_doc_ids(selected_document_ids))
+        selected_doc_keys: set[str] = set()
+        for selected in selected_doc_ids:
+            selected_doc_keys.update(_doc_key_candidates(selected))
         active_rows = None if skip_knowledge_lookup else self._active_knowledge_rows()
         active_keys: set[str] = set()
         active_by_key: Dict[str, Dict[str, Any]] = {}
@@ -490,17 +619,23 @@ class RetrievalEvalService:
             doc_id = str(doc.get("id") or "").strip()
             if not doc_id or doc_id.startswith("__"):
                 continue
-            if selected_doc_ids and doc_id not in selected_doc_ids:
-                continue
             doc_keys = set()
             doc_keys.update(_doc_key_candidates(doc_id))
             doc_keys.update(_doc_key_candidates(doc.get("display_name")))
+            if selected_doc_ids and doc_id not in selected_doc_ids and not _doc_keys_match(doc_keys, selected_doc_keys):
+                continue
             knowledge_row: Dict[str, Any] | None = None
             if active_rows is not None:
                 matches = doc_keys & active_keys
-                if not matches:
+                if matches:
+                    knowledge_row = active_by_key.get(sorted(matches)[0])
+                else:
+                    knowledge_row = next(
+                        (row for row in active_rows if _doc_keys_match(doc_keys, _knowledge_doc_keys(row))),
+                        None,
+                    )
+                if knowledge_row is None:
                     continue
-                knowledge_row = active_by_key.get(sorted(matches)[0])
             ctx = gather_processed_markdown_context(self.user_id, doc_id, MAX_CONTEXT_CHARS_PER_DOC)
             if not ctx.strip():
                 continue
@@ -522,6 +657,14 @@ class RetrievalEvalService:
         return docs
 
     def _summarize_doc(self, gen: Any, doc: Dict[str, Any]) -> Dict[str, Any]:
+        idx = self._next_progress("summaries")
+        logger.info(
+            "retrieval eval summarizing document %d doc_id=%s display_name=%s context_chars=%d",
+            idx,
+            doc.get("doc_id"),
+            doc.get("display_name"),
+            len(str(doc.get("context") or "")),
+        )
         prompt = f"""
 Summarize this processed document markdown for retrieval-evaluation question generation.
 
@@ -534,8 +677,20 @@ Markdown:
 """.strip()
         raw = ""
         try:
-            raw = gen._call_llm(prompt)
+            raw = self._call_llm_bounded(
+                gen,
+                prompt,
+                phase="summarize_document",
+                doc_id=str(doc.get("doc_id") or ""),
+            )
             payload = _json_or_empty(raw)
+            logger.info(
+                "retrieval eval summarized document doc_id=%s raw_chars=%d summary_chars=%d topics=%d",
+                doc["doc_id"],
+                len(raw),
+                len(str(payload.get("summary") or "")),
+                len(payload.get("key_topics") or []),
+            )
             return {
                 "doc_id": doc["doc_id"],
                 "summary": str(payload.get("summary") or "").strip() or _clip(raw, 1200),
@@ -574,10 +729,17 @@ Markdown:
         out: List[Dict[str, Any]] = []
         counts = {cat: 0 for cat in QUESTION_CATEGORIES}
 
-        for category in QUESTION_CATEGORIES:
+        def generate_category(category: str) -> tuple[str, List[Dict[str, Any]], str]:
             needed = missing_counts.get(category, questions_per_category) if missing_counts else questions_per_category
             if needed <= 0:
-                continue
+                return category, [], ""
+            logger.info(
+                "retrieval eval generating questions doc_id=%s category=%s needed=%d context_chars=%d",
+                doc["doc_id"],
+                category,
+                needed,
+                len(str(doc.get("context") or "")),
+            )
             prompt = f"""
 Generate retrieval-evaluation questions for the target document.
 
@@ -610,9 +772,23 @@ Target document processed markdown:
 """.strip()
             raw = ""
             try:
-                raw = gen._call_llm(prompt)
+                raw = self._call_llm_bounded(
+                    gen,
+                    prompt,
+                    phase="generate_questions",
+                    doc_id=str(doc.get("doc_id") or ""),
+                    category=category,
+                )
                 payload = _json_or_empty(raw)
                 items = payload.get("items") if isinstance(payload, dict) else []
+                logger.info(
+                    "retrieval eval generated questions doc_id=%s category=%s requested=%d received=%d raw_chars=%d",
+                    doc["doc_id"],
+                    category,
+                    needed,
+                    len(items or []),
+                    len(raw),
+                )
                 if not items:
                     logger.warning(
                         "question generation returned no items for %s/%s reason=%s raw=%s",
@@ -625,7 +801,12 @@ Target document processed markdown:
                 logger.warning("question generation failed for %s/%s: %s", doc["doc_id"], category, exc)
                 items = []
                 raw = f"ERROR: {exc}"
+            return category, list(items or []), raw
 
+        category_results = self._parallel_map(
+            [lambda category=category: generate_category(category) for category in QUESTION_CATEGORIES]
+        )
+        for category, items, raw in category_results:
             for item in items or []:
                 cat = str(item.get("category") or "").strip() or category
                 needed = missing_counts.get(category, questions_per_category) if missing_counts else questions_per_category
@@ -676,6 +857,11 @@ Target document processed markdown:
         evidence: Sequence[Dict[str, Any]],
     ) -> Dict[str, Any]:
         if not evidence:
+            logger.info(
+                "retrieval eval relevance judge skipped query_id=%s modality=%s evidence=0",
+                question.get("query_id"),
+                modality,
+            )
             return {"labels": [], "raw": "", "error": ""}
         prompt = f"""
 Judge retrieval relevance for one query and one modality.
@@ -699,7 +885,14 @@ Evidence:
 """.strip()
         raw = ""
         try:
-            raw = gen._call_llm(prompt)
+            raw = self._call_llm_bounded(
+                gen,
+                prompt,
+                phase="judge_relevance",
+                query_id=str(question.get("query_id") or ""),
+                doc_id=str(question.get("doc_id") or ""),
+                modality=modality,
+            )
             payload = _json_or_empty(raw)
             labels = []
             for item in payload.get("items") or []:
@@ -713,6 +906,14 @@ Evidence:
                         "rationale": str(item.get("rationale") or "").strip(),
                     }
                 )
+            logger.info(
+                "retrieval eval relevance judged query_id=%s modality=%s evidence=%d labels=%d raw_chars=%d",
+                question.get("query_id"),
+                modality,
+                len(evidence),
+                len(labels),
+                len(raw),
+            )
             return {"labels": labels, "raw": raw, "error": ""}
         except Exception as exc:
             logger.warning("relevance judge failed for %s/%s: %s", question.get("query_id"), modality, exc)
@@ -728,6 +929,11 @@ Evidence:
     ) -> Dict[str, Any]:
         relevant_ids = [str(x.get("evidence_id")) for x in labels if _safe_int(x.get("relevance"), 0) > 0]
         if not relevant_ids:
+            logger.info(
+                "retrieval eval ranking judge skipped query_id=%s modality=%s relevant=0",
+                question.get("query_id"),
+                modality,
+            )
             return {"ranked_evidence_ids": [], "raw": "", "error": ""}
         relevant_evidence = [e for e in evidence if e.get("evidence_id") in set(relevant_ids)]
         prompt = f"""
@@ -745,7 +951,14 @@ Relevant evidence:
 """.strip()
         raw = ""
         try:
-            raw = gen._call_llm(prompt)
+            raw = self._call_llm_bounded(
+                gen,
+                prompt,
+                phase="judge_ranking",
+                query_id=str(question.get("query_id") or ""),
+                doc_id=str(question.get("doc_id") or ""),
+                modality=modality,
+            )
             payload = _json_or_empty(raw)
             ranked = [str(x).strip() for x in (payload.get("ranked_evidence_ids") or []) if str(x).strip()]
             known = set(relevant_ids)
@@ -753,6 +966,14 @@ Relevant evidence:
             for eid in relevant_ids:
                 if eid not in ranked:
                     ranked.append(eid)
+            logger.info(
+                "retrieval eval ranking judged query_id=%s modality=%s relevant=%d ranked=%d raw_chars=%d",
+                question.get("query_id"),
+                modality,
+                len(relevant_ids),
+                len(ranked),
+                len(raw),
+            )
             return {
                 "ranked_evidence_ids": ranked,
                 "rationale": str(payload.get("rationale") or "").strip(),
@@ -784,8 +1005,21 @@ Retrieved evidence:
 """.strip()
         raw = ""
         try:
-            raw = gen._call_llm(prompt)
+            raw = self._call_llm_bounded(
+                gen,
+                prompt,
+                phase="generate_answer",
+                query_id=str(question.get("query_id") or ""),
+                doc_id=str(question.get("doc_id") or ""),
+            )
             payload = _json_or_empty(raw)
+            logger.info(
+                "retrieval eval answer generated query_id=%s text_evidence=%d image_evidence=%d raw_chars=%d",
+                question.get("query_id"),
+                len(retrieved.get("text") or []),
+                len(retrieved.get("image") or []),
+                len(raw),
+            )
             return {
                 "answer": str(payload.get("answer") or "").strip() or _clip(raw, 1600),
                 "rationale": str(payload.get("rationale") or "").strip(),
@@ -834,8 +1068,21 @@ Retrieved evidence:
 """.strip()
         raw = ""
         try:
-            raw = gen._call_llm(prompt)
+            raw = self._call_llm_bounded(
+                gen,
+                prompt,
+                phase="judge_answer",
+                query_id=str(question.get("query_id") or ""),
+                doc_id=str(question.get("doc_id") or ""),
+            )
             payload = _json_or_empty(raw)
+            logger.info(
+                "retrieval eval answer judged query_id=%s correctness=%s support=%s raw_chars=%d",
+                question.get("query_id"),
+                payload.get("correctness"),
+                payload.get("answer_support"),
+                len(raw),
+            )
             return {
                 "correctness": str(payload.get("correctness") or "incorrect").strip(),
                 "faithfulness": str(payload.get("faithfulness") or "hallucinated").strip(),
@@ -858,6 +1105,15 @@ Retrieved evidence:
     def _run_retrieval(self, question: Dict[str, Any], top_k: int, retriever_type: str, search_scope: str) -> Dict[str, Any]:
         search_scope = search_scope if search_scope in {"text", "image", "both"} else "both"
         text_retriever = retriever_type if retriever_type in {"bm25", "dense", "hybrid"} else "hybrid"
+        logger.info(
+            "retrieval eval retrieving query_id=%s doc_id=%s top_k=%d retriever=%s scope=%s question=%r",
+            question.get("query_id"),
+            question.get("doc_id"),
+            top_k,
+            text_retriever,
+            search_scope,
+            _clip_for_log(question.get("question"), 220),
+        )
         out = SearchOrchestrator(self.cfg, user_id=self.user_id).run(
             query=str(question.get("question") or ""),
             top_k=top_k,
@@ -869,10 +1125,80 @@ Retrieved evidence:
             generation_model=None,
             skip_reranker=True,
         )
-        return {
+        normalized = {
             "text": _normalize_evidence("text", out.get("text_results") or []),
             "image": _normalize_evidence("image", out.get("image_results") or []),
             "telemetry": out.get("telemetry") or {},
+        }
+        logger.info(
+            "retrieval eval retrieved query_id=%s text=%d image=%d telemetry=%s",
+            question.get("query_id"),
+            len(normalized["text"]),
+            len(normalized["image"]),
+            normalized["telemetry"],
+        )
+        return normalized
+
+    def _evaluate_question(
+        self,
+        gen: Any,
+        question: Dict[str, Any],
+        *,
+        top_k: int,
+        retriever_type: str,
+        search_scope: str,
+        modalities: Sequence[str],
+        question_index: int = 0,
+        total_questions: int = 0,
+    ) -> Dict[str, Any]:
+        logger.info(
+            "retrieval eval evaluating question %d/%d query_id=%s doc_id=%s category=%s",
+            question_index,
+            total_questions,
+            question.get("query_id"),
+            question.get("doc_id"),
+            question.get("category"),
+        )
+        retrieved = self._run_retrieval(question, top_k, retriever_type, search_scope)
+
+        def judge_modality(modality: str) -> tuple[str, Dict[str, Any], Dict[str, Any]]:
+            relevance = self._judge_relevance(gen, question, modality, retrieved[modality])
+            ranking = self._judge_ranking(gen, question, modality, retrieved[modality], relevance.get("labels") or [])
+            return modality, relevance, ranking
+
+        judgment_rows = self._parallel_map([lambda modality=modality: judge_modality(modality) for modality in modalities])
+        answer = self._generate_answer(gen, question, retrieved)
+        answer_judgment = self._judge_answer(gen, question, answer.get("answer") or "", retrieved)
+
+        llm_judgments: Dict[str, Any] = {}
+        human_judgments: Dict[str, Any] = {}
+        for modality, relevance, ranking in judgment_rows:
+            llm_judgments[modality] = {
+                "labels": relevance.get("labels") or [],
+                "ranked_evidence_ids": ranking.get("ranked_evidence_ids") or [],
+                "relevance_raw": relevance.get("raw") or "",
+                "ranking_raw": ranking.get("raw") or "",
+                "relevance_error": relevance.get("error") or "",
+                "ranking_error": ranking.get("error") or "",
+            }
+            human_judgments[modality] = {"labels": [], "ranked_evidence_ids": []}
+
+        logger.info(
+            "retrieval eval evaluated question %d/%d query_id=%s modalities=%s",
+            question_index,
+            total_questions,
+            question.get("query_id"),
+            ",".join(str(m) for m in modalities),
+        )
+        return {
+            "query_id": question["query_id"],
+            "question": question,
+            "generated_answer": answer,
+            "llm_answer_judgment": answer_judgment,
+            "human_answer_judgment": {},
+            "retrieved": retrieved,
+            "llm_judgments": llm_judgments,
+            "human_judgments": human_judgments,
         }
 
     def create_run(
@@ -889,6 +1215,7 @@ Retrieved evidence:
         skip_knowledge_lookup: bool = False,
         reuse_generated_questions: bool = True,
     ) -> Dict[str, Any]:
+        started = time.perf_counter()
         k_values = tuple(sorted({int(k) for k in (k_values or DEFAULT_K_VALUES) if int(k) > 0}))
         if not k_values:
             k_values = DEFAULT_K_VALUES
@@ -898,7 +1225,20 @@ Retrieved evidence:
         modalities = ("text", "image") if search_scope == "both" else (search_scope,)
         questions_per_category = max(1, min(10, int(questions_per_category or 5)))
         run_id = run_id or self.new_run_id()
+        self._current_run_id = run_id
+        self._progress_counts = {}
         gc, gen = _generation_config(self.cfg)
+        logger.info(
+            "retrieval eval starting run_id=%s user_id=%s selected=%s scope=%s retriever=%s q_per_category=%d top_k=%d concurrency=%d",
+            run_id,
+            self.user_id,
+            selected_document_ids or [],
+            search_scope,
+            retriever_type,
+            questions_per_category,
+            top_k,
+            LLM_EVAL_CONCURRENCY,
+        )
 
         selected_doc_ids = _normalize_selected_doc_ids(selected_document_ids)
         docs = self._active_documents(
@@ -912,7 +1252,23 @@ Retrieved evidence:
                     "Selected file is not ready for retrieval evaluation. Make sure it is processed and indexed."
                 )
             raise ValueError("No processed documents found for retrieval evaluation")
-        summaries = [self._summarize_doc(gen, doc) for doc in docs]
+        logger.info(
+            "retrieval eval active documents run_id=%s count=%d docs=%s",
+            run_id,
+            len(docs),
+            [
+                {
+                    "doc_id": d.get("doc_id"),
+                    "display_name": d.get("display_name"),
+                    "context_chars": len(str(d.get("context") or "")),
+                    "knowledge_id": (d.get("knowledge") or {}).get("knowledge_id"),
+                }
+                for d in docs
+            ],
+        )
+        logger.info("retrieval eval summarizing %d document(s) run_id=%s", len(docs), run_id)
+        summaries = self._parallel_map([lambda doc=doc: self._summarize_doc(gen, doc) for doc in docs])
+        logger.info("retrieval eval summaries complete run_id=%s count=%d", run_id, len(summaries))
         
         reused_questions_by_doc: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
         if reuse_generated_questions and self.root.exists():
@@ -928,8 +1284,7 @@ Retrieved evidence:
                 except Exception:
                     pass
 
-        questions: List[Dict[str, Any]] = []
-        for doc in docs:
+        def questions_for_doc(doc: Dict[str, Any]) -> List[Dict[str, Any]]:
             doc_id = doc["doc_id"]
             existing = reused_questions_by_doc.get(doc_id, {})
             # extract reusable ones up to requested counts
@@ -942,9 +1297,10 @@ Retrieved evidence:
                         clone = dict(eq)
                         clone["query_id"] = f"{doc_id}:{cat}:{counts[cat]}"
                         reused_for_doc.append(clone)
-            
-            questions.extend(reused_for_doc)
-            
+            reused_count = len(reused_for_doc)
+            if reused_count:
+                logger.info("retrieval eval reused questions doc_id=%s count=%d", doc_id, reused_count)
+
             # generate missing if any
             if sum(counts.values()) < questions_per_category * len(QUESTION_CATEGORIES):
                 needed_per_cat = {cat: questions_per_category - counts[cat] for cat in QUESTION_CATEGORIES}
@@ -954,45 +1310,52 @@ Retrieved evidence:
                     if counts.get(cat, 0) < questions_per_category:
                         counts[cat] = counts.get(cat, 0) + 1
                         nq["query_id"] = f"{doc_id}:{cat}:{counts[cat]}"
-                        questions.append(nq)
+                        reused_for_doc.append(nq)
+            logger.info(
+                "retrieval eval questions ready doc_id=%s total=%d reused=%d generated_or_fallback=%d",
+                doc_id,
+                len(reused_for_doc),
+                reused_count,
+                max(len(reused_for_doc) - reused_count, 0),
+            )
+            return reused_for_doc
+
+        questions: List[Dict[str, Any]] = []
+        logger.info("retrieval eval preparing questions run_id=%s docs=%d", run_id, len(docs))
+        for doc_questions in self._parallel_map([lambda doc=doc: questions_for_doc(doc) for doc in docs]):
+            questions.extend(doc_questions)
 
         if not questions:
             raise RuntimeError(
                 "Retrieval eval could not generate any questions from the selected processed document. "
                 "Check the judge model response and processed markdown content."
             )
+        logger.info(
+            "retrieval eval generated question set run_id=%s total=%d by_doc=%s",
+            run_id,
+            len(questions),
+            {
+                doc["doc_id"]: sum(1 for q in questions if q.get("doc_id") == doc["doc_id"])
+                for doc in docs
+            },
+        )
 
-        results: List[Dict[str, Any]] = []
-        for question in questions:
-            retrieved = self._run_retrieval(question, top_k, retriever_type, search_scope)
-            llm_judgments: Dict[str, Any] = {}
-            human_judgments: Dict[str, Any] = {}
-            for modality in modalities:
-                relevance = self._judge_relevance(gen, question, modality, retrieved[modality])
-                ranking = self._judge_ranking(gen, question, modality, retrieved[modality], relevance.get("labels") or [])
-                llm_judgments[modality] = {
-                    "labels": relevance.get("labels") or [],
-                    "ranked_evidence_ids": ranking.get("ranked_evidence_ids") or [],
-                    "relevance_raw": relevance.get("raw") or "",
-                    "ranking_raw": ranking.get("raw") or "",
-                    "relevance_error": relevance.get("error") or "",
-                    "ranking_error": ranking.get("error") or "",
-                }
-                human_judgments[modality] = {"labels": [], "ranked_evidence_ids": []}
-            answer = self._generate_answer(gen, question, retrieved)
-            answer_judgment = self._judge_answer(gen, question, answer.get("answer") or "", retrieved)
-            results.append(
-                {
-                    "query_id": question["query_id"],
-                    "question": question,
-                    "generated_answer": answer,
-                    "llm_answer_judgment": answer_judgment,
-                    "human_answer_judgment": {},
-                    "retrieved": retrieved,
-                    "llm_judgments": llm_judgments,
-                    "human_judgments": human_judgments,
-                }
-            )
+        logger.info("retrieval eval evaluating %d question(s) run_id=%s", len(questions), run_id)
+        results = self._parallel_map(
+            [
+                lambda question=question, idx=idx: self._evaluate_question(
+                    gen,
+                    question,
+                    top_k=top_k,
+                    retriever_type=retriever_type,
+                    search_scope=search_scope,
+                    modalities=modalities,
+                    question_index=idx,
+                    total_questions=len(questions),
+                )
+                for idx, question in enumerate(questions, start=1)
+            ]
+        )
 
         run = {
             "run_id": run_id,
@@ -1028,6 +1391,15 @@ Retrieved evidence:
         }
         run["metrics"] = self.compute_metrics(run)
         run["timings_ms"] = self.compute_timing_summary(run)
+        run["timings_ms"]["wall_total_ms"] = round((time.perf_counter() - started) * 1000, 2)
+        logger.info(
+            "retrieval eval completed run_id=%s user_id=%s questions=%d results=%d wall_total_ms=%.2f",
+            run_id,
+            self.user_id,
+            len(questions),
+            len(results),
+            run["timings_ms"]["wall_total_ms"],
+        )
         return self.save_run(run)
 
     def compute_timing_summary(self, run: Dict[str, Any]) -> Dict[str, Any]:
