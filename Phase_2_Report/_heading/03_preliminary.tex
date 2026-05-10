@@ -1,11 +1,11 @@
-\chapter{Preliminaries}
+﻿\chapter{Preliminaries}
 
 \section{Terminology and Conventions}
 
 To ensure clarity and consistency throughout this report, the following standardized terminology and capitalization conventions are utilized:
 
 \begin{longtable}{llp{8cm}}
-\caption{Standardized Technical Terminology} \label{tab:terminology} \\
+\caption{Standardized Technical Terminology.} \label{tab:terminology} \\
 \toprule
 \textbf{Term} & \textbf{Capitalization} & \textbf{Description / Usage} \\
 \midrule
@@ -47,6 +47,7 @@ To ensure clarity and consistency throughout this report, the following standard
 \textbf{SSE} & All Caps & Server-Side Encryption; encryption method for protecting data at rest in Amazon S3. \\
 \textbf{API} & All Caps & Application Programming Interface; the interface through which frontend and backend systems communicate. \\
 \textbf{REST} & All Caps & Representational State Transfer; architectural style for the backend API design. \\
+\textbf{ASGI} & All Caps & Asynchronous Server Gateway Interface; the asynchronous interface for Python web application servers (e.g., Uvicorn). \\
 \textbf{SRT} & All Caps & SubRip Text; subtitle file format used for storing transcription outputs. \\
 \textbf{VTT} & All Caps & Web Video Text Tracks; subtitle file format used for web-based video player integration. \\
 \textbf{DPI} & All Caps & Dots Per Inch; resolution parameter used when rasterizing PDF pages to images. \\
@@ -61,7 +62,7 @@ Automatic Speech Recognition (ASR) converts spoken language into text. It has ev
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/09-asr-pipeline.png}
-    \caption[ASR pipeline]{ASR pipeline}
+    \caption[ASR pipeline]{ASR pipeline.}
     \label{fig:ASR_Pipeline}
 \end{figure}
 
@@ -189,7 +190,7 @@ Key research directions include self-supervised learning to reduce labeled-data 
 
 \section{Transformer}
 \label{sec:transformer}
-The Transformer model described in this section is based on \emph{Attention Is All You Need}~\cite{vaswani2017attention}. It replaces recurrent sequence processing with self-attention, enabling parallel training and effective modeling of long-range dependencies in tasks such as translation, generation, and language understanding.
+The Transformer model described in this section is based on \emph{Attention Is All You Need}~\cite{vaswani2017attentionNeurIPS}. It replaces recurrent sequence processing with self-attention, enabling parallel training and effective modeling of long-range dependencies in tasks such as translation, generation, and language understanding.
 
 \begin{figure}[H]
     \centering
@@ -276,7 +277,7 @@ The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{img/pdz/17-cross-attention.jpg}
-    \caption[Cross-attention]{Cross-attention}
+    \caption[Cross-attention]{Cross-attention.}
     \label{fig:Cross-attention}
 \end{figure}
 
@@ -322,7 +323,7 @@ where $x_m$ is the raw input of modality $m$, $f_m(\cdot)$ is the corresponding 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/05-multimodal-embedding.png}
-    \caption[Multimodal embedding]{Multimodal embedding}
+    \caption[Multimodal embedding]{Multimodal embedding.}
     \label{fig:Multimodal embedding}
 \end{figure}
 
@@ -358,7 +359,7 @@ The following table provides a concise summary of the landmark multimodal embedd
 
 \begin{table}[H]
 \centering
-\caption{Comparison of Multimodal Embedding Models}
+\caption{Comparison of Multimodal Embedding Models.}
 \label{tab:multimodal_models_overview}
 \scalebox{0.85}{
 \begin{tabular}{lp{3cm}p{5cm}p{4cm}}
@@ -414,7 +415,7 @@ A MRAG pipeline is illustrated in Figure~\ref{fig:MRAG pipeline}\footnote{\url{h
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/02-multimodal-rag-pipeline.jpg}
-    \caption[MRAG pipeline]{MRAG pipeline}
+    \caption[MRAG pipeline]{MRAG pipeline.}
     \label{fig:MRAG pipeline}
 \end{figure}
 
@@ -501,7 +502,7 @@ Rerankers, commonly implemented as cross-encoders, refine search results by join
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/18-reranker.png}
-    \caption[Reranker]{Reranker}
+    \caption[Reranker]{Reranker.}
     \label{fig:Reranker}
 \end{figure}
 
@@ -559,7 +560,7 @@ The augmentation process in RAG is illustrated in Figure~\ref{fig:Augmentation}\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/07-augmentation.png}
-    \caption[Augmentation]{Augmentation}
+    \caption[Augmentation]{Augmentation.}
     \label{fig:Augmentation}
 \end{figure}
 
@@ -613,7 +614,7 @@ The generator is the synthesis module in RAG. It conditions on both the user que
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/13-generation.png}
-    \caption[Generation]{Generation}
+    \caption[Generation]{Generation.}
     \label{fig:Generation}
 \end{figure}
 
@@ -685,3 +686,4 @@ Reinforcement learning treats prompts as actions optimized for rewards such as v
 Overall, prompt engineering has matured into a systematic methodology spanning demonstrations, reasoning scaffolds, structured outputs, and automated optimization. It remains central to reliable, controllable, and domain-aligned LLM behavior.
 
 \newpage
+

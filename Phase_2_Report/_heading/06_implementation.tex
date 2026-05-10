@@ -40,7 +40,7 @@ The following table summarizes the key technical transitions between the two pha
 
 \begin{table}[H]
     \centering
-    \caption{Technical Comparison: Phase 1 (Baseline) vs. Phase 2 (Production)}
+    \caption{Technical Comparison: Phase 1 (Baseline) vs. Phase 2 (Production).}
     \label{tab:phase_comparison}
     \scalebox{0.85}{
     \begin{tabular}{p{3.5cm}p{5.5cm}p{9cm}}
@@ -67,7 +67,7 @@ In addition to the architectural evolution, Phase 2 integrated several productio
 
 \begin{table}[H]
     \centering
-    \caption{Operational and Management Milestones (Phase 2)}
+    \caption{Operational and Management Milestones (Phase 2).}
     \label{tab:phase2_milestones}
     \scalebox{0.9}{
     \begin{tabular}{p{5cm}p{12cm}}
@@ -545,7 +545,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \centering
     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
     \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
-    \label{fig:excel_proc}
+    \label{fig:excel_proc_diagram}
 \end{figure}
 
 
@@ -581,7 +581,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \centering
     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
     \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
-    \label{fig:docx_proc}
+    \label{fig:docx_proc_diagram}
 \end{figure}
 
 
@@ -617,7 +617,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \centering
     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
     \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
-    \label{fig:pdf_proc}
+    \label{fig:pdf_proc_diagram}
 \end{figure}
 
 
@@ -1252,7 +1252,7 @@ Before detailing the specific collection structures, we define the properties ut
 
 \begin{table}[H]
     \centering
-    \caption{Schema properties used in implementation documentation}
+    \caption{Schema properties used in implementation documentation.}
     \label{tab:schema_props}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -1290,7 +1290,7 @@ To support our Hybrid + Multimodal retrieval strategy, we segregate embeddings i
 Stores granular textual chunks extracted from structured Markdown documents. It utilizes a hybrid search approach, combining sparse keyword indexing with the following dense vector configuration.
 \begin{table}[H]
     \centering
-    \caption{Text Vector Collection Properties}
+    \caption{Text Vector Collection Properties.}
     \label{tab:qdrant_text}
     \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
         \toprule
@@ -1304,7 +1304,7 @@ Stores granular textual chunks extracted from structured Markdown documents. It 
 Each indexed text chunk retains critical metadata necessary for strict multi-tenant filtering and file attribution during generative retrieval:
 \begin{table}[H]
     \centering
-    \caption{Text Collection Schema Structure}
+    \caption{Text Collection Schema Structure.}
     \label{tab:qdrant_text_schema}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -1326,7 +1326,7 @@ Each indexed text chunk retains critical metadata necessary for strict multi-ten
 Dedicated to storing high-order visual layouts. It leverages a unique multi-vector representation generated directly from the ColQwen vision-language model, enabling direct visual similarity searches against original PDF structures.
 \begin{table}[H]
     \centering
-    \caption{Image Vector Collection Properties}
+    \caption{Image Vector Collection Properties.}
     \label{tab:qdrant_image}
     \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
         \toprule
@@ -1358,7 +1358,7 @@ For a standard processing resolution of $1024 \times 1024$ pixels, $x \approx 5,
 The visual index maintains geometric representations (height/width) alongside S3 references, allowing the orchestration layer to securely retrieve the original page images for multimodal language models:
 \begin{table}[H]
     \centering
-    \caption{Image Collection Schema Structure}
+    \caption{Image Collection Schema Structure.}
     \label{tab:qdrant_image_schema}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -1461,7 +1461,7 @@ The system utilizes a dual-bucket object storage architecture to manage the life
 %         ]
 %       ]
 %     \end{forest}
-%     \caption{Amazon S3 Directory Structure Tree}
+%     \caption{Amazon S3 Directory Structure Tree.}
 %     \label{fig:s3_tree}
 % \end{figure}
 
@@ -1508,7 +1508,7 @@ The system utilizes a dual-bucket object storage architecture to manage the life
                 └── documents.json.pkl    # Document lookup table
     \end{verbatim}
 
-    \caption{Amazon S3 Directory Structure Tree}
+    \caption{Amazon S3 Directory Structure Tree.}
     \label{fig:s3_tree}
 
 \end{figure}
@@ -1736,7 +1736,7 @@ The combination of containerization, a private registry, and orchestration creat
 % \begin{figure}[H]
 %     \centering
 %     \includegraphics[width=1\textwidth]{img/pdz/33-react-survey.png}
-%     \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023)}
+%     \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023).}
 %     \label{fig:react_survey}
 % \end{figure}
 % 
@@ -1800,7 +1800,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \begin{table}[H]
 %     \centering
-%     \caption{FastAPI vs. Django Comparison for RAG Application}
+%     \caption{FastAPI vs. Django Comparison for RAG Application.}
 %     \label{tab:fastapi_vs_django}
 %     \scalebox{0.8}{
 %     \begin{tabular}{p{3cm}p{4.5cm}p{4.5cm}p{6cm}}
@@ -1827,7 +1827,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \begin{table}[H]
 %     \centering
-%     \caption{Multi-Vector Storage and MaxSim Implementation}
+%     \caption{Multi-Vector Storage and MaxSim Implementation.}
 %     \label{tab:multivector_impl}
 %     \scalebox{0.8}{
 %     \begin{tabular}{llll}
@@ -1849,7 +1849,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \begin{table}[H]
 %     \centering
-%     \caption{Search Mechanism Comparison}
+%     \caption{Search Mechanism Comparison.}
 %     \label{tab:search_mechanisms}
 %     \scalebox{0.8}{
 %     \begin{tabular}{llllll}
@@ -1870,7 +1870,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \begin{table}[H]
 %     \centering
-%     \caption{Cloud Scalability, Latency, and Economic Efficiency}
+%     \caption{Cloud Scalability, Latency, and Economic Efficiency.}
 %     \label{tab:scalability_econ}
 %     \scalebox{0.8}{
 %     \begin{tabular}{llllp{4cm}}
@@ -1894,7 +1894,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \begin{table}[H]
 %     \centering
-%     \caption{Holistic Vector Database Comparison Summary}
+%     \caption{Holistic Vector Database Comparison Summary.}
 %     \label{tab:holistic_db_comp}
 %     \scalebox{0.8}{
 %     \begin{tabular}{llllll}
@@ -1978,7 +1978,7 @@ The combination of containerization, a private registry, and orchestration creat
 %         \bottomrule
 %     \end{tabular}
 %     }
-%     \caption{Cost Estimation Assumptions}
+%     \caption{Cost Estimation Assumptions.}
 %     \label{tab:cost_assumptions}
 % \end{table}
 % 
@@ -2024,7 +2024,7 @@ The combination of containerization, a private registry, and orchestration creat
 %         \bottomrule
 %     \end{tabular}
 %     }
-%     \caption{AWS Pricing Reference (us-west-2)}
+%     \caption{AWS Pricing Reference (us-west-2).}
 %     \label{tab:aws_pricing_ref}
 % \end{table}
 % 
@@ -2058,7 +2058,7 @@ The combination of containerization, a private registry, and orchestration creat
 %         \bottomrule
 %     \end{tabular}
 %     }
-%     \caption{Monthly Cost Breakdown - 50 Users}
+%     \caption{Monthly Cost Breakdown - 50 Users.}
 %     \label{tab:monthly_cost_breakdown}
 % \end{table}
 % 
@@ -2087,7 +2087,7 @@ The combination of containerization, a private registry, and orchestration creat
 %         \bottomrule
 %     \end{tabular}
 %     }
-%     \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month)}
+%     \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month).}
 %     \label{tab:gpu_optimization}
 % \end{table}
 % 
@@ -2156,7 +2156,7 @@ The WAF uses a consumption model based on Web ACL Capacity Units (WCUs). The cur
 
 \begin{table}[H]
     \centering
-    \caption{WAF Capacity Utilization and Cost}
+    \caption{WAF Capacity Utilization and Cost.}
     \label{tab:waf_capacity}
     \scalebox{0.85}{
     \begin{tabular}{lrr}
@@ -2312,7 +2312,7 @@ The BK-MInD security implementation provides protection against all OWASP Top 10
 
 \begin{table}[H]
     \centering
-    \caption{OWASP Top 10 Protection Coverage}
+    \caption{OWASP Top 10 Protection Coverage.}
     \label{tab:owasp_coverage}
     \scalebox{0.85}{
     \begin{tabular}{lp{8cm}}
@@ -2403,3 +2403,4 @@ The current configuration is optimal for production deployment, consuming only 2
 
 
 \newpage
+
