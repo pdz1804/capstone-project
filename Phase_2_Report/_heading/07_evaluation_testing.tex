@@ -67,11 +67,11 @@ This section evaluates whether the system can reliably retrieve relevant text an
 
 Text retrieval was evaluated across three strategies (Text - Keyword Search, Text - Semantic Search, Image) on 2430 synthetic questions generated from 20 active documents. We use GPT-4o-mini to generate those queries for each parsed section of each document. The queries span four difficulty categories: simple factual lookup, complex multi-part questions, reasoning-based queries, and cross-document reasoning. Evaluation metrics include Recall@K (proportion of relevant documents found in top K results) and nDCG@K (ranking quality considering both relevance and position).
 
-Retrieval is the foundation. If the system can't find the relevant lecture material, the AI assistant can't answer your question no matter how good the AI is. For example, if you ask "What is photosynthesis?" but the system retrieves a paragraph about mitochondria instead, the AI will explain mitochondria, not photosynthesis.
+Retrieval is the foundation. If the system can't find the relevant lecture material, the AI assistant can't answer your question no matter how good the AI is. For example, if you ask ``What is photosynthesis?'' but the system retrieves a paragraph about mitochondria instead, the AI will explain mitochondria, not photosynthesis.
 
 \begin{table}[H]
     \centering
-    \caption{BM25 Text Retrieval Performance (All K Values with Standard Deviation)}
+    \caption{BM25 Text Retrieval Performance (All K Values with Standard Deviation).}
     \label{tab:bm25_text_full}
     \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lrr}
@@ -94,7 +94,7 @@ Retrieval is the foundation. If the system can't find the relevant lecture mater
 
 \begin{table}[H]
     \centering
-    \caption{Dense Text Retrieval Performance (All K Values with Standard Deviation)}
+    \caption{Dense Text Retrieval Performance (All K Values with Standard Deviation).}
     \label{tab:dense_text_full}
     \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lrr}
@@ -145,7 +145,7 @@ Image retrieval was evaluated using ColQwen2 on the same 2430-queries set. PDF p
 
 \begin{table}[H]
     \centering
-    \caption{Image Retrieval Performance with ColQwen2}
+    \caption{Image Retrieval Performance with ColQwen2.}
     \label{tab:bm25_image_full}
     \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lrr}

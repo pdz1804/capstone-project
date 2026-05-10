@@ -775,7 +775,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 % \textbf{Response Structure and Metadata Tracking}
 
-% Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the "source-of-truth" for all generated answers.
+% Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the ``source-of-truth'' for all generated answers.
 
 
 % \subsection{Storage Architecture}
@@ -924,7 +924,7 @@ Processed chunks are mapped to a high-dimensional vector space using the \textbf
 \subsection{Visual Embedding Pipeline}
 
 For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes JPG images derived from the canonical PDF files.
-% The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
+% The system implements a ``1 Page = 1 Image'' conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
 These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model ``sees'' the document exactly as a human would.
 
 
@@ -1078,7 +1078,7 @@ As illustrated in Figure \ref{fig:search_flow}, the search orchestrator (\texttt
 
 \textbf{Response Structure and Metadata Tracking}
 
-Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the "source-of-truth" for all generated answers.
+Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the ``source-of-truth'' for all generated answers.
 
 
 \subsection{Storage Architecture}
@@ -1719,7 +1719,7 @@ The combination of containerization, a private registry, and orchestration creat
 % This is the cornerstone of the selection. The user interface will be a composition of independent, reusable components (as listed above). This modularity simplifies the entire development lifecycle; each component can be built, tested, and maintained in isolation, which is critical for managing the complexity of the application.
 % 
 % \textbf{High Performance with the Virtual DOM}
-% The RAG system will generate text responses and display various media types. React's use of a Virtual Document Object Model (DOM) is a key performance feature. It creates a lightweight in-memory representation of the UI, calculates the most efficient changes ("diffing"), and minimizes direct, costly manipulations of the actual browser DOM. This results in a smooth, responsive user experience, even as the UI updates frequently with new data from the backend.
+% The RAG system will generate text responses and display various media types. React's use of a Virtual Document Object Model (DOM) is a key performance feature. It creates a lightweight in-memory representation of the UI, calculates the most efficient changes (``diffing''), and minimizes direct, costly manipulations of the actual browser DOM. This results in a smooth, responsive user experience, even as the UI updates frequently with new data from the backend.
 % 
 % \textbf{Comparative Analysis: React vs. Vue.js}
 % While both React and Vue.js utilize a virtual DOM and a component-based architecture, a direct comparison reveals React's significant advantages for a project of this scale.
@@ -1753,7 +1753,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % The backend is the engine of our AI-driven educational application, responsible for orchestrating every interaction between the user, our data stores, and the core AI models. Our reliance on Python is a strategic imperative, granting us native access to the world's leading AI ecosystem, including libraries like PyTorch, Scikit-learn, and the Hugging Face ecosystem.
 % 
-% Within this ecosystem, the choice of web framework is critical. It is the layer that can either unleash the power of our AI models or become a crippling performance bottleneck. After a detailed analysis of the primary contenders, the mature, "batteries-included" Django framework and the modern, high-performance FastAPI, we have concluded that FastAPI is the unequivocally superior choice for this project.
+% Within this ecosystem, the choice of web framework is critical. It is the layer that can either unleash the power of our AI models or become a crippling performance bottleneck. After a detailed analysis of the primary contenders, the mature, ``batteries-included'' Django framework and the modern, high-performance FastAPI, we have concluded that FastAPI is the unequivocally superior choice for this project.
 % 
 % This decision is based on three core pillars:
 % \begin{itemize}
