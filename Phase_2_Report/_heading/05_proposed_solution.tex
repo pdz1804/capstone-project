@@ -468,7 +468,7 @@ Following processing, the dual-pathway indexing module produces both text indice
 
     \item \textbf{Load Balancing and Routing:} The AWS Application Load Balancer (ALB) distributes incoming traffic across multiple backend instances, with path-based routing rules directing API calls (\texttt{/api/*}) to the backend service and static/dynamic content to the frontend service. Auto-scaling groups automatically adjust task counts based on CPU, memory, and request count metrics.
 
-    \item \textbf{Vector Storage:} Qdrant Cloud is provisioned as an externally managed vector database service, reducing operational overhead while providing reliable multi-tenant vector search with built-in security isolation. Text embeddings (BM25, dense FAISS, and hybrid RRF indices) and image embeddings (ColQwen multi-vector) are stored separately for independent scaling.
+    \item \textbf{Vector Storage:} Qdrant Cloud is provisioned as an externally managed vector database service, reducing operational overhead while providing reliable multi-tenant vector search with built-in security isolation. Dense text embeddings (\texttt{edu\_text\_chunks}) and image embeddings (\texttt{edu\_image\_pages}) are stored in dedicated Qdrant collections for independent scaling. BM25 sparse indices are maintained locally for efficient keyword retrieval.
 \end{itemize}
 
 Together, these four layers enable BK-MInD to ingest diverse HCMUT lecture materials, build a multimodal knowledge index, and serve interactive educational features with high availability, low latency, and enterprise-grade security.
@@ -551,7 +551,7 @@ For detailed specifications of each stage including routing tables, processing p
 
 Following data processing, the system employs a dual-pathway embedding architecture to enable multimodal retrieval. As illustrated in Figure~\ref{fig:chunk_emb}, this architecture allows simultaneous retrieval of granular text segments and holistic document pages.
 
-\textit{Text Embedding Pathway}: Structured Markdown files are segmented using \texttt{RecursiveCharacterTextSplitter} (1024-character chunks, 200-character overlap) and encoded into 384-dimensional vectors by \texttt{all-MiniLM-L6-v2}. The system maintains three parallel indices: a BM25 inverted index for keyword retrieval, a FAISS dense index for semantic search, and a hybrid index combining both via Reciprocal Rank Fusion (RRF).
+\textit{Text Embedding Pathway}: Structured Markdown files are segmented using \texttt{RecursiveCharacterTextSplitter} (1024-character chunks, 200-character overlap) and encoded into 384-dimensional vectors by \texttt{all-MiniLM-L6-v2}. Dense vectors are indexed in Qdrant's \texttt{edu\_text\_chunks} collection. The retrieval layer supports: (1) BM25 for keyword retrieval, (2) Dense Qdrant search for semantic similarity, and (3) Hybrid fusion combining both via Reciprocal Rank Fusion (RRF).
 
 \textit{Visual Embedding Pathway}: PDF pages are rasterized at 150 DPI using a ``1 Page = 1 Image'' strategy. Each page image is processed by ColQwen2, a Vision-Language Model using the Late Interaction paradigm, generating multi-vector patch-level embeddings stored in the ColQwen visual index. This enables diagram-aware and layout-aware retrieval without relying on OCR.
 
@@ -776,7 +776,7 @@ The experimental findings above directly inform the hardware and software specif
 \begin{itemize}
     \item \textbf{Single-GPU Dependency}: The current architecture does not support distributed GPU processing. Visual embedding generation (ColQwen) and inference are constrained to a single GPU, creating a bottleneck for large-scale batch processing.
     \item \textbf{Index Rebuilding Overhead}: Document updates require full index regeneration. The system does not support incremental indexing, meaning that adding or modifying a single document necessitates reprocessing the entire corpus for that index type.
-    \item \textbf{Memory Scalability}: Both BM25 and FAISS indices are loaded entirely into RAM during retrieval. For corpora exceeding 1 million documents, memory consumption can surpass 32GB, limiting deployment on consumer-grade hardware.
+    \item \textbf{Memory Scalability}: \textit{(Resolved in Phase 2 Implementation)} Qdrant Cloud provides managed vector storage with automatic scaling, eliminating the RAM constraints of local index storage. Vector indices are queried remotely via Qdrant's HNSW implementation without requiring local memory.
     \item \textbf{Storage Redundancy}: The dual-pathway architecture stores multiple representations of the same document (original PDF, rasterized images, Markdown, embeddings), resulting in storage overhead of approximately $5\times$ the original document size.
     \item \textbf{Processing Latency}: Document ingestion is synchronous and blocking. A single complex PDF (e.g., 100 pages with tables and images) can take 2-5 minutes to process through the full pipeline, during which no other documents can be processed concurrently.
     \item \textbf{Model Size Constraints}: The system's embedding models are fixed at deployment time. Switching to larger models (e.g., upgrading from MiniLM to BGE-Large for embedding) requires reindexing the entire corpus. Reranking is globally disabled by default (\texttt{skip\_reranker=true}) for latency optimization, though the code is retained for fast rollback.
