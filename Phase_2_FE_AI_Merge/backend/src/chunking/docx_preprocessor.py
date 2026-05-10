@@ -359,7 +359,7 @@ class DocxPreprocessor:
 
         copied = []
         for img_entry in all_image_paths:
-            # Image path may be "path|hash"   take only the path
+            # Image path may be "path|hash" — take only the path
             path_str = img_entry.split("|")[0].strip()
             img_path = Path(path_str)
             if img_path.exists():

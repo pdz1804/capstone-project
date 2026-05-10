@@ -245,42 +245,42 @@ function AuthImage({ src, alt, markdownSourcePath }: { src?: string; alt?: strin
 
 function getLectureMarkdownComponents(markdownSourcePath?: string | null): Components {
   return {
-    h1: ({ children }) => <h1 className="text-3xl font-bold text-slate-900 mt-2 mb-4">{children}</h1>,
-    h2: ({ children }) => <h2 className="text-2xl font-semibold text-slate-900 mt-6 mb-3">{children}</h2>,
-    h3: ({ children }) => <h3 className="text-xl font-semibold text-slate-900 mt-5 mb-2">{children}</h3>,
-    p: ({ children }) => <p className="text-base leading-7 text-slate-700 my-2">{children}</p>,
-    ul: ({ children }) => <ul className="list-disc pl-6 my-3 space-y-1">{children}</ul>,
-    ol: ({ children }) => <ol className="list-decimal pl-6 my-3 space-y-1">{children}</ol>,
-    li: ({ children }) => <li className="text-base leading-7 text-slate-700">{children}</li>,
-    table: ({ children }) => <table className="w-full border-collapse text-sm my-4">{children}</table>,
-    th: ({ children }) => <th className="border border-slate-300 bg-slate-50 px-2 py-1 text-left">{children}</th>,
-    td: ({ children }) => <td className="border border-slate-300 px-2 py-1 align-top">{children}</td>,
-    img: ({ src, alt }) => (
-      <AuthImage
-        src={typeof src === 'string' ? src : undefined}
-        alt={alt}
-        markdownSourcePath={markdownSourcePath}
-      />
-    ),
-    a: ({ href, children }) => {
-      const link = String(href || '');
-      if (link.startsWith('#')) {
-        return (
-          <button
-            type="button"
-            onClick={() => scrollToElementForHashLink(link)}
-            className="text-blue-700 hover:text-blue-900 underline underline-offset-2"
-          >
-            {children}
-          </button>
-        );
-      }
+  h1: ({ children }) => <h1 className="text-3xl font-bold text-slate-900 mt-2 mb-4">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-2xl font-semibold text-slate-900 mt-6 mb-3">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-xl font-semibold text-slate-900 mt-5 mb-2">{children}</h3>,
+  p: ({ children }) => <p className="text-base leading-7 text-slate-700 my-2">{children}</p>,
+  ul: ({ children }) => <ul className="list-disc pl-6 my-3 space-y-1">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal pl-6 my-3 space-y-1">{children}</ol>,
+  li: ({ children }) => <li className="text-base leading-7 text-slate-700">{children}</li>,
+  table: ({ children }) => <table className="w-full border-collapse text-sm my-4">{children}</table>,
+  th: ({ children }) => <th className="border border-slate-300 bg-slate-50 px-2 py-1 text-left">{children}</th>,
+  td: ({ children }) => <td className="border border-slate-300 px-2 py-1 align-top">{children}</td>,
+  img: ({ src, alt }) => (
+    <AuthImage
+      src={typeof src === 'string' ? src : undefined}
+      alt={alt}
+      markdownSourcePath={markdownSourcePath}
+    />
+  ),
+  a: ({ href, children }) => {
+    const link = String(href || '');
+    if (link.startsWith('#')) {
       return (
-        <a href={link} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">
+        <button
+          type="button"
+          onClick={() => scrollToElementForHashLink(link)}
+          className="text-blue-700 hover:text-blue-900 underline underline-offset-2"
+        >
           {children}
-        </a>
+        </button>
       );
-    },
+    }
+    return (
+      <a href={link} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">
+        {children}
+      </a>
+    );
+  },
   };
 }
 
@@ -1124,7 +1124,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               )}
             </div>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
-              Your uploads ({files.length})   click to select
+              Your uploads ({files.length}) — click to select
             </p>
             <div
               className="border border-slate-200 rounded-2xl bg-slate-50/60 max-h-52 overflow-y-auto shadow-inner custom-scrollbar"
@@ -1422,7 +1422,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
             <div className="p-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <p className="text-xs text-slate-500 font-medium leading-relaxed flex-1">
-                  <strong>{scopeFile?.name || 'This file'}</strong>   switch between indexed chunks and full processed markdown.
+                  <strong>{scopeFile?.name || 'This file'}</strong> — switch between indexed chunks and full processed markdown.
                 </p>
                 <div className="flex rounded-2xl border border-sky-100 p-1 bg-sky-50/50 shrink-0">
                   <button
@@ -1568,7 +1568,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   <div className="w-full max-w-sm space-y-5 mb-10 text-left">
                     {scopeFile && (
                       <p className="text-xs text-slate-500">
-                        Scoped to document folder: <strong>{scopeFile.documentFolder || ' '}</strong> ({scopeFile.name})
+                        Scoped to document folder: <strong>{scopeFile.documentFolder || '—'}</strong> ({scopeFile.name})
                       </p>
                     )}
 
@@ -1623,7 +1623,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   </div>
                   <h3 className="text-xl font-black text-slate-900 tracking-tight">Calling insights API…</h3>
                   <p className="text-sm text-slate-500 mt-3 font-medium max-w-[240px] mx-auto leading-relaxed">
-                    POST /api/insights/summary   Bedrock or your configured generator.
+                    POST /api/insights/summary — Bedrock or your configured generator.
                   </p>
                 </div>
               ) : (
@@ -1683,11 +1683,11 @@ export default function LectureView({ files = [] }: LectureViewProps) {
               <div>
                 <h3 className="font-black text-slate-900 text-lg tracking-tight">Lecture visualization</h3>
                 <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
-                  One infographic from your <strong>processed markdown</strong> (Gemini image). Nothing is stored on the server   view, copy, or download here.
+                  One infographic from your <strong>processed markdown</strong> (Gemini image). Nothing is stored on the server — view, copy, or download here.
                 </p>
                 {scopeFile && (
                   <p className="text-[11px] text-slate-500 mt-2">
-                    Scoped folder: <strong>{scopeFile.documentFolder || ' '}</strong> · {scopeFile.name}
+                    Scoped folder: <strong>{scopeFile.documentFolder || '—'}</strong> · {scopeFile.name}
                   </p>
                 )}
               </div>

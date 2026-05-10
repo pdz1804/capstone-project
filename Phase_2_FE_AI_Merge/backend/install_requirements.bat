@@ -1,5 +1,5 @@
 @echo off
-REM Same as install_requirements.ps1   uses Code\myenv\Scripts\python.exe
+REM Same as install_requirements.ps1 — uses Code\myenv\Scripts\python.exe
 setlocal
 set "BACKEND=%~dp0"
 set "CODE=%BACKEND%..\.."

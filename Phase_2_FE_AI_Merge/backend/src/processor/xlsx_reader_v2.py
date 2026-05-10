@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-xlsx_reader_v2.py   Parse Excel (.xlsx / .xlsm) files from their raw XML
+xlsx_reader_v2.py — Parse Excel (.xlsx / .xlsm) files from their raw XML
 structure into a structured JSON representation.
 
 Pipeline:
@@ -191,7 +191,7 @@ def resolve_shared_strings(parsed_dir: Path) -> List[str]:
     """
     ss_path = parsed_dir / "xl" / "sharedStrings.xml"
     if not ss_path.exists():
-        log.info("No sharedStrings.xml found in %s   skipping resolution", parsed_dir)
+        log.info("No sharedStrings.xml found in %s — skipping resolution", parsed_dir)
         return []
 
     shared_values = load_shared_strings(str(ss_path))
@@ -495,7 +495,7 @@ def _parse_cell_element(cell_el: ET.Element, shared_values: List[str]) -> Dict[s
     value_type = "string"
 
     if cell_type == "s":
-        # Shared string   use resolved text if available, else index
+        # Shared string — use resolved text if available, else index
         try:
             idx = int(raw_value)
             if 0 <= idx < len(shared_values):
@@ -1267,7 +1267,7 @@ def _format_chart_object(obj: Dict[str, Any]) -> str:
                 row = "| " + " | ".join([str(cat)] + [str(v) for v in vals]) + " |"
                 lines.append(row)
         else:
-            # No categories   just output values
+            # No categories — just output values
             max_rows = max((len(s.get("values", [])) for s in series_list), default=0)
             for i in range(max_rows):
                 vals = []
@@ -1324,7 +1324,7 @@ def _parse_graphic_frame(
     if "chart" not in uri:
         return None
 
-    # Find the chart element   it uses the chart namespace
+    # Find the chart element — it uses the chart namespace
     chart_ref_el = graphic_data.find(f"{{{NS_CHART}}}chart")
     if chart_ref_el is None:
         return None
@@ -2243,7 +2243,7 @@ def _build_sheet_content(
         while r1 > 0:
             above = r1 - 1
             fill = _row_fill_count_in_col_range(grid_rows, above, c1, c2)
-            if fill >= 2:  # low threshold   merged headers often have few unique cells
+            if fill >= 2:  # low threshold — merged headers often have few unique cells
                 r1 = above
             else:
                 break
@@ -2321,7 +2321,7 @@ def _build_sheet_content(
                             "name": "",
                         })
         else:
-            # Single column group   process as before
+            # Single column group — process as before
             md = _grid_to_markdown_table(
                 grid_rows, tbl_row_list, min_c, max_c,
             )
@@ -2340,7 +2340,7 @@ def _build_sheet_content(
     # Sort table blocks by start row, then by start column
     table_blocks.sort(key=lambda t: (t["start_row"], t.get("start_col", 0)))
 
-    # ── 2b. Residual pass   catch small table-like blocks missed by the
+    # ── 2b. Residual pass — catch small table-like blocks missed by the
     #    dense_threshold=3 of _detect_table_ranges.  This handles e.g.
     #    summary blocks (TOTAL PROJECTED COST / TOTAL ACTUAL COST) where
     #    merged labels give only 2 non-merged fills per row.
@@ -2404,7 +2404,7 @@ def _build_sheet_content(
                     merged_cells=all_merged_cells,
                 )
                 for sub_sr, sub_er in sub_ranges:
-                    # Skip single-row blocks   they are titles /
+                    # Skip single-row blocks — they are titles /
                     # headings that should remain as free text.
                     if sub_sr == sub_er:
                         continue
@@ -2470,7 +2470,7 @@ def _build_sheet_content(
     #   col_position breaks ties for side-by-side tables (left before right).
     content_items: List[Tuple[int, int, int, str]] = []
 
-    # 4a. Free text rows   emit only cells not consumed by any table
+    # 4a. Free text rows — emit only cells not consumed by any table
     for r in range(max_row + 1):
         row = grid_rows.get(r, {})
         if not row:
@@ -2527,14 +2527,14 @@ def _parse_chartsheet_linear(
     """
     Parse a chartsheet → {"sheet_name": str, "content": str} or None.
 
-    Chartsheets have no cell data   they contain only a drawing reference
+    Chartsheets have no cell data — they contain only a drawing reference
     which embeds a chart.  We resolve:
       chartsheet XML → <drawing r:id="…"/> → drawingN.xml → graphicFrame → chartN.xml
     """
     sheet_name = sheet_meta["name"]
     xml_rel_path = sheet_meta.get("xml_path", "")
     if not xml_rel_path:
-        log.warning("No XML path for chartsheet '%s'   skipping", sheet_name)
+        log.warning("No XML path for chartsheet '%s' — skipping", sheet_name)
         return None
 
     cs_xml = parsed_dir / "xl" / xml_rel_path
@@ -2571,7 +2571,7 @@ def _parse_chartsheet_linear(
         log.warning("Drawing XML not found for chartsheet '%s': %s", sheet_name, drawing_target)
         return None
 
-    # Parse the drawing   will now pick up graphicFrame → chart objects
+    # Parse the drawing — will now pick up graphicFrame → chart objects
     drawing_objects = parse_drawing(drawing_xml, parsed_dir)
 
     content_parts: List[str] = []
@@ -2596,7 +2596,7 @@ def _parse_sheet_linear(
     sheet_name = sheet_meta["name"]
     xml_rel_path = sheet_meta.get("xml_path", "")
     if not xml_rel_path:
-        log.warning("No XML path for sheet '%s'   skipping", sheet_name)
+        log.warning("No XML path for sheet '%s' — skipping", sheet_name)
         return None
 
     sheet_xml = parsed_dir / "xl" / xml_rel_path

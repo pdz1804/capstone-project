@@ -24,7 +24,7 @@ from app.repositories import (
 
 router = APIRouter(prefix="/api", tags=["status"])
 
-# (monotonic_ts, payload) per storage user   avoids repeated Qdrant round-trips from UI polling.
+# (monotonic_ts, payload) per storage user — avoids repeated Qdrant round-trips from UI polling.
 _status_cache: Dict[str, Tuple[float, Dict[str, Any]]] = {}
 _status_cache_lock = threading.Lock()
 _user_compute_locks: Dict[str, threading.Lock] = {}

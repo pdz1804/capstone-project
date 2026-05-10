@@ -1,4 +1,4 @@
-"""Unit tests for app.storage   local backend, S3 URI parsing, factory, mocked S3 client."""
+"""Unit tests for app.storage — local backend, S3 URI parsing, factory, mocked S3 client."""
 
 from __future__ import annotations
 

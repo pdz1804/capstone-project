@@ -41,7 +41,7 @@ def _build_gemini_image_config(types: Any) -> Any | None:
 
 
 def _call_gemini_infographic_image(prompt: str) -> Tuple[bytes | None, str | None, str, str | None]:
-    """Return ``(image_bytes, mime_type, model_text, error)``   streams may emit TEXT and IMAGE parts."""
+    """Return ``(image_bytes, mime_type, model_text, error)`` — streams may emit TEXT and IMAGE parts."""
     key = (os.environ.get("GEMINI_API_KEY") or "").strip()
     if not key:
         return None, None, "", "GEMINI_API_KEY is not set"
@@ -258,7 +258,7 @@ class InsightsService:
                     "error": "No retrieved content to visualize.",
                 }
             source_note = (
-                "Content source: retrieved excerpts from the student's indexed lecture materials only   "
+                "Content source: retrieved excerpts from the student's indexed lecture materials only — "
                 "do not invent facts beyond this text."
             )
         else:
@@ -275,7 +275,7 @@ class InsightsService:
                     ),
                 }
             source_note = (
-                "Content source: processed lecture markdown from the pipeline for this document scope   "
+                "Content source: processed lecture markdown from the pipeline for this document scope — "
                 "do not invent facts beyond this text."
             )
 
@@ -287,7 +287,7 @@ class InsightsService:
             "primary sky #0ea5e9, deep sky #0284c7, accent #0369a1, "
             "panel backgrounds #f0f9ff and #e0f2fe, body text #0f172a and #334155, borders #bae6fd.\n"
             "Place a small, readable watermark in the bottom-right corner with the exact plain text: BK-MInD "
-            "(no asterisks, no markdown, no ** bold syntax   letters only).\n"
+            "(no asterisks, no markdown, no ** bold syntax — letters only).\n"
             "Avoid illegible micro-text; no decorative clutter.\n\n"
             f"{source_note}\n\n"
             f"{focus}"
@@ -468,7 +468,7 @@ class InsightsService:
         }
 
     def analytics_placeholder(self) -> Dict[str, Any]:
-        """FR-020: requires session store   schema only for now."""
+        """FR-020: requires session store — schema only for now."""
         return {
             "message": "Performance analytics need persisted quiz sessions; endpoint reserved for future work.",
             "metrics": [],

@@ -69,7 +69,7 @@ def sanitize_filename_stem(stem: str) -> str:
     Normalize a filename stem for Windows-safe output folders and files.
 
     Trailing spaces (and dots) in names are invalid on Windows and cause
-    mkdir/write to fail or disagree with pathlib/consolidator paths   e.g.
+    mkdir/write to fail or disagree with pathlib/consolidator paths — e.g.
     ``Report .pdf`` -> stem ``Report `` must become ``Report``.
     """
     if not stem:

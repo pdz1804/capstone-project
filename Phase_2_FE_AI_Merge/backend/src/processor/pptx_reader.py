@@ -544,7 +544,7 @@ class PptxParser:
 
         # --- Detect level from numbering structure ---
         # Normalize dashes (fullwidth → ASCII for counting)
-        normalized = heading_text.replace('－', '-').replace(' ', '-').replace('‐', '-')
+        normalized = heading_text.replace('－', '-').replace('—', '-').replace('‐', '-')
         # Also normalize tabs to spaces
         normalized = normalized.replace('\t', ' ')
         level = None
@@ -3093,7 +3093,7 @@ class PptxParser:
 
             # --- Frequency-based marker filtering ---
             # If this forced candidate text appears too frequently across slides,
-            # it's a repeated marker (company name, breadcrumb, logo label)   skip it.
+            # it's a repeated marker (company name, breadcrumb, logo label) — skip it.
             if is_forced_candidate and hasattr(self, '_marker_freq_map') and self._marker_scan_count > 0:
                 norm_for_freq = normalize_line(combined_content).strip().lower()
                 marker_count = self._marker_freq_map.get(norm_for_freq, 0)
@@ -3449,12 +3449,12 @@ class PptxParser:
         # --- Step 2b: Extract numbering prefixes for fallback matching ---
         # e.g. "4-1.2.32" from "4-1.2.32\t交通ラジオ機能（JP)"
         _NUM_PREFIX_RE = re.compile(
-            r'^(\d+(?:[-．.‐－ ]\d+)+)'
+            r'^(\d+(?:[-．.‐－—]\d+)+)'
         )
 
         def _extract_num_prefix(text: str) -> Optional[str]:
             """Extract numbering prefix like '4-1.2.32' from text."""
-            cleaned = text.replace('－', '-').replace(' ', '-').replace('‐', '-').replace('．', '.')
+            cleaned = text.replace('－', '-').replace('—', '-').replace('‐', '-').replace('．', '.')
             cleaned = re.sub(r'[\s\t　]+', '', cleaned)  # remove all whitespace
             m = _NUM_PREFIX_RE.match(cleaned)
             return m.group(1) if m else None
@@ -3554,7 +3554,7 @@ class PptxParser:
             if not content:
                 continue
 
-            # Non-text content (images, tables)   append as-is to current node
+            # Non-text content (images, tables) — append as-is to current node
             is_non_text = (
                 content.startswith(IMAGE_PATH_START_MARKER)
                 or content.startswith(TABLE_CONTENT_START_MARKER)
@@ -3596,7 +3596,7 @@ class PptxParser:
                 if _try_match_heading(line):
                     continue
 
-                # No heading match   append as content to current node
+                # No heading match — append as content to current node
                 if current_node:
                     _append_to_node(current_node, line)
 

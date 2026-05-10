@@ -4,7 +4,7 @@ type AppFooterProps = {
   className?: string;
 };
 
-/** Global site footer   shown on every authenticated and login screen. */
+/** Global site footer — shown on every authenticated and login screen. */
 export default function AppFooter({ className }: AppFooterProps) {
   return (
     <footer

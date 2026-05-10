@@ -1,4 +1,4 @@
-"""Health, root, config, system inference   no heavy deps."""
+"""Health, root, config, system inference — no heavy deps."""
 
 from __future__ import annotations
 

@@ -62,7 +62,7 @@ def normalize_line(s: str, strip_bullets: bool = True) -> str:
     # ensure a space after a numeric dot when followed immediately by CJK (e.g., "1.概要" -> "1. 概要")
     s = re.sub(r'([0-9])\.(?=[\u3040-\u30FF\u4E00-\u9FFF])', r'\1. ', s)
     
-    s = re.sub(r'[– −―]', '-', s)
+    s = re.sub(r'[–—−―]', '-', s)
     # normalize multiple spaces and full-width space to single ASCII space
     s = re.sub(r'[\u3000\s]+', ' ', s).strip()
     return s

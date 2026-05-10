@@ -797,8 +797,8 @@ class RAGGenerator:
                 i,
                 img_doc.get("source"),
                 img_doc.get("page"),
-                img_doc.get("storage_uri") or " ",
-                img_doc.get("source_path") or " ",
+                img_doc.get("storage_uri") or "—",
+                img_doc.get("source_path") or "—",
             )
         
         # Prepare image paths for vision model

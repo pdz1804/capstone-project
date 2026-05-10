@@ -412,7 +412,7 @@ class ItemSequencer:
         t = re.sub(r"^\s*[\d]+(?:\.[\d]+)*\.?\s*", "", text or "")
         t = re.sub(r"^\s*[A-Z](?:\.[\d]+)*\.?\s+", "", t)
         t = re.sub(r"\s+", " ", t).strip().lower()
-        t = t.replace("-", "").replace("–", "").replace(" ", "")
+        t = t.replace("-", "").replace("–", "").replace("—", "")
         return t
 
     @staticmethod

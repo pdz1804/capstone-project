@@ -151,7 +151,7 @@ class CustomPdfReader:
                 )
             except Exception as exc:
                 logger.warning(
-                    "Docling content extraction failed for %s (%s)   falling back to pymupdf blocks",
+                    "Docling content extraction failed for %s (%s) — falling back to pymupdf blocks",
                     pdf_path, exc,
                 )
                 return self._extract_text_blocks(pdf_path)
@@ -322,7 +322,7 @@ class CustomPdfReader:
         t = re.sub(r"^\s*[\d]+(?:\.[\d]+)*\.?\s*", "", text or "")
         t = re.sub(r"^\s*[A-Z](?:\.[\d]+)*\.?\s+", "", t)
         t = re.sub(r"\s+", " ", t).strip().lower()
-        t = t.replace("-", "").replace("–", "").replace(" ", "")
+        t = t.replace("-", "").replace("–", "").replace("—", "")
         return t
 
     def _count_sections(self, tree: List[Dict[str, Any]]) -> int:

@@ -1,4 +1,4 @@
-# Phase_2_FE_AI_Merge   create backend venv, install Python + npm deps, run unit tests.
+# Phase_2_FE_AI_Merge — create backend venv, install Python + npm deps, run unit tests.
 #
 # Usage (PowerShell, from repo):
 #   cd Phase_2_FE_AI_Merge\scripts
@@ -35,31 +35,28 @@ Write-Step "Backend venv: $VenvDir"
 if (-not (Test-Path $VenvPython)) {
     $created = $false
     foreach ($venvArgs in @(
-            @("-3.12", "-m", "venv", $VenvDir),
-            @("-3", "-m", "venv", $VenvDir),
-            @("-m", "venv", $VenvDir)
-        )) {
+        @("-3.12", "-m", "venv", $VenvDir),
+        @("-3", "-m", "venv", $VenvDir),
+        @("-m", "venv", $VenvDir)
+    )) {
         try {
             Write-Host "Trying: py $($venvArgs -join ' ')"
             & py @venvArgs
             if (Test-Path $VenvPython) { $created = $true; break }
-        }
-        catch { }
+        } catch { }
     }
     if (-not $created) {
         try {
             Write-Host "Trying: python -m venv"
             & python -m venv $VenvDir
             if (Test-Path $VenvPython) { $created = $true }
-        }
-        catch { }
+        } catch { }
     }
     if (-not $created -or -not (Test-Path $VenvPython)) {
         Write-Host "Could not create venv. Install Python 3.11+ and ensure 'py' or 'python' is on PATH." -ForegroundColor Red
         exit 1
     }
-}
-else {
+} else {
     Write-Host "Venv already exists."
 }
 
@@ -68,27 +65,23 @@ Push-Location $Backend
 try {
     & $VenvPython -m pip install --upgrade pip
     & $VenvPython -m pip install -r requirements.txt
-}
-finally {
+} finally {
     Pop-Location
 }
 
 if (-not $SkipFrontend) {
     if (-not (Test-Path $Frontend)) {
         Write-Host "Frontend folder missing; skipping npm." -ForegroundColor Yellow
-    }
-    else {
+    } else {
         Write-Step "Frontend npm install"
         Push-Location $Frontend
         try {
             if (Get-Command npm -ErrorAction SilentlyContinue) {
                 npm install
-            }
-            else {
+            } else {
                 Write-Host "npm not found on PATH; install Node.js LTS and re-run without -SkipFrontend." -ForegroundColor Yellow
             }
-        }
-        finally {
+        } finally {
             Pop-Location
         }
     }
@@ -103,8 +96,7 @@ if (-not $SkipTests) {
             Write-Host "pytest exited with $LASTEXITCODE" -ForegroundColor Red
             exit $LASTEXITCODE
         }
-    }
-    finally {
+    } finally {
         Pop-Location
     }
 }
@@ -113,7 +105,7 @@ Write-Host ""
 Write-Host "Done. Activate backend venv:" -ForegroundColor Green
 Write-Host "  $($VenvDir)\Scripts\Activate.ps1"
 Write-Host "Run API:  cd $Backend; .\run_api.ps1"
-Write-Host "          (must run from Phase_2_FE_AI_Merge\backend   not Code\backend)"
+Write-Host "          (must run from Phase_2_FE_AI_Merge\backend — not Code\backend)"
 Write-Host "Run UI:   cd frontend; npm run dev"
 Write-Host ""
 Write-Host "AWS / .env checklist (see assistant message or backend/.env.example):" -ForegroundColor DarkGray

@@ -740,7 +740,7 @@ def processed_documents(
     ),
     user_id: str = Depends(storage_user_id),
 ) -> Dict:
-    """Structured processing tree: document folders, stages, root JSON   one call for the Processed Files UI."""
+    """Structured processing tree: document folders, stages, root JSON — one call for the Processed Files UI."""
     ensure_data_dirs(user_id)
     return build_processed_documents_snapshot(user_id, include_preview=preview)
 
