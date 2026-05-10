@@ -1,4 +1,4 @@
-# Phase 2 AI Service — Frontend
+# Phase 2 AI Service   Frontend
 
 Vite + React 18 + Tailwind. The dev server proxies `/api` to `http://localhost:8000` (see `vite.config.js`).
 

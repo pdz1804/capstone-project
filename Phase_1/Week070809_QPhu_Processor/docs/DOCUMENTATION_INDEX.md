@@ -467,11 +467,11 @@ transformers          # For VLM
 
 | **File Type** | **Size** | **Stage 1** | **Stage 2** | **Stage 3** | **Total** |
 |--------------|---------|------------|------------|------------|-----------|
-| DOCX (10 pages) | 500KB | 5s | — | 15s | **20s** |
-| PPTX (20 slides) | 5MB | 10s | — | 30s | **40s** |
-| PDF (50 pages) | 10MB | 1s | — | 60s | **61s** |
-| Image (high-res) | 5MB | 2s | — | 10s | **12s** |
-| Video (10 min) | 100MB | — | 120s | 5s | **125s** |
+| DOCX (10 pages) | 500KB | 5s |   | 15s | **20s** |
+| PPTX (20 slides) | 5MB | 10s |   | 30s | **40s** |
+| PDF (50 pages) | 10MB | 1s |   | 60s | **61s** |
+| Image (high-res) | 5MB | 2s |   | 10s | **12s** |
+| Video (10 min) | 100MB |   | 120s | 5s | **125s** |
 
 **Hardware**: Intel i7, 16GB RAM, NVIDIA RTX 3060 (6GB VRAM)
 

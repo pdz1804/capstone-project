@@ -16,11 +16,11 @@ This folder is organized as a maintainable documentation system for the BK-MInD 
 
 ## Recommended Reading Order
 
-1. [`technical/APPLICATION_OVERVIEW.md`](technical/APPLICATION_OVERVIEW.md) — product scope, feature set, architecture, and quality attributes.
-2. [`technical/API_REFERENCE.md`](technical/API_REFERENCE.md) — API surface grouped by platform capability.
-3. [`testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md) — final performance evidence and scaling analysis.
-4. [`jmeter-capacity-tests/runs/README_MAIN_APIS.md`](jmeter-capacity-tests/runs/README_MAIN_APIS.md) — main API capacity-test commands and result exports.
-5. [`jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md`](jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md) — non-main API capacity-test commands and JTL export flow.
+1. [`technical/APPLICATION_OVERVIEW.md`](technical/APPLICATION_OVERVIEW.md)   product scope, feature set, architecture, and quality attributes.
+2. [`technical/API_REFERENCE.md`](technical/API_REFERENCE.md)   API surface grouped by platform capability.
+3. [`testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)   final performance evidence and scaling analysis.
+4. [`jmeter-capacity-tests/runs/README_MAIN_APIS.md`](jmeter-capacity-tests/runs/README_MAIN_APIS.md)   main API capacity-test commands and result exports.
+5. [`jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md`](jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md)   non-main API capacity-test commands and JTL export flow.
 
 ## Documentation Standards
 

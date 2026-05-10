@@ -1,4 +1,4 @@
-# Main APIs — JMeter runs, JTL extract, Dynamo & search metrics
+# Main APIs   JMeter runs, JTL extract, Dynamo & search metrics
 
 This document covers **capacity testing for the core knowledge pipeline**: **05 Process**, **06 Index**, and **08 Search** (mapped plans, one job or one search per user unless noted).
 
@@ -12,7 +12,7 @@ Auto-generated CSVs from `d:\PDZ\BKU\Learning\LVTN\GD1\Code\docs\jmeter-capacity
 
 Mapped CSV users; **05/06**: `Jramp_up=0`, **1 loop** per thread; **08**: `08_search_mapped_1loop.jmx`, `-Jsearch_query="mining"`, `Jramp_up=0`. Dynamo table `**bk_mind_app_jobs`**, region `**us-west-2**`.
 
-### Process (`05`) — Dynamo job duration (seconds)
+### Process (`05`)   Dynamo job duration (seconds)
 
 
 | Threads | CSV in `runs/`                          | Jobs (summary) | avg  | p95 | p99 | Notes                                                          |
@@ -22,17 +22,17 @@ Mapped CSV users; **05/06**: `Jramp_up=0`, **1 loop** per thread; **08**: `08_se
 | 40      | `05_20260426_193738_dynamo_metrics.csv` | n_ok=40        | 50.8 | 56  | 56  | Higher contention; more `failed`                               |
 
 
-### Index (`06`) — Dynamo job duration (seconds)
+### Index (`06`)   Dynamo job duration (seconds)
 
 
 | Threads | CSV in `runs/`                          | Jobs (summary) | avg   | p95 | p99 | Notes                                                               |
 | ------- | --------------------------------------- | -------------- | ----- | --- | --- | ------------------------------------------------------------------- |
 | 20      | `06_20260425_162052_dynamo_metrics.csv` | n_ok=20        | 98.1  | 106 | 107 | All `index_all` **completed** in this sample                        |
 | 30      | `06_20260426_191438_dynamo_metrics.csv` | n_ok=30        | 161.7 | 187 | 190 | All **completed**                                                   |
-| 40      | `06_20260426_193133_dynamo_metrics.csv` | n_ok=40        | 274.6 | 329 | 331 | All `**failed`** in this sample — treat as overload / tuning signal |
+| 40      | `06_20260426_193133_dynamo_metrics.csv` | n_ok=40        | 274.6 | 329 | 331 | All `**failed`** in this sample   treat as overload / tuning signal |
 
 
-### Search (`08`) — `POST /api/search` only (`jtl_metrics_csv.py --search-only`)
+### Search (`08`)   `POST /api/search` only (`jtl_metrics_csv.py --search-only`)
 
 
 | Threads | CSV in `runs/`                       | samples | errors | elapsed mean (ms) | elapsed p95 (ms) |
@@ -43,7 +43,7 @@ Mapped CSV users; **05/06**: `Jramp_up=0`, **1 loop** per thread; **08**: `08_se
 | 50      | `08_20260426_195619_jtl_metrics.csv` | 50      | 0      | 21 895            | 30 119           |
 
 
-Interpretation: search latency grows with concurrency; index at **40** simultaneous **full** index jobs exceeded healthy completion in this environment—validate workers, Qdrant, and job timeouts before relying on that tier.
+Interpretation: search latency grows with concurrency; index at **40** simultaneous **full** index jobs exceeded healthy completion in this environment validate workers, Qdrant, and job timeouts before relying on that tier.
 
 ---
 
@@ -69,11 +69,11 @@ Set **AWS** as you usually do (`AWS_PROFILE`, keys, or SSO). Python needs **boto
 
 ---
 
-## Index API — 3 steps (JMeter → JTL → job ids → Dynamo)
+## Index API   3 steps (JMeter → JTL → job ids → Dynamo)
 
 Use the **1-loop** plan so each user runs **one** index job; `job_id` values appear in JTL on `GET /api/index/status/{uuid}` URLs (response bodies are not saved in the default CSV JTL).
 
-`data/user_file_mapping_with_passwords.csv` has **50** user rows — use **at most 50** threads (`-Jthreads`).
+`data/user_file_mapping_with_passwords.csv` has **50** user rows   use **at most 50** threads (`-Jthreads`).
 
 **Primary matrix (April 2026):** 20 / 30 / 40 threads, `Jramp_up=0`, `Jpoll_max_checks=90`, `Jpoll_interval_ms=2000`.
 
@@ -134,9 +134,9 @@ $jtl = Get-ChildItem "results\06_index_1loop_*.jtl" | Sort-Object LastWriteTime 
 
 ---
 
-## Process API — 3 steps (same pattern as index)
+## Process API   3 steps (same pattern as index)
 
-Same **50**-row mapping CSV — **at most 50** threads.
+Same **50**-row mapping CSV   **at most 50** threads.
 
 **Primary matrix:** 20 / 30 / 40 threads; `Jprocess_timeout=180000`, `Jpoll_max_checks=90`, `Jpoll_interval_ms=2000`, `Jramp_up=0`.
 
@@ -199,11 +199,11 @@ $jtl = Get-ChildItem "results\05_process_1loop_*.jtl" | Sort-Object LastWriteTim
 
 ---
 
-## Search API — JMeter + JTL metrics CSV (no `job_id`, no Dynamo)
+## Search API   JMeter + JTL metrics CSV (no `job_id`, no Dynamo)
 
 Search is synchronous; there is **no** job table step. `data/user_file_mapping_with_passwords.csv` has **50** rows. For **1-loop** plans, use **at most 50** threads.
 
-### A) One search per user (primary — matches April 2026 runs)
+### A) One search per user (primary   matches April 2026 runs)
 
 `08_search_mapped_1loop.jmx`, `Jramp_up=0`, `-Jsearch_query="mining"` (change as needed).
 
@@ -245,10 +245,10 @@ jmeter -n -t "08_search_mapped_1loop.jmx" `
 
 ### B) Export latency / elapsed to CSV (`jtl_metrics_csv.py`)
 
-Summarises the JTL **per `label`**: sample count, errors, `elapsed` (full response, ms) and `**Latency**` (TTFB, ms) when the JTL includes a `Latency` column — plus a `**TOTAL_ALL_LABELS**` row when multiple labels match.
+Summarises the JTL **per `label`**: sample count, errors, `elapsed` (full response, ms) and `**Latency**` (TTFB, ms) when the JTL includes a `Latency` column   plus a `**TOTAL_ALL_LABELS**` row when multiple labels match.
 
-- `**--search-only**` — only samples whose `label` or `URL` contains `/api/search` (drops login, etc.).
-- `**--out-csv-auto 08**` — writes `runs\08_YYYYMMDD_HHMMSS_jtl_metrics.csv`.
+- `**--search-only**`   only samples whose `label` or `URL` contains `/api/search` (drops login, etc.).
+- `**--out-csv-auto 08**`   writes `runs\08_YYYYMMDD_HHMMSS_jtl_metrics.csv`.
 
 **Latest `08_*.jtl` → CSV (search samples only, auto name under `runs/`):**
 
@@ -269,7 +269,7 @@ If you need **all** labels (e.g. login + search), omit `--search-only` or set `-
 
 ### C) Sustained load (alternative)
 
-`08_search_mapped.jmx` — `duration` seconds, many searches per thread. Example: `Jramp_up=5`, `Jduration=60`.
+`08_search_mapped.jmx`   `duration` seconds, many searches per thread. Example: `Jramp_up=5`, `Jduration=60`.
 
 **20 threads**
 

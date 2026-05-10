@@ -1,4 +1,4 @@
-# Phase 2 — Frontend + AI service (merged)
+# Phase 2   Frontend + AI service (merged)
 
 This folder is the **integrated production stack**: React UI with Firebase auth, FastAPI RAG backend (Qdrant, S3, optional SageMaker for ColQwen / Docling / Whisper paths), unified **SageMaker** hosting assets, and **Terraform** for AWS (ECS Fargate, ALB, ECR, ElastiCache Serverless search cache, optional HTTPS).
 
@@ -115,12 +115,12 @@ Build, push to ECR, create/update endpoint, smoke tests, backend `.env` wiring:
 
 ## Related repo docs
 
-- Root [`README.md`](../README.md) — full capstone overview and week-by-week components
-- [`docs/README.md`](../docs/README.md) — documentation hub
-- [`docs/technical/APPLICATION_OVERVIEW.md`](../docs/technical/APPLICATION_OVERVIEW.md) — maintained application overview
-- [`docs/technical/API_REFERENCE.md`](../docs/technical/API_REFERENCE.md) — maintained API reference
-- [`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](../docs/technical/DOCS_deployment-alb-acm-custom-domain.md) — ALB + ACM + custom domain checklist (when using HTTPS)
-- [`docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md) — final performance test report
+- Root [`README.md`](../README.md)   full capstone overview and week-by-week components
+- [`docs/README.md`](../docs/README.md)   documentation hub
+- [`docs/technical/APPLICATION_OVERVIEW.md`](../docs/technical/APPLICATION_OVERVIEW.md)   maintained application overview
+- [`docs/technical/API_REFERENCE.md`](../docs/technical/API_REFERENCE.md)   maintained API reference
+- [`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](../docs/technical/DOCS_deployment-alb-acm-custom-domain.md)   ALB + ACM + custom domain checklist (when using HTTPS)
+- [`docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)   final performance test report
 
 ---
 

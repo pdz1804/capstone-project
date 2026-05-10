@@ -94,7 +94,7 @@ def workspace_paths_for_user(user_id: str | None = None) -> WorkspacePaths:
     """
     Local backend: shared repo ``backend/input`` and ``backend/output`` (user_id ignored).
 
-    S3 backend: ephemeral workspace under the system temp dir — nothing under the repo tree.
+    S3 backend: ephemeral workspace under the system temp dir   nothing under the repo tree.
     """
     uid = sanitize_storage_user_id(user_id)
     if not is_s3_storage_backend():
@@ -191,7 +191,7 @@ def ensure_data_dirs(user_id: str | None = None) -> None:
     Local: ``backend/input``, ``backend/output``, and retrieval layout under output.
 
     S3: only the ephemeral workspace for the given user (default ``default``) under the
-    system temp tree — no ``input``/``output`` folders next to source code.
+    system temp tree   no ``input``/``output`` folders next to source code.
     """
     paths = workspace_paths_for_user(user_id)
     paths.input_dir.mkdir(parents=True, exist_ok=True)

@@ -189,7 +189,7 @@ def run_e2e(json_path: Path, query: str, chunk_size: int, chunk_overlap: int,
     chunks = step_parse_and_chunk(json_path, chunk_size, chunk_overlap, max_table_chunk)
 
     if not chunks:
-        log.error("No chunks produced — aborting.")
+        log.error("No chunks produced   aborting.")
         return
 
     # ── Step 3: Retrieve ──

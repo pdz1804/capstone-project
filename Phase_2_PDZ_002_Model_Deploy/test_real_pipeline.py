@@ -2,9 +2,9 @@
 Real end-to-end ColQwen pipeline test against the live SageMaker endpoint.
 
 Exercises the full retrieval flow:
-  Step 1 — embed-images  : encode actual page images into multi-vector representations
-  Step 2 — embed-query   : encode a natural-language question
-  Step 3 — score         : rank each page by relevance to the query
+  Step 1   embed-images  : encode actual page images into multi-vector representations
+  Step 2   embed-query   : encode a natural-language question
+  Step 3   score         : rank each page by relevance to the query
 
 Usage examples
 --------------
@@ -99,7 +99,7 @@ def step_health_check(runtime, endpoint_name: str) -> bool:
         if util is not None:
             print(f"  GPU util    : {util}%")
     else:
-        print(f"  WARNING: CUDA not available — model is running on {device} (CPU mode!)")
+        print(f"  WARNING: CUDA not available   model is running on {device} (CPU mode!)")
 
     return True
 
@@ -115,7 +115,7 @@ def step_embed_and_score_per_image(
 
     This keeps client RAM low by avoiding storage of all document embeddings.
     """
-    print(f"\n[Step 2/3] embed-images + score — processing {len(image_paths)} image(s) ...")
+    print(f"\n[Step 2/3] embed-images + score   processing {len(image_paths)} image(s) ...")
     scored_items: list[tuple[float, Path]] = []
     n_patches_per_image: list[int] = []
     embed_dim = 0
@@ -172,7 +172,7 @@ def step_embed_and_score_per_image(
 
 
 def step_embed_query(runtime, endpoint_name: str, query: str) -> dict:
-    print(f"\n[Step 1/3] embed-query — '{query[:80]}' ...")
+    print(f"\n[Step 1/3] embed-query   '{query[:80]}' ...")
     payload = {
         "operation": "embed-query",
         "query": query,

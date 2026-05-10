@@ -5,7 +5,7 @@ STEP 2: Generate ColPali multi-vector embeddings for images and
         store them as points in Qdrant Cloud.
 
 WHAT YOU WILL LEARN:
-  1. How to load the ColQwen2 model (same as Phase_2 — vidore/colqwen2-v1.0)
+  1. How to load the ColQwen2 model (same as Phase_2   vidore/colqwen2-v1.0)
      with configurable dtype and optional 4-bit / 8-bit weight quantization
   2. Understanding the SHAPE of ColPali embeddings:
        image  →  [ num_patches × 128 ]   (a list of patch vectors)
@@ -13,7 +13,7 @@ WHAT YOU WILL LEARN:
   3. How to convert torch tensors → Python lists for Qdrant storage
   4. How to upsert PointStructs with:
        - id      (unique integer per image)
-       - vector  (the multi-vector embedding — dict of name → list-of-lists)
+       - vector  (the multi-vector embedding   dict of name → list-of-lists)
        - payload (metadata: filename, image size, timestamp, …)
   5. Batch upsert to avoid sending one HTTP request per image
   6. Timing every step to understand where latency comes from
@@ -59,19 +59,19 @@ logger = setup_logging(logging.INFO)
 
 def load_colqwen_model():
     """
-    Load ColQwen2 (vidore/colqwen2-v1.0) — the same model used in Phase_2.
+    Load ColQwen2 (vidore/colqwen2-v1.0)   the same model used in Phase_2.
 
     WHAT colpali-engine GIVES YOU:
-      ColQwen2          — the neural network (Qwen2-VL backbone + 128-d projection head)
-      ColQwen2Processor — handles image/text preprocessing:
+      ColQwen2            the neural network (Qwen2-VL backbone + 128-d projection head)
+      ColQwen2Processor   handles image/text preprocessing:
                             • resizes and tokenises images
                             • tokenises query text with special ColPali tokens
 
     DTYPE OPTIONS (set in config.py :: cfg.torch_dtype):
-      "bfloat16"  — 2 bytes/param.  Modern NVIDIA GPUs (Ampere+) run this natively.
+      "bfloat16"    2 bytes/param.  Modern NVIDIA GPUs (Ampere+) run this natively.
                     Same as Phase_2 default.  NOT supported on all CPUs.
-      "float16"   — 2 bytes/param.  Supported on most CUDA GPUs.
-      "float32"   — 4 bytes/param.  Always works, even on CPU. Slower but safest.
+      "float16"     2 bytes/param.  Supported on most CUDA GPUs.
+      "float32"     4 bytes/param.  Always works, even on CPU. Slower but safest.
 
     MODEL WEIGHT QUANTIZATION (optional, mirrors Phase_2):
       4-bit (load_in_4bit=True):  uses BitsAndBytes NF4 quantisation
@@ -134,15 +134,15 @@ def load_colqwen_model():
                     load_in_8bit=True,
                 )
             # When using BitsAndBytes, device placement is handled internally.
-            # Do NOT add device_map — it conflicts with bitsandbytes.
+            # Do NOT add device_map   it conflicts with bitsandbytes.
         except ImportError:
             logger.warning(
-                "bitsandbytes is not installed — quantisation disabled.\n"
+                "bitsandbytes is not installed   quantisation disabled.\n"
                 "  Install with: pip install bitsandbytes"
             )
             model_kwargs["dtype"] = torch_dtype
     else:
-        # Standard loading — 'dtype' is the current keyword (torch_dtype is deprecated)
+        # Standard loading   'dtype' is the current keyword (torch_dtype is deprecated)
         model_kwargs["dtype"] = torch_dtype
 
     # ── Load model and processor ─────────────────────────────────────────────
@@ -158,13 +158,13 @@ def load_colqwen_model():
             model = ColQwen2.from_pretrained(
                 cfg.colqwen_model,
                 **model_kwargs,
-            ).eval()   # .eval() disables dropout — important for inference!
+            ).eval()   # .eval() disables dropout   important for inference!
 
             # ── Move to GPU if available and NOT using BitsAndBytes quantization ──
             # WHY: from_pretrained() WITHOUT device_map always loads to CPU first,
             # even when CUDA is available. We must call .to("cuda") manually.
             # EXCEPTION: when using 4-bit/8-bit BitsAndBytes, the library handles
-            # device placement internally — calling .to() on top of it will crash.
+            # device placement internally   calling .to() on top of it will crash.
             if has_cuda and not (cfg.load_in_4bit or cfg.load_in_8bit):
                 logger.info("Moving model to CUDA …")
                 model = model.to("cuda")
@@ -208,7 +208,7 @@ def embed_image(image, model, processor) -> torch.Tensor:
 
     WHAT IS RETURNED:
       A torch.Tensor on CPU.  We call .cpu() to move it off the GPU before
-      queuing it for Qdrant upsert — this frees GPU memory sooner.
+      queuing it for Qdrant upsert   this frees GPU memory sooner.
 
     Args:
         image     : PIL.Image (already converted to RGB)
@@ -246,11 +246,11 @@ def build_point(
     Convert an image + its embedding into a Qdrant PointStruct.
 
     A PointStruct has three parts:
-      id      — unique identifier (integer or UUID string).
+      id        unique identifier (integer or UUID string).
                 Qdrant uses this for lookups, updates, and deletes.
-      vector  — a dict mapping vector-name → the actual embedding.
+      vector    a dict mapping vector-name → the actual embedding.
                 For multi-vector we pass a list-of-lists  [[128 floats], …]
-      payload — arbitrary JSON metadata you want to store alongside the vector.
+      payload   arbitrary JSON metadata you want to store alongside the vector.
                 Qdrant can filter searches by payload fields.
 
     VECTOR FORMAT FOR MULTI-VECTOR:
@@ -418,7 +418,7 @@ def verify_storage(client: QdrantClient) -> None:
       1. Checking the collection's point count
       2. Fetching and displaying one stored point by ID
 
-    This is a good sanity check after upserting — always verify your writes!
+    This is a good sanity check after upserting   always verify your writes!
     """
     # ── Check point count ────────────────────────────────────────────────────
     info = client.get_collection(cfg.collection_name)
@@ -440,7 +440,7 @@ def verify_storage(client: QdrantClient) -> None:
     )
 
     if not results:
-        logger.warning("Could not retrieve point id=0 — it may not exist.")
+        logger.warning("Could not retrieve point id=0   it may not exist.")
         return
 
     point = results[0]
@@ -466,7 +466,7 @@ def verify_storage(client: QdrantClient) -> None:
 
 if __name__ == "__main__":
     print("\n" + "═" * 65)
-    print("   STEP 2 — Embed Images with ColQwen + Store in Qdrant")
+    print("   STEP 2   Embed Images with ColQwen + Store in Qdrant")
     print("═" * 65 + "\n")
 
     # ── Prerequisites check ──────────────────────────────────────────────────

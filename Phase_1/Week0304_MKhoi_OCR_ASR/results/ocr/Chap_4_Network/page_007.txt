@@ -12,4 +12,4 @@ Hee Acknowledgement Number
 leader
 
 TP NI Offset | Reserved | Flags [Window
-—Opim | Paddig
+ Opim | Paddig

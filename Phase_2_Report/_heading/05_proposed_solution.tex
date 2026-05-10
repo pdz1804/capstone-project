@@ -1,6 +1,6 @@
 ﻿\chapter{Proposed Solution}
 
-This chapter describes our \textbf{Multimodal Retrieval-Augmented Generation (MRAG) system}—which combines large language models with a knowledge database to answer questions with cited sources. This design allows our system to process and retrieve information from diverse HCMUT educational materials while maintaining accuracy and transparency.
+This chapter describes our \textbf{Multimodal Retrieval-Augmented Generation (MRAG) system} which combines large language models with a knowledge database to answer questions with cited sources. This design allows our system to process and retrieve information from diverse HCMUT educational materials while maintaining accuracy and transparency.
 
 This chapter presents the proposed solution for BK-MInD, a Multimodal Retrieval-Augmented Generation (MRAG) system designed to process and retrieve information from diverse HCMUT educational materials. The chapter first justifies the selection of RAG as the core architectural paradigm over alternative approaches, then presents the rationale for choosing the three key technology components. The system architecture is described across four perspectives: a high-level overview, the data processing and dual-pathway embedding pipelines, the retrieval and generation flow, and the security design. Experimental evidence supporting retrieval architecture decisions is provided, and the chapter concludes with the technical requirements for deployment.
 
@@ -24,7 +24,7 @@ Prompt engineering involves optimizing the textual input to guide the LLM's outp
 
 \begin{itemize}
     \item \textbf{Context Window Limitations:} Although context windows are growing (e.g., 128k tokens), it is infeasible to pass an entire corpus (e.g., 50,000 documents) into a single prompt. RAG acts as a filter, selecting only the most relevant snippets to fit within the model's constraints.
-    \item \textbf{Performance Degradation:} Studies show that when too much context is provided, LLMs struggle to locate relevant information deep within the text—a phenomenon called 'Lost in the Middle.' This occurs because AI models can focus on all positions, but effectiveness decreases when important information is buried among thousands of tokens. RAG ensures the model focuses only on highly relevant, condensed information.
+    \item \textbf{Performance Degradation:} Studies show that when too much context is provided, LLMs struggle to locate relevant information deep within the text a phenomenon called 'Lost in the Middle.' This occurs because AI models can focus on all positions, but effectiveness decreases when important information is buried among thousands of tokens. RAG ensures the model focuses only on highly relevant, condensed information.
 \end{itemize}
 
 \textbf{RAG vs. Semantic Search (Traditional Information Retrieval)}

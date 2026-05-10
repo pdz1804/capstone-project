@@ -58,7 +58,7 @@ Default (VLM off) gives 3-5× faster Docling processing.
 Two different users can process/index in parallel; the same user cannot double-submit.
 - The **SageMaker endpoint** serializes GPU work via `asyncio.Lock` (Docling, Whisper) and
 `asyncio.Semaphore` (ColQwen). Concurrent requests from multiple users queue inside the
-endpoint process and are served in order — exactly what you want.
+endpoint process and are served in order   exactly what you want.
 - SageMaker autoscaling creates more instances when `InvocationsPerInstance` exceeds the
 target (default 10 in this repo), so truly concurrent heavy load gets its own GPU automatically.
 
@@ -348,9 +348,9 @@ python .\ops\delete_sagemaker_endpoint.py `
 
 ## Related Maintained Docs
 
-- [`../README.md`](../README.md) — maintained merged application overview.
-- [`../../docs/technical/APPLICATION_OVERVIEW.md`](../../docs/technical/APPLICATION_OVERVIEW.md) — system capabilities and architecture summary.
-- [`../../docs/technical/API_REFERENCE.md`](../../docs/technical/API_REFERENCE.md) — API map and operational guidance.
-- [`../../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](../../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md) — performance evidence and scaling plan.
+- [`../README.md`](../README.md)   maintained merged application overview.
+- [`../../docs/technical/APPLICATION_OVERVIEW.md`](../../docs/technical/APPLICATION_OVERVIEW.md)   system capabilities and architecture summary.
+- [`../../docs/technical/API_REFERENCE.md`](../../docs/technical/API_REFERENCE.md)   API map and operational guidance.
+- [`../../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](../../docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)   performance evidence and scaling plan.
 
 
