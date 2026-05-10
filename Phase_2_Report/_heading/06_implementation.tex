@@ -110,13 +110,6 @@ At the core of the system lies the \texttt{UnifiedRAGPipeline} class. This compo
     \item \textbf{Dependency Injection}: The orchestrator initializes and injects dependencies into the sub-modules, ensuring that the \textit{RetrieverManager} and \textit{Generator} share the same configuration context (e.g., chunk sizes and overlaps).
 \end{itemize}
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.75\textwidth]{img/pdz/72-search-flow.png}
-%     \caption[Search and Generation Orchestration Flow]{Search and Generation Orchestration Flow.}
-%     \label{fig:search_flow}
-% \end{figure}
-
 
 \textbf{3. Data Processing and Persistence Layer}
 
@@ -128,25 +121,11 @@ The implementation utilizes a \textbf{Hybrid Cloud Storage Architecture}. Unlike
     \item \textbf{Cache Management}: A \texttt{.processing\_cache.json} file tracks the hash of processed inputs, enabling idempotent re-runs and deduplication.
 \end{itemize}
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{img/pdz/73-local-vs-cloud.png}
-%     \caption[Hybrid Storage Architecture (Local vs. Cloud)]{Hybrid Storage Architecture (Local vs. Cloud).}
-%     \label{fig:storage_tiers}
-% \end{figure}
-
 
 \textbf{4. Logical Subsystems}
 
 The system logic is divided into two specialized engines that operate in parallel during query execution:
 
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.75\textwidth]{img/pdz/70-retrieval-systems.png}
-%     \caption[Retrieval Systems]{Retrieval Systems.}
-%     \label{fig:retrieval_systems}
-% \end{figure}
 
 \textbf{Hybrid Text Retrieval Engine}
 
@@ -157,13 +136,7 @@ The text retrieval engine has been optimized for multi-tenant cloud deployment u
     
     \item \textbf{Reranking}: Globally disabled by default (\texttt{skip\_reranker=true}) for latency optimization. The reranker code (\texttt{bge-reranker-large}) is retained for fast rollback if needed.
     
-    % \begin{figure}[H]
-    %     \centering
-    %     \includegraphics[width=0.55\textwidth]{img/pdz/71-reranking.png}
-    %     \caption[Cross-Encoder Reranking Architecture]{Cross-Encoder Reranking Architecture.}
-    %     \label{fig:reranking_arch}
-    % \end{figure}
-    
+
 \end{enumerate}
 
 
@@ -541,13 +514,6 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \item Metadata: \texttt{sheet\_name}, \texttt{row\_range}, \texttt{table\_id}
 \end{itemize}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
-    \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
-    \label{fig:excel_proc_diagram}
-\end{figure}
-
 
 \subsection{Stage 3c: DOCX Processing (Conditional)}
 
@@ -577,13 +543,6 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \item Metadata: \texttt{heading\_level}, \texttt{heading\_path}, \texttt{section\_title}
 \end{itemize}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
-    \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
-    \label{fig:docx_proc_diagram}
-\end{figure}
-
 
 \subsection{Stage 3d: PDF Processing (Conditional)}
 
@@ -612,13 +571,6 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \item \texttt{document\_id/chunks.json}: Page-aware chunks
     \item Metadata: \texttt{page\_number}, \texttt{section\_level}, \texttt{total\_pages}
 \end{itemize}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
-    \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
-    \label{fig:pdf_proc_diagram}
-\end{figure}
 
 
 \subsection{Stage 4: RAG-Ready Consolidation}
@@ -2062,13 +2014,7 @@ The combination of containerization, a private registry, and orchestration creat
 %     \label{tab:monthly_cost_breakdown}
 % \end{table}
 % 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/31-pie-cost.png}
-%     \caption[Monthly Cost Breakdown Visualization]{Monthly Cost Breakdown Visualization (50 Users).}
-%     \label{fig:monthly_cost_pie}
-% \end{figure}
-% 
+%
 % \newpage
 % 
 % The following table provides a comparative analysis of GPU operational costs across different cloud providers. This estimation is based on a workload scenario of 50 active users, with each user initiating 20 requests per day and each request requiring 15 seconds of GPU inference time, totaling approximately 125 hours of GPU utilization per month.
@@ -2097,21 +2043,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
 % 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/29-desktop performance.png}
-%     \caption[Desktop Performance Metrics]{Desktop Performance Metrics.}
-%     \label{fig:desktop_performance}
-% \end{figure}
-% 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/30-mobile performance.png}
-%     \caption[Mobile Performance Metrics]{Mobile Performance Metrics.}
-%     \label{fig:mobile_performance}
-% \end{figure}
-% 
-% As shown in Figures \ref{fig:desktop_performance} and \ref{fig:mobile_performance}, the system maintains high performance scores across all categories, ensuring fast load times and a responsive interface for multimodal document interaction.
+%
 
 \section{Security Architecture and Implementation}
 
