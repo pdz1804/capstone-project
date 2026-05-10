@@ -660,6 +660,6 @@ if __name__ == "__main__":
         "server:app",
         host=args.host,
         port=args.port,
-        workers=args.workers,  # Keep at 1 — single GPU
+        workers=args.workers,  # Keep at 1   single GPU
         log_level="info",
     )

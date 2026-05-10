@@ -11,7 +11,7 @@ Base path: **`/api`** for most resources (health also at `/health`).
 | Method | Path | Response (summary) |
 |--------|------|---------------------|
 | GET | `/health`, `/api/health` | `{ "status": "healthy", "timestamp": ISO8601 }` |
-| GET | `/api/status` | `{ "ready", "indexed_docs", "image_pages", "text_index", "image_index" }` — text/image blocks include Qdrant point counts and retriever metadata. **Query:** **`fresh`** (bool, default `false`) — if `true`, skip server-side cache and re-query Qdrant. **Env:** **`STATUS_QDRANT_CACHE_TTL_SECONDS`** (default `20`, `0` = no cache). |
+| GET | `/api/status` | `{ "ready", "indexed_docs", "image_pages", "text_index", "image_index" }`   text/image blocks include Qdrant point counts and retriever metadata. **Query:** **`fresh`** (bool, default `false`)   if `true`, skip server-side cache and re-query Qdrant. **Env:** **`STATUS_QDRANT_CACHE_TTL_SECONDS`** (default `20`, `0` = no cache). |
 | GET | `/api/config` | YAML merged with env + `key_settings` |
 | GET | `/api/system/inference` | `{ "use_aws_sagemaker_inference", "sagemaker_endpoint_name", "aws_region", "qdrant_mode", "text_collection", "image_collection" }` |
 
@@ -39,7 +39,7 @@ Base path: **`/api`** for most resources (health also at `/health`).
 
 | Method | Path | Query | Notes |
 |--------|------|-------|--------|
-| GET | `/api/processing-stats` | — | Reads `output/processing/pipeline_stats.json` if present |
+| GET | `/api/processing-stats` |   | Reads `output/processing/pipeline_stats.json` if present |
 | POST | `/api/process` | `force` bool | Runs `DocumentProcessingPipeline` |
 | POST | `/api/index` | `force` bool | Text + image Qdrant index |
 | POST | `/api/index/text` | `force` bool | Text chunks → Qdrant + `documents.json` + BM25 pickle |
@@ -51,13 +51,13 @@ Base path: **`/api`** for most resources (health also at `/health`).
 |--------|------|-------------|
 | POST | `/api/search` | `SearchRequest`: `query` (string, required), `top_k` (1–100, default 10), `retriever_type` (`bm25` \| `dense` \| `hybrid`), `include_images` (bool), `images_for_generation` (0–20) |
 
-**Response:** `{ "query", "text_results", "image_results", "answer", "contents"? }` — same general shape as legacy Phase 2 (`contents` when generation succeeds).
+**Response:** `{ "query", "text_results", "image_results", "answer", "contents"? }`   same general shape as legacy Phase 2 (`contents` when generation succeeds).
 
 ## Images (media)
 
 | Method | Path | Query |
 |--------|------|-------|
-| GET | `/api/image` | `path` — local file path |
+| GET | `/api/image` | `path`   local file path |
 | GET | `/api/pdf-page-image` | `pdf_name`, `page` (1-based) |
 
 ## Insights (SRS-style)

@@ -1,8 +1,8 @@
-# AI Service — Cloud-Native Storage Architecture
+# AI Service   Cloud-Native Storage Architecture
 
 **Document type:** Architecture specification (planning baseline)  
 **Scope:** Phase 2 AI Service as a component of the larger platform  
-**Status:** Design reference — implementation may evolve  
+**Status:** Design reference   implementation may evolve  
 **Owner:** System architecture  
 
 ---
@@ -34,11 +34,11 @@ Today the service:
 
 | Principle | Implication |
 |-----------|-------------|
-| **Separation of concerns** | Originals (immutable user intent) and processed outputs (derived, regenerable) live in **distinct logical planes** — typically two buckets or two isolated namespaces. |
+| **Separation of concerns** | Originals (immutable user intent) and processed outputs (derived, regenerable) live in **distinct logical planes**   typically two buckets or two isolated namespaces. |
 | **Multi-tenancy by design** | Every object key is rooted by **tenant identity** (`user_id` or platform `subject`); no shared flat namespace for user content. |
 | **Idempotent processing** | Re-runs and force-rebuilds are modeled with a **job** or **run** identifier so outputs do not silently overwrite without traceability. |
 | **Least privilege** | Runtime credentials grant access only to the AI service buckets; **authorization** (which prefix a caller may use) is enforced in the application or API gateway. |
-| **Portability** | Prefer **provider-agnostic** concepts: bucket/container, key/blob name, server-side encryption, lifecycle rules — map to S3, Blob, or GCS per environment. |
+| **Portability** | Prefer **provider-agnostic** concepts: bucket/container, key/blob name, server-side encryption, lifecycle rules   map to S3, Blob, or GCS per environment. |
 
 ---
 
@@ -57,8 +57,8 @@ Today the service:
 |---|----------|--------|
 | 1 | **Originals bucket** | Private; no public ACLs; Block Public Access enabled. |
 | 2 | **Processed bucket** | Same baseline security as originals. |
-| — | **KMS CMK** (optional) | Use when organizational policy requires customer-managed keys; otherwise default SSE (e.g. SSE-S3) is acceptable for many workloads. |
-| — | **S3 Event Notifications** (optional) | Drive asynchronous pipelines (e.g. Step Functions, Lambda) on `PutObject` to originals. |
+|   | **KMS CMK** (optional) | Use when organizational policy requires customer-managed keys; otherwise default SSE (e.g. SSE-S3) is acceptable for many workloads. |
+|   | **S3 Event Notifications** (optional) | Drive asynchronous pipelines (e.g. Step Functions, Lambda) on `PutObject` to originals. |
 
 **Rule of thumb:** Two buckets suffice. Introduce a **third** bucket only for a clearly different trust boundary or lifecycle (e.g. public derivatives, quarantine/staging scan, or short-lived scratch with aggressive expiration).
 
@@ -88,12 +88,12 @@ Use the same **service slug** across the wider platform so operations and cost a
 
 | ID | Role |
 |----|------|
-| `user_id` | Platform identity for the end user (or organization sub-tenant if the main app uses org hierarchy — align with the primary product’s IAM model). |
+| `user_id` | Platform identity for the end user (or organization sub-tenant if the main app uses org hierarchy   align with the primary product’s IAM model). |
 | `document_id` | Stable logical document (UUID). One document may map to one or more original objects if you support multi-file bundles later. |
 | `job_id` | Single processing run (UUID). Enables safe retries, force rebuilds, and audit without clobbering prior outputs. |
 | `version` (optional) | Original object version when using S3 versioning or explicit version segments in the key. |
 
-### 6.2 Originals bucket — key pattern
+### 6.2 Originals bucket   key pattern
 
 ```text
 users/{user_id}/documents/{document_id}/v{version}/{sanitized_filename}
@@ -101,7 +101,7 @@ users/{user_id}/documents/{document_id}/v{version}/{sanitized_filename}
 
 Collisions on filename are resolved by `document_id` / version, not by ad hoc suffixes on a flat folder.
 
-### 6.3 Processed bucket — key pattern
+### 6.3 Processed bucket   key pattern
 
 Mirror the document and bind outputs to a job:
 
@@ -140,7 +140,7 @@ DEFAULT_USER_ID=dev-local-user
 |-----------|------------------|
 | **Main application / BFF** | Supplies `user_id` (and optionally `document_id`) via trusted header or token claims; AI Service does not trust client-supplied IDs without verification. |
 | **Qdrant** | Store `user_id` and `document_id` in **point payload** (or enforce collection-per-tenant if required). Enables consistent **right to delete** and query scoping. |
-| **Observability** | Log `document_id`, `job_id`, and key prefix — not full bucket URLs with secrets in query strings. |
+| **Observability** | Log `document_id`, `job_id`, and key prefix   not full bucket URLs with secrets in query strings. |
 | **Cost and lifecycle** | Apply lifecycle rules on the **processed** bucket (transition to IA / expire old `jobs/*`) per product retention. |
 
 ---
@@ -160,7 +160,7 @@ Document these changes in `docs/API_SCHEMA.md` when implemented.
 
 | Layer | Approach |
 |-------|----------|
-| **Unit** | Pure functions for key construction, path normalization, and tenancy validation — no network. |
+| **Unit** | Pure functions for key construction, path normalization, and tenancy validation   no network. |
 | **Integration** | `moto` (AWS) or equivalent emulator for S3-compatible tests; inject bucket names from environment. |
 | **Contract** | Tests for each route that changes from `path` to storage reference or presigned response shape. |
 

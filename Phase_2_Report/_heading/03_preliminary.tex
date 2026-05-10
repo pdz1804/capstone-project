@@ -357,26 +357,26 @@ Industry systems also focus on interleaved documents such as PDFs and slides. No
 
 Overall, the gap between multimodal and single-modal retrieval is narrowing. Multimodal training can improve semantic representations even for text-only tasks, which is valuable in educational settings where queries often combine textual and visual references.
 
-\textbf{Simplified Overview of Multimodal Embedding Models}
+% \textbf{Simplified Overview of Multimodal Embedding Models}
 
-The following table provides a concise summary of the landmark multimodal embedding models discussed in this section, highlighting their architectural focus and primary strengths for educational RAG applications.
+% The following table provides a concise summary of the landmark multimodal embedding models discussed in this section, highlighting their architectural focus and primary strengths for educational RAG applications.
 
-\begin{table}[H]
-\centering
-\caption{Comparison of Multimodal Embedding Models.}
-\label{tab:multimodal_models_overview}
-\scalebox{0.85}{
-\begin{tabular}{lp{3cm}p{5cm}p{4cm}}
-\toprule
-\textbf{Model} & \textbf{Modalities} & \textbf{Key Innovation} & \textbf{Primary Use Case} \\ \midrule
-\textbf{CLIP} & Image, Text & Joint contrastive pre-training on 400M pairs. & Baseline cross-modal alignment. \\
-\textbf{MM-Embed} & Image, Text & Modality-aware hard negatives to reduce text bias. & Balanced multi-domain retrieval. \\
-\textbf{ImageBind} & 6 Modalities & Unified embedding space for Text, Image, Audio, etc. & Cross-modal search (e.g., Audio $\rightarrow$ Image). \\
-\textbf{Jina-v4} & Image, Text & Task-specific LoRA adapters and late-interaction. & Visually rich documents (slides, tables). \\
-\textbf{Nomic 7B} & Interleaved & Native support for interleaved document structures. & Multi-page PDF/Slide RAG. \\ \bottomrule
-\end{tabular}
-}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Comparison of Multimodal Embedding Models.}
+% \label{tab:multimodal_models_overview}
+% \scalebox{0.85}{
+% \begin{tabular}{lp{3cm}p{5cm}p{4cm}}
+% \toprule
+% \textbf{Model} & \textbf{Modalities} & \textbf{Key Innovation} & \textbf{Primary Use Case} \\ \midrule
+% \textbf{CLIP} & Image, Text & Joint contrastive pre-training on 400M pairs. & Baseline cross-modal alignment. \\
+% \textbf{MM-Embed} & Image, Text & Modality-aware hard negatives to reduce text bias. & Balanced multi-domain retrieval. \\
+% \textbf{ImageBind} & 6 Modalities & Unified embedding space for Text, Image, Audio, etc. & Cross-modal search (e.g., Audio $\rightarrow$ Image). \\
+% \textbf{Jina-v4} & Image, Text & Task-specific LoRA adapters and late-interaction. & Visually rich documents (slides, tables). \\
+% \textbf{Nomic 7B} & Interleaved & Native support for interleaved document structures. & Multi-page PDF/Slide RAG. \\ \bottomrule
+% \end{tabular}
+% }
+% \end{table}
 
 \section{RAG}
 

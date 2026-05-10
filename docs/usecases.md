@@ -886,7 +886,7 @@ This document describes the primary use cases and detailed scenarios for the Edu
    - Topics mastered: Big-O notation, complexity categories
    - Topics needing work: Logarithmic analysis
    - On-time completion: Yes
-   - New assessment: 60% (24/40) — 15 point improvement
+   - New assessment: 60% (24/40)   15 point improvement
    - Motivation boost: 🎉 "Great progress!" badge earned
 7. **Path Adjustment**:
 

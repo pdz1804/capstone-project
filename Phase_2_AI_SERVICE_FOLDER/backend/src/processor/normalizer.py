@@ -728,7 +728,7 @@ class DocumentNormalizer:
                 # Keep the copy in originals_dir so Docling can try
         
         elif ext == '.xls':
-            # .xls (legacy binary format) — convert to .xlsx via LibreOffice then parse
+            # .xls (legacy binary format)   convert to .xlsx via LibreOffice then parse
             try:
                 from .xls_reader import XlsParser
                 from .xlsx_reader_v2 import process_excel_file

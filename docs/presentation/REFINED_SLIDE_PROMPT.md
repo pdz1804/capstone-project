@@ -11,40 +11,40 @@
 ## 📋 SLIDE OUTLINE (Refined Structure)
 
 ### **OPENING (Slides 1-2)**
-1. **Cover Slide** — Title, subtitle, institution, team, date
-2. **Problem & Solution** — Current gap in educational platforms → AI-powered multimodal system
+1. **Cover Slide**   Title, subtitle, institution, team, date
+2. **Problem & Solution**   Current gap in educational platforms → AI-powered multimodal system
 
 ### **PROJECT SCOPE (Slides 3-4)**
-3. **Requirements Breakdown** — 37 total (22 FR, 8 NFR, 7 TR); mapped to 5 functional areas
-4. **18 Production Features** — Table with all features, categories, status (✅ all active)
+3. **Requirements Breakdown**   37 total (22 FR, 8 NFR, 7 TR); mapped to 5 functional areas
+4. **18 Production Features**   Table with all features, categories, status (✅ all active)
 
 ### **ARCHITECTURE & DESIGN (Slides 5-7)**
-5. **System Overview** — 6-layer architecture (Presentation → API → Processing → Indexing → Retrieval → Generation)
-6. **Content Processing Pipeline** — 4 stages: Normalize → Media Process → Document Understanding → Consolidate
-7. **Data Flow & Integration** — Component diagram showing all services, APIs, external integrations
+5. **System Overview**   6-layer architecture (Presentation → API → Processing → Indexing → Retrieval → Generation)
+6. **Content Processing Pipeline**   4 stages: Normalize → Media Process → Document Understanding → Consolidate
+7. **Data Flow & Integration**   Component diagram showing all services, APIs, external integrations
 
 ### **CORE CAPABILITIES (Slides 8-10)**
-8. **Multi-Modal Search** — BM25 (sparse), Dense (semantic), Hybrid, Visual; latency <200ms
-9. **Intelligent Q&A & Chat** — RAG pipeline with guardrails, citations, multi-turn support
-10. **Personalized Learning** — Summaries, quiz generation, roadmaps, analytics, visualizations
+8. **Multi-Modal Search**   BM25 (sparse), Dense (semantic), Hybrid, Visual; latency <200ms
+9. **Intelligent Q&A & Chat**   RAG pipeline with guardrails, citations, multi-turn support
+10. **Personalized Learning**   Summaries, quiz generation, roadmaps, analytics, visualizations
 
 ### **SECURITY & QUALITY (Slides 11-13)**
-11. **Safety & Compliance** — AWS Bedrock Guardrails (5 filter categories), PII masking (27 types), authentication
-12. **Testing & Validation** — JMeter performance tests (50 concurrent users), latency/throughput metrics, ✅ production certified
-13. **Technical Implementation** — Tech stack (FastAPI, React 18, Qdrant, DynamoDB, Redis, AWS), deployment architecture
+11. **Safety & Compliance**   AWS Bedrock Guardrails (5 filter categories), PII masking (27 types), authentication
+12. **Testing & Validation**   JMeter performance tests (50 concurrent users), latency/throughput metrics, ✅ production certified
+13. **Technical Implementation**   Tech stack (FastAPI, React 18, Qdrant, DynamoDB, Redis, AWS), deployment architecture
 
 ### **DEPLOYMENT & SCALE (Slides 14-15)**
-14. **Infrastructure & DevOps** — Terraform IaC, AWS services (ECS, ALB, ECR, ACM), auto-scaling, high availability
-15. **Cost & Scalability** — Per-user costs (~$13/month for 50 users), linear growth to 1000+, ROI analysis
+14. **Infrastructure & DevOps**   Terraform IaC, AWS services (ECS, ALB, ECR, ACM), auto-scaling, high availability
+15. **Cost & Scalability**   Per-user costs (~$13/month for 50 users), linear growth to 1000+, ROI analysis
 
 ### **EVIDENCE & METRICS (Slides 16-18)**
-16. **Performance Results** — P50/P95/P99 latency, throughput, error rates, stability under load
-17. **Project Deliverables** — Code stats (5000+ backend lines, 3000+ frontend lines), 15+ docs, 100% SRS coverage
-18. **Statistics Dashboard** — Features, requirements, test runs, documentation completeness
+16. **Performance Results**   P50/P95/P99 latency, throughput, error rates, stability under load
+17. **Project Deliverables**   Code stats (5000+ backend lines, 3000+ frontend lines), 15+ docs, 100% SRS coverage
+18. **Statistics Dashboard**   Features, requirements, test runs, documentation completeness
 
 ### **CLOSING (Slides 19-20)**
-19. **Key Achievements** — Innovation, scale validation, quality, deployment-readiness, impact
-20. **Lessons Learned & Roadmap** — Technical insights, best practices, future enhancements, sustainability
+19. **Key Achievements**   Innovation, scale validation, quality, deployment-readiness, impact
+20. **Lessons Learned & Roadmap**   Technical insights, best practices, future enhancements, sustainability
 
 ### **BACKUP SLIDES (21-28 as needed)**
 - Detailed API reference (endpoints, parameters, responses)
@@ -58,10 +58,10 @@
 ## 🎨 DESIGN SPECIFICATIONS
 
 **Color Palette:**
-- Primary: Modern Blue (#0066CC) — trust, technology
-- Secondary: Vibrant Green (#10B981) — growth, learning
-- Accent: Orange (#FF6B35) — energy, innovation
-- Neutral: Light Gray (#F3F4F6) — clean backgrounds
+- Primary: Modern Blue (#0066CC)   trust, technology
+- Secondary: Vibrant Green (#10B981)   growth, learning
+- Accent: Orange (#FF6B35)   energy, innovation
+- Neutral: Light Gray (#F3F4F6)   clean backgrounds
 - Text: Dark Gray (#1F2937)
 
 **Typography:**
@@ -97,8 +97,8 @@
 | Deployment | 14-15 | 2 min |
 | Evidence | 16-18 | 2 min |
 | Closing | 19-20 | 2 min |
-| **Optional Demo** | — | 3-5 min |
-| **Q&A** | — | 3-5 min |
+| **Optional Demo** |   | 3-5 min |
+| **Q&A** |   | 3-5 min |
 | **TOTAL** | 20 | 20-25 min |
 
 ---
@@ -185,7 +185,7 @@
 - **Impactful:** Emphasize innovation, reliability, real-world applications
 
 **Sample Opening Line:**  
-*"BK-MInD transforms how educators manage multimodal learning content—integrating intelligent search, AI-powered Q&A, and personalized learning into a single, scalable platform."*
+*"BK-MInD transforms how educators manage multimodal learning content integrating intelligent search, AI-powered Q&A, and personalized learning into a single, scalable platform."*
 
 **Sample Closing Line:**  
 *"We've built a production-ready system that's been tested with 50+ concurrent users, documented across 15+ technical reports, and ready to scale to 100,000+ students globally."*

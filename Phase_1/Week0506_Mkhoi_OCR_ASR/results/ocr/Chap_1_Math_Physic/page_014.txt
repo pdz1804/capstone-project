@@ -1,6 +1,6 @@
 CROSS PRODUCT
 
 i
-u=B-—A
+u=B- A
 v=C-A
- —=ixƯ
+  =ixƯ

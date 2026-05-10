@@ -101,15 +101,15 @@ Prepare diverse document formats (DOCX, PPTX, PDF, HTML, Images, Excel, CSV, Vid
 
 | **Input Type** | **Stage 1: Normalization** | **Stage 2: Media** | **Stage 3: Docling** | **Final Output** |
 |----------------|---------------------------|-------------------|---------------------|------------------|
-| **DOCX** | → PDF (LibreOffice)<br>→ Keep original | — | Original → Markdown<br>Extract: images, tables | • PDF (image RAG)<br>• MD (text RAG)<br>• Images, tables |
-| **PPTX** | → PDF (LibreOffice)<br>→ Keep original | — | Original → Markdown<br>Extract: images, text | • PDF (image RAG)<br>• MD (text RAG)<br>• Slide images |
-| **HTML** | → PDF (Markdown)<br>→ Keep original | — | Original → Markdown | • PDF (image RAG)<br>• MD (text RAG) |
-| **Images** | → PDF (img2pdf)<br>→ Keep original | — | Original → Markdown<br>OCR + VLM | • PDF (image RAG)<br>• MD with OCR text<br>• Image descriptions |
-| **Excel/CSV** | → Markdown tables<br>❌ No original kept | — | ❌ Not processed | • MD (tables only) |
-| **Video (MP4)** | — | → Audio → Text<br>→ Frames (optional) | Transcript → Markdown | • MD (text RAG)<br>• Frame images<br>• SRT/VTT subtitles |
-| **Audio (WAV)** | — | → Text (Whisper) | Transcript → Markdown | • MD (text RAG)<br>• Transcript formats |
-| **PDF** | ✅ Copy as-is<br>→ Keep original | — | Original → Markdown<br>OCR + layout | • PDF (as-is)<br>• MD (text RAG)<br>• Extracted content |
-| **Markdown** | ✅ Copy as-is<br>→ Keep original | — | Original → Markdown<br>Re-process | • MD (normalized) |
+| **DOCX** | → PDF (LibreOffice)<br>→ Keep original |   | Original → Markdown<br>Extract: images, tables | • PDF (image RAG)<br>• MD (text RAG)<br>• Images, tables |
+| **PPTX** | → PDF (LibreOffice)<br>→ Keep original |   | Original → Markdown<br>Extract: images, text | • PDF (image RAG)<br>• MD (text RAG)<br>• Slide images |
+| **HTML** | → PDF (Markdown)<br>→ Keep original |   | Original → Markdown | • PDF (image RAG)<br>• MD (text RAG) |
+| **Images** | → PDF (img2pdf)<br>→ Keep original |   | Original → Markdown<br>OCR + VLM | • PDF (image RAG)<br>• MD with OCR text<br>• Image descriptions |
+| **Excel/CSV** | → Markdown tables<br>❌ No original kept |   | ❌ Not processed | • MD (tables only) |
+| **Video (MP4)** |   | → Audio → Text<br>→ Frames (optional) | Transcript → Markdown | • MD (text RAG)<br>• Frame images<br>• SRT/VTT subtitles |
+| **Audio (WAV)** |   | → Text (Whisper) | Transcript → Markdown | • MD (text RAG)<br>• Transcript formats |
+| **PDF** | ✅ Copy as-is<br>→ Keep original |   | Original → Markdown<br>OCR + layout | • PDF (as-is)<br>• MD (text RAG)<br>• Extracted content |
+| **Markdown** | ✅ Copy as-is<br>→ Keep original |   | Original → Markdown<br>Re-process | • MD (normalized) |
 
 ### Key Design Decisions
 
@@ -394,11 +394,11 @@ output/
 
 | **File Type** | **Size** | **Stage 1** | **Stage 2** | **Stage 3** | **Total** |
 |--------------|---------|------------|------------|------------|-----------|
-| DOCX (10 pages) | 500KB | 5s | — | 15s | **20s** |
-| PPTX (20 slides) | 5MB | 10s | — | 30s | **40s** |
-| PDF (50 pages) | 10MB | 1s | — | 60s | **61s** |
-| Image (high-res) | 5MB | 2s | — | 10s | **12s** |
-| Video (10 min) | 100MB | — | 120s | 5s | **125s** |
+| DOCX (10 pages) | 500KB | 5s |   | 15s | **20s** |
+| PPTX (20 slides) | 5MB | 10s |   | 30s | **40s** |
+| PDF (50 pages) | 10MB | 1s |   | 60s | **61s** |
+| Image (high-res) | 5MB | 2s |   | 10s | **12s** |
+| Video (10 min) | 100MB |   | 120s | 5s | **125s** |
 
 **Note**: Times vary based on:
 - Document complexity

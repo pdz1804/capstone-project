@@ -250,7 +250,7 @@ graph TB
 ## Diagram 2: Deployment Diagram
 
 This diagram organises the full AWS infrastructure into named component groups,
-following the AWS reference-architecture style — labelled dashed boxes, numbered
+following the AWS reference-architecture style   labelled dashed boxes, numbered
 flows ①–⑳, and colour-coded service types.
 
 Active infrastructure is provisioned via Terraform. Planned services (CloudFront,
@@ -313,7 +313,7 @@ graph LR
             end
 
             %% ── GPU Inference Component ──
-            subgraph GPU_Comp["GPU Inference Component  —  EC2 g4dn.xlarge (NVIDIA T4)"]
+            subgraph GPU_Comp["GPU Inference Component     EC2 g4dn.xlarge (NVIDIA T4)"]
                 direction LR
                 Whisper["Whisper ASR"]
                 Docling["Docling\n(OCR + VLM)"]
