@@ -841,7 +841,7 @@ class DocumentNormalizer:
                 # Keep the copy in originals_dir so Docling can try
         
         elif ext == '.xls':
-            # .xls (legacy binary format) — convert to .xlsx via LibreOffice then parse
+            # .xls (legacy binary format)   convert to .xlsx via LibreOffice then parse
             try:
                 from .xls_reader import XlsParser
                 from .xlsx_reader_v2 import process_excel_file
@@ -926,7 +926,7 @@ class DocumentNormalizer:
             if classification.pdf_type == PdfType.BORN_DIGITAL:
                 self._parse_pdf_with_reader(file_path, stem)
             else:
-                print(f"  → Scanned/hybrid PDF — leaving in normalized_pdfs/ for Docling Stage 3")
+                print(f"  → Scanned/hybrid PDF   leaving in normalized_pdfs/ for Docling Stage 3")
 
         except Exception as e:
             print(f"  WARNING: PDF classification failed ({e}), "

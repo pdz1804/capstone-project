@@ -36,7 +36,7 @@ def phash(
     # Step 3: Apply 2D DCT (row-wise then column-wise)
     dct_coeffs = dct(dct(pixels, axis=0, norm="ortho"), axis=1, norm="ortho")
 
-    # Step 4: Crop top-left (8x8) — low-frequency components only
+    # Step 4: Crop top-left (8x8)   low-frequency components only
     dct_low = dct_coeffs[:hash_size, :hash_size]
 
     # Step 5: Compute median and binarize

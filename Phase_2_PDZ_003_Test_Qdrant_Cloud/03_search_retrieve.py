@@ -69,7 +69,7 @@ logger = setup_logging(logging.INFO)
 def load_colqwen_model():
     """
     Load ColQwen2 model and processor.
-    Identical to the function in 02_embed_and_store.py — in a real project
+    Identical to the function in 02_embed_and_store.py   in a real project
     you would move this to a shared module (e.g., model_loader.py).
     """
     logger.info("Loading ColQwen2 for query encoding …")
@@ -79,7 +79,7 @@ def load_colqwen_model():
     torch_dtype = dtype_map.get(cfg.torch_dtype, torch.bfloat16)
     if not has_cuda:
         torch_dtype = torch.float32
-        logger.warning("No GPU — using float32 on CPU (will be slower)")
+        logger.warning("No GPU   using float32 on CPU (will be slower)")
 
     with Timer("model_load"):
         try:
@@ -104,7 +104,7 @@ def load_colqwen_model():
                             load_in_8bit=True,
                         )
                 except ImportError:
-                    logger.warning("bitsandbytes not installed — quantisation disabled")
+                    logger.warning("bitsandbytes not installed   quantisation disabled")
                     search_model_kwargs["dtype"] = torch_dtype
             else:
                 search_model_kwargs["dtype"] = torch_dtype
@@ -146,11 +146,11 @@ def encode_query(query_text: str, model, processor) -> List[List[float]]:
       - Typical output: 12–30 query tokens (much fewer than image patches)
 
     OUTPUT FORMAT for Qdrant:
-      List[List[float]]  — e.g., [[q1_dim0, q1_dim1, …, q1_dim127], [q2_dim0, …], …]
+      List[List[float]]    e.g., [[q1_dim0, q1_dim1, …, q1_dim127], [q2_dim0, …], …]
                                    ↑ token 1                         ↑ token 2
 
     WHY FEWER QUERY TOKENS THAN IMAGE PATCHES?
-      Images are rich — a full slide has ~1000 patches.
+      Images are rich   a full slide has ~1000 patches.
       A short query like "what is the accuracy?" has ~10 tokens.
       MaxSim is asymmetric: for each query token we find its best match among
       ALL document patches.  Even 10 query tokens can match rich visual content.
@@ -189,7 +189,7 @@ def encode_query(query_text: str, model, processor) -> List[List[float]]:
 
 def encode_image_query(image_path: str, model, processor) -> List[List[float]]:
     """
-    Use an image as the query — this is "image-to-image" similarity search.
+    Use an image as the query   this is "image-to-image" similarity search.
 
     Instead of asking "show me a chart", you show Qdrant an example image
     and ask "find images that look like this".
@@ -252,7 +252,7 @@ def search(
 
     SCORING NOTES:
       • Higher score = more similar (MaxSim sum increases with more matches)
-      • Scores are NOT bounded to [0, 1] — they depend on the number of
+      • Scores are NOT bounded to [0, 1]   they depend on the number of
         query tokens and document patches
       • For rough guidance: score > 8 is often a good match in practice
 
@@ -409,7 +409,7 @@ def _print_benchmark_summary(
     tot_mn,  tot_mx,  tot_avg  = stats(total_times)
 
     print("\n" + "═" * 72)
-    print(f"{'  BENCHMARK SUMMARY — ' + str(len(queries)) + ' queries':^72}")
+    print(f"{'  BENCHMARK SUMMARY   ' + str(len(queries)) + ' queries':^72}")
     print("═" * 72)
     print(f"  {'Stage':<28}  {'Min (ms)':>10}  {'Max (ms)':>10}  {'Avg (ms)':>10}")
     print("  " + "─" * 66)
@@ -421,14 +421,14 @@ def _print_benchmark_summary(
     # Give human-readable interpretation
     print("\n  INTERPRETATION:")
     if enc_avg > 300:
-        print("  • Encoding is slow (>300 ms avg) — consider running on a GPU.")
+        print("  • Encoding is slow (>300 ms avg)   consider running on a GPU.")
     else:
-        print(f"  • Encoding avg {enc_avg:.0f} ms — {'GPU detected, good!' if torch.cuda.is_available() else 'CPU mode'}")
+        print(f"  • Encoding avg {enc_avg:.0f} ms   {'GPU detected, good!' if torch.cuda.is_available() else 'CPU mode'}")
 
     if srch_avg < 100:
-        print(f"  • Qdrant search avg {srch_avg:.0f} ms — fast! Network latency is low.")
+        print(f"  • Qdrant search avg {srch_avg:.0f} ms   fast! Network latency is low.")
     else:
-        print(f"  • Qdrant search avg {srch_avg:.0f} ms — consider your region/tier.")
+        print(f"  • Qdrant search avg {srch_avg:.0f} ms   consider your region/tier.")
 
     print(f"  • Total avg: {tot_avg:.0f} ms  ({tot_avg / 1000:.2f} s per query)")
     print("═" * 72 + "\n")
@@ -448,10 +448,10 @@ def demo_payload_filter(
     Show how to pre-filter Qdrant points by payload metadata BEFORE scoring.
 
     Use case: you have 10,000 indexed images from 50 different lecture series.
-    You want to search ONLY within "Lecture 3 slides" — pass a payload filter
+    You want to search ONLY within "Lecture 3 slides"   pass a payload filter
     to restrict the MaxSim computation to that subset.
 
-    This example filters by `image_width` — in a real project you'd assign
+    This example filters by `image_width`   in a real project you'd assign
     meaningful metadata like "lecture_id", "course", "date", etc.
 
     HOW FILTERS WORK IN QDRANT:
@@ -460,7 +460,7 @@ def demo_payload_filter(
           ↑ "should" = any condition matches (OR logic)
           ↑ "must_not" = exclude matches
 
-    Qdrant checks the filter FIRST (very fast — index-based),
+    Qdrant checks the filter FIRST (very fast   index-based),
     then runs MaxSim ONLY on the matching subset.
     """
     logger.info("─" * 55)
@@ -476,7 +476,7 @@ def demo_payload_filter(
     )
 
     if not scroll_results:
-        logger.warning("No points in collection — skipping filter demo.")
+        logger.warning("No points in collection   skipping filter demo.")
         return
 
     # Pick a width from the first stored point to use as a filter example
@@ -485,7 +485,7 @@ def demo_payload_filter(
     logger.info(f"Filter example: image_width = {example_width}  ({example_filename})")
 
     if example_width is None:
-        logger.warning("image_width not in payload — skipping filter demo.")
+        logger.warning("image_width not in payload   skipping filter demo.")
         return
 
     # Build a payload filter: only search points where image_width == example_width
@@ -519,7 +519,7 @@ def demo_payload_filter(
 
 if __name__ == "__main__":
     print("\n" + "═" * 65)
-    print("   STEP 3 — Search Qdrant Cloud with ColPali Queries")
+    print("   STEP 3   Search Qdrant Cloud with ColPali Queries")
     print("═" * 65 + "\n")
 
     cfg.validate()
@@ -613,7 +613,7 @@ if __name__ == "__main__":
         print_results(img_results, query=f"[image] {query_image_path.name}")
         tracker2.print_summary()
     else:
-        logger.info("Need at least 2 images in input/ for image-to-image demo — skipping.")
+        logger.info("Need at least 2 images in input/ for image-to-image demo   skipping.")
 
     # ─────────────────────────────────────────────────────────────────────────
     # DEMO 4: Payload-filtered search

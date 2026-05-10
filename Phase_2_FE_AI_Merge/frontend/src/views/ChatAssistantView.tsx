@@ -867,175 +867,175 @@ export default function ChatAssistantView() {
       historyPanelOpen ? 'grid-cols-1 xl:grid-cols-[300px_minmax(0,1fr)]' : 'grid-cols-1',
     )}>
       {historyPanelOpen && (
-      <aside className="min-h-[240px] max-h-full flex flex-col overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-[0_14px_28px_-26px_rgba(14,165,233,0.45)]">
-        <div className="px-3 py-2.5 border-b border-sky-100 bg-white space-y-2">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 min-w-0">
+        <aside className="min-h-[240px] max-h-full flex flex-col overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-[0_14px_28px_-26px_rgba(14,165,233,0.45)]">
+          <div className="px-3 py-2.5 border-b border-sky-100 bg-white space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => setHistoryPanelOpen(false)}
+                  className="p-1.5 rounded-md text-slate-500 hover:text-sky-700 hover:bg-sky-50 transition-colors"
+                  title="Hide history panel"
+                  aria-label="Hide history panel"
+                >
+                  <PanelLeftClose className="w-4 h-4" />
+                </button>
+                <h3 className="text-sm font-bold text-slate-800 truncate">Chats</h3>
+              </div>
               <button
                 type="button"
-                onClick={() => setHistoryPanelOpen(false)}
-                className="p-1.5 rounded-md text-slate-500 hover:text-sky-700 hover:bg-sky-50 transition-colors"
-                title="Hide history panel"
-                aria-label="Hide history panel"
+                onClick={handleToggleHistory}
+                className={cn(
+                  'inline-flex items-center rounded-md border px-2 py-1 text-[11px] font-semibold transition-colors',
+                  historyEnabled
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-100',
+                )}
+                title="Toggle chat history sync"
               >
-                <PanelLeftClose className="w-4 h-4" />
+                {historyEnabled ? 'On' : 'Off'}
               </button>
-              <h3 className="text-sm font-bold text-slate-800 truncate">Chats</h3>
             </div>
             <button
               type="button"
-              onClick={handleToggleHistory}
-              className={cn(
-                'inline-flex items-center rounded-md border px-2 py-1 text-[11px] font-semibold transition-colors',
-                historyEnabled
-                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                  : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-100',
-              )}
-              title="Toggle chat history sync"
+              onClick={() => void startNewChat()}
+              className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50/70 px-2.5 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-100/70"
+              title="Start new chat"
             >
-              {historyEnabled ? 'On' : 'Off'}
+              <Plus className="w-3.5 h-3.5" />
+              New chat
             </button>
           </div>
-          <button
-            type="button"
-            onClick={() => void startNewChat()}
-            className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50/70 px-2.5 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-100/70"
-            title="Start new chat"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            New chat
-          </button>
-        </div>
-        <div className="flex-1 min-h-0 overflow-y-auto px-2 py-2 space-y-1.5 bg-slate-50/60">
-          {!historyEnabled && (
-            <div className="rounded-lg border border-dashed border-slate-300 bg-white px-3 py-4 text-xs text-slate-600">
-              Chat history sync is turned off. This chat works in local mode only and does not call session APIs.
-            </div>
-          )}
-          {historyEnabled && sessionsLoading && (
-            <div className="text-xs text-slate-500 px-2 py-3">Loading chat sessions...</div>
-          )}
-          {historyEnabled && !sessionsLoading && sessions.length === 0 && (
-            <div className="rounded-lg border border-dashed border-slate-200 bg-white/70 px-3 py-4 text-xs text-slate-500">
-              No chats yet. Start a new chat to save your conversation history.
-            </div>
-          )}
-          {historyEnabled && sessions.map((s) => {
-            const active = s.session_id === sessionId;
-            const editing = sessionEditor?.id === s.session_id;
-            return (
-              <div
-                key={s.session_id}
-                className={cn(
-                  'group relative rounded-lg border transition-colors',
-                  active
-                    ? 'border-sky-300 bg-sky-50'
-                    : 'border-transparent bg-transparent hover:bg-white hover:border-slate-200'
-                )}
-              >
-                {editing ? (
-                  <div className="space-y-2 p-2">
-                    <input
-                      value={sessionEditor.title}
-                      onChange={(e) => setSessionEditor({ id: s.session_id, title: e.target.value })}
-                      aria-label="Chat title"
-                      placeholder="Chat title"
-                      className="w-full rounded-md border border-slate-300 px-2 py-1 text-xs"
-                      maxLength={120}
-                    />
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
-                        className="rounded border border-slate-300 p-1 text-slate-600 hover:bg-slate-100"
-                        onClick={() => setSessionEditor(null)}
-                        aria-label="Cancel rename"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded border border-sky-300 bg-sky-50 p-1 text-sky-700 hover:bg-sky-100"
-                        onClick={() => void handleSaveSessionTitle()}
-                        aria-label="Save name"
-                      >
-                        <Check className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => void selectSession(s.session_id)}
-                      className="w-full text-left px-2.5 py-2.5 pr-24"
-                    >
-                      <p className="text-[13px] font-semibold text-slate-800 truncate flex items-center gap-1.5">
-                        {s.pinned ? <Pin className="w-3.5 h-3.5 text-amber-600" /> : <MessageSquare className="w-3.5 h-3.5 text-slate-400" />}
-                        <span className="truncate">{s.title || 'Untitled chat'}</span>
-                      </p>
-                      <p className="text-[10px] text-slate-400 mt-1">
-                        {s.message_count} messages
-                      </p>
-                    </button>
-                    <div className="absolute right-2 top-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
-                      <button
-                        type="button"
-                        onClick={() => void handleTogglePin(s)}
-                        className="rounded-md p-1 text-slate-500 hover:text-slate-700 hover:bg-slate-100"
-                        title={s.pinned ? 'Unpin chat' : 'Pin chat'}
-                      >
-                        {s.pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSessionEditor({ id: s.session_id, title: s.title })}
-                        className="rounded-md p-1 text-slate-500 hover:text-slate-700 hover:bg-slate-100"
-                        title="Rename chat"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void handleDeleteSession(s)}
-                        className="rounded-md p-1 text-red-500 hover:bg-red-50"
-                        title="Delete chat"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </>
-                )}
+          <div className="flex-1 min-h-0 overflow-y-auto px-2 py-2 space-y-1.5 bg-slate-50/60">
+            {!historyEnabled && (
+              <div className="rounded-lg border border-dashed border-slate-300 bg-white px-3 py-4 text-xs text-slate-600">
+                Chat history sync is turned off. This chat works in local mode only and does not call session APIs.
               </div>
-            );
-          })}
-        </div>
-        <div className="px-3 py-2 border-t border-sky-100 bg-white flex items-center justify-between">
-          <button
-            type="button"
-            className="inline-flex items-center gap-1 rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-600 disabled:opacity-40"
-            disabled={!historyEnabled || sessionsCursorHistory.length === 0}
-            onClick={() => {
-              if (sessionsCursorHistory.length === 0) return;
-              const prev = sessionsCursorHistory[sessionsCursorHistory.length - 1];
-              setSessionsCursorHistory((stack) => stack.slice(0, -1));
-              void loadSessions(prev || null, false);
-            }}
-          >
-            <ChevronLeft className="w-3.5 h-3.5" /> Prev
-          </button>
-          <button
-            type="button"
-            className="inline-flex items-center gap-1 rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-600 disabled:opacity-40"
-            disabled={!historyEnabled || !sessionsNextCursor}
-            onClick={() => {
-              if (!sessionsNextCursor) return;
-              void loadSessions(sessionsNextCursor, true);
-            }}
-          >
-            Next <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </aside>
+            )}
+            {historyEnabled && sessionsLoading && (
+              <div className="text-xs text-slate-500 px-2 py-3">Loading chat sessions...</div>
+            )}
+            {historyEnabled && !sessionsLoading && sessions.length === 0 && (
+              <div className="rounded-lg border border-dashed border-slate-200 bg-white/70 px-3 py-4 text-xs text-slate-500">
+                No chats yet. Start a new chat to save your conversation history.
+              </div>
+            )}
+            {historyEnabled && sessions.map((s) => {
+              const active = s.session_id === sessionId;
+              const editing = sessionEditor?.id === s.session_id;
+              return (
+                <div
+                  key={s.session_id}
+                  className={cn(
+                    'group relative rounded-lg border transition-colors',
+                    active
+                      ? 'border-sky-300 bg-sky-50'
+                      : 'border-transparent bg-transparent hover:bg-white hover:border-slate-200'
+                  )}
+                >
+                  {editing ? (
+                    <div className="space-y-2 p-2">
+                      <input
+                        value={sessionEditor.title}
+                        onChange={(e) => setSessionEditor({ id: s.session_id, title: e.target.value })}
+                        aria-label="Chat title"
+                        placeholder="Chat title"
+                        className="w-full rounded-md border border-slate-300 px-2 py-1 text-xs"
+                        maxLength={120}
+                      />
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          className="rounded border border-slate-300 p-1 text-slate-600 hover:bg-slate-100"
+                          onClick={() => setSessionEditor(null)}
+                          aria-label="Cancel rename"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded border border-sky-300 bg-sky-50 p-1 text-sky-700 hover:bg-sky-100"
+                          onClick={() => void handleSaveSessionTitle()}
+                          aria-label="Save name"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => void selectSession(s.session_id)}
+                        className="w-full text-left px-2.5 py-2.5 pr-24"
+                      >
+                        <p className="text-[13px] font-semibold text-slate-800 truncate flex items-center gap-1.5">
+                          {s.pinned ? <Pin className="w-3.5 h-3.5 text-amber-600" /> : <MessageSquare className="w-3.5 h-3.5 text-slate-400" />}
+                          <span className="truncate">{s.title || 'Untitled chat'}</span>
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-1">
+                          {s.message_count} messages
+                        </p>
+                      </button>
+                      <div className="absolute right-2 top-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          onClick={() => void handleTogglePin(s)}
+                          className="rounded-md p-1 text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                          title={s.pinned ? 'Unpin chat' : 'Pin chat'}
+                        >
+                          {s.pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSessionEditor({ id: s.session_id, title: s.title })}
+                          className="rounded-md p-1 text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                          title="Rename chat"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleDeleteSession(s)}
+                          className="rounded-md p-1 text-red-500 hover:bg-red-50"
+                          title="Delete chat"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div className="px-3 py-2 border-t border-sky-100 bg-white flex items-center justify-between">
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-600 disabled:opacity-40"
+              disabled={!historyEnabled || sessionsCursorHistory.length === 0}
+              onClick={() => {
+                if (sessionsCursorHistory.length === 0) return;
+                const prev = sessionsCursorHistory[sessionsCursorHistory.length - 1];
+                setSessionsCursorHistory((stack) => stack.slice(0, -1));
+                void loadSessions(prev || null, false);
+              }}
+            >
+              <ChevronLeft className="w-3.5 h-3.5" /> Prev
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-600 disabled:opacity-40"
+              disabled={!historyEnabled || !sessionsNextCursor}
+              onClick={() => {
+                if (!sessionsNextCursor) return;
+                void loadSessions(sessionsNextCursor, true);
+              }}
+            >
+              Next <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </aside>
       )}
 
       <div className="min-w-0 h-full flex flex-col overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-[0_18px_36px_-28px_rgba(14,165,233,0.55)]">
@@ -1209,7 +1209,7 @@ export default function ChatAssistantView() {
                           </div>
                           <p className="text-[10px] text-slate-500">
                             {att.storageRef
-                              ? 'Saved with this chat — reload anytime from history.'
+                              ? 'Saved with this chat   reload anytime from history.'
                               : 'Right-click or long-press the image to save.'}
                           </p>
                         </div>
@@ -1323,7 +1323,7 @@ export default function ChatAssistantView() {
 
         {/* Input Area */}
         <div className="px-5 sm:px-7 pt-3 pb-6 border-t border-sky-100 bg-sky-50/30">
-          {/* Suggestion chips — always visible; updates to follow-ups after each response */}
+          {/* Suggestion chips   always visible; updates to follow-ups after each response */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
             {suggestions.map((s, i) => (
               <button

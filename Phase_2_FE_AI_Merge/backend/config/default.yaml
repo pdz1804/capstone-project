@@ -12,10 +12,10 @@
 pipeline:
   # Pipeline mode: "processing", "retrieval", "full", "test"
   mode: "full"
-  
+
   # RAG mode: "text" (text-only), "image" (image-only), "both" (combined)
   rag_mode: "both"
-  
+
   # Enable/disable pipeline stages
   enable_processing: true
   enable_retrieval: true
@@ -30,49 +30,49 @@ processing:
   enable_normalization: true
   enable_media_processing: true
   enable_document_processing: true
-  enable_processing_cache: false    # If true, skip unchanged files using .processing_cache.json
-  
+  enable_processing_cache: false # If true, skip unchanged files using .processing_cache.json
+
   # GPU acceleration
   use_gpu: true
 
   # Normalizer settings
   normalizer:
-    generate_pdf: true              # Generate PDF for image-based retrieval
-    generate_markdown: true         # Generate markdown for text-based retrieval
-    image_to_pdf: true              # Convert standalone images to PDF
-    image_quality: 95               # JPEG quality for image conversion (1-100)
-    excel_to_markdown: true         # Convert Excel to Markdown tables
-    csv_to_markdown: true           # Convert CSV to Markdown tables
-    max_table_rows: 1000            # Maximum rows to include in markdown
-    html_preserve_formatting: true  # Keep some HTML formatting in markdown
-    docx_extract_images: true       # Extract embedded images from DOCX
+    generate_pdf: true # Generate PDF for image-based retrieval
+    generate_markdown: true # Generate markdown for text-based retrieval
+    image_to_pdf: true # Convert standalone images to PDF
+    image_quality: 95 # JPEG quality for image conversion (1-100)
+    excel_to_markdown: true # Convert Excel to Markdown tables
+    csv_to_markdown: true # Convert CSV to Markdown tables
+    max_table_rows: 1000 # Maximum rows to include in markdown
+    html_preserve_formatting: true # Keep some HTML formatting in markdown
+    docx_extract_images: true # Extract embedded images from DOCX
 
   # Media processor settings (for audio/video)
   media:
     extract_audio: true
-    audio_format: "wav"             # Options: wav, mp3, flac
-    audio_sample_rate: 16000        # Sample rate in Hz
-    audio_channels: 1               # 1=mono, 2=stereo
+    audio_format: "wav" # Options: wav, mp3, flac
+    audio_sample_rate: 16000 # Sample rate in Hz
+    audio_channels: 1 # 1=mono, 2=stereo
     enable_transcription: true
-    asr_model: "base"               # Options: tiny, base, small, medium, large, large-v3
-    asr_language: null              # null=auto-detect, or language code like "en"
-    chunk_duration: 30              # Seconds per chunk for long audio
-    chunk_overlap: 1.0              # Overlap in seconds between chunks
-    extract_frames: false           # Extract video frames for image retrieval
+    asr_model: "base" # Options: tiny, base, small, medium, large, large-v3
+    asr_language: null # null=auto-detect, or language code like "en"
+    chunk_duration: 30 # Seconds per chunk for long audio
+    chunk_overlap: 1.0 # Overlap in seconds between chunks
+    extract_frames: false # Extract video frames for image retrieval
 
   # Document processor settings
   document:
     # Docling execution: "local" (in-process Docling) or "sagemaker" (see inference.sagemaker_docling_endpoint_name)
     docling_backend: "sagemaker"
     enable_ocr: true
-    enable_vlm: false               # Disable VLM for lower latency (enable when richer image understanding is needed)
+    enable_vlm: false # Disable VLM for lower latency (enable when richer image understanding is needed)
     enable_asr: true
-    ocr_engine: "rapidocr"          # Options: tesseract, easyocr, rapidocr
-    ocr_languages: null             # null=auto, or list like ["en", "vi"]
-    vlm_model: "granite_docling"    # Options: granite_docling, custom
+    ocr_engine: "rapidocr" # Options: tesseract, easyocr, rapidocr
+    ocr_languages: null # null=auto, or list like ["en", "vi"]
+    vlm_model: "granite_docling" # Options: granite_docling, custom
     export_markdown: true
-    export_images: false            # Disable image extraction to reduce processing time
-    export_tables: false            # Disable table extraction to reduce processing time
+    export_images: false # Disable image extraction to reduce processing time
+    export_tables: false # Disable table extraction to reduce processing time
 
 # ============================================================================
 # ASYNC INDEXING JOB CONFIGURATION
@@ -90,31 +90,31 @@ async_indexing:
 text_retrieval:
   # Retrieval methods to use
   methods:
-    - "bm25"                        # Sparse retrieval (keyword-based)
-    - "dense"                       # Dense retrieval (embedding-based)
-    - "hybrid"                      # Combination of BM25 + Dense with RRF
-  
+    - "bm25" # Sparse retrieval (keyword-based)
+    - "dense" # Dense retrieval (embedding-based)
+    - "hybrid" # Combination of BM25 + Dense with RRF
+
   # Default retriever for queries
-  default_method: "hybrid"          # Options: bm25, dense, hybrid
-  
+  default_method: "hybrid" # Options: bm25, dense, hybrid
+
   # Number of chunks to retrieve per query
   top_k: 10
-  
+
   # Dense embedding model
-  embedding_model: "all-MiniLM-L6-v2"   # Options: all-MiniLM-L6-v2, BAAI/bge-small-en-v1.5, etc.
-  
+  embedding_model: "all-MiniLM-L6-v2" # Options: all-MiniLM-L6-v2, BAAI/bge-small-en-v1.5, etc.
+
   # Chunking configuration
   chunking:
     enabled: true
-    chunk_size: 1000                # Characters per chunk
-    chunk_overlap: 200              # Overlap between chunks
-    min_chunk_size: 50              # Skip chunks smaller than this
-    separators:                     # Split priority (high to low)
-      - "\n\n"                      # Paragraph breaks
-      - "\n"                        # Line breaks
-      - ". "                        # Sentences
-      - " "                         # Words
-      - ""                          # Characters
+    chunk_size: 1000 # Characters per chunk
+    chunk_overlap: 200 # Overlap between chunks
+    min_chunk_size: 50 # Skip chunks smaller than this
+    separators: # Split priority (high to low)
+      - "\n\n" # Paragraph breaks
+      - "\n" # Line breaks
+      - ". " # Sentences
+      - " " # Words
+      - "" # Characters
     strip_whitespace: true
 
   # Reranker configuration
@@ -124,49 +124,49 @@ text_retrieval:
     # - "bge-large": BAAI/bge-reranker-large (best quality, slower)
     # - "bge-base": BAAI/bge-reranker-base (balanced)
     # - "minilm-l12": cross-encoder/ms-marco-MiniLM-L-12-v2 (faster)
-    model: "bge-base"                     # null=disabled, or model name
-    top_k_multiplier: 5                   # Retrieve top_k * multiplier before reranking
+    model: "bge-base" # null=disabled, or model name
+    top_k_multiplier: 5 # Retrieve top_k * multiplier before reranking
 
 # ============================================================================
 # IMAGE RETRIEVAL CONFIGURATION (ColQwen/ColPali)
 # ============================================================================
 image_retrieval:
-  enabled: true                     # Enable image-based retrieval
-  
+  enabled: true # Enable image-based retrieval
+
   # Methods to use
   methods:
     - "colqwen"
-  
+
   # Number of pages to retrieve per query
   top_k: 5
-  
+
   # ColQwen model configuration
   colqwen:
     # Model options:
     # - "vidore/colqwen2-v1.0": ColQwen2 (works with older colpali-engine)
     # - "vidore/colqwen2.5-v0.2": ColQwen2.5 (requires newer colpali-engine>=0.4.0)
     model: "vidore/colqwen2-v1.0"
-    
+
     # Data type for model weights
     # Options: "bfloat16" (faster, less memory), "float32" (more precise), "float16"
     dtype: "bfloat16"
-    
+
     # Quantization for faster inference and lower memory
     # Options: null (no quantization), "4bit", "8bit"
     quantization: "8bit"
-    
+
     # Load in 4-bit quantization (requires bitsandbytes)
     load_in_4bit: false
-    
+
     # Load in 8-bit quantization (requires bitsandbytes)
     load_in_8bit: true
-    
+
     # Device map: "auto", "cuda", "cpu", or specific device
     device_map: "auto"
-    
+
     # PDF to image conversion DPI (higher = better quality, slower)
     pdf_dpi: 150
-    
+
     # Batch size for embedding (lower if OOM errors)
     batch_size: 1
 
@@ -175,70 +175,70 @@ image_retrieval:
 # ============================================================================
 generation:
   enabled: true
-  
+
   # LLM Provider: "openai", "azure", "ollama", "bedrock" (Anthropic Claude on Amazon Bedrock)
   provider: "bedrock"
-  
+
   # Model: OpenAI name, or Bedrock model ID (default non-search generation model)
   model: "zai.glm-4.7-flash"
-  
+
   # Region for bedrock-runtime (defaults to AWS_REGION)
   bedrock_region: ""
-  
+
   # API configuration (can also use environment variables)
-  api_key: null                     # Use OPENAI_API_KEY env var if null
-  base_url: null                    # Custom API endpoint
-  
+  api_key: null # Use OPENAI_API_KEY env var if null
+  base_url: null # Custom API endpoint
+
   # Generation parameters
-  temperature: 0.0                  # 0.0 = deterministic, higher = more creative
-  max_tokens: 2000                  # Maximum response length
-  
+  temperature: 0.0 # 0.0 = deterministic, higher = more creative
+  max_tokens: 2000 # Maximum response length
+
   # Citation settings
   enable_citations: true
-  citation_style: "numbered"        # Options: numbered, inline
+  citation_style: "numbered" # Options: numbered, inline
 
 # ============================================================================
 # EVALUATION/BENCHMARK CONFIGURATION
 # ============================================================================
 evaluation:
   enabled: false
-  
+
   # Dataset paths
-  queries_path: null                # Path to queries file (JSON/JSONL)
-  qrels_path: null                  # Path to relevance judgments
-  corpus_path: null                 # Path to corpus (optional)
-  
+  queries_path: null # Path to queries file (JSON/JSONL)
+  qrels_path: null # Path to relevance judgments
+  corpus_path: null # Path to corpus (optional)
+
   # Evaluation settings
-  k_values:                         # k values for metrics (nDCG@k, Recall@k, etc.)
+  k_values: # k values for metrics (nDCG@k, Recall@k, etc.)
     - 1
     - 3
     - 5
     - 10
-  max_queries: null                 # Limit queries (null = all)
-  
+  max_queries: null # Limit queries (null = all)
+
   # Retrievers to evaluate
   retriever_types:
     - "bm25"
     - "dense"
     - "hybrid"
-  
+
   # Rerankers to evaluate
   reranker_models:
-    - null                          # No reranking
-    - "bge-large"                   # With reranking
-  
+    - null # No reranking
+    - "bge-large" # With reranking
+
   # Output
   output_dir: "benchmark_results"
-  save_detailed: true               # Save per-query results
+  save_detailed: true # Save per-query results
 
 # ============================================================================
 # LOGGING CONFIGURATION
 # ============================================================================
 logging:
-  level: "INFO"                     # Options: DEBUG, INFO, WARNING, ERROR
-  to_file: true                     # Write logs to file
-  log_dir: "output/logs"            # Log file directory
-  
+  level: "INFO" # Options: DEBUG, INFO, WARNING, ERROR
+  to_file: true # Write logs to file
+  log_dir: "output/logs" # Log file directory
+
   # Separate log files for different components
   separate_logs: true
   retrieval_log: "retrieval.log"
@@ -248,48 +248,48 @@ logging:
 # OUTPUT CONFIGURATION
 # ============================================================================
 output:
-  format: "json"                    # Options: json, jsonl
-  
+  format: "json" # Options: json, jsonl
+
   # Directory structure
   base_dir: "output"
   processing_dir: "processing"
   retrieval_dir: "retrieval"
   image_retrieval_dir: "image_retrieval"
   evaluation_dir: "evaluation"
-  
+
   # Keep intermediate files
   keep_intermediate: true
 
 # ============================================================================
-# QDRANT (Vector Database — replaces on-disk FAISS for dense text + image)
+# QDRANT (Vector Database   replaces on-disk FAISS for dense text + image)
 # ============================================================================
 qdrant:
-  mode: "docker"                    # docker | cloud  (overridable via QDRANT_MODE)
+  mode: "docker" # docker | cloud  (overridable via QDRANT_MODE)
   host: "localhost"
   port: 6333
-  url: ""                           # cloud: https://xxx.cloud.qdrant.io:6333
-  api_key: ""                       # cloud only; prefer QDRANT_API_KEY env
-  text_collection: "edu_text_chunks"      # shared text collection for all users (payload user_id tenancy)
-  image_collection: "edu_image_pages"     # shared image collection for all users (payload user_id tenancy)
+  url: "" # cloud: https://xxx.cloud.qdrant.io:6333
+  api_key: "" # cloud only; prefer QDRANT_API_KEY env
+  text_collection: "edu_text_chunks" # shared text collection for all users (payload user_id tenancy)
+  image_collection: "edu_image_pages" # shared image collection for all users (payload user_id tenancy)
   image_vector_name: "colpali_multivec"
   text_vector_name: "text"
-  text_storage_quantization: "scalar"     # none | scalar | binary (dense text vectors)
-  image_storage_quantization: "scalar"   # none | scalar | binary (ColQwen multivec)
+  text_storage_quantization: "scalar" # none | scalar | binary (dense text vectors)
+  image_storage_quantization: "scalar" # none | scalar | binary (ColQwen multivec)
 
 # ============================================================================
-# COLQWEN INFERENCE — local GPU vs AWS SageMaker endpoint
+# COLQWEN INFERENCE   local GPU vs AWS SageMaker endpoint
 # ============================================================================
 # When USE_AWS_SAGEMAKER_INFERENCE=true (env), embed-query / embed-images use
 # SageMaker Runtime (same JSON contract as Phase_2_PDZ_002_Model_Deploy server).
 inference:
-  use_aws_sagemaker: false            # Prefer env USE_AWS_SAGEMAKER_INFERENCE
+  use_aws_sagemaker: false # Prefer env USE_AWS_SAGEMAKER_INFERENCE
   aws_region: "us-west-2"
   # Primary endpoint. For single-endpoint mode, all services can share this.
   sagemaker_endpoint_name: "phase2-multimodal-rt"
   # Optional dedicated endpoint for Docling. If empty, backend falls back to sagemaker_endpoint_name.
-  use_aws_sagemaker_docling: true     # Prefer env USE_AWS_SAGEMAKER_DOCLING
+  use_aws_sagemaker_docling: true # Prefer env USE_AWS_SAGEMAKER_DOCLING
   sagemaker_docling_endpoint_name: ""
   # Optional dedicated endpoint for Whisper ASR. If empty, backend falls back to sagemaker_endpoint_name.
-  use_aws_sagemaker_whisper: false    # Prefer env USE_AWS_SAGEMAKER_WHISPER=true
+  use_aws_sagemaker_whisper: false # Prefer env USE_AWS_SAGEMAKER_WHISPER=true
   sagemaker_whisper_endpoint_name: ""
-  hybrid_alpha: 0.5                 # weight for dense vs BM25 in hybrid (0..1)
+  hybrid_alpha: 0.5 # weight for dense vs BM25 in hybrid (0..1)

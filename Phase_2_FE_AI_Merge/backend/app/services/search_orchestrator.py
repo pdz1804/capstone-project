@@ -137,7 +137,7 @@ class SearchOrchestrator:
                 retrieval_total_ms = 0
 
         if not retrieval_cache_hit and run_text and can_run_image:
-            # Both branches active — run them in parallel.
+            # Both branches active   run them in parallel.
             def _fetch_text() -> List[Dict[str, Any]]:
                 return TextSearchService(self.cfg, user_id=self._user_id).search(
                     query, retriever_type, top_k, skip_reranker=skip_reranker

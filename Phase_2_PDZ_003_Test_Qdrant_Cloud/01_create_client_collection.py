@@ -12,16 +12,16 @@ WHAT YOU WILL LEARN IN THIS FILE:
   4. Qdrant's built-in STORAGE quantization options:
      - No quantization (full float32)
      - Scalar quantization (int8, ~4× smaller)
-     - Binary quantization (~32× smaller — surprisingly good for ColPali!)
+     - Binary quantization (~32× smaller   surprisingly good for ColPali!)
   5. How to inspect, list, and delete collections
 
 QDRANT GLOSSARY (beginner's cheat-sheet):
-  Client     — your Python object that talks to the Qdrant server
-  Collection — a named bucket of vector points  (↔ "table" in SQL)
-  Point      — one record: { id, vector(s), payload }
-  Vector     — the embedding stored for a point (float array)
-  Payload    — arbitrary JSON metadata attached to a point  (↔ "row data")
-  Named Vec  — a collection can hold several differently-named vectors per point
+  Client       your Python object that talks to the Qdrant server
+  Collection   a named bucket of vector points  (↔ "table" in SQL)
+  Point        one record: { id, vector(s), payload }
+  Vector       the embedding stored for a point (float array)
+  Payload      arbitrary JSON metadata attached to a point  (↔ "row data")
+  Named Vec    a collection can hold several differently-named vectors per point
 
 RUN THIS SCRIPT:
   python 01_create_client_collection.py
@@ -37,10 +37,10 @@ from qdrant_client.models import (
     # VectorParams: defines ONE named vector slot inside a collection
     VectorParams,
 
-    # Distance metrics — how similarity is computed:
-    #   DOT    — inner product (works best when vectors are normalised to unit length)
-    #   COSINE — cosine similarity (auto-normalises so you don't have to)
-    #   EUCLID — Euclidean (L2) distance (best for dense retrieval without normalisation)
+    # Distance metrics   how similarity is computed:
+    #   DOT      inner product (works best when vectors are normalised to unit length)
+    #   COSINE   cosine similarity (auto-normalises so you don't have to)
+    #   EUCLID   Euclidean (L2) distance (best for dense retrieval without normalisation)
     # ColQwen normalises its output vectors → we use DOT.
     Distance,
 
@@ -93,7 +93,7 @@ def create_client() -> QdrantClient:
     """
     Connect to Qdrant (Docker or Cloud) and return a QdrantClient.
 
-    The client is a long-lived object — create it once and reuse it.
+    The client is a long-lived object   create it once and reuse it.
     Under the hood it maintains an HTTP connection pool to the Qdrant server.
 
     THREE WAYS TO INSTANTIATE A CLIENT (for your reference):
@@ -174,7 +174,7 @@ def create_collection(
             logger.info(f"Deleted '{name}'.")
         else:
             logger.info(
-                f"Collection '{name}' already exists — skipping creation.\n"
+                f"Collection '{name}' already exists   skipping creation.\n"
                 f"  Pass force_recreate=True to wipe and recreate it."
             )
             return
@@ -184,13 +184,13 @@ def create_collection(
     quant_config = None
 
     if quantization == "scalar":
-        logger.info("Quantization: SCALAR (int8) — ~4× storage reduction")
+        logger.info("Quantization: SCALAR (int8)   ~4× storage reduction")
         quant_config = ScalarQuantization(
             scalar=ScalarQuantizationConfig(
                 # INT8: each float32 value is rounded to nearest integer in [-128, 127]
                 type=ScalarType.INT8,
                 # quantile=0.99 means the top and bottom 0.5 % of values are clipped
-                # before scaling — prevents rare outliers from distorting the range
+                # before scaling   prevents rare outliers from distorting the range
                 quantile=0.99,
                 # always_ram=True: keep quantized vectors in RAM (faster search)
                 # Set False to save RAM at the cost of some latency
@@ -199,7 +199,7 @@ def create_collection(
         )
 
     elif quantization == "binary":
-        logger.info("Quantization: BINARY — ~32× storage reduction")
+        logger.info("Quantization: BINARY   ~32× storage reduction")
         quant_config = BinaryQuantization(
             binary=BinaryQuantizationConfig(
                 # always_ram keeps binary vectors in RAM for sub-millisecond search
@@ -269,7 +269,7 @@ def create_payload_indexes(client: QdrantClient) -> None:
       pre-built index.  Local Docker is lenient and does a full scan instead,
       but Cloud rejects the request with a 400 error.
 
-    This function is IDEMPOTENT — safe to run multiple times and on a
+    This function is IDEMPOTENT   safe to run multiple times and on a
     collection that already has points in it.  Qdrant builds the index over
     existing data automatically.
 
@@ -313,10 +313,10 @@ def inspect_collection(client: QdrantClient) -> None:
     Print full details of our collection: status, point count, vector config.
 
     CollectionInfo fields we care about:
-      .status          — "green" (healthy), "yellow" (optimising), "red" (error)
-      .points_count    — how many points are stored
-      .segments_count  — internal storage segments (Qdrant manages these automatically)
-      .config.params.vectors — dict of named VectorParams
+      .status            "green" (healthy), "yellow" (optimising), "red" (error)
+      .points_count      how many points are stored
+      .segments_count    internal storage segments (Qdrant manages these automatically)
+      .config.params.vectors   dict of named VectorParams
     """
     try:
         info = client.get_collection(cfg.collection_name)
@@ -326,7 +326,7 @@ def inspect_collection(client: QdrantClient) -> None:
 
     width = 62
     print("\n" + "═" * width)
-    print(f"  COLLECTION INFO — '{cfg.collection_name}'")
+    print(f"  COLLECTION INFO   '{cfg.collection_name}'")
     print("═" * width)
     print(f"  Status         : {info.status}")
     print(f"  Points stored  : {info.points_count:,}")
@@ -374,12 +374,12 @@ def list_all_collections(client: QdrantClient) -> None:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# MAIN — ties everything together
+# MAIN   ties everything together
 # ─────────────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     print("\n" + "═" * 65)
-    print("   STEP 1 — Qdrant Client + Collection Setup")
+    print("   STEP 1   Qdrant Client + Collection Setup")
     print("═" * 65 + "\n")
 
     # ── 1. Connect ───────────────────────────────────────────────────────────
@@ -395,9 +395,9 @@ if __name__ == "__main__":
     create_collection(
         client,
         # Choose your storage quantization strategy:
-        #   "none"   — full float32, best accuracy
-        #   "scalar" — int8, 4× smaller  ← good starting point
-        #   "binary" — 1-bit, 32× smaller, still good for ColPali
+        #   "none"     full float32, best accuracy
+        #   "scalar"   int8, 4× smaller  ← good starting point
+        #   "binary"   1-bit, 32× smaller, still good for ColPali
         quantization="scalar",
         # Set force_recreate=True to wipe+recreate (useful during experiments)
         force_recreate=False,

@@ -1,6 +1,6 @@
 SPHERE VERSUS PLANE
 INTERSECTION
 
-dc = —CŒ -f\
+dc =  CŒ -f\
 
-|ử— đe| > rc
+|ử  đe| > rc

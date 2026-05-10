@@ -4,11 +4,11 @@ End-to-end test script for the PDF RAG pipeline.
 
 Two parsers are available:
 
-  docling (default)  — Docling unified parser.
+  docling (default)    Docling unified parser.
                        Born-digital → OCR disabled (fast).
                        Scanned / hybrid → OCR enabled automatically.
 
-  pymupdf            — Legacy custom PdfParser (pymupdf / font heuristics).
+  pymupdf              Legacy custom PdfParser (pymupdf / font heuristics).
                        Born-digital only; no OCR support.
 
 Usage
@@ -64,7 +64,7 @@ DEFAULT_OUTPUT = ROOT / "output" / "pdf_rag_ready"
 
 
 # ---------------------------------------------------------------------------
-# Step 1 — classify
+# Step 1   classify
 # ---------------------------------------------------------------------------
 
 def classify_pdf(pdf_path: Path) -> dict:
@@ -92,7 +92,7 @@ def classify_pdf(pdf_path: Path) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Step 2 — parse
+# Step 2   parse
 # ---------------------------------------------------------------------------
 def parse_with_pymupdf(pdf_path: Path, output_dir: Path) -> Path:
     """Parse via legacy pymupdf PdfParser (born-digital only, no OCR)."""
@@ -115,7 +115,7 @@ def parse_with_pymupdf(pdf_path: Path, output_dir: Path) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# Step 3 — preprocess (chunk + manifest)
+# Step 3   preprocess (chunk + manifest)
 # ---------------------------------------------------------------------------
 
 def run_pipeline(json_path: Path, args, pdf_classification: dict | None = None) -> bool:
@@ -177,7 +177,7 @@ def _process_single(pdf_path: Path, args, parsed_json_dir: Path):
     if args.parser == "pymupdf":
         if classification["pdf_type"] != "born_digital":
             log.warning(
-                f"PDF is '{classification['pdf_type']}' — pymupdf parser has no OCR. "
+                f"PDF is '{classification['pdf_type']}'   pymupdf parser has no OCR. "
                 "Use --parser docling for scanned PDFs."
             )
         json_path = parse_with_pymupdf(pdf_path, parsed_json_dir)

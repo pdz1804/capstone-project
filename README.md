@@ -9,7 +9,7 @@
 
 This capstone builds an **educational content processing and Retrieval-Augmented Generation (RAG)** system: ingest multimodal lecture materials, align and structure them, index them for **text and visual** retrieval, and support **question answering with citations**, **lecture-aware summaries**, and **personalized learning** features behind a **modern web UI** and **production-style deployment** options.
 
-The authoritative requirements baseline is **[`docs/requirements.md`](docs/requirements.md)** (Software Requirements Specification): **37** requirements in total—**22** functional (FR-001–FR-022 and extended FRs in that doc), **8** non-functional (NFR-001–NFR-008), and **7** technical (TR-001–TR-007). Highlights from the SRS scope:
+The authoritative requirements baseline is **[`docs/requirements.md`](docs/requirements.md)** (Software Requirements Specification): **37** requirements in total **22** functional (FR-001–FR-022 and extended FRs in that doc), **8** non-functional (NFR-001–NFR-008), and **7** technical (TR-001–TR-007). Highlights from the SRS scope:
 
 - **Content processing**: ASR and timed exports (**FR-001**); documents, OCR, dual outputs (**FR-002**); spreadsheet merged cells and Markdown (**FR-003**, **FR-004**); images / VLM (**FR-005**); deduplication (**FR-006**); audio–slide alignment and temporal navigation (**FR-007**, **FR-008**).
 - **Retrieval & QA**: BM25, dense, hybrid (**FR-009**); vision–language retrieval (**FR-010**); query handling (**FR-011**); grounded answers (**FR-012**, **FR-013**); chat decomposition, strategy, and multi-search aggregation (**FR-014**).
@@ -53,7 +53,7 @@ The latest deployment architecture (v3) shows production-grade cloud infrastruct
 ![AWS Deployment Architecture Diagram](docs/diagram/Deployment%20Diagram_v3.png)
 
 **Additional Diagrams:**
-- [`docs/diagram/`](docs/diagram/) — Complete diagram collection including document processing flows and system documentation
+- [`docs/diagram/`](docs/diagram/)   Complete diagram collection including document processing flows and system documentation
 
 ---
 
@@ -260,7 +260,7 @@ python -m venv venv
 
 ### Recommended: merged app (`Phase_2_FE_AI_Merge/`)
 
-Full UI (Firebase), Qdrant/S3-aware API, tests, **Terraform** and **SageMaker** docs—see [**`Phase_2_FE_AI_Merge/README.md`**](Phase_2_FE_AI_Merge/README.md).
+Full UI (Firebase), Qdrant/S3-aware API, tests, **Terraform** and **SageMaker** docs see [**`Phase_2_FE_AI_Merge/README.md`**](Phase_2_FE_AI_Merge/README.md).
 
 ```powershell
 # Backend (see Phase_2_FE_AI_Merge/backend/README.md for uvicorn/install scripts)
@@ -269,7 +269,7 @@ pip install -r requirements.txt
 Copy-Item .env.example .env
 # Edit .env: keys, Qdrant, S3, SageMaker flags
 
-# Frontend — new PowerShell window at the repository root, then:
+# Frontend   new PowerShell window at the repository root, then:
 Set-Location Phase_2_FE_AI_Merge\frontend
 npm install
 Copy-Item .env.example .env
@@ -278,7 +278,7 @@ npm run dev
 
 **URLs (typical):** UI `http://localhost:5173` (or Vite default), API `http://localhost:8000`, docs `http://localhost:8000/docs`. Run the API with the command in `backend/README.md` (e.g. `uvicorn` on `app.main:app`).
 
-**Terraform (local validation only—no apply):**
+**Terraform (local validation only no apply):**
 
 ```powershell
 Set-Location Phase_2_FE_AI_Merge\terraform
@@ -332,42 +332,42 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 
 **📖 Start Here:**
 
-- **[`docs/INDEX.md`](docs/INDEX.md)** ⭐ — **Central documentation index** with reading paths by role, quick navigation, and complete documentation map. Use this to find what you need.
+- **[`docs/INDEX.md`](docs/INDEX.md)** ⭐   **Central documentation index** with reading paths by role, quick navigation, and complete documentation map. Use this to find what you need.
 
 **Core Documentation**
 
-- **[`docs/README.md`](docs/README.md)** — Documentation hub and overview.
-- **[`docs/requirements.md`](docs/requirements.md)** ⭐ — Software Requirements Specification: functional, non-functional, technical constraints (37 requirements total).
+- **[`docs/README.md`](docs/README.md)**   Documentation hub and overview.
+- **[`docs/requirements.md`](docs/requirements.md)** ⭐   Software Requirements Specification: functional, non-functional, technical constraints (37 requirements total).
 
 **Authoritative Technical Documents**
 
-- **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)** — Product scope, user workflows, architecture summary, features, quality attributes, and engineering assessment.
-- **[`docs/technical/API_REFERENCE.md`](docs/technical/API_REFERENCE.md)** — Maintainer-level API reference covering authentication, files, processing, indexing, search, chat, insights, feedback, and operational guidance.
-- **[`docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md`](docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)** ⭐ — AWS Bedrock guardrails configuration, content safety filters, PII protection, implementation details.
+- **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)**   Product scope, user workflows, architecture summary, features, quality attributes, and engineering assessment.
+- **[`docs/technical/API_REFERENCE.md`](docs/technical/API_REFERENCE.md)**   Maintainer-level API reference covering authentication, files, processing, indexing, search, chat, insights, feedback, and operational guidance.
+- **[`docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md`](docs/technical/DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)** ⭐   AWS Bedrock guardrails configuration, content safety filters, PII protection, implementation details.
 
 **Testing and performance evidence**
 
-- **[`docs/report/FRESH_EVALUATION_REPORT_2026_05_07.md`](docs/report/FRESH_EVALUATION_REPORT_2026_05_07.md)** — Final evaluation report with component testing, performance benchmarks, and production readiness assessment.
-- **[`docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md)** — JMeter runbook and result exports for Process, Index, and Search.
-- **[`docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md)** — JMeter runbook and result exports for Auth, User, Stats, Upload, Chat, and Insights.
+- **[`docs/report/FRESH_EVALUATION_REPORT_2026_05_07.md`](docs/report/FRESH_EVALUATION_REPORT_2026_05_07.md)**   Final evaluation report with component testing, performance benchmarks, and production readiness assessment.
+- **[`docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_MAIN_APIS.md)**   JMeter runbook and result exports for Process, Index, and Search.
+- **[`docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md`](docs/jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md)**   JMeter runbook and result exports for Auth, User, Stats, Upload, Chat, and Insights.
 
 **Architecture and deployment**
 
-- **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)** — System architecture, technology stack, and design patterns.
-- **[`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](docs/technical/DOCS_deployment-alb-acm-custom-domain.md)** — ACM certificates, DNS validation, ALB HTTP→HTTPS, custom domains.
-- **[`docs/technical/DOCS_search-cache-redis-setup.md`](docs/technical/DOCS_search-cache-redis-setup.md)** — Redis/ElastiCache search cache setup and operational notes.
+- **[`docs/technical/APPLICATION_OVERVIEW.md`](docs/technical/APPLICATION_OVERVIEW.md)**   System architecture, technology stack, and design patterns.
+- **[`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](docs/technical/DOCS_deployment-alb-acm-custom-domain.md)**   ACM certificates, DNS validation, ALB HTTP→HTTPS, custom domains.
+- **[`docs/technical/DOCS_search-cache-redis-setup.md`](docs/technical/DOCS_search-cache-redis-setup.md)**   Redis/ElastiCache search cache setup and operational notes.
 
 **Cost estimation**
 
-- **[`docs/others/AWS_Cost_Estimation_50_Users_Professional.xlsx`](docs/others/AWS_Cost_Estimation_50_Users_Professional.xlsx)** — Detailed cost analysis and scalability projections for 50 concurrent users.
+- **[`docs/others/AWS_Cost_Estimation_50_Users_Professional.xlsx`](docs/others/AWS_Cost_Estimation_50_Users_Professional.xlsx)**   Detailed cost analysis and scalability projections for 50 concurrent users.
 
 **Merged production application (`Phase_2_FE_AI_Merge/`)**
 
-- **[`Phase_2_FE_AI_Merge/README.md`](Phase_2_FE_AI_Merge/README.md)** — Top-level map: frontend, backend, SageMaker pack, Terraform; local quick paths.
-- **[`Phase_2_FE_AI_Merge/MERGE_SUMMARY.md`](Phase_2_FE_AI_Merge/MERGE_SUMMARY.md)** — What was integrated from FE and AI service tracks.
-- **[`Phase_2_FE_AI_Merge/backend/README.md`](Phase_2_FE_AI_Merge/backend/README.md)** — FastAPI layout, Qdrant/BM25/hybrid/image retrieval, S3 vs local storage.
-- **[`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md)** — AWS resources (ECR, ECS, ALB, optional HTTPS, optional SageMaker) and safe Terraform checks.
-- **[`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)** — Unified container, ECR push, deploy/delete scripts, backend environment variables.
+- **[`Phase_2_FE_AI_Merge/README.md`](Phase_2_FE_AI_Merge/README.md)**   Top-level map: frontend, backend, SageMaker pack, Terraform; local quick paths.
+- **[`Phase_2_FE_AI_Merge/MERGE_SUMMARY.md`](Phase_2_FE_AI_Merge/MERGE_SUMMARY.md)**   What was integrated from FE and AI service tracks.
+- **[`Phase_2_FE_AI_Merge/backend/README.md`](Phase_2_FE_AI_Merge/backend/README.md)**   FastAPI layout, Qdrant/BM25/hybrid/image retrieval, S3 vs local storage.
+- **[`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md)**   AWS resources (ECR, ECS, ALB, optional HTTPS, optional SageMaker) and safe Terraform checks.
+- **[`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)**   Unified container, ECR push, deploy/delete scripts, backend environment variables.
 
 **Research milestones and utilities**
 
@@ -410,17 +410,17 @@ Copyright (c) 2025 Quang Phu, Ngoc Khoi, and Minh Khoi
 
 Open-source models, APIs, and platforms that this codebase builds on (see also TR-004–TR-005 and integration notes in [`docs/requirements.md`](docs/requirements.md)):
 
-- **OpenAI** — Whisper and LLM APIs used in ASR and generation experiments.
-- **Google** — Gemini (multimodal/API), **Firebase** (authentication in the merged frontend stack), and embedding-related tooling referenced in weekly work.
-- **Hugging Face** — `transformers`, model hubs, and pretrained checkpoints (e.g. ColQwen, sentence encoders).
-- **IBM** — **Docling** and related document-understanding components.
-- **Qdrant** — Vector Database used in the Phase 2 AI service and merge backend.
-- **Amazon Web Services** — **S3**, **SageMaker** real-time inference, and (via Terraform) **ECS**, **ECR**, **ALB**, **ACM** for optional cloud deployment.
-- **HashiCorp** — **Terraform** for infrastructure as code in `Phase_2_FE_AI_Merge/terraform/`.
-- **Pyserini / Anserini & Milvus** — retrieval stacks explored in research-week milestones.
-- **LangChain & LlamaIndex** — RAG framework comparisons (early-phase notebooks and prototypes).
-- **FFmpeg, Tesseract, Poppler** — media, OCR, and PDF tooling (TR-005).
-- **React, Vite, Tailwind CSS** — frontend stack (TR-002).
+- **OpenAI**   Whisper and LLM APIs used in ASR and generation experiments.
+- **Google**   Gemini (multimodal/API), **Firebase** (authentication in the merged frontend stack), and embedding-related tooling referenced in weekly work.
+- **Hugging Face**   `transformers`, model hubs, and pretrained checkpoints (e.g. ColQwen, sentence encoders).
+- **IBM**   **Docling** and related document-understanding components.
+- **Qdrant**   Vector Database used in the Phase 2 AI service and merge backend.
+- **Amazon Web Services**   **S3**, **SageMaker** real-time inference, and (via Terraform) **ECS**, **ECR**, **ALB**, **ACM** for optional cloud deployment.
+- **HashiCorp**   **Terraform** for infrastructure as code in `Phase_2_FE_AI_Merge/terraform/`.
+- **Pyserini / Anserini & Milvus**   retrieval stacks explored in research-week milestones.
+- **LangChain & LlamaIndex**   RAG framework comparisons (early-phase notebooks and prototypes).
+- **FFmpeg, Tesseract, Poppler**   media, OCR, and PDF tooling (TR-005).
+- **React, Vite, Tailwind CSS**   frontend stack (TR-002).
 
 ---
 

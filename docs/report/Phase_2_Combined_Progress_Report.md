@@ -735,7 +735,7 @@ The performance test suite covers twelve API groups representing the full user j
 
 ### 4.3 Interactive API Results: Baseline and Insight Endpoints
 
-**Baseline APIs — 0% error rate at 50 concurrent users**
+**Baseline APIs   0% error rate at 50 concurrent users**
 
 | Endpoint | Samples | Mean (ms) | P95 (ms) | P99 (ms) |
 |---|---:|---:|---:|---:|
@@ -745,7 +745,7 @@ The performance test suite covers twelve API groups representing the full user j
 
 Authentication and profile calls remained under 2.5 seconds at P95, confirming the API layer and identity management are reliable under production load.
 
-**File Upload API — 0% errors across all concurrency levels**
+**File Upload API   0% errors across all concurrency levels**
 
 | Concurrent Users | Mean (ms) | P95 (ms) |
 |---:|---:|---:|
@@ -755,7 +755,7 @@ Authentication and profile calls remained under 2.5 seconds at P95, confirming t
 
 Upload latency remained under 10 seconds at P95 with 0 errors, confirming correct per-user S3 isolation and reliable file handling.
 
-**Search API — 0% errors, increasing latency with load**
+**Search API   0% errors, increasing latency with load**
 
 | Concurrent Users | P50 (ms) | P95 (ms) | P99 (ms) |
 |---:|---:|---:|---:|
@@ -766,7 +766,7 @@ Upload latency remained under 10 seconds at P95 with 0 errors, confirming correc
 
 Search P95 increased 67% from 18s to 30.1s (20→50 users), reflecting hybrid retrieval cost: Qdrant vectors, BM25 keyword matching, and LLM-based reranking all contend for shared resources. This scaling is acceptable because error rate remained 0%.
 
-**Chat Stream — Responsive first response, longer completion**
+**Chat Stream   Responsive first response, longer completion**
 
 | Concurrent Users | Mean First Byte (ms) | P95 First Byte (ms) | Mean Elapsed (ms) | P95 Elapsed (ms) |
 |---:|---:|---:|---:|---:|
@@ -775,9 +775,9 @@ Search P95 increased 67% from 18s to 30.1s (20→50 users), reflecting hybrid re
 | 40 | 1,018.6 | 3,365 | 38,540.8 | 50,352 |
 | 50 | 1,434.3 | 4,223 | 45,318.6 | 61,150 |
 
-Chat completed all requests with 0 errors. First-byte latency (1.4s average at 50 users) is excellent for streaming AI, indicating responsive UX. Full stream duration (45s average) reflects LLM generation, tool execution, and retrieval latency—expected for AI workflows.
+Chat completed all requests with 0 errors. First-byte latency (1.4s average at 50 users) is excellent for streaming AI, indicating responsive UX. Full stream duration (45s average) reflects LLM generation, tool execution, and retrieval latency expected for AI workflows.
 
-**Learning Insight Endpoints — All 0% errors at 50 users**
+**Learning Insight Endpoints   All 0% errors at 50 users**
 
 | API | 20 Users | 30 Users | 40 Users | 50 Users |
 |---|---:|---:|---:|---:|
@@ -789,7 +789,7 @@ All three insight endpoints remained stable with 0 errors and manageable latency
 
 ### 4.4 Background Job Results: The Critical Indexing Bottleneck
 
-**Document Processing — Moderate resource contention**
+**Document Processing   Moderate resource contention**
 
 | Requested Jobs | Completed | Failed | Avg Duration (s) | P95 (s) |
 |---:|---:|---:|---:|---:|
@@ -799,7 +799,7 @@ All three insight endpoints remained stable with 0 errors and manageable latency
 
 Processing duration rises gradually from 36s to 51s (20→40 jobs), failure rate increases (4→11 jobs). This indicates expected resource contention as parallelism increases.
 
-**Full Indexing Jobs — CRITICAL FINDING: Complete failure at 40 jobs**
+**Full Indexing Jobs   CRITICAL FINDING: Complete failure at 40 jobs**
 
 | Requested Jobs | Completed | Failed | Avg Duration (s) |
 |---:|---:|---:|---:|
@@ -815,7 +815,7 @@ Processing duration rises gradually from 36s to 51s (20→40 jobs), failure rate
 
 ### 4.5 Understanding Performance Scaling Behavior
 
-Response time increases as concurrency rises—this is **expected and fundamental** to any system with shared resources. The key distinction is between acceptable scaling and critical failure.
+Response time increases as concurrency rises this is **expected and fundamental** to any system with shared resources. The key distinction is between acceptable scaling and critical failure.
 
 #### Why Response Times Increase
 

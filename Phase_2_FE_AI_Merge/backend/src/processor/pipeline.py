@@ -192,7 +192,7 @@ class DocumentProcessingPipeline:
         Remove normalized / Docling / RAG-ready outputs for documents that no longer exist in input/.
 
         Stage 3 otherwise picks up every *.pdf in normalized_pdfs/, and Stage 4 consolidates every
-        folder under stage3 — so old files must be deleted when removed from input/.
+        folder under stage3   so old files must be deleted when removed from input/.
         """
         stats = {
             "enabled": bool(self.config.prune_outputs_not_in_input),
@@ -210,7 +210,7 @@ class DocumentProcessingPipeline:
         if not allowed:
             stats["skipped_empty_input"] = True
             print(
-                "⚠ prune_outputs_not_in_input: input/ has no files — skipping stale-artifact cleanup "
+                "⚠ prune_outputs_not_in_input: input/ has no files   skipping stale-artifact cleanup "
                 "(would otherwise wipe all outputs)."
             )
             return stats
@@ -757,7 +757,7 @@ class DocumentProcessingPipeline:
                 else:
                     print(f"  ✓ Skipping original_files - all already processed as normalized PDFs/MD or unsupported formats")
             
-            # STEP 4: SKIP media transcripts — they already have pre-built chunks from Stage 2.
+            # STEP 4: SKIP media transcripts   they already have pre-built chunks from Stage 2.
             # Transcript chunks (with uniform metadata, timing, frame associations) are in
             # stage2_media_processed/transcript_chunks/. These will be handled directly by
             # the consolidator and retrieval pipeline without Docling re-processing.

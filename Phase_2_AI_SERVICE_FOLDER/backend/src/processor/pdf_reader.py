@@ -501,7 +501,7 @@ class PdfParser:
             # Larger than body but not in any tier → last tier + 1
             return min(len(font_profile.size_tiers) + 1, _MAX_HEADING_LEVELS)
 
-        # No tiers available — simple mapping
+        # No tiers available   simple mapping
         ratio = avg_size / font_profile.body_size
         if ratio >= 2.0:
             return 1
@@ -559,7 +559,7 @@ class PdfParser:
             cleaned_rows.append(cleaned)
 
         if len(cleaned_rows) < 2:
-            # Single row — not a useful table
+            # Single row   not a useful table
             return ""
 
         # Build markdown table
@@ -677,7 +677,7 @@ class PdfParser:
             from PIL import Image
             import io
             img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
-            # Sample pixels for speed — full scan on small images,
+            # Sample pixels for speed   full scan on small images,
             # down-sample large ones to ~100x100
             w, h = img.size
             if w * h > 20_000:
@@ -745,7 +745,7 @@ class PdfParser:
         """Detect column layout from text block x-coordinates.
 
         Returns list of (x_start, x_end) ranges for detected columns.
-        Currently informational — multi-column reordering is done by
+        Currently informational   multi-column reordering is done by
         pymupdf's default block ordering which handles most cases.
         """
         if not blocks:
@@ -813,7 +813,7 @@ class PdfParser:
                 if stack:
                     self._append_content(stack[-1][1], text)
                 else:
-                    # No heading yet — create implicit root
+                    # No heading yet   create implicit root
                     node = {
                         "heading_text": "",
                         "heading_level": 0,

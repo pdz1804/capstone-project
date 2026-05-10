@@ -338,7 +338,7 @@ class DocumentProcessorV2:
             result = converter.convert(str(actual_path))
         except Exception as primary_err:
             logger.warning(
-                "Primary Docling pipeline failed for %s: %s — trying fallback",
+                "Primary Docling pipeline failed for %s: %s   trying fallback",
                 file_path.name, primary_err,
             )
             fallback = self._get_fallback_converter()
@@ -540,7 +540,7 @@ class DocumentProcessorV2:
             return None
 
     # ------------------------------------------------------------------
-    # process_single_file — main entry point
+    # process_single_file   main entry point
     # ------------------------------------------------------------------
 
     def process_single_file(self, file_path: Path) -> Dict[str, Any]:
@@ -607,7 +607,7 @@ class DocumentProcessorV2:
                     )
                 except Exception as pdf_err:
                     logger.warning(
-                        "CustomPdfReader failed for %s: %s — falling back to Docling",
+                        "CustomPdfReader failed for %s: %s   falling back to Docling",
                         file_path.name, pdf_err,
                     )
                     original_error = str(pdf_err)

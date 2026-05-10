@@ -880,13 +880,13 @@ class DocxParser(object):
     #   "表 2-1 ..."
     _CAPTION_LINE_RE = re.compile(
         r"^(?P<prefix>\s*(?:Table|Tab\.?|Figure|Fig\.?|表|図)\.?\s*)"
-        r"(?P<chapter>\d+)\s*(?P<sep>[-－‐‑–—])\s*(?P<seq>\d+)"
+        r"(?P<chapter>\d+)\s*(?P<sep>[-－‐‑– ])\s*(?P<seq>\d+)"
         r"(?P<suffix>(?:\s|\u3000).*)?$",
         re.IGNORECASE,
     )
 
     # Heading prefix like "3", "3.", "3.1", "3-1" used to infer chapter number.
-    _HEADING_CHAPTER_PREFIX_RE = re.compile(r"^\s*(\d+)(?:[.．\-‐‑–—]\d+)*(?:[.．])?\s*")
+    _HEADING_CHAPTER_PREFIX_RE = re.compile(r"^\s*(\d+)(?:[.．\-‐‑– ]\d+)*(?:[.．])?\s*")
 
     def _postprocess_tree(self, nodes: List[dict]) -> None:
         """Apply post-processing fixes to the parsed heading tree.
@@ -5014,7 +5014,7 @@ class DocxParser(object):
         if p_elem is None or p_elem.tag != create_ns(W_NS, "p"):
             return False
 
-        # 1) Must be drawing-only (no real text — page-break-only runs are OK)
+        # 1) Must be drawing-only (no real text   page-break-only runs are OK)
         if self._has_visible_text_outside_textbox(p_elem):
             return False
 
@@ -5065,7 +5065,7 @@ class DocxParser(object):
         Returns
         -------
         tuple[list, list]
-            (image_holders, overlay_anchors) — each entry is (cx, cy, run)
+            (image_holders, overlay_anchors)   each entry is (cx, cy, run)
             where cx/cy are extent dimensions in EMU.
         """
         image_holders: list = []
@@ -5267,7 +5267,7 @@ class DocxParser(object):
         is assumed (returns True).
         """
         if img_cx <= 0 or img_cy <= 0:
-            # Cannot verify size — assume compatible
+            # Cannot verify size   assume compatible
             return True
 
         for ovl_cx, ovl_cy, _ in overlay_anchors:

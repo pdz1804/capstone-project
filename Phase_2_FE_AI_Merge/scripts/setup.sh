@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Phase_2_FE_AI_Merge — venv, pip, npm, pytest (macOS / Linux / WSL)
+# Phase_2_FE_AI_Merge   venv, pip, npm, pytest (macOS / Linux / WSL)
 #
 # Usage:
 #   chmod +x scripts/setup.sh

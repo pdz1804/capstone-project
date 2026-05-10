@@ -157,7 +157,7 @@ def parse_sheet_to_table_blocks(sheet_name: str, content: str) -> List[TableBloc
     while remaining:
         start_idx = remaining.find(TABLE_START_MARKER)
         if start_idx == -1:
-            # No more tables — capture trailing text as section context (unused)
+            # No more tables   capture trailing text as section context (unused)
             break
 
         # Text before this table → section title
@@ -430,7 +430,7 @@ class ExcelTableChunker(TextChunker):
         return IMAGE_PATTERN.findall(text)
 
     # ------------------------------------------------------------------
-    # split_text — kept for backward compat (used by non-Excel paths)
+    # split_text   kept for backward compat (used by non-Excel paths)
     # ------------------------------------------------------------------
 
     def split_text(self, text: str) -> List[str]:
@@ -590,7 +590,7 @@ class ExcelTableChunker(TextChunker):
         return chunks
 
     # ------------------------------------------------------------------
-    # Public API — table-aware entry points
+    # Public API   table-aware entry points
     # ------------------------------------------------------------------
 
     def chunk_excel_document(
@@ -689,7 +689,7 @@ class ExcelTableChunker(TextChunker):
                                 },
                             })
         else:
-            # Fallback: no tables detected — use legacy split_text
+            # Fallback: no tables detected   use legacy split_text
             text_chunks = self.split_text(content)
             for i, chunk_text in enumerate(text_chunks):
                 chunk_name = f"{sheet_doc_id}_chunk_{i}"

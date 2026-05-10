@@ -142,7 +142,7 @@ export interface FileItem {
   uploadedBytes?: number;
   timeRemaining?: number;
   originalFile?: File;
-  /** Backend absolute path or URI — required for DELETE /api/files */
+  /** Backend absolute path or URI   required for DELETE /api/files */
   storagePath?: string;
   /** Folder name under stage3/stage4 for /api/insights/* document_id */
   documentFolder?: string;
@@ -566,8 +566,8 @@ export default function App() {
             <h1 className="text-lg font-semibold text-slate-800 truncate">
               {currentView === 'knowledge' && !isAdminView
                 ? studentNavItems
-                    .find((i) => i.id === 'knowledge')
-                    ?.subItems?.find((s) => s.id === knowledgeSubTab)?.label || 'Knowledge Management'
+                  .find((i) => i.id === 'knowledge')
+                  ?.subItems?.find((s) => s.id === knowledgeSubTab)?.label || 'Knowledge Management'
                 : currentView === 'profile'
                   ? 'Profile'
                   : navItems.find((i) => i.id === currentView)?.label || currentView}
