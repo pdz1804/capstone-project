@@ -66,7 +66,7 @@ Automatic Speech Recognition (ASR) converts spoken language into text. It has ev
     \label{fig:ASR_Pipeline}
 \end{figure}
 
-ASR is the task of converting an acoustic signal into a sequence of words. In simple terms, the system tries to find the sequence of words (W) that is most likely given the audio (X). It looks for: "What words would most likely produce this audio sound?" Formally, the goal of an ASR system is to determine the most probable word sequence $\hat{W}$ given an input acoustic observation $X$
+ASR is the task of converting an acoustic signal into a sequence of words. In simple terms, the system tries to find the sequence of words (W) that is most likely given the audio (X). It looks for: ``What words would most likely produce this audio sound?'' Formally, the goal of an ASR system is to determine the most probable word sequence $\hat{W}$ given an input acoustic observation $X$
 
 \begin{equation*}
     \hat{W} = \arg\max_{W} P(W|X).
@@ -337,7 +337,7 @@ We fuse modality embeddings into a shared representation
 \end{equation*}
 where $[z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}]$ is the concatenation operator, $g([z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}])$ is a fusion network (e.g., MLP or cross-attention module), and $\phi$ denotes fusion parameters.
 
-To align representations across modalities, we use a technique called "contrastive learning." To make sure the AI learns to match similar information across modalities, we use a technique called 'contrastive learning.' It teaches the model to make similar things close together and different things far apart.
+To align representations across modalities, we use a technique called ``contrastive learning.'' To make sure the AI learns to match similar information across modalities, we use a technique called ``contrastive learning.'' It teaches the model to make similar things close together and different things far apart.
 
 \begin{equation*}
     \mathcal{L}_{\text{contrast}} = -\sum_{i=1}^{N} \log
