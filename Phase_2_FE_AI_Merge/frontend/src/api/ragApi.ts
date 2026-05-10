@@ -1,5 +1,5 @@
 /**
- * Phase 2 merge backend — same contract as Phase_2_AI_SERVICE_FOLDER FastAPI.
+ * Phase 2 merge backend   same contract as Phase_2_AI_SERVICE_FOLDER FastAPI.
  * Uses shared apiClient (Bearer + X-User-Id).
  */
 import type { AxiosRequestConfig } from 'axios';

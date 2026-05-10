@@ -19,7 +19,7 @@ function normalizeProxyTarget(rawTarget?: string): URL {
 
 async function startServer() {
   const app = express();
-  // Default 5173 — port 3000 is often taken by Bolt/Next/other tools; wrong tab = "not our UI".
+  // Default 5173   port 3000 is often taken by Bolt/Next/other tools; wrong tab = "not our UI".
   const PORT = Number(process.env.PORT || process.env.FE_PORT || 5173);
   const projectRoot = __dirname;
   const apiProxyTarget = normalizeProxyTarget(

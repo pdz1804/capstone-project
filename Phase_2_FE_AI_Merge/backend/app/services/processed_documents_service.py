@@ -257,7 +257,7 @@ def build_processed_documents_snapshot(user_id: str, *, include_preview: bool = 
     input_rows = storage.list_input_files()
     doc_ids = _discover_doc_ids(entries)
     if not doc_ids and entries:
-        # No stage3/4 folders yet — one synthetic "workspace" bucket for flat outputs
+        # No stage3/4 folders yet   one synthetic "workspace" bucket for flat outputs
         doc_ids = set()
 
     root_files: List[Dict[str, Any]] = []

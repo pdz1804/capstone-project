@@ -108,7 +108,7 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
 def _clear_pipeline_stage_dirs(processing_dir: "Path") -> None:
     """Remove stage1-3 subdirectories so stale normalized/media/docling
     artifacts from previous runs don't bleed into the current run.
-    Stage 4 (rag_ready) is intentionally kept — it is cumulative and
+    Stage 4 (rag_ready) is intentionally kept   it is cumulative and
     uploaded to S3; it will be rebuilt only for the files being processed."""
     import shutil as _shutil
 

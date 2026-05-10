@@ -1,9 +1,9 @@
-# Phase 2 AI Service — same stack as Phase_2 backend, plus Qdrant + SageMaker client.
+# Phase 2 AI Service   same stack as Phase_2 backend, plus Qdrant + SageMaker client.
 # FAISS: CPU build for portability (rag_retrievers still imports faiss for legacy helpers).
 #
 # ------------------------------------------------------------------------------
 # PyTorch CUDA 12.8 (win_amd64 / cp311): must satisfy colpali-engine==0.3.13 → torch>=2.2,<2.9.
-# So use 2.8.x+cu128 (NOT 2.11+cu128 — pip raises ResolutionImpossible with colpali).
+# So use 2.8.x+cu128 (NOT 2.11+cu128   pip raises ResolutionImpossible with colpali).
 # Newer colpali-engine 0.3.14 allows torch<2.11 but requires transformers>=5, peft>=0.18 (bigger bump).
 # CUDA: --extra-index-url is required for +cu128 wheels.
 # Install needs several GB free on the drive used for TEMP + pip cache (torch wheel ~3.5 GB).
@@ -50,7 +50,7 @@ soundfile
 audioread
 openai-whisper
 
-# PyTorch — ColPali-compatible CUDA 12.8 stack (cp311 win_amd64)
+# PyTorch   ColPali-compatible CUDA 12.8 stack (cp311 win_amd64)
 # torch==2.8.0+cu128
 # torchvision==0.23.0+cu128
 # torchaudio==2.8.0+cu128

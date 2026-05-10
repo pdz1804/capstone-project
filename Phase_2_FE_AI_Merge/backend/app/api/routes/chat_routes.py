@@ -53,7 +53,7 @@ AGENTCORE_REGION = (os.getenv("AGENTCORE_REGION") or "us-west-2").strip()
 CHAT_AGENT_RUNTIME = (os.getenv("CHAT_AGENT_RUNTIME") or "local").strip().lower()
 AGENTCORE_RUNTIME_ARN = (os.getenv("AGENTCORE_RUNTIME_ARN") or "").strip()
 
-# Folder/file name fragments that indicate pipeline system artefacts — not learnable content.
+# Folder/file name fragments that indicate pipeline system artefacts   not learnable content.
 _SYSTEM_FOLDER_TOKENS = frozenset({
     "log", "logs", "logging",
     "metadata", "meta", "stats", "statistics",
@@ -126,7 +126,7 @@ def _scrub_data_image_markdown_for_history(text: str) -> str:
         return text
     return re.sub(
         r"!\[([^\]]*)\]\(data:image/[^)]+\)",
-        r"*[BK-MInD visualization was shown in this reply; images are not stored — ask again to regenerate.]*",
+        r"*[BK-MInD visualization was shown in this reply; images are not stored   ask again to regenerate.]*",
         text,
     )
 
@@ -199,7 +199,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
         yield emit({"type": "status", "message": "Planning tool calls..."})
         try:
             tool_traces: List[Dict[str, Any]] = []
-            # Infographic bytes must NOT be returned in tool strings — Bedrock/Strands context overflows.
+            # Infographic bytes must NOT be returned in tool strings   Bedrock/Strands context overflows.
             chat_viz_attachments: List[Dict[str, str]] = []
             # Same chat turn: require get_processed_markdown before generate_learning_visualization per document_id.
             viz_markdown_prefetched: set[str] = set()
@@ -329,7 +329,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                         pct = sc / tot * 100
                         topic = _get(r, "quiz_topic") or _get(r, "document_id") or "Quiz"
                         date = str(_get(r, "created_at") or "")[:10]
-                        lines.append(f"- **{topic}**: {sc}/{tot} ({pct:.0f}%) — {date}")
+                        lines.append(f"- **{topic}**: {sc}/{tot} ({pct:.0f}%)   {date}")
 
                     return "\n".join(lines)
                 except RuntimeError:
@@ -369,13 +369,13 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                     lines = [
                         f"**Your Knowledge Base** ({len(files)} files):",
                         "",
-                        "For **get_processed_markdown** / **generate_learning_visualization**, copy `document_id` exactly from the line below (or pass the **file_name** — it will be resolved).",
+                        "For **get_processed_markdown** / **generate_learning_visualization**, copy `document_id` exactly from the line below (or pass the **file_name**   it will be resolved).",
                         "",
                     ]
 
                     for file_info in files[:50]:
                         file_name = file_info.get("file_name") or file_info.get("name") or "unknown"
-                        doc_id_tool = str(file_info.get("document_id") or "").strip() or "—"
+                        doc_id_tool = str(file_info.get("document_id") or "").strip() or " "
                         status = file_info.get("status") or "unknown"
                         index_status = file_info.get("index_status") or ""
                         st_counts = file_info.get("processed_stage_counts") or {}
@@ -416,10 +416,10 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
             # ── Tool: Full processed markdown (pipeline .md, not vector snippets) ──
             @tool
             def get_processed_markdown(document_id: str, max_chars: int = 120_000) -> str:
-                """Load full processed markdown for ONE document (pipeline stage3/stage4 .md) — not vector RAG snippets.
+                """Load full processed markdown for ONE document (pipeline stage3/stage4 .md)   not vector RAG snippets.
 
                 Pass **document_id** exactly as shown in list_my_documents (`document_id=...`), **or** the upload
-                **file_name** (e.g. `Report.pdf`) — same resolution as the Lecture viewer /files metadata.
+                **file_name** (e.g. `Report.pdf`)   same resolution as the Lecture viewer /files metadata.
 
                 **Mandatory before generate_learning_visualization** for named files: call once per document.
                 max_chars: cap on returned characters (default 120000)."""
@@ -464,7 +464,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 if not ctx.strip():
                     return (
                         f"No processed markdown under pipeline folder `{resolved}` (stage3/stage4 .md). "
-                        "Indexed text can exist without markdown on disk — run **Process** in Knowledge Management, "
+                        "Indexed text can exist without markdown on disk   run **Process** in Knowledge Management, "
                         "then try again. Check list_my_documents `stage3_files=` for that row."
                     )
                 viz_markdown_prefetched.add(resolved)
@@ -506,7 +506,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 """Generate multiple-choice quiz questions on any topic from the knowledge base.
                 Use when the user wants to be tested, practice, or generate study questions.
                 difficulty: 'basic', 'intermediate', or 'advanced'.
-                document_id: optional — scope to a specific document (use list_my_documents to find it)."""
+                document_id: optional   scope to a specific document (use list_my_documents to find it)."""
                 try:
                     from app.services.insights_service import InsightsService
                     svc = InsightsService(cfg, user_id=user_id)
@@ -526,7 +526,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                         raw = result.get("raw", "")
                         return raw[:2000] if raw else f"Could not generate questions on '{topic}'. Ensure content is processed and indexed."
 
-                    lines = [f"## Quiz: {topic}", f"*{difficulty.capitalize()} — {len(questions)} questions*", ""]
+                    lines = [f"## Quiz: {topic}", f"*{difficulty.capitalize()}   {len(questions)} questions*", ""]
                     for i, q in enumerate(questions, 1):
                         lines.append(f"**Q{i}. {q.get('question', '')}**")
                         options = q.get("options") or []
@@ -549,7 +549,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
 
                 **Required workflow when the user names file(s) or wants a visualization of specific uploads:**
                 1) list_my_documents (if you need the folder id)
-                2) get_processed_markdown(document_id) — **once per file** that is in scope
+                2) get_processed_markdown(document_id)   **once per file** that is in scope
                 3) then call this tool with the same document_id
 
                 Do **not** use text_rag as a substitute for step 2 for named lecture files.
@@ -585,7 +585,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                         return (
                             "Workflow: call get_processed_markdown first for this document, then retry visualization.\n"
                             f"Run: get_processed_markdown(document_id=\"{raw_doc or doc}\") "
-                            "(same value you pass here — file name or folder id). "
+                            "(same value you pass here   file name or folder id). "
                             "For multiple files, call get_processed_markdown once per document before this tool."
                         )
 
@@ -655,7 +655,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                         "VISUALIZATION_OK: An infographic PNG was generated from the student's learning materials "
                         f"(focus: {topic_short}). The chat UI will display it under your reply.\n"
                         "Summarize in a few sentences what the graphic conveys. "
-                        "Do not use markdown images, data URLs, or base64 — the client renders the picture separately.\n\n"
+                        "Do not use markdown images, data URLs, or base64   the client renders the picture separately.\n\n"
                         f"Optional caption from the image model:\n{cap if cap else '(none)'}"
                     )
                 except Exception as e:
@@ -699,13 +699,13 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 "- For document summaries → call list_my_documents first, then get_document_summary\n"
                 "- **Infographic / visual summary / mind map (mandatory order when user names file(s) or slide/PDF/lecture):**\n"
                 "  1) list_my_documents if you need the pipeline folder id\n"
-                "  2) get_processed_markdown(document_id) — **call once per file** that is in scope (confirms Process output exists)\n"
+                "  2) get_processed_markdown(document_id)   **call once per file** that is in scope (confirms Process output exists)\n"
                 "  3) only then generate_learning_visualization(topic=..., document_id=...)\n"
                 "  Do **not** skip step 2. Do **not** use text_rag instead of get_processed_markdown for this workflow.\n"
-                "  If step 2 returns no markdown, tell the user to run **Process** — do not fall back to text_rag for that file.\n"
+                "  If step 2 returns no markdown, tell the user to run **Process**   do not fall back to text_rag for that file.\n"
                 "  Multiple files: fetch markdown for **each** document_id first; the visualization tool uses one document_id "
                 "per image (call visualization again if the user needs separate graphics per file).\n"
-                "- If a tool returns VISUALIZATION_OK, the image is shown automatically in the chat UI — never paste base64 or ![image](data:...) in your answer\n"
+                "- If a tool returns VISUALIZATION_OK, the image is shown automatically in the chat UI   never paste base64 or ![image](data:...) in your answer\n"
                 "- If no relevant content found, suggest running Process + Build Index\n"
                 "- If no relevant content is found in retrieved documents, say that clearly. "
                 "If the question can be answered from general academic knowledge, continue with "
@@ -718,7 +718,7 @@ async def chat_stream(req: ChatStreamRequest, user_id: str = Depends(storage_use
                 "- Format in clean markdown: ## headings, - bullets, **bold** key terms\n"
                 "- Never output raw <function_calls> or <function_result> tags\n"
                 "- Never include system logs, pipeline statistics, processing metadata, timing data, "
-                "or any internal debug information in your response — only present clean educational content"
+                "or any internal debug information in your response   only present clean educational content"
             )
 
             profile_instructions: list[str] = []

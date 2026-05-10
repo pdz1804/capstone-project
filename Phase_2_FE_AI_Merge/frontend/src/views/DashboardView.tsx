@@ -207,7 +207,7 @@ export default function DashboardView({ onNavigate, user, files }: DashboardView
               {recentActivity.length === 0 ? (
                 <div className="p-20 text-center text-slate-400">
                   <FileCode className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                  <p className="text-sm font-bold uppercase tracking-widest opacity-50">Pulse quiet — Start by uploading content</p>
+                  <p className="text-sm font-bold uppercase tracking-widest opacity-50">Pulse quiet   Start by uploading content</p>
                 </div>
               ) : (
                 recentActivity.map((activity) => (

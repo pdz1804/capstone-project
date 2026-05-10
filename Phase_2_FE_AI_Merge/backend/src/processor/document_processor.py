@@ -599,7 +599,7 @@ class MultimodalDocumentProcessor:
             from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
             from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
 
-            # Simple OCR-only pipeline — no VLM, no picture description, lower scale
+            # Simple OCR-only pipeline   no VLM, no picture description, lower scale
             pdf_options = PdfPipelineOptions(
                 do_ocr=self.config.enable_ocr,
                 do_table_structure=True,

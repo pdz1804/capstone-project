@@ -1,4 +1,4 @@
-"""Status and file listing — tolerates missing Qdrant."""
+"""Status and file listing   tolerates missing Qdrant."""
 
 from __future__ import annotations
 

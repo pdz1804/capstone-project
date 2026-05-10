@@ -1,10 +1,10 @@
 """Split-and-merge verification for hybrid PDF reader on 2412.19437v2.pdf.
 
 Checks two things:
-  1. SPLIT — every PyMuPDF-ToC heading (except demoted dupes) is consumed
+  1. SPLIT   every PyMuPDF-ToC heading (except demoted dupes) is consumed
      by ItemSequencer (i.e., matched against a text region line from Docling).
      Missed headings are printed so we can see where matching fails.
-  2. MERGE — Docling-specific content (tables as [START_TABLE_CONTENT], formulas
+  2. MERGE   Docling-specific content (tables as [START_TABLE_CONTENT], formulas
      as $$...$$, pictures) lands under the correct section, not the preamble.
 
 Run:
@@ -149,7 +149,7 @@ def run(label, source):
     print(f"  ToC missed    : {len(missing)}")
     if missing[:5]:
         for lvl, t, p in missing[:5]:
-            print(f"      L{lvl} p{p} — {t[:80]}")
+            print(f"      L{lvl} p{p}   {t[:80]}")
 
     return tree, stats, missing
 
@@ -159,7 +159,7 @@ def inspect_section(tree, needle_norm, label):
     node = find_section(tree, needle_norm)
     print(f"\n--- {label}: section '{needle_norm}' ---")
     if node is None:
-        print("   (NOT FOUND — split failed at this heading)")
+        print("   (NOT FOUND   split failed at this heading)")
         return
     content = (node.get("content") or "").strip()
     print(f"   heading_level: {node.get('heading_level')}")
@@ -192,7 +192,7 @@ def main():
     print(f"  ToC headings missed (pymupdf): {len(baseline_missing)}")
     print(f"  ToC headings missed (docling): {len(hybrid_missing)}")
     if len(hybrid_missing) > len(baseline_missing):
-        print("  [WARN] Hybrid lost headings vs baseline — heading-match regression.")
+        print("  [WARN] Hybrid lost headings vs baseline   heading-match regression.")
     else:
         print("  [OK]   Hybrid matches or improves split.")
 
@@ -212,11 +212,11 @@ def main():
     # Absolute expectations for hybrid
     failures = []
     if hybrid_stats["tables"] == 0:
-        failures.append("hybrid produced 0 tables — Docling table extraction not flowing through sequencer")
+        failures.append("hybrid produced 0 tables   Docling table extraction not flowing through sequencer")
     if hybrid_stats["formulas"] == 0:
-        failures.append("hybrid produced 0 formulas — Docling formula extraction not flowing through sequencer")
+        failures.append("hybrid produced 0 formulas   Docling formula extraction not flowing through sequencer")
     if hybrid_stats["preamble_chars"] > hybrid_stats["total_chars"] * 0.5:
-        failures.append("hybrid preamble > 50% of content — sequencer failed to split into sections")
+        failures.append("hybrid preamble > 50% of content   sequencer failed to split into sections")
 
     print("\n===== VERDICT =====")
     if failures:
@@ -224,7 +224,7 @@ def main():
         for f in failures:
             print(f"    - {f}")
         sys.exit(2)
-    print("  PASS — split-and-merge works on 2412.19437v2.pdf")
+    print("  PASS   split-and-merge works on 2412.19437v2.pdf")
 
 
 if __name__ == "__main__":

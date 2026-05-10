@@ -1,4 +1,4 @@
-"""GET /api/processed-file — tenant-safe read under processing/."""
+"""GET /api/processed-file   tenant-safe read under processing/."""
 
 from __future__ import annotations
 
