@@ -23,17 +23,24 @@ show_latex_error() {
 run_pdflatex() {
     local label="$1"
     local output_log="$2"
-    local retry_log="${output_log%.log}-retry.log"
+    local retry_log
 
     echo "$label"
     if ! pdflatex -interaction=nonstopmode main.tex > "$output_log" 2>&1; then
         if grep -qE "File ended while scanning use of \\\\@writefile|Text line contains an invalid character" "$output_log"; then
-            echo "⚠ Auxiliary file read failed; retrying pdflatex once..."
-            if pdflatex -interaction=nonstopmode main.tex > "$retry_log" 2>&1; then
-                echo "✓ Retry succeeded"
-                return 0
-            fi
-            output_log="$retry_log"
+            echo "⚠ Auxiliary file read failed; retrying pdflatex..."
+            for attempt in 1 2; do
+                retry_log="${output_log%.log}-retry${attempt}.log"
+                if pdflatex -interaction=nonstopmode main.tex > "$retry_log" 2>&1; then
+                    echo "✓ Retry succeeded"
+                    return 0
+                fi
+                if ! grep -qE "File ended while scanning use of \\\\@writefile|Text line contains an invalid character" "$retry_log"; then
+                    output_log="$retry_log"
+                    break
+                fi
+                output_log="$retry_log"
+            done
         fi
 
         echo "❌ Error: pdflatex failed"
