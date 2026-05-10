@@ -3,3 +3,4 @@ output/
 src/processor/parsed
 *.codex
 *.github/
+firebase-service-account
