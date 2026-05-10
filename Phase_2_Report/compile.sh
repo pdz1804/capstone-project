@@ -74,6 +74,10 @@ echo "✓ First pass complete"
 # Step 2: Run biber for bibliography
 echo ""
 echo "[3/4] Running biber for bibliography..."
+if command -v xmllint >/dev/null 2>&1 && ! xmllint --noout main.bcf > /tmp/bcf-validate.log 2>&1; then
+    echo "⚠ Bibliography control file is incomplete; regenerating with pdflatex..."
+    run_pdflatex "Regenerating bibliography control file..." /tmp/pdflatex-bcf.log
+fi
 if ! biber main > /tmp/biber.log 2>&1; then
     echo "❌ Error: biber failed"
     echo "Last 40 lines of /tmp/biber.log:"
