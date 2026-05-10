@@ -1,7 +1,5 @@
 ﻿\chapter{Proposed Solution}
 
-This chapter describes our \textbf{Multimodal Retrieval-Augmented Generation (MRAG) system} which combines large language models with a knowledge database to answer questions with cited sources. This design allows our system to process and retrieve information from diverse HCMUT educational materials while maintaining accuracy and transparency.
-
 This chapter presents the proposed solution for BK-MInD, a Multimodal Retrieval-Augmented Generation (MRAG) system designed to process and retrieve information from diverse HCMUT educational materials. The chapter first justifies the selection of RAG as the core architectural paradigm over alternative approaches, then presents the rationale for choosing the three key technology components. The system architecture is described across four perspectives: a high-level overview, the data processing and dual-pathway embedding pipelines, the retrieval and generation flow, and the security design. Experimental evidence supporting retrieval architecture decisions is provided, and the chapter concludes with the technical requirements for deployment.
 
 \section{Justification for Retrieval-Augmented Generation}
@@ -51,7 +49,7 @@ The following table summarizes the key architectural decisions that led to the a
 \centering
 \caption{Comparison of RAG against alternative LLM enhancement strategies.}
 \label{tab:rag_comparison}
-\scalebox{0.8}{
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Feature} & \textbf{RAG (Ours)} & \textbf{Fine-Tuning} & \textbf{Prompt Engineering} & \textbf{Semantic Search} \\ \midrule
@@ -61,7 +59,7 @@ The following table summarizes the key architectural decisions that led to the a
 \textbf{Computational Cost} & Low (Inference only) & High (Training) & Very Low & Low \\
 \textbf{Answer Synthesis} & \textbf{Yes} & Yes & Yes & \textbf{No} \\ \bottomrule
 \end{tabular}
-}
+\end{adjustbox}
 \end{table}
 
 \textbf{Conclusion:}
@@ -84,24 +82,14 @@ After analyzing the leading frameworks, React is the recommended choice. This de
 \end{itemize}
 
 From now on, we detail the reasoning for this selection, including a direct comparison with the primary alternative, Vue.js.
+\textbf{Architecture Suits an MRAG System} React's architecture is well suited to the heterogeneous outputs produced by our RAG system, including streaming text answers, references to PDF pages, lecture video timestamps, and relevant diagrams.
 
-\textbf{Architecture Suits a Multimodal RAG System}
+Its declarative programming model allows the interface to be described in terms of application state rather than manual DOM manipulation. In practice, this enables the system to be organized into distinct, reusable components such as \texttt{ChatWindow}, \texttt{SourceDocViewer}, \texttt{VideoPlayer}, and \texttt{ImageViewer}, each responsible for a specific modality or interaction pattern.
 
-The architectural principles of React are uniquely suited to the specific challenges of our application. The RAG system will return a heterogeneous mix of data: a streaming text answer, a reference to a page in a PDF, a timestamp in a lecture video, and a relevant diagram.
+The main application layer coordinates these components and renders them according to the backend response. This separation of concerns is important not only for maintainability but also for future extensibility as new media types or interface behaviors are added.
 
-React's declarative nature, where developers describe what the UI should look like for a given state, allows the team to manage this complexity effectively. Instead of writing complex, imperative code to manually update the DOM for each data type, developers can create distinct, self-contained components for example \texttt{ChatWindow}, \texttt{SourceDocViewer}, \texttt{VideoPlayer}, \texttt{ImageViewer}.
-
-The main application component then simply manages the application's state and declaratively renders the appropriate components based on the API response. This clear separation of concerns is critical for building a robust and maintainable multimodal user interface.
-
-\textbf{Core Advantages and Technical Rationale}
-
-Beyond its perfect fit for our specific data model, React provides foundational advantages in performance and development efficiency.
-
-\textit{Component-Based Architecture}
-This is the cornerstone of the selection. The user interface will be a composition of independent, reusable components (as listed above). This modularity simplifies the entire development lifecycle; each component can be built, tested, and maintained in isolation, which is critical for managing the complexity of the application.
-
-\textit{High Performance with the Virtual DOM}
-The RAG system will generate text responses and display various media types. React's use of a Virtual Document Object Model (DOM) is a key performance feature. It creates a lightweight in-memory representation of the UI, calculates the most efficient changes (``diffing''), and minimizes direct, costly manipulations of the actual browser DOM. This results in a smooth, responsive user experience, even as the UI updates frequently with new data from the backend.
+\textbf{High Performance with the Virtual DOM}
+Because the interface must update dynamically as text and media arrive from the backend, rendering efficiency is important. React's Virtual Document Object Model (DOM) maintains an in-memory representation of the interface, computes the minimal set of changes, and reduces expensive direct manipulation of the browser DOM. This helps preserve responsiveness during frequent UI updates.
 
 \textbf{Comparative Analysis: React vs. Vue.js}
 
@@ -194,7 +182,7 @@ The following table provides a clear, at-a-glance comparison to justify the sele
     \centering
     \caption{FastAPI vs. Django Comparison for RAG Application.}
     \label{tab:fastapi_vs_django}
-    \scalebox{0.8}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{p{3cm}p{4.5cm}p{4.5cm}p{6cm}}
         \toprule
         \textbf{Criterion} & \textbf{FastAPI} & \textbf{Django} & \textbf{Justification for RAG Application} \\
@@ -207,7 +195,7 @@ The following table provides a clear, at-a-glance comparison to justify the sele
         Learning Curve & Low & Moderate to High & A lower learning curve allows for faster onboarding of new developers and contributors. \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
 \subsection{Cloud Vector Database: Qdrant}
@@ -292,7 +280,7 @@ Developer experience dictates integration speed. While Weaviate offers simplifie
     \centering
     \caption{Holistic Vector Database Comparison Summary.}
     \label{tab:holistic_db_comp}
-    \scalebox{0.8}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{llllll}
         \toprule
         \textbf{Feature} & \textbf{Vespa} & \textbf{Milvus} & \textbf{Qdrant} & \textbf{Weaviate} & \textbf{Pinecone} \\
@@ -303,7 +291,7 @@ Developer experience dictates integration speed. While Weaviate offers simplifie
         Developer Curve & High Complexity & Moderate & \textbf{Low} & Low & Very Low \\
         \bottomrule
     \end{tabular}
-    }
+\end{adjustbox}
 \end{table}
 
 After an exhaustive analysis of architectural design, search mechanism breadth, economic efficiency, and specific multi-vector handling capabilities, we have selected \textbf{Qdrant} as the primary cloud Vector Database for the production environment.
