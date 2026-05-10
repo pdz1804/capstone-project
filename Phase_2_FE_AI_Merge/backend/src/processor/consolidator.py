@@ -99,17 +99,26 @@ class Stage4Consolidator:
             if media_count > 0:
                 print(f"Consolidated {media_count} media documents from Stage 2")
         
-        # Part C: Count Excel documents already placed by Excel processing stage
-        # (The Excel pipeline writes directly to stage4_rag_ready, so we just count them)
+        # Part C: Count Excel and PDF documents already placed by custom parsers
+        # (These pipelines write directly to stage4_rag_ready, so we just count them)
         excel_count = 0
+        pdf_count = 0
         for doc_folder in self.output_dir.iterdir():
             if doc_folder.is_dir():
-                manifest = doc_folder / "excel_manifest.json"
-                if manifest.exists():
+                excel_manifest = doc_folder / "excel_manifest.json"
+                if excel_manifest.exists():
                     excel_count += 1
                     self.stats['total_documents'] += 1
+                pdf_manifest = doc_folder / "pdf_manifest.json"
+                if pdf_manifest.exists():
+                    pdf_count += 1
+                    self.stats['total_documents'] += 1
+                    # Also increment with_pdf since it's a parsed PDF
+                    self.stats['with_pdf'] += 1
         if excel_count > 0:
             print(f"Found {excel_count} Excel documents (pre-processed by custom parser)")
+        if pdf_count > 0:
+            print(f"Found {pdf_count} PDF documents (pre-processed by custom fallback parser)")
         
         # Save statistics
         self._save_stats()
