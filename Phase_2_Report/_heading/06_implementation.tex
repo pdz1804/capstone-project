@@ -973,11 +973,11 @@ The consolidation and indexing pipeline transforms RAG-ready chunks into searcha
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
-Dense Index (Text) & FAISS IndexFlatIP & Binary file (\texttt{.bin}) & Cosine similarity, nearest-neighbor search \\
-Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
-Visual Index (Images) & ColQwen multi-vectors & Tensor store (\texttt{.bin}) & Late-interaction MaxSim matching \\
-Metadata Catalog & Document + chunk + image metadata & JSON files & Source tracking, citation generation \\
+BM25 Index (Text) & Inverted index (term → docs) & Local BM25 file & Keyword matching, TF-IDF scoring \\
+Dense Index (Text) & 384-dim embeddings (all-MiniLM-L6-v2) & Qdrant \texttt{edu\_text\_chunks} & Cosine similarity, HNSW search \\
+Hybrid Index (Text) & RRF fusion results & Query-time computation & Combined BM25 + Dense scores \\
+Visual Index (Images) & ColQwen multi-vectors (128 × $x$) & Qdrant \texttt{edu\_image\_pages} & Late-interaction MaxSim matching \\
+Metadata Catalog & Document + chunk + image metadata & JSON files (S3) & Source tracking, citation generation \\
 \bottomrule
 \end{tabular}%
 }
@@ -987,8 +987,8 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
 \begin{enumerate}
     \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
     \item BM25 inverted index built from chunk text (keyword search)
-    \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
-    \item Hybrid index pre-computed via RRF fusion for fast query-time execution
+    \item Dense vectors indexed in Qdrant \texttt{edu\_text\_chunks} collection (semantic search)
+    \item Hybrid index computed at query-time via RRF fusion for optimal recall
 \end{enumerate}
 
 \textbf{Visual Indexing Workflow}:
@@ -1032,9 +1032,10 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
 
 After indexing completes (Stage 4), the system:
 \begin{enumerate}
-    \item Uploads BM25, Dense, and Visual indices to S3 under \texttt{users/{user\_id}/documents/{doc\_id}/indices/}
-    \item Caches indices in local filesystem for fast retrieval during query execution
-    \item On server restart or query miss, reloads indices from S3
+    \item Pushes dense text embeddings to Qdrant \texttt{edu\_text\_chunks} collection with multi-tenant metadata
+    \item Pushes visual embeddings to Qdrant \texttt{edu\_image\_pages} collection with page geometry references
+    \item Stores BM25 index locally for fast keyword retrieval during search
+    \item Qdrant provides persistent, scalable vector storage with built-in HNSW indices and MaxSim support
 \end{enumerate}
 
 \subsection{Search and Retrieval Pipeline}
@@ -1094,8 +1095,9 @@ Phase 2 implements a \textbf{hybrid storage model} combining local processing ca
 \toprule
 \textbf{Storage Tier} & \textbf{System} & \textbf{Content} & \textbf{Purpose} \\ \midrule
 Local Cache & File system (fast SSD) & Processing artifacts (Stages 1-4) & Speed up pipeline processing \\
-Local Indices & FAISS, ColQwen stores & BM25, Dense, Visual indices & Fast retrieval queries \\
-Cloud Canonical & Amazon S3 & Documents, metadata, indices & Durability, multi-tenancy \\
+BM25 Index & Local file system & Inverted index for keyword search & Fast sparse retrieval \\
+Vector Search & Qdrant Cloud & Dense text + visual embeddings & Scalable semantic retrieval \\
+Cloud Documents & Amazon S3 & Raw documents, metadata, outputs & Durability, multi-tenancy \\
 Session State & DynamoDB & Chat history, job queue state & Persistent conversation tracking \\
 \bottomrule
 \end{tabular}%
