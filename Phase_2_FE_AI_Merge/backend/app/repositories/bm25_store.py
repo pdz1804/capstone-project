@@ -103,11 +103,24 @@ def bm25_search(data: Dict[str, Any], query: str, top_k: int) -> List[Dict[str, 
     if bm25 is None or not documents:
         return []
 
-    from src.retrieval.rag_retrievers import SimpleBM25Retriever
+    tokenized_query = str(query or "").lower().split()
+    scores = bm25.get_scores(tokenized_query)
+    ranked = sorted(range(len(scores)), key=lambda idx: scores[idx], reverse=True)[:top_k]
 
-    r = SimpleBM25Retriever()
-    r.documents = documents
-    r.tokenized_docs = data.get("tokenized_docs") or []
-    r.bm25 = bm25
-    r.is_indexed = True
-    return r.search(query, top_k)
+    results: List[Dict[str, Any]] = []
+    for rank, idx in enumerate(ranked, start=1):
+        score = float(scores[idx])
+        if score <= 0:
+            continue
+        doc = documents[idx]
+        result = {
+            "id": doc.get("id"),
+            "text": doc.get("text", ""),
+            "source": doc.get("source", ""),
+            "score": score,
+            "rank": rank,
+        }
+        if "metadata" in doc:
+            result["metadata"] = doc["metadata"]
+        results.append(result)
+    return results

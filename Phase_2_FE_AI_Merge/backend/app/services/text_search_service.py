@@ -217,6 +217,12 @@ class TextSearchService:
         cache.set_marker(marker_key)
 
     def _get_embedder(self):
+        try:
+            import transformers.utils.import_utils as transformers_import_utils
+
+            transformers_import_utils._torchvision_available = False
+        except Exception:
+            pass
         from sentence_transformers import SentenceTransformer
 
         with TextSearchService._embedder_lock:
