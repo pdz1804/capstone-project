@@ -210,16 +210,14 @@ To facilitate academic tracking and monitor instructional efficacy, the system u
 \newpage
 
 \textbf{Feedback Table}
-
-\textbf{User-provided fields}: vote, feedback\_text, reason\_code. \textbf{System-generated fields} (filled automatically): category, sub\_category, suggested\_action, analysis\_summary, classification\_status. This lets the system learn from feedback over time.
-
 To facilitate continuous improvement and capture user sentiment, a specialized \textbf{Amazon DynamoDB} table (name: \texttt{bk\_mind\_feedback}) is utilized. This table stores granular feedback on individual conversational turns, including AI-driven classifications of the feedback reasons and suggested remedial actions.
+\textbf{User-provided fields}: vote, feedback\_text, reason\_code. \textbf{System-generated fields} (filled automatically): category, sub\_category, suggested\_action, analysis\_summary, classification\_status.
 
 \begin{table}[H]
     \centering
     \caption{Feedback Schema.}
     \label{tab:feedback_results}
-    \begin{tabular}{llp{8cm}}
+    \begin{tabular}{llp{9cm}}
         \toprule
         \textbf{Field} & \textbf{Type} & \textbf{Note / Description} \\
         \midrule
@@ -242,7 +240,7 @@ To facilitate continuous improvement and capture user sentiment, a specialized \
         classifier\_model & String & Model ID used for feedback analysis. \\
         suggested\_action & String & Recommended system improvement based on feedback. \\
         created\_at & String (ISO) & Timestamp of feedback submission. \\
-        updated\_at & String (ISO) & Timestamp of the last classification or update. \\
+        updated\_at & String (ISO) & Timestamp of the last update. \\
         \bottomrule
     \end{tabular}
 \end{table}
