@@ -1011,13 +1011,29 @@ export async function listAdminInvocations(params?: {
   user_id?: string;
   feature?: string;
   model_id?: string;
+  method?: string;
+  status_family?: string;
+  path_query?: string;
+  query?: string;
+  skip?: number;
   limit?: number;
-}): Promise<{ items: AdminInvocationRecord[]; count: number }> {
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+  cache_bust?: boolean;
+}): Promise<{ items: AdminInvocationRecord[]; count: number; skip?: number; limit?: number | null; facets?: { features?: string[]; models?: string[] } }> {
   const queryParams: Record<string, unknown> = {
     days: params?.days ?? 30,
+    skip: Math.max(0, Math.floor(Number(params?.skip ?? 0))),
     ...(params?.user_id ? { user_id: params.user_id } : {}),
     ...(params?.feature ? { feature: params.feature } : {}),
     ...(params?.model_id ? { model_id: params.model_id } : {}),
+    ...(params?.method ? { method: params.method } : {}),
+    ...(params?.status_family ? { status_family: params.status_family } : {}),
+    ...(params?.path_query ? { path_query: params.path_query } : {}),
+    ...(params?.query ? { query: params.query } : {}),
+    ...(params?.sort_by ? { sort_by: params.sort_by } : {}),
+    ...(params?.sort_dir ? { sort_dir: params.sort_dir } : {}),
+    ...(params?.cache_bust ? { cache_bust: true } : {}),
   };
   if (typeof params?.limit === 'number' && Number.isFinite(params.limit)) {
     queryParams.limit = Math.max(1, Math.floor(params.limit));
@@ -1029,6 +1045,9 @@ export async function listAdminInvocations(params?: {
   return {
     items: (data?.items || []) as AdminInvocationRecord[],
     count: Number(data?.count || 0),
+    skip: Number(data?.skip || 0),
+    limit: data?.limit == null ? null : Number(data.limit),
+    facets: data?.facets || {},
   };
 }
 
@@ -1042,12 +1061,18 @@ export async function listAdminKnowledge(params?: {
   user_id?: string;
   knowledge_type?: string;
   is_active?: boolean;
+  tag?: string;
+  skip?: number;
   limit?: number;
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+  cache_bust?: boolean;
   sync_with_storage?: boolean;
   include_usage?: boolean;
   usage_days?: number;
-}): Promise<{ items: AdminKnowledgeItem[]; count: number }> {
+}): Promise<{ items: AdminKnowledgeItem[]; count: number; skip?: number; limit?: number | null }> {
   const queryParams: Record<string, unknown> = {
+    skip: Math.max(0, Math.floor(Number(params?.skip ?? 0))),
     sync_with_storage: params?.sync_with_storage ?? false,
     include_usage: params?.include_usage ?? false,
     usage_days: params?.usage_days ?? 30,
@@ -1055,6 +1080,10 @@ export async function listAdminKnowledge(params?: {
     ...(params?.user_id ? { user_id: params.user_id } : {}),
     ...(params?.knowledge_type ? { knowledge_type: params.knowledge_type } : {}),
     ...(typeof params?.is_active === 'boolean' ? { is_active: params.is_active } : {}),
+    ...(params?.tag ? { tag: params.tag } : {}),
+    ...(params?.sort_by ? { sort_by: params.sort_by } : {}),
+    ...(params?.sort_dir ? { sort_dir: params.sort_dir } : {}),
+    ...(params?.cache_bust ? { cache_bust: true } : {}),
   };
   if (typeof params?.limit === 'number' && Number.isFinite(params.limit)) {
     queryParams.limit = Math.max(1, Math.floor(params.limit));
@@ -1066,6 +1095,8 @@ export async function listAdminKnowledge(params?: {
   return {
     items: (data?.items || []) as AdminKnowledgeItem[],
     count: Number(data?.count || 0),
+    skip: Number(data?.skip || 0),
+    limit: data?.limit == null ? null : Number(data.limit),
   };
 }
 
