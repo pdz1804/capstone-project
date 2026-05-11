@@ -6,6 +6,16 @@
 # Change to script directory
 cd "$(dirname "$0")"
 
+# Biber on macOS does not support C.UTF-8, which some shells export by default.
+export LANG="${LANG:-en_US.UTF-8}"
+export LC_ALL="${LC_ALL:-en_US.UTF-8}"
+if [ "$LANG" = "C.UTF-8" ]; then
+    export LANG="en_US.UTF-8"
+fi
+if [ "$LC_ALL" = "C.UTF-8" ]; then
+    export LC_ALL="en_US.UTF-8"
+fi
+
 show_latex_error() {
     local logfile="$1"
 
