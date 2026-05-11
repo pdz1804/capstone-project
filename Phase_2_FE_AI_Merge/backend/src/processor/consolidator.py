@@ -17,7 +17,7 @@ For media files (video/audio - from Stage 2):
 
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 import json
 from datetime import datetime
@@ -162,21 +162,15 @@ class Stage4Consolidator:
                 output_folder = self.output_dir / stem
                 output_folder.mkdir(exist_ok=True)
                 
-                # 1. Copy transcript markdown
                 md_file = transcripts_dir / f"{stem}.md"
-                if md_file.exists():
-                    shutil.copy2(md_file, output_folder / f"{stem}.md")
-                    logger.info(f"  ✓ Copied transcript markdown: {stem}.md")
-                else:
-                    logger.warning(f"  ⚠ No transcript markdown for {stem}")
                 
-                # 2. Copy pre-built transcript chunks JSON
+                # 1. Copy pre-built transcript chunks JSON
                 dest_chunks = output_folder / "transcript_chunks.json"
                 shutil.copy2(chunk_file, dest_chunks)
                 logger.info(f"  ✓ Copied transcript chunks: {chunk_file.name}")
                 self.stats['media_with_chunks'] += 1
                 
-                # 3. Copy extracted frames (if any)
+                # 2. Copy extracted frames (if any)
                 stem_frames_dir = frames_dir / stem
                 if stem_frames_dir.exists() and any(stem_frames_dir.iterdir()):
                     dest_frames_dir = output_folder / "frames"
@@ -187,11 +181,20 @@ class Stage4Consolidator:
                     logger.info(f"  ✓ Copied {frame_count} extracted frames")
                     self.stats['media_with_frames'] += 1
                 
-                # 4. Copy media metadata (if any)
+                # 3. Copy media metadata (if any)
                 media_meta_file = metadata_dir / f"{stem}_metadata.json"
                 if media_meta_file.exists():
                     shutil.copy2(media_meta_file, output_folder / "media_metadata.json")
                     logger.info(f"  ✓ Copied media metadata")
+
+                # 4. Generate student-facing lecture markdown with representative frames.
+                if self._write_media_lecture_markdown(stem, dest_chunks, media_meta_file, md_file, output_folder):
+                    logger.info(f"  ✓ Wrote frame-aligned lecture markdown: {stem}.md")
+                elif md_file.exists():
+                    shutil.copy2(md_file, output_folder / f"{stem}.md")
+                    logger.info(f"  ✓ Copied transcript markdown: {stem}.md")
+                else:
+                    logger.warning(f"  ⚠ No transcript markdown for {stem}")
                 
                 # 5. Create media manifest (identifies this as a media document for retrieval)
                 manifest = {
@@ -219,6 +222,151 @@ class Stage4Consolidator:
                 })
         
         return count
+
+    @staticmethod
+    def _as_float(value: Any, default: float = 0.0) -> float:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return default
+
+    @classmethod
+    def _format_timestamp(cls, seconds: Any) -> str:
+        value = cls._as_float(seconds, default=0.0)
+        if value < 0:
+            value = 0.0
+        whole = int(value)
+        hh = whole // 3600
+        mm = (whole % 3600) // 60
+        ss = whole % 60
+        return f"{hh:02d}:{mm:02d}:{ss:02d}"
+
+    @staticmethod
+    def _media_frame_filename(frame: Dict[str, Any]) -> str:
+        raw_path = str(frame.get("frame_path") or "").replace("\\", "/").strip()
+        name = Path(raw_path).name if raw_path else ""
+        if not name and frame.get("frame_index") is not None:
+            try:
+                frame_index = int(float(frame.get("frame_index") or 0))
+            except (TypeError, ValueError):
+                frame_index = 0
+            name = f"frame_{frame_index:06d}.jpg"
+        if not name:
+            raw_name = str(frame.get("frame_name") or "").strip()
+            name = Path(raw_name).name if raw_name else ""
+        if not name:
+            name = "frame_000000.jpg"
+        if "." not in name:
+            name = f"{name}.jpg"
+        return name
+
+    @classmethod
+    def _representative_frame(cls, chunk: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        frames = chunk.get("associated_frames")
+        if not isinstance(frames, list) or not frames:
+            return None
+
+        start = cls._as_float(chunk.get("start_time"), default=0.0)
+        end = cls._as_float(chunk.get("end_time"), default=start)
+        midpoint = start + max(0.0, end - start) / 2.0
+
+        candidates = [frame for frame in frames if isinstance(frame, dict)]
+        if not candidates:
+            return None
+        return min(
+            candidates,
+            key=lambda frame: abs(cls._as_float(frame.get("video_timestamp"), default=midpoint) - midpoint),
+        )
+
+    @classmethod
+    def _render_media_lecture_markdown(
+        cls,
+        stem: str,
+        chunks_payload: Dict[str, Any],
+        media_metadata: Dict[str, Any],
+    ) -> Optional[str]:
+        chunks = chunks_payload.get("chunks")
+        if not isinstance(chunks, list) or not chunks:
+            return None
+
+        payload_meta = chunks_payload.get("metadata") if isinstance(chunks_payload.get("metadata"), dict) else {}
+        provenance = media_metadata.get("provenance") if isinstance(media_metadata.get("provenance"), dict) else {}
+        video_props = media_metadata.get("video_properties") if isinstance(media_metadata.get("video_properties"), dict) else {}
+
+        source = str(provenance.get("original_filename") or f"{stem}.mp4")
+        language = str(payload_meta.get("language") or "unknown")
+        duration = cls._as_float(video_props.get("duration"), default=0.0)
+        if duration <= 0:
+            duration = max((cls._as_float(chunk.get("end_time"), default=0.0) for chunk in chunks if isinstance(chunk, dict)), default=0.0)
+
+        lines: List[str] = [
+            f"# Lecture: {stem}",
+            "",
+            f"**Source:** {source}  ",
+            f"**Language:** {language}  ",
+            f"**Chunks:** {len(chunks)}  ",
+        ]
+        if duration > 0:
+            lines.append(f"**Duration:** {cls._format_timestamp(duration)}")
+        lines.append("")
+
+        for chunk in chunks:
+            if not isinstance(chunk, dict):
+                continue
+            text = str(chunk.get("text") or "").strip()
+            if not text:
+                continue
+
+            start = cls._as_float(chunk.get("start_time"), default=0.0)
+            end = cls._as_float(chunk.get("end_time"), default=start)
+            lines.extend([f"## {cls._format_timestamp(start)} - {cls._format_timestamp(end)}", ""])
+
+            frame = cls._representative_frame(chunk)
+            if frame:
+                filename = cls._media_frame_filename(frame)
+                frame_ts = cls._format_timestamp(frame.get("video_timestamp"))
+                lines.extend([f"![Frame at {frame_ts}](frames/{filename})", ""])
+
+            lines.extend([text, ""])
+
+        return "\n".join(lines).rstrip() + "\n"
+
+    def _write_media_lecture_markdown(
+        self,
+        stem: str,
+        chunk_file: Path,
+        media_meta_file: Path,
+        fallback_md_file: Path,
+        output_folder: Path,
+    ) -> bool:
+        try:
+            with open(chunk_file, "r", encoding="utf-8") as f:
+                chunks_payload = json.load(f)
+        except Exception as e:
+            logger.warning(f"  ⚠ Could not read transcript chunks for {stem}: {e}")
+            return False
+
+        media_metadata: Dict[str, Any] = {}
+        if media_meta_file.exists():
+            try:
+                with open(media_meta_file, "r", encoding="utf-8") as f:
+                    media_metadata = json.load(f)
+            except Exception as e:
+                logger.warning(f"  ⚠ Could not read media metadata for {stem}: {e}")
+
+        markdown = self._render_media_lecture_markdown(stem, chunks_payload, media_metadata)
+        if not markdown:
+            return False
+
+        try:
+            with open(output_folder / f"{stem}.md", "w", encoding="utf-8") as f:
+                f.write(markdown)
+            return True
+        except Exception as e:
+            logger.warning(f"  ⚠ Could not write lecture markdown for {stem}: {e}")
+            if fallback_md_file.exists():
+                shutil.copy2(fallback_md_file, output_folder / f"{stem}.md")
+            return False
     
     def _consolidate_document(self, doc_folder: Path):
         """
