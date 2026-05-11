@@ -881,8 +881,33 @@ class DocumentProcessingPipeline:
             if originals_dir.exists():
                 processed_stems = {f.stem for f in candidate_files}
                 for fp in sorted(originals_dir.iterdir()):
-                    if fp.is_file() and fp.stem not in processed_stems:
+                    if not fp.is_file():
+                        continue
+
+                    # PPT/PPTX should be parsed from the native PresentationML package by
+                    # pptx_reader. Stage 1 may still create a same-stem PDF for preview /
+                    # image retrieval; do not let that converted PDF shadow the original.
+                    if (
+                        bool(getattr(v2_config, "prefer_custom_readers", True))
+                        and fp.suffix.lower() in {".ppt", ".pptx"}
+                    ):
+                        before_count = len(candidate_files)
+                        candidate_files = [
+                            candidate
+                            for candidate in candidate_files
+                            if not (
+                                candidate.parent == normalized_pdf_dir
+                                and candidate.suffix.lower() == ".pdf"
+                                and candidate.stem == fp.stem
+                            )
+                        ]
+                        if len(candidate_files) != before_count:
+                            processed_stems.discard(fp.stem)
                         candidate_files.append(fp)
+                        processed_stems.add(fp.stem)
+                    elif fp.stem not in processed_stems:
+                        candidate_files.append(fp)
+                        processed_stems.add(fp.stem)
 
             excel_parsed_dir = self.stage_dirs["normalized"] / "excel_parsed"
             custom_excel_stems = set()
