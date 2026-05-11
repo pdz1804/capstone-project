@@ -35,12 +35,9 @@ type UserDetail = UserEntity & { usage_summary?: Record<string, unknown> };
 
 type UserSortKey = 'user' | 'email' | 'role' | 'status';
 
-function userDisplayName(user: UserEntity): string {
-  return (user.displayName || user.username || user.email || user.uid || '').toLowerCase();
-}
-
 export default function AdminUsersManagementView() {
   const [users, setUsers] = useState<UserEntity[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,19 +71,25 @@ export default function AdminUsersManagementView() {
     };
   }, []);
 
-  const loadUsers = async () => {
+  const loadUsers = async (nextPage = page, cacheBust = false) => {
     setLoading(true);
     setError(null);
     try {
       const data = await userRepo.listAdminUsers({
+        skip: (nextPage - 1) * pageSize,
+        limit: pageSize,
         query: query || undefined,
         role: role || undefined,
         is_active: activeFilter === 'all' ? undefined : activeFilter === 'active',
+        sort_by: sortKey,
+        sort_dir: sortDirection,
+        cache_bust: cacheBust,
       });
       
       if (!mounted.current) return;
       
       setUsers(data.items || []);
+      setTotalItems(Number(data.count || 0));
     } catch (e: any) {
       if (!mounted.current) return;
       setError(e?.response?.data?.detail || e?.message || 'Failed to load users');
@@ -100,35 +103,23 @@ export default function AdminUsersManagementView() {
   useEffect(() => {
     if (initializedRef.current) return;
     initializedRef.current = true;
-    void loadUsers();
+    void loadUsers(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const filtered = useMemo(() => users, [users]);
-
-  const sorted = useMemo(() => {
-    const rows = [...filtered];
-    rows.sort((a, b) => {
-      let compare = 0;
-      if (sortKey === 'user') compare = userDisplayName(a).localeCompare(userDisplayName(b));
-      if (sortKey === 'email') compare = String(a.email || '').toLowerCase().localeCompare(String(b.email || '').toLowerCase());
-      if (sortKey === 'role') compare = String(a.role || '').toLowerCase().localeCompare(String(b.role || '').toLowerCase());
-      if (sortKey === 'status') compare = Number(a.isActive ?? true) - Number(b.isActive ?? true);
-      return sortDirection === 'asc' ? compare : -compare;
-    });
-    return rows;
-  }, [filtered, sortDirection, sortKey]);
-
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(sorted.length / Math.max(1, pageSize))), [pageSize, sorted.length]);
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(totalItems / Math.max(1, pageSize))), [pageSize, totalItems]);
 
   useEffect(() => {
     setPage((current) => Math.min(Math.max(1, current), totalPages));
   }, [totalPages]);
 
-  const paged = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return sorted.slice(start, start + pageSize);
-  }, [page, pageSize, sorted]);
+  const paged = users;
+
+  useEffect(() => {
+    if (!initializedRef.current) return;
+    void loadUsers(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize, sortDirection, sortKey]);
 
   const setSort = (next: UserSortKey, defaultDirection: SortDirection = 'asc') => {
     setPage(1);
@@ -166,7 +157,7 @@ export default function AdminUsersManagementView() {
         isActive: edit.isActive,
       });
       setSelected({ ...selected, ...updated });
-      await loadUsers();
+      await loadUsers(page, true);
     } catch (e: any) {
       setError(e?.response?.data?.detail || e?.message || 'Failed to update user');
     } finally {
@@ -187,7 +178,7 @@ export default function AdminUsersManagementView() {
       });
       setShowCreate(false);
       setCreateForm({ email: '', password: '', username: '', displayName: '', role: 'student' });
-      await loadUsers();
+      await loadUsers(1, true);
     } catch (e: any) {
       setError(e?.response?.data?.detail || e?.message || 'Failed to create user');
     } finally {
@@ -198,7 +189,7 @@ export default function AdminUsersManagementView() {
   const deactivate = async (uid: string) => {
     try {
       await userRepo.deactivateAdminUser(uid);
-      await loadUsers();
+      await loadUsers(page, true);
       if (selected?.uid === uid) {
         await loadDetail(uid);
       }
@@ -210,7 +201,7 @@ export default function AdminUsersManagementView() {
   const activate = async (uid: string) => {
     try {
       await userRepo.activateAdminUser(uid);
-      await loadUsers();
+      await loadUsers(page, true);
       if (selected?.uid === uid) {
         await loadDetail(uid);
       }
@@ -223,7 +214,7 @@ export default function AdminUsersManagementView() {
     if (!window.confirm('Delete this user permanently?')) return;
     try {
       await userRepo.deleteAdminUser(uid);
-      await loadUsers();
+      await loadUsers(page, true);
       if (selected?.uid === uid) setSelected(null);
     } catch (e: any) {
       setError(e?.response?.data?.detail || e?.message || 'Failed to delete user');
@@ -249,7 +240,7 @@ export default function AdminUsersManagementView() {
             </button>
             <button
               type="button"
-              onClick={() => void loadUsers()}
+              onClick={() => void loadUsers(page, true)}
               className={`inline-flex items-center gap-2 ${adminUi.buttonSoft}`}
             >
               <RefreshCw className="w-4 h-4" /> Refresh
@@ -328,7 +319,10 @@ export default function AdminUsersManagementView() {
           </select>
           <button
             type="button"
-            onClick={() => void loadUsers()}
+            onClick={() => {
+              setPage(1);
+              void loadUsers(1, true);
+            }}
             className={adminUi.buttonSubtle}
           >
             Apply filters
@@ -441,7 +435,7 @@ export default function AdminUsersManagementView() {
                       </td>
                     </tr>
                   ))}
-                  {sorted.length === 0 && (
+                  {users.length === 0 && (
                     <tr>
                       <td colSpan={5} className="px-2 py-4 text-sm text-slate-500">No users found.</td>
                     </tr>
@@ -452,7 +446,7 @@ export default function AdminUsersManagementView() {
                 <AdminTablePagination
                   page={page}
                   pageSize={pageSize}
-                  totalItems={sorted.length}
+                  totalItems={totalItems}
                   onPageChange={(next) => setPage(Math.min(Math.max(1, next), totalPages))}
                   onPageSizeChange={(nextSize) => {
                     setPageSize(nextSize);
