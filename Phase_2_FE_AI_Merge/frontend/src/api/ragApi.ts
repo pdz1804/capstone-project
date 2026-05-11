@@ -77,6 +77,7 @@ export type FileWithMetadata = {
   path: string;
   size: string;
   type: string;
+  file_category?: string;
   modified?: string;
   storage?: string;
   status?: string;
@@ -91,6 +92,7 @@ export type FileWithMetadata = {
   index_status?: 'none' | 'text' | 'image' | 'all';
   file_size_bytes?: number;
   file_hash?: string | null;
+  tags?: string[];
 };
 
 export type UploadResponse = {
@@ -102,6 +104,8 @@ export type UploadResponse = {
 export type FilesWithMetadataResponse = {
   count: number;
   files: FileWithMetadata[];
+  skip?: number;
+  limit?: number | null;
   pipeline_stage_totals?: Record<string, number>;
   pipeline_document_count?: number;
 };
@@ -267,8 +271,28 @@ export async function getInputFileUrl(
   return data;
 }
 
-export async function getFilesWithMetadata(): Promise<FilesWithMetadataResponse> {
-  const { data } = await apiClient.get<FilesWithMetadataResponse>('/files-with-metadata');
+export async function getFilesWithMetadata(params?: {
+  skip?: number;
+  limit?: number;
+  query?: string;
+  type?: string;
+  status?: string;
+  sort_by?: 'name' | 'size' | 'date' | 'status' | 'type';
+  sort_dir?: 'asc' | 'desc';
+  cache_bust?: boolean;
+}): Promise<FilesWithMetadataResponse> {
+  const { data } = await apiClient.get<FilesWithMetadataResponse>('/files-with-metadata', {
+    params: {
+      skip: Math.max(0, Math.floor(Number(params?.skip ?? 0))),
+      ...(typeof params?.limit === 'number' && Number.isFinite(params.limit) ? { limit: Math.max(1, Math.floor(params.limit)) } : {}),
+      ...(params?.query ? { query: params.query } : {}),
+      ...(params?.type ? { type: params.type } : {}),
+      ...(params?.status ? { status: params.status } : {}),
+      ...(params?.sort_by ? { sort_by: params.sort_by } : {}),
+      ...(params?.sort_dir ? { sort_dir: params.sort_dir } : {}),
+      ...(params?.cache_bust ? { cache_bust: true } : {}),
+    },
+  });
   return data;
 }
 
@@ -929,7 +953,7 @@ export function mapFilesWithMetadataToFileItems(data: FilesWithMetadataResponse)
     return {
       id,
       name,
-      type: extToFileType(name, String(row.type || '')),
+      type: (row.file_category as FileItem['type']) || extToFileType(name, String(row.type || '')),
       size: sizeStr,
       rawSize: parseHumanSize(sizeStr),
       status,
@@ -937,6 +961,7 @@ export function mapFilesWithMetadataToFileItems(data: FilesWithMetadataResponse)
       date: String(row.upload_time || row.modified || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
       storagePath: path,
       documentFolder,
+      tags: row.tags || [],
     };
   });
 }
