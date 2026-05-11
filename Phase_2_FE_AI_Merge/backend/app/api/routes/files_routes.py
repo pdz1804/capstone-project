@@ -870,6 +870,42 @@ def get_file_all_chunks(file_name: str, user_id: str = Depends(storage_user_id))
             "chunks": [],
         }
 
+    def _frame_filename(frame: Dict[str, Any]) -> str:
+        raw_path = str(frame.get("frame_path") or "").replace("\\", "/").strip()
+        name = Path(raw_path).name if raw_path else ""
+        if not name and frame.get("frame_index") is not None:
+            frame_index = int(_as_float(frame.get("frame_index"), default=0.0))
+            name = f"frame_{frame_index:06d}.jpg"
+        if not name:
+            raw_name = str(frame.get("frame_name") or "").strip()
+            name = Path(raw_name).name if raw_name else ""
+        if not name:
+            name = "frame_000000.jpg"
+        if "." not in name:
+            name = f"{name}.jpg"
+        return name
+
+    def _normalize_associated_frames(raw: Any, chunk_rel_path: str) -> List[Dict[str, Any]]:
+        if not isinstance(raw, list):
+            return []
+        chunk_parent = str(Path(chunk_rel_path).parent).replace("\\", "/")
+        out: List[Dict[str, Any]] = []
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            filename = _frame_filename(item)
+            rel_path = f"{chunk_parent}/frames/{filename}"
+            out.append(
+                {
+                    "frame_name": item.get("frame_name") or Path(filename).stem,
+                    "frame_index": int(_as_float(item.get("frame_index"), default=0.0)),
+                    "video_timestamp": _as_float(item.get("video_timestamp"), default=0.0),
+                    "rel_path": rel_path,
+                }
+            )
+        out.sort(key=lambda x: (x.get("video_timestamp", 0.0), x.get("frame_index", 0)))
+        return out
+
     chunks: List[Dict[str, Any]] = []
     loaded_from = None
     for rel_path in candidates:
@@ -891,6 +927,7 @@ def get_file_all_chunks(file_name: str, user_id: str = Depends(storage_user_id))
                             "source": rel_path,
                             "content_type": c.get("content_type") or "transcript_text",
                             "original_file": c.get("original_file") or decoded_name,
+                            "associated_frames": _normalize_associated_frames(c.get("associated_frames"), rel_path),
                         }
                     )
                 loaded_from = rel_path
