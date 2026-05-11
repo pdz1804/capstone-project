@@ -84,7 +84,7 @@ class PipelineConfig:
             self.media_config = MediaProcessorConfig(
                 extract_audio=True,
                 enable_transcription=True,
-                asr_model="base",
+                asr_model="tiny",
                 extract_frames=True,
                 frame_interval=100
             )
@@ -1301,7 +1301,7 @@ def create_default_configs():
         media_config=MediaProcessorConfig(
             extract_audio=True,
             enable_transcription=True,
-            asr_model="base",
+            asr_model="tiny",
             extract_frames=True,
             frame_interval=100,
             export_txt=True,

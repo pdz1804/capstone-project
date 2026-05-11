@@ -53,11 +53,11 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         use_gpu=use_gpu,
         extract_audio=_as_bool(proc.get("enable_media_processing", True), default=True),
         enable_transcription=_as_bool(media.get("enable_transcription", True), default=True),
-        asr_model=str(media.get("asr_model", "base")),
+        asr_model=str(media.get("asr_model", "tiny")),
         asr_language=media.get("asr_language"),
-        extract_frames=_as_bool(media.get("extract_frames", False), default=False),
+        extract_frames=_as_bool(media.get("extract_frames", True), default=True),
         frame_interval=int(media.get("frame_interval", 100)),
-        use_word_timestamps=_as_bool(media.get("use_word_timestamps", True), default=True),
+        use_word_timestamps=_as_bool(media.get("use_word_timestamps", False), default=False),
         use_aws_sagemaker_whisper=_as_bool(inf.get("use_aws_sagemaker_whisper", False), default=False),
         sagemaker_whisper_endpoint_name=str(inf.get("sagemaker_whisper_endpoint_name", "")),
         aws_region=str(inf.get("aws_region", "us-west-2")),
@@ -70,6 +70,7 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         document_config.export_tables = False
         media_config.asr_model = "tiny"
         media_config.use_word_timestamps = False
+        media_config.extract_frames = False
         media_config.frame_interval = max(media_config.frame_interval, 180)
         media_config.remove_duplicate_frames = False
         media_config.temperature_schedule = (0.0,)
