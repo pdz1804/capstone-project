@@ -58,6 +58,8 @@ export default function AdminInvocationsView() {
   const [keyword, setKeyword] = useState('');
 
   const [items, setItems] = useState<AdminInvocationRecord[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [facets, setFacets] = useState<{ features?: string[]; models?: string[] }>({});
   const [users, setUsers] = useState<UserEntity[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +78,7 @@ export default function AdminInvocationsView() {
     };
   }, []);
 
-  const load = async () => {
+  const load = async (nextPage = page, cacheBust = false) => {
     setLoading(true);
     setError(null);
     try {
@@ -85,11 +87,22 @@ export default function AdminInvocationsView() {
         user_id: userId || undefined,
         feature: feature || undefined,
         model_id: modelId || undefined,
+        method: methodFilter === 'ALL' ? undefined : methodFilter,
+        status_family: statusFilter === 'all' ? undefined : statusFilter,
+        path_query: pathFilter || undefined,
+        query: keyword || undefined,
+        skip: (nextPage - 1) * pageSize,
+        limit: pageSize,
+        sort_by: sortKey,
+        sort_dir: sortDirection,
+        cache_bust: cacheBust,
       });
 
       if (!mounted.current) return;
 
       setItems(data.items || []);
+      setTotalItems(Number(data.count || 0));
+      setFacets(data.facets || {});
 
       const nextParams = new URLSearchParams();
       nextParams.set('days', String(days));
@@ -107,8 +120,8 @@ export default function AdminInvocationsView() {
 
   useEffect(() => {
     void Promise.all([
-      load(),
-      userRepo.listAdminUsers().then((res) => setUsers(res.items || [])).catch(() => setUsers([])),
+      load(1),
+      userRepo.listAdminUsers({ limit: 1000 }).then((res) => setUsers(res.items || [])).catch(() => setUsers([])),
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -135,77 +148,22 @@ export default function AdminInvocationsView() {
     return u.displayName || u.username || u.email || 'Unknown user';
   };
 
-  const featureOptions = useMemo(
-    () => Array.from(new Set(items.map((x) => x.feature).filter((x) => !!x))).slice(0, 200),
-    [items],
-  );
+  const featureOptions = useMemo(() => (facets.features || []).slice(0, 200), [facets.features]);
 
-  const modelOptions = useMemo(
-    () => Array.from(new Set(items.map((x) => x.model_id || '').filter((x) => !!x))).slice(0, 200),
-    [items],
-  );
+  const modelOptions = useMemo(() => (facets.models || []).slice(0, 200), [facets.models]);
 
-  const filtered = useMemo(() => {
-    const kw = keyword.trim().toLowerCase();
-    const pathKw = pathFilter.trim().toLowerCase();
-
-    return items.filter((row) => {
-      if (methodFilter !== 'ALL' && String(row.method || '').toUpperCase() !== methodFilter) return false;
-      if (statusFilter === '2xx' && !(row.status_code >= 200 && row.status_code < 300)) return false;
-      if (statusFilter === '4xx' && !(row.status_code >= 400 && row.status_code < 500)) return false;
-      if (statusFilter === '5xx' && !(row.status_code >= 500 && row.status_code < 600)) return false;
-      if (pathKw && !String(row.path || '').toLowerCase().includes(pathKw)) return false;
-      if (!kw) return true;
-
-      const searchHaystack = [
-        row.usage_id,
-        row.user_id,
-        row.feature,
-        row.path,
-        row.model_id || '',
-        row.method,
-        String(row.status_code),
-      ]
-        .join(' ')
-        .toLowerCase();
-
-      return searchHaystack.includes(kw);
-    });
-  }, [items, keyword, methodFilter, pathFilter, statusFilter]);
-
-  const sorted = useMemo(() => {
-    const rows = [...filtered];
-    rows.sort((a, b) => {
-      let compare = 0;
-      if (sortKey === 'time') compare = new Date(a.invoked_at || 0).getTime() - new Date(b.invoked_at || 0).getTime();
-      if (sortKey === 'methodPath') {
-        const aText = `${String(a.method || '').toUpperCase()} ${String(a.path || '').toLowerCase()}`;
-        const bText = `${String(b.method || '').toUpperCase()} ${String(b.path || '').toLowerCase()}`;
-        compare = aText.localeCompare(bText);
-      }
-      if (sortKey === 'feature') compare = String(a.feature || '').toLowerCase().localeCompare(String(b.feature || '').toLowerCase());
-      if (sortKey === 'user') compare = userLabel(a.user_id).toLowerCase().localeCompare(userLabel(b.user_id).toLowerCase());
-      if (sortKey === 'model') compare = String(a.model_id || '').toLowerCase().localeCompare(String(b.model_id || '').toLowerCase());
-      if (sortKey === 'status') compare = Number(a.status_code || 0) - Number(b.status_code || 0);
-      if (sortKey === 'latency') compare = Number(a.duration_ms || 0) - Number(b.duration_ms || 0);
-      if (sortKey === 'in') compare = Number(a.token_in || 0) - Number(b.token_in || 0);
-      if (sortKey === 'out') compare = Number(a.token_out || 0) - Number(b.token_out || 0);
-      if (sortKey === 'cost') compare = Number(a.estimated_cost_usd || 0) - Number(b.estimated_cost_usd || 0);
-      return sortDirection === 'asc' ? compare : -compare;
-    });
-    return rows;
-  }, [filtered, sortDirection, sortKey]);
-
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(sorted.length / Math.max(1, pageSize))), [pageSize, sorted.length]);
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(totalItems / Math.max(1, pageSize))), [pageSize, totalItems]);
 
   useEffect(() => {
     setPage((current) => Math.min(Math.max(1, current), totalPages));
   }, [totalPages]);
 
-  const paged = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return sorted.slice(start, start + pageSize);
-  }, [page, pageSize, sorted]);
+  const paged = items;
+
+  useEffect(() => {
+    void load(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize, sortDirection, sortKey]);
 
   const setSort = (
     next:
@@ -237,7 +195,7 @@ export default function AdminInvocationsView() {
           <div>
             <p className="text-xs font-black uppercase tracking-widest text-sky-600">Admin</p>
             <h2 className="text-xl font-black text-slate-900 tracking-tight">All API Invocation Logs</h2>
-            <p className="mt-1 text-xs text-slate-500">Showing {nf(filtered.length)} of {nf(items.length)} loaded records</p>
+            <p className="mt-1 text-xs text-slate-500">Showing {nf(items.length)} of {nf(totalItems)} matching records</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -249,7 +207,7 @@ export default function AdminInvocationsView() {
             </button>
             <button
               type="button"
-              onClick={() => void load()}
+              onClick={() => void load(page, true)}
               className={`inline-flex items-center gap-2 ${adminUi.buttonSoft}`}
             >
               <RefreshCw className="w-4 h-4" /> Refresh
@@ -314,7 +272,10 @@ export default function AdminInvocationsView() {
 
           <button
             type="button"
-            onClick={() => void load()}
+            onClick={() => {
+              setPage(1);
+              void load(1, true);
+            }}
             className={adminUi.buttonPrimary}
           >
             Apply server filters
@@ -377,6 +338,7 @@ export default function AdminInvocationsView() {
               setMethodFilter('ALL');
               setPathFilter('');
               setKeyword('');
+              setPage(1);
             }}
             className={`inline-flex items-center gap-2 ${adminUi.buttonSubtle}`}
           >
@@ -515,7 +477,7 @@ export default function AdminInvocationsView() {
                     <td className={`${adminUi.tdRight} font-semibold text-amber-700`}>{usd(row.estimated_cost_usd)}</td>
                   </tr>
                 ))}
-                {sorted.length === 0 && (
+                {items.length === 0 && (
                   <tr>
                     <td colSpan={10} className="px-3 py-6 text-sm text-slate-500 text-center">
                       No invocation logs match the current filters.
@@ -528,7 +490,7 @@ export default function AdminInvocationsView() {
               <AdminTablePagination
                 page={page}
                 pageSize={pageSize}
-                totalItems={sorted.length}
+                totalItems={totalItems}
                 onPageChange={(next) => setPage(Math.min(Math.max(1, next), totalPages))}
                 onPageSizeChange={(nextSize) => {
                   setPageSize(nextSize);

@@ -43,6 +43,7 @@ type KnowledgeSortKey = 'title' | 'uploaded' | 'user' | 'type' | 'status';
 
 export default function AdminKnowledgeManagementView() {
   const [items, setItems] = useState<AdminKnowledgeItem[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [users, setUsers] = useState<UserEntity[]>([]);
   const [loading, setLoading] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
@@ -52,6 +53,7 @@ export default function AdminKnowledgeManagementView() {
   const [userId, setUserId] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [tagFilter, setTagFilter] = useState('');
 
   const [selected, setSelected] = useState<KnowledgeDetail | null>(null);
   const [editableTags, setEditableTags] = useState('');
@@ -75,7 +77,7 @@ export default function AdminKnowledgeManagementView() {
   const loadUsers = async () => {
     setUsersLoading(true);
     try {
-      const data = await userRepo.listAdminUsers();
+      const data = await userRepo.listAdminUsers({ limit: 1000 });
       if (!mounted.current) return;
       setUsers(data.items || []);
     } catch {
@@ -86,7 +88,7 @@ export default function AdminKnowledgeManagementView() {
     }
   };
 
-  const load = async (sync = false) => {
+  const load = async (sync = false, nextPage = page, cacheBust = false) => {
     setLoading(true);
     setError(null);
     try {
@@ -95,13 +97,20 @@ export default function AdminKnowledgeManagementView() {
         user_id: userId || undefined,
         knowledge_type: typeFilter || undefined,
         is_active: activeFilter === 'all' ? undefined : activeFilter === 'active',
+        tag: tagFilter || undefined,
+        skip: (nextPage - 1) * pageSize,
+        limit: pageSize,
+        sort_by: sortKey,
+        sort_dir: sortDirection,
         sync_with_storage: sync,
+        cache_bust: cacheBust,
         include_usage: false,
       });
 
       if (!mounted.current) return;
 
       setItems(data.items || []);
+      setTotalItems(Number(data.count || 0));
     } catch (e: any) {
       if (!mounted.current) return;
       setError(e?.response?.data?.detail || e?.message || 'Failed to load knowledge data');
@@ -113,11 +122,9 @@ export default function AdminKnowledgeManagementView() {
   useEffect(() => {
     if (initializedRef.current) return;
     initializedRef.current = true;
-    void Promise.all([loadUsers(), load(false)]);
+    void Promise.all([loadUsers(), load(false, 1)]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const filtered = useMemo(() => items, [items]);
 
   const userMap = useMemo(() => {
     const m = new Map<string, UserEntity>();
@@ -141,42 +148,19 @@ export default function AdminKnowledgeManagementView() {
     return u.displayName || u.username || u.email || 'Unknown user';
   };
 
-  const sorted = useMemo(() => {
-    const rows = [...filtered];
-    rows.sort((a, b) => {
-      let compare = 0;
-      if (sortKey === 'title') {
-        compare = String(a.title || '').toLowerCase().localeCompare(String(b.title || '').toLowerCase());
-      }
-      if (sortKey === 'uploaded') {
-        compare = new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
-      }
-      if (sortKey === 'user') {
-        compare = userLabel(a.user_id).toLowerCase().localeCompare(userLabel(b.user_id).toLowerCase());
-      }
-      if (sortKey === 'type') {
-        compare = String(a.knowledge_type || '').toLowerCase().localeCompare(String(b.knowledge_type || '').toLowerCase());
-      }
-      if (sortKey === 'status') {
-        const aStatus = `${a.is_active ? 'active' : 'inactive'}-${a.status || ''}`;
-        const bStatus = `${b.is_active ? 'active' : 'inactive'}-${b.status || ''}`;
-        compare = aStatus.localeCompare(bStatus);
-      }
-      return sortDirection === 'asc' ? compare : -compare;
-    });
-    return rows;
-  }, [filtered, sortDirection, sortKey]);
-
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(sorted.length / Math.max(1, pageSize))), [pageSize, sorted.length]);
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(totalItems / Math.max(1, pageSize))), [pageSize, totalItems]);
 
   useEffect(() => {
     setPage((current) => Math.min(Math.max(1, current), totalPages));
   }, [totalPages]);
 
-  const paged = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return sorted.slice(start, start + pageSize);
-  }, [page, pageSize, sorted]);
+  const paged = items;
+
+  useEffect(() => {
+    if (!initializedRef.current) return;
+    void load(false, page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize, sortDirection, sortKey]);
 
   const setSort = (next: KnowledgeSortKey, defaultDirection: SortDirection = 'asc') => {
     setPage(1);
@@ -215,7 +199,7 @@ export default function AdminKnowledgeManagementView() {
       setSelected(next);
       setEditableTags(((next.tags || []) as string[]).join(', '));
       setEditableNotes(next.notes || '');
-      await load(false);
+      await load(false, page, true);
     } catch (e: any) {
       setError(e?.response?.data?.detail || e?.message || 'Failed to update knowledge metadata');
     } finally {
@@ -226,7 +210,7 @@ export default function AdminKnowledgeManagementView() {
   const deactivate = async (knowledgeId: string) => {
     try {
       await deactivateAdminKnowledge(knowledgeId);
-      await load(false);
+      await load(false, page, true);
       if (selected?.knowledge_id === knowledgeId) {
         await pick(knowledgeId);
       }
@@ -238,7 +222,7 @@ export default function AdminKnowledgeManagementView() {
   const activate = async (knowledgeId: string) => {
     try {
       await activateAdminKnowledge(knowledgeId);
-      await load(false);
+      await load(false, page, true);
       if (selected?.knowledge_id === knowledgeId) {
         await pick(knowledgeId);
       }
@@ -252,7 +236,7 @@ export default function AdminKnowledgeManagementView() {
     setDeletingId(knowledgeId);
     try {
       const result = await deleteAdminKnowledge(knowledgeId);
-      await load(false);
+      await load(false, page, true);
       if (selected?.knowledge_id === knowledgeId) setSelected(null);
       const removedText = Number(result.removed_text_vectors || 0);
       const removedImage = Number(result.removed_image_vectors || 0);
@@ -276,14 +260,14 @@ export default function AdminKnowledgeManagementView() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => void syncAdminKnowledge().then(() => load(false))}
+              onClick={() => void syncAdminKnowledge().then(() => load(false, page, true))}
               className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
             >
               <Database className="w-4 h-4" /> Sync from storage
             </button>
             <button
               type="button"
-              onClick={() => void load(false)}
+              onClick={() => void load(false, page, true)}
               className={`inline-flex items-center gap-2 ${adminUi.buttonSoft}`}
             >
               <RefreshCw className="w-4 h-4" /> Refresh
@@ -291,7 +275,7 @@ export default function AdminKnowledgeManagementView() {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-5 gap-2">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-6 gap-2">
           <div className="relative md:col-span-2">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
@@ -330,12 +314,21 @@ export default function AdminKnowledgeManagementView() {
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
+          <input
+            value={tagFilter}
+            onChange={(e) => setTagFilter(e.target.value)}
+            placeholder="tag contains"
+            className={adminUi.input}
+          />
         </div>
 
         <div className="mt-2">
           <button
             type="button"
-            onClick={() => void load(false)}
+            onClick={() => {
+              setPage(1);
+              void load(false, 1, true);
+            }}
             className={adminUi.buttonSubtle}
           >
             Apply filters
@@ -455,7 +448,7 @@ export default function AdminKnowledgeManagementView() {
                       </td>
                     </tr>
                   ))}
-                  {sorted.length === 0 && (
+                  {items.length === 0 && (
                     <tr>
                       <td colSpan={6} className="px-2 py-4 text-sm text-slate-500">No knowledge records found.</td>
                     </tr>
@@ -466,7 +459,7 @@ export default function AdminKnowledgeManagementView() {
                 <AdminTablePagination
                   page={page}
                   pageSize={pageSize}
-                  totalItems={sorted.length}
+                  totalItems={totalItems}
                   onPageChange={(next) => setPage(Math.min(Math.max(1, next), totalPages))}
                   onPageSizeChange={(nextSize) => {
                     setPageSize(nextSize);

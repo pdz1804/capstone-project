@@ -243,6 +243,163 @@ function AuthImage({ src, alt, markdownSourcePath }: { src?: string; alt?: strin
   );
 }
 
+type AssociatedFrame = {
+  frame_name?: string;
+  frame_index?: number | string;
+  video_timestamp?: number | string;
+  rel_path?: string;
+};
+
+function numericSeconds(value: unknown, fallback = 0): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function formatLectureTimestamp(sec: number): string {
+  if (!Number.isFinite(sec) || sec < 0) return '00:00:00';
+  const s = Math.floor(sec);
+  const hh = String(Math.floor(s / 3600)).padStart(2, '0');
+  const mm = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+  const ss = String(s % 60).padStart(2, '0');
+  return `${hh}:${mm}:${ss}`;
+}
+
+function getAssociatedFrames(row: Record<string, unknown>): AssociatedFrame[] {
+  const raw = row.associated_frames;
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((frame): frame is AssociatedFrame => !!frame && typeof frame === 'object')
+    .filter((frame) => typeof frame.rel_path === 'string' && frame.rel_path.trim().length > 0)
+    .sort((a, b) => numericSeconds(a.video_timestamp) - numericSeconds(b.video_timestamp));
+}
+
+function representativeFrame(row: Record<string, unknown>): AssociatedFrame | null {
+  const frames = getAssociatedFrames(row);
+  if (frames.length === 0) return null;
+  const start = numericSeconds(row.start_time);
+  const end = numericSeconds(row.end_time, start);
+  const midpoint = start + Math.max(0, end - start) / 2;
+  return frames.reduce((best, frame) => {
+    const bestDistance = Math.abs(numericSeconds(best.video_timestamp, midpoint) - midpoint);
+    const frameDistance = Math.abs(numericSeconds(frame.video_timestamp, midpoint) - midpoint);
+    return frameDistance < bestDistance ? frame : best;
+  }, frames[0]);
+}
+
+function sourcePathFromChunks(chunks: Array<Record<string, unknown>>, fallback?: string | null): string | null {
+  if (fallback) return fallback;
+  const source = chunks
+    .map((chunk) => String((chunk as { source?: string }).source || '').trim())
+    .find(Boolean);
+  return source || null;
+}
+
+function markdownLooksFrameAligned(markdown: string | null): boolean {
+  if (!markdown) return false;
+  return /\]\(\s*frames\//i.test(markdown) || /Frame-aligned lecture notes/i.test(markdown);
+}
+
+function buildFrameAlignedMarkdownFromChunks(fileName: string, chunks: Array<Record<string, unknown>>): string | null {
+  const rows = chunks
+    .map((chunk) => ({
+      chunk,
+      text: String((chunk as { text?: string }).text || '').trim(),
+      start: numericSeconds((chunk as { start_time?: number | string }).start_time),
+      end: numericSeconds((chunk as { end_time?: number | string }).end_time),
+    }))
+    .filter((row) => row.text);
+
+  if (rows.length === 0 || !rows.some((row) => getAssociatedFrames(row.chunk).length > 0)) return null;
+
+  const stem = fileName.replace(/\.[^.]+$/, '') || fileName;
+  const lines = [
+    `# Lecture: ${stem}`,
+    '',
+    `**Source:** ${fileName}  `,
+    `**Chunks:** ${rows.length}`,
+    '',
+  ];
+
+  rows.forEach(({ chunk, text, start, end }) => {
+    lines.push(`## ${formatLectureTimestamp(start)} - ${formatLectureTimestamp(end)}`, '');
+    const frame = representativeFrame(chunk);
+    if (frame?.rel_path) {
+      const frameFile = frame.rel_path.split('/').pop();
+      if (frameFile) {
+        lines.push(`![Frame at ${formatLectureTimestamp(numericSeconds(frame.video_timestamp, start))}](frames/${frameFile})`, '');
+      }
+    }
+    lines.push(text, '');
+  });
+
+  return `${lines.join('\n').trim()}\n`;
+}
+
+function FrameThumbnail({ frame, onClick }: { frame: AssociatedFrame; onClick: () => void }) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const relPath = typeof frame.rel_path === 'string' ? frame.rel_path : '';
+  const timestamp = numericSeconds(frame.video_timestamp);
+
+  useEffect(() => {
+    setBlobUrl(null);
+    setLoadFailed(false);
+    if (!relPath) return;
+
+    const controller = new AbortController();
+    let objectUrl = '';
+
+    void apiClient
+      .get('/processed-file', {
+        params: { rel_path: relPath },
+        responseType: 'blob',
+        signal: controller.signal,
+      })
+      .then(({ data }) => {
+        if (controller.signal.aborted) return;
+        objectUrl = URL.createObjectURL(data);
+        setBlobUrl(objectUrl);
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted && !isRequestCanceled(error)) {
+          setLoadFailed(true);
+        }
+      });
+
+    return () => {
+      controller.abort();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [relPath]);
+
+  return (
+    <button
+      type="button"
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+      title={`Jump to ${formatLectureTimestamp(timestamp)}`}
+      className="group shrink-0 w-32 overflow-hidden rounded-lg border border-sky-100 bg-white text-left shadow-sm transition-all hover:border-sky-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+    >
+      <div className="aspect-video bg-slate-100 overflow-hidden">
+        {blobUrl ? (
+          <img src={blobUrl} alt={`Frame at ${formatLectureTimestamp(timestamp)}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+        ) : loadFailed ? (
+          <div className="h-full w-full flex items-center justify-center text-[10px] font-bold text-amber-700 bg-amber-50 px-2 text-center">
+            Frame unavailable
+          </div>
+        ) : (
+          <div className="h-full w-full animate-pulse bg-slate-200" />
+        )}
+      </div>
+      <div className="px-2 py-1.5 text-[10px] font-black uppercase tracking-wide text-slate-500 group-hover:text-sky-600">
+        {formatLectureTimestamp(timestamp)}
+      </div>
+    </button>
+  );
+}
+
 function getLectureMarkdownComponents(markdownSourcePath?: string | null): Components {
   return {
   h1: ({ children }) => <h1 className="text-3xl font-bold text-slate-900 mt-2 mb-4">{children}</h1>,
@@ -374,8 +531,17 @@ export default function LectureView({ files = [] }: LectureViewProps) {
 
   const videoFetchGen = useRef(0);
   const videoBlobUrlRef = useRef<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+  const seekVideo = (seconds: number) => {
+    const video = videoRef.current;
+    if (!video || !Number.isFinite(seconds)) return;
+    video.currentTime = Math.max(0, seconds);
+    video.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    video.focus();
+  };
 
   useEffect(() => {
     const revokeAndClear = () => {
@@ -704,10 +870,6 @@ export default function LectureView({ files = [] }: LectureViewProps) {
   const [processedMdNotice, setProcessedMdNotice] = useState<string | null>(null);
 
   const inputMarkdownComponents = useMemo(() => getLectureMarkdownComponents(null), []);
-  const processedMarkdownComponents = useMemo(
-    () => getLectureMarkdownComponents(processedMdSourcePath),
-    [processedMdSourcePath]
-  );
 
   const hasOriginalPreviewInMain =
     selectedFile?.type === 'video'
@@ -869,7 +1031,9 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       setTranscriptError(null);
       return;
     }
-    if (activeTab !== 'transcript' || passagesPane !== 'chunks') {
+    const shouldLoadChunks =
+      activeTab === 'transcript' && (passagesPane === 'chunks' || (passagesPane === 'markdown' && scopeFile.type === 'video'));
+    if (!shouldLoadChunks) {
       setTranscriptLoading(false);
       return;
     }
@@ -915,7 +1079,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       chunksFetchGen.current += 1;
       controller.abort();
     };
-  }, [scopeFile?.name, activeTab, passagesPane]);
+  }, [scopeFile?.name, scopeFile?.type, activeTab, passagesPane]);
 
   const filteredChunks = useMemo(() => {
     const needle = transcriptQuery.trim().toLowerCase();
@@ -926,6 +1090,20 @@ export default function LectureView({ files = [] }: LectureViewProps) {
       return t.includes(needle) || s.includes(needle);
     });
   }, [transcriptChunks, transcriptQuery]);
+
+  const frameAlignedMarkdown = useMemo(() => {
+    if (scopeFile?.type !== 'video' || markdownLooksFrameAligned(processedMarkdown)) return null;
+    return buildFrameAlignedMarkdownFromChunks(scopeFile.name, transcriptChunks);
+  }, [scopeFile?.name, scopeFile?.type, processedMarkdown, transcriptChunks]);
+
+  const displayedProcessedMarkdown = frameAlignedMarkdown || processedMarkdown;
+  const displayedProcessedMdSourcePath = frameAlignedMarkdown
+    ? sourcePathFromChunks(transcriptChunks, processedMdSourcePath)
+    : processedMdSourcePath;
+  const processedMarkdownComponents = useMemo(
+    () => getLectureMarkdownComponents(displayedProcessedMdSourcePath),
+    [displayedProcessedMdSourcePath]
+  );
 
   const handleGenerateSummary = async () => {
     setIsGenerating(true);
@@ -1183,7 +1361,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
 
         {selectedFile?.type === 'video' && videoUrl ? (
           <div className="bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl relative aspect-video flex items-center justify-center border-4 border-white">
-            <video src={videoUrl} controls className="w-full h-full object-contain" playsInline />
+            <video ref={videoRef} src={videoUrl} controls className="w-full h-full object-contain" playsInline />
           </div>
         ) : (
           <div className="rounded-[2.5rem] border-4 border-white shadow-2xl overflow-hidden flex flex-col bg-white min-h-[min(560px,70vh)] max-h-[calc(100vh-12rem)]">
@@ -1330,22 +1508,22 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     <p className="text-sm font-bold">Loading processed markdown…</p>
                   </div>
                 )}
-                {selectedFile && shouldFallbackToProcessedMarkdownMain && !processedMdLoading && processedMarkdown && (
+                {selectedFile && shouldFallbackToProcessedMarkdownMain && !processedMdLoading && displayedProcessedMarkdown && (
                   <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Processed markdown</p>
                     <div className="prose prose-slate max-w-none text-slate-700 leading-7 prose-headings:my-3 prose-p:my-2 prose-li:my-1">
                       <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={processedMarkdownComponents}>
-                        {preprocessMarkdown(processedMarkdown, processedMdSourcePath)}
+                        {preprocessMarkdown(displayedProcessedMarkdown, displayedProcessedMdSourcePath)}
                       </ReactMarkdown>
                     </div>
-                    {processedMdSourcePath && (
-                      <p className="text-[10px] text-slate-400 mt-6 font-mono truncate" title={processedMdSourcePath}>
-                        {processedMdSourcePath}
+                    {displayedProcessedMdSourcePath && (
+                      <p className="text-[10px] text-slate-400 mt-6 font-mono truncate" title={displayedProcessedMdSourcePath}>
+                        {displayedProcessedMdSourcePath}
                       </p>
                     )}
                   </div>
                 )}
-                {selectedFile && shouldFallbackToProcessedMarkdownMain && !processedMdLoading && !processedMarkdown && processedMdNotice && (
+                {selectedFile && shouldFallbackToProcessedMarkdownMain && !processedMdLoading && !displayedProcessedMarkdown && processedMdNotice && (
                   <div className="py-8 px-2">
                     <FileText className="w-12 h-12 text-slate-200 mx-auto mb-4" />
                     <div className="prose prose-sm prose-slate max-w-none text-center text-slate-600">
@@ -1362,7 +1540,7 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                   shouldFallbackToProcessedMarkdownMain &&
                   selectedFile.type !== 'video' &&
                   !processedMdLoading &&
-                  !processedMarkdown &&
+                  !displayedProcessedMarkdown &&
                   !processedMdNotice &&
                   !inputPreviewLoading &&
                   inputPreview.kind === 'none' &&
@@ -1452,28 +1630,30 @@ export default function LectureView({ files = [] }: LectureViewProps) {
 
               {passagesPane === 'markdown' ? (
                 <div className="space-y-4">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Processed markdown (same as pipeline output)</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    {scopeFile?.type === 'video' ? 'Frame-aligned lecture notes' : 'Processed markdown (same as pipeline output)'}
+                  </p>
                   {processedMdLoading && (
                     <div className="flex items-center gap-3 text-sky-600 text-sm font-bold py-8 justify-center">
                       <Loader2 className="w-6 h-6 animate-spin" />
                       Loading markdown…
                     </div>
                   )}
-                  {!processedMdLoading && processedMarkdown && (
+                  {!processedMdLoading && displayedProcessedMarkdown && (
                     <div className="prose prose-sm prose-slate max-w-none text-slate-700 border border-sky-100 rounded-2xl p-4 bg-sky-50/40 max-h-[55vh] overflow-y-auto custom-scrollbar">
                       <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={processedMarkdownComponents}>
-                        {preprocessMarkdown(processedMarkdown, processedMdSourcePath)}
+                        {preprocessMarkdown(displayedProcessedMarkdown, displayedProcessedMdSourcePath)}
                       </ReactMarkdown>
                     </div>
                   )}
-                  {!processedMdLoading && !processedMarkdown && processedMdNotice && (
+                  {!processedMdLoading && !displayedProcessedMarkdown && processedMdNotice && (
                     <div className="prose prose-sm prose-slate max-w-none text-slate-600 border border-slate-100 rounded-2xl p-4 bg-amber-50/40">
                       <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS} components={inputMarkdownComponents}>
                         {processedMdNotice}
                       </ReactMarkdown>
                     </div>
                   )}
-                  {!processedMdLoading && !processedMarkdown && !processedMdNotice && (
+                  {!processedMdLoading && !displayedProcessedMarkdown && !processedMdNotice && (
                     <p className="text-sm text-slate-500">No processed markdown for this file yet.</p>
                   )}
                 </div>
@@ -1507,22 +1687,29 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                     {filteredChunks.map((row, i) => {
                       const text = String((row as { text?: string }).text || '').trim();
                       const source = String((row as { source?: string }).source || '');
-                      const start = Number((row as { start_time?: number | string }).start_time ?? 0);
-                      const end = Number((row as { end_time?: number | string }).end_time ?? 0);
-                      const fmt = (sec: number) => {
-                        if (!Number.isFinite(sec) || sec < 0) return '00:00:00';
-                        const s = Math.floor(sec);
-                        const hh = String(Math.floor(s / 3600)).padStart(2, '0');
-                        const mm = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
-                        const ss = String(s % 60).padStart(2, '0');
-                        return `${hh}:${mm}:${ss}`;
-                      };
+                      const start = numericSeconds((row as { start_time?: number | string }).start_time);
+                      const end = numericSeconds((row as { end_time?: number | string }).end_time);
+                      const frames = getAssociatedFrames(row);
                       const hasTimecode = (Number.isFinite(start) && start > 0) || (Number.isFinite(end) && end > 0);
+                      const canSeek = selectedFile?.type === 'video' && !!videoUrl;
                       if (!text) return null;
                       return (
                         <div
                           key={`${scopeFile?.name}-${source}-${i}`}
-                          className="p-4 rounded-2xl border border-sky-100 bg-white hover:bg-sky-50/40 hover:border-sky-200 transition-all"
+                          role={canSeek ? 'button' : undefined}
+                          tabIndex={canSeek ? 0 : undefined}
+                          onClick={() => {
+                            if (canSeek) seekVideo(start);
+                          }}
+                          onKeyDown={(event) => {
+                            if (!canSeek) return;
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault();
+                              seekVideo(start);
+                            }
+                          }}
+                          className={`p-4 rounded-2xl border border-sky-100 bg-white hover:bg-sky-50/40 hover:border-sky-200 transition-all ${canSeek ? 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500' : ''
+                            }`}
                         >
                           {source && (
                             <p className="text-[10px] font-black text-sky-500 uppercase tracking-widest mb-2 truncate" title={source}>
@@ -1530,7 +1717,8 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                             </p>
                           )}
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                            {hasTimecode ? `${fmt(start)} – ${fmt(end)}` : 'Text segment'}
+                            {hasTimecode ? `${formatLectureTimestamp(start)} - ${formatLectureTimestamp(end)}` : 'Text segment'}
+                            {canSeek ? ' - Click to jump video' : ''}
                           </p>
                           <div className="prose prose-slate prose-sm max-w-none">
                             <ReactMarkdown
@@ -1540,6 +1728,21 @@ export default function LectureView({ files = [] }: LectureViewProps) {
                               {preprocessMarkdown(text, source)}
                             </ReactMarkdown>
                           </div>
+                          {frames.length > 0 && (
+                            <div className="mt-4 flex gap-3 overflow-x-auto pb-1 custom-scrollbar">
+                              {frames.map((frame, frameIndex) => {
+                                const timestamp = numericSeconds(frame.video_timestamp, start);
+                                const frameKey = `${String(frame.rel_path || frame.frame_name || frameIndex)}-${frameIndex}`;
+                                return (
+                                  <FrameThumbnail
+                                    key={frameKey}
+                                    frame={frame}
+                                    onClick={() => seekVideo(timestamp)}
+                                  />
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       );
                     })}

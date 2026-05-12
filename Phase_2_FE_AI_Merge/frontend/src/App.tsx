@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
 import {
   Activity,
   Beaker,
@@ -38,6 +38,17 @@ import {
   mapFilesWithMetadataToFileItems,
   postQuizResult,
 } from './api/ragApi';
+
+type FileListRequestParams = {
+  skip?: number;
+  limit?: number;
+  query?: string;
+  type?: string;
+  status?: string;
+  sort_by?: 'name' | 'size' | 'date' | 'status' | 'type';
+  sort_dir?: 'asc' | 'desc';
+  cache_bust?: boolean;
+};
 
 export type ViewType =
   | 'dashboard'
@@ -146,6 +157,8 @@ export interface FileItem {
   storagePath?: string;
   /** Folder name under stage3/stage4 for /api/insights/* document_id */
   documentFolder?: string;
+  /** Manual topic/tag metadata stored with the file/knowledge record. */
+  tags?: string[];
 }
 
 export interface QuizResult {
@@ -175,6 +188,9 @@ export default function App() {
   const [profileError, setProfileError] = useState<string | null>(null);
 
   const [files, setFiles] = useState<FileItem[]>([]);
+  const [filesTotal, setFilesTotal] = useState(0);
+  const [filesLoading, setFilesLoading] = useState(false);
+  const filesRequestRef = useRef<{ key: string; promise: Promise<{ count: number }> } | null>(null);
   const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
 
   const navigateToView = useCallback((view: ViewType) => {
@@ -229,15 +245,38 @@ export default function App() {
     });
   };
 
-  const refreshFilesFromApi = useCallback(async () => {
-    try {
-      const data = await getFilesWithMetadata();
-      const mappedFiles = mapFilesWithMetadataToFileItems(data);
-      setFiles(mappedFiles);
-    } catch (e) {
-      console.error('Failed to load files from API', e);
-      setFiles([]);
+  const refreshFilesFromApi = useCallback(async (params?: FileListRequestParams) => {
+    const requestParams = {
+      limit: 20,
+      ...(params || {}),
+    };
+    const requestKey = JSON.stringify(requestParams);
+    if (filesRequestRef.current?.key === requestKey) {
+      return filesRequestRef.current.promise;
     }
+
+    setFilesLoading(true);
+    const promise = getFilesWithMetadata(requestParams)
+      .then((data) => {
+        const mappedFiles = mapFilesWithMetadataToFileItems(data);
+        setFiles(mappedFiles);
+        setFilesTotal(Number(data.count || mappedFiles.length));
+        return { count: Number(data.count || mappedFiles.length) };
+      })
+      .catch((e) => {
+        console.error('Failed to load files from API', e);
+        setFiles([]);
+        setFilesTotal(0);
+        return { count: 0 };
+      })
+      .finally(() => {
+        if (filesRequestRef.current?.key === requestKey) {
+          filesRequestRef.current = null;
+        }
+        setFilesLoading(false);
+      });
+    filesRequestRef.current = { key: requestKey, promise };
+    return promise;
   }, []);
 
   const loadProfile = useCallback(async () => {
@@ -300,6 +339,7 @@ export default function App() {
   useEffect(() => {
     if (!user) {
       setFiles([]);
+      setFilesTotal(0);
       setQuizResults([]);
       setProfile(null);
       setCurrentRole('student');
@@ -504,11 +544,6 @@ export default function App() {
                             <button
                               key={sub.id}
                               title={sidebarCollapsed ? sub.label : undefined}
-                              onMouseEnter={() => {
-                                if (sub.id === 'upload') {
-                                  refreshFilesFromApi();
-                                }
-                              }}
                               onClick={() => {
                                 navigateToKnowledgeTab(sub.id as KnowledgeSubTab);
                               }}
@@ -640,6 +675,8 @@ export default function App() {
               {currentView === 'knowledge' && (
                 <KnowledgeManagementView
                   files={files}
+                  filesTotal={filesTotal}
+                  filesLoading={filesLoading}
                   setFiles={setFiles}
                   activeTab={knowledgeSubTab}
                   onRefreshFiles={refreshFilesFromApi}

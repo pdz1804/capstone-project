@@ -53,11 +53,11 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         use_gpu=use_gpu,
         extract_audio=_as_bool(proc.get("enable_media_processing", True), default=True),
         enable_transcription=_as_bool(media.get("enable_transcription", True), default=True),
-        asr_model=str(media.get("asr_model", "base")),
+        asr_model=str(media.get("asr_model", "tiny")),
         asr_language=media.get("asr_language"),
-        extract_frames=_as_bool(media.get("extract_frames", False), default=False),
+        extract_frames=_as_bool(media.get("extract_frames", True), default=True),
         frame_interval=int(media.get("frame_interval", 100)),
-        use_word_timestamps=_as_bool(media.get("use_word_timestamps", True), default=True),
+        use_word_timestamps=_as_bool(media.get("use_word_timestamps", False), default=False),
         use_aws_sagemaker_whisper=_as_bool(inf.get("use_aws_sagemaker_whisper", False), default=False),
         sagemaker_whisper_endpoint_name=str(inf.get("sagemaker_whisper_endpoint_name", "")),
         aws_region=str(inf.get("aws_region", "us-west-2")),
@@ -70,6 +70,7 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
         document_config.export_tables = False
         media_config.asr_model = "tiny"
         media_config.use_word_timestamps = False
+        media_config.extract_frames = False
         media_config.frame_interval = max(media_config.frame_interval, 180)
         media_config.remove_duplicate_frames = False
         media_config.temperature_schedule = (0.0,)
@@ -78,6 +79,20 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
     excel_reader_mode = str(document_v2.get("excel_reader_mode", "xml")).strip().lower() or "xml"
     if excel_reader_mode not in {"xml", "docling"}:
         excel_reader_mode = "xml"
+    pdf_content_source = str(document_v2.get("pdf_content_source", "hybrid")).strip().lower() or "hybrid"
+    if pdf_content_source not in {"pymupdf", "docling", "hybrid", "hybrid_batched"}:
+        pdf_content_source = "hybrid"
+
+    def _as_positive_int(value: Any, default: int) -> int:
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            return default
+        return parsed if parsed > 0 else default
+
+    pdf_max_docling_concurrency = document_v2.get("pdf_max_docling_concurrency")
+    if pdf_max_docling_concurrency is not None:
+        pdf_max_docling_concurrency = _as_positive_int(pdf_max_docling_concurrency, 1)
 
     document_config_v2 = ProcessingConfigV2(
         prefer_custom_readers=_as_bool(document_v2.get("prefer_custom_readers", True), default=True),
@@ -86,7 +101,21 @@ def _build_pipeline_config(runtime: Dict[str, Any], force: bool, mode: str = "st
             document_v2.get("pptx_llm_validate_headers", False),
             default=False,
         ),
-        pdf_content_source=str(document_v2.get("pdf_content_source", "hybrid")).strip().lower() or "hybrid",
+        pdf_content_source=pdf_content_source,
+        pdf_docling_batch_size=_as_positive_int(document_v2.get("pdf_docling_batch_size", 8), 8),
+        pdf_max_docling_concurrency=pdf_max_docling_concurrency,
+        pdf_docling_batched_min_pages=_as_positive_int(
+            document_v2.get("pdf_docling_batched_min_pages", 12),
+            12,
+        ),
+        pdf_do_formula_enrichment=_as_bool(
+            document_v2.get("pdf_do_formula_enrichment", False),
+            default=False,
+        ),
+        pdf_vlm_page_filter=str(
+            document_v2.get("pdf_vlm_page_filter", "visual_or_formula_pages"),
+        ).strip().lower() or "visual_or_formula_pages",
+        pdf_vlm_batch_size=_as_positive_int(document_v2.get("pdf_vlm_batch_size", 4), 4),
         docling_config=document_config,
         runtime_yaml=runtime,
     )
