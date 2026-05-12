@@ -56,12 +56,39 @@ class ProcessingConfigV2:
     prefer_custom_readers: bool = True
     excel_reader_mode: str = "xml"  # "xml" | "docling"
     pptx_llm_validate_headers: bool = False
-    # PDF content source for CustomPdfReader: "pymupdf" | "docling" | "hybrid"
+    # PDF content source for CustomPdfReader: "pymupdf" | "docling" | "hybrid" | "hybrid_batched"
     pdf_content_source: str = "hybrid"
+    pdf_docling_batch_size: int = 8
+    pdf_max_docling_concurrency: Optional[int] = None
+    pdf_docling_batched_min_pages: int = 12
+    pdf_do_formula_enrichment: bool = False
+    pdf_vlm_page_filter: str = "visual_or_formula_pages"
+    pdf_vlm_batch_size: int = 4
     docling_config: Optional[Any] = None  # Optional[ProcessingConfig]
     runtime_yaml: Optional[Dict[str, Any]] = None
 
     def __post_init__(self) -> None:
+        self.pdf_content_source = str(self.pdf_content_source or "hybrid").strip().lower()
+        if self.pdf_content_source not in {"pymupdf", "docling", "hybrid", "hybrid_batched"}:
+            logger.warning(
+                "Invalid pdf_content_source=%r; falling back to hybrid",
+                self.pdf_content_source,
+            )
+            self.pdf_content_source = "hybrid"
+        self.pdf_docling_batch_size = self._positive_int(self.pdf_docling_batch_size, 8)
+        self.pdf_docling_batched_min_pages = self._positive_int(
+            self.pdf_docling_batched_min_pages,
+            12,
+        )
+        if self.pdf_max_docling_concurrency is not None:
+            self.pdf_max_docling_concurrency = self._positive_int(
+                self.pdf_max_docling_concurrency,
+                1,
+            )
+        self.pdf_vlm_batch_size = self._positive_int(self.pdf_vlm_batch_size, 4)
+        self.pdf_vlm_page_filter = str(
+            self.pdf_vlm_page_filter or "visual_or_formula_pages"
+        ).strip().lower()
         if self.docling_config is None:
             from .document_processor import ProcessingConfig
             self.docling_config = ProcessingConfig()
@@ -80,6 +107,14 @@ class ProcessingConfigV2:
                         "sagemaker_docling_endpoint_name": os.getenv("SAGEMAKER_DOCLING_ENDPOINT_NAME", ""),
                     },
                 }
+
+    @staticmethod
+    def _positive_int(value: Any, default: int) -> int:
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            return default
+        return parsed if parsed > 0 else default
 
 
 # ---------------------------------------------------------------------------
@@ -300,10 +335,32 @@ class DocumentProcessorV2:
     ) -> List[Dict[str, Any]]:
         from .pdf_reader import CustomPdfConfig, CustomPdfReader
 
+        raw_vlm_model = str(
+            getattr(
+                self.config.docling_config,
+                "vlm_model",
+                "HuggingFaceTB/SmolVLM-256M-Instruct",
+            )
+            or ""
+        ).strip()
+        pdf_vlm_model = (
+            "HuggingFaceTB/SmolVLM-256M-Instruct"
+            if raw_vlm_model in {"", "smolvlm", "granite_docling"}
+            else raw_vlm_model
+        )
         cfg = CustomPdfConfig(
             content_source=self.config.pdf_content_source,
             enable_ocr=getattr(self.config.docling_config, "enable_ocr", True),
             extract_images=getattr(self.config.docling_config, "export_images", False),
+            runtime_yaml=self.config.runtime_yaml,
+            docling_batch_size=self.config.pdf_docling_batch_size,
+            max_docling_concurrency=self.config.pdf_max_docling_concurrency,
+            docling_batched_min_pages=self.config.pdf_docling_batched_min_pages,
+            enable_vlm=bool(getattr(self.config.docling_config, "enable_vlm", False)),
+            do_formula_enrichment=self.config.pdf_do_formula_enrichment,
+            vlm_model=pdf_vlm_model,
+            vlm_batch_size=self.config.pdf_vlm_batch_size,
+            vlm_page_filter=self.config.pdf_vlm_page_filter,
         )
         reader = CustomPdfReader(cfg)
         return reader.read(str(file_path), output_dir=str(out_dir))

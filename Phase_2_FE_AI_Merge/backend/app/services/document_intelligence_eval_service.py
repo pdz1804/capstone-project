@@ -6,10 +6,13 @@ import json
 import logging
 import math
 import re
+import threading
+import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, TypeVar
 
 from app.core.paths import BACKEND_ROOT, merged_runtime_settings, sanitize_storage_user_id, workspace_paths_for_user
 from app.services.processed_documents_service import build_processed_documents_snapshot
@@ -27,6 +30,9 @@ _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*(\{.*?\}|\[.*?\])\s*```", re.DOTALL
 _CORRECTNESS_LABELS = {"correct", "partially_correct", "incorrect"}
 _FAITHFULNESS_LABELS = {"faithful", "partially_faithful", "hallucinated"}
 _ANSWER_SUPPORT_LABELS = {"fully_supported", "partially_supported", "not_supported"}
+LLM_EVAL_CONCURRENCY = 10
+
+_T = TypeVar("_T")
 
 
 def _utc_now() -> str:
@@ -127,6 +133,20 @@ class DocumentIntelligenceEvalService:
         self.user_id = sanitize_storage_user_id(user_id)
         self.paths = workspace_paths_for_user(self.user_id)
         self.root = self.paths.output_dir / "evaluation" / "document_intelligence_eval"
+        self._llm_semaphore = threading.BoundedSemaphore(LLM_EVAL_CONCURRENCY)
+
+    def _parallel_map(self, funcs: Sequence[Callable[[], _T]]) -> List[_T]:
+        if not funcs:
+            return []
+        if len(funcs) == 1:
+            return [funcs[0]()]
+        with ThreadPoolExecutor(max_workers=min(LLM_EVAL_CONCURRENCY, len(funcs))) as executor:
+            futures = [executor.submit(func) for func in funcs]
+            return [future.result() for future in futures]
+
+    def _call_llm_bounded(self, generator: Any, prompt: str, image_paths: List[str] | None = None) -> str:
+        with self._llm_semaphore:
+            return generator._call_llm(prompt, image_paths=image_paths)
 
     def _run_path(self, run_id: str) -> Path:
         safe = re.sub(r"[^a-zA-Z0-9_.-]", "_", str(run_id or "").strip())
@@ -267,7 +287,7 @@ Section content:
 
         raw = ""
         try:
-            raw = generator._call_llm(prompt)
+            raw = self._call_llm_bounded(generator, prompt)
             payload = _json_or_empty(raw)
             items = payload.get("items") if isinstance(payload, dict) else []
             if not isinstance(items, list):
@@ -318,7 +338,7 @@ Retrieved context:
 
         raw = ""
         try:
-            raw = generator._call_llm(prompt)
+            raw = self._call_llm_bounded(generator, prompt)
             payload = _json_or_empty(raw)
             return {
                 "correctness": str(payload.get("correctness") or "incorrect").strip(),
@@ -368,7 +388,7 @@ Rules:
 - If the answer is not in the retrieved context, say exactly: Insufficient information in retrieved context.
 """.strip()
         combined_prompt = f"{system_prompt}\n\n{user_prompt}"
-        return generator._call_llm(combined_prompt, image_paths=None)
+        return self._call_llm_bounded(generator, combined_prompt, image_paths=None)
 
     def _run_retrieval(
         self,
@@ -405,6 +425,56 @@ Rules:
         telemetry = out.get("telemetry") or {}
         return retrieved, telemetry
 
+    def _evaluate_qa_pair(
+        self,
+        generator: Any,
+        *,
+        doc_id: str,
+        section: Dict[str, Any],
+        question_index: int,
+        pair: Dict[str, str],
+        top_k: int,
+        retriever_type: str,
+    ) -> Dict[str, Any] | None:
+        question = str(pair.get("question") or "").strip()
+        reference_answer = str(pair.get("reference_answer") or "").strip()
+        if not question:
+            return None
+
+        logger.info(
+            f"    Question {question_index}: "
+            f"{question[:60]}{'...' if len(question) > 60 else ''}"
+        )
+
+        retrieved, telemetry = self._run_retrieval(question, top_k, retriever_type)
+        logger.info(f"      Retrieved {len(retrieved)} chunks")
+
+        generated_answer = self._generate_answer(generator, question, retrieved)
+        logger.info(f"      Generated answer: {len(generated_answer)} chars")
+
+        judge_result = self._judge_qa(
+            generator,
+            question=question,
+            reference_answer=reference_answer,
+            retrieved_context=retrieved,
+            generated_answer=generated_answer,
+        )
+
+        logger.info(f"      Judge: {judge_result.get('correctness', 'unknown')}")
+
+        return {
+            "doc_id": doc_id,
+            "section_id": section["section_id"],
+            "question_index": question_index,
+            "question": question,
+            "reference_answer": reference_answer,
+            "source_section_text": section.get("source_text", ""),
+            "generated_answer": generated_answer,
+            "judge_result": judge_result,
+            "retrieved_context": retrieved,
+            "telemetry": telemetry,
+        }
+
     def create_run(
         self,
         *,
@@ -419,6 +489,7 @@ Rules:
     ) -> Dict[str, Any]:
         """Create and run a document intelligence evaluation."""
 
+        started = time.perf_counter()
         run_id = run_id or self.new_run_id()
         generator = _generation_config(self.cfg, provider, model)
 
@@ -445,9 +516,7 @@ Rules:
             f"up to {total_questions} questions"
         )
 
-        # Run evaluation
-        all_results: List[Dict[str, Any]] = []
-
+        section_rows: List[Tuple[Dict[str, Any], int, Dict[str, Any], int]] = []
         for doc_idx, doc in enumerate(docs, 1):
             doc_id = doc["doc_id"]
             sections = doc_sections.get(doc_id, [])
@@ -470,59 +539,41 @@ Rules:
                 logger.info(
                     f"  Section {section_idx}/{len(sections)}: {section.get('heading_text', 'Untitled')}"
                 )
+                section_rows.append((doc, doc_idx, section, section_idx))
 
-                # Generate QA pairs
-                pairs = self._generate_qa_pairs(generator, section, questions_per_section)
+        qa_pair_rows = self._parallel_map(
+            [
+                lambda row=row: (
+                    row,
+                    self._generate_qa_pairs(generator, row[2], questions_per_section),
+                )
+                for row in section_rows
+            ]
+        )
 
-                for q_idx, pair in enumerate(pairs[:questions_per_section], 1):
-                    question = pair.get("question", "").strip()
-                    reference_answer = pair.get("reference_answer", "").strip()
-
-                    if not question:
-                        continue
-
-                    logger.info(
-                        f"    Question {q_idx}/{questions_per_section}: "
-                        f"{question[:60]}{'...' if len(question) > 60 else ''}"
-                    )
-
-                    # Run retrieval (searches across ALL active documents in DB, not just this doc)
-                    retrieved, telemetry = self._run_retrieval(question, top_k, retriever_type)
-                    logger.info(f"      Retrieved {len(retrieved)} chunks")
-
-                    # Generate answer
-                    generated_answer = self._generate_answer(generator, question, retrieved)
-                    logger.info(f"      Generated answer: {len(generated_answer)} chars")
-
-                    # Judge QA
-                    judge_result = self._judge_qa(
+        eval_tasks: List[Callable[[], Dict[str, Any] | None]] = []
+        for (doc, _doc_idx, section, _section_idx), pairs in qa_pair_rows:
+            for q_idx, pair in enumerate(pairs[:questions_per_section], 1):
+                eval_tasks.append(
+                    lambda doc=doc, section=section, q_idx=q_idx, pair=pair: self._evaluate_qa_pair(
                         generator,
-                        question=question,
-                        reference_answer=reference_answer,
-                        retrieved_context=retrieved,
-                        generated_answer=generated_answer,
+                        doc_id=doc["doc_id"],
+                        section=section,
+                        question_index=q_idx,
+                        pair=pair,
+                        top_k=top_k,
+                        retriever_type=retriever_type,
                     )
+                )
 
-                    logger.info(f"      Judge: {judge_result.get('correctness', 'unknown')}")
-
-                    all_results.append({
-                        "doc_id": doc_id,
-                        "section_id": section["section_id"],
-                        "question_index": q_idx,
-                        "question": question,
-                        "reference_answer": reference_answer,
-                        "source_section_text": section.get("source_text", ""),
-                        "generated_answer": generated_answer,
-                        "judge_result": judge_result,
-                        "retrieved_context": retrieved,
-                        "telemetry": telemetry,
-                    })
+        all_results = [result for result in self._parallel_map(eval_tasks) if result is not None]
 
         logger.info(f"Completed evaluation: {len(all_results)} questions processed")
 
         # Compute summary metrics
         distributions = self._compute_distributions(all_results)
 
+        wall_total_ms = round((time.perf_counter() - started) * 1000, 2)
         run = {
             "run_id": run_id,
             "user_id": self.user_id,
@@ -546,7 +597,17 @@ Rules:
                 "total_documents": len(docs),
                 "total_sections": sum(len(s) for s in doc_sections.values()),
             },
+            "timings_ms": {
+                "wall_total_ms": wall_total_ms,
+            },
         }
+        logger.info(
+            "document intelligence eval completed run_id=%s user_id=%s questions=%d wall_total_ms=%.2f",
+            run_id,
+            self.user_id,
+            len(all_results),
+            wall_total_ms,
+        )
 
         return self.save_run(run)
 

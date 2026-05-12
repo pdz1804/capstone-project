@@ -47,7 +47,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--force", action="store_true", help="Re-parse files already marked successful in manifest.")
     parser.add_argument(
         "--pdf-content-source",
-        choices=["pymupdf", "docling", "hybrid"],
+        choices=["pymupdf", "docling", "hybrid", "hybrid_batched"],
         default="hybrid",
         help="CustomPdfReader content source for PDFs.",
     )

@@ -19,6 +19,7 @@ import os
 import re
 import shutil
 import subprocess
+import time
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -34,6 +35,7 @@ _IMAGE_RE = re.compile(r"\[START_IMAGE_PATH\]\s*(.*?)\s*\[END_IMAGE_PATH\]", re.
 _CORRECTNESS_LABELS = {"correct", "partially_correct", "incorrect"}
 _FAITHFULNESS_LABELS = {"faithful", "partially_faithful", "hallucinated"}
 _ANSWER_SUPPORT_LABELS = {"fully_supported", "partially_supported", "not_supported"}
+LLM_EVAL_CONCURRENCY = 10
 
 
 def _build_llm_provider(provider: str, model: Optional[str]):
@@ -337,7 +339,8 @@ class SearchOrchestratorQAExecutor(BaseQAExecutor):
     async def run(self, question: str) -> Tuple[List[Dict[str, Any]], str]:
         from app.services.search_orchestrator import SearchOrchestrator
 
-        out = SearchOrchestrator(self.yaml_config, user_id=self.user_id).run(
+        out = await asyncio.to_thread(
+            SearchOrchestrator(self.yaml_config, user_id=self.user_id).run,
             question,
             top_k=self.top_k,
             retriever_type=self.retriever_type,
@@ -474,6 +477,7 @@ class DocumentIntelligenceRunner:
         return written
 
     async def run_e2e_qa(self, samples: Sequence[DocumentEvalSample], out_dir: Path) -> Dict[str, Any]:
+        started = time.perf_counter()
         corpus = build_local_corpus_index(self.config, samples)
         executor = self.qa_executor
         if executor is None:
@@ -484,22 +488,33 @@ class DocumentIntelligenceRunner:
                 model=self.config.model,
             )
 
-        documents: List[DocumentQAEvalResult] = []
+        llm_semaphore = asyncio.Semaphore(LLM_EVAL_CONCURRENCY)
+        section_rows: List[Tuple[DocumentEvalSample, SectionSample]] = []
         for sample in samples:
             sections = sample.sections
             if self.config.max_sections_per_document is not None:
                 sections = sections[: self.config.max_sections_per_document]
-            qa_results: List[QAEvalResult] = []
             for section in sections:
+                section_rows.append((sample, section))
+
+        async def generate_pairs(sample: DocumentEvalSample, section: SectionSample):
+            async with llm_semaphore:
                 pairs = await self.judge.generate_qa_pairs(section, self.config.questions_per_section)
-                for idx, pair in enumerate(pairs[: self.config.questions_per_section]):
-                    target_section_key = _section_key_from_section(section)
-                    target_chunk_ids = tuple(
-                        chunk.chunk_id
-                        for chunk in corpus.chunks
-                        if chunk.doc_id == sample.doc_id and chunk.mapped_section_id == section.section_id
-                    )
-                    item = QAEvalItem(
+            return sample, section, pairs
+
+        qa_pair_rows = await asyncio.gather(*(generate_pairs(sample, section) for sample, section in section_rows))
+
+        items: List[QAEvalItem] = []
+        for sample, section, pairs in qa_pair_rows:
+            for idx, pair in enumerate(pairs[: self.config.questions_per_section]):
+                target_section_key = _section_key_from_section(section)
+                target_chunk_ids = tuple(
+                    chunk.chunk_id
+                    for chunk in corpus.chunks
+                    if chunk.doc_id == sample.doc_id and chunk.mapped_section_id == section.section_id
+                )
+                items.append(
+                    QAEvalItem(
                         doc_id=sample.doc_id,
                         section_id=section.section_id,
                         question_index=idx,
@@ -509,24 +524,37 @@ class DocumentIntelligenceRunner:
                         target_section_key=target_section_key,
                         target_chunk_ids=target_chunk_ids,
                     )
-                    retrieved_context, generated_answer = await executor.run(item.question)
-                    retrieval_trace = _build_retrieval_trace(item, retrieved_context)
-                    judge_result = await self.judge.judge_qa(
-                        question=item.question,
-                        reference_answer=item.reference_answer,
-                        retrieved_context=retrieved_context,
-                        generated_answer=generated_answer,
-                    )
-                    qa_results.append(
-                        QAEvalResult(
-                            item=item,
-                            retrieved_context=_trim_context_for_report(retrieved_context),
-                            generated_answer=generated_answer,
-                            judge_result=judge_result,
-                            retrieval_trace=retrieval_trace,
-                            failure_category=_failure_category(retrieval_trace, judge_result),
-                        )
-                    )
+                )
+
+        async def evaluate_item(item: QAEvalItem) -> QAEvalResult:
+            async with llm_semaphore:
+                retrieved_context, generated_answer = await executor.run(item.question)
+            retrieval_trace = _build_retrieval_trace(item, retrieved_context)
+            async with llm_semaphore:
+                judge_result = await self.judge.judge_qa(
+                    question=item.question,
+                    reference_answer=item.reference_answer,
+                    retrieved_context=retrieved_context,
+                    generated_answer=generated_answer,
+                )
+            return QAEvalResult(
+                item=item,
+                retrieved_context=_trim_context_for_report(retrieved_context),
+                generated_answer=generated_answer,
+                judge_result=judge_result,
+                retrieval_trace=retrieval_trace,
+                failure_category=_failure_category(retrieval_trace, judge_result),
+            )
+
+        all_results = list(await asyncio.gather(*(evaluate_item(item) for item in items)))
+
+        results_by_doc: Dict[str, List[QAEvalResult]] = {sample.doc_id: [] for sample in samples}
+        for result in all_results:
+            results_by_doc.setdefault(result.item.doc_id, []).append(result)
+
+        documents: List[DocumentQAEvalResult] = []
+        for sample in samples:
+            qa_results = results_by_doc.get(sample.doc_id, [])
             documents.append(
                 DocumentQAEvalResult(
                     doc_id=sample.doc_id,
@@ -549,6 +577,9 @@ class DocumentIntelligenceRunner:
                 "retrieval_trace_summary": _merge_retrieval_trace_summaries(
                     [d.retrieval_trace_summary for d in documents]
                 ),
+            },
+            "timings_ms": {
+                "wall_total_ms": round((time.perf_counter() - started) * 1000, 2),
             },
         }
         _write_json(out_dir / "e2e_qa_eval_report.json", report)

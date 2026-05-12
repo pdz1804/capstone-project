@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import LibraryView from './LibraryView';
 import SearchView from './SearchView';
 import KnowledgeDashboardView from './KnowledgeDashboardView';
@@ -6,21 +5,30 @@ import { FileItem, KnowledgeSubTab } from '../App';
 
 interface KnowledgeManagementViewProps {
   files: FileItem[];
+  filesTotal: number;
+  filesLoading: boolean;
   setFiles: React.Dispatch<React.SetStateAction<FileItem[]>>;
   activeTab: KnowledgeSubTab;
-  onRefreshFiles: () => Promise<void>;
+  onRefreshFiles: (params?: {
+    skip?: number;
+    limit?: number;
+    query?: string;
+    type?: string;
+    status?: string;
+    sort_by?: 'name' | 'size' | 'date' | 'status' | 'type';
+    sort_dir?: 'asc' | 'desc';
+    cache_bust?: boolean;
+  }) => Promise<{ count: number } | void>;
 }
 
 export default function KnowledgeManagementView({
   files,
+  filesTotal,
+  filesLoading,
   setFiles,
   activeTab,
   onRefreshFiles,
 }: KnowledgeManagementViewProps) {
-  useEffect(() => {
-    void onRefreshFiles();
-  }, [activeTab, onRefreshFiles]);
-
   const tabDescription: Record<KnowledgeSubTab, { title: string; description: string }> = {
     dashboard: {
       title: 'Knowledge Dashboard',
@@ -59,13 +67,13 @@ export default function KnowledgeManagementView({
       <div className="flex-1 overflow-y-auto">
         {activeTab === 'dashboard' && <KnowledgeDashboardView files={files} />}
         {activeTab === 'upload' && (
-          <LibraryView files={files} setFiles={setFiles} onRefreshFiles={onRefreshFiles} controlMode="upload" />
+          <LibraryView files={files} filesTotal={filesTotal} filesLoading={filesLoading} setFiles={setFiles} onRefreshFiles={onRefreshFiles} controlMode="upload" />
         )}
         {activeTab === 'run-pipeline' && (
-          <LibraryView files={files} setFiles={setFiles} onRefreshFiles={onRefreshFiles} controlMode="process" />
+          <LibraryView files={files} filesTotal={filesTotal} filesLoading={filesLoading} setFiles={setFiles} onRefreshFiles={onRefreshFiles} controlMode="process" />
         )}
         {activeTab === 'build-index' && (
-          <LibraryView files={files} setFiles={setFiles} onRefreshFiles={onRefreshFiles} controlMode="index" />
+          <LibraryView files={files} filesTotal={filesTotal} filesLoading={filesLoading} setFiles={setFiles} onRefreshFiles={onRefreshFiles} controlMode="index" />
         )}
         {activeTab === 'explorer' && <SearchView files={files} />}
       </div>

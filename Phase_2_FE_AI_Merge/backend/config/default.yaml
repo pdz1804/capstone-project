@@ -54,11 +54,12 @@ processing:
     audio_sample_rate: 16000        # Sample rate in Hz
     audio_channels: 1               # 1=mono, 2=stereo
     enable_transcription: true
-    asr_model: "base"               # Options: tiny, base, small, medium, large, large-v3
+    asr_model: "tiny"               # Options: tiny, base, small, medium, large, large-v3
     asr_language: null              # null=auto-detect, or language code like "en"
+    use_word_timestamps: false      # Word-level alignment is much slower on CPU
     chunk_duration: 30              # Seconds per chunk for long audio
     chunk_overlap: 1.0              # Overlap in seconds between chunks
-    extract_frames: false           # Extract video frames for image retrieval
+    extract_frames: true            # Standard mode extracts video frames for image retrieval/alignment
 
   # Document processor settings
   document:
@@ -73,6 +74,17 @@ processing:
     export_markdown: true
     export_images: false            # Disable image extraction to reduce processing time
     export_tables: false            # Disable table extraction to reduce processing time
+    v2:
+      prefer_custom_readers: true
+      excel_reader_mode: "xml"
+      pptx_llm_validate_headers: false
+      pdf_content_source: "hybrid"
+      pdf_docling_batch_size: 8
+      pdf_max_docling_concurrency: null
+      pdf_docling_batched_min_pages: 12
+      pdf_do_formula_enrichment: false
+      pdf_vlm_page_filter: "visual_or_formula_pages"
+      pdf_vlm_batch_size: 4
 
 # ============================================================================
 # ASYNC INDEXING JOB CONFIGURATION

@@ -76,6 +76,13 @@ class ItemSequencer:
                         current,
                         f"{IMG_START} {item.image_rel_path}|{item.image_md5} {IMG_END}",
                     )
+                description = (getattr(item, "description", None) or "").strip()
+                if description:
+                    self._append(current, f"Image description: {description}")
+                    continue
+                caption = (getattr(item, "caption", None) or "").strip()
+                if caption:
+                    self._append(current, f"Image caption: {caption}")
 
         roots = [preamble, *section_tree] if preamble.content.strip() else section_tree
         out = [self._to_dict(n) for n in roots]

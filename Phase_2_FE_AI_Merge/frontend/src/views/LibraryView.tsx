@@ -36,13 +36,25 @@ import {
   uploadFiles,
 } from '../api/ragApi';
 import { Document, Page, pdfjs } from 'react-pdf';
+import { AdminTablePagination } from '../components/admin/AdminTableControls';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface LibraryViewProps {
   files: FileItem[];
+  filesTotal: number;
+  filesLoading: boolean;
   setFiles: React.Dispatch<React.SetStateAction<FileItem[]>>;
-  onRefreshFiles: () => Promise<void>;
+  onRefreshFiles: (params?: {
+    skip?: number;
+    limit?: number;
+    query?: string;
+    type?: string;
+    status?: string;
+    sort_by?: 'name' | 'size' | 'date' | 'status' | 'type';
+    sort_dir?: 'asc' | 'desc';
+    cache_bust?: boolean;
+  }) => Promise<{ count: number } | void>;
   controlMode?: 'upload' | 'process' | 'index';
 }
 
@@ -61,6 +73,8 @@ const INDEX_PROGRESS_POLL_MS = 10000;
 
 export default function LibraryView({
   files,
+  filesTotal,
+  filesLoading,
   setFiles,
   onRefreshFiles,
   controlMode = 'upload'
@@ -88,6 +102,8 @@ export default function LibraryView({
   const [filterType, setFilterType] = useState('all');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'size'>('date');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [selectedFiles, setSelectedFiles] = useState<number[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -124,6 +140,17 @@ export default function LibraryView({
   const pdfContainerRef = useRef<HTMLDivElement | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [bulkDeleteProgress, setBulkDeleteProgress] = useState<{ current: number; total: number } | null>(null);
+
+  const refreshCurrentPage = (cacheBust = false) =>
+    onRefreshFiles({
+      skip: (page - 1) * pageSize,
+      limit: pageSize,
+      query: searchTerm.trim() || undefined,
+      type: filterType === 'all' ? undefined : filterType,
+      sort_by: sortBy,
+      sort_dir: sortOrder,
+      cache_bust: cacheBust,
+    });
 
   const setPipelineBusySafe = (next: 'idle' | 'process' | 'index') => {
     pipelineBusyRef.current = next;
@@ -183,7 +210,7 @@ export default function LibraryView({
       if (pipelinePollInFlightRef.current) return;
 
       pipelinePollInFlightRef.current = true;
-      void onRefreshFiles()
+      void refreshCurrentPage(true)
         .catch(() => undefined)
         .finally(() => {
           pipelinePollInFlightRef.current = false;
@@ -433,6 +460,20 @@ export default function LibraryView({
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      void onRefreshFiles({
+        skip: (page - 1) * pageSize,
+        limit: pageSize,
+        query: searchTerm.trim() || undefined,
+        type: filterType === 'all' ? undefined : filterType,
+        sort_by: sortBy,
+        sort_dir: sortOrder,
+      });
+    }, 250);
+    return () => window.clearTimeout(handle);
+  }, [filterType, onRefreshFiles, page, pageSize, searchTerm, sortBy, sortOrder]);
+
   const processNewFiles = async (fileList: FileList | File[]) => {
     const arr = Array.from(fileList);
     if (arr.length === 0) return;
@@ -453,7 +494,7 @@ export default function LibraryView({
           setUploadProgress({ current: Math.min(count, arr.length), total: arr.length });
         }
       }
-      await onRefreshFiles();
+      await refreshCurrentPage(true);
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'Upload failed');
@@ -489,7 +530,7 @@ export default function LibraryView({
 
     try {
       await runProcess(false, selectedPaths, pipelineMode);
-      await onRefreshFiles();
+      await refreshCurrentPage(true);
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'Process failed');
@@ -527,7 +568,7 @@ export default function LibraryView({
     try {
       const result = await runIndex(false, selectedPaths, selectedNames, pipelineMode);
       setLastIndexResult(result as Record<string, any>);
-      await onRefreshFiles();
+      await refreshCurrentPage(true);
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'Index failed');
@@ -585,7 +626,7 @@ export default function LibraryView({
     }
     try {
       await deleteFile(path);
-      await onRefreshFiles();
+      await refreshCurrentPage(true);
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'Delete failed');
@@ -614,7 +655,7 @@ export default function LibraryView({
         if (f.storagePath) await deleteFile(f.storagePath);
         setBulkDeleteProgress({ current: i + 1, total: toRemove.length });
       }
-      await onRefreshFiles();
+      await refreshCurrentPage(true);
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'Bulk delete failed');
@@ -630,6 +671,7 @@ export default function LibraryView({
   };
 
   const handleSort = (column: 'date' | 'name' | 'size') => {
+    setPage(1);
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -638,21 +680,14 @@ export default function LibraryView({
     }
   };
 
-  // Derived State
-  const filteredAndSortedFiles = files
-    .filter(f => filterType === 'all' || f.type === filterType)
-    .filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .sort((a, b) => {
-      let comparison = 0;
-      if (sortBy === 'name') comparison = a.name.localeCompare(b.name);
-      if (sortBy === 'date') comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
-      if (sortBy === 'size') {
-        const sizeA = parseFloat(a.size);
-        const sizeB = parseFloat(b.size);
-        comparison = sizeA - sizeB;
-      }
-      return sortOrder === 'asc' ? comparison : -comparison;
-    });
+  // Derived State: rows are filtered/sorted/paginated by GET /api/files-with-metadata.
+  const filteredAndSortedFiles = files;
+  const totalFileRows = Math.max(filesTotal || 0, files.length);
+  const totalPages = Math.max(1, Math.ceil(totalFileRows / Math.max(1, pageSize)));
+
+  useEffect(() => {
+    setPage((current) => Math.min(Math.max(1, current), totalPages));
+  }, [totalPages]);
 
   const toggleAll = () => {
     if (selectedFiles.length === filteredAndSortedFiles.length && filteredAndSortedFiles.length > 0) {
@@ -709,7 +744,7 @@ export default function LibraryView({
           onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
-          onClick={() => void onRefreshFiles()}
+          onClick={() => void refreshCurrentPage(true)}
         >
           <div className="w-16 h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <UploadCloud className="w-8 h-8" />
@@ -731,7 +766,7 @@ export default function LibraryView({
               type="button"
               disabled={uploadBusy}
               onClick={() => {
-                void onRefreshFiles();
+                void refreshCurrentPage(true);
                 fileInputRef.current?.click();
               }}
               className="px-6 py-2.5 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors disabled:opacity-50"
@@ -917,7 +952,10 @@ export default function LibraryView({
                 type="text"
                 placeholder="Search files..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
                 className="pl-9 pr-4 py-2 border border-sky-100 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 w-64"
               />
             </div>
@@ -951,7 +989,7 @@ export default function LibraryView({
                   {['all', 'document', 'pdf', 'video', 'image', 'spreadsheet', 'audio'].map(type => (
                     <button
                       key={type}
-                      onClick={() => { setFilterType(type); setIsFilterOpen(false); }}
+                      onClick={() => { setFilterType(type); setPage(1); setIsFilterOpen(false); }}
                       className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${filterType === type ? 'text-sky-600 font-medium bg-sky-50/50' : 'text-slate-700'}`}
                     >
                       {type === 'all' ? 'All Types' : type.charAt(0).toUpperCase() + type.slice(1)}
@@ -991,7 +1029,14 @@ export default function LibraryView({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredAndSortedFiles.length === 0 ? (
+                {filesLoading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
+                      <Loader2 className="w-5 h-5 animate-spin inline-block mr-2 text-sky-600" />
+                      Loading files...
+                    </td>
+                  </tr>
+                ) : filteredAndSortedFiles.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
                       No files found matching your criteria.
@@ -1179,7 +1224,12 @@ export default function LibraryView({
           </div>
         ) : (
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 min-h-[300px]">
-            {filteredAndSortedFiles.length === 0 ? (
+            {filesLoading ? (
+              <div className="col-span-full text-center text-slate-500 py-12">
+                <Loader2 className="w-5 h-5 animate-spin inline-block mr-2 text-sky-600" />
+                Loading files...
+              </div>
+            ) : filteredAndSortedFiles.length === 0 ? (
               <div className="col-span-full text-center text-slate-500 py-12">
                 No files found matching your criteria.
               </div>
@@ -1355,6 +1405,19 @@ export default function LibraryView({
             )}
           </div>
         )}
+        <div className="border-t border-slate-100 px-4 py-3">
+          <AdminTablePagination
+            page={page}
+            pageSize={pageSize}
+            totalItems={totalFileRows}
+            onPageChange={(next) => setPage(Math.min(Math.max(1, next), totalPages))}
+            onPageSizeChange={(nextSize) => {
+              setPageSize(nextSize);
+              setPage(1);
+            }}
+            itemLabel="files"
+          />
+        </div>
       </div>
 
       {/* Preview Modal */}
