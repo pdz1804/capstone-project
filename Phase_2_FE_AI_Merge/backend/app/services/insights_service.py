@@ -5,11 +5,13 @@ from __future__ import annotations
 import base64
 import logging
 import os
+from pathlib import Path
 from typing import Any, Dict, Tuple
 
 from app.core.paths import BACKEND_ROOT
 from app.services.processed_markdown_service import (
     gather_processed_markdown_context,
+    gather_processed_markdown_context_with_images,
     sanitize_insights_document_id,
 )
 
@@ -130,6 +132,17 @@ def _generation_model_id(cfg: Dict[str, Any]) -> str:
     return str(gyaml.get("model", "gpt-4o-mini"))
 
 
+def _cleanup_summary_temp_images(image_paths: list[str]) -> None:
+    for image_path in image_paths or []:
+        p = Path(image_path)
+        if not p.name.startswith("summary_frame_"):
+            continue
+        try:
+            p.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
 def _generator(cfg: Dict[str, Any]):
     from src.generation.generator import GenerationConfig, RAGGenerator
 
@@ -172,7 +185,13 @@ class InsightsService:
                 "summary": "",
                 "error": "Invalid document_id: use the folder name under Processed files (no slashes or ..).",
             }
-        ctx = gather_processed_markdown_context(self._user_id, doc, 120_000)
+        max_summary_images = int(os.getenv("SUMMARY_MAX_IMAGES", "8") or "8")
+        ctx, image_paths = gather_processed_markdown_context_with_images(
+            self._user_id,
+            doc,
+            120_000,
+            max_images=max(0, max_summary_images),
+        )
         if not ctx.strip():
             return {
                 "summary": "",
@@ -203,9 +222,17 @@ class InsightsService:
             f"You are an educational assistant. Depth: {depth}. {tone_hint} {length_hint}\n"
             f"{focus_line}"
             "Produce a structured markdown summary with headings, bullet points, and cite file names from the content when useful.\n\n"
-            f"CONTENT (processed document markdown from the pipeline, not search snippets):\n{ctx[:120000]}"
+            + (
+                "Representative lecture frames are attached as images. Use them together with the transcript text to identify slide content, diagrams, and visual emphasis.\n\n"
+                if image_paths
+                else ""
+            )
+            + f"CONTENT (processed document markdown from the pipeline, not search snippets):\n{ctx[:120000]}"
         )
-        raw, error = self._llm_text_or_error(prompt)
+        try:
+            raw, error = self._llm_text_or_error(prompt, image_paths=image_paths)
+        finally:
+            _cleanup_summary_temp_images(image_paths)
         if error:
             return {
                 "summary": "",
@@ -227,6 +254,7 @@ class InsightsService:
                 "model_id": _generation_model_id(self.cfg),
                 "token_in": _estimate_tokens(prompt),
                 "token_out": _estimate_tokens(raw or ""),
+                "images_in": len(image_paths),
             },
         }
 
@@ -334,11 +362,20 @@ class InsightsService:
         self,
         prompt: str,
         generator=None,
+        image_paths: list[str] | None = None,
     ) -> Tuple[str, str | None]:
         try:
             gen = generator or _generator(self.cfg)
-            return (gen._call_llm(prompt) or "").strip(), None
+            return (gen._call_llm(prompt, image_paths=image_paths or []) or "").strip(), None
         except Exception as e:
+            if image_paths:
+                logger.warning("Multimodal LLM call failed, retrying summary without images: %s", e)
+                try:
+                    gen = generator or _generator(self.cfg)
+                    return (gen._call_llm(prompt, image_paths=[]) or "").strip(), None
+                except Exception as retry_error:
+                    logger.warning("LLM text-only retry failed: %s", retry_error)
+                    return "", str(retry_error)
             logger.warning("LLM call failed: %s", e)
             return "", str(e)
 

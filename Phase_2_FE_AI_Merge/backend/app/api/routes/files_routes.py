@@ -57,8 +57,77 @@ _FILES_WITH_METADATA_CACHE_NAMESPACE = "files_with_metadata"
 _FILES_WITH_METADATA_CACHE_PAYLOAD = {"route": "files_with_metadata", "version": 1}
 _FILES_WITH_METADATA_CACHE_TTL_SECONDS = max(
     1,
-    int(float(os.getenv("FILES_WITH_METADATA_RESPONSE_TTL_SECONDS", "5") or "5")),
+    int(float(os.getenv("FILES_WITH_METADATA_RESPONSE_TTL_SECONDS", "45") or "45")),
 )
+_files_with_metadata_memory_cache: Dict[str, Tuple[float, Dict[str, Any]]] = {}
+
+
+def _files_cache_get(key: str) -> Dict[str, Any] | None:
+    cached = _files_with_metadata_memory_cache.get(key)
+    if not cached:
+        return None
+    expires_at, payload = cached
+    if expires_at <= time.time():
+        _files_with_metadata_memory_cache.pop(key, None)
+        return None
+    return payload
+
+
+def _files_cache_set(key: str, payload: Dict[str, Any]) -> None:
+    _files_with_metadata_memory_cache[key] = (time.time() + _FILES_WITH_METADATA_CACHE_TTL_SECONDS, payload)
+
+
+def _as_sort_dir(value: str | None) -> str:
+    return "asc" if str(value or "").strip().lower() == "asc" else "desc"
+
+
+def _slice_rows(rows: List[Dict[str, Any]], skip: int, limit: int | None) -> List[Dict[str, Any]]:
+    skip_n = max(0, int(skip or 0))
+    if limit is None:
+        return rows[skip_n:]
+    return rows[skip_n : skip_n + max(1, int(limit))]
+
+
+def _read_sidecar_payload(storage: Any, source_path: str) -> Dict[str, Any]:
+    if not source_path:
+        return {}
+    if source_path.startswith("s3://"):
+        parsed = parse_s3_uri(source_path)
+        client = getattr(storage, "_client", None)
+        if not parsed or client is None:
+            return {}
+        bucket, key = parsed
+        try:
+            resp = client.get_object(Bucket=bucket, Key=f"{key}.metadata.json")
+            raw = resp.get("Body").read()
+            data = json.loads(raw.decode("utf-8", errors="ignore")) if raw else {}
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            return {}
+    try:
+        p = Path(source_path)
+        sidecar = p.parent / f"{p.name}.metadata.json"
+        if not sidecar.exists():
+            return {}
+        data = json.loads(sidecar.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def _file_category(name: str, ext_from_api: str) -> str:
+    ext = (ext_from_api or Path(name).suffix or "").strip().lower()
+    if ext in {".mp4", ".webm", ".mov", ".avi", ".mkv"}:
+        return "video"
+    if ext in {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp"}:
+        return "image"
+    if ext in {".mp3", ".wav", ".aac", ".m4a", ".flac", ".ogg"}:
+        return "audio"
+    if ext == ".pdf":
+        return "pdf"
+    if ext in {".xlsx", ".xls", ".csv", ".xlsm"}:
+        return "spreadsheet"
+    return "document"
 
 
 def _file_stem(name: str) -> str:
@@ -473,7 +542,17 @@ def list_files(
 
 
 @router.get("/files-with-metadata")
-def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[str, Any]:
+def list_files_with_metadata(
+    skip: int = Query(0, ge=0),
+    limit: int | None = Query(None, ge=1, le=50000),
+    query: str | None = Query(None),
+    type: str | None = Query(None),
+    status: str | None = Query(None),
+    sort_by: str = Query("date"),
+    sort_dir: str = Query("desc"),
+    cache_bust: bool = Query(False),
+    user_id: str = Depends(storage_user_id),
+) -> Dict[str, Any]:
     """
     Return uploaded input files enriched with lightweight metadata/status.
 
@@ -483,14 +562,47 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
     - optional local companion metadata json (if available)
     """
     ensure_data_dirs(user_id)
+    q = (query or "").strip().lower()
+    type_q = (type or "").strip().lower()
+    status_q = (status or "").strip().lower()
+    sort_key = (sort_by or "date").strip()
+    direction = _as_sort_dir(sort_dir)
+    cache_payload = {
+        **_FILES_WITH_METADATA_CACHE_PAYLOAD,
+        "query": q,
+        "type": type_q,
+        "status": status_q,
+        "sort_by": sort_key,
+        "sort_dir": direction,
+    }
+    cache_key = json.dumps({"user_id": user_id, **cache_payload}, sort_keys=True, separators=(",", ":"))
+    cached = None if cache_bust else _files_cache_get(cache_key)
+    if isinstance(cached, dict):
+        files = list(cached.get("files") or [])
+        return {
+            **cached,
+            "files": _slice_rows(files, skip, limit),
+            "count": len(files),
+            "skip": skip,
+            "limit": limit,
+        }
+
     cache_client = get_search_cache_client()
-    cached = cache_client.get(
+    cached = None if cache_bust else cache_client.get(
         user_id,
-        _FILES_WITH_METADATA_CACHE_PAYLOAD,
+        cache_payload,
         namespace=_FILES_WITH_METADATA_CACHE_NAMESPACE,
     )
     if isinstance(cached, dict):
-        return cached
+        files = list(cached.get("files") or [])
+        _files_cache_set(cache_key, cached)
+        return {
+            **cached,
+            "files": _slice_rows(files, skip, limit),
+            "count": len(files),
+            "skip": skip,
+            "limit": limit,
+        }
 
     storage = get_file_storage(user_id)
     input_rows = storage.list_input_files()
@@ -524,6 +636,7 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
     for row in input_rows:
         name = str(row.get("name") or "")
         input_path = str(row.get("path") or "")
+        sidecar_payload = _read_sidecar_payload(storage, input_path)
         doc_entry = _find_document_entry_for_input_name(processed_snapshot, name)
         doc_stages = (doc_entry or {}).get("stages") or {}
         doc_total_files = int((doc_entry or {}).get("total_files") or 0)
@@ -586,11 +699,14 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
                 local_meta = metadata_svc.load_metadata(input_path)
         except Exception:
             local_meta = None
+        tags_raw = sidecar_payload.get("knowledge_tags") or sidecar_payload.get("tags") or []
+        tags = [str(x).strip() for x in tags_raw if str(x).strip()] if isinstance(tags_raw, list) else []
 
         out.append(
             {
                 **row,
                 "file_name": name,
+                "file_category": _file_category(name, str(row.get("type") or "")),
                 "document_id": (doc_entry or {}).get("id") or _file_stem(name),
                 "processed_display_name": (doc_entry or {}).get("display_name"),
                 "processed_safe_name": _normalizer_safe_stem(name),
@@ -601,6 +717,7 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
                 "upload_time": (local_meta.upload_time if local_meta else None) or row.get("modified"),
                 "metadata_status": (local_meta.status if local_meta else None),
                 "metadata_error": (local_meta.error_message if local_meta else None),
+                "tags": tags,
                 "processed_total_files": doc_total_files,
                 "processed_stage_counts": {
                     s: int((doc_stages.get(s) or {}).get("file_count") or 0)
@@ -609,20 +726,79 @@ def list_files_with_metadata(user_id: str = Depends(storage_user_id)) -> Dict[st
             }
         )
 
+    if q:
+        out = [
+            x
+            for x in out
+            if q
+            in " ".join(
+                [
+                    str(x.get("file_name") or x.get("name") or ""),
+                    str(x.get("path") or ""),
+                    str(x.get("document_id") or ""),
+                    " ".join(str(t) for t in (x.get("tags") or [])),
+                ]
+            ).lower()
+        ]
+    if type_q and type_q != "all":
+        out = [
+            x
+            for x in out
+            if str(x.get("file_category") or "").strip().lower() == type_q
+            or str(x.get("type") or "").strip().lower().lstrip(".") == type_q
+            or str(x.get("type") or "").strip().lower() == type_q
+        ]
+    if status_q and status_q != "all":
+        out = [x for x in out if str(x.get("status") or "").strip().lower() == status_q]
+
+    def _size_bytes(row: Dict[str, Any]) -> int:
+        raw = row.get("file_size_bytes")
+        if isinstance(raw, int):
+            return raw
+        size_s = str(row.get("size") or "0 B").strip()
+        parts = size_s.split()
+        if not parts:
+            return 0
+        try:
+            n = float(parts[0])
+        except Exception:
+            return 0
+        unit = parts[1].upper() if len(parts) > 1 else "B"
+        mul = 1024 ** 3 if unit == "GB" else 1024 ** 2 if unit == "MB" else 1024 if unit == "KB" else 1
+        return int(n * mul)
+
+    sorters = {
+        "name": lambda x: str(x.get("file_name") or x.get("name") or "").lower(),
+        "size": _size_bytes,
+        "date": lambda x: str(x.get("upload_time") or x.get("modified") or ""),
+        "status": lambda x: str(x.get("status") or "").lower(),
+        "type": lambda x: str(x.get("type") or "").lower(),
+    }
+    out.sort(key=sorters.get(sort_key, sorters["date"]), reverse=direction == "desc")
+
     payload = {
         "count": len(out),
         "files": out,
+        "skip": 0,
+        "limit": None,
         "pipeline_stage_totals": stage_totals,
         "pipeline_document_count": int(processed_snapshot.get("document_count") or len(docs)),
     }
+    _files_cache_set(cache_key, payload)
     cache_client.set(
         user_id,
-        _FILES_WITH_METADATA_CACHE_PAYLOAD,
+        cache_payload,
         payload,
         namespace=_FILES_WITH_METADATA_CACHE_NAMESPACE,
         ttl_seconds=_FILES_WITH_METADATA_CACHE_TTL_SECONDS,
     )
-    return payload
+    return {
+        **payload,
+        "files": _slice_rows(out, skip, limit),
+        "count": len(out),
+        "skip": skip,
+        "limit": limit,
+    }
 
 
 @router.get("/files/{file_name}/processed")
@@ -694,6 +870,42 @@ def get_file_all_chunks(file_name: str, user_id: str = Depends(storage_user_id))
             "chunks": [],
         }
 
+    def _frame_filename(frame: Dict[str, Any]) -> str:
+        raw_path = str(frame.get("frame_path") or "").replace("\\", "/").strip()
+        name = Path(raw_path).name if raw_path else ""
+        if not name and frame.get("frame_index") is not None:
+            frame_index = int(_as_float(frame.get("frame_index"), default=0.0))
+            name = f"frame_{frame_index:06d}.jpg"
+        if not name:
+            raw_name = str(frame.get("frame_name") or "").strip()
+            name = Path(raw_name).name if raw_name else ""
+        if not name:
+            name = "frame_000000.jpg"
+        if "." not in name:
+            name = f"{name}.jpg"
+        return name
+
+    def _normalize_associated_frames(raw: Any, chunk_rel_path: str) -> List[Dict[str, Any]]:
+        if not isinstance(raw, list):
+            return []
+        chunk_parent = str(Path(chunk_rel_path).parent).replace("\\", "/")
+        out: List[Dict[str, Any]] = []
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            filename = _frame_filename(item)
+            rel_path = f"{chunk_parent}/frames/{filename}"
+            out.append(
+                {
+                    "frame_name": item.get("frame_name") or Path(filename).stem,
+                    "frame_index": int(_as_float(item.get("frame_index"), default=0.0)),
+                    "video_timestamp": _as_float(item.get("video_timestamp"), default=0.0),
+                    "rel_path": rel_path,
+                }
+            )
+        out.sort(key=lambda x: (x.get("video_timestamp", 0.0), x.get("frame_index", 0)))
+        return out
+
     chunks: List[Dict[str, Any]] = []
     loaded_from = None
     for rel_path in candidates:
@@ -715,6 +927,7 @@ def get_file_all_chunks(file_name: str, user_id: str = Depends(storage_user_id))
                             "source": rel_path,
                             "content_type": c.get("content_type") or "transcript_text",
                             "original_file": c.get("original_file") or decoded_name,
+                            "associated_frames": _normalize_associated_frames(c.get("associated_frames"), rel_path),
                         }
                     )
                 loaded_from = rel_path

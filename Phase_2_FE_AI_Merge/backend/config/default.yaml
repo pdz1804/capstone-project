@@ -54,11 +54,12 @@ processing:
     audio_sample_rate: 16000        # Sample rate in Hz
     audio_channels: 1               # 1=mono, 2=stereo
     enable_transcription: true
-    asr_model: "base"               # Options: tiny, base, small, medium, large, large-v3
+    asr_model: "tiny"               # Options: tiny, base, small, medium, large, large-v3
     asr_language: null              # null=auto-detect, or language code like "en"
+    use_word_timestamps: false      # Word-level alignment is much slower on CPU
     chunk_duration: 30              # Seconds per chunk for long audio
     chunk_overlap: 1.0              # Overlap in seconds between chunks
-    extract_frames: false           # Extract video frames for image retrieval
+    extract_frames: true            # Standard mode extracts video frames for image retrieval/alignment
 
   # Document processor settings
   document:

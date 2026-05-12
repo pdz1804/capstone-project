@@ -7,7 +7,7 @@ import SearchView from './SearchView';
 
 interface AdminRetrievalEvaluationViewProps {
   files: FileItem[];
-  onRefreshFiles: () => Promise<void>;
+  onRefreshFiles: () => Promise<{ count: number } | void>;
 }
 
 export default function AdminRetrievalEvaluationView({

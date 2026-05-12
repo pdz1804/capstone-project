@@ -63,6 +63,9 @@ export class UserRepository {
     query?: string;
     role?: string;
     is_active?: boolean;
+    sort_by?: string;
+    sort_dir?: 'asc' | 'desc';
+    cache_bust?: boolean;
     include_usage?: boolean;
     usage_days?: number;
   }): Promise<{ items: UserEntity[]; count: number }> {
@@ -78,6 +81,9 @@ export class UserRepository {
         ...(params?.query ? { query: params.query } : {}),
         ...(params?.role ? { role: params.role } : {}),
         ...(typeof params?.is_active === 'boolean' ? { is_active: params.is_active } : {}),
+        ...(params?.sort_by ? { sort_by: params.sort_by } : {}),
+        ...(params?.sort_dir ? { sort_dir: params.sort_dir } : {}),
+        ...(params?.cache_bust ? { cache_bust: true } : {}),
         ...(typeof params?.include_usage === 'boolean' ? { include_usage: params.include_usage } : {}),
         ...(params?.usage_days ? { usage_days: params.usage_days } : {}),
       },
