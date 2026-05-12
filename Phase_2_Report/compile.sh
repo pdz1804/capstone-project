@@ -6,6 +6,16 @@
 # Change to script directory
 cd "$(dirname "$0")"
 
+# Biber on macOS does not support C.UTF-8, which some shells export by default.
+export LANG="${LANG:-en_US.UTF-8}"
+export LC_ALL="${LC_ALL:-en_US.UTF-8}"
+if [ "$LANG" = "C.UTF-8" ]; then
+    export LANG="en_US.UTF-8"
+fi
+if [ "$LC_ALL" = "C.UTF-8" ]; then
+    export LC_ALL="en_US.UTF-8"
+fi
+
 show_latex_error() {
     local logfile="$1"
 
@@ -23,17 +33,24 @@ show_latex_error() {
 run_pdflatex() {
     local label="$1"
     local output_log="$2"
-    local retry_log="${output_log%.log}-retry.log"
+    local retry_log
 
     echo "$label"
     if ! pdflatex -interaction=nonstopmode main.tex > "$output_log" 2>&1; then
         if grep -qE "File ended while scanning use of \\\\@writefile|Text line contains an invalid character" "$output_log"; then
-            echo "⚠ Auxiliary file read failed; retrying pdflatex once..."
-            if pdflatex -interaction=nonstopmode main.tex > "$retry_log" 2>&1; then
-                echo "✓ Retry succeeded"
-                return 0
-            fi
-            output_log="$retry_log"
+            echo "⚠ Auxiliary file read failed; retrying pdflatex..."
+            for attempt in 1 2; do
+                retry_log="${output_log%.log}-retry${attempt}.log"
+                if pdflatex -interaction=nonstopmode main.tex > "$retry_log" 2>&1; then
+                    echo "✓ Retry succeeded"
+                    return 0
+                fi
+                if ! grep -qE "File ended while scanning use of \\\\@writefile|Text line contains an invalid character" "$retry_log"; then
+                    output_log="$retry_log"
+                    break
+                fi
+                output_log="$retry_log"
+            done
         fi
 
         echo "❌ Error: pdflatex failed"
@@ -67,6 +84,10 @@ echo "✓ First pass complete"
 # Step 2: Run biber for bibliography
 echo ""
 echo "[3/4] Running biber for bibliography..."
+if command -v xmllint >/dev/null 2>&1 && ! xmllint --noout main.bcf > /tmp/bcf-validate.log 2>&1; then
+    echo "⚠ Bibliography control file is incomplete; regenerating with pdflatex..."
+    run_pdflatex "Regenerating bibliography control file..." /tmp/pdflatex-bcf.log
+fi
 if ! biber main > /tmp/biber.log 2>&1; then
     echo "❌ Error: biber failed"
     echo "Last 40 lines of /tmp/biber.log:"
