@@ -1,4 +1,28 @@
-"""Compose text + image retrieval and LLM generation."""
+"""Search Orchestrator: Unified Multimodal RAG Pipeline.
+
+Orchestrates the complete search-to-generation pipeline for multimodal RAG:
+- Text retrieval: BM25 + Dense embedding search from indexed documents
+- Image retrieval: Visual document understanding with ColQwen vision-language model
+- Result merging: Combines text and image results with optional reranking
+- LLM generation: Generates answers from retrieved context using Bedrock/OpenAI
+- Caching: Intelligent result caching by user and search query
+- Error handling: Graceful degradation when components unavailable
+
+Key Classes:
+- SearchOrchestrator: Main orchestrator coordinating all retrieval and generation
+
+Architecture:
+- Per-user document indexing with cached snapshots
+- Parallel text + image retrieval for performance
+- Min-max normalization for score fusion
+- Configurable LLM selection (Bedrock, OpenAI, SageMaker)
+- ThreadPoolExecutor for concurrent retrieval operations
+
+Dependencies:
+- TextSearchService: Text/hybrid retrieval index management
+- ImageSearchService: ColQwen image understanding and ranking
+- Bedrock/OpenAI: LLM generation backends
+"""
 
 from __future__ import annotations
 

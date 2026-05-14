@@ -1,11 +1,61 @@
-"""
-Retrieval Evaluation Metrics
+"""Retrieval Evaluation Metrics for RAG Pipeline Assessment.
 
-Standard metrics for evaluating retrieval quality:
-- Recall@K: Proportion of relevant documents retrieved in top K
-- nDCG@K: Normalized Discounted Cumulative Gain
-- MRR: Mean Reciprocal Rank
-- MAP: Mean Average Precision
+Standard information retrieval metrics for quantifying retrieval quality across
+multiple evaluation cutoffs (K values). Used in benchmark.py for systematic
+evaluation of BM25, Dense, and Hybrid retrieval strategies.
+
+Metrics (all computed per query, then averaged):
+
+Recall@K (Binary Relevance):
+- Proportion of all relevant documents retrieved in top K results
+- Formula: |relevant ∩ retrieved@K| / |all relevant|
+- Range: [0, 1] (1.0 = perfect, 0.0 = none found)
+- Use case: "Did we find all relevant documents?"
+- Interpretation: Higher is better, but K-dependent
+
+nDCG@K (Ranked Relevance with Position Discount):
+- Normalized Discounted Cumulative Gain at K
+- Rewards relevant documents ranked higher, penalizes lower positions
+- Formula: DCG@K / IDCG@K (normalized by ideal ranking)
+- DCG@K = Σ(relevance_i / log2(i+1)) for i in 1..K
+- Range: [0, 1] (1.0 = perfect ranking)
+- Use case: "How well-ranked are relevant documents?"
+- Interpretation: Position-aware metric, preferred for ranking quality
+
+MRR (Mean Reciprocal Rank):
+- Average of (1 / rank of first relevant result) across all queries
+- Formula: (1/N) * Σ(1 / rank_of_first_relevant)
+- Range: (0, 1] (1.0 = always first result is relevant, 0.0 = never found)
+- Use case: "How quickly do we find the first relevant result?"
+- Interpretation: Good for answering questions (need one good result)
+
+MAP (Mean Average Precision):
+- Average precision computed at each relevant document position
+- AP = (1/R) * Σ(precision@k where result_k is relevant)
+- Precision@K = |relevant ∩ retrieved@K| / K
+- Range: [0, 1] (1.0 = all relevant docs ranked first)
+- Use case: "Overall ranking quality with multiple relevant docs?"
+- Interpretation: Balances recall and ranking quality
+
+Evaluation Setup:
+- queries_path: JSON file with query texts
+- qrels_path: JSON file with {query_id: {doc_id: relevance}} (0=not relevant, 1+=relevant)
+- Multiple K values: Typically [1, 3, 5, 10, 20] for comprehensive evaluation
+- Seed control: Set random.seed(42) for reproducible result ordering
+
+Usage Pattern:
+1. Execute retrieval (get ranked list of doc IDs with scores)
+2. Compute metrics using functions in this module
+3. Aggregate per-query metrics by averaging across all queries
+4. Report by K and by retriever type
+
+Key Functions:
+- recall_at_k: Binary relevance metric
+- dcg_at_k: Discount cumulative gain (component of nDCG)
+- ndcg_at_k: Normalized DCG metric
+- mrr: Mean reciprocal rank
+- mean_average_precision: MAP metric
+- evaluate_retrieval: Batch evaluation across multiple queries
 """
 
 import math
