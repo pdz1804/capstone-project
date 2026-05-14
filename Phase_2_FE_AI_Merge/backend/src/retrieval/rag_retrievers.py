@@ -112,7 +112,52 @@ class BaseRetriever(ABC):
         if not doc_dir.exists():
             logger.error(f"Document directory not found: {doc_dir}")
             return regular_documents, prebuilt_chunks
-        
+
+        def _load_prebuilt_chunks(
+            doc_folder: Path,
+            chunks_path: Path,
+            *,
+            document_type: str,
+            log_label: str,
+        ) -> None:
+            try:
+                with open(chunks_path, 'r', encoding='utf-8') as f:
+                    chunks_data = json.load(f)
+
+                chunks = chunks_data.get("chunks", [])
+                loaded = 0
+                for i, chunk in enumerate(chunks):
+                    chunk_text = chunk.get("text", "")
+                    if not chunk_text.strip():
+                        continue
+
+                    meta = chunk.get("metadata") if isinstance(chunk.get("metadata"), dict) else {}
+                    meta = {
+                        **meta,
+                        "doc_id": meta.get("doc_id") or doc_folder.name,
+                        "chunk_index": meta.get("chunk_index", i),
+                        "total_chunks": meta.get("total_chunks", len(chunks)),
+                        "source": meta.get("source") or str(doc_folder / f"{doc_folder.name}.md"),
+                        "document_type": meta.get("document_type") or document_type,
+                    }
+                    prebuilt_chunks.append({
+                        "id": chunk.get("id") or chunk.get("chunk_name") or f"{doc_folder.name}_chunk_{i}",
+                        "text": chunk_text,
+                        "source": meta["source"],
+                        "doc_id": meta["doc_id"],
+                        "chunk_index": meta["chunk_index"],
+                        "total_chunks": meta["total_chunks"],
+                        "metadata": meta,
+                    })
+                    loaded += 1
+
+                logger.info(
+                    f"Loaded {loaded} pre-built {log_label} chunks "
+                    f"for doc: {doc_folder.name}"
+                )
+            except Exception as e:
+                logger.error(f"Error loading {log_label} chunks from {chunks_path}: {e}")
+
         # Look for documents in the RAG-ready structure
         for doc_folder in doc_dir.iterdir():
             if not doc_folder.is_dir():
@@ -125,6 +170,10 @@ class BaseRetriever(ABC):
             # Check if this is an EXCEL document (has excel_manifest.json)
             excel_manifest = doc_folder / "excel_manifest.json"
             excel_chunks_file = doc_folder / "excel_chunks.json"
+            docx_manifest = doc_folder / "docx_manifest.json"
+            docx_chunks_file = doc_folder / "docx_chunks.json"
+            pdf_manifest = doc_folder / "pdf_manifest.json"
+            pdf_chunks_file = doc_folder / "pdf_chunks.json"
 
             if excel_manifest.exists() and excel_chunks_file.exists():
                 # EXCEL DOCUMENT: Load pre-built table-aware chunks directly
@@ -149,6 +198,24 @@ class BaseRetriever(ABC):
                         f"Error loading Excel chunks from {excel_chunks_file}: {e}"
                     )
                 continue  # skip further checks for this folder
+
+            if docx_manifest.exists() and docx_chunks_file.exists():
+                _load_prebuilt_chunks(
+                    doc_folder,
+                    docx_chunks_file,
+                    document_type="docx_document",
+                    log_label="DOCX",
+                )
+                continue
+
+            if pdf_manifest.exists() and pdf_chunks_file.exists():
+                _load_prebuilt_chunks(
+                    doc_folder,
+                    pdf_chunks_file,
+                    document_type="pdf_document",
+                    log_label="PDF",
+                )
+                continue
 
             if media_manifest.exists() and chunks_file.exists():
                 # MEDIA DOCUMENT: Load pre-built transcript chunks directly

@@ -58,6 +58,7 @@ import tempfile
 import hashlib
 from collections import Counter
 import subprocess
+import math
 
 from .whisper_remote import invoke_sagemaker_whisper, should_use_sagemaker_whisper
 
@@ -77,10 +78,17 @@ except ImportError:
 try:
     import librosa
     import librosa.effects
-    import soundfile as sf
     LIBROSA_AVAILABLE = True
-except ImportError:
+except Exception as exc:
+    librosa = None
     LIBROSA_AVAILABLE = False
+    logging.getLogger(__name__).warning("librosa unavailable; using soundfile/ffmpeg fallbacks where possible: %s", exc)
+
+try:
+    import soundfile as sf
+    SOUNDFILE_AVAILABLE = True
+except ImportError:
+    SOUNDFILE_AVAILABLE = False
 
 try:
     from moviepy import VideoFileClip
@@ -149,12 +157,12 @@ class MediaProcessorConfig:
     
     # Transcription
     enable_transcription: bool = True
-    asr_model: str = "base"  # tiny, base, small, medium, large
+    asr_model: str = "tiny"  # tiny, base, small, medium, large
     asr_language: Optional[str] = None  # Auto-detect language (None = auto)
     
     # Whisper advanced parameters
-    use_word_timestamps: bool = True
-    temperature_schedule: Tuple[float, ...] = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
+    use_word_timestamps: bool = False
+    temperature_schedule: Tuple[float, ...] = (0.0,)
     compression_ratio_threshold: float = 2.4
     logprob_threshold: float = -1.0
     no_speech_threshold: float = 0.1  # Very permissive to capture all speech
@@ -583,8 +591,8 @@ class AudioExtractor:
         Returns:
             Path to extracted audio file or None if error
         """
-        if not MOVIEPY_AVAILABLE or not LIBROSA_AVAILABLE:
-            logger.error("MoviePy or librosa required for audio extraction")
+        if not MOVIEPY_AVAILABLE:
+            logger.error("MoviePy required for audio extraction")
             return None
         
         video_path = Path(video_path)
@@ -690,7 +698,7 @@ class AudioTranscriber:
 
     def _prepare_audio_for_whisper(self, audio_path: Path) -> Tuple[Path, bool]:
         """
-        Normalize media inputs to mono 16k WAV via ffmpeg before librosa load.
+        Normalize non-WAV media inputs to mono 16k WAV via ffmpeg when available.
 
         Returns:
             (prepared_audio_path, should_cleanup)
@@ -740,10 +748,48 @@ class AudioTranscriber:
             prepared_audio.unlink(missing_ok=True)
             err_preview = (exc.stderr or "").strip().splitlines()
             logger.warning(
-                "ffmpeg pre-conversion failed, falling back to direct librosa load: %s",
+                "ffmpeg pre-conversion failed, falling back to direct audio load: %s",
                 err_preview[-1] if err_preview else str(exc),
             )
             return audio_path, False
+
+    def _load_audio_for_whisper(self, audio_path: Path) -> Tuple[Any, int]:
+        """Load audio as mono float32 without depending on Whisper's ffmpeg path."""
+        target_sr = int(self.config.audio_sample_rate)
+
+        if SOUNDFILE_AVAILABLE and NUMPY_AVAILABLE:
+            try:
+                audio, sr = sf.read(str(audio_path), dtype="float32", always_2d=False)
+                audio = np.asarray(audio, dtype=np.float32)
+                if audio.ndim == 2:
+                    audio = audio.mean(axis=1).astype(np.float32)
+
+                if int(sr) != target_sr:
+                    if not SCIPY_AVAILABLE:
+                        raise RuntimeError(f"Audio sample rate {sr} != {target_sr} and scipy resampling is unavailable")
+                    divisor = math.gcd(int(sr), target_sr)
+                    audio = scipy.signal.resample_poly(
+                        audio,
+                        target_sr // divisor,
+                        int(sr) // divisor,
+                    ).astype(np.float32)
+                    sr = target_sr
+
+                logger.info("✓ Audio loaded with soundfile")
+                return audio, int(sr)
+            except Exception as exc:
+                logger.warning("soundfile audio load failed, falling back to librosa: %s", exc)
+
+        if LIBROSA_AVAILABLE:
+            audio, sr = librosa.load(
+                str(audio_path),
+                sr=target_sr,
+                mono=True,
+            )
+            logger.info("✓ Audio loaded with librosa")
+            return audio, int(sr)
+
+        raise RuntimeError("Neither soundfile nor librosa is available for audio loading")
     
     def transcribe(self, audio_path: Union[str, Path]) -> Optional[Dict]:
         """
@@ -775,8 +821,8 @@ class AudioTranscriber:
             logger.error("Model not loaded")
             return None
         
-        if not LIBROSA_AVAILABLE:
-            logger.error("Librosa required for audio processing")
+        if not NUMPY_AVAILABLE:
+            logger.error("NumPy required for audio processing")
             return None
         
         audio_path = Path(audio_path)
@@ -792,14 +838,11 @@ class AudioTranscriber:
 
             prepared_audio_path, cleanup_prepared = self._prepare_audio_for_whisper(audio_path)
             
-            # Load audio with librosa
-            logger.info("Loading audio with librosa from: %s", prepared_audio_path)
+            # Load audio as an array before calling Whisper. Passing filenames into
+            # Whisper invokes ffmpeg internally, which is brittle in local dev envs.
+            logger.info("Loading audio from: %s", prepared_audio_path)
             start_time = time.time()
-            audio, sr = librosa.load(
-                str(prepared_audio_path),
-                sr=self.config.audio_sample_rate,
-                mono=True
-            )
+            audio, sr = self._load_audio_for_whisper(prepared_audio_path)
             load_time = time.time() - start_time
             logger.info(f"✓ Audio loaded in {load_time:.2f}s")
             logger.info(f"  - Duration: {len(audio) / sr:.2f}s")
@@ -1577,7 +1620,7 @@ if __name__ == "__main__":
     config = MediaProcessorConfig(
         extract_audio=True,
         enable_transcription=True,
-        asr_model="base",
+        asr_model="tiny",
         extract_frames=True,
         frame_interval=30,
         remove_duplicate_frames=True,

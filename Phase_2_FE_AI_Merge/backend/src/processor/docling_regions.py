@@ -87,6 +87,8 @@ def _region_to_payload(er: ExtractedRegion) -> Dict[str, Any]:
         "latex": er.latex,
         "image_rel_path": er.image_rel_path,
         "image_md5": er.image_md5,
+        "caption": er.caption,
+        "description": er.description,
         "ocr_used": bool(er.ocr_used),
         "provenance": provenance,
     }
@@ -141,6 +143,8 @@ def regions_from_sagemaker_payload(
                 latex=item.get("latex"),
                 image_rel_path=item.get("image_rel_path"),
                 image_md5=item.get("image_md5"),
+                caption=item.get("caption"),
+                description=item.get("description"),
                 ocr_used=bool(item.get("ocr_used", False)),
                 provenance=provenance,
             )
@@ -170,7 +174,15 @@ def extract_regions_from_sagemaker_docling(
     return regions
 
 
-def _make_converter(enable_ocr: bool, extract_images: bool):
+def _make_converter(
+    enable_ocr: bool,
+    extract_images: bool,
+    *,
+    enable_vlm: bool = False,
+    do_formula_enrichment: bool = False,
+    vlm_model: str = "HuggingFaceTB/SmolVLM-256M-Instruct",
+    vlm_batch_size: int = 4,
+):
     """Build a Docling DocumentConverter configured for PDF.
 
     Mirrors the primary-converter config in document_processor_v2.
@@ -204,20 +216,37 @@ def _make_converter(enable_ocr: bool, extract_images: bool):
         except Exception:
             pass
 
+    vlm_opts = None
+    if enable_vlm:
+        try:
+            from docling.datamodel.pipeline_options import PictureDescriptionVlmOptions
+
+            vlm_opts = PictureDescriptionVlmOptions(
+                repo_id=vlm_model,
+                batch_size=max(1, int(vlm_batch_size or 4)),
+                scale=2,
+                picture_area_threshold=0.0,
+                prompt="Describe this image in a few concise sentences.",
+                generation_config={"max_new_tokens": 200, "do_sample": False},
+            )
+        except Exception as exc:
+            logger.warning("Could not configure Docling VLM picture description: %s", exc)
+
     pdf_kwargs: Dict[str, Any] = {
         "do_ocr": enable_ocr,
         "do_table_structure": True,
-        # Keep local hybrid PDF parsing focused on raw text/table regions.
-        # Formula enrichment pulls a heavy VLM checkpoint and is not needed for
-        # chunking evaluation or section assignment.
-        "do_formula_enrichment": False,
-        "generate_picture_images": extract_images,
+        "do_formula_enrichment": bool(do_formula_enrichment),
+        "do_picture_classification": bool(enable_vlm),
+        "do_picture_description": bool(enable_vlm),
+        "generate_picture_images": bool(extract_images or enable_vlm),
         "generate_page_images": False,
         "generate_table_images": False,
         "images_scale": 2.0,
     }
     if ocr_opts is not None:
         pdf_kwargs["ocr_options"] = ocr_opts
+    if enable_vlm and vlm_opts is not None:
+        pdf_kwargs["picture_description_options"] = vlm_opts
 
     pdf_opts = PdfPipelineOptions(**pdf_kwargs)
 
@@ -239,6 +268,10 @@ def extract_regions_from_docling(
     enable_ocr: bool = True,
     extract_images: bool = True,
     output_dir: Optional[str] = None,
+    enable_vlm: bool = False,
+    do_formula_enrichment: bool = False,
+    vlm_model: str = "HuggingFaceTB/SmolVLM-256M-Instruct",
+    vlm_batch_size: int = 4,
 ) -> List[ExtractedRegion]:
     """Run Docling on *file_path* and emit ExtractedRegion list.
 
@@ -249,11 +282,18 @@ def extract_regions_from_docling(
     from docling_core.types.doc.labels import DocItemLabel
 
     img_dir: Optional[Path] = None
-    if output_dir and extract_images:
+    if output_dir and (extract_images or enable_vlm):
         img_dir = Path(output_dir) / "images"
         img_dir.mkdir(parents=True, exist_ok=True)
 
-    converter = _make_converter(enable_ocr=enable_ocr, extract_images=extract_images)
+    converter = _make_converter(
+        enable_ocr=enable_ocr,
+        extract_images=extract_images,
+        enable_vlm=enable_vlm,
+        do_formula_enrichment=do_formula_enrichment,
+        vlm_model=vlm_model,
+        vlm_batch_size=vlm_batch_size,
+    )
     result = converter.convert(file_path)
     doc = getattr(result, "document", result)
 
@@ -361,6 +401,8 @@ def extract_regions_from_docling(
                 continue
             img_counter += 1
             rel_path, md5_short = saved
+            caption = _picture_caption(item, doc)
+            description = _picture_description(item)
             region = ExtractedLayoutRegion(
                 region_id=f"p{page_no}_pic_{img_counter}",
                 page_no=page_no,
@@ -370,6 +412,8 @@ def extract_regions_from_docling(
                 region=region,
                 image_rel_path=rel_path,
                 image_md5=md5_short,
+                caption=caption,
+                description=description,
                 provenance={
                     "page_no": page_no,
                     "bbox": list(bbox),
@@ -396,3 +440,33 @@ def extract_regions_from_docling(
         detector_counts.get("image", 0),
     )
     return [er for _, _, er in staged]
+
+
+def _picture_description(item: Any) -> Optional[str]:
+    annotations = getattr(item, "annotations", None) or []
+    for annotation in annotations:
+        if getattr(annotation, "kind", None) != "description":
+            continue
+        text = (getattr(annotation, "text", "") or "").strip()
+        if text:
+            return text
+    return None
+
+
+def _picture_caption(item: Any, doc: Any) -> Optional[str]:
+    captions = getattr(item, "captions", None) or []
+    for caption_ref in captions:
+        try:
+            ref = getattr(caption_ref, "cref", None) or str(caption_ref)
+            resolved = doc.get_refitem(ref) if hasattr(doc, "get_refitem") else None
+            text = (getattr(resolved, "text", "") or "").strip()
+            if text:
+                return text
+        except Exception:
+            continue
+    fallback = getattr(item, "caption", "") or ""
+    if isinstance(fallback, str):
+        fallback = fallback.strip()
+    else:
+        fallback = ""
+    return fallback or None
