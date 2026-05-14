@@ -1,14 +1,46 @@
-"""
-Enhanced Media Processor Module
+"""Enhanced Media Processor: Video and Audio Processing Pipeline.
 
-This module handles advanced video and audio processing for the RAG pipeline.
-- Extracts audio from video files with noise reduction
-- Transcribes audio using Whisper with full parameters and word-level timestamps
-- Performs intelligent transcript chunking (max 100 tokens per chunk)
-- Extracts frames with duplicate removal and frame-level metadata
-- Tracks complete provenance metadata for all outputs
+Handles extraction and understanding of video and audio content in documents for RAG.
+Extracts video frames, audio transcripts, and maintains precise temporal relationships
+for context-aware retrieval and generation.
 
-Based on Week0506_Mkhoi_OCR_ASR implementation with comprehensive enhancements.
+Core Components:
+
+Audio Processing:
+- Extracts audio from video files using FFmpeg (120s timeout)
+- Noise reduction: librosa with mask-based spectral gating
+- Transcription: Whisper ASR with word-level timestamps and confidence scores
+- Remote option: SageMaker endpoint invocation for distributed processing
+- Chunking: Intelligent transcript splitting with max 100 tokens per chunk
+- Metadata: Start/end times, speaker segments, confidence per word
+
+Video Frame Extraction:
+- Configurable frame sampling (frame_interval, fps-based or time-based)
+- Format conversion: MP4, MOV, WebM support via FFmpeg
+- Quality control: Frame resize to configured resolution
+- Duplicate removal: Perceptual hash (pHash) with Hamming distance similarity
+- Deduplication threshold: Configurable (default 95% similarity detection)
+- Metadata: Timestamp, visual features, frame quality scores
+
+Provenance Tracking:
+- Complete lineage: Original file → extracted frames → transcripts
+- Confidence scores: Per-word Whisper confidence and frame-to-video mapping
+- Error recovery: Graceful handling of corrupted frames/audio segments
+- Storage: JSON metadata for downstream retrieval indexing
+
+Key Classes:
+- MediaProcessor: Main orchestrator for frame + audio extraction
+- FrameExtractor: Video frame sampling and deduplication
+- TranscriptProcessor: ASR and transcript chunking
+- MediaMetadata: Rich timing and provenance data structure
+
+Technical Details:
+- FFmpeg timeouts: Video=120s, ImageMagick=60s, other tools=30s
+- pHash algorithm: 32x32 grayscale, 2D DCT, 8x8 hash, Hamming distance
+- Frame deduplication: Configurable expansion factor (default 130%)
+- Whisper model: Language detection, alternative transcripts
+
+Based on Week0506_Mkhoi_OCR_ASR with comprehensive enhancements for production use.
 """
 
 import os
