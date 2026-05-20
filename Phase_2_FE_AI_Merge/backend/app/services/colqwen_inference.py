@@ -93,18 +93,26 @@ class ColQwenInferenceService:
         )
         return json.loads(resp["Body"].read().decode("utf-8"))
 
-    def embed_query(self, query: str) -> List[List[float]]:
-        if self.use_sagemaker:
-            data = self._invoke({"operation": "embed-query", "query": query})
-            return data["embedding"]
-        model, processor = self._ensure_local()
-        import torch
+    def embed_query(self, query: str) -> List[List[float]] | None:
+        try:
+            if self.use_sagemaker:
+                data = self._invoke({"operation": "embed-query", "query": query})
+                embedding = data.get("embedding")
+                if embedding is None:
+                    logger.error("SageMaker embed-query returned no embedding in response: %s", data)
+                    return None
+                return embedding
+            model, processor = self._ensure_local()
+            import torch
 
-        device = next(model.parameters()).device
-        q_inputs = processor.process_queries([query]).to(device)
-        with torch.no_grad():
-            out = _as_tensor(model(**q_inputs))
-        return out[0].float().cpu().tolist()
+            device = next(model.parameters()).device
+            q_inputs = processor.process_queries([query]).to(device)
+            with torch.no_grad():
+                out = _as_tensor(model(**q_inputs))
+            return out[0].float().cpu().tolist()
+        except Exception as e:
+            logger.error("Failed to embed query: %s", e)
+            return None
 
     def embed_images(self, images: List[Image.Image]) -> Tuple[List[List[List[float]]], List[int]]:
         if self.use_sagemaker:
