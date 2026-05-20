@@ -66,10 +66,27 @@ class ImageSearchService:
         cache.set_marker(marker_key)
 
     def search(self, query: str, top_k: int) -> List[Dict[str, Any]]:
-        qvec = self._colqwen.embed_query(query)
+        try:
+            qvec = self._colqwen.embed_query(query)
+            if qvec is None:
+                logger.warning("Image search: embed_query returned None, returning empty results")
+                return []
+        except Exception as e:
+            logger.error("Image search: embed_query failed: %s, returning empty results", e)
+            return []
+
         # Ensure payload indexes (notably user_id) exist on pre-migration collections.
-        self._ensure_collection_once()
-        hits = self._repo.search(qvec, limit=top_k, user_id=self._user_id)
+        try:
+            self._ensure_collection_once()
+        except Exception as e:
+            logger.warning("Image search: ensure_collection failed: %s", e)
+
+        try:
+            hits = self._repo.search(qvec, limit=top_k, user_id=self._user_id)
+        except Exception as e:
+            logger.error("Image search: repo.search failed: %s", e)
+            return []
+
         results: List[Dict[str, Any]] = []
         for rank, hit in enumerate(hits, start=1):
             pl = hit.get("payload") or {}
