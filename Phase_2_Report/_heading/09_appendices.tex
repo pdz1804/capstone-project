@@ -86,6 +86,24 @@ FileName,SheetName,AnnotationLabel,FirstRow,FirstColumn,LastRow,LastColumn
 example.xlsx,Sheet1,Table,0,0,12,5
 \end{lstlisting}
 
+\textbf{Chunking Span Ground Truth}
+
+Chunking evaluation uses exact character-span ground truth. The excerpt must be found verbatim in the source markdown document, so the evaluator can compute overlap between retrieved chunk spans and the gold span.
+
+\begin{lstlisting}[caption={Chunking record},label={lst:chunking_gt_format},breaklines=true,basicstyle=\ttfamily\small]
+{
+  "sample_id": "q_000012_r0",
+  "query_id": "q_000012",
+  "query": "What does the section say about smoothing?",
+  "relevant_excerpt": "If noise in an image, partial derivatives...",
+  "doc_id": "CS131_notes_lecture05",
+  "source_doc_path": ".../CS131_notes_lecture05.md",
+  "start_char": 18420,
+  "end_char": 18635,
+  "reference_index": 0,
+  "reference_count": 1
+}
+\end{lstlisting}
 % \textbf{Chunking Span Ground Truth}
 
 % Chunking evaluation uses exact character-span ground truth. The excerpt must be found verbatim in the source markdown document, so the evaluator can compute overlap between retrieved chunk spans and the gold span.
@@ -262,6 +280,8 @@ End-to-end RAG evaluation stores the generated answer, retrieved context trace, 
     \caption{\textbf{Cost Analysis}: Shows detailed breakdown of monthly operational expenses (GPU, storage, database) to help institutions plan budgets.}
     \label{fig:ui_cost}
 \end{figure}
+
+\chapter{Technical Architecture \& Design Decisions}\label{chap:technical_decisions}
 
 \section{Reranking: Trade-off Decision Analysis}\label{sec:reranking_appendix}
 
