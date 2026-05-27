@@ -265,6 +265,34 @@ This diagram (Section 2.7) shows why we chose Docling (a Vision Language Modelâ€
 
 \textbf{Our Choice}: Docling wins on structure and cost. Text fidelity (47.43\%) is the bottleneck, but the structural integrity makes it superior for RAG systems where layout and table context matter more than raw OCR accuracy.
 
+\subsection{Docling vs Alternatives: Decision Framework}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/77-docling-reason-pick.png}
+    \caption{Docling parser selection criteria and comparison.}
+    \label{fig:docling_selection}
+\end{figure}
+
+\subsection*{Description}
+
+Comprehensive comparison of document parsing solutions. Docling (IBM, open-source VLM-based) outperforms traditional OCR on structural metrics (table detection, layout hierarchy, read order accuracy) while remaining free and self-hosted. Cloud solutions (Azure, AWS) offer higher text accuracy but introduce cost ($0.001â€“$0.004/page) and vendor lock-in. Traditional OCR (Tesseract, EasyOCR) excels at text accuracy but completely destroys document structure, making it unsuitable for knowledge extraction from academic PDFs with complex layouts and tables.
+
+\newpage
+
+\section{Generation Model: LLM Selection Rationale}\label{sec:generation_model_appendix}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/78-generation-model-reason-pick.png}
+    \caption{Generation model evaluation and selection criteria.}
+    \label{fig:generation_model_selection}
+\end{figure}
+
+\subsection*{Description}
+
+Evaluation framework for selecting the LLM used in our RAG pipeline. Key considerations: reasoning capability (question decomposition), multi-modal support (image integration), context window size (document summaries), cost-per-token (operational sustainability), latency (real-time chat), and safety guardrails (educational environments). The selected model balances reasoning depth with inference speed and cost, optimized for academic document retrieval and interactive learning scenarios.
+
 \chapter{Database Schema Definitions}\label{chap:database_schemas}
 The following sections outline the detailed schema properties for the core system tables.
 
