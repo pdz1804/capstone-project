@@ -1,42 +1,165 @@
-﻿\chapter{Contribution}\label{chap:contribution}
+\chapter{Evaluation Ground-Truth and Judgment Formats}\label{chap:evaluation_gt_formats}
 
-\begin{center}
-\renewcommand{\arraystretch}{1.5}
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}p{0.8cm}|>{\centering\arraybackslash}p{3.8cm}|>{\centering\arraybackslash}p{2.6cm}|>{\centering\arraybackslash}X|>{\centering\arraybackslash}p{2.1cm}|}
-\hline
-\textbf{No.} & \textbf{Full name} & \textbf{Student ID} & \textbf{Tasks} & \textbf{Progress}\\
-\hline
-1 & Nguyen Quang Phu & 2252621 &
-\begin{itemize}[leftmargin=*, nosep, topsep=0pt]
-    \item Implement overall processing pipeline, system architecture, deployment architecture
-    \item Setting up infrastructure
-    \item Implement System Testing
-    \item Foundations for Media-typed Document Processing
-    \item Write report
-\end{itemize}
-& 100\%\\
-\hline
-2 & Nguyen Ngoc Khoi & 2252378 &
-\begin{itemize}[leftmargin=*, nosep, topsep=0pt]
-    \item Parser for Office documents, PDF documents
-    \item Enhance Media-typed Document Processing
-    \item Implement Processing Pipeline Evaluation
-    \item Enhance UI/UX capabilities
-    \item Write report
-\end{itemize}
-& 100\%\\
-\hline
-3 & Nguyen Minh Khoi & 2252377 &
-\begin{itemize}[leftmargin=*, nosep, topsep=0pt]
-    \item System design and modelling
-    \item Implement frontend and backend web application
-    \item Main Person-in-charge for report and documentation
-\end{itemize}
-& 100\%\\
-\hline
-\end{tabularx}
-\end{center}
+This appendix gives representative, shortened examples of the ground-truth and judgment records used by the evaluation protocols in Chapter 7. The examples show schema shape rather than full records.
+
+\textbf{OmniDocBench Page Annotation}
+
+OmniDocBench provides page-level layout annotations. Each page contains metadata and an ordered list of detected layout elements. The evaluator converts each \texttt{layout\_dets} item into canonical components such as text, heading, table, figure, or caption.
+
+\begin{lstlisting}[caption={OmniDocBench page-level ground-truth format},label={lst:omnidocbench_gt_format}]
+{
+  "page_info": {
+    "image_path": "images/example_page.png",
+    "page_attribute": {
+      "data_source": "academic_paper",
+      "subset": "table_hard"
+    }
+  },
+  "layout_dets": [
+    {
+      "anno_id": "block_001",
+      "category_type": "text",
+      "order": 1,
+      "poly": [[10, 20], [500, 20], [500, 90], [10, 90]],
+      "text": "This paragraph is the annotated text block."
+    },
+    {
+      "anno_id": "table_001",
+      "category_type": "table",
+      "order": 2,
+      "html": "<table><tr><td>...</td></tr></table>"
+    }
+  ]
+}
+\end{lstlisting}
+
+\textbf{OfficeDocBench Ground Truth}
+
+OfficeDocBench ground truth describes document features and expected text/structure. The project adapts parser output into the same flat schema before calling the official scorer.
+
+\begin{lstlisting}[caption={OfficeDocBench-style ground-truth format},label={lst:officedocbench_gt_format}]
+{
+  "file": "challenge_tables.docx",
+  "format": "docx",
+  "full_text_words": ["introduction", "table", "value"],
+  "features": {
+    "headings": {
+      "present": true,
+      "count": 2,
+      "by_level": {"1": 1, "2": 1}
+    },
+    "tables": {
+      "present": true,
+      "count": 1,
+      "total_rows": 4,
+      "has_merged_cells": true,
+      "merge_count": 1
+    },
+    "metadata": {
+      "title": "Example Document",
+      "author": "Author"
+    }
+  },
+  "element_order": [
+    {"type": "heading", "text": "Introduction"},
+    {"type": "table", "text": "A B C"}
+  ]
+}
+\end{lstlisting}
+
+\textbf{Pandoc and DECO Augmented Office Ground Truth}
+
+Pandoc DOCX/PPTX files are converted from Pandoc native AST into the OfficeDocBench-style schema. DECO spreadsheet annotations are converted from annotated table ranges into the same schema. A DECO range annotation row has the following representative shape.
+
+\begin{lstlisting}[caption={DECO spreadsheet table-region annotation format},label={lst:deco_gt_format}]
+FileName,SheetName,AnnotationLabel,FirstRow,FirstColumn,LastRow,LastColumn
+example.xlsx,Sheet1,Table,0,0,12,5
+\end{lstlisting}
+
+\textbf{Chunking Span Ground Truth}
+
+Chunking evaluation uses exact character-span ground truth. The excerpt must be found verbatim in the source markdown document, so the evaluator can compute overlap between retrieved chunk spans and the gold span.
+
+\begin{lstlisting}[caption={Chunking span-level ground-truth record},label={lst:chunking_gt_format}]
+{
+  "sample_id": "q_000012_r0",
+  "query_id": "q_000012",
+  "query": "What does the section say about smoothing before edge detection?",
+  "relevant_excerpt": "If there is excessive noise in an image, the partial derivatives will not be effective...",
+  "doc_id": "CS131_notes_lecture05",
+  "source_doc_path": ".../CS131_notes_lecture05.md",
+  "start_char": 18420,
+  "end_char": 18635,
+  "reference_index": 0,
+  "reference_count": 1
+}
+\end{lstlisting}
+
+\textbf{Retrieval Question and Judgment Records}
+
+The retrieval benchmark stores generated questions as JSONL records. The judge output stores one relevance label per retrieved evidence item.
+
+\textbf{Question Generation Methodology}
+
+Questions are generated from parsed document sections, not from whole documents. The question-generation model is \texttt{zai-glm-4.7-flash} through AWS Bedrock. The input to the generator is one eligible section at a time, including its section text, source document id, section id, heading, and heading breadcrumb. A section is eligible only after document-level English filtering and section-level content filtering. Very short sections, boilerplate sections, acknowledgement/preface-style text, and table-of-contents-like sections are excluded because they do not provide meaningful evidence for retrieval or end-to-end QA.
+
+For each accepted section, the generator is constrained to create exactly five questions using only that section as source material: three \texttt{simple} factual questions, one \texttt{multi\_intent} question, and one \texttt{reasoning} question. This keeps question type coverage balanced while still preserving document and section coverage. A generated item is accepted only if it includes a non-empty question, a reference answer, an expected evidence hint, and source metadata. Items are rejected or regenerated when the answer is not supported by the source section, the question is malformed, the question duplicates another item from the same section, the answer can be obtained only from the heading/title, or the wording is too ambiguous for retrieval judging. Ground-truth evidence is enforced by storing the section id, heading breadcrumb, reference answer, and expected evidence hint with every question record. Retrieval and answer-quality judgments are performed by a separate \texttt{gpt-5.4-nano} judge.
+
+\begin{lstlisting}[caption={PDF retrieval generated-question record},label={lst:retrieval_question_format}]
+{
+  "query_id": "doc_a:section:0003:simple:1",
+  "doc_id": "doc_a",
+  "section_id": "doc_a:section:0003",
+  "relative_path": "CS131_notes/lecture05.pdf",
+  "heading_text": "Effects of Noise",
+  "heading_breadcrumb": ["Simple Edge Detectors", "Effects of Noise"],
+  "question_type": "simple",
+  "question": "Why must an image be smoothed before edge detection?",
+  "reference_answer": "Smoothing reduces noise so derivatives can identify edges more effectively.",
+  "expected_evidence_hint": "The section explains that excessive noise makes partial derivatives ineffective."
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={PDF retrieval relevance-judgment format},label={lst:retrieval_judgment_format}]
+{
+  "query_id": "doc_a:section:0003:simple:1",
+  "labels": [
+    {
+      "evidence_id": "doc_a::chunk_0007",
+      "relevance": 3,
+      "rationale": "The chunk directly explains smoothing before edge detection."
+    },
+    {
+      "evidence_id": "doc_b::chunk_0012",
+      "relevance": 0,
+      "rationale": "The chunk discusses a different topic."
+    }
+  ]
+}
+\end{lstlisting}
+
+\textbf{End-to-End RAG Judgment Record}
+
+End-to-end RAG evaluation stores the generated answer, retrieved context trace, and judge labels. The label set separates factual correctness from faithfulness and retrieval support.
+
+\begin{lstlisting}[caption={End-to-end RAG judge result format},label={lst:e2e_judgment_format}]
+{
+  "question": "What is the role of smoothing before edge detection?",
+  "reference_answer": "Smoothing reduces noise before derivatives are used for edge detection.",
+  "generated_answer": "Smoothing suppresses noise so derivative-based edge detection is more reliable.",
+  "retrieved_context": [
+    {"id": "chunk_7", "text": "If there is excessive noise in an image..."}
+  ],
+  "judge_result": {
+    "correctness": "correct",
+    "faithfulness": "faithful",
+    "answer_support": "fully_supported",
+    "judge_rationale": "The answer matches the reference and is grounded in the retrieved context."
+  }
+}
+\end{lstlisting}
+
+\chapter{Interface of BK-MInD}\label{chap:interface}
 
 \chapter{Interface of BK-MInD}\label{chap:interface}
 
@@ -756,7 +879,6 @@ Logs user sentiment and enables asynchronous AI-driven quality analysis of RAG p
 
 
 \chapter{PageSpeed Insights Audit}\label{app:pagespeed_insights}
-
 This appendix contains the complete Google PageSpeed Insights audit screenshots referenced in the main evaluation chapter. These figures provide the detailed desktop and mobile frontend performance dashboards underlying the summarized discussion in the system validation section.
 
 \begin{figure}[H]
@@ -772,3 +894,43 @@ This appendix contains the complete Google PageSpeed Insights audit screenshots 
     \caption[Mobile PageSpeed Insights Audit]{Google PageSpeed Insights mobile audit results.}
     \label{fig:mobile_performance}
 \end{figure}
+
+\chapter{Contribution}\label{chap:contribution}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}p{0.8cm}|>{\centering\arraybackslash}p{3.8cm}|>{\centering\arraybackslash}p{2.6cm}|>{\centering\arraybackslash}X|>{\centering\arraybackslash}p{2.1cm}|}
+\hline
+\textbf{No.} & \textbf{Full name} & \textbf{Student ID} & \textbf{Tasks} & \textbf{Progress}\\
+\hline
+1 & Nguyen Quang Phu & 2252621 &
+\begin{itemize}[leftmargin=*, nosep, topsep=0pt]
+    \item Implement overall processing pipeline, system architecture, deployment architecture
+    \item Setting up infrastructure
+    \item Implement System Testing
+    \item Foundations for Media-typed Document Processing
+    \item Write report
+\end{itemize}
+& 100\%\\
+\hline
+2 & Nguyen Ngoc Khoi & 2252378 &
+\begin{itemize}[leftmargin=*, nosep, topsep=0pt]
+    \item Parser for Office documents, PDF documents
+    \item Enhance Media-typed Document Processing
+    \item Implement Processing Pipeline Evaluation
+    \item Enhance UI/UX capabilities
+    \item Write report
+\end{itemize}
+& 100\%\\
+\hline
+3 & Nguyen Minh Khoi & 2252377 &
+\begin{itemize}[leftmargin=*, nosep, topsep=0pt]
+    \item System design and modelling
+    \item Implement frontend and backend web application
+    \item Main Person-in-charge for report and documentation
+\end{itemize}
+& 100\%\\
+\hline
+\end{tabularx}
+\end{center}

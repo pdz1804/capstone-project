@@ -322,7 +322,7 @@ Different pipelines utilize distinct mathematical formulations to calculate the 
 
 For the sparse retrieval baseline, we employed the BM25 algorithm. This probabilistic model estimates relevance based on term frequency (TF) and inverse document frequency (IDF), normalizing for document length
 \begin{equation*}
-    \text{Score}_{\text{BM25}}(Q, D) = \sum_{t \in Q} \text{IDF}(t) \cdot \frac{\text{TF}(t, D) \cdot (k_1 + 1)}{\text{TF}(t, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}
+    \text{Score}_{\text{BM25}}(Q, D) = \sum_{t \in Q} \text{IDF}(t) \cdot \dfrac{\text{TF}(t, D) \cdot (k_1 + 1)}{\text{TF}(t, D) + k_1 \cdot \left(1 - b + b \cdot \dfrac{|D|}{\text{avgdl}}\right)}
 \end{equation*}
 This method focuses on exact keyword matching and is highly effective for queries containing specific identifiers (e.g., proper nouns), though it lacks semantic understanding.
 
@@ -330,7 +330,7 @@ This method focuses on exact keyword matching and is highly effective for querie
 
 For dense retrieval (e.g., MiniLM, BGE), we encode both query and document into fixed-size vectors ($\vec{V}_Q, \vec{V}_D$) and calculate the Cosine Similarity. This captures semantic meaning beyond exact keyword overlap
 \begin{equation*}
-    \text{Score}_{\text{Dense}}(Q, D) = \frac{\vec{V}_{Q} \cdot \vec{V}_{D}}{|\vec{V}_{Q}| \cdot |\vec{V}_{D}|}
+    \text{Score}_{\text{Dense}}(Q, D) = \dfrac{\vec{V}_{Q} \cdot \vec{V}_{D}}{|\vec{V}_{Q}| \cdot |\vec{V}_{D}|}
 \end{equation*}
 The score range is $[-1, 1]$, representing the semantic proximity in the vector space.
 
@@ -348,11 +348,11 @@ To quantitatively assess the pipelines, we adhere to two standard information re
 \begin{enumerate}
     \item \textbf{Recall@k:} Measures the percentage of relevant documents successfully retrieved within the top $k$ results.
     \[
-    \text{Recall@k} = \frac{| \{ \text{Relevant Docs} \} \cap \{ \text{Retrieved Top-k} \} |}{| \{ \text{Total Relevant Docs} \} |}
+    \text{Recall@k} = \dfrac{| \{ \text{Relevant Docs} \} \cap \{ \text{Retrieved Top-k} \} |}{| \{ \text{Total Relevant Docs} \} |}
     \]
     \item \textbf{nDCG@k (Normalized Discounted Cumulative Gain):} This metric evaluates the \textit{ranking quality}. It rewards algorithms that place relevant documents at the top of the list.
     \[
-    \text{nDCG@k} = \frac{DCG@k}{IDCG@k} \quad \text{where} \quad DCG@k = \sum_{i=1}^{k} \frac{2^{rel_i} - 1}{\log_2(i+1)}
+    \text{nDCG@k} = \dfrac{DCG@k}{IDCG@k} \quad \text{where} \quad DCG@k = \sum_{i=1}^{k} \dfrac{2^{rel_i} - 1}{\log_2(i+1)}
     \]
 \end{enumerate}
 
@@ -605,7 +605,7 @@ The system offers three complementary text retrieval strategies, each addressing
 \textit{3. Hybrid Retrieval (BM25 + Dense + RRF)}: The system implements \textbf{Reciprocal Rank Fusion (RRF)}, a fusion algorithm that combines BM25 and dense retrieval results. Reciprocal Rank Fusion (RRF) combines BM25 and dense results by assigning a score to each result based on its rank position. Results ranked higher (lower rank number) get higher scores. The constant k (60) is a smoothing factor that prevents low-ranked results from getting zero score and allows high-ranked results from both methods to be boosted. For each document, RRF calculates:
 
 \[
-\text{RRF}(d) = \frac{1}{k + \text{rank\_BM25}(d)} + \frac{1}{k + \text{rank\_Dense}(d)}
+\text{RRF}(d) = \dfrac{1}{k + \text{rank\_BM25}(d)} + \dfrac{1}{k + \text{rank\_Dense}(d)}
 \]
 
 where $k$ is a constant (typically 60) that smooths the contribution of both rankers. Hybrid retrieval is the \textbf{default strategy} for all queries, balancing keyword precision with semantic understanding.
