@@ -195,13 +195,6 @@ Transformers are a breakthrough AI architecture used in modern language and visi
 
 The Transformer model described in this section is based on \emph{Attention Is All You Need}~\cite{vaswani2017attentionNeurIPS}. It replaces recurrent sequence processing with self-attention, enabling parallel training and effective modeling of long-range dependencies in tasks such as translation, generation, and language understanding.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{img/pdz/06-transformers-architecture.png}
-    \caption[Transformer Architecture]{Transformer Architecture.}
-    \label{fig:Transformer architecture}
-\end{figure}
-
 A Transformer consists of an \textbf{Encoder} and a \textbf{Decoder}, each composed of $N$ identical layers ($N = 6$ in the original implementation).
 
 Each Encoder layer contains two sub-layers:
@@ -209,10 +202,18 @@ Each Encoder layer contains two sub-layers:
     \item Multi-head self-attention.
     \item Position-wise fully connected feed-forward network.
 \end{enumerate}
+
 Each sub-layer is wrapped with a residual connection. The output of each sub-layer is
 \[
 \mathrm{LayerNorm}(x + \mathrm{Sublayer}(x)).
 \]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/pdz/06-transformers-architecture.png}
+    \caption[Transformer Architecture]{Transformer Architecture.}
+    \label{fig:Transformer architecture}
+\end{figure}
 
 Each Decoder layer contains three sub-layers:
 \begin{enumerate}
@@ -269,7 +270,7 @@ Specialized retrieval pipelines often need to combine visual, audio, motion, and
 
 Cross-attentional models are especially useful for reranking. There are two main ways AI models compare text: \textbf{Independent comparison} (each text separately) or \textbf{Joint comparison} (texts together). Joint comparison (called cross-attention) is more accurate but slower. Cross-encoders jointly process the query and document, allowing token-level interactions that capture fine semantic distinctions. This improves precision but is computationally expensive, so cross-attention is usually applied to a smaller candidate set after first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}\footnote{\url{https://www.pinecone.io/learn/series/rag/rerankers/}}. 
 
-Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$
+Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$, the cross-attention output is computed as
 
 \begin{equation*}
     \text{Attention}(Q, K, V) = \text{softmax}\left(\dfrac{QK^{T}}{\sqrt{d_k}}\right)V
@@ -279,7 +280,7 @@ The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{img/pdz/17-cross-attention.jpg}
+    \includegraphics[width=0.8\textwidth]{img/pdz/17-cross-attention.jpg}
     \caption[Cross-attention]{Cross-attention.}
     \label{fig:Cross-attention}
 \end{figure}

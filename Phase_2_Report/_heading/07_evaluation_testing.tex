@@ -18,7 +18,7 @@ To make the evaluation scope reproducible, Table~\ref{tab:evaluation_dataset_pro
     \caption{Evaluation Dataset Provenance and Scale}
     \label{tab:evaluation_dataset_provenance}
     \scalebox{0.82}{
-    \begin{tabular}{p{3.0cm}p{3.3cm}p{4.2cm}p{3.0cm}p{3.0cm}}
+    \begin{tabular}{p{3.0cm}p{3.3cm}p{3.5cm}p{3.7cm}p{3.5cm}}
         \toprule
         \textbf{Dataset} & \textbf{Evaluation Role} & \textbf{Source} & \textbf{Documents / Units} & \textbf{Size} \\
         \midrule
@@ -26,7 +26,7 @@ To make the evaluation scope reproducible, Table~\ref{tab:evaluation_dataset_pro
         OfficeDocBench & Office document parsing benchmark & \href{https://www.sunholo.com/ailang-parse/benchmarks.html}{AILANG benchmark}; \href{https://github.com/sunholo-data/ailang-parse}{GitHub} & 43 files; DOCX pages, PPTX slides, XLSX sheets & Avg 31.4 KB; median 23.0 KB \\
         Pandoc DOCX/PPTX & Augmented Office-style parsing evaluation & \href{https://github.com/jgm/pandoc}{Pandoc GitHub} & 91 files; pages/slides & DOCX avg 20.2 KB; PPTX avg 33.0 KB \\
         DECO XLSX & Spreadsheet table/layout parsing evaluation & \href{https://tud.qucosa.de/en/landing-page/https\%3A\%2F\%2Ftud.qucosa.de\%2Fapi\%2Fqucosa\%253A82977\%2Fmets/}{DECO landing page} & 50 spreadsheets; sheets & Avg 242.1 KB; median 71.4 KB \\
-        Retrieval PDF corpus & PDF QA/RAG retrieval evaluation & Local corpus: \texttt{backend/input/eval-input} & 100 PDF candidates; 43 selected-section files; 347 visual pages & Selected files avg 1,927.2 KB; range 65.5--16,805.9 KB \\
+        Retrieval PDF corpus & PDF QA/RAG retrieval evaluation & Local corpus & 100 PDF candidates; 43 selected-section files; 347 visual pages & Selected files avg 1,927.2 KB; range 65.5--16,805.9 KB \\
         \bottomrule
     \end{tabular}
     }
@@ -40,6 +40,7 @@ The PDF parsing score is computed as a weighted information-preservation score o
 \[
 S_{\mathrm{parse}} = \dfrac{\sum_g w_g s_g}{\sum_g w_g}.
 \]
+
 The main groups are text fidelity, table extraction, read order, section hierarchy, and figure/caption association. 
 
 Text fidelity uses token multiset precision and recall:
@@ -121,21 +122,37 @@ The low Text Score is mitigated downstream by the system's visual embedding path
 %     }
 % \end{table}
 
-Office-based evaluation uses a format-specific unit definition because office files do not share a single page model: DOCX uses pages from document properties, PPTX uses slides, and XLSX uses sheets. Table~\ref{tab:office_dataset_scale} reports the dataset scale used for the Office-based parsing evaluations.
+Office-based evaluation combines three source groups: OfficeDocBench, Pandoc DOCX/PPTX tests, and DECO spreadsheet files. Table~\ref{tab:office_dataset_scale} reports the dataset scale used for the Office-based parsing evaluations, while Table~\ref{tab:office_format_distribution} groups the same files by native format.
 
 \begin{table}[H]
     \centering
     \caption{Office-Based Evaluation Dataset Scale}
     \label{tab:office_dataset_scale}
     \scalebox{0.88}{
-    \begin{tabular}{lrrrrr}
+    \begin{tabular}{lrr}
         \toprule
-        \textbf{Dataset Slice} & \textbf{Files} & \textbf{Avg Size (KB)} & \textbf{Median Size (KB)} & \textbf{Avg Unit} & \textbf{Unit Range} \\
+        \textbf{Dataset Slice} & \textbf{Files} & \textbf{Avg Size (KB)} \\
         \midrule
-        OfficeDocBench & 43 & 31.4 & 23.0 & 1.61 & 1--11 \\
-        Pandoc DOCX & 72 & 20.2 & 14.9 & 1.14 pages & 1--7 \\
-        Pandoc PPTX & 19 & 33.0 & 29.1 & 2.47 slides & 1--6 \\
-        DECO XLSX & 50 & 242.1 & 71.4 & 10.46 sheets & 4--50 \\
+        OfficeDocBench & 43 & 31.4 \\
+        Pandoc (DOCX/PPTX) & 91 & 22.8 \\
+        DECO XLSX & 50 & 242.1 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Office-Based Evaluation Files by Format}
+    \label{tab:office_format_distribution}
+    \scalebox{0.88}{
+    \begin{tabular}{lrr}
+        \toprule
+        \textbf{Format} & \textbf{Files} & \textbf{Avg Size (KB)} \\
+        \midrule
+        DOCX & 101 & 21.4 \\
+        PPTX & 27 & 45.3 \\
+        XLSX & 56 & 217.0 \\
         \bottomrule
     \end{tabular}
     }
