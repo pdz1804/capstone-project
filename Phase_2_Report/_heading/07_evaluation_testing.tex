@@ -131,7 +131,7 @@ Office-based evaluation combines three source groups: OfficeDocBench, Pandoc DOC
     \scalebox{0.88}{
     \begin{tabular}{lrrr}
         \toprule
-        \textbf{Dataset Slice} & \textbf{Files} & \textbf{Avg Size (KB)} & \textbf{Avg Units} \\
+        \textbf{Dataset Slice} & \textbf{Files} & \textbf{Avg Size (KB)} & \textbf{Avg Units (Page/Slide/Sheet)} \\
         \midrule
         OfficeDocBench & 43 & 31.4 & 1.61 \\
         Pandoc (DOCX/PPTX) & 91 & 22.8 & 1.42 \\
@@ -148,11 +148,11 @@ Office-based evaluation combines three source groups: OfficeDocBench, Pandoc DOC
     \scalebox{0.88}{
     \begin{tabular}{lrrr}
         \toprule
-        \textbf{Format} & \textbf{Files} & \textbf{Avg Size (KB)} & \textbf{Avg Units} \\
+        \textbf{Format} & \textbf{Files} & \textbf{Avg Size (KB)} & \textbf{Avg Units (Page/Slide/Sheet)} \\
         \midrule
-        DOCX & 101 & 21.4 & 1.10 \\
-        PPTX & 27 & 45.3 & 2.78 \\
-        XLSX & 56 & 217.0 & 9.54 \\
+        DOCX & 101 & 21.4 & 1.10 pages \\
+        PPTX & 27 & 45.3 & 2.78 slides \\
+        XLSX & 56 & 217.0 & 9.54 sheets \\
         \bottomrule
     \end{tabular}
     }
@@ -1109,53 +1109,7 @@ To ensure the economic viability of the proposed system, we have established a b
 
 \newpage
 
-To ground our cost projections in current market rates, we utilize the following pricing reference for the specific AWS services and components used in our architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
-
-\begin{table}[H]
-    \centering
-    \caption{AWS Pricing Reference (us-west-2).}
-    \label{tab:aws_pricing_ref}
-    \begin{adjustbox}{max width=\linewidth}
-    \begin{tabular}{lllp{3.4cm}p{6cm}}
-        \toprule
-        \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
-        \midrule
-        Amazon ECS Fargate & vCPU & \$0.04048 & per vCPU-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
-        Amazon ECS Fargate & Memory & \$0.004445 & per GB-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
-        \midrule
-        Amazon SageMaker & ml.g4dn.xlarge & \$0.7364 & per instance-hour & \url{https://aws.amazon.com/sagemaker/pricing/} \\
-        \midrule
-        Elastic Load Balancing & ALB Instance & \$0.0225 & per hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
-        Elastic Load Balancing & ALB LCU & \$0.008 & per LCU-hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
-        \midrule
-        AWS Bedrock & Claude Haiku Input & \$0.00025 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Haiku Output & \$0.00125 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        \midrule
-        Amazon DynamoDB & On-Demand Reads & \$0.25 & per 1M RRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        Amazon DynamoDB & Storage & \$0.25 & per GB & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        \midrule
-        Amazon ElastiCache & Serverless (Redis) & \$0.125 & per GB-hour & \url{https://aws.amazon.com/elasticache/pricing/} \\
-        \midrule
-        Amazon ECR & Storage & \$0.10 & per GB-month & \url{https://aws.amazon.com/ecr/pricing/} \\
-        \midrule
-        Amazon CloudWatch & Logs Ingest & \$0.50 & per GB & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
-        Amazon CloudWatch & Logs Storage & \$0.03 & per GB-month & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
-        \midrule
-        AWS WAF & Web ACL & \$5.00 & per month & \url{https://aws.amazon.com/waf/pricing/} \\
-        \midrule
-        Amazon S3 & Standard Storage & \$0.02 & per GB-month & \url{https://aws.amazon.com/s3/pricing/} \\
-        Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
-        \bottomrule
-    \end{tabular}
-\end{adjustbox}
-\end{table}
-
-\newpage
-
-Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
+Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. To keep the main evaluation chapter focused on the projection and its implications, we place the detailed AWS service pricing reference in Appendix~\ref{app:aws_pricing_reference}. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
 
 \begin{table}[H]
     \centering

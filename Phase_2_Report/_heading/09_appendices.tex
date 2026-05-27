@@ -159,8 +159,7 @@ End-to-end RAG evaluation stores the generated answer, retrieved context trace, 
 }
 \end{lstlisting}
 
-\chapter{Interface of BK-MInD}\label{chap:interface}
-
+% \chapter{Interface of BK-MInD}\label{chap:interface}
 \chapter{Interface of BK-MInD}\label{chap:interface}
 
 \begin{figure}[H]
@@ -935,6 +934,52 @@ This appendix contains the complete Google PageSpeed Insights audit screenshots 
     \caption[Mobile PageSpeed Insights Audit]{Google PageSpeed Insights mobile audit results.}
     \label{fig:mobile_performance}
 \end{figure}
+
+\chapter{AWS Pricing Reference}\label{app:aws_pricing_reference}
+
+To ground the cost projections in Chapter~\ref{chap:evaluation_testing}, we use the following pricing reference for the AWS services and components in the deployment architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
+
+\begin{table}[H]
+    \centering
+    \caption{AWS Pricing Reference (us-west-2).}
+    \label{tab:aws_pricing_ref}
+    \begin{adjustbox}{max width=\linewidth}
+    \begin{tabular}{lllp{3.4cm}p{6cm}}
+        \toprule
+        \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
+        \midrule
+        Amazon ECS Fargate & vCPU & \$0.04048 & per vCPU-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
+        Amazon ECS Fargate & Memory & \$0.004445 & per GB-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
+        \midrule
+        Amazon SageMaker & ml.g4dn.xlarge & \$0.7364 & per instance-hour & \url{https://aws.amazon.com/sagemaker/pricing/} \\
+        \midrule
+        Elastic Load Balancing & ALB Instance & \$0.0225 & per hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
+        Elastic Load Balancing & ALB LCU & \$0.008 & per LCU-hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
+        \midrule
+        AWS Bedrock & Claude Haiku Input & \$0.00025 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        AWS Bedrock & Claude Haiku Output & \$0.00125 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        \midrule
+        Amazon DynamoDB & On-Demand Reads & \$0.25 & per 1M RRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+        Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+        Amazon DynamoDB & Storage & \$0.25 & per GB & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+        \midrule
+        Amazon ElastiCache & Serverless (Redis) & \$0.125 & per GB-hour & \url{https://aws.amazon.com/elasticache/pricing/} \\
+        \midrule
+        Amazon ECR & Storage & \$0.10 & per GB-month & \url{https://aws.amazon.com/ecr/pricing/} \\
+        \midrule
+        Amazon CloudWatch & Logs Ingest & \$0.50 & per GB & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
+        Amazon CloudWatch & Logs Storage & \$0.03 & per GB-month & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
+        \midrule
+        AWS WAF & Web ACL & \$5.00 & per month & \url{https://aws.amazon.com/waf/pricing/} \\
+        \midrule
+        Amazon S3 & Standard Storage & \$0.02 & per GB-month & \url{https://aws.amazon.com/s3/pricing/} \\
+        Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
+        \bottomrule
+    \end{tabular}
+\end{adjustbox}
+\end{table}
 
 \chapter{Contribution}\label{chap:contribution}
 

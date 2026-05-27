@@ -168,13 +168,13 @@ Beyond raw performance, FastAPI is engineered with a laser focus on building API
     \item \textbf{Automatic Interactive API Documentation}: Out of the box, FastAPI generates interactive API documentation based on the OpenAPI standard. As soon as an endpoint is written, a fully functional documentation page is available at \texttt{/docs}, allowing frontend developers and consumers to test endpoints and understand the API without manual effort. This tight feedback loop is invaluable for rapid development.
 \end{itemize}
 
-\textbf{Architectural Philosophy and Future-Proofing}
+% \textbf{Architectural Philosophy and Future-Proofing}
 
-The choice between FastAPI and Django represents a fundamental decision between a modern, microservices-first architecture and a traditional, monolithic one.
+% The choice between FastAPI and Django represents a fundamental decision between a modern, microservices-first architecture and a traditional, monolithic one.
 
-Django's philosophy is geared towards building monolithic, full-stack applications with server-rendered templates, an admin panel, and a built-in ORM. These are excellent features for certain projects, but they are less critical for our API-first, decoupled architecture.
+% Django's philosophy is geared towards building monolithic, full-stack applications with server-rendered templates, an admin panel, and a built-in ORM. These are excellent features for certain projects, but they are less critical for our API-first, decoupled architecture.
 
-FastAPI's lightweight and unopinionated nature makes it a natural fit for building independent, scalable microservices. This allows for a logical separation of concerns. We can develop, deploy, and scale the user authentication service independently from the RAG pipeline service. This modularity offers significant long-term advantages in scalability and maintainability, preventing the need for a costly and disruptive rewrite as the platform grows.
+% FastAPI's lightweight and unopinionated nature makes it a natural fit for building independent, scalable microservices. This allows for a logical separation of concerns. We can develop, deploy, and scale the user authentication service independently from the RAG pipeline service. This modularity offers significant long-term advantages in scalability and maintainability, preventing the need for a costly and disruptive rewrite as the platform grows.
 
 % \textbf{Head-to-Head Comparison Matrix}
 
@@ -421,13 +421,13 @@ Our data indicates that ColBERTv2 provides the highest retrieval quality, surpas
 \newpage
 \section{System Architecture Design}
 
-This section presents the proposed architecture of the BK-MInD MRAG system, organized from a high-level system overview down to specific architectural components for retrieval and security. Implementation details, processing parameters, and deployment specifications are documented in Chapter~6 (Implementation).
+This section presents the proposed architecture of the BK-MInD MRAG system, organized from a high-level system overview down to specific architectural components for retrieval and security.
 
 \subsection{High-Level Architecture}\label{sec:highlevel_arch}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/Report 252 Diagram-High Level Architecture.png}
+    \includegraphics[width=0.75\textwidth]{img/pdz/Report 252 Diagram-High Level Architecture.png}
     \caption[High-Level Architecture]{High-Level Architecture.}
     \label{fig:highlevel_architecture}
 \end{figure}
