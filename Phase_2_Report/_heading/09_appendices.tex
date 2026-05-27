@@ -349,7 +349,7 @@ This diagram (Section 2.6) illustrates our polyglot persistence architecture—u
 
 \newpage
 
-\section{Document Parsing: VLM vs Traditional OCR}\label{sec:document_parsing_appendix}
+\section{Document Parsing: Best Practices — VLM vs Traditional OCR}\label{sec:document_parsing_appendix}
 
 \begin{figure}[H]
     \centering
@@ -360,7 +360,7 @@ This diagram (Section 2.6) illustrates our polyglot persistence architecture—u
 
 \subsection*{Description}
 
-This diagram (Section 2.7) shows why we chose Docling (a Vision Language Model–based parser) over traditional OCR:
+This diagram (Section 2.7) presents the evolution of document parsing technology across three generations:
 
 \textbf{Generation 1: Traditional OCR (Tesseract, EasyOCR)}
 \begin{itemize}
@@ -386,35 +386,31 @@ This diagram (Section 2.7) shows why we chose Docling (a Vision Language Model�
     \item Multi-format: 10+ file types (PDF, DOCX, PPTX, XLSX, HTML, etc.)
 \end{itemize}
 
-\textbf{Our Choice}: Docling wins on structure and cost. Text fidelity (47.43\%) is the bottleneck, but the structural integrity makes it superior for RAG systems where layout and table context matter more than raw OCR accuracy.
-
-\subsection{Docling vs Alternatives: Decision Framework}
+\section{Docling: Reason for Choosing VLM Parser}\label{sec:docling_decision_appendix}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/77-docling-reason-pick.png}
-    \caption{Docling parser selection criteria and comparison.}
+    \caption{Docling parser selection criteria and comparison framework.}
     \label{fig:docling_selection}
 \end{figure}
 
 \subsection*{Description}
 
-Comprehensive comparison of document parsing solutions. Docling (IBM, open-source VLM-based) outperforms traditional OCR on structural metrics (table detection, layout hierarchy, read order accuracy) while remaining free and self-hosted. Cloud solutions (Azure, AWS) offer higher text accuracy but introduce cost ($0.001–$0.004/page) and vendor lock-in. Traditional OCR (Tesseract, EasyOCR) excels at text accuracy but completely destroys document structure, making it unsuitable for knowledge extraction from academic PDFs with complex layouts and tables.
+Comprehensive evaluation framework for document parsing solutions. Docling (IBM, open-source VLM-based) outperforms traditional OCR on structural metrics (table detection, layout hierarchy, read order accuracy) while remaining free and self-hosted. Cloud solutions (Azure, AWS) offer higher text accuracy but introduce cost ($0.001–$0.004/page) and vendor lock-in. Traditional OCR (Tesseract, EasyOCR) excels at text accuracy but completely destroys document structure, making it unsuitable for knowledge extraction from academic PDFs with complex layouts and tables. Docling wins on structure preservation and cost, critical for RAG systems.
 
-\newpage
-
-\section{Generation Model: LLM Selection Rationale}\label{sec:generation_model_appendix}
+\section{Generation Model: Reason for Selection}\label{sec:generation_model_appendix}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/78-generation-model-reason-pick.png}
-    \caption{Generation model evaluation and selection criteria.}
+    \caption{Generation model evaluation and selection framework.}
     \label{fig:generation_model_selection}
 \end{figure}
 
 \subsection*{Description}
 
-Evaluation framework for selecting the LLM used in our RAG pipeline. Key considerations: reasoning capability (question decomposition), multi-modal support (image integration), context window size (document summaries), cost-per-token (operational sustainability), latency (real-time chat), and safety guardrails (educational environments). The selected model balances reasoning depth with inference speed and cost, optimized for academic document retrieval and interactive learning scenarios.
+Evaluation framework for the LLM component of our RAG pipeline. Key decision criteria include: reasoning capability (question decomposition and multi-step thinking), multi-modal support (integration with retrieved images and tables), context window size (accommodating long document summaries and multiple retrieved chunks), cost-per-token (operational sustainability at scale), latency constraints (real-time chat responsiveness), and safety guardrails (appropriate for educational environments). The selected model optimizes the balance between reasoning depth, inference speed, and operational cost for academic document retrieval and interactive learning scenarios.
 
 \chapter{Database Schema Definitions}\label{chap:database_schemas}
 The following sections outline the detailed schema properties for the core system tables.
