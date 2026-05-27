@@ -80,7 +80,7 @@ example.xlsx,Sheet1,Table,0,0,12,5
 
 Chunking evaluation uses exact character-span ground truth. The excerpt must be found verbatim in the source markdown document, so the evaluator can compute overlap between retrieved chunk spans and the gold span.
 
-\begin{lstlisting}[caption={Chunking span-level ground-truth record},label={lst:chunking_gt_format}]
+\begin{lstlisting}[caption={Chunking span-level record},label={lst:chunking_gt_format}]
 {
   "sample_id": "q_000012_r0",
   "query_id": "q_000012",
@@ -252,6 +252,8 @@ End-to-end RAG evaluation stores the generated answer, retrieved context trace, 
     \caption{\textbf{Cost Analysis}: Shows detailed breakdown of monthly operational expenses (GPU, storage, database) to help institutions plan budgets.}
     \label{fig:ui_cost}
 \end{figure}
+
+\chapter{Technical Architecture & Design Decisions}\label{chap:technical_decisions}
 
 \section{Reranking: Trade-off Decision Analysis}\label{sec:reranking_appendix}
 
