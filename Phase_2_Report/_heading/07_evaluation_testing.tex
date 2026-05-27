@@ -173,7 +173,7 @@ The updated PDF retrieval evaluation uses a larger benchmark designed to measure
         Embedded visual pages & 347 \\
         \bottomrule
     \end{tabular}
-    \end{adjustbox}
+    }
 \end{table}
 
 The selected retrieval files range from small assignment PDFs to larger technical books. Table~\ref{tab:pdf_retrieval_size_stats} reports file-size statistics in kilobytes for the selected files used to generate questions. The visual index embeds 347 rendered pages from 43 PDFs.
@@ -211,7 +211,7 @@ The selected retrieval files range from small assignment PDFs to larger technica
         \texttt{CS193P Fall 2017 DEMO} & 9 & 11 & 55 \\
         \bottomrule
     \end{tabular}
-    \end{adjustbox}
+    }
 \end{table}
 
 The retrieval run completed without retrieve-stage failures: 600 text-retrieval questions and 600 visual-retrieval questions were judged, with zero text or visual retrieve errors recorded in the evaluation artifacts.
@@ -327,7 +327,7 @@ Visual retrieval outperforms hybrid text retrieval across all evaluated depths. 
         nDCG@10 & 73.83\% & 88.91\% & +15.07\% \\
         \bottomrule
     \end{tabular}
-    \end{adjustbox}
+    }
 \end{table}
 
 The comparison changes the interpretation of PDF retrieval quality. Visual retrieval is currently the stronger modality for top-ranked PDF evidence, particularly at K=1 and K=3. This result is consistent with the nature of the dataset, which contains lecture notes, slides, mathematical notation, diagrams, tables, captions, and layout-dependent explanations. Rendered pages preserve heading context, visual grouping, formula placement, and table structure, whereas text retrieval depends on parsing and chunking decisions that may split a logically coherent page or section into several fragments. Hybrid text retrieval remains important because its Recall@10 is high, making it useful for candidate expansion and fallback evidence. However, improving text retrieval should focus on ranking quality, page-aware or section-aware chunking, heading breadcrumb preservation, and reranking rather than only increasing candidate depth.
