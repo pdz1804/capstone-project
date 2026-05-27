@@ -168,13 +168,13 @@ Beyond raw performance, FastAPI is engineered with a laser focus on building API
     \item \textbf{Automatic Interactive API Documentation}: Out of the box, FastAPI generates interactive API documentation based on the OpenAPI standard. As soon as an endpoint is written, a fully functional documentation page is available at \texttt{/docs}, allowing frontend developers and consumers to test endpoints and understand the API without manual effort. This tight feedback loop is invaluable for rapid development.
 \end{itemize}
 
-\textbf{Architectural Philosophy and Future-Proofing}
+% \textbf{Architectural Philosophy and Future-Proofing}
 
-The choice between FastAPI and Django represents a fundamental decision between a modern, microservices-first architecture and a traditional, monolithic one.
+% The choice between FastAPI and Django represents a fundamental decision between a modern, microservices-first architecture and a traditional, monolithic one.
 
-Django's philosophy is geared towards building monolithic, full-stack applications with server-rendered templates, an admin panel, and a built-in ORM. These are excellent features for certain projects, but they are less critical for our API-first, decoupled architecture.
+% Django's philosophy is geared towards building monolithic, full-stack applications with server-rendered templates, an admin panel, and a built-in ORM. These are excellent features for certain projects, but they are less critical for our API-first, decoupled architecture.
 
-FastAPI's lightweight and unopinionated nature makes it a natural fit for building independent, scalable microservices. This allows for a logical separation of concerns. We can develop, deploy, and scale the user authentication service independently from the RAG pipeline service. This modularity offers significant long-term advantages in scalability and maintainability, preventing the need for a costly and disruptive rewrite as the platform grows.
+% FastAPI's lightweight and unopinionated nature makes it a natural fit for building independent, scalable microservices. This allows for a logical separation of concerns. We can develop, deploy, and scale the user authentication service independently from the RAG pipeline service. This modularity offers significant long-term advantages in scalability and maintainability, preventing the need for a costly and disruptive rewrite as the platform grows.
 
 % \textbf{Head-to-Head Comparison Matrix}
 
@@ -251,7 +251,7 @@ A robust multimodal database must support various search paradigms. All major pl
 
 \textbf{Scalability, Latency, and Economics}
 
-Transitioning to production demands rigorous evaluation of latency, scalability, and Total Cost of Ownership (TCO). Driven by its \textbf{Rust-based engine}, Qdrant demonstrates exceptional performance, maintaining 30-40 millisecond p95 latencies and sustaining 8,000 to 15,000 QPS, significantly outperforming Go-based alternatives in tail latency. Economically, Qdrant offers a generous perpetual free tier for prototyping and scales cost-effectively via custom sharding and the Raft consensus protocol, whereas enterprise solutions like Milvus and Vespa carry higher base infrastructure costs.
+Transitioning to production demands rigorous evaluation of latency, scalability, and Total Cost of Ownership (TCO). Driven by its \textbf{Rust-based engine}, Qdrant demonstrates exceptional performance, maintaining 30-40 millisecond p95 latencies, significantly outperforming Go-based alternatives in tail latency. Economically, Qdrant offers a generous perpetual free tier for prototyping and scales cost-effectively via custom sharding and the Raft consensus protocol, whereas enterprise solutions like Milvus and Vespa carry higher base infrastructure costs.
 
 \begin{table}[H]
     \centering
@@ -272,9 +272,9 @@ Transitioning to production demands rigorous evaluation of latency, scalability,
     }
 \end{table}
 
-\textbf{Developer Experience and Integration}
+% \textbf{Developer Experience and Integration}
 
-Developer experience dictates integration speed. While Weaviate offers simplified APIs, it can lack granular configurability. Vespa provides deep tensor control but suffers from an exceptionally steep learning curve. \textbf{Qdrant} strikes the perfect balance. It features straightforward Docker deployments, highly readable Python SDKs, and deep integration with the \texttt{FastEmbed} library. This allows developers to generate dense and sparse embeddings locally without heavy external dependencies, vastly simplifying the creation of multi-vector RAG pipelines.
+% Developer experience dictates integration speed. While Weaviate offers simplified APIs, it can lack granular configurability. Vespa provides deep tensor control but suffers from an exceptionally steep learning curve. \textbf{Qdrant} strikes the perfect balance. It features straightforward Docker deployments, highly readable Python SDKs, and deep integration with the \texttt{FastEmbed} library. This allows developers to generate dense and sparse embeddings locally without heavy external dependencies, vastly simplifying the creation of multi-vector RAG pipelines.
 
 \textbf{Final Selection and Strategic Recommendation}
 
@@ -298,8 +298,8 @@ Developer experience dictates integration speed. While Weaviate offers simplifie
 
 After an exhaustive analysis of architectural design, search mechanism breadth, economic efficiency, and specific multi-vector handling capabilities, we have selected \textbf{Qdrant} as the primary cloud Vector Database for the production environment.
 
-\textbf{Strategic Rationale for Selecting Qdrant}:
-Qdrant serves as the optimal highly performant alternative for our multimodal RAG architecture. Its architectural decision to bypass HNSW indexing for heavy multi-vector payloads demonstrates a deep understanding of memory economics, ensuring high-speed ingestion and reduced RAM overhead. For our team, Qdrant's native support for late-interaction multi-vector embeddings makes ColQwen integration exceptionally streamlined, while its Rust-powered engine provides the necessary latency and throughput performance for the system.
+% \textbf{Strategic Rationale for Selecting Qdrant}:
+% Qdrant serves as the optimal highly performant alternative for our multimodal RAG architecture. Its architectural decision to bypass HNSW indexing for heavy multi-vector payloads demonstrates a deep understanding of memory economics, ensuring high-speed ingestion and reduced RAM overhead. For our team, Qdrant's native support for late-interaction multi-vector embeddings makes ColQwen integration exceptionally streamlined, while its Rust-powered engine provides the necessary latency and throughput performance for the system.
 
 Having selected the core technology stack (React frontend, FastAPI backend, and Qdrant vector database), the following section presents empirical benchmarks of embedding and retrieval configurations to validate these technology choices and inform the architectural design decisions.
 
@@ -418,15 +418,16 @@ Our data indicates that ColBERTv2 provides the highest retrieval quality, surpas
     \item \textbf{Operational Note:} It is worth noting that while ColBERT's retrieval time is efficient ($6.5s$ on GPU), the indexing process is resource-intensive. In our environment, indexing required $\approx35$ minutes on CPU\footnote{Due to FAISS-GPU limitations on the Colab instance, indexing fell back to CPU.} compared to mere seconds/minutes for standard dense models. Despite this setup cost, ColBERT represents the state-of-the-art for retrieval accuracy on this dataset.
 \end{itemize}
 
+\newpage
 \section{System Architecture Design}
 
-This section presents the proposed architecture of the BK-MInD MRAG system, organized from a high-level system overview down to specific architectural components for retrieval and security. Implementation details, processing parameters, and deployment specifications are documented in Chapter~6 (Implementation).
+This section presents the proposed architecture of the BK-MInD MRAG system, organized from a high-level system overview down to specific architectural components for retrieval and security.
 
 \subsection{High-Level Architecture}\label{sec:highlevel_arch}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/Report 252 Diagram-High Level Architecture.png}
+    \includegraphics[width=0.75\textwidth]{img/pdz/Report 252 Diagram-High Level Architecture.png}
     \caption[High-Level Architecture]{High-Level Architecture.}
     \label{fig:highlevel_architecture}
 \end{figure}
@@ -647,7 +648,7 @@ The LLM reads this aggregated context and generates a natural language answer gr
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{img/pdz/49-security-arch.jpg}
+    \includegraphics[width=\textwidth]{img/pdz/49-security-arch.png}
     \caption{BK-MInD Three-Tier Security Architecture.}
     \label{fig:security_arch}
 \end{figure}
@@ -784,4 +785,3 @@ The experimental findings above directly inform the hardware and software specif
     \item \textbf{Model Size Constraints}: The system's embedding models are fixed at deployment time. Switching to larger models (e.g., upgrading from MiniLM to BGE-Large for embedding) requires reindexing the entire corpus. Reranking is globally disabled by default (\texttt{skip\_reranker=true}) for latency optimization, though the code is retained for fast rollback.
     \item \textbf{Limited Multi-Tenancy}: The file-system-based storage architecture lacks built-in isolation mechanisms. Deploying the system for multiple independent clients requires separate instances or manual namespace management.
 \end{itemize}
-
