@@ -263,8 +263,6 @@ This diagram (Section 2.7) presents the evolution of document parsing technology
     \item Multi-format: 10+ file types (PDF, DOCX, PPTX, XLSX, HTML, etc.)
 \end{itemize}
 
-\newpage
-
 \section{Docling: Reason for Choosing VLM Parser}\label{sec:docling_decision_appendix}
 
 \begin{figure}[H]
@@ -277,8 +275,6 @@ This diagram (Section 2.7) presents the evolution of document parsing technology
 \subsection*{Description}
 
 Comprehensive evaluation framework for document parsing solutions. Docling (IBM, open-source VLM-based) outperforms traditional OCR on structural metrics (table detection, layout hierarchy, read order accuracy) while remaining free and self-hosted. Cloud solutions (Azure, AWS) offer higher text accuracy but introduce cost ($0.001–$0.004/page) and vendor lock-in. Traditional OCR (Tesseract, EasyOCR) excels at text accuracy but completely destroys document structure, making it unsuitable for knowledge extraction from academic PDFs with complex layouts and tables. Docling wins on structure preservation and cost, critical for RAG systems.
-
-\newpage
 
 \section{Generation Model: Reason for Selection}\label{sec:generation_model_appendix}
 
