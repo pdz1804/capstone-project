@@ -127,7 +127,7 @@ ASR evaluation commonly uses LibriSpeech~\cite{panayotov2015librispeech}, Switch
 These metrics measure the difference between the reference transcription and the hypothesis transcription produced by the system. Word Error Rate (WER) is computed as
 
 \begin{equation*}
-    \text{WER} = \frac{S + D + I}{N}
+    \text{WER} = \dfrac{S + D + I}{N}
     \label{eq:wer}
 \end{equation*}
 
@@ -142,7 +142,7 @@ where
 Character Error Rate (CER) applies the same formulation at the character level:
 
 \begin{equation}
-    \text{CER} = \frac{S + D + I}{N}
+    \text{CER} = \dfrac{S + D + I}{N}
     \label{eq:cer}
 \end{equation}
 
@@ -220,10 +220,10 @@ As in the Encoder, residual connections and layer normalization are applied to e
 
 Because the Transformer contains no recurrence or convolution, positional information must be injected explicitly. The model adds Positional Encodings to input embeddings at the bottoms of both the Encoder and Decoder stacks. The original Transformer uses sinusoidal encodings defined as
 \[
-\mathrm{PE}(pos, 2i) = \sin\left(\frac{pos}{10000^{2i / d_{\text{model}}}}\right),
+\mathrm{PE}(pos, 2i) = \sin\left(\dfrac{pos}{10000^{2i / d_{\text{model}}}}\right),
 \]
 \[
-\mathrm{PE}(pos, 2i+1) = \cos\left(\frac{pos}{10000^{2i / d_{\text{model}}}}\right),
+\mathrm{PE}(pos, 2i+1) = \cos\left(\dfrac{pos}{10000^{2i / d_{\text{model}}}}\right),
 \]
 where $pos$ is the token position and $i$ is the dimension index. Each dimension corresponds to a sinusoid at a different frequency, enabling the model to encode both absolute and relative positional patterns.
 
@@ -234,7 +234,7 @@ Similarity between queries and keys is computed via the dot product $QK^{T}$, fo
 \begin{equation}
 \label{eq:attention}
 \mathrm{Attention}(Q, K, V)
-= \mathrm{softmax}\left( \frac{QK^{T}}{\sqrt{d_{K}}} \right) V.
+= \mathrm{softmax}\left( \dfrac{QK^{T}}{\sqrt{d_{K}}} \right) V.
 \end{equation}
 
 where
@@ -268,7 +268,7 @@ Cross-attentional models are especially useful for reranking. Unlike dual encode
 Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$
 
 \begin{equation*}
-    \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^{T}}{\sqrt{d_k}}\right)V
+    \text{Attention}(Q, K, V) = \text{softmax}\left(\dfrac{QK^{T}}{\sqrt{d_k}}\right)V
 \end{equation*}
 
 The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}\footnote{\url{https://magazine.sebastianraschka.com/p/understanding-multimodal-llms}}.
@@ -336,7 +336,7 @@ where $[z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}]$ is the concatenat
 To align representations across modalities, we apply a contrastive loss
 \begin{equation*}
     \mathcal{L}_{\text{contrast}} = -\sum_{i=1}^{N} \log
-    \frac{\exp(\mathrm{sim}(z_i^{(a)}, z_i^{(t)}) / \tau)}
+    \dfrac{\exp(\mathrm{sim}(z_i^{(a)}, z_i^{(t)}) / \tau)}
     {\sum_{j=1}^{N} \exp(\mathrm{sim}(z_i^{(a)}, z_j^{(t)}) / \tau)}
 \end{equation*}
 where $z_i^{(a)}$ and $z_i^{(t)}$ are the audio and text embeddings of paired sample $i$, $\mathrm{sim}(z_i^{(a)}, z_j^{(t)})$ is a similarity function (e.g., cosine similarity), $\tau$ is the temperature scaling factor, and $N$ is the batch size.
@@ -645,7 +645,7 @@ Modern RAG systems typically use autoregressive or encoder-decoder Transformers,
 
 In cross-attention generation, retrieved representations form a secondary attention memory:
 \[
-\text{Attention}(Q, K_D, V_D) = \text{softmax}\left(\frac{QK_D^\top}{\sqrt{d_k}}\right)V_D,
+\text{Attention}(Q, K_D, V_D) = \text{softmax}\left(\dfrac{QK_D^\top}{\sqrt{d_k}}\right)V_D,
 \]
 where $K_D, V_D$ are keys and values derived from retrieval encodings.
 
@@ -656,7 +656,7 @@ where $K_D, V_D$ are keys and values derived from retrieval encodings.
 
 To further improve faithfulness, contrastive losses can be incorporated to prefer evidence-grounded explanations:
 \[
-\mathcal{L}_{\text{faith}} = -\log \frac{\exp(s(y, D^+))}{\exp(s(y, D^+)) + \exp(s(y, D^-))},
+\mathcal{L}_{\text{faith}} = -\log \dfrac{\exp(s(y, D^+))}{\exp(s(y, D^+)) + \exp(s(y, D^-))},
 \]
 where $D^+$ contains supporting evidence and $D^-$ contains retrieved distractors. The score function $s(y, D)$ measures how well a generated output $y$ is grounded in a document set $D$, commonly implemented as a similarity function such as:
 \[
