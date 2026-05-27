@@ -9,9 +9,57 @@
 
 This section evaluates the quality of document parsing and structural extraction, which form the foundation of the entire RAG pipeline. Poor parsing quality leads to missing evidence, misaligned text blocks, and incorrect reading order-all of which degrade downstream retrieval and generation. We evaluate parsing across two comprehensive benchmarks: OmniDocBench for PDF documents and OfficeDocBench for office formats (DOCX, XLSX, PPTX).
 
+\textbf{Evaluation Dataset Provenance and Scale}
+
+To make the evaluation scope reproducible, Table~\ref{tab:evaluation_dataset_provenance} summarizes the source, scale, and evaluation role of each dataset used in this chapter. Public benchmark datasets are linked to their upstream sources, while the retrieval corpus is reported as an internally assembled local corpus because it is not a single public benchmark release.
+
+\begin{table}[H]
+    \centering
+    \caption{Evaluation Dataset Provenance and Scale}
+    \label{tab:evaluation_dataset_provenance}
+    \scalebox{0.82}{
+    \begin{tabular}{p{3.0cm}p{3.3cm}p{3.5cm}p{3.7cm}p{3.5cm}}
+        \toprule
+        \textbf{Dataset} & \textbf{Evaluation Role} & \textbf{Source} & \textbf{Documents / Units} & \textbf{Size} \\
+        \midrule
+        OmniDocBench & PDF parsing and structure extraction & \href{https://huggingface.co/datasets/opendatalab/OmniDocBench}{Hugging Face}; \href{https://github.com/opendatalab/OmniDocBench}{GitHub} & 1,650 annotated page images & $\sim$1.55 GB public dataset; $\sim$985 KB/page \\
+        OfficeDocBench & Office document parsing benchmark & \href{https://www.sunholo.com/ailang-parse/benchmarks.html}{AILANG benchmark}; \href{https://github.com/sunholo-data/ailang-parse}{GitHub} & 43 files; DOCX pages, PPTX slides, XLSX sheets & Avg 31.4 KB; median 23.0 KB \\
+        Pandoc DOCX/PPTX & Augmented Office-style parsing evaluation & \href{https://github.com/jgm/pandoc}{Pandoc GitHub} & 91 files; pages/slides & DOCX avg 20.2 KB; PPTX avg 33.0 KB \\
+        DECO XLSX & Spreadsheet table/layout parsing evaluation & \href{https://tud.qucosa.de/en/landing-page/https\%3A\%2F\%2Ftud.qucosa.de\%2Fapi\%2Fqucosa\%253A82977\%2Fmets/}{DECO landing page} & 50 spreadsheets; sheets & Avg 242.1 KB; median 71.4 KB \\
+        Retrieval PDF corpus & PDF QA/RAG retrieval evaluation & Local corpus & 100 PDF candidates; 43 selected-section files; 347 visual pages & Selected files avg 1,927.2 KB; range 65.5--16,805.9 KB \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\textbf{Parsing Evaluation Protocol}
+
+For parsing evaluation, the parser output is first converted into the same canonical schema as the benchmark ground truth. For OmniDocBench, each annotated page image is converted into ordered components such as text blocks, headings, tables, figures, and captions using the official \texttt{layout\_dets} annotations. For OfficeDocBench and the augmented Pandoc/DECO sets, parsed outputs are adapted into the OfficeDocBench flat schema containing fields such as \texttt{text\_elements}, \texttt{headings}, \texttt{tables}, \texttt{lists}, \texttt{comments}, \texttt{metadata}, and related structural features. Representative ground-truth formats are shown in Appendix~\ref{chap:evaluation_gt_formats}.
+
+The PDF parsing score is computed as a weighted information-preservation score over metric groups. For an applicable group $g$ with score $s_g$ and weight $w_g$, the overall parsing score is:
+\[
+S_{\mathrm{parse}} = \dfrac{\sum_g w_g s_g}{\sum_g w_g}.
+\]
+
+The main groups are text fidelity, table extraction, read order, section hierarchy, and figure/caption association. 
+
+Text fidelity uses token multiset precision and recall:
+
+$$P=\dfrac{|T_{gt}\cap T_{pred}|}{|T_{pred}|}, \quad R=\dfrac{|T_{gt}\cap T_{pred}|}{|T_{gt}|}$$,
+
+combined as $F_1=\dfrac{2PR}{P+R}$. 
+
+Table quality combines detection coverage with content similarity: matched tables are scored using official OmniDocBench TEDS when available, otherwise a tree/edit fallback is used; the table group score is the average of coverage F1 and mean table-content score. Read order is pairwise order accuracy over matched components:
+\[
+S_{\mathrm{order}} = \dfrac{\#\{(i,j): \mathrm{order}_{gt}(i,j)=\mathrm{order}_{pred}(i,j)\}}{\#\{(i,j)\}}.
+\]
+Section hierarchy is computed as $0.6 \times$ node recall plus $0.4 \times$ path/level accuracy. OfficeDocBench uses its official composite formula: feature detection (15\%), structural recall (20\%), structural quality (15\%), content fidelity (15\%), text Jaccard (10\%), element-count accuracy (15\%), and metadata accuracy (10\%). 
+
+The formula for calculating Text Jaccard is $\dfrac{|W_{gt}\cap W_{pred}|}{|W_{gt}\cup W_{pred}|}$.
+
 \textbf{OmniDocBench Results}
 
-OmniDocBench is a large-scale PDF parsing benchmark spanning 1,650 pages with diverse document types including academic papers, books, presentations, exams, and magazines in both English and Chinese. Each document is annotated with block-level and span-level categories, reading order, and table/formula structure. We evaluated \textbf{DocumentProcessorV2} in Hybrid Mode, which combines \textbf{ItemSequencer} (structural hierarchy using PyMuPDF) with \textbf{Docling} (text and table extraction with OCR enabled, VLM disabled).
+OmniDocBench is a large-scale PDF parsing benchmark spanning 1,650 annotated pages with diverse document types including academic papers, books, presentations, exams, and magazines in both English and Chinese. The upstream dataset is available through Hugging Face and GitHub, with a public asset size of approximately 1.55 GB, or about 985 KB per annotated page. Exact local source-asset file-size statistics could not be recomputed because the raw OmniDocBench assets were not present in the local workspace. Each document is annotated with block-level and span-level categories, reading order, and table/formula structure. We evaluated \textbf{DocumentProcessorV2} in Hybrid Mode, which combines \textbf{ItemSequencer} (structural hierarchy using PyMuPDF) with \textbf{Docling} (text and table extraction with OCR enabled, VLM disabled).
 
 \begin{table}[H]
     \centering
@@ -32,24 +80,79 @@ OmniDocBench is a large-scale PDF parsing benchmark spanning 1,650 pages with di
     }
 \end{table}
 
-The results reveal a system that excels at structural tasks but struggles with text fidelity. The 92.60\% Read Order score demonstrates robust handling of multi-column layouts and complex document structures, proving the effectiveness of ItemSequencer's hierarchy approach. The 76.86\% Table Score shows that Docling's grid extraction is reliable even without vision-language models, correctly identifying cell boundaries and merged cells. However, the 47.43\% Text Score reveals three bottlenecks: (1) missing complex LaTeX formulas (not extracted), (2) text block fragmentation on mathematical pages (chunks split incorrectly), and (3) OCR noise (incorrect character recognition). These bottlenecks are addressable through formula-specific processors and improved OCR models, but the current configuration is suitable for documents with moderate mathematical content.
+The results reveal a system that excels at structural tasks but struggles with text fidelity. The 92.60\% Read Order score demonstrates robust handling of multi-column layouts and complex document structures, proving the effectiveness of ItemSequencer's hierarchy approach. The 76.86\% Table Score shows that Docling's grid extraction is reliable even without vision-language models, correctly identifying cell boundaries and merged cells. However, the 47.43\% Text Score indicates that token-level extraction remains challenging, primarily due to missing complex LaTeX formulas, text block fragmentation on heavily mathematical pages, and OCR noise. The comparison is against OmniDocBench's page-level ground truth after both prediction and annotation are converted into the same canonical component schema; it is therefore a strict token-preservation measurement, not an end-user answer-quality score. In the reported run, \textbf{DocumentProcessorV2 Hybrid} uses ItemSequencer for structure and Docling with OCR enabled but VLM/formula enrichment disabled, so formula-heavy pages are expected to be the weakest case.
 
-\textbf{OfficeDocBench Results}
-
-OfficeDocBench evaluates classical office document parsing across DOCX, XLSX, and PPTX formats. We evaluated 42 files (28 DOCX, 6 XLSX, 8 PPTX) representing 62\% of the full benchmark corpus. The evaluation measures text preservation, structural recall, element accuracy, and feature detection across various document complexities.
+The low Text Score is mitigated downstream by the system's visual embedding pathway. Instead of relying only on OCR text, BK-MInD also rasterizes PDF pages and indexes them with ColQwen visual embeddings. This preserves page layout, formulas, diagrams, and table geometry as retrievable evidence even when the text parser cannot fully serialize them. Table~\ref{tab:ocr_vlm_tradeoff} summarizes the expected trade-off if formula/VLM extraction is enabled in future runs. The latency numbers are operational planning estimates rather than results included in the current benchmark, because the reported parsing score was produced with VLM disabled.
 
 \begin{table}[H]
     \centering
-    \caption{OfficeDocBench Results by Format.}
-    \label{tab:officedocbench_results}
-    \scalebox{0.90}{
-    \begin{tabular}{lrrrrr}
+    \caption{OCR-Only vs. VLM/Formula-Enriched Parsing Trade-off}
+    \label{tab:ocr_vlm_tradeoff}
+    \scalebox{0.86}{
+    \begin{tabular}{p{3.6cm}p{4.4cm}p{4.0cm}p{3.5cm}}
         \toprule
-        \textbf{Format} & \textbf{Files} & \textbf{Composite} & \textbf{Text Jaccard} & \textbf{Struct Recall} & \textbf{Feature Detect} \\
+        \textbf{Configuration} & \textbf{Expected Improvement} & \textbf{Main Trade-off} & \textbf{Latency Budget} \\
         \midrule
-        DOCX & 28 & 60.98\% & 78.56\% & 67.80\% & High \\
-        PPTX & 8 & 54.10\% & Good & Moderate & Partial \\
-        XLSX & 6 & 43.10\% & Moderate & Lower & Lower \\
+        OCR-only Docling path (current reported run) & Fast text extraction for paragraphs, headings, and many tables & Weak on math formulas, dense diagrams, and visual-heavy pages & Baseline; typically a few seconds per page depending on layout and hardware \\
+        Selective VLM/formula enrichment & Better recovery of equations, formula-adjacent text, chart labels, and visual-heavy content & Higher GPU cost and slower ingestion; should be applied only to detected formula/visual pages & Plan for an additional $\sim$5--15 seconds per selected page on GPU-backed inference; CPU-only can be substantially slower \\
+        Visual embedding pathway (current mitigation) & Retrieves the original rendered page even when OCR text is incomplete & Does not convert formulas into clean text; generator must read visual evidence & Indexing-time cost, but improves retrieval robustness for formula/layout evidence \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+% \textbf{OfficeDocBench Results}
+
+% OfficeDocBench evaluates classical office document parsing across DOCX, XLSX, and PPTX formats. We evaluated 43 files (29 DOCX, 6 XLSX, 8 PPTX) representing the locally supported Office subset of the benchmark. The evaluation measures text preservation, structural recall, element accuracy, and feature detection across various document complexities.
+
+% \begin{table}[H]
+%     \centering
+%     \caption{OfficeDocBench Results by Format}
+%     \label{tab:officedocbench_results}
+%     \scalebox{0.90}{
+%     \begin{tabular}{lrrrrr}
+%         \toprule
+%         \textbf{Format} & \textbf{Files} & \textbf{Composite} & \textbf{Text Jaccard} & \textbf{Struct Recall} & \textbf{Feature Detect} \\
+%         \midrule
+%         DOCX & 29 & 60.98\% & 78.56\% & 67.80\% & High \\
+%         PPTX & 8 & 54.10\% & Good & Moderate & Partial \\
+%         XLSX & 6 & 43.10\% & Moderate & Lower & Lower \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+% \end{table}
+
+Office-based evaluation combines three source groups: OfficeDocBench, Pandoc DOCX/PPTX tests, and DECO spreadsheet files. Table~\ref{tab:office_dataset_scale} reports the dataset scale used for the Office-based parsing evaluations, while Table~\ref{tab:office_format_distribution} groups the same files by native format. Average units denote pages for DOCX files, slides for PPTX files, and sheets for XLSX files.
+
+\begin{table}[H]
+    \centering
+    \caption{Office-Based Evaluation Dataset Scale}
+    \label{tab:office_dataset_scale}
+    \scalebox{0.88}{
+    \begin{tabular}{lrrr}
+        \toprule
+        \textbf{Dataset Slice} & \textbf{Files} & \textbf{Avg Size (KB)} & \textbf{Avg Units (Page/Slide/Sheet)} \\
+        \midrule
+        OfficeDocBench & 43 & 31.4 & 1.61 \\
+        Pandoc (DOCX/PPTX) & 91 & 22.8 & 1.42 \\
+        DECO XLSX & 50 & 242.1 & 10.46 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Office-Based Evaluation Files by Format}
+    \label{tab:office_format_distribution}
+    \scalebox{0.88}{
+    \begin{tabular}{lrrr}
+        \toprule
+        \textbf{Format} & \textbf{Files} & \textbf{Avg Size (KB)} & \textbf{Avg Units (Page/Slide/Sheet)} \\
+        \midrule
+        DOCX & 101 & 21.4 & 1.10 pages \\
+        PPTX & 27 & 45.3 & 2.78 slides \\
+        XLSX & 56 & 217.0 & 9.54 sheets \\
         \bottomrule
     \end{tabular}
     }
@@ -63,135 +166,222 @@ These results confirm that the parsing pipeline successfully extracts the primar
 
 This section evaluates whether the system can reliably retrieve relevant text and visual evidence in response to user queries. Retrieval quality directly impacts answer correctness: if the right passages are not retrieved, the language model cannot generate correct answers even with perfect generation. We evaluate both text and image retrieval strategies, as well as media (video/audio) parsing quality.
 
-\textbf{Text Retrieval Results}
+\textbf{PDF Retrieval Benchmark Setup}
 
-Text retrieval was evaluated across three strategies (Text - Keyword Search, Text - Semantic Search, Image) on 2430 synthetic questions generated from 20 active documents. We use GPT-4o-mini to generate those queries for each parsed section of each document. The queries span four difficulty categories: simple factual lookup, complex multi-part questions, reasoning-based queries, and cross-document reasoning. Evaluation metrics include Recall@K (proportion of relevant documents found in top K results) and nDCG@K (ranking quality considering both relevance and position).
-
-Retrieval is the foundation. If the system can't find the relevant lecture material, the AI assistant can't answer your question no matter how good the AI is. For example, if you ask ``What is photosynthesis?'' but the system retrieves a paragraph about mitochondria instead, the AI will explain mitochondria, not photosynthesis.
+The updated PDF retrieval evaluation uses a larger benchmark designed to measure whether the retrieval layer can recover evidence from realistic academic and instructional documents. The corpus is stored locally under \texttt{backend/input/eval-input} and consists of educational PDF material assembled from course notes, lecture slides, assignments, readings, and textbooks. From 100 PDF candidates after filename filtering, we selected 43 files that are in English and under 100-page, with selected sections (over 1000 characters), 120 selected sections, and 600 generated questions. Each parsed eligible section generated five questions: three simple factual questions, one multi-intent question, and one reasoning question. This resulted in 360 simple questions, 120 multi-intent questions, and 120 reasoning questions. Retrieved evidence was judged using a graded relevance scale from 0 to 3, with strict binary relevance defined as relevance $\geq 2$ for Recall@K. nDCG@K uses the full graded relevance score and therefore measures ranking quality rather than only binary hit rate.
 
 \begin{table}[H]
     \centering
-    \caption{BM25 Text Retrieval Performance (All K Values with Standard Deviation)}
-    \label{tab:bm25_text_full}
-    \begin{adjustbox}{max width=\linewidth}
-    \begin{tabular}{lrr}
-        \toprule
-        \textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
-        \midrule
-        Recall@1 & 23.83\% & ±24.23\% \\
-        Recall@3 & 46.98\% & ±27.21\% \\
-        Recall@5 & 69.66\% & ±20.26\% \\
-        Recall@10 & 100.0\% & ±0.00\% \\
-        \midrule
-        nDCG@1 & 76.67\% & ±38.87\% \\
-        nDCG@3 & 67.96\% & ±30.79\% \\
-        nDCG@5 & 74.89\% & ±22.67\% \\
-        nDCG@10 & \textbf{84.84\%} & ±16.74\% \\
-        \bottomrule
-    \end{tabular}
-    \end{adjustbox}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \caption{Dense Text Retrieval Performance (All K Values with Standard Deviation).}
-    \label{tab:dense_text_full}
-    \begin{adjustbox}{max width=\linewidth}
-    \begin{tabular}{lrr}
-        \toprule
-        \textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
-        \midrule
-        Recall@1 & 24.62\% & ±24.90\% \\
-        Recall@3 & 50.05\% & ±31.33\% \\
-        Recall@5 & 70.85\% & ±24.72\% \\
-        Recall@10 & 100.0\% & ±0.00\% \\
-        \midrule
-        nDCG@1 & 66.67\% & ±42.16\% \\
-        nDCG@3 & 65.81\% & ±33.28\% \\
-        nDCG@5 & 70.82\% & ±25.64\% \\
-        nDCG@10 & \textbf{81.92\%} & ±18.56\% \\
-        \bottomrule
-    \end{tabular}
-    \end{adjustbox}
-\end{table}
-
-\textbf{Comparative Analysis: BM25 vs. Dense}
-
-\begin{table}[H]
-    \centering
-    \caption{BM25 vs. Dense Retriever Comparison.}
-    \label{tab:bm25_dense_comparison}
+    \caption{PDF Retrieval Evaluation Dataset}
+    \label{tab:pdf_retrieval_dataset}
     \scalebox{0.88}{
-    \begin{tabular}{lrrrr}
+    \begin{tabular}{lr}
         \toprule
-        \textbf{Retriever} & \textbf{Text Recall@10} & \textbf{Text nDCG@10} & \textbf{Image Recall@10} & \textbf{Image nDCG@10} \\
+        \textbf{Component} & \textbf{Count} \\
         \midrule
-        BM25 & 100\% & 84.84\% & 80\% & 67.14\% \\
-        Dense & 100\% & 81.92\% & 77.5\% & 62.58\% \\
-        Difference & 0\% & \textbf{+2.92\%} & \textbf{+2.5\%} & \textbf{+4.56\%} \\
+        PDF candidates & 100 \\
+        English-filtered PDFs & 43 \\
+        Selected sections & 120 \\
+        Generated questions & 600 \\
+        Simple questions & 360 \\
+        Multi-intent questions & 120 \\
+        Reasoning questions & 120 \\
+        PDFs in visual database & 43 \\
+        Embedded visual pages & 347 \\
         \bottomrule
     \end{tabular}
     }
 \end{table}
 
-Both BM25 and Dense achieve perfect recall at K=10, meaning all relevant information is eventually found within the top 10 results. BM25 slightly outperforms Dense in nDCG@10 (84.84\% vs 81.92\%), indicating superior ranking quality for this internal benchmark. Neither retriever excels at top-1 precision (approximately 24\%), revealing that single-shot retrieval is unreliable for direct factual lookup-expected because ranking relevant documents first requires understanding query intent and semantic proximity. Hybrid retrieval via Reciprocal Rank Fusion (RRF) combines BM25's keyword precision with Dense's semantic understanding, providing the best balance for production systems.
-
-\textbf{Image Retrieval Results}
-
-Image retrieval was evaluated using ColQwen2 (a vision-language model) on the same 40-query set. PDF pages were converted to images and indexed semantically. The following tables show complete metrics for both BM25-based and Dense-based image retrieval strategies.
-
-
-Image retrieval was evaluated using ColQwen2 on the same 2430-queries set. PDF pages were converted to images and indexed semantically.
+The selected retrieval files range from small assignment PDFs to larger technical books. Table~\ref{tab:pdf_retrieval_size_stats} reports file-size statistics in kilobytes for the selected files used to generate questions. The visual index embeds 347 rendered pages from 43 PDFs.
 
 \begin{table}[H]
     \centering
-    \caption{Image Retrieval Performance with ColQwen2.}
-    \label{tab:bm25_image_full}
-    \begin{adjustbox}{max width=\linewidth}
-    \begin{tabular}{lrr}
+    \caption{Selected PDF Retrieval File Size Statistics}
+    \label{tab:pdf_retrieval_size_stats}
+    \scalebox{0.88}{
+    \begin{tabular}{lr}
         \toprule
-        \textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
+        \textbf{Statistic} & \textbf{Size (KB)} \\
         \midrule
-        Recall@1 & 22.95\% & ±33.59\% \\
-        Recall@3 & 38.86\% & ±35.16\% \\
-        Recall@5 & 53.84\% & ±36.89\% \\
-        Recall@10 & 80.00\% & ±40.00\% \\
-        \midrule
-        nDCG@1 & 56.67\% & ±46.67\% \\
-        nDCG@3 & 54.95\% & ±38.03\% \\
-        nDCG@5 & 58.66\% & ±37.30\% \\
-        nDCG@10 & \textbf{67.14\%} & ±37.25\% \\
+        Minimum & 65.5 \\
+        Median & 959.5 \\
+        Average & 1,927.2 \\
+        Maximum & 16,805.9 \\
         \bottomrule
     \end{tabular}
-    \end{adjustbox}
+    }
 \end{table}
 
-% \textbf{Dense Image Retrieval - Full Metrics}
+\begin{table}[H]
+    \centering
+    \caption{Retrieval Corpus Source Distribution}
+    \label{tab:retrieval_source_distribution}
+    \scalebox{0.86}{
+    \begin{tabular}{p{8.6cm}rrr}
+        \toprule
+        \textbf{Source Folder} & \textbf{Selected Files} & \textbf{Selected Sections} & \textbf{Questions} \\
+        \midrule
+        \texttt{CS131 Notes zh-CN} & 11 & 45 & 225 \\
+        \texttt{CS228 PGM} & 3 & 44 & 220 \\
+        \texttt{Stanford University Algorithms Design \& Analysis} & 20 & 20 & 100 \\
+        \texttt{CS193P Fall 2017 DEMO} & 9 & 11 & 55 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
 
-% \begin{table}[H]
-%     \centering
-%     \caption{Dense Image Retrieval Performance (All K Values with Standard Deviation)}
-%     \label{tab:dense_image_full}
-%     \begin{adjustbox}{max width=\linewidth}
-%     \begin{tabular}{lrr}
-%         \toprule
-%         \textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
-%         \midrule
-%         Recall@1 & 17.67\% & ±26.27\% \\
-%         Recall@3 & 34.50\% & ±33.05\% \\
-%         Recall@5 & 48.23\% & ±34.54\% \\
-%         Recall@10 & 77.50\% & ±41.76\% \\
-%         \midrule
-%         nDCG@1 & 51.67\% & ±47.11\% \\
-%         nDCG@3 & 49.10\% & ±37.62\% \\
-%         nDCG@5 & 54.30\% & ±36.14\% \\
-%         nDCG@10 & \textbf{62.58\%} & ±37.35\% \\
-%         \bottomrule
-%     \end{tabular}
-%     \end{adjustbox}
-% \end{table}
+The retrieval run completed without retrieve-stage failures: 600 text-retrieval questions and 600 visual-retrieval questions were judged, with zero text or visual retrieve errors recorded in the evaluation artifacts.
 
-Image retrieval achieves 80.0\% recall@10 across strategies, indicating that most relevant pages are found within top 10 results. However, top-1 performance is substantially lower than text retrieval (22.95\% vs 23.83\%--24.62\%), suggesting visual-only retrieval is less precise for direct lookups. This is expected: text retrieval can locate pages via heading/content keywords, while image retrieval must match visual patterns (tables, charts, diagrams), which is inherently more ambiguous without additional context. Hence, text is the primary retrieval signal, while image retrieval excels as a complementary modality when users specifically search for visual patterns that are difficult to locate via text alone. Images are valuable when searching for diagrams, tables, or charts that text keywords can't describe.
+\textbf{Coverage Proof}
+
+The benchmark is intentionally section-driven rather than manually cherry-picked. After English and parseability filters, every parsed section that passed the minimum-content rule was eligible for question generation. The coverage is therefore conditional on sections that the system could parse into usable evidence, which is the correct scope for evaluating the retrieval layer. Table~\ref{tab:qa_coverage_proof} summarizes this coverage across documents, sections, modalities, and question types.
+
+\begin{table}[H]
+    \centering
+    \caption{Question Set Coverage Proof}
+    \label{tab:qa_coverage_proof}
+    \scalebox{0.84}{
+    \begin{tabular}{p{3.2cm}p{5.2cm}p{4.6cm}p{3.8cm}}
+        \toprule
+        \textbf{Coverage Axis} & \textbf{Retrieval Evaluation} & \textbf{End-to-End Evaluation} & \textbf{Control Mechanism} \\
+        \midrule
+        Documents & 43 English, parseable PDF files from the local educational corpus & 20 documents used for complete retrieval-generation judging & Filename/content language filtering and parse-success filtering \\
+        Sections & 120 selected parsed sections & 132 selected parsed sections & Minimum section length; short, boilerplate, and table-of-contents-like sections excluded \\
+        Questions per section & Exactly 5 questions per section & Exactly 5 questions per section & Fixed generator contract, not arbitrary sampling \\
+        Question types & 360 simple, 120 multi-intent, 120 reasoning & Same section-based generation pattern & Type-balanced template: 3 simple + 1 multi-intent + 1 reasoning \\
+        Modalities / evidence units & Text chunks and visual PDF pages are both evaluated & Retrieved context is judged for final answer support & Each item stores source document, section id, heading breadcrumb, reference answer, and evidence hint \\
+        Task coverage & Retrieval-only quality via Recall@K and nDCG@K & Full RAG quality via correctness, faithfulness, and answer support & Separate metrics diagnose retrieval ranking vs. answer generation \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\textbf{PDF Retrieval Evaluation Protocol}
+
+The PDF retrieval benchmark follows a staged pipeline: discover candidate PDFs, remove obvious non-English filenames, parse each PDF into section-aware text artifacts, apply an English-content filter, select valid sections, generate synthetic questions, build text and visual indexes, retrieve top-10 evidence, and judge evidence relevance with an LLM. A PDF passes the content filter when it contains at least 500 Latin alphabetic characters and has a CJK character ratio below 0.05. A section is eligible when it has enough substantive content, is not boilerplate (e.g., declaration, preface, acknowledgements), and is not table-of-contents-like. This removes cases where a generated question would only test a title, a page number, or metadata instead of recoverable evidence.
+
+Question generation is performed section by section using \texttt{zai-glm-4.7-flash} through AWS Bedrock. Each selected section produces exactly five questions using only the source section: three \texttt{simple} questions, one \texttt{multi\_intent} question, and one \texttt{reasoning} question. Generated questions are admitted only when the reference answer and expected evidence can be grounded in the same source section. Items are rejected or regenerated if they are malformed, duplicate another question from the same section, answerable only from the section title, too vague, or not supported by a clear evidence hint. Each accepted item stores the question, reference answer, expected evidence hint, source document, section id, heading, breadcrumb, and question type. The detailed record format is shown in Appendix~\ref{chap:evaluation_gt_formats}. Text retrieval uses a hybrid score,
+\[
+\mathrm{score}_{hybrid}=0.5 \cdot \mathrm{cosine}(q,d)+0.5 \cdot \mathrm{BM25}_{norm}(q,d),
+\]
+where dense embeddings are generated with \texttt{all-MiniLM-L6-v2} and BM25 scores are min-max normalized. Visual retrieval renders each indexed PDF page as an image and embeds pages with \texttt{vidore/colqwen2-v1.0}; the evidence unit is therefore a full PDF page rather than a text chunk.
+
+The relevance judge uses \texttt{gpt-5.4-nano}. It receives the question, reference answer, expected evidence hint, and the retrieved evidence list. For visual evidence, the rendered page images are attached to the judge request. Each evidence item is assigned a relevance score in $\{0,1,2,3\}$: 0 = irrelevant, 1 = same topic but insufficient, 2 = partially answers the question, and 3 = highly relevant and sufficient. The report uses strict binary relevance $rel(e)=1$ when the judge score is at least 2. For query $q$, the strict Recall@K is:
+\[
+\mathrm{Recall@K}(q)=\dfrac{|\{e \in \mathrm{TopK}(q): rel(e)=1\}|}{|\{e: rel(e)=1\}|}.
+\]
+Ranking quality is measured with graded nDCG using the raw 0--3 relevance scores:
+\[
+\mathrm{DCG@K}=\sum_{i=1}^{K}\dfrac{2^{r_i}-1}{\log_2(i+1)},\qquad
+\mathrm{nDCG@K}=\dfrac{\mathrm{DCG@K}}{\mathrm{IDCG@K}},
+\]
+where $r_i$ is the judged relevance at rank $i$ and IDCG is the best possible DCG for the same judged evidence set.
+
+\textbf{Hybrid Text Retrieval Results}
+
+Text retrieval was evaluated using the production hybrid retriever rather than isolated BM25-only or dense-only variants. The hybrid index combines BM25Okapi and SentenceTransformer dense retrieval using equal weighting: \texttt{hybrid\_score = 0.5 * dense\_score + 0.5 * normalized\_BM25\_score}. Dense retrieval uses \texttt{all-MiniLM-L6-v2}, while BM25 scores are min-max normalized before fusion.
+
+\begin{table}[H]
+    \centering
+    \caption{Hybrid Text Retrieval Performance on PDF Dataset (n = 600)}
+    \label{tab:hybrid_text_pdf_retrieval}
+    \scalebox{0.88}{
+    \begin{tabular}{lrrrr}
+        \toprule
+        \textbf{Metric} & \textbf{@1} & \textbf{@3} & \textbf{@5} & \textbf{@10} \\
+        \midrule
+        Recall & 38.07\% & 62.69\% & 75.85\% & \textbf{93.69\%} \\
+        nDCG & 56.20\% & 61.55\% & 67.26\% & \textbf{73.83\%} \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+Hybrid text retrieval achieves strong candidate coverage at K=10, with Recall@10 reaching 93.69\%. This indicates that relevant evidence is usually present somewhere in the top-10 candidate set. However, Recall@1 is substantially lower at 38.07\%, showing that the main limitation is top-rank ordering rather than complete retrieval failure. In practical RAG terms, the text retriever is effective for constructing a broad evidence pool, but answer quality remains sensitive to reranking and context selection.
+
+\textbf{Visual Retrieval Results}
+
+Visual retrieval was evaluated using rendered PDF pages as the retrieval unit. Each page is embedded using \texttt{vidore/colqwen2-v1.0}, a ColQwen page-level multi-vector retriever designed for matching text queries against document page images. The current visual database contains 40 PDFs and 347 embedded pages.
+
+\begin{table}[H]
+    \centering
+    \caption{Visual Retrieval Performance on PDF Dataset (n = 380)}
+    \label{tab:visual_pdf_retrieval}
+    \scalebox{0.88}{
+    \begin{tabular}{lrrrr}
+        \toprule
+        \textbf{Metric} & \textbf{@1} & \textbf{@3} & \textbf{@5} & \textbf{@10} \\
+        \midrule
+        Recall & 63.06\% & 86.67\% & 91.12\% & \textbf{95.66\%} \\
+        nDCG & 81.07\% & 84.98\% & 86.76\% & \textbf{88.91\%} \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+Visual retrieval outperforms hybrid text retrieval across all evaluated depths. The largest gains appear at the top of the ranking: Recall@1 improves from 38.07\% to 63.06\%, and nDCG@1 improves from 56.20\% to 81.07\%. This suggests that page-level visual retrieval not only recovers relevant evidence, but also places highly relevant evidence earlier in the ranking.
+
+\textbf{Hybrid Text vs. Visual Retrieval Comparison}
+
+\begin{table}[H]
+    \centering
+    \caption{Hybrid Text and Visual Retrieval Comparison}
+    \label{tab:hybrid_text_visual_comparison}
+    \scalebox{0.88}{
+    \begin{tabular}{lrrr}
+        \toprule
+        \textbf{Metric} & \textbf{Hybrid Text} & \textbf{Visual} & \textbf{Difference} \\
+        \midrule
+        Recall@1 & 38.07\% & 63.06\% & +24.99\% \\
+        Recall@3 & 62.69\% & 86.67\% & +23.98\% \\
+        Recall@5 & 75.85\% & 91.12\% & +15.27\% \\
+        Recall@10 & 93.69\% & 95.66\% & +1.96\% \\
+        \midrule
+        nDCG@1 & 56.20\% & 81.07\% & +24.87\% \\
+        nDCG@3 & 61.55\% & 84.98\% & +23.44\% \\
+        nDCG@5 & 67.26\% & 86.76\% & +19.49\% \\
+        nDCG@10 & 73.83\% & 88.91\% & +15.07\% \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+The comparison changes the interpretation of PDF retrieval quality. Visual retrieval is currently the stronger modality for top-ranked PDF evidence, particularly at K=1 and K=3. This result is consistent with the nature of the dataset, which contains lecture notes, slides, mathematical notation, diagrams, tables, captions, and layout-dependent explanations. Rendered pages preserve heading context, visual grouping, formula placement, and table structure, whereas text retrieval depends on parsing and chunking decisions that may split a logically coherent page or section into several fragments. Hybrid text retrieval remains important because its Recall@10 is high, making it useful for candidate expansion and fallback evidence. However, improving text retrieval should focus on ranking quality, page-aware or section-aware chunking, heading breadcrumb preservation, and reranking rather than only increasing candidate depth.
+
+\textbf{Question-Type Breakdown}
+
+\begin{table}[H]
+    \centering
+    \caption{Retrieval Performance by Question Type}
+    \label{tab:retrieval_by_question_type}
+    \scalebox{0.86}{
+    \begin{tabular}{llrrrr}
+        \toprule
+        \textbf{Modality} & \textbf{Question Type} & \textbf{Count} & \textbf{Recall@1} & \textbf{Recall@10} & \textbf{nDCG@10} \\
+        \midrule
+        Hybrid Text & Simple & 360 & 38.62\% & 92.82\% & 73.16\% \\
+        Hybrid Text & Multi-intent & 120 & 30.17\% & 96.39\% & 69.59\% \\
+        Hybrid Text & Reasoning & 120 & 44.35\% & 93.61\% & 80.10\% \\
+        \midrule
+        Visual & Simple & 228 & 62.51\% & 95.18\% & 87.44\% \\
+        Visual & Multi-intent & 76 & 62.72\% & 96.05\% & 90.94\% \\
+        Visual & Reasoning & 76 & 65.08\% & 96.71\% & 91.26\% \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+The question-type breakdown shows that multi-intent questions are the most difficult case for hybrid text retrieval at top-1, with Recall@1 of 30.17\%. This is expected because multi-intent questions often require evidence distributed across multiple local contexts, making chunk-level ranking more fragile. Visual retrieval is more stable across all three question types, with Recall@1 consistently above 62\% and nDCG@10 above 87\%. These results reinforce the role of page-level visual retrieval as the strongest evidence retriever for PDF QA in the current benchmark.
+
+\textbf{Media Evaluation Protocol}
+
+Media evaluation measures whether lecture video/audio can be converted into retrieval-ready temporal evidence. The pipeline extracts audio, transcribes speech with Whisper ASR, chunks the transcript by time span, and samples video frames at fixed intervals. ASR quality is measured using word error rate and character error rate:
+\[
+\mathrm{WER}=\dfrac{S_w+D_w+I_w}{N_w},\qquad
+\mathrm{CER}=\dfrac{S_c+D_c+I_c}{N_c},
+\]
+where $S$, $D$, and $I$ denote substitutions, deletions, and insertions against the reference transcript, and $N$ is the number of reference words or characters. Temporal chunk quality is measured by hit rate and intersection-over-union (IoU). A chunk is a hit if it overlaps the gold time window; temporal IoU is $\mathrm{overlap}(t_{pred},t_{gt})/\mathrm{union}(t_{pred},t_{gt})$. Frame alignment is evaluated by checking whether each retrieved transcript chunk has an attached frame close to the target timestamp, including a tolerance-based variant within $\pm 2$ seconds.
 
 \textbf{Media (Video/Audio) Evaluation}
 
@@ -206,16 +396,17 @@ Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB
         \toprule
         \textbf{Metric} & \textbf{Value} & \textbf{Interpretation} \\
         \midrule
-        Mean WER (Word Error Rate) & 16.63\% & Percentage of incorrectly transcribed words, indicating strong transcription quality for spoken lecture content \\
+        Mean WER (Word Error Rate) & 16.63\% & Percentage of incorrectly transcribed words \\
         Mean CER (Character Error Rate) & 11.26\% & Reliable character-level transcription \\
-        Temporal Hit Rate & 100.0\%\tablefootnote{Temporal Hit Rate measures chunk recall (whether any chunk overlaps the target time window). Temporal IoU (34.84\%) measures precision (tightness of boundaries). The 100\% hit rate reflects excellent coverage; the 34.84\% IoU indicates chunks often span broader windows than necessary, acceptable for retrieval but limiting for sub-minute precision.} & All gold windows matched in chunks \\
-        Temporal IoU & 34.84\% & Measuring how precisely transcript chunks align with target time windows \\
+        Temporal Hit Rate & 100.0\%\footnotemark & All gold windows matched in chunks \\
+        Temporal IoU & 34.84\% & Chunks align with expected time windows \\
         Frames Extracted & 12,020 & 285 frames per video (manageable) \\
         Frame Hit Rate & 97.65\%--100.0\% & Frames correctly attached to chunks \\
         \bottomrule
     \end{tabular}
 \end{adjustbox}
 \end{table}
+\footnotetext{Temporal Hit Rate measures chunk recall (whether any chunk overlaps the target time window). Temporal IoU (34.84\%) measures precision (tightness of boundaries). The 100\% hit rate reflects excellent coverage; the 34.84\% IoU indicates chunks often span broader windows than necessary, acceptable for retrieval but limiting for sub-minute precision.}
 
 ASR quality is good: 16.63\% WER (word error rate) is typical for Whisper tiny on CPU and acceptable for educational lecture retrieval. Temporal coverage is excellent (100\% hit rate for chunk recall), though temporal precision is moderate (34.84\% Temporal IoU), meaning chunks often span broader time windows than the exact target-acceptable for content retrieval but limiting for sub-minute precision seeking. Frame extraction succeeded on all 42 videos with proper timestamp metadata, enabling visual-temporal retrieval for video content.
 
@@ -290,19 +481,31 @@ The frame extraction pipeline processed all 42 videos without failures, extracti
         Best Chunk IoU & 18.49\% & 21.70\% & 22.10\% & 22.58\% \\
         Chunk Temporal Recall & 20.52\% & 32.94\% & 38.27\% & 46.55\% \\
         Frame Hit & 97.65\% & 98.32\% & 98.32\% & 98.32\% \\
-        Frame Hit (Â±2s) & 98.99\% & 99.66\% & 99.66\% & 99.66\% \\
-        Mean Frame Distance & 0.00s & 0.00s & 0.05s & 0.04s \\
         \bottomrule
     \end{tabular}
     }
 \end{table}
 
-Frame alignment shows excellent attachment quality: 100\% chunk hit rate indicates that all retrieved chunks overlap the target time window, and frame attachment reaches 97.65\%--98.32\% coverage across retrieval depths. Mean frame distance remains near zero (0.00s--0.05s), confirming precise temporal synchronization. The 22.58\% Best Chunk IoU at @10 indicates moderate boundary tightness, similar to the full temporal IoU of 34.84\% observed in media evaluation. This validates that the frame extraction pipeline successfully attaches visual content to transcript chunks with high fidelity.
+Frame alignment shows excellent attachment quality: 100\% chunk hit rate indicates that all retrieved chunks overlap the target time window, and frame attachment reaches 97.65\%--98.32\% coverage across retrieval depths. The 22.58\% Best Chunk IoU at @10 indicates moderate boundary tightness. This validates that the frame extraction pipeline successfully attaches visual content to transcript chunks with high fidelity.
 
+\subsection{System-Level (End-to-end) Evaluation}
 
-\subsection{End-to-End Evaluation}
+% This section measures end-to-end RAG quality from question to final answer.
 
-% This section evaluates how well the chunking strategy isolates relevant information without excessive context, and measures end-to-end RAG quality from question to final answer.
+% \textbf{Chunking Evaluation Protocol}
+
+% Chunking evaluation uses span-level ground truth generated from the canonical stage-4 markdown corpus. Source documents are segmented into eligible excerpts, an LLM generates factual search queries from each excerpt, and each generated \texttt{relevant\_excerpt} must be verified as an exact contiguous substring of the source document before it is admitted into the evaluation set. Each ground-truth row therefore contains a query, source document id, relevant excerpt, and exact \texttt{start\_char}/\texttt{end\_char} offsets. The ground-truth row format is shown in Appendix~\ref{chap:evaluation_gt_formats}.
+
+% For a retrieved top-K set, the evaluator maps each retrieved chunk back to one or more source character intervals. Let $G$ be the gold interval, $R_K$ be the union of retrieved intervals from the same source document, and $|\,\cdot\,|$ denote character length. The metrics are:
+% \[
+% \mathrm{Hit@K}=\mathbb{1}\{|R_K\cap G|>0\},\qquad
+% \mathrm{SpanRecall@K}=\dfrac{|R_K\cap G|}{|G|},
+% \]
+% \[
+% \mathrm{SpanPrecision@K}=\dfrac{|R_K\cap G|}{|R_K|},\qquad
+% \mathrm{SpanIoU@K}=\dfrac{|R_K\cap G|}{|R_K\cup G|}.
+% \]
+% This evaluates whether a chunking strategy retrieves the exact source span needed to answer the query, while also penalizing overly broad chunks that include excessive irrelevant context.
 
 % \textbf{Chunking Strategy Evaluation}
 
@@ -312,7 +515,7 @@ Frame alignment shows excellent attachment quality: 100\% chunk hit rate indicat
 %     \centering
 %     \caption{Chunking Quality: Recursive vs. Semantic (111 Queries)}
 %     \label{tab:chunking_results}
-%     \begin{adjustbox}{max width=\linewidth}
+%     \scalebox{0.90}{
 %     \begin{tabular}{lrrrr}
 %         \toprule
 %         \textbf{Strategy} & \textbf{Hit@1} & \textbf{Span Recall@1} & \textbf{Span IoU@1} & \textbf{Avg Chars} \\
@@ -322,14 +525,25 @@ Frame alignment shows excellent attachment quality: 100\% chunk hit rate indicat
 %         \textbf{Winner (Tie)} & \textbf{Semantic} & \textbf{Semantic} & \textbf{Recursive} & \textbf{Recursive} \\
 %         \bottomrule
 %     \end{tabular}
-%     \end{adjustbox}
+%     }
 % \end{table}
 
 % Both strategies achieve similar hit rates (72\%). Semantic chunking provides slightly better recall (71.07\% vs 69.43\%), recovering more of the target span. However, recursive chunking achieves better precision (18.71\% vs 15.89\% IoU) because it retrieves fewer irrelevant characters, improving LLM efficiency. Semantic chunking retrieves approximately 33\% more average characters per chunk (1,006 vs 755), making recursive chunking more cost-efficient for generation. The production pipeline uses recursive chunking for its balance of simplicity and precision; semantic chunking remains a research direction for improving recall on long-answer questions.
 
-% \textbf{End-to-End RAG Evaluation}
+\textbf{End-to-End RAG Evaluation Protocol}
 
-End-to-end evaluation measures complete system correctness: retrieval + generation \& answer quality. We generated 6600 questions from 1320 sections across 20 documents, then used GPT-4o-mini to evaluate answers on three dimensions: correctness (factual accuracy), faithfulness (grounding in retrieved context), and answer support (whether retrieval provided sufficient information).
+End-to-end evaluation tests the complete question-answering path rather than retrieval alone. The pipeline follows the same section-grounded question generation methodology as the retrieval benchmark: it selects parsed English sections with sufficient content, generates factual question/reference-answer pairs with \texttt{zai-glm-4.7-flash} through AWS Bedrock using only that section as source material, and retains only questions whose answer can be traced to explicit source evidence. The local corpus is then indexed, evidence is retrieved with the configured RAG retriever, an answer is generated, and the question, reference answer, retrieved context, and generated answer are sent to the \texttt{gpt-5.4-nano} judge. The judge returns three categorical labels: \textbf{correctness}, \textbf{faithfulness}, and \textbf{answer\_support}.
+
+% The reported rates are macro proportions over all evaluated questions. For a label set $L$ and target label $\ell$, the rate is:
+% \[
+% \mathrm{Rate}(\ell)=\dfrac{|\{q: \mathrm{judge}(q)=\ell\}|}{|\{q: q\ \mathrm{was\ evaluated}\}|}.
+% \]
+
+Correctness measures agreement with the reference answer, while faithfulness measures whether the answer is grounded in the retrieved context, and answer support measures whether the retrieved context itself contains enough evidence to justify the answer. This separation is important because an incorrect answer can be caused by missing retrieval evidence even when the generator remains faithful to the context it received.
+
+\textbf{End-to-End Evaluation Results}
+
+End-to-end evaluation measures complete system correctness: retrieval + generation + answer quality. We generated 660 questions from 132 sections across 20 documents, then evaluated answers on three dimensions: correctness (factual accuracy), faithfulness (grounding in retrieved context), and answer support (whether retrieval provided sufficient information).
 
 \begin{table}[H]
     \centering
@@ -367,7 +581,7 @@ The 82\% fully-supported rate confirms that the retrieval system successfully lo
 
 % \textit{(1) Parsing Quality Establishes Foundation-Strength in Structure, Bottleneck in Text Fidelity.} OmniDocBench parsing reaches 58.91\% overall accuracy, with exceptional read-order preservation (92.60\%) and strong table extraction (76.86\%), but text-level extraction lags at 47.43\% due to formula complexity and OCR limitations. Office document parsing (DOCX: 60.98\%) significantly outperforms spreadsheets (XLSX: 43.10\%), reflecting the structural complexity of merged cells and formula content. These results confirm that the parsing pipeline sets the upper bound for all downstream retrieval and generation quality.
 
-% \textit{(2) Retrieval Achieves Excellent Recall and Ranking Quality-Text Dominates Image by 18\% nDCG@10.} Text retrieval achieves perfect recall@10 (100\%) across both BM25 (nDCG@10: 84.84\%) and Dense embedding (81.92\%) strategies, with BM25 showing marginal advantage. Image retrieval reaches 77.5\%--80.0\% recall@10 but underperforms on nDCG (67.14\% BM25, 62.58\% Dense), indicating text as the primary retrieval signal. Hybrid retrieval via Reciprocal Rank Fusion combines keyword precision and semantic understanding, providing the optimal balance for production systems.
+\textit{(2) Visual Retrieval Provides Stronger Top-Ranked PDF Evidence, while Hybrid Text Maintains High Candidate Coverage.} On the updated PDF retrieval benchmark, hybrid text retrieval reaches strong Recall@10 (93.69\%), confirming that relevant evidence is usually present in the top-10 candidate pool. However, visual page-level retrieval with ColQwen performs better across all measured depths, reaching 95.66\% Recall@10 and 88.91\% nDCG@10, compared with 73.83\% nDCG@10 for hybrid text. The largest gap appears at top-1, where visual retrieval improves Recall@1 from 38.07\% to 63.06\%. This indicates that rendered-page retrieval better preserves layout, formulas, tables, and heading context, while future text retrieval improvements should prioritize reranking, page-aware chunking, and heading breadcrumb preservation.
 
 % \textit{(3) End-to-End RAG Reveals Retrieval as Primary Optimization Lever.} System correctness reaches 72.7\% with exceptional faithfulness of 99.5\% and zero hallucinations-proving that generation is grounded and reliable. The high faithfulness-to-correctness gap indicates that retrieval failures and incomplete context, not generation errors, drive the 22.4\% incorrect-answer rate. This clear diagnostic points to retrieval precision and chunking strategy as the direct path to improving correctness toward 80%+ levels.
 
@@ -895,53 +1109,7 @@ To ensure the economic viability of the proposed system, we have established a b
 
 \newpage
 
-To ground our cost projections in current market rates, we utilize the following pricing reference for the specific AWS services and components used in our architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
-
-\begin{table}[H]
-    \centering
-    \caption{AWS Pricing Reference (us-west-2).}
-    \label{tab:aws_pricing_ref}
-    \begin{adjustbox}{max width=\linewidth}
-    \begin{tabular}{lllp{3.4cm}p{6cm}}
-        \toprule
-        \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
-        \midrule
-        Amazon ECS Fargate & vCPU & \$0.04048 & per vCPU-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
-        Amazon ECS Fargate & Memory & \$0.004445 & per GB-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
-        \midrule
-        Amazon SageMaker & ml.g4dn.xlarge & \$0.7364 & per instance-hour & \url{https://aws.amazon.com/sagemaker/pricing/} \\
-        \midrule
-        Elastic Load Balancing & ALB Instance & \$0.0225 & per hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
-        Elastic Load Balancing & ALB LCU & \$0.008 & per LCU-hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
-        \midrule
-        AWS Bedrock & Claude Haiku Input & \$0.00025 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Haiku Output & \$0.00125 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        \midrule
-        Amazon DynamoDB & On-Demand Reads & \$0.25 & per 1M RRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        Amazon DynamoDB & Storage & \$0.25 & per GB & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        \midrule
-        Amazon ElastiCache & Serverless (Redis) & \$0.125 & per GB-hour & \url{https://aws.amazon.com/elasticache/pricing/} \\
-        \midrule
-        Amazon ECR & Storage & \$0.10 & per GB-month & \url{https://aws.amazon.com/ecr/pricing/} \\
-        \midrule
-        Amazon CloudWatch & Logs Ingest & \$0.50 & per GB & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
-        Amazon CloudWatch & Logs Storage & \$0.03 & per GB-month & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
-        \midrule
-        AWS WAF & Web ACL & \$5.00 & per month & \url{https://aws.amazon.com/waf/pricing/} \\
-        \midrule
-        Amazon S3 & Standard Storage & \$0.02 & per GB-month & \url{https://aws.amazon.com/s3/pricing/} \\
-        Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
-        \bottomrule
-    \end{tabular}
-\end{adjustbox}
-\end{table}
-
-\newpage
-
-Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
+Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. To keep the main evaluation chapter focused on the projection and its implications, we place the detailed AWS service pricing reference in Appendix~\ref{app:aws_pricing_reference}. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
 
 \begin{table}[H]
     \centering
@@ -1008,7 +1176,7 @@ The following table provides a comparative analysis of GPU operational costs acr
 
 % \textbf{Evaluation Dimension (Â§6.1): Functional Quality Confirmed, Retrieval Identified as Optimization Lever.}
 
-% Document parsing establishes a solid foundation (58.91\% OmniDocBench, 60.98\% DOCX), with exceptional structural fidelity (92.60\% read order) but text-level challenges (47.43\% text score) limiting further gains. Multimodal retrieval achieves excellent recall@10 (100\% text, 77.5\%--80.0\% image) with text nDCG@10 of 84.84\% (BM25) outperforming dense embeddings by 2.92\%. End-to-end RAG validation reveals the system's core strength: 99.5\% faithfulness with zero hallucinations demonstrates reliable grounding, while 72.7\% correctness with 82\% fully-supported answers identifies retrieval precision and chunking depth as the primary optimization targets. Media processing validates across 42 videos with 100\% temporal coverage (16.63\% WER) and near-perfect frame alignment (97.65\%--98.32\%), with OCW generalization confirming robustness across audio sources.
+% Document parsing establishes a solid foundation (58.91\% OmniDocBench, 60.98\% DOCX), with exceptional structural fidelity (92.60\% read order) but text-level challenges (47.43\% text score) limiting further gains. Multimodal PDF retrieval shows strong candidate coverage for hybrid text retrieval (93.69\% Recall@10) and stronger top-ranked visual evidence with ColQwen page retrieval (95.66\% Recall@10, 88.91\% nDCG@10). End-to-end RAG validation reveals the system's core strength: 99.5\% faithfulness with zero hallucinations demonstrates reliable grounding, while 72.7\% correctness with 82\% fully-supported answers identifies retrieval precision and chunking depth as the primary optimization targets. Media processing validates across 42 videos with 100\% temporal coverage (16.63\% WER) and near-perfect frame alignment (97.65\%--98.32\%), with OCW generalization confirming robustness across audio sources.
 
 % \textbf{Verdict:} System is \textbf{functionally sound}. Quality pathway forward is clear: improve retrieval depth and chunking strategy to push correctness toward 80\%+.
 

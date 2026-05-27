@@ -1073,13 +1073,26 @@ As illustrated in Figure \ref{fig:search_flow}, the search orchestrator (\texttt
     \item \textbf{Mode Selection}:
     \begin{itemize}
         \item \textbf{Retrieval Only}: Immediately returns the merged text and image artifacts to the client.
-        \item \textbf{Retrieval-Generation}: Injects the retrieved context into a Large Language Model (e.g., Claude 3.5 Sonnet) to synthesize a grounded answer with citations.
+        \item \textbf{Retrieval-Generation}: Injects the retrieved context into a Large Language Model to synthesize a grounded answer with citations.
     \end{itemize}
 \end{enumerate}
 
 \textbf{Response Structure and Metadata Tracking}
 
 Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the ``source-of-truth'' for all generated answers.
+
+\textbf{Generation Model and Fallback Routing}
+
+The production answer generator is configured as a Bedrock-first model router. The preferred model for user-facing grounded QA is \textbf{Claude 4.7 Sonnet on AWS Bedrock}, selected because it provides strong long-context reasoning, reliable instruction following, and good citation behavior when answers must be grounded in retrieved text chunks and visual page evidence. Its main trade-off is higher cost and latency than smaller flash/nano models, so the system keeps lower-cost fallback routes for high-load or degraded-service conditions.
+
+The fallback policy is:
+\begin{itemize}
+    \item \textbf{Primary}: \texttt{Claude 4.7 Sonnet} on AWS Bedrock for normal chat, summary, roadmap, and grounded QA generation.
+    \item \textbf{First fallback}: \texttt{zai-glm-4.7-flash} through AWS Bedrock when lower latency/cost is preferred or the primary model is unavailable.
+    \item \textbf{Second fallback}: \texttt{gpt-5.4-nano} for lightweight generation or external fallback paths.
+\end{itemize}
+
+For the evaluation pipeline, model roles are separated from production answer generation to reduce evaluator bias. Synthetic question and reference-answer generation uses \texttt{zai-glm-4.7-flash} through AWS Bedrock. Relevance and answer-quality judging uses \texttt{gpt-5.4-nano}. This separation prevents the same model family from both creating the benchmark item and judging the system output, while keeping evaluation cost manageable.
 
 
 \subsection{Storage Architecture}
@@ -1600,7 +1613,7 @@ The deployment strategy prioritizes both operational excellence and security. Ev
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/28-Deployment Diagram_v4.png}
-    \caption[System Deployment Architecture]{System Deployment Architecture Diagram (Updated May 10, 2026 with latest infrastructure configuration including Qdrant Cloud, security architecture, and optimized ECS task management).}
+    \caption[System Deployment Architecture]{System Deployment Architecture Diagram.}
     \label{fig:deployment_diagram}
 \end{figure}
 
@@ -2107,7 +2120,7 @@ By placing the WAF at the ALB level, all inbound traffic is filtered before reac
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/47-aws-waf.jpg}
+    \includegraphics[width=1\textwidth]{img/pdz/47-aws-waf.png}
     \caption[AWS Web Application Firewall Architecture]{AWS Web Application Firewall (WAF) deployment architecture protecting the BK-MInD ALB.}
     \label{fig:waf_architecture}
 \end{figure}
@@ -2195,7 +2208,7 @@ While AWS WAF protects against technical network-layer attacks, BK-MInD requires
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/48-aws-bedrock-guardrail.jpg}
+    \includegraphics[width=1\textwidth]{img/pdz/48-aws-bedrock-guardrail.png}
     \caption[AWS Bedrock Guardrail Architecture]{AWS Bedrock Guardrails providing application-level content filtering for AI model interactions.}
     \label{fig:bedrock_guardrail}
 \end{figure}
@@ -2273,12 +2286,12 @@ Course materials and student records stored in AWS DynamoDB and Amazon S3 are en
 
 AWS DynamoDB tables are configured with server-side encryption using AWS-managed keys. S3 buckets are configured with default encryption (SSE-S3 or SSE-KMS), encrypting all objects automatically. Both services handle encryption transparently-there is no additional application-layer encryption burden. Encrypted data is backed up in encrypted form, and restoration automatically maintains encryption protection.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/49-security-architecture.jpg}
-    \caption[Comprehensive Security Architecture]{Multi-layered security architecture combining WAF, Bedrock Guardrails, and data encryption.}
-    \label{fig:security_architecture}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\textwidth]{img/pdz/49-security-arch.jpg}
+%     \caption[Comprehensive Security Architecture]{Multi-layered security architecture combining WAF, Bedrock Guardrails, and data encryption.}
+%     \label{fig:security_architecture}
+% \end{figure}
 
 % \newpage
 
@@ -2381,4 +2394,3 @@ The current configuration is optimal for production deployment, consuming only 2
 
 
 \newpage
-
