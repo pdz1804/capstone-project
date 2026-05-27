@@ -25,6 +25,6 @@
 | 8️  | **Speechmatics**      | 7.6%     | 5.5%    | $0.40            | **0.4328**                |
 | 9️  | **Google Speech**     | 13.1%    | 5.8%    | $0.96            | **1.1051**                |
 | 10   | **AWS Transcribe**    | 8.3%     | 5.1%    | $1.44            | **1.5701**                |
-| —    | Whisper Large         | 7.2%     | 5.1%    | Local            | —                         |
-| —    | Whisper Small         | 9.7%     | 5.9%    | Local            | —                         |
+|      | Whisper Large         | 7.2%     | 5.1%    | Local            |                           |
+|      | Whisper Small         | 9.7%     | 5.9%    | Local            |                           |
 

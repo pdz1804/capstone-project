@@ -2,41 +2,40 @@
 
 ## Educational Content Processing & Retrieval-Augmented Generation System
 
+**Document Version**: 2.0  
+**Last Updated**: May 14, 2026  
+**Status**: Active
+
 ---
 
-### Requirements Statistics
+## Requirements Overview
 
-**Total Requirements**: 43
+### Summary Statistics
 
--**Functional Requirements**: 26
+| Metric | Value |
+|--------|-------|
+| **Total Requirements** | 43 |
+| Functional Requirements | 26 |
+| Non-Functional Requirements | 10 |
+| Technical Requirements | 7 |
+| **AI-Heavy Requirements** | 17 (40%) |
+| **Software-Heavy Requirements** | 26 (60%) |
 
--**Non-Functional Requirements**: 10
+### Functional Requirements by Category
 
--**Technical Requirements**: 7
+| Category | Count | Examples |
+|----------|-------|----------|
+| Content Processing | 8 | Audio, Document, Spreadsheet processing |
+| Information Retrieval | 3 | Text, Visual, Query processing |
+| Question Answering | 4 | Answer generation, Results, Chat, History |
+| User Interface | 2 | File management, Search interface |
+| Lecture Summary | 2 | Summary generation, Interactive navigation |
+| Personalization | 3 | Learning paths, Assessments, Analytics |
 
-**AI vs Software Distribution**:
+### Critical & High-Risk Requirements
 
--**AI-Heavy Requirements**: 17 (40%) - Core AI processing components
-
--**Software-Heavy Requirements**: 26 (60%) - Infrastructure and core features
-
-**Functional Requirements by Category**:
-
--**Content Processing**: 8 requirements
-
--**Information Retrieval**: 3 requirements
-
--**Question Answering**: 4 requirements
-
--**User Interface**: 2 requirements
-
--**Lecture Summary**: 2 requirements
-
--**Personalization**: 3 requirements
-
-**Most Critical Requirements**: FR-001, FR-002, FR-009, FR-012, NFR-001
-
-**Highest Risk Requirements**: FR-005, FR-010, FR-018, FR-019, NFR-002
+**Most Critical** (Must Have): FR-001, FR-002, FR-009, FR-012, NFR-001  
+**Highest Risk** (Monitor closely): FR-005, FR-010, FR-018, FR-019, NFR-002
 
 ---
 
@@ -62,20 +61,19 @@ The system encompasses:
 - S3-based canonical storage with local workspace synchronization
 - Qdrant-based vector search with payload-level multitenancy
 
-#### 1.3 Definitions
+#### 1.3 Key Definitions
 
--**ASR**: Automatic Speech Recognition
-
--**OCR**: Optical Character Recognition
-
--**RAG**: Retrieval-Augmented Generation
-
--**VLM**: Vision Language Model
-
--**BM25**: Best Match 25 (sparse retrieval algorithm)
-
-- **Dense Retrieval**: Semantic similarity-based retrieval using embeddings
-- **Multitenancy**: Strategy for isolating data between different users/tenants
+| Term | Definition |
+|------|-----------|
+| **ASR** | Automatic Speech Recognition - converting speech to text using AI models |
+| **OCR** | Optical Character Recognition - extracting text from images/scanned documents |
+| **RAG** | Retrieval-Augmented Generation - combining document retrieval with LLM generation |
+| **VLM** | Vision Language Model - AI model understanding both text and images |
+| **BM25** | Best Match 25 - statistical ranking function for full-text search (sparse retrieval) |
+| **Dense Retrieval** | Semantic similarity-based retrieval using vector embeddings |
+| **Multitenancy** | Architecture strategy isolating data between different users/tenants |
+| **Qdrant** | Vector database for efficient semantic search at scale |
+| **Docling** | Advanced document processing framework for layout-aware PDF/doc conversion |
 
 ---
 

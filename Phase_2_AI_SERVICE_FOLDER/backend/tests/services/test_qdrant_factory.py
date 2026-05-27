@@ -1,4 +1,4 @@
-"""Qdrant client factory — mock gRPC/HTTP client."""
+"""Qdrant client factory   mock gRPC/HTTP client."""
 
 from __future__ import annotations
 

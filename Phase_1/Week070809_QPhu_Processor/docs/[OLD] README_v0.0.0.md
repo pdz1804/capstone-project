@@ -2,7 +2,7 @@
 
 A comprehensive, production-ready document processing pipeline that normalizes, processes, and prepares multimodal documents for RAG (Retrieval-Augmented Generation) systems.
 
-**Handles any document type** — DOCX, PPTX, PDF, HTML, Images, Excel, CSV, Video, Audio — and prepares them for both text-based and image-based RAG systems.
+**Handles any document type**   DOCX, PPTX, PDF, HTML, Images, Excel, CSV, Video, Audio   and prepares them for both text-based and image-based RAG systems.
 
 **Platform Support:** Windows | macOS | Linux
 **Python Version:** 3.9+

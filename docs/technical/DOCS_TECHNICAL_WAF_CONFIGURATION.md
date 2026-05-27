@@ -512,19 +512,19 @@ To whitelist an IP for testing:
 
 ## 📚 Related Security Documentation
 
-- **[DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md](DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)** — Application-layer content safety (Bedrock Guardrails)
-- **[13-04-firewall-guidelines.md](13-04-firewall-guidelines.md)** — Terraform IaC for WAF deployment
-- **[DOCS_deployment-alb-acm-custom-domain.md](DOCS_deployment-alb-acm-custom-domain.md)** — ALB and HTTPS configuration
-- **[requirements.md](../requirements.md)** — Non-functional security requirements
+- **[DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md](DOCS_TECHNICAL_GUARDRAIL_CONFIGURATION.md)**   Application-layer content safety (Bedrock Guardrails)
+- **[13-04-firewall-guidelines.md](13-04-firewall-guidelines.md)**   Terraform IaC for WAF deployment
+- **[DOCS_deployment-alb-acm-custom-domain.md](DOCS_deployment-alb-acm-custom-domain.md)**   ALB and HTTPS configuration
+- **[requirements.md](../requirements.md)**   Non-functional security requirements
 
 ---
 
 ## 🔗 External Resources
 
-- **[AWS WAF Developer Guide](https://docs.aws.amazon.com/waf/)** — Complete reference
-- **[OWASP Top 10 2021](https://owasp.org/www-project-top-ten/)** — Web application risks
-- **[AWS Managed Rules for AWS WAF](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups.html)** — Rule details and updates
-- **[CRS (ModSecurity Core Rule Set)](https://coreruleset.org/)** — CRS v3.2 specifications
+- **[AWS WAF Developer Guide](https://docs.aws.amazon.com/waf/)**   Complete reference
+- **[OWASP Top 10 2021](https://owasp.org/www-project-top-ten/)**   Web application risks
+- **[AWS Managed Rules for AWS WAF](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups.html)**   Rule details and updates
+- **[CRS (ModSecurity Core Rule Set)](https://coreruleset.org/)**   CRS v3.2 specifications
 
 ---
 

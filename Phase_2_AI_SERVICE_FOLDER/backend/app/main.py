@@ -1,5 +1,5 @@
 """
-Phase 2 AI Service — FastAPI entrypoint.
+Phase 2 AI Service   FastAPI entrypoint.
 
 Layering: api (this app) → services → repositories → Qdrant / files.
 """

@@ -1,11 +1,11 @@
-\chapter{Preliminaries}
+﻿\chapter{Preliminaries}
 
 \section{Terminology and Conventions}
 
 To ensure clarity and consistency throughout this report, the following standardized terminology and capitalization conventions are utilized:
 
 \begin{longtable}{llp{8cm}}
-\caption{Standardized Technical Terminology} \label{tab:terminology} \\
+\caption{Standardized Technical Terminology.} \label{tab:terminology} \\
 \toprule
 \textbf{Term} & \textbf{Capitalization} & \textbf{Description / Usage} \\
 \midrule
@@ -47,6 +47,7 @@ To ensure clarity and consistency throughout this report, the following standard
 \textbf{SSE} & All Caps & Server-Side Encryption; encryption method for protecting data at rest in Amazon S3. \\
 \textbf{API} & All Caps & Application Programming Interface; the interface through which frontend and backend systems communicate. \\
 \textbf{REST} & All Caps & Representational State Transfer; architectural style for the backend API design. \\
+\textbf{ASGI} & All Caps & Asynchronous Server Gateway Interface; the asynchronous interface for Python web application servers (e.g., Uvicorn). \\
 \textbf{SRT} & All Caps & SubRip Text; subtitle file format used for storing transcription outputs. \\
 \textbf{VTT} & All Caps & Web Video Text Tracks; subtitle file format used for web-based video player integration. \\
 \textbf{DPI} & All Caps & Dots Per Inch; resolution parameter used when rasterizing PDF pages to images. \\
@@ -61,11 +62,11 @@ Automatic Speech Recognition (ASR) converts spoken language into text. It has ev
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/09-asr-pipeline.png}
-    \caption[ASR pipeline]{ASR pipeline}
+    \caption[ASR pipeline]{ASR pipeline.}
     \label{fig:ASR_Pipeline}
 \end{figure}
 
-ASR is the task of converting an acoustic signal into a sequence of words. Formally, the goal of an ASR system is to determine the most probable word sequence $\hat{W}$ given an input acoustic observation $X$
+ASR is the task of converting an acoustic signal into a sequence of words. In simple terms, the system tries to find the sequence of words (W) that is most likely given the audio (X). It looks for: ``What words would most likely produce this audio sound?'' Formally, the goal of an ASR system is to determine the most probable word sequence $\hat{W}$ given an input acoustic observation $X$
 
 \begin{equation*}
     \hat{W} = \arg\max_{W} P(W|X).
@@ -91,7 +92,7 @@ Early ASR systems used Gaussian Mixture Models with Hidden Markov Models (GMM--H
 
 End-to-end ASR directly maps audio to text with a single neural model. The main paradigms are CTC, which removes the need for frame-level alignments~\cite{graves2006ctc}; attention-based encoder--decoder models such as LAS, which model output dependencies through attention~\cite{chan2015las}; and transducer models such as RNN-T, which support streaming and low-latency inference~\cite{graves2012rnnt, he2019transformertransducer}.
 
-End-to-End ASR using Connectionist Temporal Classification (CTC) models the probability of a label sequence $Y$ by summing over all possible alignments $\pi$ that collapse to $Y$
+End-to-End ASR using Connectionist Temporal Classification (CTC) is a technique that helps the model learn to match audio to text without being told exactly where each letter occurs in the audio. It's like finding the transcript without needing word-by-word timestamps. CTC models the probability of a label sequence $Y$ by summing over all possible alignments $\pi$ that collapse to $Y$
 
 \begin{equation*}
     P(Y|X) = \sum_{\pi \in \mathcal{B}^{-1}(Y)} P(\pi|X)
@@ -189,7 +190,10 @@ Key research directions include self-supervised learning to reduce labeled-data 
 
 \section{Transformer}
 \label{sec:transformer}
-The Transformer model described in this section is based on \emph{Attention Is All You Need}~\cite{vaswani2017attention}. It replaces recurrent sequence processing with self-attention, enabling parallel training and effective modeling of long-range dependencies in tasks such as translation, generation, and language understanding.
+
+Transformers are a breakthrough AI architecture used in modern language and vision models. Understanding how they work helps explain why our system is effective. Before diving into details, here's the structure:
+
+The Transformer model described in this section is based on \emph{Attention Is All You Need}~\cite{vaswani2017attentionNeurIPS}. It replaces recurrent sequence processing with self-attention, enabling parallel training and effective modeling of long-range dependencies in tasks such as translation, generation, and language understanding.
 
 \begin{figure}[H]
     \centering
@@ -263,7 +267,7 @@ This mechanism allows the model to capture multiple types of relationships simul
 
 Specialized retrieval pipelines often need to combine visual, audio, motion, and ASR-text signals rather than relying on a single encoder. For video retrieval, M2HF uses multi-stream feature extraction, attentional fusion, and multi-level feature/decision fusion to produce richer retrieval signals~\cite{liu2022m2hf}.
 
-Cross-attentional models are especially useful for reranking. Unlike dual encoders, cross-encoders jointly process the query and document, allowing token-level interactions that capture fine semantic distinctions. This improves precision but is computationally expensive, so cross-attention is usually applied to a smaller candidate set after first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}\footnote{\url{https://www.pinecone.io/learn/series/rag/rerankers/}}. 
+Cross-attentional models are especially useful for reranking. There are two main ways AI models compare text: \textbf{Independent comparison} (each text separately) or \textbf{Joint comparison} (texts together). Joint comparison (called cross-attention) is more accurate but slower. Cross-encoders jointly process the query and document, allowing token-level interactions that capture fine semantic distinctions. This improves precision but is computationally expensive, so cross-attention is usually applied to a smaller candidate set after first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}\footnote{\url{https://www.pinecone.io/learn/series/rag/rerankers/}}. 
 
 Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$
 
@@ -276,7 +280,7 @@ The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{img/pdz/17-cross-attention.jpg}
-    \caption[Cross-attention]{Cross-attention}
+    \caption[Cross-attention]{Cross-attention.}
     \label{fig:Cross-attention}
 \end{figure}
 
@@ -311,7 +315,7 @@ where $0 \leq \alpha \leq 1$ is a learnable fusion coefficient.
 
 Multimodal embeddings represent heterogeneous inputs in a shared space for cross-modal retrieval. CLIP established a strong baseline by jointly training image and text encoders on large-scale paired data, enabling zero-shot image--text retrieval and serving as a backbone for later systems~\cite{radford2021clip}.
 
-
+To search across different types of information (text, images, audio), we need to represent them in a way the AI system can understand. We use numerical vectors (arrays of numbers) to represent each piece of information.
 
 Each input modality $m \in \{\text{text}, \text{audio}, \text{vision}\}$ is encoded into a latent vector using a modality-specific encoder
 \begin{equation*}
@@ -322,7 +326,7 @@ where $x_m$ is the raw input of modality $m$, $f_m(\cdot)$ is the corresponding 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/05-multimodal-embedding.png}
-    \caption[Multimodal embedding]{Multimodal embedding}
+    \caption[Multimodal embedding]{Multimodal embedding.}
     \label{fig:Multimodal embedding}
 \end{figure}
 
@@ -333,7 +337,8 @@ We fuse modality embeddings into a shared representation
 \end{equation*}
 where $[z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}]$ is the concatenation operator, $g([z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}])$ is a fusion network (e.g., MLP or cross-attention module), and $\phi$ denotes fusion parameters.
 
-To align representations across modalities, we apply a contrastive loss
+To align representations across modalities, we use a technique called ``contrastive learning.'' To make sure the AI learns to match similar information across modalities, we use a technique called ``contrastive learning.'' It teaches the model to make similar things close together and different things far apart.
+
 \begin{equation*}
     \mathcal{L}_{\text{contrast}} = -\sum_{i=1}^{N} \log
     \dfrac{\exp(\mathrm{sim}(z_i^{(a)}, z_i^{(t)}) / \tau)}
@@ -352,26 +357,26 @@ Industry systems also focus on interleaved documents such as PDFs and slides. No
 
 Overall, the gap between multimodal and single-modal retrieval is narrowing. Multimodal training can improve semantic representations even for text-only tasks, which is valuable in educational settings where queries often combine textual and visual references.
 
-\textbf{Simplified Overview of Multimodal Embedding Models}
+% \textbf{Simplified Overview of Multimodal Embedding Models}
 
-The following table provides a concise summary of the landmark multimodal embedding models discussed in this section, highlighting their architectural focus and primary strengths for educational RAG applications.
+% The following table provides a concise summary of the landmark multimodal embedding models discussed in this section, highlighting their architectural focus and primary strengths for educational RAG applications.
 
-\begin{table}[H]
-\centering
-\caption{Comparison of Multimodal Embedding Models}
-\label{tab:multimodal_models_overview}
-\scalebox{0.85}{
-\begin{tabular}{lp{3cm}p{5cm}p{4cm}}
-\toprule
-\textbf{Model} & \textbf{Modalities} & \textbf{Key Innovation} & \textbf{Primary Use Case} \\ \midrule
-\textbf{CLIP} & Image, Text & Joint contrastive pre-training on 400M pairs. & Baseline cross-modal alignment. \\
-\textbf{MM-Embed} & Image, Text & Modality-aware hard negatives to reduce text bias. & Balanced multi-domain retrieval. \\
-\textbf{ImageBind} & 6 Modalities & Unified embedding space for Text, Image, Audio, etc. & Cross-modal search (e.g., Audio $\rightarrow$ Image). \\
-\textbf{Jina-v4} & Image, Text & Task-specific LoRA adapters and late-interaction. & Visually rich documents (slides, tables). \\
-\textbf{Nomic 7B} & Interleaved & Native support for interleaved document structures. & Multi-page PDF/Slide RAG. \\ \bottomrule
-\end{tabular}
-}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Comparison of Multimodal Embedding Models.}
+% \label{tab:multimodal_models_overview}
+% \scalebox{0.85}{
+% \begin{tabular}{lp{3cm}p{5cm}p{4cm}}
+% \toprule
+% \textbf{Model} & \textbf{Modalities} & \textbf{Key Innovation} & \textbf{Primary Use Case} \\ \midrule
+% \textbf{CLIP} & Image, Text & Joint contrastive pre-training on 400M pairs. & Baseline cross-modal alignment. \\
+% \textbf{MM-Embed} & Image, Text & Modality-aware hard negatives to reduce text bias. & Balanced multi-domain retrieval. \\
+% \textbf{ImageBind} & 6 Modalities & Unified embedding space for Text, Image, Audio, etc. & Cross-modal search (e.g., Audio $\rightarrow$ Image). \\
+% \textbf{Jina-v4} & Image, Text & Task-specific LoRA adapters and late-interaction. & Visually rich documents (slides, tables). \\
+% \textbf{Nomic 7B} & Interleaved & Native support for interleaved document structures. & Multi-page PDF/Slide RAG. \\ \bottomrule
+% \end{tabular}
+% }
+% \end{table}
 
 \section{RAG}
 
@@ -414,7 +419,7 @@ A MRAG pipeline is illustrated in Figure~\ref{fig:MRAG pipeline}\footnote{\url{h
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/02-multimodal-rag-pipeline.jpg}
-    \caption[MRAG pipeline]{MRAG pipeline}
+    \caption[MRAG pipeline]{MRAG pipeline.}
     \label{fig:MRAG pipeline}
 \end{figure}
 
@@ -501,7 +506,7 @@ Rerankers, commonly implemented as cross-encoders, refine search results by join
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/pdz/18-reranker.png}
-    \caption[Reranker]{Reranker}
+    \caption[Reranker]{Reranker.}
     \label{fig:Reranker}
 \end{figure}
 
@@ -559,7 +564,7 @@ The augmentation process in RAG is illustrated in Figure~\ref{fig:Augmentation}\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/07-augmentation.png}
-    \caption[Augmentation]{Augmentation}
+    \caption[Augmentation]{Augmentation.}
     \label{fig:Augmentation}
 \end{figure}
 
@@ -605,6 +610,7 @@ supporting structural learning in applications \cite{he2024retrieval_coding}.
 
 Thus, augmentation acts as a knowledge refinement stage that improves grounding, reduces hallucination risk, and increases domain robustness \cite{gao2023rag_survey}.
 
+Once we retrieve relevant documents, we need an AI to read them and write answers in the student's own words. This is where generation comes in.
 
 \subsection{Generation}
 
@@ -613,7 +619,7 @@ The generator is the synthesis module in RAG. It conditions on both the user que
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pdz/13-generation.png}
-    \caption[Generation]{Generation}
+    \caption[Generation]{Generation.}
     \label{fig:Generation}
 \end{figure}
 
@@ -685,3 +691,4 @@ Reinforcement learning treats prompts as actions optimized for rewards such as v
 Overall, prompt engineering has matured into a systematic methodology spanning demonstrations, reasoning scaffolds, structured outputs, and automated optimization. It remains central to reliable, controllable, and domain-aligned LLM behavior.
 
 \newpage
+

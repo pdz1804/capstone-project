@@ -1,5 +1,5 @@
 SUBTRACTION
 
-C=b-G=(b,-a,, by —ay, by — az)
+C=b-G=(b,-a,, by  ay, by   az)
 
 Vector subtraction (a), and representing points as vectors from the origin (b). [ 5 }

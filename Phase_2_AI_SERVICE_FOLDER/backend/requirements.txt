@@ -1,4 +1,4 @@
-# Phase 2 AI Service — same stack as Phase_2 backend, plus Qdrant + SageMaker client.
+# Phase 2 AI Service   same stack as Phase_2 backend, plus Qdrant + SageMaker client.
 # FAISS: CPU build for portability (rag_retrievers still imports faiss for legacy helpers).
 
 transformers==4.57.3

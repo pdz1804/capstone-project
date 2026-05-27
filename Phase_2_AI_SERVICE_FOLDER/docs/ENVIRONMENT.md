@@ -27,9 +27,9 @@ Local Docker (example):
 docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant:latest
 ```
 
-## 3. ColQwen inference — local vs AWS SageMaker
+## 3. ColQwen inference   local vs AWS SageMaker
 
-**Primary reference:** `Phase_2_PDZ_002_Model_Deploy` — `server.py` exposes `/invocations` with `operation`: `embed-query`, `embed-images` (JSON body matches `test_sagemaker_endpoint.py`).
+**Primary reference:** `Phase_2_PDZ_002_Model_Deploy`   `server.py` exposes `/invocations` with `operation`: `embed-query`, `embed-images` (JSON body matches `test_sagemaker_endpoint.py`).
 
 | Variable | Meaning |
 |----------|---------|

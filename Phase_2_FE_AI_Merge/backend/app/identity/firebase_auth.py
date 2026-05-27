@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
+import tempfile
 
 from fastapi import HTTPException, status
 
@@ -22,21 +24,59 @@ class FirebaseAuthService:
             logger.warning("firebase_admin is not installed; Google/Firebase auth endpoints are unavailable")
             return
         if not firebase_admin._apps:
-            key_path = os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH", "firebase-service-account.json")
-            resolved = os.path.abspath(key_path)
-            if not os.path.exists(key_path):
-                logger.error(
-                    "Firebase Admin not configured: missing service account file at %s "
-                    "(set FIREBASE_SERVICE_ACCOUNT_PATH in .env)",
-                    resolved,
-                )
+            cred = self._load_firebase_credentials()
+            if cred is None:
                 return
             try:
-                cred = credentials.Certificate(key_path)
                 firebase_admin.initialize_app(cred)
-                logger.info("Firebase Admin SDK initialized (%s)", resolved)
+                logger.info("Firebase Admin SDK initialized")
             except Exception as e:
-                logger.exception("Firebase Admin failed to initialize from %s: %s", resolved, e)
+                logger.exception("Firebase Admin failed to initialize: %s", e)
+
+    @staticmethod
+    def _load_firebase_credentials():
+        """Load Firebase credentials from environment variable or file.
+
+        Priority:
+        1. FIREBASE_SERVICE_ACCOUNT (JSON string in env var) - recommended for public code
+        2. FIREBASE_SERVICE_ACCOUNT_PATH (file path) - legacy support
+        """
+        if firebase_admin is None or credentials is None:
+            return None
+
+        # Try environment variable first (recommended for cloud deployment)
+        service_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT", "").strip()
+        if service_account_json:
+            try:
+                cred_dict = json.loads(service_account_json)
+                cred = credentials.Certificate(cred_dict)
+                logger.info("Firebase credentials loaded from FIREBASE_SERVICE_ACCOUNT env var")
+                return cred
+            except json.JSONDecodeError as e:
+                logger.error("FIREBASE_SERVICE_ACCOUNT is not valid JSON: %s", e)
+                return None
+            except Exception as e:
+                logger.error("Failed to load Firebase credentials from FIREBASE_SERVICE_ACCOUNT: %s", e)
+                return None
+
+        # Fallback to file path (legacy support)
+        key_path = os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH", "firebase-service-account.json")
+        if os.path.exists(key_path):
+            try:
+                cred = credentials.Certificate(key_path)
+                logger.info("Firebase credentials loaded from file: %s", key_path)
+                return cred
+            except Exception as e:
+                logger.error("Failed to load Firebase credentials from file %s: %s", key_path, e)
+                return None
+
+        # No credentials found
+        logger.error(
+            "Firebase Admin not configured. Set FIREBASE_SERVICE_ACCOUNT env var with JSON credentials "
+            "(recommended) or FIREBASE_SERVICE_ACCOUNT_PATH with file path (legacy). "
+            "Get credentials from Firebase Console > Project Settings > Service Accounts > Generate New Private Key"
+        )
+        return None
 
     def _ensure_app(self) -> None:
         if firebase_admin is None:
@@ -75,9 +115,15 @@ class FirebaseAuthService:
 
     def get_user_from_token(self, id_token: str) -> dict:
         decoded = self.verify_token(id_token)
+        email = decoded.get("email")
+        uid = decoded.get("uid")
+
+        if not email:
+            logger.warning(f"Firebase token for UID {uid} missing email claim. Token claims: {list(decoded.keys())}")
+
         return {
-            "uid": decoded.get("uid"),
-            "email": decoded.get("email"),
+            "uid": uid,
+            "email": email,
             "name": decoded.get("name"),
             "picture": decoded.get("picture"),
         }

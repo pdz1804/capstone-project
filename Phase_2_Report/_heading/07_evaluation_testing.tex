@@ -62,7 +62,7 @@ OmniDocBench is a large-scale PDF parsing benchmark spanning 1,650 annotated pag
 
 \begin{table}[H]
     \centering
-    \caption{OmniDocBench Parsing Evaluation (1650 Pages, DocumentProcessorV2 Hybrid)}
+    \caption{OmniDocBench Parsing Evaluation (1650 Pages, DocumentProcessorV2 Hybrid).}
     \label{tab:omnidocbench_results}
     \scalebox{0.90}{
     \begin{tabular}{lrrrrr}
@@ -173,7 +173,7 @@ The updated PDF retrieval evaluation uses a larger benchmark designed to measure
         Embedded visual pages & 347 \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
 The selected retrieval files range from small assignment PDFs to larger technical books. Table~\ref{tab:pdf_retrieval_size_stats} reports file-size statistics in kilobytes for the selected files used to generate questions. The visual index embeds 347 rendered pages from 43 PDFs.
@@ -211,7 +211,7 @@ The selected retrieval files range from small assignment PDFs to larger technica
         \texttt{CS193P Fall 2017 DEMO} & 9 & 11 & 55 \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
 The retrieval run completed without retrieve-stage failures: 600 text-retrieval questions and 600 visual-retrieval questions were judged, with zero text or visual retrieve errors recorded in the evaluation artifacts.
@@ -327,7 +327,7 @@ Visual retrieval outperforms hybrid text retrieval across all evaluated depths. 
         nDCG@10 & 73.83\% & 88.91\% & +15.07\% \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
 The comparison changes the interpretation of PDF retrieval quality. Visual retrieval is currently the stronger modality for top-ranked PDF evidence, particularly at K=1 and K=3. This result is consistent with the nature of the dataset, which contains lecture notes, slides, mathematical notation, diagrams, tables, captions, and layout-dependent explanations. Rendered pages preserve heading context, visual grouping, formula placement, and table structure, whereas text retrieval depends on parsing and chunking decisions that may split a logically coherent page or section into several fragments. Hybrid text retrieval remains important because its Recall@10 is high, making it useful for candidate expansion and fallback evidence. However, improving text retrieval should focus on ranking quality, page-aware or section-aware chunking, heading breadcrumb preservation, and reranking rather than only increasing candidate depth.
@@ -368,18 +368,18 @@ where $S$, $D$, and $I$ denote substitutions, deletions, and insertions against 
 
 \textbf{Media (Video/Audio) Evaluation}
 
-Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB each). The pipeline extracted audio, ran Whisper ASR for transcription, chunked transcripts temporally, and extracted frames at 100-frame intervals.
+Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB each). The system performed four steps: (1) extracted audio from videos, (2) transcribed it using Whisper (speech-to-text), (3) split transcriptions into time-aligned chunks, and (4) sampled video frames every 100 frames to index visual content.
 
 \begin{table}[H]
     \centering
-    \caption{Media Parsing Quality Metrics (42 Lecture Videos)}
+    \caption{Media Parsing Quality Metrics (42 Lecture Videos).}
     \label{tab:media_results}
-    \scalebox{0.90}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lrr}
         \toprule
         \textbf{Metric} & \textbf{Value} & \textbf{Interpretation} \\
         \midrule
-        Mean WER (Word Error Rate) & 16.63\% & Good-typical for Whisper tiny on CPU \\
+        Mean WER (Word Error Rate) & 16.63\% & Percentage of incorrectly transcribed words, indicating strong transcription quality for spoken lecture content \\
         Mean CER (Character Error Rate) & 11.26\% & Reliable character-level transcription \\
         Temporal Hit Rate & 100.0\%\footnotemark & All gold windows matched in chunks \\
         Temporal IoU & 34.84\% & Chunks align with expected time windows \\
@@ -387,45 +387,45 @@ Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB
         Frame Hit Rate & 97.65\%--100.0\% & Frames correctly attached to chunks \\
         \bottomrule
     \end{tabular}
-    }
+\end{adjustbox}
 \end{table}
 \footnotetext{Temporal Hit Rate measures chunk recall (whether any chunk overlaps the target time window). Temporal IoU (34.84\%) measures precision (tightness of boundaries). The 100\% hit rate reflects excellent coverage; the 34.84\% IoU indicates chunks often span broader windows than necessary, acceptable for retrieval but limiting for sub-minute precision.}
 
 ASR quality is good: 16.63\% WER (word error rate) is typical for Whisper tiny on CPU and acceptable for educational lecture retrieval. Temporal coverage is excellent (100\% hit rate for chunk recall), though temporal precision is moderate (34.84\% Temporal IoU), meaning chunks often span broader time windows than the exact target-acceptable for content retrieval but limiting for sub-minute precision seeking. Frame extraction succeeded on all 42 videos with proper timestamp metadata, enabling visual-temporal retrieval for video content.
 
-\textbf{OCW Single-Lecture Media Evaluation}
+% \textbf{OCW Single-Lecture Media Evaluation}
 
-To validate generalization beyond the MITFLD benchmark, media evaluation was conducted on a single MIT OpenCourseWare lecture from an alternative source. This evaluation provides comparative insights into ASR quality and temporal alignment across different audio conditions.
+% To validate generalization beyond the MITFLD benchmark, media evaluation was conducted on a single MIT OpenCourseWare lecture from an alternative source. This evaluation provides comparative insights into ASR quality and temporal alignment across different audio conditions.
 
-\begin{table}[H]
-    \centering
-    \caption{OCW vs. MITFLD Media Evaluation Comparison}
-    \label{tab:ocw_mitfld_comparison}
-    \scalebox{0.90}{
-    \begin{tabular}{lrrr}
-        \toprule
-        \textbf{Metric} & \textbf{MITFLD (42 videos)} & \textbf{OCW (1 video)} & \textbf{Interpretation} \\
-        \midrule
-        Mean WER & 16.63\% & 21.81\% & OCW audio lower clarity \\
-        Mean CER & 11.26\% & 17.38\% & Reflects higher WER \\
-        Temporal Hit Rate & 100.00\% & 100.00\% & Both achieve perfect coverage \\
-        Mean Temporal IoU & 34.84\% & \textbf{56.59\%} & OCW has tighter boundaries \\
-        \bottomrule
-    \end{tabular}
-    }
-\end{table}
+% \begin{table}[H]
+%     \centering
+%     \caption{OCW vs. MITFLD Media Evaluation Comparison.}
+%     \label{tab:ocw_mitfld_comparison}
+%     \scalebox{0.90}{
+%     \begin{tabular}{lrrr}
+%         \toprule
+%         \textbf{Metric} & \textbf{MITFLD (42 videos)} & \textbf{OCW (1 video)} & \textbf{Interpretation} \\
+%         \midrule
+%         Mean WER & 16.63\% & 21.81\% & OCW audio lower clarity \\
+%         Mean CER & 11.26\% & 17.38\% & Reflects higher WER \\
+%         Temporal Hit Rate & 100.00\% & 100.00\% & Both achieve perfect coverage \\
+%         Mean Temporal IoU & 34.84\% & \textbf{56.59\%} & OCW has tighter boundaries \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+% \end{table}
 
-The OCW evaluation reveals an interesting trade-off: while the audio has lower clarity (21.81\% WER vs 16.63\%), temporal alignment is substantially tighter (56.59\% IoU vs 34.84\%). This suggests clearer fragment boundaries in the OCW lecture's transcript structure, despite noisier audio. Both sources maintain 100\% temporal hit rate, confirming that the chunking strategy reliably captures all gold windows regardless of audio quality variation. This validates that the media pipeline is robust across different lecture sources and audio conditions.
+% The OCW evaluation reveals an interesting trade-off: while the audio has lower clarity (21.81\% WER vs 16.63\%), temporal alignment is substantially tighter (56.59\% IoU vs 34.84\%). This suggests clearer fragment boundaries in the OCW lecture's transcript structure, despite noisier audio. Both sources maintain 100\% temporal hit rate, confirming that the chunking strategy reliably captures all gold windows regardless of audio quality variation. This validates that the media pipeline is robust across different lecture sources and audio conditions.
 
 \textbf{Frame Extraction and Alignment Validation}
 
 Beyond ASR and temporal metrics, the system extracts frames from video content and validates their temporal alignment with transcript chunks. This subsection reports frame extraction pipeline statistics and weak-supervised frame alignment metrics.
 
-\textbf{Frame Extraction Pipeline Statistics}
+% \textbf{Frame Extraction Pipeline Statistics}
 
 \begin{table}[H]
     \centering
-    \caption{Frame Extraction and Processing Pipeline (42 Videos)}
+    \caption{Frame Extraction and Processing Pipeline (42 Videos).}
     \label{tab:frame_extraction_stats}
     \scalebox{0.88}{
     \begin{tabular}{lrr}
@@ -453,7 +453,7 @@ The frame extraction pipeline processed all 42 videos without failures, extracti
 
 \begin{table}[H]
     \centering
-    \caption{Frame Alignment Quality Across Retrieval Depths}
+    \caption{Frame Alignment Quality Across Retrieval Depths.}
     \label{tab:frame_alignment}
     \scalebox{0.88}{
     \begin{tabular}{lrrrr}
@@ -532,9 +532,9 @@ End-to-end evaluation measures complete system correctness: retrieval + generati
 
 \begin{table}[H]
     \centering
-    \caption{End-to-End RAG Performance (660 Questions)}
+    \caption{End-to-End RAG Evaluation Results (6,600 Questions).}
     \label{tab:e2e_results}
-    \scalebox{0.90}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lrr}
         \toprule
         \textbf{Dimension} & \textbf{Metric} & \textbf{Rate} \\
@@ -552,30 +552,29 @@ End-to-end evaluation measures complete system correctness: retrieval + generati
         & Not Supported & 16.4\% \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
 The system achieves 72.7\% correctness, meaning answers are factually accurate for most questions. Critically, faithfulness reaches 99.5\% with zero hallucinations, indicating that the RAG pipeline is highly reliable and grounded in retrieved evidence. This high faithfulness-to-correctness ratio (99.5\% vs 72.7\%) reveals that most errors come from retrieval failures or incomplete context (16.4\% of answers lack full support) rather than generation failing to ground answers. This diagnosis suggests that improving retrieval quality and chunking precision will directly lift correctness toward higher levels.
 
 The 82\% fully-supported rate confirms that the retrieval system successfully locates relevant passages for most queries, validating the combination of parsing, chunking, and retrieval strategies. The 22.4\% incorrect rate is primarily driven by questions whose answers require information not retrieved (16.4\%) or only partially retrieved (1.7\%), indicating retrieval as the primary optimization target for future improvements.
 
-\subsection{Evaluation Summary and Readiness Assessment}
+% \subsection{Evaluation Summary and Readiness Assessment}
+% The comprehensive evaluation across document parsing, multimodal retrieval, chunking strategy, and end-to-end RAG generation establishes that the BK-MInD system achieves \textbf{high-quality component-level performance} with clear diagnostic insights for production readiness.
 
-The comprehensive evaluation across document parsing, multimodal retrieval, chunking strategy, and end-to-end RAG generation establishes that the BK-MInD system achieves \textbf{high-quality component-level performance} with clear diagnostic insights for production readiness.
+% \textbf{Key Findings:}
 
-\textbf{Key Findings:}
-
-\textit{(1) Parsing Quality Establishes Foundation-Strength in Structure, Bottleneck in Text Fidelity.} OmniDocBench parsing reaches 58.91\% overall accuracy, with exceptional read-order preservation (92.60\%) and strong table extraction (76.86\%), but text-level extraction lags at 47.43\% due to formula complexity and OCR limitations. Office document parsing (DOCX: 60.98\%) significantly outperforms spreadsheets (XLSX: 43.10\%), reflecting the structural complexity of merged cells and formula content. These results confirm that the parsing pipeline sets the upper bound for all downstream retrieval and generation quality.
+% \textit{(1) Parsing Quality Establishes Foundation-Strength in Structure, Bottleneck in Text Fidelity.} OmniDocBench parsing reaches 58.91\% overall accuracy, with exceptional read-order preservation (92.60\%) and strong table extraction (76.86\%), but text-level extraction lags at 47.43\% due to formula complexity and OCR limitations. Office document parsing (DOCX: 60.98\%) significantly outperforms spreadsheets (XLSX: 43.10\%), reflecting the structural complexity of merged cells and formula content. These results confirm that the parsing pipeline sets the upper bound for all downstream retrieval and generation quality.
 
 \textit{(2) Visual Retrieval Provides Stronger Top-Ranked PDF Evidence, while Hybrid Text Maintains High Candidate Coverage.} On the updated PDF retrieval benchmark, hybrid text retrieval reaches strong Recall@10 (93.69\%), confirming that relevant evidence is usually present in the top-10 candidate pool. However, visual page-level retrieval with ColQwen performs better across all measured depths, reaching 95.66\% Recall@10 and 88.91\% nDCG@10, compared with 73.83\% nDCG@10 for hybrid text. The largest gap appears at top-1, where visual retrieval improves Recall@1 from 38.07\% to 63.06\%. This indicates that rendered-page retrieval better preserves layout, formulas, tables, and heading context, while future text retrieval improvements should prioritize reranking, page-aware chunking, and heading breadcrumb preservation.
 
-\textit{(3) End-to-End RAG Reveals Retrieval as Primary Optimization Lever.} System correctness reaches 72.7\% with exceptional faithfulness of 99.5\% and zero hallucinations-proving that generation is grounded and reliable. The high faithfulness-to-correctness gap indicates that retrieval failures and incomplete context, not generation errors, drive the 22.4\% incorrect-answer rate. This clear diagnostic points to retrieval precision and chunking strategy as the direct path to improving correctness toward 80%+ levels.
+% \textit{(3) End-to-End RAG Reveals Retrieval as Primary Optimization Lever.} System correctness reaches 72.7\% with exceptional faithfulness of 99.5\% and zero hallucinations-proving that generation is grounded and reliable. The high faithfulness-to-correctness gap indicates that retrieval failures and incomplete context, not generation errors, drive the 22.4\% incorrect-answer rate. This clear diagnostic points to retrieval precision and chunking strategy as the direct path to improving correctness toward 80%+ levels.
 
-\textit{(4) Media Parsing Demonstrates Strong Temporal Coverage with Generalizable Pipeline.} ASR quality across 42 lecture videos reaches 16.63\% WER (acceptable for educational content), temporal hit rate is perfect (100\%), and frame extraction maintains near-perfect attachment rates (97.65\%--98.32\%). OCW single-lecture validation confirms pipeline robustness across different audio sources despite WER variations (21.81\% OCW vs 16.63\% MITFLD), demonstrating the system's ability to generalize beyond controlled environments.
+% \textit{(4) Media Parsing Demonstrates Strong Temporal Coverage with Generalizable Pipeline.} ASR quality across 42 lecture videos reaches 16.63\% WER (acceptable for educational content), temporal hit rate is perfect (100\%), and frame extraction maintains near-perfect attachment rates (97.65\%--98.32\%). OCW single-lecture validation confirms pipeline robustness across different audio sources despite WER variations (21.81\% OCW vs 16.63\% MITFLD), demonstrating the system's ability to generalize beyond controlled environments.
 
 % \textit{(5) Chunking Strategy Successfully Balances Recall and Cost.} Recursive markdown chunking and semantic clustering achieve near-equivalent hit rates (~72\%), but recursive chunking is selected for production due to superior precision (18.71\% vs 15.89\% IoU) and lower token cost (755 vs 1,006 average characters per chunk), enabling more cost-efficient generation.
 
-\textbf{Readiness Assessment:} The evaluation phase confirms that the system is \textbf{functionally sound and diagnostically clear}. Component-level quality is established; the next validation gate is operational robustness-confirming that these metrics persist under production-scale concurrency and workload. The following section reports comprehensive performance testing results, which stress-test the system at 20--50 concurrent users and identify scalability boundaries essential for pilot deployment planning.
+% \textbf{Readiness Assessment:} The evaluation phase confirms that the system is \textbf{functionally sound and diagnostically clear}. Component-level quality is established; the next validation gate is operational robustness-confirming that these metrics persist under production-scale concurrency and workload. The following section reports comprehensive performance testing results, which stress-test the system at 20--50 concurrent users and identify scalability boundaries essential for pilot deployment planning.
 
 \newpage
 
@@ -589,7 +588,7 @@ The performance testing environment is supported by a specialized toolchain desi
 
 \begin{table}[H]
     \centering
-    \caption{Performance Testing Toolchain}
+    \caption{Performance Testing Toolchain.}
     \label{tab:test_tools}
     \scalebox{0.85}{
     \begin{tabular}{lp{5cm}p{7cm}}
@@ -610,7 +609,7 @@ To provide a standardized evaluation of the system's operational efficiency, we 
 
 \begin{table}[H]
     \centering
-    \caption{Key Performance Metrics}
+    \caption{Key Performance Metrics.}
     \label{tab:metrics_explained}
     \scalebox{0.85}{
     \begin{tabular}{lp{4.5cm}p{7.5cm}}
@@ -631,7 +630,7 @@ The evaluation is structured into several distinct test scenarios targeting diff
 
 \begin{table}[H]
     \centering
-    \caption{Performance Testing Plan and Objectives}
+    \caption{Performance Testing Plan and Objectives.}
     \label{tab:test_plan}
     \scalebox{0.85}{
     \begin{tabular}{lp{6cm}p{6cm}}
@@ -651,7 +650,7 @@ The reliability of the collected performance data is ensured through a multi-lay
 
 \begin{table}[H]
     \centering
-    \caption{Test Evidence and Verification Methods}
+    \caption{Test Evidence and Verification Methods.}
     \label{tab:test_evidence}
     \scalebox{0.85}{
     \begin{tabular}{lp{6cm}p{6cm}}
@@ -677,7 +676,7 @@ The initial phase of evaluation establishes a performance baseline for core inte
 
 \begin{table}[H]
     \centering
-    \caption{Baseline API Performance Matrix}
+    \caption{Baseline API Performance Matrix.}
     \label{tab:baseline_perf}
     \scalebox{0.85}{
     \begin{tabular}{lrrrrr}
@@ -702,7 +701,7 @@ The file upload subsystem was tested against varying concurrency levels to evalu
 
 \begin{table}[H]
     \centering
-    \caption{Upload API Performance Matrix}
+    \caption{Upload API Performance Matrix.}
     \label{tab:upload_perf}
     \scalebox{0.85}{
     \begin{tabular}{lrrrrr}
@@ -729,7 +728,7 @@ Document processing, being a resource-intensive background task, was evaluated b
 
 \begin{table}[H]
     \centering
-    \caption{Document Processing Performance Matrix}
+    \caption{Document Processing Performance Matrix.}
     \label{tab:processing_perf}
     \scalebox{0.85}{
     \begin{tabular}{lrrr}
@@ -754,7 +753,7 @@ Full-text and visual indexing performance metrics, which highlight the system's 
 
 \begin{table}[H]
     \centering
-    \caption{Indexing Performance Matrix}
+    \caption{Indexing Performance Matrix.}
     \label{tab:indexing_perf}
     \scalebox{0.85}{
     \begin{tabular}{lrrr}
@@ -781,7 +780,7 @@ The performance of the multimodal search engine across different user loads, mea
 
 \begin{table}[H]
     \centering
-    \caption{Search Performance Matrix}
+    \caption{Search Performance Matrix.}
     \label{tab:search_perf}
     \scalebox{0.85}{
     \begin{tabular}{lrrrrr}
@@ -807,7 +806,7 @@ The responsiveness of the AI chat interface, specifically its ability to maintai
 
 \begin{table}[H]
     \centering
-    \caption{Chat Stream Performance Matrix (Full Request)}
+    \caption{Chat Stream Performance Matrix (Full Request).}
     \label{tab:chat_stream_perf}
     \scalebox{0.85}{
     \begin{tabular}{lrrrrr}
@@ -835,7 +834,7 @@ Performance metrics for the automated lecture summarization service, reflecting 
 
 \begin{table}[H]
     \centering
-    \caption{Summary Performance Matrix}
+    \caption{Summary Performance Matrix.}
     \label{tab:summary_perf}
     \scalebox{0.85}{
     \begin{tabular}{lrrrrr}
@@ -861,7 +860,7 @@ The efficiency of the MCQ generation endpoint, which supports rapid educational 
 
 \begin{table}[H]
     \centering
-    \caption{Multiple Choice Question Performance Matrix}
+    \caption{Multiple Choice Question Performance Matrix.}
     \label{tab:mcq_perf}
     \scalebox{0.85}{
     \begin{tabular}{lrrrrr}
@@ -887,7 +886,7 @@ Learning roadmap generation latencies and success rates under load are presented
 
 \begin{table}[H]
     \centering
-    \caption{Learning Roadmap Performance Matrix}
+    \caption{Learning Roadmap Performance Matrix.}
     \label{tab:roadmap_perf}
     \scalebox{0.85}{
     \begin{tabular}{lrrrrr}
@@ -917,7 +916,7 @@ A synthesis of the key findings from the cross-API performance evaluation is pro
 
 \begin{table}[H]
     \centering
-    \caption{Cross-API Performance Findings}
+    \caption{Cross-API Performance Findings.}
     \label{tab:api_findings}
     \scalebox{0.85}{
     \begin{tabular}{lp{6cm}p{6cm}}
@@ -937,7 +936,7 @@ Based on the observed performance boundaries, Table~\ref{tab:risks_mitigations} 
 
 \begin{table}[H]
     \centering
-    \caption{Production Risks and Mitigations}
+    \caption{Production Risks and Mitigations.}
     \label{tab:risks_mitigations}
     \scalebox{0.85}{
     \begin{tabular}{lp{4cm}p{8cm}}
@@ -957,22 +956,9 @@ Based on the observed performance boundaries, Table~\ref{tab:risks_mitigations} 
 
 To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/29-desktop performance.png}
-    \caption[Desktop Performance Metrics]{Desktop Performance Metrics.}
-    \label{fig:desktop_performance}
-\end{figure}
+The audit confirms strong frontend responsiveness across device classes. In the desktop environment, the application achieved an overall PageSpeed score of \textbf{99/100}, indicating excellent rendering efficiency, low layout instability, and strong compliance with technical best practices. In the mobile environment, the system achieved \textbf{90/100}, demonstrating that the interface remains performant and usable under more constrained device and network conditions.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{img/pdz/30-mobile performance.png}
-    \caption[Mobile Performance Metrics]{Mobile Performance Metrics.}
-    \label{fig:mobile_performance}
-\end{figure}
-
-As shown in Figures \ref{fig:desktop_performance} and \ref{fig:mobile_performance}, the system maintains high performance scores across all categories, ensuring fast load times and a responsive interface for multimodal document interaction.
-
+Across both audit modes, the results show that the BK-MInD frontend sustains fast load behavior while maintaining strong accessibility, SEO readiness, and implementation quality. The complete PageSpeed Insights screenshots for desktop and mobile are provided in Appendix~\ref{app:pagespeed_insights} for detailed visual inspection.
 
 \subsection{Evaluation Metrics Summary}
 
@@ -980,10 +966,10 @@ This subsection provides a consolidated overview of the metrics evaluated in Pha
 
 \begin{table}[H]
     \centering
-    \caption{Comprehensive Evaluation Metrics: Phase 2 vs. Future Plan}
+    \caption{Comprehensive Evaluation Metrics: Phase 2 vs. Future Plan.}
     \label{tab:evaluation_metrics}
-    \scalebox{0.85}{
-    \begin{tabular}{lp{2.5cm}p{7cm}}
+    \begin{adjustbox}{max width=\linewidth}
+    \begin{tabular}{lp{4.5cm}p{7cm}}
         \toprule
         \textbf{Metric Category} & \textbf{Phase 2 Status} & \textbf{Future Plan} \\
         \midrule
@@ -995,7 +981,7 @@ This subsection provides a consolidated overview of the metrics evaluated in Pha
         \textbf{Educational Effectiveness} (Instructor Feedback) & Planned for future deployment & Collect instructor feedback; measure course integration satisfaction; validate pedagogical value \\
         \bottomrule
     \end{tabular}
-    }
+\end{adjustbox}
 \end{table}
 
 \textit{Note: Phase 2 validates system infrastructure and performance under simulated load. Future deployment will measure educational impact through student and instructor feedback, enabling evidence-based optimization of learning outcomes and system adoption.}
@@ -1046,7 +1032,7 @@ To ensure the economic viability of the proposed system, we have established a b
 
 \begin{table}[H]
     \centering
-    \caption{Cost Estimation Assumptions}
+    \caption{Cost Estimation Assumptions.}
     \label{tab:cost_assumptions}
     \scalebox{0.8}{
     \begin{tabular}{lp{2.5cm}llp{8cm}}
@@ -1112,9 +1098,9 @@ To ground our cost projections in current market rates, we utilize the following
 
 \begin{table}[H]
     \centering
-    \caption{AWS Pricing Reference (us-west-2)}
+    \caption{AWS Pricing Reference (us-west-2).}
     \label{tab:aws_pricing_ref}
-    \scalebox{0.8}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lllp{3.4cm}p{6cm}}
         \toprule
         \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
@@ -1149,7 +1135,7 @@ To ground our cost projections in current market rates, we utilize the following
         Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
         \bottomrule
     \end{tabular}
-    }
+\end{adjustbox}
 \end{table}
 
 \newpage
@@ -1158,9 +1144,9 @@ Based on the defined assumptions and current pricing, the following table provid
 
 \begin{table}[H]
     \centering
-    \caption{Monthly Cost Breakdown - 50 Users}
+    \caption{Monthly Cost Breakdown - 50 Users.}
     \label{tab:monthly_cost_breakdown}
-    \scalebox{0.8}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{llp{1.6cm}p{2.7cm}p{4.4cm}rr}
         \toprule
         \textbf{Category} & \textbf{Component} & \textbf{Quantity} & \textbf{Unit Price} & \textbf{Base Calculation} & \textbf{Cost} & \textbf{\%} \\
@@ -1183,7 +1169,7 @@ Based on the defined assumptions and current pricing, the following table provid
         \textbf{TOTAL} & & & & & \textbf{\$683.72} & \textbf{100.00\%} \\
         \bottomrule
     \end{tabular}
-    }
+\end{adjustbox}
 \end{table}
 
 \begin{figure}[H]
@@ -1199,9 +1185,9 @@ The following table provides a comparative analysis of GPU operational costs acr
 
 \begin{table}[H]
     \centering
-    \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month)}
+    \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month).}
     \label{tab:gpu_optimization}
-    \scalebox{0.8}{
+    \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{llllrrr}
         \toprule
         \textbf{Provider} & \textbf{GPU Type} & \textbf{Pricing Model} & \textbf{Pricing Unit} & \textbf{Always-On} & \textbf{50-User Cost} & \textbf{Savings vs AWS} \\
@@ -1212,7 +1198,7 @@ The following table provides a comparative analysis of GPU operational costs acr
         Hyperstack & RTX A4000 & Dedicated & \$0.15 / hr & \$109.50 & \$109.50 & \$428.07 \\
         \bottomrule
     \end{tabular}
-    }
+    \end{adjustbox}
 \end{table}
 
 % \section{Chapter Summary}
@@ -1274,7 +1260,7 @@ The following table provides a comparative analysis of GPU operational costs acr
 
 % \begin{table}[H]
 %     \centering
-%     \caption{Pilot Deployment Risk Matrix}
+%     \caption{Pilot Deployment Risk Matrix.}
 %     \label{tab:pilot_risks}
 %     \scalebox{0.9}{
 %     \begin{tabular}{lp{3.5cm}p{3.5cm}p{4cm}}

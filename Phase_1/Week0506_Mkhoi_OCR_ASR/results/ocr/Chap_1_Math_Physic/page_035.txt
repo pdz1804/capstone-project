@@ -1,7 +1,7 @@
 SPHERE VERSUS SPHERE
 INTERSECTION
 
-|.1 - BI? < (ra + ru) |4 — BL? > (
+|.1 - BI? < (ra + ru) |4   BL? > (
 
 (a) (b)
 

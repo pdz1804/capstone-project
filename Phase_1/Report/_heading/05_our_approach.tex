@@ -337,8 +337,8 @@ For multimedia inputs (video and audio), Stage 2 extracts temporal information a
 \toprule
 \textbf{Input Format} & \textbf{Extraction Tool} & \textbf{Intermediate Output} & \textbf{Final Output} \\ \midrule
 Video (MP4, AVI) & MoviePy & Audio (WAV) & Markdown transcript \\
- & OpenCV (optional) & Video frames (JPG) & — \\
-Audio (WAV, MP3) & OpenAI Whisper & — & Markdown transcript \\
+ & OpenCV (optional) & Video frames (JPG) &   \\
+Audio (WAV, MP3) & OpenAI Whisper &   & Markdown transcript \\
  & & & Timestamped subtitles (SRT/VTT) \\ \bottomrule
 \end{tabular}%
 }
@@ -408,8 +408,8 @@ The text pathway processes structured Markdown files generated from Stage 3. The
 \begin{tabular}{@{}llllll@{}}
 \toprule
 \textbf{Stage} & \textbf{Input} & \textbf{Process} & \textbf{Output} & \textbf{Storage} & \textbf{Index Type} \\ \midrule
-Chunking & Markdown & RecursiveSplitter & Text chunks & — & — \\
-Embedding & Text chunks & MiniLM-L6-v2 & 384-dim vectors & — & — \\
+Chunking & Markdown & RecursiveSplitter & Text chunks &   &   \\
+Embedding & Text chunks & MiniLM-L6-v2 & 384-dim vectors &   &   \\
 BM25 Index & Text chunks & TF-IDF scoring & Inverted index & .pkl file & Sparse \\
 Dense Index & Vector embeddings & FAISS IndexFlatIP & Vector store & .bin file & Dense \\
 Hybrid Index & BM25 + Dense & RRF fusion & Unified scores & JSON & Hybrid \\ \bottomrule
@@ -439,7 +439,7 @@ The visual pathway processes PDF files to enable image-based retrieval. Instead 
 \begin{tabular}{@{}llllll@{}}
 \toprule
 \textbf{Stage} & \textbf{Input} & \textbf{Process} & \textbf{Output} & \textbf{Storage} & \textbf{Index Type} \\ \midrule
-Rasterization & PDF pages & pdf2image (150 DPI) & JPEG images & Image files & — \\
+Rasterization & PDF pages & pdf2image (150 DPI) & JPEG images & Image files &   \\
 Visual Embedding & JPEG images & ColQwen2 (ViT) & Multi-vector tensors & Tensor store & Late Interaction \\
 Visual Index & Visual vectors & ColQwen indexing & Searchable vectors & .bin file & Visual \\
 Metadata & Per-page info & JSON serialization & Page metadata & .json file & Lookup table \\ \bottomrule

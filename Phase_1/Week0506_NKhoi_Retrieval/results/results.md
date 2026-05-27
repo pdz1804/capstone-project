@@ -22,7 +22,7 @@
 ### 2. nDCG@k (Normalized Discounted Cumulative Gain)
 
 * This is the most important metric, measuring **ranking quality**. It doesn’t just check whether relevant documents were retrieved but **how well they were ranked**.
-* **Example:** Think of Google search — a relevant result in position #1 is far more valuable than one in position #k. nDCG reflects this.
+* **Example:** Think of Google search   a relevant result in position #1 is far more valuable than one in position #k. nDCG reflects this.
   - **Gain:** You earn points for retrieving relevant documents.
   - **Cumulative:** Points accumulate for all relevant documents in the top 10.
   - **Discounted:** Points are discounted the lower a document ranks (#1 gets full points, #2 gets less, and so on).

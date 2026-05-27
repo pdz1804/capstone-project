@@ -1,9 +1,9 @@
 /**
  * Base URL for REST calls and image URLs (must match FastAPI routes under `/api/...`).
  *
- * - Default `/api` — in dev, Vite proxies `/api` → backend (see vite.config.js).
- * - `VITE_API_URL=/api` — same as default.
- * - `VITE_API_URL=http://localhost:8000` — normalized to `http://localhost:8000/api`
+ * - Default `/api`   in dev, Vite proxies `/api` → backend (see vite.config.js).
+ * - `VITE_API_URL=/api`   same as default.
+ * - `VITE_API_URL=http://localhost:8000`   normalized to `http://localhost:8000/api`
  *   so paths like `${base}/upload` hit `POST /api/upload`, not `POST /upload`.
  */
 export function getApiBase() {

@@ -82,7 +82,7 @@ export default function SettingsPanel({ pipelineConfig, showConfig, setShowConfi
               </div>
               <div className="bg-white/60 rounded-lg p-3">
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Qdrant</div>
-                <div className="text-sm font-medium text-slate-800">{pipelineConfig.key_settings.qdrant_mode ?? '—'}</div>
+                <div className="text-sm font-medium text-slate-800">{pipelineConfig.key_settings.qdrant_mode ?? ' '}</div>
               </div>
               <div className="bg-white/60 rounded-lg p-3">
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Image Retrieval</div>
@@ -91,7 +91,7 @@ export default function SettingsPanel({ pipelineConfig, showConfig, setShowConfi
               <div className="bg-white/60 rounded-lg p-3 md:col-span-2">
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Retrieval Methods</div>
                 <div className="text-sm font-medium text-slate-800">
-                  {(pipelineConfig.key_settings.retrieval_methods || []).join(', ') || '—'}
+                  {(pipelineConfig.key_settings.retrieval_methods || []).join(', ') || ' '}
                 </div>
               </div>
               <div className="bg-white/60 rounded-lg p-3">
@@ -104,11 +104,11 @@ export default function SettingsPanel({ pipelineConfig, showConfig, setShowConfi
               </div>
               <div className="bg-white/60 rounded-lg p-3">
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Text collection</div>
-                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.text_collection ?? '—'}</div>
+                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.text_collection ?? ' '}</div>
               </div>
               <div className="bg-white/60 rounded-lg p-3">
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Image collection</div>
-                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.image_collection ?? '—'}</div>
+                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.image_collection ?? ' '}</div>
               </div>
               <div className="bg-white/60 rounded-lg p-3">
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">SageMaker inference</div>
@@ -116,7 +116,7 @@ export default function SettingsPanel({ pipelineConfig, showConfig, setShowConfi
               </div>
               <div className="bg-white/60 rounded-lg p-3 md:col-span-2">
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">SageMaker endpoint</div>
-                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.sagemaker_endpoint ?? '—'}</div>
+                <div className="text-sm font-medium text-slate-800 truncate">{pipelineConfig.key_settings.sagemaker_endpoint ?? ' '}</div>
               </div>
             </div>
           )}

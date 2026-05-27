@@ -1,13 +1,13 @@
 Drawing Introduction
 
-pygame.draw.rect — draw a rectangle shape
+pygame.draw.rect   draw a rectangle shape
 
-pygame.draw.polygon — draw a shape with any number of sides
+pygame.draw.polygon   draw a shape with any number of sides
 
-pygame.draw.circle — draw a circle around a point
-pygame.draw.ellipse — draw around shape inside a rectangle
-pygame.draw.arc — draw a partial section of an ellipse
-pygame.draw.line — draw a straight line segment
-pygame.draw.lines — draw multiple contiguous line segments
-pygame.draw.aaline — draw fine antialiased lines
-pygame.draw.aalines © — drawaconnected sequence of antialiased lines
+pygame.draw.circle   draw a circle around a point
+pygame.draw.ellipse   draw around shape inside a rectangle
+pygame.draw.arc   draw a partial section of an ellipse
+pygame.draw.line   draw a straight line segment
+pygame.draw.lines   draw multiple contiguous line segments
+pygame.draw.aaline   draw fine antialiased lines
+pygame.draw.aalines ©   drawaconnected sequence of antialiased lines

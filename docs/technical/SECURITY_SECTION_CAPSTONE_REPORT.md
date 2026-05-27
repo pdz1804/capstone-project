@@ -31,7 +31,7 @@ The WAF operates using a default "Allow" action, which means requests are allowe
 
 The WAF uses a consumption model based on Web ACL Capacity Units (WCUs). Each rule consumes a certain number of WCUs based on its complexity. The current protection pack is consuming 1,129 WCUs out of a maximum capacity of 5,000 WCUs, representing 22.6% utilization. This leaves significant headroom (3,871 WCUs) for future security rule additions.
 
-The capacity breakdown reveals that the five protection rules are consuming resources as follows: the Rate Limit Rule consumes approximately 200 WCUs, the SQL Injection detection rule consumes 200 WCUs, the Known Bad Inputs rule consumes 200 WCUs, the Common Rule Set (implementing OWASP ModSecurity CRS v3.2) consumes 400 WCUs, and the Amazon IP Reputation List consumes 129 WCUs. This distribution is intentional—the Common Rule Set is allocated the most capacity because it must evaluate the broadest range of attack patterns.
+The capacity breakdown reveals that the five protection rules are consuming resources as follows: the Rate Limit Rule consumes approximately 200 WCUs, the SQL Injection detection rule consumes 200 WCUs, the Known Bad Inputs rule consumes 200 WCUs, the Common Rule Set (implementing OWASP ModSecurity CRS v3.2) consumes 400 WCUs, and the Amazon IP Reputation List consumes 129 WCUs. This distribution is intentional the Common Rule Set is allocated the most capacity because it must evaluate the broadest range of attack patterns.
 
 The current utilization level is considered optimal for a production deployment. AWS indicates that using over 1,500 WCUs begins to incur significant cost increases due to the pricing model. At the current usage of 1,129 WCUs, the monthly cost for WAF protection is approximately $15 for a platform serving 10 million requests per month. This represents a minimal cost relative to the value of the data being protected.
 
@@ -77,7 +77,7 @@ AWS updates this list daily based on threat intelligence feeds, abuse reports fr
 
 In addition to outright blocking, the WAF implements a challenge mechanism where suspicious requests are presented with an interactive verification step rather than immediately blocked. This approach allows legitimate users to proceed while filtering automated attacks. The WAF uses CAPTCHA (Completely Automated Public Turing test to tell Computers and Humans Apart) challenges to verify that requests are coming from real users rather than automated bots.
 
-When a request triggers the challenge mechanism, the user is presented with an interactive CAPTCHA puzzle. Upon successful completion, the user receives a token that is valid for 300 seconds (5 minutes). During this window, the user can make subsequent requests without being re-challenged. This design balances security with user experience—most legitimate users will only encounter a CAPTCHA once per 5-minute session, which introduces minimal friction to the learning experience.
+When a request triggers the challenge mechanism, the user is presented with an interactive CAPTCHA puzzle. Upon successful completion, the user receives a token that is valid for 300 seconds (5 minutes). During this window, the user can make subsequent requests without being re-challenged. This design balances security with user experience most legitimate users will only encounter a CAPTCHA once per 5-minute session, which introduces minimal friction to the learning experience.
 
 The CAPTCHA implementation is managed entirely by AWS and includes responsive design for mobile devices, accessibility features for users with disabilities, and multiple puzzle types to prevent automation. A traditional CAPTCHA challenge takes a user 5-10 seconds to complete, while the simpler challenge (math puzzle) takes 2-3 seconds. After token expiration, if the user is still generating suspicious traffic patterns, they would be re-challenged.
 
@@ -87,9 +87,9 @@ When a request arrives at the ALB from a user, it first enters the WAF evaluatio
 
 If the rate limit check passes, the request proceeds to the SQL injection detector (priority 1) which analyzes all parameters for SQL attack patterns. If SQLi patterns are detected, the request is blocked. Similarly, the request is evaluated against the Known Bad Inputs rule, then the Common Rule Set, and finally the IP Reputation list.
 
-If the request passes all rule evaluations, the default action is applied—which is "Allow"—and the request is forwarded to the Application Load Balancer for further processing. The ALB then performs TLS/SSL termination (converting encrypted HTTPS to HTTP for internal communication), applies sticky session routing if needed, and forwards the request to an ECS container running the BK-MInD backend application.
+If the request passes all rule evaluations, the default action is applied which is "Allow" and the request is forwarded to the Application Load Balancer for further processing. The ALB then performs TLS/SSL termination (converting encrypted HTTPS to HTTP for internal communication), applies sticky session routing if needed, and forwards the request to an ECS container running the BK-MInD backend application.
 
-This entire process adds minimal latency to the request—between 1-5 milliseconds—which is negligible compared to typical backend processing time (50-500ms). The WAF processing overhead represents less than 0.1% additional latency in the user's end-to-end experience.
+This entire process adds minimal latency to the request between 1-5 milliseconds which is negligible compared to typical backend processing time (50-500ms). The WAF processing overhead represents less than 0.1% additional latency in the user's end-to-end experience.
 
 ### 1.6 Monitoring and Observability
 
@@ -147,7 +147,7 @@ The fifth filter blocks content promoting illegal activities, fraud, hacking, ab
 
 ### 2.3 Prompt Attack Prevention
 
-Beyond filtering content categories, the guardrails implementation includes detection for sophisticated prompt injection attacks—where attackers attempt to manipulate the AI model into bypassing safety restrictions through creative prompting techniques. The system detects and blocks eight specific attack vector categories.
+Beyond filtering content categories, the guardrails implementation includes detection for sophisticated prompt injection attacks where attackers attempt to manipulate the AI model into bypassing safety restrictions through creative prompting techniques. The system detects and blocks eight specific attack vector categories.
 
 **Prompt Injection Attacks**
 
@@ -247,7 +247,7 @@ Course materials, student records, and progress data stored in AWS DynamoDB and 
 
 **Data Storage Encryption**
 
-AWS DynamoDB tables are configured with server-side encryption using AWS-managed keys, ensuring that all stored data is encrypted on disk. S3 buckets are configured with default encryption (either SSE-S3 or SSE-KMS per organizational policy), encrypting all objects automatically when stored. Both services handle encryption transparently to the application—there is no additional application-layer encryption burden, and encryption keys are managed entirely by AWS infrastructure. When backups occur, encrypted data is backed up in encrypted form, and restoration of backups automatically maintains encryption protection.
+AWS DynamoDB tables are configured with server-side encryption using AWS-managed keys, ensuring that all stored data is encrypted on disk. S3 buckets are configured with default encryption (either SSE-S3 or SSE-KMS per organizational policy), encrypting all objects automatically when stored. Both services handle encryption transparently to the application there is no additional application-layer encryption burden, and encryption keys are managed entirely by AWS infrastructure. When backups occur, encrypted data is backed up in encrypted form, and restoration of backups automatically maintains encryption protection.
 
 ---
 
@@ -257,16 +257,16 @@ AWS DynamoDB tables are configured with server-side encryption using AWS-managed
 
 The BK-MInD security implementation provides protection against all items in the OWASP Top 10 (2021):
 
-1. **Broken Access Control** — Addressed through IAM policies and application-level authorization checks
-2. **Cryptographic Failures** — Addressed through TLS encryption for transit and server-side encryption at rest (DynamoDB, S3)
-3. **Injection** — Addressed through SQL injection detection via WAF and parameterized queries in application code
-4. **Insecure Design** — Addressed through security-first architecture and threat modeling
-5. **Security Misconfiguration** — Addressed through Infrastructure as Code and security scanning of configurations
-6. **Vulnerable Components** — Addressed through regular dependency scanning and patching
-7. **Authentication Failures** — Addressed through secure session management and authentication protocols
-8. **Software and Data Integrity Failures** — Addressed through code signing and integrity verification
-9. **Logging and Monitoring Failures** — Addressed through CloudWatch integration and security alerting
-10. **SSRF** — Addressed through network segmentation and service-level security controls
+1. **Broken Access Control**   Addressed through IAM policies and application-level authorization checks
+2. **Cryptographic Failures**   Addressed through TLS encryption for transit and server-side encryption at rest (DynamoDB, S3)
+3. **Injection**   Addressed through SQL injection detection via WAF and parameterized queries in application code
+4. **Insecure Design**   Addressed through security-first architecture and threat modeling
+5. **Security Misconfiguration**   Addressed through Infrastructure as Code and security scanning of configurations
+6. **Vulnerable Components**   Addressed through regular dependency scanning and patching
+7. **Authentication Failures**   Addressed through secure session management and authentication protocols
+8. **Software and Data Integrity Failures**   Addressed through code signing and integrity verification
+9. **Logging and Monitoring Failures**   Addressed through CloudWatch integration and security alerting
+10. **SSRF**   Addressed through network segmentation and service-level security controls
 
 ### 4.2 Incident Response
 
@@ -278,7 +278,7 @@ AWS automatically updates the managed security rules (SQL injection detection, k
 
 **Certificate Renewal and HTTPS Maintenance**
 
-AWS Certificate Manager handles automatic renewal of TLS certificates for the BK-MInD domain. The renewal process begins automatically 30 days before the certificate expiration date. Renewal uses DNS validation (matching the validation records already present in the domain's DNS configuration), so no manual DNS record updates are required for renewal—the existing validation CNAME records support both initial validation and automatic renewal.
+AWS Certificate Manager handles automatic renewal of TLS certificates for the BK-MInD domain. The renewal process begins automatically 30 days before the certificate expiration date. Renewal uses DNS validation (matching the validation records already present in the domain's DNS configuration), so no manual DNS record updates are required for renewal the existing validation CNAME records support both initial validation and automatic renewal.
 
 To ensure continuous certificate validity and security, operations teams monitor the certificate status periodically through the AWS Certificate Manager console. The certificate status shows the expiration date ("Not After" field) and can be confirmed to show "Issued" with "In use" status on the ALB listener. If a certificate is ever manually replaced or reissued, the new validation CNAME records must be added to the domain registrar (Hostinger) before the certificate reaches "Issued" status.
 

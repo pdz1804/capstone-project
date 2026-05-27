@@ -1,13 +1,52 @@
-"""
-RAG-focused Retrieval Systems
+"""RAG-Focused Retrieval Systems: Text, Image, and Hybrid Search.
 
-Simple, practical retrieval systems designed for RAG applications
-with processed documents from the document processing pipeline.
+Practical retrieval implementations for RAG applications. Processes document chunks
+from the document processing pipeline and supports multiple retrieval strategies.
 
-Includes:
-- Text chunking for splitting documents into smaller pieces
-- BM25, Dense, and Hybrid retrieval methods
-- Index persistence for fast loading
+Retrieval Strategies:
+
+BM25 (Sparse/Lexical):
+- Traditional keyword-based retrieval using Okapi BM25 algorithm
+- Fast, interpretable, works well for exact term matching
+- No embedding computation required
+- Good baseline for technical documents with specific terminology
+
+Dense (Semantic/Embedding):
+- Embedding-based retrieval using Sentence-Transformers (all-MiniLM-L6-v2)
+- Captures semantic similarity beyond keyword matching
+- Uses FAISS CPU index for efficient similarity search
+- Supports approximate nearest neighbor search for scale
+
+Hybrid (RRF Fusion):
+- Combines BM25 and Dense retrieval results using Reciprocal Rank Fusion (RRF)
+- Min-max normalization of scores across different scales
+- Configurable expansion factor (default 130%): dense retriever returns 1.3*K results
+- Weighted combination: alpha=0.5 for balanced BM25/Dense contribution
+- Superior performance over individual methods on diverse queries
+
+Index Management:
+- TextChunker: Splits documents into semantic chunks (configurable size)
+- Persistence: Pickle-based index saving/loading for fast startup
+- Memory efficient: Lazy loading of embeddings, streaming chunking
+
+Key Classes:
+- BaseRetriever: Abstract base for all retrieval strategies
+- BM25Retriever: Lexical/keyword-based search
+- DenseRetriever: Semantic embedding-based search
+- SimpleHybridRetriever: Reciprocal rank fusion combining BM25 + Dense
+- ChunkingConfig: Configurable chunking parameters
+
+Architecture:
+- Per-document index: Documents indexed independently
+- Per-chunk retrieval: Returns ranked chunks with document metadata
+- Score fusion: Min-max normalization for combining different score ranges
+- Batch operations: Support for large-scale indexing and search
+
+Configuration (from BenchmarkConfig):
+- retriever_types: ["bm25", "dense", "hybrid"] (selectable)
+- k_values: [1, 3, 5, 10] (evaluation cutoffs)
+- embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+- bm25_params: language="en", lowercase=True
 """
 
 import os

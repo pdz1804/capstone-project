@@ -1,3 +1,43 @@
+"""Search API Routes: Multimodal Retrieval-Augmented Generation Endpoints.
+
+Exposes the complete RAG search pipeline as REST API endpoints:
+
+Main Endpoints:
+- POST /api/search - Execute search query with text + image retrieval and generation
+- GET /api/search/generation-models - List available LLM models for generation
+- GET /api/search/image-preview - Retrieve image preview URLs for search results
+- POST /api/search/batch - Batch search (if enabled)
+
+Features:
+- Per-user isolation: Each user has isolated document index and cache
+- Multimodal retrieval: Combines text and image search results
+- Error handling: 503 when Qdrant offline, 429 for Bedrock throttling, 400 for bad input
+- Response metadata: Includes retrieval sources, generation tokens, latency timing
+- Image results: URLs to extracted images from document processing pipeline
+
+Request Format (SearchRequest schema):
+- query: Text search query (required)
+- retriever_type: "text", "image", or "hybrid" (default: hybrid)
+- generation_model: LLM model ID (default: Claude Haiku)
+- top_k: Number of results per retriever (default: 10)
+- reranker: Optional reranker model ID
+
+Response Format:
+- results: List of retrieved chunks with metadata
+- generation: Generated answer if generation enabled
+- metadata: Retrieval metadata (latency, sources, confidence scores)
+
+Error Responses:
+- 400: Invalid query or missing required fields
+- 503: Qdrant vector database offline
+- 429: Bedrock rate limit exceeded
+- 500: Unexpected error (check logs)
+
+Dependencies:
+- SearchOrchestrator: Orchestrates text/image retrieval and generation
+- S3FileStorage: Image and document storage backend
+"""
+
 import logging
 import mimetypes
 from pathlib import Path

@@ -8,4 +8,4 @@ loop
 
 Examples: 2048, Caro, Chicken Invader
 
-Exercise: Read “Time and Games” — chapter 1 [1]
+Exercise: Read “Time and Games”   chapter 1 [1]

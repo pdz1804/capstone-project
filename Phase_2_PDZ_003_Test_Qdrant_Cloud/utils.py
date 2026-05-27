@@ -1,15 +1,15 @@
 """
-utils.py — Shared Utilities for Qdrant Testing Scripts
+utils.py   Shared Utilities for Qdrant Testing Scripts
 =======================================================
 
 This module provides helpers used across all test scripts:
 
-1.  setup_logging()   — Configure Python logging with a readable format
-2.  Timer             — Measure elapsed time for any code block
-3.  LatencyTracker    — Accumulate and summarize multiple timings
-4.  load_images()     — Load PIL images from a directory
-5.  print_results()   — Pretty-print Qdrant search results
-6.  log_tensor_stats()— Log shape/min/max/mean of an embedding tensor
+1.  setup_logging()     Configure Python logging with a readable format
+2.  Timer               Measure elapsed time for any code block
+3.  LatencyTracker      Accumulate and summarize multiple timings
+4.  load_images()       Load PIL images from a directory
+5.  print_results()     Pretty-print Qdrant search results
+6.  log_tensor_stats()  Log shape/min/max/mean of an embedding tensor
 """
 
 import time
@@ -58,7 +58,7 @@ def setup_logging(level: int = logging.INFO) -> logging.Logger:
 
 
 # ===========================================================
-# 2. TIMER — MEASURE ELAPSED TIME
+# 2. TIMER   MEASURE ELAPSED TIME
 # ===========================================================
 
 class Timer:
@@ -69,20 +69,20 @@ class Timer:
       - Loading model from disk    : 10-60 seconds (first run, downloads weights)
       - Model inference (embedding): 100ms – 5s per image (depends on GPU/CPU)
       - Qdrant upsert              : 10-100ms per batch (network call to cloud)
-      - Qdrant search              : 10-50ms (very fast — this is Qdrant's strength!)
+      - Qdrant search              : 10-50ms (very fast   this is Qdrant's strength!)
 
-    USAGE OPTION 1 — Context manager (recommended):
+    USAGE OPTION 1   Context manager (recommended):
         with Timer("embedding image") as t:
             embedding = model(image_input)
         # Timer auto-stops here and logs: "[TIMER] embedding image: 342.15 ms"
         print(f"Took {t.elapsed_ms:.1f} ms")
 
-    USAGE OPTION 2 — Decorator:
+    USAGE OPTION 2   Decorator:
         @Timer.measure
         def embed_images(images):
             return model(images)
 
-    USAGE OPTION 3 — Manual start/stop:
+    USAGE OPTION 3   Manual start/stop:
         t = Timer("my step")
         t.start()
         do_work()
@@ -149,7 +149,7 @@ class Timer:
 
 
 # ===========================================================
-# 3. LATENCY TRACKER — ACCUMULATE MULTIPLE TIMINGS
+# 3. LATENCY TRACKER   ACCUMULATE MULTIPLE TIMINGS
 # ===========================================================
 
 class LatencyTracker:
@@ -332,10 +332,10 @@ def print_results(
     Pretty-print the ScoredPoint objects returned by Qdrant search.
 
     Each Qdrant ScoredPoint has:
-      .id      — the point's unique identifier (integer or UUID)
-      .score   — similarity score (higher = more similar)
-      .payload — the metadata dict you stored when upserting
-      .vector  — the stored vector (None unless you requested it)
+      .id        the point's unique identifier (integer or UUID)
+      .score     similarity score (higher = more similar)
+      .payload   the metadata dict you stored when upserting
+      .vector    the stored vector (None unless you requested it)
 
     Args:
         results     : List of ScoredPoint from client.query_points()
@@ -344,12 +344,12 @@ def print_results(
     """
     width = 68
     print("\n" + "═" * width)
-    print(f"  SEARCH RESULTS  —  query: \"{query}\"")
+    print(f"  SEARCH RESULTS     query: \"{query}\"")
     print(f"  Returned {len(results)} result(s)")
     print("═" * width)
 
     if not results:
-        print("  (no results — try adjusting score_threshold or top_k)\n")
+        print("  (no results   try adjusting score_threshold or top_k)\n")
         print("═" * width + "\n")
         return
 
@@ -375,7 +375,7 @@ def print_results(
 
 def log_tensor_stats(tensor: Any, label: str = "tensor") -> None:
     """
-    Log key statistics about a PyTorch tensor — very useful for debugging embeddings.
+    Log key statistics about a PyTorch tensor   very useful for debugging embeddings.
 
     For a ColQwen image embedding of shape [num_patches, 128]:
       - shape  : tells you how many patches the image produced

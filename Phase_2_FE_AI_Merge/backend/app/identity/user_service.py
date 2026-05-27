@@ -61,12 +61,20 @@ class UserService:
 
     def sync_user(self, user_data: dict) -> UserResponse:
         uid = user_data.get("uid")
+        email = user_data.get("email")
+
+        if not email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email is required for Google authentication. Ensure your Google account has a verified email.",
+            )
+
         existing = self.user_repo.get_by_id(uid)
         if not existing:
             user_in = UserCreate(
                 uid=uid,
-                email=user_data.get("email"),
-                username=(str(user_data.get("email") or "").split("@")[0] or None),
+                email=email,
+                username=(str(email or "").split("@")[0] or None),
                 displayName=user_data.get("name"),
                 photoURL=user_data.get("picture"),
                 isActive=True,

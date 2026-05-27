@@ -40,16 +40,16 @@ Copy-Item terraform.tfvars.example terraform.tfvars
 
 Important variables:
 
-- **`acm_certificate_arn`** — ACM certificate in the **same region as the ALB**. Empty string = HTTP only on `:80`.
-- **`enable_sagemaker_endpoint`** — `false` if you only want ECS/ALB and will manage SageMaker elsewhere.
-- **`sagemaker_image_tag`** — Tag you pushed to the unified ECR repo (endpoint creation expects the image to exist).
-- **`enable_chatbot_history_tables`** — `true` creates DynamoDB chat tables using defaults:
+- **`acm_certificate_arn`**   ACM certificate in the **same region as the ALB**. Empty string = HTTP only on `:80`.
+- **`enable_sagemaker_endpoint`**   `false` if you only want ECS/ALB and will manage SageMaker elsewhere.
+- **`sagemaker_image_tag`**   Tag you pushed to the unified ECR repo (endpoint creation expects the image to exist).
+- **`enable_chatbot_history_tables`**   `true` creates DynamoDB chat tables using defaults:
 	- sessions table: `chatbot-session` (PK=`user_id`, SK=`session_id`)
 	- messages table: `chatbot-messages` (PK=`session_id`, SK=`message_id`)
-- **`enable_agentcore_runtime_prep`** — `true` creates an ECR repository for the future AgentCore runtime image.
-- **`enable_search_cache_serverless`** — `true` creates ElastiCache Serverless and injects `SEARCH_CACHE_*` env vars into backend ECS task definition.
-- **`search_cache_use_tls`** — when `true`, backend gets `SEARCH_CACHE_REDIS_URL=rediss://...`.
-- **`search_cache_subnet_ids`** — optional explicit subnets for serverless cache endpoint placement.
+- **`enable_agentcore_runtime_prep`**   `true` creates an ECR repository for the future AgentCore runtime image.
+- **`enable_search_cache_serverless`**   `true` creates ElastiCache Serverless and injects `SEARCH_CACHE_*` env vars into backend ECS task definition.
+- **`search_cache_use_tls`**   when `true`, backend gets `SEARCH_CACHE_REDIS_URL=rediss://...`.
+- **`search_cache_subnet_ids`**   optional explicit subnets for serverless cache endpoint placement.
 
 ---
 
@@ -139,7 +139,7 @@ AWS_REGION=<same as var.aws_region>
 
 ## Related docs
 
-- `../sagemaker/README.md` — build, push ECR, and endpoint smoke tests
-- Repository root `docs/technical/DOCS_deployment-alb-acm-custom-domain.md` — ACM + ALB HTTPS checklist
-- Repository root `docs/technical/APPLICATION_OVERVIEW.md` — maintained application overview
-- Repository root `docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md` — final performance and scaling report
+- `../sagemaker/README.md`   build, push ECR, and endpoint smoke tests
+- Repository root `docs/technical/DOCS_deployment-alb-acm-custom-domain.md`   ACM + ALB HTTPS checklist
+- Repository root `docs/technical/APPLICATION_OVERVIEW.md`   maintained application overview
+- Repository root `docs/testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`   final performance and scaling report

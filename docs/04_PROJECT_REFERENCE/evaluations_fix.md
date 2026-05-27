@@ -349,7 +349,7 @@ Each metric is reported as:
 
 **Key Findings:**
 - **BM25 slightly outperforms Dense** across all metrics
-- **Both achieve 100% recall@10 for text** — all relevant documents found
+- **Both achieve 100% recall@10 for text**   all relevant documents found
 - **BM25 better for ranking quality** (nDCG) on this internal benchmark
 - **Text modality significantly outperforms image** (17-23% nDCG gap)
 - **Dense embedding adds ~1.35s per query** but slightly lower ranking quality
@@ -373,13 +373,13 @@ This comprehensive media evaluation covers:
 | Metric | Result | Interpretation |
 |--------|--------|-----------------|
 | **Documents** | 42 videos | Bounded subset <100MB each |
-| **Mean WER** | 16.63% | Good—excellent for Whisper tiny on CPU |
+| **Mean WER** | 16.63% | Good excellent for Whisper tiny on CPU |
 | **Mean CER** | 11.26% | Reliable character-level transcription |
 | **Temporal Hit Rate** | 100.00% | Perfect coverage (normalized windows) |
 | **Mean Temporal IoU** | 34.84% | Moderate precision in boundary alignment |
 
 **Analysis:**
-- Whisper tiny achieves 16.63% WER—excellent for lecture content
+- Whisper tiny achieves 16.63% WER excellent for lecture content
 - 100% temporal hit rate means all gold transcript windows matched
 - 34.84% IoU indicates chunks broader than exact windows (acceptable for retrieval)
 

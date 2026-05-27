@@ -40,7 +40,7 @@ The following table summarizes the key technical transitions between the two pha
 
 \begin{table}[H]
     \centering
-    \caption{Technical Comparison: Phase 1 (Baseline) vs. Phase 2 (Production)}
+    \caption{Technical Comparison: Phase 1 (Baseline) vs. Phase 2 (Production).}
     \label{tab:phase_comparison}
     \scalebox{0.85}{
     \begin{tabular}{p{3.5cm}p{5.5cm}p{9cm}}
@@ -67,7 +67,7 @@ In addition to the architectural evolution, Phase 2 integrated several productio
 
 \begin{table}[H]
     \centering
-    \caption{Operational and Management Milestones (Phase 2)}
+    \caption{Operational and Management Milestones (Phase 2).}
     \label{tab:phase2_milestones}
     \scalebox{0.9}{
     \begin{tabular}{p{5cm}p{12cm}}
@@ -110,13 +110,6 @@ At the core of the system lies the \texttt{UnifiedRAGPipeline} class. This compo
     \item \textbf{Dependency Injection}: The orchestrator initializes and injects dependencies into the sub-modules, ensuring that the \textit{RetrieverManager} and \textit{Generator} share the same configuration context (e.g., chunk sizes and overlaps).
 \end{itemize}
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.75\textwidth]{img/pdz/72-search-flow.png}
-%     \caption[Search and Generation Orchestration Flow]{Search and Generation Orchestration Flow.}
-%     \label{fig:search_flow}
-% \end{figure}
-
 
 \textbf{3. Data Processing and Persistence Layer}
 
@@ -128,25 +121,11 @@ The implementation utilizes a \textbf{Hybrid Cloud Storage Architecture}. Unlike
     \item \textbf{Cache Management}: A \texttt{.processing\_cache.json} file tracks the hash of processed inputs, enabling idempotent re-runs and deduplication.
 \end{itemize}
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{img/pdz/73-local-vs-cloud.png}
-%     \caption[Hybrid Storage Architecture (Local vs. Cloud)]{Hybrid Storage Architecture (Local vs. Cloud).}
-%     \label{fig:storage_tiers}
-% \end{figure}
-
 
 \textbf{4. Logical Subsystems}
 
 The system logic is divided into two specialized engines that operate in parallel during query execution:
 
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.75\textwidth]{img/pdz/70-retrieval-systems.png}
-%     \caption[Retrieval Systems]{Retrieval Systems.}
-%     \label{fig:retrieval_systems}
-% \end{figure}
 
 \textbf{Hybrid Text Retrieval Engine}
 
@@ -157,13 +136,7 @@ The text retrieval engine has been optimized for multi-tenant cloud deployment u
     
     \item \textbf{Reranking}: Globally disabled by default (\texttt{skip\_reranker=true}) for latency optimization. The reranker code (\texttt{bge-reranker-large}) is retained for fast rollback if needed.
     
-    % \begin{figure}[H]
-    %     \centering
-    %     \includegraphics[width=0.55\textwidth]{img/pdz/71-reranking.png}
-    %     \caption[Cross-Encoder Reranking Architecture]{Cross-Encoder Reranking Architecture.}
-    %     \label{fig:reranking_arch}
-    % \end{figure}
-    
+
 \end{enumerate}
 
 
@@ -318,7 +291,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \caption[Summary Table: All Stages \& Processing]{Summary of input, processors, and special features for each pipeline stage.}
 \label{tab:pipeline_summary}
 % \resizebox{\textwidth}{!}{%
-\scalebox{0.6}{
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{@{}llllll@{}}
 \toprule
 \textbf{Stage} & \textbf{Name} & \textbf{Input} & \textbf{Processor(s)} & \textbf{Output} & \textbf{Special Features} \\ \midrule
@@ -332,7 +305,7 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \textbf{Index} & Indexing & RAG-ready documents & Qdrant + BM25 + ColQwen & Searchable collections & Text (dense+keyword) + image indexing \\
 \textbf{Search} & Search & Query + indexes & SearchService + LLM & Results with citations & Hybrid fusion, multimodal output \\ \bottomrule
 \end{tabular}%
-}
+\end{adjustbox}
 \end{table}
 
 \textbf{Key Design Principles}:
@@ -351,15 +324,14 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 
 \textbf{Purpose}: Detect file types, route to appropriate processors, and generate multiple canonical forms (PDF for visual processing, Markdown for text processing, specialized JSON for custom parsers).
 
-\textbf{Processing Logic}:
+% \textbf{Processing Logic}:
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
-    \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
-    \label{fig:stage1_routing_viz}
-\end{figure}
-
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
+%     \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
+%     \label{fig:stage1_routing_viz}
+% \end{figure}
 
 \begin{table}[H]
 \centering
@@ -379,11 +351,22 @@ TXT & Extension & Copy as-is & - & - \\
 CSV & Extension & Pandas & - & - \\
 Images (JPG, PNG) & Extension & img2pdf & \checkmark & - \\
 Video (MP4, AVI) & Extension & MoviePy (audio extraction) & - & - (→ Stage 2) \\
-Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
+Audio (WAV, MP3...) & Extension & Pass-through & - & - (→ Stage 2) \\
+AsciiDoc & Extension & Docling & - & - \\
+LaTeX & Extension & Docling & - & - \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
+
+\textbf{Processing}:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
+    \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
+    \label{fig:stage1_routing_viz}
+\end{figure}
 
 \textbf{Output}:
 \begin{itemize}
@@ -407,15 +390,9 @@ Audio (WAV, MP3) & Extension & Pass-through & - & - (→ Stage 2) \\
 %     \item \textbf{Audio Formats:} \texttt{.wav}, \texttt{.mp3}, \texttt{.m4a}, \texttt{.flac}, \texttt{.ogg}, \texttt{.aac}
 % \end{itemize}
 
-\textbf{Processing Pipeline}:
+% \textbf{Processing Pipeline}:
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{{img/pdz/Report 252 Diagram-Media Processing Flow.drawio.png}}
-    \caption[Stage 2: Media Processing Workflow]{Stage 2: Media Processing Workflow.}
-    \label{fig:stage2_media_flow}
-\end{figure}
-
+\textbf{Processing}:
 
 \begin{table}[H]
 \centering
@@ -452,6 +429,13 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
     \item \texttt{media\_metadata/}: Timestamp bindings, speaker identification
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{{img/pdz/Report 252 Diagram-Media Processing Flow.png}}
+    \caption[Stage 2: Media Processing Workflow]{Stage 2: Media Processing Workflow.}
+    \label{fig:stage2_media_flow}
+\end{figure}
+
 \subsection{Stage 3: Main Document Processing (Docling)}
 
 \begin{figure}[H]
@@ -466,7 +450,9 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
 
 \textbf{Purpose}: Perform deep structural analysis, extract tables with hierarchy preservation, isolate images, handle general document types not requiring custom parsers.
 
-\textbf{Processing Logic}:
+% \textbf{Processing Logic}:
+
+\textbf{Processing}:
 
 % Docling DocumentConverter supports these 10 format families:
 
@@ -492,7 +478,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-DocumentProcessorV2 Unified Router.drawio.png}}
+    \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-DocumentProcessorV2 Unified Router.drawio.png}}
     \caption[DocumentProcessorV2 Unified Router]{DocumentProcessorV2 Unified Router.}
     \label{fig:doc_router}
 \end{figure}
@@ -518,15 +504,18 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \textbf{Purpose}: Parse Excel workbooks using custom XML parser to preserve table structure, column headers, and quantitative relationships.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
-    \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
-    \label{fig:excel_proc}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
+%     \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
+%     \label{fig:excel_proc}
+% \end{figure}
 
 
-\textbf{Processing Strategy}:
+% \textbf{Processing Strategy}:
+
+\textbf{Processing}:
+
 \begin{itemize}
     \item \textbf{Sheet-aware parsing}: Extract each sheet independently with sheet name metadata
     \item \textbf{Table detection}: Identify table boundaries via cell formulas and formatting
@@ -555,15 +544,17 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \textbf{Purpose}: Parse Word documents using custom XML parser to respect heading hierarchies and preserve document structure.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
-    \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
-    \label{fig:docx_proc}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
+%     \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
+%     \label{fig:docx_proc}
+% \end{figure}
 
 
-\textbf{Processing Strategy}:
+% \textbf{Processing Strategy}:
+
+\textbf{Processing}:
 \begin{itemize}
     \item \textbf{Heading extraction}: Build heading tree (Heading 1, 2, 3, etc.)
     \item \textbf{Boundary-aware chunking}: Split at heading boundaries, not arbitrary character limits
@@ -591,15 +582,17 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \textbf{Purpose}: Parse born-digital PDFs with internal structure to preserve page references and section hierarchies.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
-    \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
-    \label{fig:pdf_proc}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
+%     \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
+%     \label{fig:pdf_proc}
+% \end{figure}
 
 
-\textbf{Processing Strategy}:
+% \textbf{Processing Strategy}:
+
+\textbf{Processing}:
 \begin{itemize}
     \item \textbf{Metadata extraction}: Analyze PDF outlines and internal section markers
     \item \textbf{Page tracking}: Maintain explicit page numbers for every chunk
@@ -627,7 +620,10 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \textbf{Purpose}: Merge all processing outputs, consolidate metadata, prepare unified retrieval index.
 
-\textbf{Consolidation Logic}:
+% \textbf{Consolidation Logic}:
+
+\textbf{Processing}:
+
 \begin{enumerate}
     \item \textbf{Merge chunks}: Combine text chunks from all sources (Docling + custom parsers) with deduplicated provenance
     \item \textbf{Collect images}: Gather all extracted images (from document pages, figures, video frames) with page references
@@ -779,7 +775,7 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 % \textbf{Response Structure and Metadata Tracking}
 
-% Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the "source-of-truth" for all generated answers.
+% Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the ``source-of-truth'' for all generated answers.
 
 
 % \subsection{Storage Architecture}
@@ -928,7 +924,7 @@ Processed chunks are mapped to a high-dimensional vector space using the \textbf
 \subsection{Visual Embedding Pipeline}
 
 For documents rich in diagrams, charts, and complex layouts, the pipeline utilizes JPG images derived from the canonical PDF files.
-% The system implements a "1 Page = 1 Image" conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
+% The system implements a ``1 Page = 1 Image'' conversion strategy. Each PDF page is rendered as a high-resolution JPEG image.
 These intermediate image files are stored temporarily to facilitate the vision-based embedding process used by ColQwen, ensuring the model ``sees'' the document exactly as a human would.
 
 
@@ -977,11 +973,11 @@ The consolidation and indexing pipeline transforms RAG-ready chunks into searcha
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
-Dense Index (Text) & FAISS IndexFlatIP & Binary file (\texttt{.bin}) & Cosine similarity, nearest-neighbor search \\
-Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
-Visual Index (Images) & ColQwen multi-vectors & Tensor store (\texttt{.bin}) & Late-interaction MaxSim matching \\
-Metadata Catalog & Document + chunk + image metadata & JSON files & Source tracking, citation generation \\
+BM25 Index (Text) & Inverted index (term → docs) & Local BM25 file & Keyword matching, TF-IDF scoring \\
+Dense Index (Text) & 384-dim embeddings (all-MiniLM-L6-v2) & Qdrant \texttt{edu\_text\_chunks} & Cosine similarity, HNSW search \\
+Hybrid Index (Text) & RRF fusion results & Query-time computation & Combined BM25 + Dense scores \\
+Visual Index (Images) & ColQwen multi-vectors (128 × $x$) & Qdrant \texttt{edu\_image\_pages} & Late-interaction MaxSim matching \\
+Metadata Catalog & Document + chunk + image metadata & JSON files (S3) & Source tracking, citation generation \\
 \bottomrule
 \end{tabular}%
 }
@@ -991,8 +987,8 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
 \begin{enumerate}
     \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
     \item BM25 inverted index built from chunk text (keyword search)
-    \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
-    \item Hybrid index pre-computed via RRF fusion for fast query-time execution
+    \item Dense vectors indexed in Qdrant \texttt{edu\_text\_chunks} collection (semantic search)
+    \item Hybrid index computed at query-time via RRF fusion for optimal recall
 \end{enumerate}
 
 \textbf{Visual Indexing Workflow}:
@@ -1036,9 +1032,10 @@ Metadata Catalog & Document + chunk + image metadata & JSON files & Source track
 
 After indexing completes (Stage 4), the system:
 \begin{enumerate}
-    \item Uploads BM25, Dense, and Visual indices to S3 under \texttt{users/{user\_id}/documents/{doc\_id}/indices/}
-    \item Caches indices in local filesystem for fast retrieval during query execution
-    \item On server restart or query miss, reloads indices from S3
+    \item Pushes dense text embeddings to Qdrant \texttt{edu\_text\_chunks} collection with multi-tenant metadata
+    \item Pushes visual embeddings to Qdrant \texttt{edu\_image\_pages} collection with page geometry references
+    \item Stores BM25 index locally for fast keyword retrieval during search
+    \item Qdrant provides persistent, scalable vector storage with built-in HNSW indices and MaxSim support
 \end{enumerate}
 
 \subsection{Search and Retrieval Pipeline}
@@ -1056,7 +1053,7 @@ The system supports three primary retrieval modalities to address different quer
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/Report 252 Diagram-Search Flow.drawio.png}
+    \includegraphics[width=0.9\textwidth]{img/pdz/Report 252 Diagram-Search Flow.drawio.png}
     \caption[Search and Retrieval Pipeline Flow]{Search and Retrieval Pipeline Flow.}
     \label{fig:search_flow}
 \end{figure}
@@ -1082,7 +1079,7 @@ As illustrated in Figure \ref{fig:search_flow}, the search orchestrator (\texttt
 
 \textbf{Response Structure and Metadata Tracking}
 
-Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the "source-of-truth" for all generated answers.
+Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the ``source-of-truth'' for all generated answers.
 
 \textbf{Generation Model and Fallback Routing}
 
@@ -1111,8 +1108,9 @@ Phase 2 implements a \textbf{hybrid storage model} combining local processing ca
 \toprule
 \textbf{Storage Tier} & \textbf{System} & \textbf{Content} & \textbf{Purpose} \\ \midrule
 Local Cache & File system (fast SSD) & Processing artifacts (Stages 1-4) & Speed up pipeline processing \\
-Local Indices & FAISS, ColQwen stores & BM25, Dense, Visual indices & Fast retrieval queries \\
-Cloud Canonical & Amazon S3 & Documents, metadata, indices & Durability, multi-tenancy \\
+BM25 Index & Local file system & Inverted index for keyword search & Fast sparse retrieval \\
+Vector Search & Qdrant Cloud & Dense text + visual embeddings & Scalable semantic retrieval \\
+Cloud Documents & Amazon S3 & Raw documents, metadata, outputs & Durability, multi-tenancy \\
 Session State & DynamoDB & Chat history, job queue state & Persistent conversation tracking \\
 \bottomrule
 \end{tabular}%
@@ -1265,7 +1263,7 @@ Before detailing the specific collection structures, we define the properties ut
 
 \begin{table}[H]
     \centering
-    \caption{Schema properties used in implementation documentation}
+    \caption{Schema properties used in implementation documentation.}
     \label{tab:schema_props}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -1303,7 +1301,7 @@ To support our Hybrid + Multimodal retrieval strategy, we segregate embeddings i
 Stores granular textual chunks extracted from structured Markdown documents. It utilizes a hybrid search approach, combining sparse keyword indexing with the following dense vector configuration.
 \begin{table}[H]
     \centering
-    \caption{Text Vector Collection Properties}
+    \caption{Text Vector Collection Properties.}
     \label{tab:qdrant_text}
     \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
         \toprule
@@ -1317,7 +1315,7 @@ Stores granular textual chunks extracted from structured Markdown documents. It 
 Each indexed text chunk retains critical metadata necessary for strict multi-tenant filtering and file attribution during generative retrieval:
 \begin{table}[H]
     \centering
-    \caption{Text Collection Schema Structure}
+    \caption{Text Collection Schema Structure.}
     \label{tab:qdrant_text_schema}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -1339,13 +1337,13 @@ Each indexed text chunk retains critical metadata necessary for strict multi-ten
 Dedicated to storing high-order visual layouts. It leverages a unique multi-vector representation generated directly from the ColQwen vision-language model, enabling direct visual similarity searches against original PDF structures.
 \begin{table}[H]
     \centering
-    \caption{Image Vector Collection Properties}
+    \caption{Image Vector Collection Properties.}
     \label{tab:qdrant_image}
-    \begin{tabular}{lp{1cm}p{1.8cm}p{5.5cm}}
+    \begin{tabular}{lp{1.5cm}p{1.8cm}p{5.5cm}}
         \toprule
         \textbf{Vector Name} & \textbf{Dim} & \textbf{Distance} & \textbf{Description} \\
         \midrule
-        colpali\_multivec & 128*x & Dot & Multi-vector representations (128 dims $\times$ $x$ visual tokens) for ColQwen late-interaction. \\
+        colpali\_multivec & 128 $\times$ $x$ & Dot & Multi-vector representations (128 dims $\times$ $x$ visual tokens) for ColQwen late-interaction. \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -1371,7 +1369,7 @@ For a standard processing resolution of $1024 \times 1024$ pixels, $x \approx 5,
 The visual index maintains geometric representations (height/width) alongside S3 references, allowing the orchestration layer to securely retrieve the original page images for multimodal language models:
 \begin{table}[H]
     \centering
-    \caption{Image Collection Schema Structure}
+    \caption{Image Collection Schema Structure.}
     \label{tab:qdrant_image_schema}
     \begin{tabular}{llp{8cm}}
         \toprule
@@ -1474,7 +1472,7 @@ The system utilizes a dual-bucket object storage architecture to manage the life
 %         ]
 %       ]
 %     \end{forest}
-%     \caption{Amazon S3 Directory Structure Tree}
+%     \caption{Amazon S3 Directory Structure Tree.}
 %     \label{fig:s3_tree}
 % \end{figure}
 
@@ -1521,7 +1519,7 @@ The system utilizes a dual-bucket object storage architecture to manage the life
                 └── documents.json.pkl    # Document lookup table
     \end{verbatim}
 
-    \caption{Amazon S3 Directory Structure Tree}
+    \caption{Amazon S3 Directory Structure Tree.}
     \label{fig:s3_tree}
 
 \end{figure}
@@ -1614,8 +1612,8 @@ The deployment strategy prioritizes both operational excellence and security. Ev
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{img/pdz/28-Deployment Diagram_v3.png}
-    \caption[System Deployment Architecture]{System Deployment Architecture Diagram.}
+    \includegraphics[width=1\textwidth]{img/pdz/28-Deployment Diagram_v4.png}
+    \caption[System Deployment Architecture]{System Deployment Architecture Diagram (Updated May 10, 2026 with latest infrastructure configuration including Qdrant Cloud, security architecture, and optimized ECS task management).}
     \label{fig:deployment_diagram}
 \end{figure}
 
@@ -1736,7 +1734,7 @@ The combination of containerization, a private registry, and orchestration creat
 % This is the cornerstone of the selection. The user interface will be a composition of independent, reusable components (as listed above). This modularity simplifies the entire development lifecycle; each component can be built, tested, and maintained in isolation, which is critical for managing the complexity of the application.
 % 
 % \textbf{High Performance with the Virtual DOM}
-% The RAG system will generate text responses and display various media types. React's use of a Virtual Document Object Model (DOM) is a key performance feature. It creates a lightweight in-memory representation of the UI, calculates the most efficient changes ("diffing"), and minimizes direct, costly manipulations of the actual browser DOM. This results in a smooth, responsive user experience, even as the UI updates frequently with new data from the backend.
+% The RAG system will generate text responses and display various media types. React's use of a Virtual Document Object Model (DOM) is a key performance feature. It creates a lightweight in-memory representation of the UI, calculates the most efficient changes (``diffing''), and minimizes direct, costly manipulations of the actual browser DOM. This results in a smooth, responsive user experience, even as the UI updates frequently with new data from the backend.
 % 
 % \textbf{Comparative Analysis: React vs. Vue.js}
 % While both React and Vue.js utilize a virtual DOM and a component-based architecture, a direct comparison reveals React's significant advantages for a project of this scale.
@@ -1749,7 +1747,7 @@ The combination of containerization, a private registry, and orchestration creat
 % \begin{figure}[H]
 %     \centering
 %     \includegraphics[width=1\textwidth]{img/pdz/33-react-survey.png}
-%     \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023)}
+%     \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023).}
 %     \label{fig:react_survey}
 % \end{figure}
 % 
@@ -1770,7 +1768,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % The backend is the engine of our AI-driven educational application, responsible for orchestrating every interaction between the user, our data stores, and the core AI models. Our reliance on Python is a strategic imperative, granting us native access to the world's leading AI ecosystem, including libraries like PyTorch, Scikit-learn, and the Hugging Face ecosystem.
 % 
-% Within this ecosystem, the choice of web framework is critical. It is the layer that can either unleash the power of our AI models or become a crippling performance bottleneck. After a detailed analysis of the primary contenders, the mature, "batteries-included" Django framework and the modern, high-performance FastAPI, we have concluded that FastAPI is the unequivocally superior choice for this project.
+% Within this ecosystem, the choice of web framework is critical. It is the layer that can either unleash the power of our AI models or become a crippling performance bottleneck. After a detailed analysis of the primary contenders, the mature, ``batteries-included'' Django framework and the modern, high-performance FastAPI, we have concluded that FastAPI is the unequivocally superior choice for this project.
 % 
 % This decision is based on three core pillars:
 % \begin{itemize}
@@ -1813,7 +1811,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \begin{table}[H]
 %     \centering
-%     \caption{FastAPI vs. Django Comparison for RAG Application}
+%     \caption{FastAPI vs. Django Comparison for RAG Application.}
 %     \label{tab:fastapi_vs_django}
 %     \scalebox{0.8}{
 %     \begin{tabular}{p{3cm}p{4.5cm}p{4.5cm}p{6cm}}
@@ -1840,7 +1838,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \begin{table}[H]
 %     \centering
-%     \caption{Multi-Vector Storage and MaxSim Implementation}
+%     \caption{Multi-Vector Storage and MaxSim Implementation.}
 %     \label{tab:multivector_impl}
 %     \scalebox{0.8}{
 %     \begin{tabular}{llll}
@@ -1862,7 +1860,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \begin{table}[H]
 %     \centering
-%     \caption{Search Mechanism Comparison}
+%     \caption{Search Mechanism Comparison.}
 %     \label{tab:search_mechanisms}
 %     \scalebox{0.8}{
 %     \begin{tabular}{llllll}
@@ -1883,7 +1881,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \begin{table}[H]
 %     \centering
-%     \caption{Cloud Scalability, Latency, and Economic Efficiency}
+%     \caption{Cloud Scalability, Latency, and Economic Efficiency.}
 %     \label{tab:scalability_econ}
 %     \scalebox{0.8}{
 %     \begin{tabular}{llllp{4cm}}
@@ -1907,7 +1905,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % \begin{table}[H]
 %     \centering
-%     \caption{Holistic Vector Database Comparison Summary}
+%     \caption{Holistic Vector Database Comparison Summary.}
 %     \label{tab:holistic_db_comp}
 %     \scalebox{0.8}{
 %     \begin{tabular}{llllll}
@@ -1991,7 +1989,7 @@ The combination of containerization, a private registry, and orchestration creat
 %         \bottomrule
 %     \end{tabular}
 %     }
-%     \caption{Cost Estimation Assumptions}
+%     \caption{Cost Estimation Assumptions.}
 %     \label{tab:cost_assumptions}
 % \end{table}
 % 
@@ -2037,7 +2035,7 @@ The combination of containerization, a private registry, and orchestration creat
 %         \bottomrule
 %     \end{tabular}
 %     }
-%     \caption{AWS Pricing Reference (us-west-2)}
+%     \caption{AWS Pricing Reference (us-west-2).}
 %     \label{tab:aws_pricing_ref}
 % \end{table}
 % 
@@ -2071,17 +2069,11 @@ The combination of containerization, a private registry, and orchestration creat
 %         \bottomrule
 %     \end{tabular}
 %     }
-%     \caption{Monthly Cost Breakdown - 50 Users}
+%     \caption{Monthly Cost Breakdown - 50 Users.}
 %     \label{tab:monthly_cost_breakdown}
 % \end{table}
 % 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/31-pie-cost.png}
-%     \caption[Monthly Cost Breakdown Visualization]{Monthly Cost Breakdown Visualization (50 Users).}
-%     \label{fig:monthly_cost_pie}
-% \end{figure}
-% 
+%
 % \newpage
 % 
 % The following table provides a comparative analysis of GPU operational costs across different cloud providers. This estimation is based on a workload scenario of 50 active users, with each user initiating 20 requests per day and each request requiring 15 seconds of GPU inference time, totaling approximately 125 hours of GPU utilization per month.
@@ -2100,7 +2092,7 @@ The combination of containerization, a private registry, and orchestration creat
 %         \bottomrule
 %     \end{tabular}
 %     }
-%     \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month)}
+%     \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month).}
 %     \label{tab:gpu_optimization}
 % \end{table}
 % 
@@ -2110,21 +2102,7 @@ The combination of containerization, a private registry, and orchestration creat
 % 
 % To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
 % 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/29-desktop performance.png}
-%     \caption[Desktop Performance Metrics]{Desktop Performance Metrics.}
-%     \label{fig:desktop_performance}
-% \end{figure}
-% 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/30-mobile performance.png}
-%     \caption[Mobile Performance Metrics]{Mobile Performance Metrics.}
-%     \label{fig:mobile_performance}
-% \end{figure}
-% 
-% As shown in Figures \ref{fig:desktop_performance} and \ref{fig:mobile_performance}, the system maintains high performance scores across all categories, ensuring fast load times and a responsive interface for multimodal document interaction.
+%
 
 \section{Security Architecture and Implementation}
 
@@ -2169,7 +2147,7 @@ The WAF uses a consumption model based on Web ACL Capacity Units (WCUs). The cur
 
 \begin{table}[H]
     \centering
-    \caption{WAF Capacity Utilization and Cost}
+    \caption{WAF Capacity Utilization and Cost.}
     \label{tab:waf_capacity}
     \scalebox{0.85}{
     \begin{tabular}{lrr}
@@ -2325,7 +2303,7 @@ The BK-MInD security implementation provides protection against all OWASP Top 10
 
 \begin{table}[H]
     \centering
-    \caption{OWASP Top 10 Protection Coverage}
+    \caption{OWASP Top 10 Protection Coverage.}
     \label{tab:owasp_coverage}
     \scalebox{0.85}{
     \begin{tabular}{lp{8cm}}
@@ -2416,3 +2394,4 @@ The current configuration is optimal for production deployment, consuming only 2
 
 
 \newpage
+

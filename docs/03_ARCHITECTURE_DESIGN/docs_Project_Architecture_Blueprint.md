@@ -636,10 +636,10 @@ Persistent conversation history with user-scoped chat management, DynamoDB-backe
 - Supports pagination and ordering
 
 **Chat Routes** (`backend/app/api/routes/chat_routes.py`)
-- POST /api/chat/conversations — Create new conversation
-- GET /api/chat/conversations — List user's conversations
-- POST /api/chat/{conversation_id}/messages — Add message
-- GET /api/chat/{conversation_id}/messages — Retrieve history
+- POST /api/chat/conversations   Create new conversation
+- GET /api/chat/conversations   List user's conversations
+- POST /api/chat/{conversation_id}/messages   Add message
+- GET /api/chat/{conversation_id}/messages   Retrieve history
 
 ### Data Model
 ```
@@ -724,14 +724,14 @@ Backend orchestration:
 - `backend/app/services/search_orchestrator.py`
 
 Pipeline internals:
-- `backend/src/processor/pipeline.py` — Orchestrator for all 4 stages
-- `backend/src/processor/normalizer.py` — Stage 1
-- `backend/src/processor/document_processor_v2.py` — Stage 3 (Current: Unified Router)
-- `backend/src/processor/document_processor.py` — **LEGACY** (Original Docling-only path, retained for fallback)
-- `backend/src/processor/consolidator.py` — Stage 4
-- `backend/src/chunking/excel_preprocessor.py` — Stage 3b (Conditional)
-- `backend/src/chunking/docx_preprocessor.py` — Stage 3c (Conditional)
-- `backend/src/chunking/pdf_preprocessor.py` — Stage 3d (Conditional)
+- `backend/src/processor/pipeline.py`   Orchestrator for all 4 stages
+- `backend/src/processor/normalizer.py`   Stage 1
+- `backend/src/processor/document_processor_v2.py`   Stage 3 (Current: Unified Router)
+- `backend/src/processor/document_processor.py`   **LEGACY** (Original Docling-only path, retained for fallback)
+- `backend/src/processor/consolidator.py`   Stage 4
+- `backend/src/chunking/excel_preprocessor.py`   Stage 3b (Conditional)
+- `backend/src/chunking/docx_preprocessor.py`   Stage 3c (Conditional)
+- `backend/src/chunking/pdf_preprocessor.py`   Stage 3d (Conditional)
 
 Storage and tenancy:
 - `backend/app/core/paths.py`

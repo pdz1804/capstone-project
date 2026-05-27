@@ -5,10 +5,10 @@
 # Qdrant Vector Database client (>=1.9 required for multi-vector + query_points API)
 qdrant-client>=1.9.0
 
-# ColPali / ColQwen model — must match Phase_2 version exactly
+# ColPali / ColQwen model   must match Phase_2 version exactly
 colpali-engine==0.3.13
 
-# PyTorch — install the CUDA build if you have an NVIDIA GPU:
+# PyTorch   install the CUDA build if you have an NVIDIA GPU:
 #   pip install torch --index-url https://download.pytorch.org/whl/cu121
 torch>=2.0.0
 
@@ -27,6 +27,6 @@ numpy>=1.24.0
 # HuggingFace Transformers (required internally by colpali-engine)
 transformers>=4.40.0
 
-# Model-weight quantization — required for 8-bit / 4-bit loading (same as Phase_2)
+# Model-weight quantization   required for 8-bit / 4-bit loading (same as Phase_2)
 # 8-bit is enabled by default (load_in_8bit=True in config.py)
 bitsandbytes

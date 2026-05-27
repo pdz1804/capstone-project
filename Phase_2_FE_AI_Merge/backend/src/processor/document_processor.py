@@ -1,17 +1,48 @@
-"""
-Advanced Multimodal Document Processor using Docling
+"""Advanced Multimodal Document Processor using Docling.
 
-This module provides a comprehensive document processing solution that leverages
-all of Docling's advanced features for multimodal RAG pipeline preparation.
+Core document processing pipeline for multimodal RAG preparation. Orchestrates a 7-stage
+processing pipeline converting raw documents (PDF, DOCX, XLSX, images) into structured
+multimodal content ready for indexing and retrieval.
 
-Features:
-- Advanced PDF understanding with layout analysis
-- OCR support for scanned documents and images
-- Audio processing with ASR
-- Visual Language Model integration
-- Multimodal export in structured formats
-- GPU acceleration support
-- Comprehensive metadata extraction
+Pipeline Stages:
+1. Normalize: Validate input, handle encoding issues, temporary file management
+2. Media extraction: Extract embedded images, videos, audio from documents
+3. Docling processing: Apply Docling's layout analysis, OCR, VLM understanding
+4. Consolidation: Merge text, media, and metadata into unified representation
+5. Chunking: Split into semantically coherent chunks for retrieval (adaptive sizes)
+6. Retrieval setup: Prepare for hybrid retrieval (text embedding + image features)
+7. Generation: Optimize for LLM context windows (token-aware formatting)
+
+Key Features:
+- Multimodal coordination: Unified schema with temporal alignment for text/image/video
+- OCR engine selection: Configurable OCR (Tesseract, EasyOCR, RapidOCR) set at startup
+- GPU optimization: torch.compile suppression, TensorFloat32 acceleration, 8-bit quantization
+- OOXML parsing: Manual Excel/Office structure preservation (src/processor/xlsx_reader_v2.py)
+- Video frame deduplication: Perceptual hashing (pHash) for visual similarity detection
+- Error resilience: Graceful fallback to OCR-only when advanced features unavailable
+
+Key Classes:
+- DocumentProcessor: Main orchestrator implementing 7-stage pipeline
+- ProcessingConfig: Configuration dataclass for all pipeline parameters
+- ProcessingMetadata: Rich metadata tracking for debugging and optimization
+
+Architecture Decisions:
+- Async processing: Uses asyncio for IO-bound operations (network, disk)
+- Lazy loading: Models (VLM, Whisper) loaded only when enabled
+- Memory efficiency: Streaming chunking for large documents
+- Extensibility: Plugin architecture for custom processors
+
+GPU Requirements:
+- Minimum: 2GB VRAM with 8-bit quantization (NVIDIA RTX A1000)
+- Recommended: 6GB+ VRAM (RTX 3060 or better)
+- CPU-only: Supported but ~5x slower
+- CUDA 12.8 pinned for PyTorch wheel compatibility
+
+Dependencies:
+- Docling 2.0+: Document understanding and layout analysis
+- Transformers 4.57.3: LLM and vision model inference
+- Sentence-Transformers 3.0.1: Text embedding models
+- ColQwen 0.3.13: Vision-language document understanding
 """
 
 from __future__ import annotations

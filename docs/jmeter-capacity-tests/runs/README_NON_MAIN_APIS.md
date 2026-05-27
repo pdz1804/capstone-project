@@ -1,4 +1,4 @@
-# Non-main APIs — JMeter commands and JTL → CSV export
+# Non-main APIs   JMeter commands and JTL → CSV export
 
 This document covers JMeter plans **outside** the core **05 Process / 06 Index / 08 Search** flow. Those three are documented in [README_MAIN_APIS.md](README_MAIN_APIS.md).
 
@@ -48,7 +48,7 @@ python "scripts\jtl_metrics_csv.py" $jtl.FullName --out-csv-auto 09
 
 ---
 
-## 01 — `POST /api/auth/login-local` (`01_auth_login.jmx`)
+## 01   `POST /api/auth/login-local` (`01_auth_login.jmx`)
 
 Default user list: `data/users.csv`. Override with `-Jusers_csv=...`.
 
@@ -69,7 +69,7 @@ python "scripts\jtl_metrics_csv.py" $jtl.FullName --label-regex "POST /api/auth/
 
 ---
 
-## 02 — `GET /api/users/me` (`02_user_me.jmx`)
+## 02   `GET /api/users/me` (`02_user_me.jmx`)
 
 **Example:**
 
@@ -88,7 +88,7 @@ python "scripts\jtl_metrics_csv.py" $jtl.FullName --label-regex "GET /api/users/
 
 ---
 
-## 03 — `GET /api/processing-stats` (`03_stats.jmx`)
+## 03   `GET /api/processing-stats` (`03_stats.jmx`)
 
 **Example:**
 
@@ -107,7 +107,7 @@ python "scripts\jtl_metrics_csv.py" $jtl.FullName --label-regex "GET /api/proces
 
 ---
 
-## 04 — `POST /api/upload` (`04_upload.jmx`)
+## 04   `POST /api/upload` (`04_upload.jmx`)
 
 **Semantics:** default `loops=1`, scheduler off. Each thread runs once: `POST /api/auth/login-local` then `POST /api/upload`.
 
@@ -143,7 +143,7 @@ python "scripts\jtl_metrics_csv.py" $jtl.FullName --label-regex "POST /api/uploa
 
 ---
 
-## 09 — `POST /api/chat/stream` (`09_chat_stream_mapped.jmx`)
+## 09   `POST /api/chat/stream` (`09_chat_stream_mapped.jmx`)
 
 Uses the **mapped** user/file CSV (same family as 05/06/08). See also [CHAT_INSIGHTS_TEST_COMMANDS.md](../CHAT_INSIGHTS_TEST_COMMANDS.md).
 
@@ -172,7 +172,7 @@ python "scripts\jtl_metrics_csv.py" $jtl.FullName --label-regex "POST /api/chat/
 
 ---
 
-## 10 — `POST /api/summary` (`10_insights_summary_mapped.jmx`)
+## 10   `POST /api/summary` (`10_insights_summary_mapped.jmx`)
 
 Sustained-load plan, same CSV and identity behavior as 09.
 
@@ -194,7 +194,7 @@ python "scripts\jtl_metrics_csv.py" $jtl.FullName --label-regex "POST /api/summa
 
 ---
 
-## 11 — `POST /api/mcq` (`11_insights_mcq_mapped.jmx`)
+## 11   `POST /api/mcq` (`11_insights_mcq_mapped.jmx`)
 
 Sustained-load plan, same CSV and identity behavior as 09.
 
@@ -216,7 +216,7 @@ python "scripts\jtl_metrics_csv.py" $jtl.FullName --label-regex "POST /api/mcq" 
 
 ---
 
-## 12 — `POST /api/learning-roadmap` (`12_insights_roadmap_mapped.jmx`)
+## 12   `POST /api/learning-roadmap` (`12_insights_roadmap_mapped.jmx`)
 
 Sustained-load plan, same CSV and identity behavior as 09.
 

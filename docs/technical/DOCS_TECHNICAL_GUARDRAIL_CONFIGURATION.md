@@ -248,11 +248,11 @@ guardrailConfig = {
 
 ### Features Protected
 
-✅ **Quiz Generation** — Prevents harmful/inappropriate quiz content  
-✅ **Summary Generation** — Blocks offensive summarization  
-✅ **Learning Roadmap** — Filters unsafe learning paths  
-✅ **Chat Assistant** — Monitors all Q&A interactions  
-✅ **Feedback Triage** — Masks PII in user feedback  
+✅ **Quiz Generation**   Prevents harmful/inappropriate quiz content  
+✅ **Summary Generation**   Blocks offensive summarization  
+✅ **Learning Roadmap**   Filters unsafe learning paths  
+✅ **Chat Assistant**   Monitors all Q&A interactions  
+✅ **Feedback Triage**   Masks PII in user feedback  
 
 ---
 
@@ -294,11 +294,11 @@ Actual: ✅ Masked before model processing
 
 ### What to Monitor
 
-1. **Block Rate** — Track % of requests blocked daily
-2. **Block Categories** — Which filters trigger most often
-3. **False Positives** — Legitimate queries incorrectly blocked
-4. **PII Encounters** — How often sensitive data appears in requests
-5. **Performance Impact** — Guardrail overhead on API latency
+1. **Block Rate**   Track % of requests blocked daily
+2. **Block Categories**   Which filters trigger most often
+3. **False Positives**   Legitimate queries incorrectly blocked
+4. **PII Encounters**   How often sensitive data appears in requests
+5. **Performance Impact**   Guardrail overhead on API latency
 
 ### Log Locations
 

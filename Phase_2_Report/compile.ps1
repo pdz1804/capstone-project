@@ -22,8 +22,8 @@ Write-Host " - Cleanup complete"
 
 # Step 1: First pdflatex pass
 Write-Host ""
-Write-Host "[2/5] Running pdflatex (first pass)..."
-& pdflatex -interaction=nonstopmode -shell-escape main.tex
+Write-Host "[2/4] Running pdflatex (first pass)..."
+& pdflatex -interaction=nonstopmode main.tex
 if ($LASTEXITCODE -ne 0) {
     Write-Host " ! Warning: pdflatex returned non-zero exit code"
 }
@@ -31,7 +31,7 @@ Write-Host " - First pass complete"
 
 # Step 2: Run biber for bibliography
 Write-Host ""
-Write-Host "[3/5] Running biber for bibliography..."
+Write-Host "[3/4] Running biber for bibliography..."
 & biber main
 if ($LASTEXITCODE -ne 0) {
     Write-Host " ! Warning: biber had issues (this might be okay if no citations changed)"
@@ -39,16 +39,10 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host " - Bibliography processed"
 }
 
-# Step 3: Second pdflatex pass
+# Step 3: Second pdflatex pass (resolves citations and cross-references)
 Write-Host ""
-Write-Host "[4/5] Running pdflatex (second pass)..."
-& pdflatex -interaction=nonstopmode -shell-escape main.tex
-Write-Host " - Second pass complete"
-
-# Step 4: Third pdflatex pass (to resolve all references)
-Write-Host ""
-Write-Host "[5/5] Running pdflatex (final pass)..."
-& pdflatex -interaction=nonstopmode -shell-escape main.tex
+Write-Host "[4/4] Running pdflatex (final pass)..."
+& pdflatex -interaction=nonstopmode main.tex
 Write-Host " - Final pass complete"
 
 Write-Host ""

@@ -363,7 +363,7 @@ The performance test suite covers twelve API groups representing the full user j
 
 ### 5.3 Test Results: Interactive APIs
 
-**Baseline Platform APIs (Auth, Profile, Stats)** — 0% error rate at 50 concurrent users
+**Baseline Platform APIs (Auth, Profile, Stats)**   0% error rate at 50 concurrent users
 
 | Endpoint | Samples | Mean (ms) | P50 (ms) | P95 (ms) | P99 (ms) |
 |---|---:|---:|---:|---:|---:|
@@ -373,7 +373,7 @@ The performance test suite covers twelve API groups representing the full user j
 
 Authentication and user profile calls remain under 2.5 seconds at the P95 percentile. The stats endpoint is the fastest because it is a lightweight read-only operation. This baseline confirms the API routing, authentication layer, and user session management are reliable under production-grade concurrent load.
 
-**File Upload API** — 0% error rate across 30–50 concurrent users
+**File Upload API**   0% error rate across 30–50 concurrent users
 
 | Concurrent Users | Samples | Mean (ms) | P95 (ms) | P99 (ms) |
 |---:|---:|---:|---:|---:|
@@ -383,7 +383,7 @@ Authentication and user profile calls remain under 2.5 seconds at the P95 percen
 
 Upload latency remained under 10 seconds at P95 for all tested concurrency levels. Upload performance depends on network transfer time, S3 put latency, and per-user metadata work; the variation between runs is normal and expected.
 
-**Search API** — 0% error rate, increasing latency with load
+**Search API**   0% error rate, increasing latency with load
 
 | Concurrent Users | Samples | Mean (ms) | P50 (ms) | P95 (ms) | P99 (ms) |
 |---:|---:|---:|---:|---:|---:|
@@ -392,9 +392,9 @@ Upload latency remained under 10 seconds at P95 for all tested concurrency level
 | 40 | 40 | 21,091.0 | 20,502 | 27,725 | 28,177 |
 | 50 | 50 | 21,894.8 | 22,112 | 30,119 | 30,162 |
 
-Search remained reliable with 0 errors through 50 concurrent users. P95 latency increased from 18.0 seconds at 20 users to 30.1 seconds at 50 users—a 67% increase. This reflects the computational cost of hybrid retrieval: Qdrant vector database queries, BM25 keyword matching, and optional LLM-based reranking all contend for shared infrastructure resources.
+Search remained reliable with 0 errors through 50 concurrent users. P95 latency increased from 18.0 seconds at 20 users to 30.1 seconds at 50 users a 67% increase. This reflects the computational cost of hybrid retrieval: Qdrant vector database queries, BM25 keyword matching, and optional LLM-based reranking all contend for shared infrastructure resources.
 
-**Chat Stream API** — 0% error rate, responsive first response, longer full completion
+**Chat Stream API**   0% error rate, responsive first response, longer full completion
 
 | Concurrent Users | Stream Samples | Mean Elapsed (ms) | P95 Elapsed (ms) | Mean First Byte (ms) | P95 First Byte (ms) |
 |---:|---:|---:|---:|---:|---:|
@@ -405,7 +405,7 @@ Search remained reliable with 0 errors through 50 concurrent users. P95 latency 
 
 Chat stream completed all requests successfully with 0 errors. The key performance insight is the separation between first-byte latency (user sees a response starting) and full stream completion time. Even at 50 concurrent users, the average first response arrives in approximately 1.4 seconds, which is excellent for a streaming AI endpoint. The full stream duration (45 seconds average) reflects the latency of LLM generation, tool execution, and retrieval operations, and this is expected behavior for AI-powered workflows.
 
-**Learning Insight APIs** — 0% error rate across all tested concurrency
+**Learning Insight APIs**   0% error rate across all tested concurrency
 
 | API | 20 Users | 30 Users | 40 Users | 50 Users |
 |---|---:|---:|---:|---:|
@@ -417,7 +417,7 @@ All three learning insight endpoints remained stable with minimal error rate and
 
 ### 5.4 Test Results: Asynchronous Background Jobs
 
-**Document Processing Jobs** — Moderate resource contention
+**Document Processing Jobs**   Moderate resource contention
 
 | Requested Jobs | Completed | Failed | Avg Duration (s) | P95 (s) | P99 (s) |
 |---:|---:|---:|---:|---:|---:|
@@ -427,7 +427,7 @@ All three learning insight endpoints remained stable with minimal error rate and
 
 Processing duration rises gradually from 36 seconds at 20 jobs to 51 seconds at 40 jobs. The increasing failure count (4 → 11 jobs) indicates resource contention as parallelism increases. Processing is computationally expensive because it may involve document conversion, OCR/ASR preparation, media handling, markdown generation, S3 I/O, and metadata updates. The system remains stable at 20–30 concurrent jobs but shows degradation at 40 jobs.
 
-**Full Indexing Jobs** — Critical bottleneck identified
+**Full Indexing Jobs**   Critical bottleneck identified
 
 | Requested Jobs | Completed | Failed | Avg Duration (s) | P95 (s) | P99 (s) |
 |---:|---:|---:|---:|---:|---:|
@@ -435,7 +435,7 @@ Processing duration rises gradually from 36 seconds at 20 jobs to 51 seconds at 
 | 30 | 30 | 0 | 161.7 | 187 | 190 |
 | 40 | 0 | 40 | 274.6 | 329 | 331 |
 
-**This is the most critical finding in the test suite.** Indexing succeeded with 0 failures at 20 and 30 jobs, but the 40-job run resulted in complete failure: all 40 jobs failed after very long execution times (274+ seconds). This indicates that the system exceeded its resource capacity and entered an overload state rather than gracefully degrading. Indexing is the heaviest workflow because it combines text/image embedding generation (calls to embedding model), Qdrant vector database writes, document conversion, and multimodal indexing operations—all of which have throughput limits.
+**This is the most critical finding in the test suite.** Indexing succeeded with 0 failures at 20 and 30 jobs, but the 40-job run resulted in complete failure: all 40 jobs failed after very long execution times (274+ seconds). This indicates that the system exceeded its resource capacity and entered an overload state rather than gracefully degrading. Indexing is the heaviest workflow because it combines text/image embedding generation (calls to embedding model), Qdrant vector database writes, document conversion, and multimodal indexing operations all of which have throughput limits.
 
 ### 5.5 Understanding Performance Scaling Behavior
 
@@ -443,7 +443,7 @@ The test results show a consistent pattern: response time and job duration incre
 
 #### Why Response Times Increase With Load: The Physics
 
-Every system has finite capacity. When concurrency increases, shared resources—CPU, network bandwidth, model API tokens, database throughput—are divided across more requests. This causes queuing at system bottlenecks:
+Every system has finite capacity. When concurrency increases, shared resources CPU, network bandwidth, model API tokens, database throughput are divided across more requests. This causes queuing at system bottlenecks:
 
 1. **External API concurrency limits** – The embedding model provider, LLM API, and Vector Database each accept a maximum number of simultaneous requests. When that limit is reached, additional requests queue and wait.
 2. **Dependent operation chains** – Each API call may chain multiple expensive operations. For chat, one request triggers: session lookup → retrieval → prompt construction → LLM generation → response streaming. If any step is slow, the entire chain is slow.

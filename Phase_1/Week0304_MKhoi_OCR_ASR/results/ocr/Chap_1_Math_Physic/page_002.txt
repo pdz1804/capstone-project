@@ -1,6 +1,6 @@
 Outline
 
-° Math — Linear Algebra for Game
+° Math   Linear Algebra for Game
 « Vector
 « Matrix
 ¢ Physics

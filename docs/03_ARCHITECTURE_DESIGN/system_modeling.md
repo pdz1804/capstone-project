@@ -287,40 +287,34 @@ flowchart TD
 
 ```mermaid
 graph TB
-    subgraph "Query Processing"
-        QueryInput[User Query]
-    end
-  
-    subgraph "Multi-Modal Retrieval"
-        subgraph "Text Retrieval"
-            BM25[BM25 / Sparse]
-            DenseIndex[Dense Vector Index]
-        end
-  
-        subgraph "Visual Retrieval"
-            ColQwen[ColQwen Index]
-        end
-    end
-  
-    subgraph "Result Processing"
-        HybridSearch[Hybrid Search / Reranking]
-        Reranker[Search Orchestrator (RRF/Score Fusion)]
-    end
-  
-    subgraph "Answer Generation"
-        LLM_Call[RAG Generator]
-    end
-  
+    QueryInput["👤 User Query"]
+    
+    BM25["🔍 BM25<br/>(Sparse/Lexical)"]
+    Dense["🧠 Dense Index<br/>(Semantic/Embedding)"]
+    ColQwen["🖼️ ColQwen<br/>(Visual Search)"]
+    
+    HybridFusion["⚖️ Hybrid Fusion<br/>(RRF + Min-Max)"]
+    Reranker["📊 Search Orchestrator<br/>(Score Fusion)"]
+    LLM["🤖 RAG Generator<br/>(LLM Answer)"]
+    
     QueryInput --> BM25
-    QueryInput --> DenseIndex
+    QueryInput --> Dense
     QueryInput --> ColQwen
-  
-    BM25 --> HybridSearch
-    DenseIndex --> HybridSearch
-    ColQwen --> HybridSearch
-  
-    HybridSearch --> Reranker
-    Reranker --> LLM_Call
+    
+    BM25 --> HybridFusion
+    Dense --> HybridFusion
+    ColQwen --> HybridFusion
+    
+    HybridFusion --> Reranker
+    Reranker --> LLM
+    
+    style QueryInput fill:#e1f5ff,stroke:#01579b
+    style BM25 fill:#fff3e0,stroke:#e65100
+    style Dense fill:#fff3e0,stroke:#e65100
+    style ColQwen fill:#fff3e0,stroke:#e65100
+    style HybridFusion fill:#f3e5f5,stroke:#4a148c
+    style Reranker fill:#f3e5f5,stroke:#4a148c
+    style LLM fill:#c8e6c9,stroke:#1b5e20
 ```
 
 ---

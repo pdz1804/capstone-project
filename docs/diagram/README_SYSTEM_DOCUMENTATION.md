@@ -461,7 +461,7 @@ The system comprises five main layers:
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Visual Reference**: See `docs/diagram/Deployment Diagram_v3.png`
+**Visual Reference**: See `docs/diagram/Deployment Diagram_v4.png`
 
 **Key Infrastructure Details**:
 - **Region**: us-west-2 (Oregon)

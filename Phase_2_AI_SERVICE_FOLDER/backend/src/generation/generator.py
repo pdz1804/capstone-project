@@ -445,8 +445,8 @@ class RAGGenerator:
                 i,
                 img_doc.get("source"),
                 img_doc.get("page"),
-                img_doc.get("storage_uri") or "—",
-                img_doc.get("source_path") or "—",
+                img_doc.get("storage_uri") or " ",
+                img_doc.get("source_path") or " ",
             )
         
         # Prepare image paths for vision model
@@ -474,7 +474,7 @@ class RAGGenerator:
                         logger.debug(f"Converted relative path to absolute (cwd): {source_path_obj}")
                 source_path = str(source_path_obj)
             
-            # Try to render PDF page to image (pdf2image/poppler reads a local file — S3-backed runs still use the synced copy under the temp workspace).
+            # Try to render PDF page to image (pdf2image/poppler reads a local file   S3-backed runs still use the synced copy under the temp workspace).
             if source_path and Path(source_path).exists():
                 canon = img_doc.get("storage_uri") or "n/a"
                 logger.info(
