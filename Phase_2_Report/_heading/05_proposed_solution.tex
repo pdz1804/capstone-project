@@ -647,7 +647,7 @@ The LLM reads this aggregated context and generates a natural language answer gr
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{img/pdz/49-security-arch.jpg}
+    \includegraphics[width=\textwidth]{img/pdz/49-security-arch.png}
     \caption{BK-MInD Three-Tier Security Architecture.}
     \label{fig:security_arch}
 \end{figure}
@@ -784,4 +784,3 @@ The experimental findings above directly inform the hardware and software specif
     \item \textbf{Model Size Constraints}: The system's embedding models are fixed at deployment time. Switching to larger models (e.g., upgrading from MiniLM to BGE-Large for embedding) requires reindexing the entire corpus. Reranking is globally disabled by default (\texttt{skip\_reranker=true}) for latency optimization, though the code is retained for fast rollback.
     \item \textbf{Limited Multi-Tenancy}: The file-system-based storage architecture lacks built-in isolation mechanisms. Deploying the system for multiple independent clients requires separate instances or manual namespace management.
 \end{itemize}
-
