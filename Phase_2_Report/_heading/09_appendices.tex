@@ -289,6 +289,23 @@ Comprehensive evaluation framework for document parsing solutions. Docling (IBM,
 
 Evaluation framework for the LLM component of our RAG pipeline. Key decision criteria include: reasoning capability (question decomposition and multi-step thinking), multi-modal support (integration with retrieved images and tables), context window size (accommodating long document summaries and multiple retrieved chunks), cost-per-token (operational sustainability at scale), latency constraints (real-time chat responsiveness), and safety guardrails (appropriate for educational environments). The selected model optimizes the balance between reasoning depth, inference speed, and operational cost for academic document retrieval and interactive learning scenarios.
 
+\section{Docling: Output Components and BK-MInD Integration}\label{sec:docling_output_flow}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/79-docling-output-uses.png}
+    \caption{Docling output flow: from extraction to grounded retrieval.}
+    \label{fig:docling_output_flow}
+\end{figure}
+
+\subsection*{Description}
+
+End-to-end visualization of how Docling outputs are processed and used throughout BK-MInD's retrieval pipeline. Docling produces multiple interconnected outputs: structured Markdown text (with headings and hierarchies), layout elements, extracted tables with semantic structure, images with VLM-generated captions, high-resolution page renders for verification, and comprehensive metadata including confidence scores and bounding boxes.
+
+These outputs flow through four stages: (1) \textbf{Normalized Artifacts} — organized in standardized directory structure with \texttt{.md}, tables, images, and metadata; (2) \textbf{Chunking} — breaks documents into semantic pieces respecting headers, paragraphs, and tables; (3) \textbf{Embedding and Indexing} — text goes to BM25 (sparse) and dense embeddings (Qdrant), images to ColQwen2 for multimodal retrieval; (4) \textbf{Retrieval and Generation} — hybrid search combines keyword and semantic matching, retrieved chunks (with preserved Markdown structure, tables, and image descriptions) are injected into LLM context to generate grounded answers with source attribution.
+
+Key insight: Docling does not output plain text; it outputs \textit{structured documents} (text + layout + tables + images + metadata) that enable context-aware chunking, multi-modal retrieval, and verifiable answer grounding.
+
 \chapter{Database Schema Definitions}\label{chap:database_schemas}
 The following sections outline the detailed schema properties for the core system tables.
 
