@@ -254,6 +254,139 @@ End-to-end RAG evaluation stores the generated answer, retrieved context trace, 
     \label{fig:ui_cost}
 \end{figure}
 
+\section{Reranking: Trade-off Decision Analysis}\label{sec:reranking_appendix}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/74-reranking-reasoning.png}
+    \caption{Reranking trade-off: precision vs. latency comparison.}
+    \label{fig:reranking_decision}
+\end{figure}
+
+\subsection*{Description}
+
+This visualization (Section 2.4) compares retrieval performance with and without cross-encoder reranking:
+
+\textbf{Left Side (Current Baseline — No Reranking)}:
+\begin{itemize}
+    \item Hybrid search (BM25 + Dense embeddings) processes the query
+    \item Returns 50 candidate results in 80ms
+    \item All 50 results pass directly to the LLM
+    \item Precision@1: \textbf{24\%} (low relevance for top result)
+    \item Status: Production-ready, currently enabled
+    \item Cost multiplier: \textbf{1x}
+\end{itemize}
+
+\textbf{Right Side (With Reranking Enabled)}:
+\begin{itemize}
+    \item Hybrid search returns 50 results (178ms)
+    \item CrossEncoder reranking filters to top 5 highest-confidence matches
+    \item Adds 500ms–2s latency overhead for inference
+    \item Projected Precision@1: \textbf{~40\%} (+16\% improvement, unproven on production data)
+    \item Status: Disabled (SKIP\_RERANKER=true) due to latency trade-off
+    \item Cost multiplier: \textbf{3.17x} (inference overhead)
+\end{itemize}
+
+\textbf{Decision}: Reranker is intentionally disabled until Phase 3 validates whether the precision gain justifies the latency cost. The infrastructure is fully implemented and production-ready; only the feature flag needs to flip.
+
+\newpage
+
+\section{Data Storage: Polyglot Persistence Architecture}\label{sec:data_storage_appendix}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/75-data-storage-mapping.png}
+    \caption{4-layer storage system: specialized databases for each data type.}
+    \label{fig:data_storage_architecture}
+\end{figure}
+
+\subsection*{Description}
+
+This diagram (Section 2.6) illustrates our polyglot persistence architecture—using four specialized databases instead of forcing everything into one generalist system:
+
+\textbf{Layer 1: DynamoDB (Metadata)}
+\begin{itemize}
+    \item Stores: Users, chat sessions, messages, feedback, usage telemetry
+    \item Guarantees: ACID transactions, multi-tenant isolation
+    \item Cost: \$1.25 per 1 million writes
+    \item Latency: Sub-millisecond queries
+\end{itemize}
+
+\textbf{Layer 2: Qdrant (Vector Store)}
+\begin{itemize}
+    \item Stores: 384-dimensional text embeddings (all-MiniLM-L6-v2), ColQwen image embeddings
+    \item Enables: Semantic vector search in 20–50ms
+    \item Hosting: Self-hosted (zero cloud cost)
+    \item Indexing: HNSW algorithm for high-dimensional search
+    \item Scale: ~234K vectors per 1000 documents
+\end{itemize}
+
+\textbf{Layer 3: AWS S3 (Binary Storage)}
+\begin{itemize}
+    \item Stores: Original PDFs, processed markdown, extracted images, tables, transcripts
+    \item Capacity: Unlimited (cloud-scale storage)
+    \item Cost: \$0.023 per GB (approximately \$23 per 1000 documents)
+    \item Pipeline: 4-stage processing before indexing
+\end{itemize}
+
+\textbf{Layer 4: Local Disk (Cache Layer)}
+\begin{itemize}
+    \item Stores: BM25 sparse index (~5–10MB), embedding cache (session-scoped)
+    \item Scope: In-memory during user session; cleared on logout
+    \item Cost: Zero cloud cost (local infrastructure only)
+    \item Benefit: Fastest access tier for frequent queries
+\end{itemize}
+
+\textbf{End-to-End Timeline}:
+\begin{itemize}
+    \item \textbf{0s}: User uploads PDF → stored in S3 + metadata in DynamoDB
+    \item \textbf{1–5s}: Document processing (4 stages: normalize, extract media, parse, finalize)
+    \item \textbf{5–10s}: Chunking and embedding generation (batch size 32)
+    \item \textbf{10–13s}: Qdrant indexing and vector storage
+    \item \textbf{13s}: Fully indexed and ready for hybrid search
+    \item \textbf{Search latency}: 18–30 seconds end-to-end (BM25 + Qdrant + LLM orchestration) at typical production load (20–50 concurrent users)
+\end{itemize}
+
+\newpage
+
+\section{Document Parsing: VLM vs Traditional OCR}\label{sec:document_parsing_appendix}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/pdz/76-document-parsing.png}
+    \caption{Three generations of document parsing: OCR evolution.}
+    \label{fig:document_parsing}
+\end{figure}
+
+\subsection*{Description}
+
+This diagram (Section 2.7) shows why we chose Docling (a Vision Language Model–based parser) over traditional OCR:
+
+\textbf{Generation 1: Traditional OCR (Tesseract, EasyOCR)}
+\begin{itemize}
+    \item Text accuracy: 85–92\% (good for plain text)
+    \item Structure: Destroyed (tables become garbled, images lost, layout ignored)
+    \item Cost: Free / open-source
+\end{itemize}
+
+\textbf{Generation 2: Cloud OCR (Azure, AWS)}
+\begin{itemize}
+    \item Text accuracy: 95\%+
+    \item Structure: Partially preserved
+    \item Cost: \$0.001–\$0.004 per page (expensive at scale)
+    \item Lock-in: Vendor dependency
+\end{itemize}
+
+\textbf{Generation 3: VLM-Based (Docling — IBM, Open-Source)}
+\begin{itemize}
+    \item Table detection: 76.86\% accuracy with full structure preservation
+    \item Read order: 92.60\% (exceptional layout understanding)
+    \item Section hierarchy: 90.14\% (headings and nesting intact)
+    \item Cost: Free / open-source with full control
+    \item Multi-format: 10+ file types (PDF, DOCX, PPTX, XLSX, HTML, etc.)
+\end{itemize}
+
+\textbf{Our Choice}: Docling wins on structure and cost. Text fidelity (47.43\%) is the bottleneck, but the structural integrity makes it superior for RAG systems where layout and table context matter more than raw OCR accuracy.
 
 \chapter{Database Schema Definitions}\label{chap:database_schemas}
 The following sections outline the detailed schema properties for the core system tables.
