@@ -80,12 +80,12 @@ example.xlsx,Sheet1,Table,0,0,12,5
 
 Chunking evaluation uses exact character-span ground truth. The excerpt must be found verbatim in the source markdown document, so the evaluator can compute overlap between retrieved chunk spans and the gold span.
 
-\begin{lstlisting}[caption={Chunking span-level record},label={lst:chunking_gt_format}]
+\begin{lstlisting}[caption={Chunking record},label={lst:chunking_gt_format},breaklines=true,basicstyle=\ttfamily\small]
 {
   "sample_id": "q_000012_r0",
   "query_id": "q_000012",
-  "query": "What does the section say about smoothing before edge detection?",
-  "relevant_excerpt": "If there is excessive noise in an image, the partial derivatives will not be effective...",
+  "query": "What does the section say about smoothing?",
+  "relevant_excerpt": "If noise in an image, partial derivatives...",
   "doc_id": "CS131_notes_lecture05",
   "source_doc_path": ".../CS131_notes_lecture05.md",
   "start_char": 18420,
