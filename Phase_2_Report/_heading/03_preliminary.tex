@@ -140,7 +140,7 @@ where
     \item $N$ is the total number of words in the reference transcript.
 \end{itemize}
 
-Character Error Rate (CER) applies the same formulation at the character level:
+Character Error Rate (CER) applies the same formulation at the character level.
 
 \begin{equation}
     \text{CER} = \dfrac{S + D + I}{N}
@@ -296,7 +296,7 @@ Formally, for cross-attention:
     \item $T_q, T_k$ are token lengths for target and source sequences.
 \end{itemize}
 
-Multimodal fusion via dual attention for two modalities $A$ and $B$, cross-attention is computed independently:
+Multimodal fusion via dual attention for two modalities $A$ and $B$, cross-attention is computed independently.
 
 \[
     H_{A} = \text{Attention}(Q, K_{A}, V_{A});
@@ -522,7 +522,7 @@ Rerankers are computationally expensive and therefore operate on a narrowed cand
 This separation balances scalability and accuracy: fast retrieval reduces search space, while rerankers optimize precision at the top ranks.
 
 
-Bi-encoders compute representations independently:
+Bi-encoders compute representations independently.
 \[
 \text{doc} \rightarrow \mathbf{v}_d \in \mathbb{R}^d, \quad \text{query} \rightarrow \mathbf{v}_q \in \mathbb{R}^d
 \]
@@ -531,7 +531,7 @@ Similarity is computed via vector metrics (e.g., dot product), which is efficien
 Rerankers instead compute relevance jointly. This allows the model to consider local alignments and contextual dependencies, improving performance on tasks requiring fine-grained semantic reasoning. However, the computation happens online for each query-document pair and cannot be precomputed.
 
 
-Bi-encoder indexing is performed offline, so inference requires only query encoding and approximate nearest neighbor search. Rerankers require full transformer inference for every candidate document:
+Bi-encoder indexing is performed offline, so inference requires only query encoding and approximate nearest neighbor search. Rerankers require full transformer inference for every candidate document.
 \[
 q + d \rightarrow \text{Transformer} \rightarrow \text{score}
 \]
@@ -571,23 +571,23 @@ The augmentation process in RAG is illustrated in Figure~\ref{fig:Augmentation}\
 
 Augmentation in RAG transforms retrieved knowledge before generation. It may summarize, compress, restructure, or expand evidence to improve relevance and reduce noise \cite{yoon2024compact, asai2023selfrag}.
 
-Given a retrieved document set $D = \{d_1, \dots, d_k\}$, augmentation produces a transformed set $D' = \mathcal{A}(D)$ where $\mathcal{A}$ is an augmentation operator such as summarization, chunk merging, entity extraction, or reasoning-based synthesis. Formally:
+Given a retrieved document set $D = \{d_1, \dots, d_k\}$, augmentation produces a transformed set $D' = \mathcal{A}(D)$ where $\mathcal{A}$ is an augmentation operator such as summarization, chunk merging, entity extraction, or reasoning-based synthesis.
 \[
 D' = \mathcal{A}(D) = \{ a_1, \dots, a_m \}, \quad m \leq k \; \text{or} \; m \geq k,
 \]
 where each augmented element $a_i$ may be compressed, reformatted, or newly generated from retrieval.
 
-To preserve semantic coverage while reducing redundancy, augmentation can be framed as an optimization objective:
+To preserve semantic coverage while reducing redundancy, augmentation can be framed as an optimization objective.
 \[
 \max_{D'} \; \text{Rel}(D', q) - \lambda \, \text{Redund}(D'),
 \]
 where $\text{Rel}$ measures relevance to query $q$ and $\text{Redund}$ quantifies informational overlap.
 
-A common augmentation strategy is active document compression, where generative models summarize retrieved passages while preserving answer-critical semantics \cite{yoon2024compact}. This can be modeled as:
+A common augmentation strategy is active document compression, where generative models summarize retrieved passages while preserving answer-critical semantics \cite{yoon2024compact}. This can be modeled as
 \[
 a_i = \arg\max_{a} P(a \mid d_i, q),
 \]
-and scored using a utility function:
+and scored using a utility function
 \[
 s(a_i, q) = \alpha \cdot \text{Sim}(a_i, q) + \beta \cdot \text{Coverage}(a_i, d_i),
 \]
@@ -597,13 +597,13 @@ where
 \text{Coverage}(a_i, d_i) = \cos(h(a_i), h(d_i)).
 \]
 
-Augmentation also enables iterative cycles of retrieval and rewriting. Self-reflection frameworks refine evidence through reasoned critique:
+Augmentation also enables iterative cycles of retrieval and rewriting. Self-reflection frameworks refine evidence through reasoned critique.
 \[
 D^{(t+1)} = \mathcal{A}\big(D^{(t)}, y^{(t)}, c^{(t)}\big),
 \]
 where $y^{(t)}$ is the generated answer and $c^{(t)}$ is a critique model output guiding refinement \cite{asai2023selfrag}.
 
-For programming tasks, retrieved demonstrations can be reformatted into template-based exemplars:
+For programming tasks, retrieved demonstrations can be reformatted into template-based exemplars.
 \[
 a_i = \text{Format}\big(\text{Demo}(d_i)\big),
 \]
@@ -624,21 +624,21 @@ The generator is the synthesis module in RAG. It conditions on both the user que
     \label{fig:Generation}
 \end{figure}
 
-Formally, given a query $q$ retrieves a document set $D = \{d_1, \dots, d_k\}$, the generator models the output sequence $y = (y_1, \dots, y_T)$ as:
+Formally, given a query $q$ retrieves a document set $D = \{d_1, \dots, d_k\}$, the generator models the output sequence $y = (y_1, \dots, y_T)$ as
 \[
 P(y \mid q, D) = \prod_{t=1}^{T} P(y_t \mid y_{<t}, q, D).
 \]
 
-Instead of treating retrieved documents as a single concatenated input, marginalization across documents can be applied:
+Instead of treating retrieved documents as a single concatenated input, marginalization across documents can be applied.
 \[
 P(y_t \mid y_{<t}, q, D) = \sum_{d_i \in D} P(y_t \mid y_{<t}, q, d_i) \, P(d_i \mid q).
 \]
 
-Each retrieved document is encoded into a latent representation:
+Each retrieved document is encoded into a latent representation
 \[
 h_i = f_{\text{enc}}(d_i),
 \]
-and decoding attends to these representations:
+and decoding attends to these representations
 \[
 P(y_t \mid y_{<t}, q, d_i) = \text{softmax}\!\left(W \cdot \text{Dec}(y_{<t}, h_i)\right).
 \]
@@ -650,7 +650,7 @@ Modern RAG systems typically use autoregressive or encoder-decoder Transformers,
     \item \textbf{Cross-attention generation:} Retrieved representations act as separate attention sources to improve semantic alignment and reduce positional bias \cite{he2024retrieval_coding}.
 \end{itemize}
 
-In cross-attention generation, retrieved representations form a secondary attention memory:
+In cross-attention generation, retrieved representations form a secondary attention memory.
 \[
 \text{Attention}(Q, K_D, V_D) = \text{softmax}\left(\dfrac{QK_D^\top}{\sqrt{d_k}}\right)V_D,
 \]
@@ -661,11 +661,11 @@ where $K_D, V_D$ are keys and values derived from retrieval encodings.
     \item \textbf{Self-reflective iterative generation:} Retrieval, generation, and critique occur recursively to enhance factual accuracy and reasoning \cite{asai2023selfrag}.
 \end{itemize}
 
-To further improve faithfulness, contrastive losses can be incorporated to prefer evidence-grounded explanations:
+To further improve faithfulness, contrastive losses can be incorporated to prefer evidence-grounded explanations.
 \[
 \mathcal{L}_{\text{faith}} = -\log \dfrac{\exp(s(y, D^+))}{\exp(s(y, D^+)) + \exp(s(y, D^-))},
 \]
-where $D^+$ contains supporting evidence and $D^-$ contains retrieved distractors. The score function $s(y, D)$ measures how well a generated output $y$ is grounded in a document set $D$, commonly implemented as a similarity function such as:
+where $D^+$ contains supporting evidence and $D^-$ contains retrieved distractors. The score function $s(y, D)$ measures how well a generated output $y$ is grounded in a document set $D$, commonly implemented as a similarity function such as
 \[
 s(y, D) = \cos\left(g(y), \, h(D)\right),
 \]

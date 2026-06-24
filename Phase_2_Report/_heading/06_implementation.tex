@@ -1349,7 +1349,7 @@ Dedicated to storing high-order visual layouts. It leverages a unique multi-vect
 \end{table}
 
 \textbf{Visual Token Calculation Methodology}
-The variable $x$ in the multi-vector representation represents the total number of distinct 128-dimensional embeddings stored per document page. Unlike standard text RAG that condenses an entire chunk into a single vector, the \texttt{ColQwen} architecture preserves granular spatial information by treating the page as an adaptive grid of patches. The value of $x$ is calculated as follows:
+The variable $x$ in the multi-vector representation represents the total number of distinct 128-dimensional embeddings stored per document page. Unlike standard text RAG that condenses an entire chunk into a single vector, the \texttt{ColQwen} architecture preserves granular spatial information by treating the page as an adaptive grid of patches. The value of $x$ is calculated as follows.
 
 \begin{equation}
     x = \left( \lceil H / P \rceil \times \lceil W / P \rceil \right) + N_{special}
