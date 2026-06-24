@@ -605,7 +605,7 @@ The system offers three complementary text retrieval strategies, each addressing
 
 \textit{2. Dense (Embedding-Based) Retrieval}: Dense retrieval encodes both queries and documents as continuous vectors in a high-dimensional space. It captures semantic meaning and handles paraphrased queries effectively, though it is susceptible to ``semantic drift'' - retrieving documents that are topically similar but factually incorrect.
 
-\textit{3. Hybrid Retrieval (BM25 + Dense + RRF)}: The system implements \textbf{Reciprocal Rank Fusion (RRF)}, a fusion algorithm that combines BM25 and dense retrieval results. Reciprocal Rank Fusion (RRF) combines BM25 and dense results by assigning a score to each result based on its rank position. Results ranked higher (lower rank number) get higher scores. The constant k (60) is a smoothing factor that prevents low-ranked results from getting zero score and allows high-ranked results from both methods to be boosted. For each document, RRF calculates:
+\textit{3. Hybrid Retrieval (BM25 + Dense + RRF)}: The system implements \textbf{Reciprocal Rank Fusion (RRF)}, a fusion algorithm that combines BM25 and dense retrieval results. Reciprocal Rank Fusion (RRF) combines BM25 and dense results by assigning a score to each result based on its rank position. Results ranked higher (lower rank number) get higher scores. The constant k (60) is a smoothing factor that prevents low-ranked results from getting zero score and allows high-ranked results from both methods to be boosted. For each document, RRF calculates
 
 \[
 \text{RRF}(d) = \dfrac{1}{k + \text{rank\_BM25}(d)} + \dfrac{1}{k + \text{rank\_Dense}(d)}
