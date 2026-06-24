@@ -595,12 +595,14 @@
   url={https://arxiv.org/abs/2309.16609}
 }
 
-@article{zhang2023repocoder,
-  title={RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation},
-  author={Zhang, Fengji and others},
-  journal={arXiv preprint arXiv:2303.12570},
-  year={2023},
-  url={https://arxiv.org/abs/2303.12570}
+@inproceedings{zhang2023repocoder,
+  title     = {{RepoCoder}: Repository-Level Code Completion Through Iterative Retrieval and Generation},
+  author    = {Zhang, Fengji and Chen, Bei and Zhang, Yue and Liu, Jin and Zan, Lanyi and Tan, Yi Chern and Lou, Jian-Guang and Chen, Weizhu},
+  booktitle = {Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing},
+  pages     = {2471--2484},
+  year      = {2023},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://aclanthology.org/2023.emnlp-main.151}
 }
 
 @article{yoon2024compact,
@@ -610,12 +612,12 @@
   year={2024}
 }
 
-@article{asai2023selfrag,
-  title={{SELF-RAG}: Learning to Retrieve, Generate, and Critique through Self-Reflection},
-  author={Asai, Akari and others},
-  journal={arXiv preprint arXiv:2310.11511},
-  year={2023},
-  url={https://arxiv.org/abs/2310.11511}
+@inproceedings{asai2023selfrag,
+  title     = {Self-{RAG}: Learning to Retrieve, Generate, and Critique through Self-Reflection},
+  author    = {Asai, Akari and Wu, Zeqiu and Wang, Yizhong and Sil, Avirup and Hajishirzi, Hannaneh},
+  booktitle = {The Twelfth International Conference on Learning Representations},
+  year      = {2024},
+  url       = {https://openreview.net/forum?id=hSyW5go0v8}
 }
 
 @article{gao2023rag_survey,
@@ -654,23 +656,22 @@
   url={https://arxiv.org/abs/1908.10084}
 }
 
-@article{mikolov2013word2vec,
-  title={Efficient Estimation of Word Representations in Vector Space},
-  author={Mikolov, Tomas and Chen, Kai and Corrado, Greg and Dean, Jeffrey},
-  journal={arXiv preprint arXiv:1301.3781},
-  year={2013},
-  url={https://arxiv.org/abs/1301.3781}
+@inproceedings{mikolov2013word2vec,
+  title     = {Efficient Estimation of Word Representations in Vector Space},
+  author    = {Mikolov, Tomas and Chen, Kai and Corrado, Greg and Dean, Jeffrey},
+  booktitle = {Workshop Proceedings of the 1st International Conference on Learning Representations},
+  year      = {2013},
+  url       = {https://arxiv.org/abs/1301.3781}
 }
 
-@article{douze2024faiss,
-  title={The Faiss Library},
-  author={Douze, Matthijs and Johnson, Jeff and J{\'e}gou, Herv{\'e}},
-  journal={arXiv preprint arXiv:2401.08281},
-  year={2024},
-  url={https://arxiv.org/abs/2401.08281},
-  archivePrefix={arXiv},
-  eprint={2401.08281},
-  primaryClass={cs.LG}
+@misc{douze2024faiss,
+  title         = {The {Faiss} Library},
+  author        = {Douze, Matthijs and Guzhva, Alexandr and Deng, Chengqi and Johnson, Jeff and Szilvasy, Gergely and Mazar{\'e}, Pierre-Emmanuel and Lomeli, Maria and Hosseini, Lucas and J{\'e}gou, Herv{\'e}},
+  year          = {2024},
+  archivePrefix = {arXiv},
+  eprint        = {2401.08281},
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2401.08281}
 }
 
 @inproceedings{kulkarni2024ragrl,
@@ -853,33 +854,46 @@
   month = {2}
 }
 
-@article{baevski2020wav2vec2,
-  title={wav2vec 2.0: A framework for self-supervised learning of speech representations},
-  author={Baevski, Alexei and Zhou, Henry and Mohamed, Abdelrahman and Auli, Michael},
-  journal={arXiv preprint arXiv:2006.11477},
-  year={2020}
+@inproceedings{baevski2020wav2vec2,
+  title     = {wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations},
+  author    = {Baevski, Alexei and Zhou, Yuhao and Mohamed, Abdelrahman and Auli, Michael},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {33},
+  pages     = {12449--12460},
+  year      = {2020},
+  publisher = {Curran Associates, Inc.},
+  url       = {https://proceedings.neurips.cc/paper/2020/hash/92d1e1eb1cd6f9fba3227870bb6d7f07-Abstract.html}
 }
 
-@article{gulati2020conformer,
-  title={Conformer: Convolution-augmented Transformer for speech recognition},
-  author={Gulati, Anmol and others},
-  journal={arXiv preprint arXiv:2005.08100},
-  year={2020}
+@inproceedings{gulati2020conformer,
+  title     = {Conformer: Convolution-augmented Transformer for Speech Recognition},
+  author    = {Gulati, Anmol and Qin, James and Chiu, Chung-Cheng and Parmar, Niki and Zhang, Yu and Yu, Jiahui and Han, Wei and Wang, Shibo and Zhang, Zhengdong and Wu, Yonghui and Pang, Ruoming},
+  booktitle = {Proceedings of Interspeech 2020},
+  pages     = {5036--5040},
+  year      = {2020},
+  doi       = {10.21437/Interspeech.2020-3015},
+  url       = {https://www.isca-archive.org/interspeech_2020/gulati20_interspeech.html}
 }
 
-@article{chan2015las,
-  title={Listen, attend and spell},
-  author={Chan, William and Jaitly, Navdeep and Le, Quoc V and Vinyals, Oriol},
-  journal={arXiv preprint arXiv:1508.01211},
-  year={2015}
+@inproceedings{chan2015las,
+  title     = {Listen, Attend and Spell: A Neural Network for Large Vocabulary Conversational Speech Recognition},
+  author    = {Chan, William and Jaitly, Navdeep and Le, Quoc V. and Vinyals, Oriol},
+  booktitle = {2016 {IEEE} International Conference on Acoustics, Speech and Signal Processing ({ICASSP})},
+  pages     = {4960--4964},
+  year      = {2016},
+  publisher = {IEEE},
+  doi       = {10.1109/ICASSP.2016.7472621}
 }
 
-@article{radford2022whisper,
-  title={Robust speech recognition via large-scale weak supervision},
-  author={Radford, Alec and others},
-  journal={arXiv preprint arXiv:2212.04356},
-  note={Whisper},
-  year={2022}
+@inproceedings{radford2022whisper,
+  title     = {Robust Speech Recognition via Large-Scale Weak Supervision},
+  author    = {Radford, Alec and Kim, Jong Wook and Xu, Tao and Brockman, Greg and McLeavey, Christine and Sutskever, Ilya},
+  booktitle = {Proceedings of the 40th International Conference on Machine Learning},
+  pages     = {28492--28518},
+  volume    = {202},
+  year      = {2023},
+  publisher = {PMLR},
+  url       = {https://proceedings.mlr.press/v202/radford23a.html}
 }
 
 @inproceedings{panayotov2015librispeech,
@@ -930,11 +944,12 @@
   year={1993}
 }
 
-@article{graves2012rnnt,
-  title={Sequence transduction with recurrent neural networks},
-  author={Graves, Alex},
-  journal={arXiv preprint arXiv:1211.3711},
-  year={2012}
+@inproceedings{graves2012rnnt,
+  title     = {Sequence Transduction with Recurrent Neural Networks},
+  author    = {Graves, Alex},
+  booktitle = {Proceedings of the 29th International Conference on Machine Learning, Workshop on Representation Learning},
+  year      = {2012},
+  url       = {https://arxiv.org/abs/1211.3711}
 }
 
 @inproceedings{he2019transformertransducer,
@@ -951,11 +966,15 @@
   year={2012}
 }
 
-@article{ardila2020commonvoice,
-  title={Common voice: A massively-multilingual speech corpus},
-  author={Ardila, Rosana and others},
-  journal={arXiv preprint arXiv:1912.06670},
-  year={2020}
+@inproceedings{ardila2020commonvoice,
+  title     = {Common Voice: A Massively-Multilingual Speech Corpus},
+  author    = {Ardila, Rosana and Branson, Megan and Davis, Kelly and Kohler, Michael and Meyer, Josh and Henretty, Michael and Morais, Reuben and Saunders, Lindsay and Tyers, Francis and Weber, Gregor},
+  booktitle = {Proceedings of the Twelfth Language Resources and Evaluation Conference},
+  pages     = {4218--4222},
+  year      = {2020},
+  address   = {Marseille, France},
+  publisher = {European Language Resources Association},
+  url       = {https://aclanthology.org/2020.lrec-1.520}
 }
 
 @article{han2016deepcompression,
@@ -976,12 +995,12 @@
   doi          = {10.1561/1500000019}
 }
 
-@article{formal2021splade,
-  title        = {SPLADE v2: Sparse Lexical and Expansion Model for Information Retrieval},
-  author       = {Formal, Thibault and Lassance, Carlos and Piwowarski, Benjamin and Clinchant, Stéphane},
-  journal      = {arXiv preprint},
-  eprint       = {2109.10086},
-  year         = {2021}
+@misc{formal2021splade,
+  title        = {{SPLADE} v2: Sparse Lexical and Expansion Model for Information Retrieval},
+  author       = {Formal, Thibault and Lassance, Carlos and Piwowarski, Benjamin and Clinchant, St{\'e}phane},
+  year         = {2021},
+  howpublished = {arXiv preprint arXiv:2109.10086},
+  url          = {https://arxiv.org/abs/2109.10086}
 }
 
 @inproceedings{karpukhin2020dense,
@@ -1001,11 +1020,14 @@
 }
 
 @article{malkov2016efficient,
-  title        = {Efficient And Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs},
-  author       = {Malkov, Yu. A. and Yashunin, D. A.},
-  journal      = {arXiv preprint},
-  eprint       = {1603.09320},
-  year         = {2016}
+  title   = {Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs},
+  author  = {Malkov, Yu A. and Yashunin, D. A.},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume  = {42},
+  number  = {4},
+  pages   = {824--836},
+  year    = {2020},
+  doi     = {10.1109/TPAMI.2018.2889473}
 }
 
 @inproceedings{iida2022unsupervised,
@@ -1043,12 +1065,15 @@
 }
 
 
-@article{radford2021clip,
-  title        = {Learning Transferable Visual Models From Natural Language Supervision},
-  author       = {Radford, Alec and Kim, Jong Wook and Hallacy, Chris and Ramesh, Aditya and Goh, Gabriel and Agarwal, Sandhini and Sastry, Girish and Askell, Amanda and Mishkin, Pamela and Clark, Jack and Krueger, Gretchen and Sutskever, Ilya},
-  journal      = {arXiv preprint},
-  eprint       = {2103.00020},
-  year         = {2021}
+@inproceedings{radford2021clip,
+  title     = {Learning Transferable Visual Models From Natural Language Supervision},
+  author    = {Radford, Alec and Kim, Jong Wook and Hallacy, Chris and Ramesh, Aditya and Goh, Gabriel and Agarwal, Sandhini and Sastry, Girish and Askell, Amanda and Mishkin, Pamela and Clark, Jack and Krueger, Gretchen and Sutskever, Ilya},
+  booktitle = {Proceedings of the 38th International Conference on Machine Learning},
+  pages     = {8748--8763},
+  volume    = {139},
+  year      = {2021},
+  publisher = {PMLR},
+  url       = {https://proceedings.mlr.press/v139/radford21a.html}
 }
 
 @inproceedings{lin2024mmembed,
@@ -1325,13 +1350,7 @@
   url={https://arxiv.org/pdf/2112.07899}
 }
 
-@article{colbertv2_2021,
-  title={ColBERTv2: Effective and Efficient Retrieval via Lightweight Late Interaction},
-  author={Santhanam, Keshav and others},
-  journal={arXiv},
-  year={2021},
-  url={https://arxiv.org/pdf/2112.01488}
-}
+% Duplicate of colbertv2 (@inproceedings NAACL 2022) — removed
 
 @article{splade2021,
   title={SPLADE: Sparse Lexical and Expansion Model for Information Retrieval},
@@ -1435,92 +1454,110 @@
   url={https://arxiv.org/pdf/2212.10496}
 }
 
-@article{flare2023,
-  title = {FLARE: Triggered Retrieval during Decoding},
-  author = {Author, First and Author, Second},
-  year = {2023},
-  howpublished = {arXiv preprint},
-  url = {https://arxiv.org/pdf/2305.06983}
+@inproceedings{flare2023,
+  title     = {Active Retrieval Augmented Generation},
+  author    = {Jiang, Zhengbao and Xu, Frank F. and Gao, Luyu and Sun, Zhiqing and Liu, Qian and Dwivedi-Yu, Jane and Yang, Yiming and Callan, Jamie and Neubig, Graham},
+  booktitle = {Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing},
+  pages     = {7969--7992},
+  year      = {2023},
+  address   = {Singapore},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://aclanthology.org/2023.emnlp-main.495}
 }
 
-@article{adaptive_rag2024,
-  title = {Adaptive-RAG: Learning to Route Retrieval Strategies},
-  author = {Author, A. and Author, B.},
-  year = {2024},
-  howpublished = {arXiv preprint},
-  url = {https://arxiv.org/pdf/2403.14403}
+@inproceedings{adaptive_rag2024,
+  title     = {{Adaptive-RAG}: Learning to Adapt Retrieval-Augmented Large Language Models through Question Complexity},
+  author    = {Jeong, Soyeong and Baek, Jinheon and Cho, Sukmin and Hwang, Sung Ju and Park, Jong},
+  booktitle = {Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)},
+  pages     = {7036--7050},
+  year      = {2024},
+  address   = {Mexico City, Mexico},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://aclanthology.org/2024.naacl-long.389}
 }
 
-@article{seakr2024,
-  title = {SEAKR: Selective Retrieval for Adaptive RAG},
-  author = {Author, C. and Author, D.},
-  year = {2024},
-  howpublished = {arXiv preprint},
-  url = {https://arxiv.org/pdf/2406.19215}
+@inproceedings{seakr2024,
+  title     = {{SeaKR}: Self-aware Knowledge Retrieval for Adaptive Retrieval Augmented Generation},
+  author    = {Yao, Zijun and Qi, Weijian and Pan, Liangming and Cao, Shulin and Hu, Linmei and Liu, Weichuan and Hou, Lei and Li, Juanzi},
+  booktitle = {Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+  pages     = {27022--27043},
+  year      = {2025},
+  address   = {Vienna, Austria},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://aclanthology.org/2025.acl-long.1312}
 }
 
 @inproceedings{dragin2024,
-  title = {DRAGIN: Dynamic Retrieval and Grounding in Interactive NLU},
-  author = {Author, E. and Author, F.},
-  booktitle = {Proceedings of ACL 2024},
-  year = {2024},
-  url = {https://aclanthology.org/2024.acl-long.702.pdf}
+  title     = {{DRAGIN}: Dynamic Retrieval Augmented Generation based on the Real-time Information Needs of Large Language Models},
+  author    = {Su, Weihang and Tang, Yichen and Ai, Qingyao and Wu, Zhijing and Liu, Yiqun},
+  booktitle = {Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+  pages     = {12991--13013},
+  year      = {2024},
+  address   = {Bangkok, Thailand},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://aclanthology.org/2024.acl-long.702}
 }
 
-@article{selfrag2023,
-  title = {SELF-RAG: Alternating Retrieve, Generate, and Critique},
-  author = {Author, G. and Author, H.},
-  year = {2023},
-  howpublished = {arXiv preprint},
-  url = {https://arxiv.org/pdf/2310.11511}
-}
+% selfrag2023 removed: duplicate of asai2023selfrag (same paper, ICLR 2024).
+% All citations updated to use asai2023selfrag instead.
 
-@article{crag2024,
-  title = {CRAG: Corrective Retrieval-Augmented Generation},
-  author = {Author, I. and Author, J.},
-  year = {2024},
-  howpublished = {arXiv preprint},
-  url = {https://arxiv.org/pdf/2401.15884}
+@misc{crag2024,
+  title        = {Corrective Retrieval Augmented Generation},
+  author       = {Yan, Shi-Qi and Gu, Jia-Chen and Zhu, Yun and Ling, Zhen-Hua},
+  year         = {2024},
+  howpublished = {arXiv preprint arXiv:2401.15884},
+  url          = {https://arxiv.org/abs/2401.15884}
 }
 
 @inproceedings{covrag2024,
-  title = {CoV-RAG: Chain-of-Verification for Retrieval-Augmented Generation},
-  author = {Author, K. and Author, L.},
-  booktitle = {Findings of EMNLP 2024},
-  year = {2024},
-  url = {https://aclanthology.org/2024.findings-emnlp.607.pdf}
+  title     = {Retrieving, Rethinking and Revising: The Chain-of-Verification Can Improve Retrieval Augmented Generation},
+  author    = {He, Bolei and Chen, Nuo and He, Xinran and Yan, Lingyong and Wei, Zhenkai and Luo, Jinchang and Ling, Zhen-Hua},
+  booktitle = {Findings of the Association for Computational Linguistics: EMNLP 2024},
+  pages     = {10371--10393},
+  year      = {2024},
+  address   = {Miami, Florida, USA},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://aclanthology.org/2024.findings-emnlp.607}
 }
 
-@article{lmpriors2024,
-  title = {On LM Priors vs Retrieved Evidence},
-  author = {Author, M. and Author, N.},
-  year = {2024},
-  howpublished = {arXiv preprint},
-  url = {https://arxiv.org/pdf/2404.10198v1}
+@inproceedings{lmpriors2024,
+  title     = {{ClashEval}: Quantifying the Tug-of-War between an {LLM}'s Internal Prior and External Evidence},
+  author    = {Wu, Kevin and Wu, Eric and Zou, James},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {37},
+  year      = {2024},
+  publisher = {Curran Associates, Inc.},
+  url       = {https://proceedings.neurips.cc/paper_files/paper/2024/hash/3aa291abc426d7a29fb08418c1244177-Abstract-Datasets_and_Benchmarks_Track.html}
 }
 
-@article{rankrag2024,
-  title = {RankRAG: Instruction-Tuned Ranking for Context Selection},
-  author = {Author, O. and Author, P.},
-  year = {2024},
-  howpublished = {NeurIPS proceedings},
-  url = {https://proceedings.neurips.cc/paper_files/paper/2024/file/db93ccb6cf392f352570dd5af0a223d3-Paper-Conference.pdf}
+@inproceedings{rankrag2024,
+  title     = {{RankRAG}: Unifying Context Ranking with Retrieval-Augmented Generation in {LLMs}},
+  author    = {Yu, Yue and Ping, Wei and Liu, Zihan and Wang, Boxin and You, Jiaxuan and Zhang, Chao and Shoeybi, Mohammad and Catanzaro, Bryan},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {37},
+  pages     = {121156--121184},
+  year      = {2024},
+  publisher = {Curran Associates, Inc.},
+  url       = {https://proceedings.neurips.cc/paper_files/paper/2024/file/db93ccb6cf392f352570dd5af0a223d3-Paper-Conference.pdf}
 }
 
 @inproceedings{llmlingua2023,
-  title = {LLMLingua: Compressing and Generalizing Multilingual Prompts},
-  author = {Author, Q. and Author, R.},
-  booktitle = {EMNLP 2023},
-  year = {2023},
-  url = {https://aclanthology.org/2023.emnlp-main.825.pdf}
+  title     = {{LLMLingua}: Compressing Prompts for Accelerated Inference of Large Language Models},
+  author    = {Jiang, Huiqiang and Wu, Qianhui and Lin, Chin-Yew and Yang, Yuqing and Qiu, Lili},
+  booktitle = {Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing},
+  pages     = {13358--13376},
+  year      = {2023},
+  address   = {Singapore},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://aclanthology.org/2023.emnlp-main.825}
 }
 
-@article{compression2024,
-  title = {Contextual Compression for Retrieval-Augmented Generation},
-  author = {Author, S. and Author, T.},
-  year = {2024},
-  howpublished = {arXiv preprint},
-  url = {https://arxiv.org/pdf/2409.13385}
+@misc{compression2024,
+  title        = {Contextual Compression in Retrieval-Augmented Generation for Large Language Models: {A} Survey},
+  author       = {Verma, Sourav},
+  year         = {2024},
+  howpublished = {arXiv preprint arXiv:2409.13385},
+  url          = {https://arxiv.org/abs/2409.13385}
 }
 
 @article{au_rag2024,
@@ -1555,12 +1592,12 @@
   url = {https://arxiv.org/pdf/2405.16506}
 }
 
-@article{longrag2024,
-  title = {LongRAG: Retrieval with Long-Context LLMs},
-  author = {Author, Y. and Author, Z.},
-  year = {2024},
-  howpublished = {arXiv preprint},
-  url = {https://arxiv.org/pdf/2406.15319}
+@misc{longrag2024,
+  title        = {{LongRAG}: Enhancing Retrieval-Augmented Generation with Long-context {LLMs}},
+  author       = {Jiang, Ziyan and Ma, Xueguang and Chen, Wenhu},
+  year         = {2024},
+  howpublished = {arXiv preprint arXiv:2406.15319},
+  url          = {https://arxiv.org/abs/2406.15319}
 }
 
 @article{selfroute2024,
@@ -1852,11 +1889,14 @@
   url = {https://arxiv.org/abs/2409.20550}
 }
 
-@article{brown2020language,
-  title={Language Models are Few-Shot Learners},
-  author={Brown, Tom and Mann, Benjamin and Ryder, Nick and Subbiah, Melanie and Kaplan, Jared and Dhariwal, Prafulla and others},
-  journal={Advances in Neural Information Processing Systems},
-  year={2020}
+@inproceedings{brown2020language,
+  title     = {Language Models are Few-Shot Learners},
+  author    = {Brown, Tom B. and Mann, Benjamin and Ryder, Nick and Subbiah, Melanie and Kaplan, Jared and Dhariwal, Prafulla and Neelakantan, Arvind and Shyam, Pranav and Sastry, Girish and Askell, Amanda and Agarwal, Sandhini and Herbert-Voss, Ariel and Krueger, Gretchen and Henighan, Tom and Child, Rewon and Ramesh, Aditya and Ziegler, Daniel M. and Wu, Jeffrey and Winter, Clemens and Hesse, Christopher and Chen, Mark and Sigler, Eric and Litwin, Mateusz and Gray, Scott and Chess, Benjamin and Clark, Jack and Berner, Christopher and McCandlish, Sam and Radford, Alec and Sutskever, Ilya and Amodei, Dario},
+  booktitle = {Advances in Neural Information Processing Systems 33},
+  pages     = {1877--1901},
+  year      = {2020},
+  publisher = {Curran Associates, Inc.},
+  url       = {https://proceedings.neurips.cc/paper/2020/hash/1457c0d6bfcb4967418bfb8ac142f64a-Abstract.html}
 }
 
 @article{reynolds2021prompt,
@@ -1866,18 +1906,22 @@
   year={2021}
 }
 
-@article{wei2022cot,
-  title={Chain-of-Thought Prompting Elicits Reasoning in Large Language Models},
-  author={Wei, Jason and Wang, Xuezhi and Schuurmans, Dale and Bosma, Maarten and Ichter, Brian and Xia, Fei and others},
-  journal={Advances in Neural Information Processing Systems},
-  year={2022}
+@inproceedings{wei2022cot,
+  title     = {Chain-of-Thought Prompting Elicits Reasoning in Large Language Models},
+  author    = {Wei, Jason and Wang, Xuezhi and Schuurmans, Dale and Bosma, Maarten and Xia, Fei and Chi, Ed and Le, Quoc V. and Zhou, Denny},
+  booktitle = {Advances in Neural Information Processing Systems 35},
+  pages     = {24824--24837},
+  year      = {2022},
+  publisher = {Curran Associates, Inc.},
+  url       = {https://proceedings.neurips.cc/paper_files/paper/2022/hash/9d5609613524ecf4f15af0f7b31abca4-Abstract-Conference.html}
 }
 
-@article{wang2023selfconsistency,
-  title={Self-Consistency Improves Chain-of-Thought Reasoning in Language Models},
-  author={Wang, Xuezhi and Wei, Jason and Schuurmans, Dale and Bosma, Maarten and Chi, Ed and Le, Quoc and Zhou, Denny},
-  journal={International Conference on Learning Representations},
-  year={2023}
+@inproceedings{wang2023selfconsistency,
+  title     = {Self-Consistency Improves Chain-of-Thought Reasoning in Language Models},
+  author    = {Wang, Xuezhi and Wei, Jason and Schuurmans, Dale and Le, Quoc V. and Chi, Ed H. and Narang, Sharan and Chowdhery, Aakanksha and Zhou, Denny},
+  booktitle = {The Eleventh International Conference on Learning Representations},
+  year      = {2023},
+  url       = {https://openreview.net/forum?id=1PL1NIMMrw}
 }
 
 
@@ -1917,18 +1961,22 @@
   year={2022}
 }
 
-@article{yao2023opro,
-  title={Large Language Models as Optimizers},
-  author={Yao, Shun et al.},
-  journal={arXiv preprint arXiv:2309.03409},
-  year={2023}
+@inproceedings{yao2023opro,
+  title     = {Large Language Models as Optimizers},
+  author    = {Yang, Chengrun and Wang, Xuezhi and Lu, Yifeng and Liu, Hanxiao and Le, Quoc V. and Zhou, Denny and Chen, Xinyun},
+  booktitle = {The Twelfth International Conference on Learning Representations},
+  year      = {2024},
+  url       = {https://openreview.net/forum?id=Bb4VGOWELI}
 }
 
-@article{deng2022rlprompt,
-  title={RLPrompt: Optimizing Discrete Text Prompts with Reinforcement Learning},
-  author={Deng, Yilun and others},
-  journal={arXiv preprint arXiv:2205.12548},
-  year={2022}
+@inproceedings{deng2022rlprompt,
+  title     = {{RLPrompt}: Optimizing Discrete Text Prompts with Reinforcement Learning},
+  author    = {Deng, Mingkai and Wang, Jianyu and Hsieh, Cheng-Ping and Wang, Yihan and Guo, Han and Shu, Tianmin and Song, Meng and Xing, Eric P. and Hu, Zhiting},
+  booktitle = {Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing},
+  pages     = {3369--3391},
+  year      = {2022},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://aclanthology.org/2022.emnlp-main.222}
 }
 
 @article{shi2024triple,
@@ -1977,11 +2025,11 @@
   url       = {https://arxiv.org/abs/2004.12832}
 }
 
-@article{colpali2024,
-  author  = {Jung, Jinhyuk and Reddy, Chandan Singh and Khattab, Omar},
-  title   = {ColPali: Efficient Document Retrieval with Late-Interaction over Hybrid Text–Vision Signals},
-  journal = {arXiv preprint arXiv:2407.00001},
-  year    = {2024},
-  url     = {https://arxiv.org/abs/2407.00001}
+@inproceedings{colpali2024,
+  title     = {{ColPali}: Efficient Document Retrieval with Vision Language Models},
+  author    = {Faysse, Manuel and Sibille, Hugues and Wu, Tony and Omrani, Bilel and Viaud, Gautier and Hudelot, C{\'e}line and Colombo, Pierre},
+  booktitle = {The Thirteenth International Conference on Learning Representations},
+  year      = {2025},
+  url       = {https://openreview.net/forum?id=fDCRqJNsP4}
 }
 
