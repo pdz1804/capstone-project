@@ -60,13 +60,13 @@ A further refinement is cross-attentional fusion, which departs from dual-encode
 
 \subsection{NotebookLM}
 
-NotebookLM is an AI-powered note-taking and research assistant developed by Google Labs\footnote{\url{https://blog.google/technology/ai/notebooklm-google-ai/}}, built on the Gemini family of models\footnote{\url{https://deepmind.google/technologies/gemini/}}. Designed to synthesize information from user-uploaded materials, the system emphasizes grounded responses, multimodal comprehension, and support for research workflows. While NotebookLM is marketed as a general-purpose productivity tool, its capabilities overlap with multimodal educational assistants such as our proposed system for HCMUT lectures.
+NotebookLM is an AI-powered note-taking and research assistant developed by Google Labs\footnote{Google. (2023, July 12). Introducing NotebookLM. Retrieved June 24, 2026, from \url{https://blog.google/technology/ai/notebooklm-google-ai/}}, built on the Gemini family of models\footnote{Google DeepMind. (n.d.). Gemini 3.5. Retrieved June 24, 2026, from \url{https://deepmind.google/technologies/gemini/}}. Designed to synthesize information from user-uploaded materials, the system emphasizes grounded responses, multimodal comprehension, and support for research workflows. While NotebookLM is marketed as a general-purpose productivity tool, its capabilities overlap with multimodal educational assistants such as our proposed system for HCMUT lectures.
 
-NotebookLM supports diverse input formats, including PDF documents, Google Docs, Google Slides, Microsoft Word (.docx), PowerPoint presentations (.pptx), web URLs, YouTube links, EPUB files, CSV files, Google Sheets, markdown files, and images with OCR capabilities \footnote{\url{https://notebooklm.google.com/get-started}}. The system performs structured ingestion and can interpret textual content as well as visual elements such as tables, diagrams, and slide images. Recent updates introduce advanced multimodal reasoning, enabling comprehensive question answering based on charts, graphs, images, diagrams, video transcripts, and mathematical content, with improved support for computational and technical reasoning \footnote{\url{https://blog.google/technology/google-labs/notebooklm-updates/}}.
+NotebookLM supports diverse input formats, including PDF documents, Google Docs, Google Slides, Microsoft Word (.docx), PowerPoint presentations (.pptx), web URLs, YouTube links, EPUB files, CSV files, Google Sheets, markdown files, and images with OCR capabilities \footnote{Google. (n.d.). Get started with NotebookLM. Retrieved June 24, 2026, from \url{https://notebooklm.google.com/get-started}}. The system performs structured ingestion and can interpret textual content as well as visual elements such as tables, diagrams, and slide images. Recent updates introduce advanced multimodal reasoning, enabling comprehensive question answering based on charts, graphs, images, diagrams, video transcripts, and mathematical content, with improved support for computational and technical reasoning \footnote{Google Labs. (n.d.). NotebookLM updates. Retrieved June 24, 2026, from \url{https://blog.google/technology/google-labs/notebooklm-updates/}}.
 
 This multimodal capability aligns with academic materials that combine formulas, diagrams, and spoken explanations. However, NotebookLM treats uploaded materials as isolated documents rather than components of a structured pedagogical sequence, limiting its effectiveness for course-level organization.
 
-NotebookLM employs RAG to ensure responses are grounded in uploaded documents rather than solely in parametric model memory \cite{lewis2020rag}. When answering a query, the system retrieves relevant text segments and conditions generation on them, frequently accompanied by inline citations that reference specific sections of the source material. This reduces hallucinations and supports academic verification \footnote{\url{https://blog.google/technology/ai/notebooklm-citations/}}.
+NotebookLM employs RAG to ensure responses are grounded in uploaded documents rather than solely in parametric model memory \cite{lewis2020rag}. When answering a query, the system retrieves relevant text segments and conditions generation on them, frequently accompanied by inline citations that reference specific sections of the source material. This reduces hallucinations and supports academic verification \footnote{Google. (n.d.). NotebookLM citations. Retrieved June 24, 2026, from \url{https://blog.google/technology/ai/notebooklm-citations/}}.
 
 \begin{figure}[H]
     \centering
@@ -75,21 +75,21 @@ NotebookLM employs RAG to ensure responses are grounded in uploaded documents ra
     \label{fig:NotebookLM}
 \end{figure}
 
-Despite this grounding, complex analytical tasks such as mathematical reasoning, algorithm evaluation, or code execution may still rely on internal model reasoning and can produce incorrect interpretations without external validation layers. The NotebookLM interface is shown in Figure~\ref{fig:NotebookLM}\footnote{\url{https://blog.google/technology/ai/notebooklm-google-ai/}}.
+Despite this grounding, complex analytical tasks such as mathematical reasoning, algorithm evaluation, or code execution may still rely on internal model reasoning and can produce incorrect interpretations without external validation layers. The NotebookLM interface is shown in Figure~\ref{fig:NotebookLM}\footnote{Google. (2023, July 12). Introducing NotebookLM. Retrieved June 24, 2026, from \url{https://blog.google/technology/ai/notebooklm-google-ai/}}.
 
 Beyond static summarization and Q\&A, NotebookLM introduces several learning-focused features:
 
 \begin{itemize}
-    \item Structured document summaries \footnote{\url{https://blog.google/technology/ai/notebooklm-summaries/}},
-    \item AI-generated flashcards and quizzes for active recall \footnote{\url{https://blog.google/technology/ai/notebooklm-learning-tools/}},
+    \item Structured document summaries \footnote{Google. (n.d.). NotebookLM summaries. Retrieved June 24, 2026, from \url{https://blog.google/technology/ai/notebooklm-summaries/}},
+    \item AI-generated flashcards and quizzes for active recall \footnote{Google. (n.d.). NotebookLM learning tools. Retrieved June 24, 2026, from \url{https://blog.google/technology/ai/notebooklm-learning-tools/}},
     \item Podcast-style audio overviews generated from uploaded materials, and
-    \item Narrated visual summaries similar to lecture recap videos \footnote{\url{https://blog.google/technology/ai/notebooklm-audio-overviews/}}
+    \item Narrated visual summaries similar to lecture recap videos \footnote{Google. (2024, September 11). NotebookLM now lets you listen to a conversation about your sources. Retrieved June 24, 2026, from \url{https://blog.google/technology/ai/notebooklm-audio-overviews/}}
 \end{itemize}
 
 These features support multiple learning modalities (reading, listening, reviewing). However, generated study resources depend on document completeness and may not capture contextual elements conveyed verbally during lectures.
 
 
-NotebookLM enforces privacy by not using uploaded materials for model training and storing sources privately unless shared \footnote{\url{https://notebooklm.google.com/privacy}}. This makes the tool suitable for proprietary lecture materials. The system is deployed on both web and mobile platforms, supporting flexible access \footnote{\url{https://blog.google/technology/apps/notebooklm-mobile/}}.
+NotebookLM enforces privacy by not using uploaded materials for model training and storing sources privately unless shared \footnote{Google. (n.d.). NotebookLM privacy. Retrieved June 24, 2026, from \url{https://notebooklm.google.com/privacy}}. This makes the tool suitable for proprietary lecture materials. The system is deployed on both web and mobile platforms, supporting flexible access \footnote{Google. (n.d.). NotebookLM mobile app. Retrieved June 24, 2026, from \url{https://blog.google/technology/apps/notebooklm-mobile/}}.
 
 In contrast, an institutional deployment such as our proposed system may require deeper integration with internal platforms, including lecture capture pipelines, LMS authentication, and course-specific permissions.
 
