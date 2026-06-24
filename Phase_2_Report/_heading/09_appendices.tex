@@ -86,43 +86,6 @@ FileName,SheetName,AnnotationLabel,FirstRow,FirstColumn,LastRow,LastColumn
 example.xlsx,Sheet1,Table,0,0,12,5
 \end{lstlisting}
 
-\textbf{Chunking Span Ground Truth}
-
-Chunking evaluation uses exact character-span ground truth. The excerpt must be found verbatim in the source markdown document, so the evaluator can compute overlap between retrieved chunk spans and the gold span.
-
-\begin{lstlisting}[caption={Chunking record},label={lst:chunking_gt_format},breaklines=true,basicstyle=\ttfamily\small]
-{
-  "sample_id": "q_000012_r0",
-  "query_id": "q_000012",
-  "query": "What does the section say about smoothing?",
-  "relevant_excerpt": "If noise in an image, partial derivatives...",
-  "doc_id": "CS131_notes_lecture05",
-  "source_doc_path": ".../CS131_notes_lecture05.md",
-  "start_char": 18420,
-  "end_char": 18635,
-  "reference_index": 0,
-  "reference_count": 1
-}
-\end{lstlisting}
-% \textbf{Chunking Span Ground Truth}
-
-% Chunking evaluation uses exact character-span ground truth. The excerpt must be found verbatim in the source markdown document, so the evaluator can compute overlap between retrieved chunk spans and the gold span.
-
-% \begin{lstlisting}[style=jsonappendix,caption={Chunking span-level ground-truth record},label={lst:chunking_gt_format}]
-% {
-%   "sample_id": "q_000012_r0",
-%   "query_id": "q_000012",
-%   "query": "What does the section say about smoothing before edge detection?",
-%   "relevant_excerpt": "If there is excessive noise in an image, the partial derivatives will not be effective...",
-%   "doc_id": "CS131_notes_lecture05",
-%   "source_doc_path": ".../CS131_notes_lecture05.md",
-%   "start_char": 18420,
-%   "end_char": 18635,
-%   "reference_index": 0,
-%   "reference_count": 1
-% }
-% \end{lstlisting}
-
 \textbf{Retrieval Question and Judgment Records}
 
 The retrieval benchmark stores generated questions as JSONL records. The judge output stores one relevance label per retrieved evidence item.
@@ -953,28 +916,28 @@ This appendix contains the complete Google PageSpeed Insights audit screenshots 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{img/pdz/29-desktop performance.png}
+    \includegraphics[width=0.85\textwidth]{img/pdz/29-desktop performance.png}
     \caption[Desktop PageSpeed Insights Audit]{Google PageSpeed Insights desktop audit results.}
     \label{fig:desktop_performance}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{img/pdz/30-mobile performance.png}
+    \includegraphics[width=0.85\textwidth]{img/pdz/30-mobile performance.png}
     \caption[Mobile PageSpeed Insights Audit]{Google PageSpeed Insights mobile audit results.}
     \label{fig:mobile_performance}
 \end{figure}
 
 \chapter{AWS Pricing Reference}\label{app:aws_pricing_reference}
 
-To ground the cost projections in Chapter~\ref{chap:evaluation_testing}, we use the following pricing reference for the AWS services and components in the deployment architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
+% To ground the cost projections, we use the following pricing reference for the AWS services and components in the deployment architecture.
 
 \begin{table}[H]
     \centering
-    \caption{AWS Pricing Reference (us-west-2).}
+    \caption{AWS Pricing Reference (us-west-2, Oregon, 2026).}
     \label{tab:aws_pricing_ref}
     \begin{adjustbox}{max width=\linewidth}
-    \begin{tabular}{lllp{3.4cm}p{6cm}}
+    \begin{tabular}{lllp{3.2cm}p{6.9cm}}
         \toprule
         \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
         \midrule

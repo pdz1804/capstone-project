@@ -1393,15 +1393,15 @@ The visual index maintains geometric representations (height/width) alongside S3
 \subsection{Object Storage (Amazon S3)}
 The system utilizes a dual-bucket object storage architecture to manage the lifecycle of document assets. This approach decouples raw ingestion from the downstream processing pipeline, ensuring data integrity and enabling scalable multi-tenancy.
 
-\begin{itemize}
-    \item \textbf{Tenant Isolation}: Files are logically partitioned using the prefix for each user. This ensures strict data segregation and facilitates efficient cleanup of processing artifacts.
-    \item \textbf{Dual-Bucket Lifecycle}: 
-    \begin{itemize}
-        \item \textbf{Originals Bucket}: Acts as the immutable source of truth for all raw user uploads.
-        \item \textbf{Processed Bucket}: Stores all 7-stage normalized artifacts, metadata sidecars, and serialized indices. 
-    \end{itemize}
-    The orchestration layer manages the synchronization between these buckets, downloading assets to a local temporary workspace for high-speed processing before publishing the final RAG-ready documents to the Processed Bucket.
-\end{itemize}
+% \begin{itemize}
+%     \item \textbf{Tenant Isolation}: Files are logically partitioned using the prefix for each user. This ensures strict data segregation and facilitates efficient cleanup of processing artifacts.
+%     \item \textbf{Dual-Bucket Lifecycle}: 
+%     \begin{itemize}
+%         \item \textbf{Originals Bucket}: Acts as the immutable source of truth for all raw user uploads.
+%         \item \textbf{Processed Bucket}: Stores all 7-stage normalized artifacts, metadata sidecars, and serialized indices. 
+%     \end{itemize}
+%     The orchestration layer manages the synchronization between these buckets, downloading assets to a local temporary workspace for high-speed processing before publishing the final RAG-ready documents to the Processed Bucket.
+% \end{itemize}
 
 % \begin{figure}[H]
 %     \centering
@@ -1523,6 +1523,16 @@ The system utilizes a dual-bucket object storage architecture to manage the life
     \label{fig:s3_tree}
 
 \end{figure}
+
+\begin{itemize}
+    \item \textbf{Tenant Isolation}: Files are logically partitioned using the prefix for each user. This ensures strict data segregation and facilitates efficient cleanup of processing artifacts.
+    \item \textbf{Dual-Bucket Lifecycle}: 
+    \begin{itemize}
+        \item \textbf{Originals Bucket}: Acts as the immutable source of truth for all raw user uploads.
+        \item \textbf{Processed Bucket}: Stores all 7-stage normalized artifacts, metadata sidecars, and serialized indices. 
+    \end{itemize}
+    The orchestration layer manages the synchronization between these buckets, downloading assets to a local temporary workspace for high-speed processing before publishing the final RAG-ready documents to the Processed Bucket.
+\end{itemize}
 
 \textbf{Bucket 1: Originals Storage (\texttt{ai-service-originals-dev})}
 
