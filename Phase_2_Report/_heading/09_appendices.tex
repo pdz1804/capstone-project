@@ -936,42 +936,57 @@ This appendix contains the complete Google PageSpeed Insights audit screenshots 
     \centering
     \caption{AWS Pricing Reference (us-west-2, Oregon, 2026).}
     \label{tab:aws_pricing_ref}
+    \small
     \begin{adjustbox}{max width=\linewidth}
-    \begin{tabular}{lllp{3.2cm}p{6.9cm}}
+    \begin{tabular}{lllp{3.2cm}}
         \toprule
-        \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
+        \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} \\
         \midrule
-        Amazon ECS Fargate & vCPU & \$0.04048 & per vCPU-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
-        Amazon ECS Fargate & Memory & \$0.004445 & per GB-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
+        Amazon ECS Fargate\textsuperscript{1} & vCPU & \$0.04048 & per vCPU-hour \\
+        Amazon ECS Fargate & Memory & \$0.004445 & per GB-hour \\
         \midrule
-        Amazon SageMaker & ml.g4dn.xlarge & \$0.7364 & per instance-hour & \url{https://aws.amazon.com/sagemaker/pricing/} \\
+        Amazon SageMaker\textsuperscript{2} & ml.g4dn.xlarge & \$0.7364 & per instance-hour \\
         \midrule
-        Elastic Load Balancing & ALB Instance & \$0.0225 & per hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
-        Elastic Load Balancing & ALB LCU & \$0.008 & per LCU-hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
+        Elastic Load Balancing\textsuperscript{3} & ALB Instance & \$0.0225 & per hour \\
+        Elastic Load Balancing & ALB LCU & \$0.008 & per LCU-hour \\
         \midrule
-        AWS Bedrock & Claude Haiku Input & \$0.00025 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Haiku Output & \$0.00125 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-        AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
+        AWS Bedrock\textsuperscript{4} & Claude Haiku 4.5 Input & \$0.00025 & per 1k tokens \\
+        AWS Bedrock & Claude Haiku 4.5 Output & \$0.00125 & per 1k tokens \\
+        AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens \\
+        AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens \\
         \midrule
-        Amazon DynamoDB & On-Demand Reads & \$0.25 & per 1M RRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-        Amazon DynamoDB & Storage & \$0.25 & per GB & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
+        Amazon DynamoDB\textsuperscript{5} & On-Demand Reads & \$0.25 & per 1M RRU \\
+        Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU \\
+        Amazon DynamoDB & Storage & \$0.25 & per GB \\
         \midrule
-        Amazon ElastiCache & Serverless (Redis) & \$0.125 & per GB-hour & \url{https://aws.amazon.com/elasticache/pricing/} \\
+        Amazon ElastiCache\textsuperscript{6} & Serverless (Redis) & \$0.125 & per GB-hour \\
         \midrule
-        Amazon ECR & Storage & \$0.10 & per GB-month & \url{https://aws.amazon.com/ecr/pricing/} \\
+        Amazon ECR\textsuperscript{7} & Storage & \$0.10 & per GB-month \\
         \midrule
-        Amazon CloudWatch & Logs Ingest & \$0.50 & per GB & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
-        Amazon CloudWatch & Logs Storage & \$0.03 & per GB-month & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
+        Amazon CloudWatch\textsuperscript{8} & Logs Ingest & \$0.50 & per GB \\
+        Amazon CloudWatch & Logs Storage & \$0.03 & per GB-month \\
         \midrule
-        AWS WAF & Web ACL & \$5.00 & per month & \url{https://aws.amazon.com/waf/pricing/} \\
+        AWS WAF\textsuperscript{9} & Web ACL & \$5.00 & per month \\
         \midrule
-        Amazon S3 & Standard Storage & \$0.02 & per GB-month & \url{https://aws.amazon.com/s3/pricing/} \\
-        Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
+        Amazon S3\textsuperscript{10} & Standard Storage & \$0.02 & per GB-month \\
+        Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests \\
         \bottomrule
     \end{tabular}
-\end{adjustbox}
+	\end{adjustbox}
+    \vspace{0.5em}
+    \begin{minipage}{\linewidth}
+    \scriptsize\raggedright
+    \textsuperscript{1} AWS Fargate pricing, from \url{https://aws.amazon.com/fargate/pricing/}\\
+    \textsuperscript{2} SageMaker pricing, from \url{https://aws.amazon.com/sagemaker/pricing/}\\
+    \textsuperscript{3} Elastic Load Balancing, from \url{https://aws.amazon.com/elasticloadbalancing/pricing/}\\
+    \textsuperscript{4} Amazon Bedrock pricing, from \url{https://aws.amazon.com/bedrock/pricing/}\\
+    \textsuperscript{5} Amazon DynamoDB pricing, from \url{https://aws.amazon.com/dynamodb/pricing/on-demand/}\\
+    \textsuperscript{6} Amazon ElastiCache pricing, from \url{https://aws.amazon.com/elasticache/pricing/}\\
+    \textsuperscript{7} Amazon ECR pricing, from \url{https://aws.amazon.com/ecr/pricing/}\\
+    \textsuperscript{8} Amazon CloudWatch pricing, from \url{https://aws.amazon.com/cloudwatch/pricing/}\\
+    \textsuperscript{9} AWS WAF Pricing, from \url{https://aws.amazon.com/waf/pricing/}\\
+    \textsuperscript{10} AWS S3 pricing, from \url{https://aws.amazon.com/s3/pricing/}
+    \end{minipage}
 \end{table}
 
 \chapter{Contribution}\label{chap:contribution}

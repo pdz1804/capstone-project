@@ -57,7 +57,7 @@ To ensure clarity and consistency throughout this report, the following standard
 \section{Automatic Speech Recognition}
 \label{sec:asr}
 
-Automatic Speech Recognition (ASR) converts spoken language into text. It has evolved from statistical pipelines to end-to-end neural models and is widely used in transcription, captioning, accessibility, and voice interfaces~\cite{graves2006ctc, chan2015las}. Recent work emphasizes robustness, low-resource languages, and large-scale pretraining~\cite{baevski2020wav2vec2, radford2022whisper}. A typical ASR pipeline is illustrated in Figure~\ref{fig:ASR_Pipeline}\footnote{\url{https://www.researchgate.net/figure/ASR-application-pipeline_fig1_355070202}}.
+Automatic Speech Recognition (ASR) converts spoken language into text. It has evolved from statistical pipelines to end-to-end neural models and is widely used in transcription, captioning, accessibility, and voice interfaces~\cite{graves2006ctc, chan2015las}. Recent work emphasizes robustness, low-resource languages, and large-scale pretraining~\cite{baevski2020wav2vec2, radford2022whisper}. A typical ASR pipeline is illustrated in Figure~\ref{fig:ASR_Pipeline}\footnote{ResearchGate. (n.d.). ASR application pipeline. Retrieved June 24, 2026, from \url{https://www.researchgate.net/figure/ASR-application-pipeline_fig1_355070202}}.
 
 \begin{figure}[H]
     \centering
@@ -268,7 +268,7 @@ This mechanism allows the model to capture multiple types of relationships simul
 
 Specialized retrieval pipelines often need to combine visual, audio, motion, and ASR-text signals rather than relying on a single encoder. For video retrieval, M2HF uses multi-stream feature extraction, attentional fusion, and multi-level feature/decision fusion to produce richer retrieval signals~\cite{liu2022m2hf}.
 
-Cross-attentional models are especially useful for reranking. There are two main ways AI models compare text: \textbf{Independent comparison} (each text separately) or \textbf{Joint comparison} (texts together). Joint comparison (called cross-attention) is more accurate but slower. Cross-encoders jointly process the query and document, allowing token-level interactions that capture fine semantic distinctions. This improves precision but is computationally expensive, so cross-attention is usually applied to a smaller candidate set after first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}\footnote{\url{https://www.pinecone.io/learn/series/rag/rerankers/}}. 
+Cross-attentional models are especially useful for reranking. There are two main ways AI models compare text: \textbf{Independent comparison} (each text separately) or \textbf{Joint comparison} (texts together). Joint comparison (called cross-attention) is more accurate but slower. Cross-encoders jointly process the query and document, allowing token-level interactions that capture fine semantic distinctions. This improves precision but is computationally expensive, so cross-attention is usually applied to a smaller candidate set after first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}\footnote{Pinecone. (n.d.). Rerankers and two-stage retrieval. Retrieved June 24, 2026, from \url{https://www.pinecone.io/learn/series/rag/rerankers/}}. 
 
 Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$, the cross-attention output is computed as
 
@@ -276,7 +276,7 @@ Cross-attention computes attention weights using queries from one sequence and k
     \text{Attention}(Q, K, V) = \text{softmax}\left(\dfrac{QK^{T}}{\sqrt{d_k}}\right)V
 \end{equation*}
 
-The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}\footnote{\url{https://magazine.sebastianraschka.com/p/understanding-multimodal-llms}}.
+The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}\footnote{Raschka, S. (n.d.). Understanding multimodal LLMs. Retrieved June 24, 2026, from \url{https://magazine.sebastianraschka.com/p/understanding-multimodal-llms}}.
 
 \begin{figure}[H]
     \centering
@@ -322,7 +322,7 @@ Each input modality $m \in \{\text{text}, \text{audio}, \text{vision}\}$ is enco
 \begin{equation*}
     z_m = f_m(x_m; \theta_m)
 \end{equation*}
-where $x_m$ is the raw input of modality $m$, $f_m(\cdot)$ is the corresponding encoder (e.g., Transformer encoder for text, Conformer for audio, ViT for vision), and $\theta_m$ denotes its learnable parameters. An example of multimodal embedding is shown in Figure~\ref{fig:Multimodal embedding}\footnote{\url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
+where $x_m$ is the raw input of modality $m$, $f_m(\cdot)$ is the corresponding encoder (e.g., Transformer encoder for text, Conformer for audio, ViT for vision), and $\theta_m$ denotes its learnable parameters. An example of multimodal embedding is shown in Figure~\ref{fig:Multimodal embedding}\footnote{The AiEdge Newsletter. (n.d.). How to build a multimodal RAG pipeline with LlamaIndex. Retrieved June 24, 2026, from \url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
 
 \begin{figure}[H]
     \centering
@@ -354,7 +354,7 @@ Unified embedding models extend this idea beyond image and text. ImageBind align
 
 Domain-specific models target visually rich documents such as slides, tables, diagrams, and formulas. For example, jina-embeddings-v4 supports text-image retrieval, single-vector embeddings, multi-vector late interaction, and task adapters, with strong results on visually dense retrieval benchmarks such as Jina-VDR~\cite{guenther2025jinaembeddingsv4}.
 
-Industry systems also focus on interleaved documents such as PDFs and slides. Nomic's Embed Multimodal 7B embeds mixed text-image document structures for RAG over visually rich files\footnote{\url{https://www.nomic.ai/blog/posts/nomic-embed-multimodal}}.
+Industry systems also focus on interleaved documents such as PDFs and slides. Nomic's Embed Multimodal 7B embeds mixed text-image document structures for RAG over visually rich files\footnote{Nomic AI. (n.d.). Nomic Embed Multimodal. Retrieved June 24, 2026, from \url{https://www.nomic.ai/blog/posts/nomic-embed-multimodal}}.
 
 Overall, the gap between multimodal and single-modal retrieval is narrowing. Multimodal training can improve semantic representations even for text-only tasks, which is valuable in educational settings where queries often combine textual and visual references.
 
@@ -415,7 +415,7 @@ Recent MRAG work expands into domain-specific and video/document settings. RS-RA
 
 \subsection{Pipeline}
 
-A MRAG pipeline is illustrated in Figure~\ref{fig:MRAG pipeline}\footnote{\url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
+A MRAG pipeline is illustrated in Figure~\ref{fig:MRAG pipeline}\footnote{The AiEdge Newsletter. (n.d.). How to build a multimodal RAG pipeline with LlamaIndex. Retrieved June 24, 2026, from \url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
 
 \begin{figure}[H]
     \centering
@@ -502,7 +502,7 @@ and the normalization function is applied column-wise.
 
 \subsection{Rerankers}
 
-Rerankers, commonly implemented as cross-encoders, refine search results by jointly encoding a query--document pair to compute a relevance score. Unlike bi-encoders, which independently embed queries and documents into fixed-length vectors, rerankers leverage full token-level interactions, enabling more precise semantic matching. They are typically integrated into two-stage retrieval pipelines, where the first-stage retriever generates candidate documents and the reranker refines their ordering to achieve higher accuracy. The reranking process is illustrated in Figure~\ref{fig:Reranker}\footnote{\url{https://www.together.ai/blog/together-rerank-api-and-salesforce-llamarank}}.
+Rerankers, commonly implemented as cross-encoders, refine search results by jointly encoding a query--document pair to compute a relevance score. Unlike bi-encoders, which independently embed queries and documents into fixed-length vectors, rerankers leverage full token-level interactions, enabling more precise semantic matching. They are typically integrated into two-stage retrieval pipelines, where the first-stage retriever generates candidate documents and the reranker refines their ordering to achieve higher accuracy. The reranking process is illustrated in Figure~\ref{fig:Reranker}\footnote{Together AI. (n.d.). Introducing Together Rerank API and exclusive access to Salesforce LlamaRank model for enhanced enterprise search. Retrieved June 24, 2026, from \url{https://www.together.ai/blog/together-rerank-api-and-salesforce-llamarank}}.
 
 \begin{figure}[H]
     \centering
@@ -560,7 +560,7 @@ Neural reranking has evolved from cross-encoders over BM25 candidates to more sc
 
 \subsection{Augmentation}
 
-The augmentation process in RAG is illustrated in Figure~\ref{fig:Augmentation}\footnote{\url{https://obot.ai/resources/learning-center/retrieval-augmented-generation/}}.
+The augmentation process in RAG is illustrated in Figure~\ref{fig:Augmentation}\footnote{Obot AI. (2024, May 21). Understanding RAG: 6 steps of retrieval augmented generation (RAG). Retrieved June 24, 2026, from \url{https://obot.ai/resources/learning-center/retrieval-augmented-generation/}}.
 
 \begin{figure}[H]
     \centering
@@ -677,7 +677,7 @@ Prompt engineering designs input prompts to control LLM behavior during inferenc
 
 Core formats include \textbf{zero-shot prompting}, which uses only instructions \cite{reynolds2021prompt}, and \textbf{one-shot}/\textbf{few-shot prompting}, which add demonstrations for in-context learning \cite{brown2020language}. Reasoning-oriented methods such as \textbf{Chain-of-Thought (CoT)} elicit intermediate reasoning for multi-step tasks \cite{wei2022cot}, while self-consistency samples multiple reasoning paths to improve stability \cite{wang2023selfconsistency}.
 
-Prompt engineering also supports \textbf{structured and reliable outputs}. Schema-based prompts can request JSON, bullet lists, or domain templates, reducing parsing failures in downstream systems\footnote{OpenAI GPT-4 Technical Report, \url{https://openai.com/research/gpt-4}}. Function calling extends this idea by constraining outputs to well-defined tool or data schemas.
+Prompt engineering also supports \textbf{structured and reliable outputs}. Schema-based prompts can request JSON, bullet lists, or domain templates, reducing parsing failures in downstream systems\footnote{OpenAI. (2023). GPT-4 technical report. Retrieved June 24, 2026, from \url{https://openai.com/research/gpt-4}}. Function calling extends this idea by constraining outputs to well-defined tool or data schemas.
 
 Manual prompt design is heuristic and labor-intensive, so recent work explores \textbf{automated prompt optimization}. Candidate prompts can be searched and selected using validation metrics, including instruction phrasing and example ordering. Because exhaustive search is expensive, methods such as TRIPLE formulate prompt selection as a bandit problem to balance exploration and exploitation under limited query budgets \cite{shi2024triple}.
 
@@ -692,4 +692,3 @@ Reinforcement learning treats prompts as actions optimized for rewards such as v
 Overall, prompt engineering has matured into a systematic methodology spanning demonstrations, reasoning scaffolds, structured outputs, and automated optimization. It remains central to reliable, controllable, and domain-aligned LLM behavior.
 
 \newpage
-
