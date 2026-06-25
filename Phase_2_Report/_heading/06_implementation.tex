@@ -614,11 +614,11 @@ Every search response follows a standardized schema that integrates synthesized 
 
 \textbf{Generation Model and Fallback Routing}
 
-The production answer generator is configured as a Bedrock-first model router. The preferred model for user-facing grounded QA is \textbf{Claude 4.7 Sonnet on AWS Bedrock}, selected because it provides strong long-context reasoning, reliable instruction following, and good citation behavior when answers must be grounded in retrieved text chunks and visual page evidence. Its main trade-off is higher cost and latency than smaller flash/nano models, so the system keeps lower-cost fallback routes for high-load or degraded-service conditions.
+The production answer generator is configured as a Bedrock-first model router. The preferred model for user-facing grounded QA is \textbf{Claude 4.6 Sonnet on AWS Bedrock}, selected because it provides strong long-context reasoning, reliable instruction following, and good citation behavior when answers must be grounded in retrieved text chunks and visual page evidence. Its main trade-off is higher cost and latency than smaller flash/nano models, so the system keeps lower-cost fallback routes for high-load or degraded-service conditions.
 
 The fallback policy is:
 \begin{itemize}
-    \item \textbf{Primary}: \texttt{Claude 4.7 Sonnet} on AWS Bedrock for normal chat, summary, roadmap, and grounded QA generation.
+    \item \textbf{Primary}: \texttt{Claude 4.6 Sonnet} on AWS Bedrock for normal chat, summary, roadmap, and grounded QA generation.
     \item \textbf{First fallback}: \texttt{zai-glm-4.7-flash} through AWS Bedrock when lower latency/cost is preferred or the primary model is unavailable.
     \item \textbf{Second fallback}: \texttt{gpt-5.4-nano} for lightweight generation or external fallback paths.
 \end{itemize}
