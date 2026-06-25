@@ -57,7 +57,7 @@ To ensure clarity and consistency throughout this report, the following standard
 \section{Automatic Speech Recognition}
 \label{sec:asr}
 
-Automatic Speech Recognition (ASR) converts spoken language into text. It has evolved from statistical pipelines to end-to-end neural models and is widely used in transcription, captioning, accessibility, and voice interfaces~\cite{graves2006ctc, chan2015las}. Recent work emphasizes robustness, low-resource languages, and large-scale pretraining~\cite{baevski2020wav2vec2, radford2022whisper}. A typical ASR pipeline is illustrated in Figure~\ref{fig:ASR_Pipeline}\footnote{ResearchGate. (n.d.). ASR application pipeline. Retrieved June 24, 2026, from \url{https://www.researchgate.net/figure/ASR-application-pipeline_fig1_355070202}}.
+Automatic Speech Recognition (ASR) converts spoken language into text. It has evolved from statistical pipelines to end-to-end neural models and is widely used in transcription, captioning, accessibility, and voice interfaces~\cite{graves2006ctc, chan2015las}. Recent work emphasizes robustness, low-resource languages, and large-scale pretraining~\cite{baevski2020wav2vec2, radford2022whisper}. A typical ASR pipeline is illustrated in Figure~\ref{fig:ASR_Pipeline}\footnote{ResearchGate. (n.d.). ASR application pipeline, from \url{https://www.researchgate.net/figure/ASR-application-pipeline_fig1_355070202}}.
 
 \begin{figure}[H]
     \centering
@@ -268,19 +268,13 @@ This mechanism allows the model to capture multiple types of relationships simul
 
 Specialized retrieval pipelines often need to combine visual, audio, motion, and ASR-text signals rather than relying on a single encoder. For video retrieval, M2HF uses multi-stream feature extraction, attentional fusion, and multi-level feature/decision fusion to produce richer retrieval signals~\cite{liu2022m2hf}.
 
-Cross-attentional models are especially useful for reranking. There are two main ways AI models compare text: \textbf{Independent comparison} (each text separately) or \textbf{Joint comparison} (texts together). Joint comparison (called cross-attention) is more accurate but slower. Cross-encoders jointly process the query and document, allowing token-level interactions that capture fine semantic distinctions. This improves precision but is computationally expensive, so cross-attention is usually applied to a smaller candidate set after first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}\footnote{Pinecone. (n.d.). Rerankers and two-stage retrieval. Retrieved June 24, 2026, from \url{https://www.pinecone.io/learn/series/rag/rerankers/}}. 
+Cross-attentional models are especially useful for reranking. There are two main ways AI models compare text: \textbf{Independent comparison} (each text separately) or \textbf{Joint comparison} (texts together). Joint comparison (called cross-attention) is more accurate but slower. Cross-encoders jointly process the query and document, allowing token-level interactions that capture fine semantic distinctions. This improves precision but is computationally expensive, so cross-attention is usually applied to a smaller candidate set after first-stage retrieval~\cite{zhu2024reranking, yoo2021cooperative}\footnote{Pinecone. (n.d.). Rerankers and two-stage retrieval, from \url{https://www.pinecone.io/learn/series/rag/rerankers/}}.
 
-Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$, the cross-attention output is computed as
-
-\begin{equation*}
-    \text{Attention}(Q, K, V) = \text{softmax}\left(\dfrac{QK^{T}}{\sqrt{d_k}}\right)V.
-\end{equation*}
-
-The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}\footnote{Raschka, S. (n.d.). Understanding multimodal LLMs. Retrieved June 24, 2026, from \url{https://magazine.sebastianraschka.com/p/understanding-multimodal-llms}}.
+Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}\footnote{Raschka, S. (n.d.). Understanding multimodal LLMs, from \url{https://magazine.sebastianraschka.com/p/understanding-multimodal-llms}}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/pdz/17-cross-attention.jpg}
+    \includegraphics[width=0.75\textwidth]{img/pdz/17-cross-attention.jpg}
     \caption[Cross-attention]{Cross-attention.}
     \label{fig:Cross-attention}
 \end{figure}
@@ -322,7 +316,7 @@ Each input modality $m \in \{\text{text}, \text{audio}, \text{vision}\}$ is enco
 \begin{equation*}
     z_m = f_m(x_m; \theta_m)
 \end{equation*}
-where $x_m$ is the raw input of modality $m$, $f_m(\cdot)$ is the corresponding encoder (e.g., Transformer encoder for text, Conformer for audio, ViT for vision), and $\theta_m$ denotes its learnable parameters. An example of multimodal embedding is shown in Figure~\ref{fig:Multimodal embedding}\footnote{The AiEdge Newsletter. (n.d.). How to build a multimodal RAG pipeline with LlamaIndex. Retrieved June 24, 2026, from \url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
+where $x_m$ is the raw input of modality $m$, $f_m(\cdot)$ is the corresponding encoder (e.g., Transformer encoder for text, Conformer for audio, ViT for vision), and $\theta_m$ denotes its learnable parameters. An example of multimodal embedding is shown in Figure~\ref{fig:Multimodal embedding}\footnote{The AiEdge Newsletter. (n.d.). How to build a multimodal RAG pipeline with LlamaIndex, from \url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
 
 \begin{figure}[H]
     \centering
@@ -352,9 +346,9 @@ Recent work repurposes multimodal LLMs as retrievers. MM-Embed fine-tunes a mult
 
 Unified embedding models extend this idea beyond image and text. ImageBind aligns images, video, text, audio, depth, thermal data, and IMU signals in one space without requiring every modality pair to be explicitly annotated~\cite{girdhar2023imagebind}. This supports educational retrieval where speech, slides, images, and video should be searchable together.
 
-Domain-specific models target visually rich documents such as slides, tables, diagrams, and formulas. For example, jina-embeddings-v4 supports text-image retrieval, single-vector embeddings, multi-vector late interaction, and task adapters, with strong results on visually dense retrieval benchmarks such as Jina-VDR~\cite{guenther2025jinaembeddingsv4}.
+Domain-specific models target visually rich documents such as slides, tables, diagrams, and formulas. For example, jina-embeddings-v4 supports text-image retrieval, single-vector embeddings, multi-vector late interaction, and task adapters, with strong results on visually dense retrieval benchmarks such as Jina-VDR.\footnote{Günther et al. (2025), \emph{jina-embeddings-v4: Universal Embeddings for Multimodal Multilingual Retrieval}, arXiv:2506.18902. Available at \url{https://arxiv.org/abs/2506.18902}.}
 
-Industry systems also focus on interleaved documents such as PDFs and slides. Nomic's Embed Multimodal 7B embeds mixed text-image document structures for RAG over visually rich files\footnote{Nomic AI. (n.d.). Nomic Embed Multimodal. Retrieved June 24, 2026, from \url{https://www.nomic.ai/blog/posts/nomic-embed-multimodal}}.
+Industry systems also focus on interleaved documents such as PDFs and slides. Nomic's Embed Multimodal 7B embeds mixed text-image document structures for RAG over visually rich files\footnote{Nomic AI. (n.d.). Nomic Embed Multimodal, from \url{https://www.nomic.ai/blog/posts/nomic-embed-multimodal}}.
 
 Overall, the gap between multimodal and single-modal retrieval is narrowing. Multimodal training can improve semantic representations even for text-only tasks, which is valuable in educational settings where queries often combine textual and visual references.
 
@@ -390,13 +384,13 @@ Before RAG, open-domain QA commonly used retrieve-then-read pipelines: a sparse 
 REALM introduced differentiable retrieval during language-model pretraining, showing that an LM could consult updateable external knowledge~\cite{realm2020}. RAG then combined DPR retrieval with a BART generator and trained the retriever-generator system for knowledge-intensive tasks~\cite{lewis2020rag}.
 
 \textbf{2021--2022: Stronger Retrievers, Multi-Document Reasoning, and Lighter Readers.}
-This period improved retrieval, evidence fusion, and query reformulation. RocketQA, RocketQAv2, Condenser, Contriever, and GTR strengthened dense retrieval through hard negatives, distillation, retriever-oriented pretraining, unsupervised contrastive learning, and scaling~\cite{rocketqa2021, rocketqa2_2021, condenser2021, contriever2021, gtr2021}. ColBERTv2 made late-interaction retrieval more practical, while SPLADE showed the value of learned sparse representations and hybrid fusion~\cite{colbertv2, splade2021, formal2021splade}. Multi-document systems such as EMDR, MDR, FiD, KG-FiD, FiD-Light, and RETRO improved multi-hop evidence use and semi-parametric generation~\cite{emdr2021, mdr2020, fid2020, kgfid2021, fidlight2022, retro2021}. Query reformulation methods such as GAR, Self-Ask, ReAct, WebGPT, and HyDE became reusable components for improving first-stage recall and reasoning~\cite{gar2021, selfask2022, react2022, webgpt2021, hyde2022}.
+This period improved retrieval, evidence fusion, and query reformulation. RocketQA, Condenser, Contriever, and GTR strengthened dense retrieval through hard negatives, distillation, retriever-oriented pretraining, unsupervised contrastive learning, and scaling~\cite{rocketqa2021, condenser2021, contriever2021, gtr2021}. ColBERTv2 made late-interaction retrieval more practical, while SPLADE showed the value of learned sparse representations and hybrid fusion~\cite{colbertv2, splade2021, formal2021splade}. Multi-document systems such as EMDR, MDR, FiD, KG-FiD, FiD-Light, and RETRO improved multi-hop evidence use and semi-parametric generation~\cite{emdr2021, mdr2020, fid2020, kgfid2021, fidlight2022, retro2021}. Query reformulation methods such as GAR, Self-Ask, ReAct, WebGPT, and HyDE became reusable components for improving first-stage recall and reasoning~\cite{gar2021, selfask2022, react2022, webgpt2021, hyde2022}.
 
 \textbf{2023--2024: From fixed pipelines to adaptive, verifiable, and structure-aware systems.}
-Recent RAG systems increasingly decide when, what, and how much to retrieve. FLARE, Adaptive-RAG, SEAKR, and DRAGIN trigger or route retrieval dynamically~\cite{flare2023, adaptive_rag2024, seakr2024, dragin2024}. SELF-RAG, CRAG, and CoV-RAG add critique, filtering, refusal, or verification to reduce unsupported generation~\cite{asai2023selfrag, crag2024, covrag2024, lmpriors2024}. Context compression and ranking became central through RankRAG and LLMLingua~\cite{rankrag2024, llmlingua2023, compression2024}, while GraphRAG/GRAG introduced structure-aware retrieval over entities and relationships~\cite{graphrag2024, grag2024}. LongRAG and self-routing explored how long-context LLMs and targeted retrieval can be combined~\cite{longrag2024, selfroute2024}.
+Recent RAG systems increasingly decide when, what, and how much to retrieve. FLARE, Adaptive-RAG, SEAKR, and DRAGIN trigger or route retrieval dynamically~\cite{flare2023, adaptive_rag2024, seakr2024, dragin2024}. SELF-RAG, CRAG, and CoV-RAG add critique, filtering, refusal, or verification to reduce unsupported generation~\cite{asai2023selfrag, crag2024, covrag2024, lmpriors2024}. Context compression and ranking became central through RankRAG and LLMLingua~\cite{rankrag2024, llmlingua2023}, while GraphRAG/GRAG introduced structure-aware retrieval over entities and relationships~\cite{grag2024}. LongRAG and self-routing explored how long-context LLMs and targeted retrieval can be combined~\cite{longrag2024, selfroute2024}.
 
 \textbf{2025: Agentic control, standardized modules, faithful decoding, evaluation, and memory.}
-By 2025, Agentic RAG emphasizes planning, tool use, reflection, and multi-agent control over retrieval; HopRAG is an example of graph-guided multi-hop retrieval before generation~\cite{survey_agentic2025, survey_reasoning_agentic2025, hoprag2025}. Surveys increasingly describe RAG as modular: retrieval optimization, context processing, generation optimization, and evaluation/monitoring~\cite{knowledge_oriented_survey2025, architectures_survey2025}. Faithfulness methods such as FaithfulRAG, ReCLAIM, CiteFix, and citation benchmarks focus on grounding and attribution~\cite{faithfulrag2025, reclaim2024, citefix2025, source_attribution2025, citeeval2025}. Evaluation and memory-oriented systems such as ARES, HippoRAG-2, MemoRAG, Mem0, MIRIX, and MemOS further connect RAG with monitoring, persistent memory, provenance, and continual learning~\cite{ares2024, survey_eval2025, ragtifier2025, hipporag2_2025, memorag2024, mem0_2025, mirix2025, memos2025}.
+By 2025, Agentic RAG emphasizes planning, tool use, reflection, and multi-agent control over retrieval; HopRAG is an example of graph-guided multi-hop retrieval before generation \cite{hoprag2025}. Surveys increasingly describe RAG as modular: retrieval optimization, context processing, generation optimization, and evaluation/monitoring.\footnote{Gan et al. (2025), \emph{Retrieval Augmented Generation Evaluation in the Era of Large Language Models: A Comprehensive Survey}, arXiv:2504.14891. Available at \url{https://arxiv.org/abs/2504.14891}.} Faithfulness methods such as FaithfulRAG, ReCLAIM, CiteFix, and citation benchmarks focus on grounding and attribution~\cite{faithfulrag2025, reclaim2024}.
 
 \subsection{MRAG: The Convergence}
 \textbf{Pre-RAG signals for vision–language tasks.}  
@@ -406,16 +400,16 @@ Before MRAG was named, factual VQA exposed the limits of image-only reasoning. �
 Early MRAG combined VQA-style retrieval with cross-modal embeddings. TRiG converted images into text, retrieved passages, and answered in natural-language space~\cite{gao2022trig}, while entity-focused dense retrieval improved OK-VQA retrieval~\cite{wu2022entityvqa}. CLIP/ALIGN supplied shared image-text spaces, and REVEAL connected retrieval and generation during visual-language pretraining with multimodal memory~\cite{hu2023reveal}. Most systems still retrieved textual evidence such as captions, OCR, or Wikipedia, then fused it into a VL encoder/decoder.
 
 \textbf{2024: Maturation – better retrieval and fusion for VLMs, and broader modality bindings.}  
-VisRAG treats visually rich documents as first-class evidence by combining OCR text with visual region cues~\cite{yu2024visrag}. RAVEN frames retrieval-augmented VLM fine-tuning as a general recipe~\cite{rao2024raven}, while ImageBind supports one shared embedding space across six modalities, motivating unified MRAG indexes for heterogeneous educational assets~\cite{girdhar2023imagebind}.
+VisRAG treats visually rich documents as first-class evidence by combining OCR text with visual region cues~\cite{yu2024visrag}. ImageBind supports one shared embedding space across six modalities, motivating unified MRAG indexes for heterogeneous educational assets~\cite{girdhar2023imagebind}.
 
 \textbf{2025: Advanced MRAG – domains, video, documents, and built-in retrieval.}  
-Recent MRAG work expands into domain-specific and video/document settings. RS-RAG integrates satellite imagery with world knowledge for remote sensing tasks~\cite{wen2025rsrag}, while unified MRAG systems combine text, image, table, and video evidence in one pipeline~\cite{drushchak2025unified}. Surveys report that MRAG improves grounding and reduces hallucinations for visually grounded queries compared with text-only RAG~\cite{mei2025survey}.
+Recent MRAG work expands into domain-specific and video/document settings. RS-RAG integrates satellite imagery with world knowledge for remote sensing tasks~\cite{wen2025rsrag}, while unified MRAG systems combine text, image, table, and video evidence in one pipeline~\cite{drushchak2025unified}. Surveys report that MRAG improves grounding and reduces hallucinations for visually grounded queries compared with text-only RAG.\footnote{Mei et al. (2025), \emph{A Survey of Multimodal Retrieval-Augmented Generation}, arXiv:2504.08748. Available at \url{https://arxiv.org/abs/2504.08748}.}
 
 
 
 \subsection{Pipeline}
 
-A MRAG pipeline is illustrated in Figure~\ref{fig:MRAG pipeline}\footnote{The AiEdge Newsletter. (n.d.). How to build a multimodal RAG pipeline with LlamaIndex. Retrieved June 24, 2026, from \url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
+A MRAG pipeline is illustrated in Figure~\ref{fig:MRAG pipeline}\footnote{The AiEdge Newsletter. (n.d.). How to build a multimodal RAG pipeline with LlamaIndex, from \url{https://newsletter.theaiedge.io/p/how-to-build-a-multimodal-rag-pipeline-8d6}}.
 
 \begin{figure}[H]
     \centering
@@ -424,11 +418,11 @@ A MRAG pipeline is illustrated in Figure~\ref{fig:MRAG pipeline}\footnote{The Ai
     \label{fig:MRAG pipeline}
 \end{figure}
 
-The pipeline combines retrieval with generation to produce grounded answers. A query is encoded into a vector representation, matched against a pre-indexed Vector Database, and used to retrieve relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}. Retrieved evidence may then be filtered, summarized, or restructured before being passed to the LLM context~\cite{izacard2021leveraging}.
+The pipeline combines retrieval with generation to produce grounded answers. A query is encoded into a vector representation, matched against a pre-indexed Vector Database, and used to retrieve relevant documents or passages~\cite{karpukhin2020dense, lewis2020rag}. Retrieved evidence may then be filtered, summarized, or restructured before being passed to the LLM context.\footnote{Izacard and Grave (2021), \emph{Leveraging Passage Retrieval with Generative Models for Open Domain Question Answering}, arXiv:2007.01282. Available at \url{https://arxiv.org/abs/2007.01282}.}
 
-RAG has two core modules: a retriever and a generator. The retriever searches external knowledge using sparse, dense, hybrid, or neural methods~\cite{lewis2020rag, luan2021sparse_dense}; the generator conditions on both the user query and retrieved context to produce the answer~\cite{izacard2022rag_sequence}. This design improves factual grounding and enables access to domain-specific or updated knowledge without retraining the language model~\cite{izacard2021leveraging, gao2023rag_survey}.
+RAG has two core modules: a retriever and a generator. The retriever searches external knowledge using sparse, dense, hybrid, or neural methods~\cite{lewis2020rag, luan2021sparse_dense}; the generator conditions on both the user query and retrieved context to produce the answer~\cite{lewis2020rag}. This design improves factual grounding and enables access to domain-specific or updated knowledge without retraining the language model~\cite{gao2023rag_survey}.
 
-MRAG extends this pipeline to text, image, video, table, and graph evidence. Recent systems explore modality-aware retrieval, reranking, multi-agent retrieval, and reflective generation to improve answer quality in visually rich and knowledge-intensive tasks~\cite{hu2025mrag, liu2025hmrag, zhang2024mr2ag}.
+MRAG extends this pipeline to text, image, video, table, and graph evidence. Recent systems explore modality-aware retrieval, reranking, multi-agent retrieval, and reflective generation to improve answer quality in visually rich and knowledge-intensive tasks.\footnote{Recent arXiv-only MRAG systems include Hu et al. (2025), \emph{mRAG: Elucidating the Design Space of Multi-modal Retrieval-Augmented Generation}, arXiv:2505.24073, \url{https://arxiv.org/abs/2505.24073}; Liu et al. (2025), \emph{HM-RAG: Hierarchical Multi-Agent Multimodal Retrieval Augmented Generation}, arXiv:2504.12330, \url{https://arxiv.org/abs/2504.12330}; and Zhang et al. (2024), \emph{mR\textsuperscript{2}AG: Multimodal Retrieval-Reflection-Augmented Generation for Knowledge-Based VQA}, arXiv:2411.15041, \url{https://arxiv.org/abs/2411.15041}.}
 
 \subsection{Retrieval}
 
@@ -502,7 +496,7 @@ and the normalization function is applied column-wise.
 
 \subsection{Rerankers}
 
-Rerankers, commonly implemented as cross-encoders, refine search results by jointly encoding a query--document pair to compute a relevance score. Unlike bi-encoders, which independently embed queries and documents into fixed-length vectors, rerankers leverage full token-level interactions, enabling more precise semantic matching. They are typically integrated into two-stage retrieval pipelines, where the first-stage retriever generates candidate documents and the reranker refines their ordering to achieve higher accuracy. The reranking process is illustrated in Figure~\ref{fig:Reranker}\footnote{Together AI. (n.d.). Introducing Together Rerank API and exclusive access to Salesforce LlamaRank model for enhanced enterprise search. Retrieved June 24, 2026, from \url{https://www.together.ai/blog/together-rerank-api-and-salesforce-llamarank}}.
+Rerankers, commonly implemented as cross-encoders, refine search results by jointly encoding a query--document pair to compute a relevance score. Unlike bi-encoders, which independently embed queries and documents into fixed-length vectors, rerankers leverage full token-level interactions, enabling more precise semantic matching. They are typically integrated into two-stage retrieval pipelines, where the first-stage retriever generates candidate documents and the reranker refines their ordering to achieve higher accuracy. The reranking process is illustrated in Figure~\ref{fig:Reranker}\footnote{Together AI. (n.d.). Introducing Together Rerank API and exclusive access to Salesforce LlamaRank model for enhanced enterprise search, from \url{https://www.together.ai/blog/together-rerank-api-and-salesforce-llamarank}}.
 
 \begin{figure}[H]
     \centering
@@ -560,7 +554,7 @@ Neural reranking has evolved from cross-encoders over BM25 candidates to more sc
 
 \subsection{Augmentation}
 
-The augmentation process in RAG is illustrated in Figure~\ref{fig:Augmentation}\footnote{Obot AI. (2024, May 21). Understanding RAG: 6 steps of retrieval augmented generation (RAG). Retrieved June 24, 2026, from \url{https://obot.ai/resources/learning-center/retrieval-augmented-generation/}}.
+The augmentation process in RAG is illustrated in Figure~\ref{fig:Augmentation}\footnote{Obot AI. (2024, May 21). Understanding RAG: 6 steps of retrieval augmented generation (RAG), from \url{https://obot.ai/resources/learning-center/retrieval-augmented-generation/}}.
 
 \begin{figure}[H]
     \centering
@@ -676,9 +670,9 @@ where $g(y)$ encodes the generated text and $h(D)$ aggregates document embedding
 
 Prompt engineering designs input prompts to control LLM behavior during inference. It steers pretrained models without modifying their parameters \cite{brown2020language}.
 
-Core formats include \textbf{zero-shot prompting}, which uses only instructions \cite{reynolds2021prompt}, and \textbf{one-shot}/\textbf{few-shot prompting}, which add demonstrations for in-context learning \cite{brown2020language}. Reasoning-oriented methods such as \textbf{Chain-of-Thought (CoT)} elicit intermediate reasoning for multi-step tasks \cite{wei2022cot}, while self-consistency samples multiple reasoning paths to improve stability \cite{wang2023selfconsistency}.
+Core formats include \textbf{zero-shot prompting}, which uses only instructions,\footnote{Reynolds and McDonell (2021), \emph{Prompt Programming for Large Language Models: Beyond the Few-Shot Paradigm}, arXiv:2102.07350. Available at \url{https://arxiv.org/abs/2102.07350}.} and \textbf{one-shot}/\textbf{few-shot prompting}, which add demonstrations for in-context learning \cite{brown2020language}. Reasoning-oriented methods such as \textbf{Chain-of-Thought (CoT)} elicit intermediate reasoning for multi-step tasks \cite{wei2022cot}, while self-consistency samples multiple reasoning paths to improve stability \cite{wang2023selfconsistency}.
 
-Prompt engineering also supports \textbf{structured and reliable outputs}. Schema-based prompts can request JSON, bullet lists, or domain templates, reducing parsing failures in downstream systems\footnote{OpenAI. (2023). GPT-4 technical report. Retrieved June 24, 2026, from \url{https://openai.com/research/gpt-4}}. Function calling extends this idea by constraining outputs to well-defined tool or data schemas.
+Prompt engineering also supports \textbf{structured and reliable outputs}. Schema-based prompts can request JSON, bullet lists, or domain templates, reducing parsing failures in downstream systems\footnote{OpenAI. (2023). GPT-4 technical report, from \url{https://openai.com/research/gpt-4}}. Function calling extends this idea by constraining outputs to well-defined tool or data schemas.
 
 Manual prompt design is heuristic and labor-intensive, so recent work explores \textbf{automated prompt optimization}. Candidate prompts can be searched and selected using validation metrics, including instruction phrasing and example ordering. Because exhaustive search is expensive, methods such as TRIPLE formulate prompt selection as a bandit problem to balance exploration and exploitation under limited query budgets \cite{shi2024triple}.
 

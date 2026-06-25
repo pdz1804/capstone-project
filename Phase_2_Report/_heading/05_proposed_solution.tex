@@ -81,45 +81,13 @@ After analyzing the leading frameworks, React is the recommended choice. This de
     \item \textbf{Proven Precedent} in large-scale, complex applications, particularly within the EdTech industry.
 \end{itemize}
 
-From now on, we detail the reasoning for this selection, including a direct comparison with the primary alternative, Vue.js.
+\textbf{Architecture Suits an MRAG System} 
 
-\textbf{Architecture Suits an MRAG System} React's architecture is well suited to the heterogeneous outputs produced by our RAG system, including streaming text answers, references to PDF pages, lecture video timestamps, and relevant diagrams.
+React's architecture is well suited to the heterogeneous outputs produced by our RAG system, including streaming text answers, references to PDF pages, lecture video timestamps, and relevant diagrams.
 
 Its declarative programming model allows the interface to be described in terms of application state rather than manual DOM manipulation. In practice, this enables the system to be organized into distinct, reusable components such as \texttt{ChatWindow}, \texttt{SourceDocViewer}, \texttt{VideoPlayer}, and \texttt{ImageViewer}, each responsible for a specific modality or interaction pattern.
 
 The main application layer coordinates these components and renders them according to the backend response. This separation of concerns is important not only for maintainability but also for future extensibility as new media types or interface behaviors are added.
-
-\textbf{High Performance with the Virtual DOM}
-
-Because the interface must update dynamically as text and media arrive from the backend, rendering efficiency is important. React's Virtual Document Object Model (DOM) maintains an in-memory representation of the interface, computes the minimal set of changes, and reduces expensive direct manipulation of the browser DOM. This helps preserve responsiveness during frequent UI updates.
-
-% \textbf{Comparative Analysis: React vs. Vue.js}
-
-% While both React and Vue.js utilize a virtual DOM and a component-based architecture, a direct comparison reveals React's significant advantages for a project of this scale.
-
-% \textit{Ecosystem, Community, and Talent Pool}
-% React boasts a significantly larger and more mature ecosystem than Vue.js. This translates into an unparalleled selection of third-party libraries, state management solutions (like Redux and Zustand), UI component kits (e.g., Material-UI, Ant Design), and development tools. For a feature-rich educational application that will require complex UI elements, such as interactive document viewers, data visualization, and chat interfaces, this vast ecosystem is a critical accelerator, reducing the need to build components from scratch.
-
-% Furthermore, industry surveys consistently demonstrate React's dominant position. Stack Overflow's 2023 survey showed that 42.87\% of professional developers use React, compared to 17.64\% for Vue.js\footnote{\url{https://survey.stackoverflow.co/2023/\#most-popular-technologies-webframe-prof}}. This larger talent pool is a pragmatic and significant advantage for a university-based project like ours.
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/33-react-survey.png}
-%     \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023).}
-%     \label{fig:react_survey}
-% \end{figure}
-
-\textit{Scalability and Suitability for Complex Applications}
-React's unopinionated library-based approach provides a crucial flexibility that is often favored for building large-scale, highly complex enterprise applications. This flexibility allows development teams to custom-build their architecture, selecting their own libraries for routing, state management, and data fetching, to create a stack that is perfectly optimized for unique and demanding business logic.
-
-This preference is not merely theoretical; it is validated by the technology stacks of some of the world's largest and most complex web applications:
-\begin{itemize}
-    \item \textbf{Meta (Facebook \& Instagram)}: As the creator of React, Meta's platforms are its primary case study. The Facebook web app is a quintessential example of a complex, component-driven application, required to manage thousands of individual components, real-time data streaming, and billions of user interactions simultaneously.
-    \item \textbf{Netflix}: The Netflix web application relies on React to deliver its high-performance, TV-like user interface. The team chose React to manage the complex state interactions of its UI, enabling them to rapidly iterate, A/B test features, and maintain performance on a wide variety of devices.
-    % \item \textbf{The New York Times}: To support modern, interactive journalism and a massive, dynamic content library, The New York Times rebuilt its website using React. This allows their development teams to create reusable components that can be shared across the organization, accelerating the development of new features and data visualizations.
-\end{itemize}
-
-% While Vue is highly capable, React's architecture is battle-tested and proven to be the choice for global teams building applications where complexity and massive scale are the primary concerns. 
 
 \subsection{Backend: FastAPI}
 
@@ -136,69 +104,20 @@ This decision is based on three core pillars:
 
 \textbf{Performance and Asynchronous Processing}
 
-A RAG application is inherently I/O-bound. The server spends most of its time not computing, but waiting: waiting for a query response from the Vector Database, waiting for user data from a relational database, and, most significantly, waiting for the Large Language Model (LLM) API to stream back its generated response.
+A RAG application is inherently I/O-bound. The server spends most of its time not computing, but waiting: waiting for a query response from the Vector Database, waiting for user data from a relational database, and, most significantly, waiting for the LLM API to stream back its generated response.
 
 In a traditional synchronous framework like Django, each of these waiting periods would block an entire worker thread. This means that if 10 users send a query simultaneously, the application needs at least 10 worker threads, each consuming significant memory. This model scales poorly, leading to a rapid increase in server costs and a degradation of user experience under load.
 
 FastAPI solves this problem at its core. It is built on modern Python \texttt{async/await} syntax and the Asynchronous Server Gateway Interface (ASGI) standard. This allows a single process to handle thousands of concurrent connections. When a task starts waiting for an I/O operation (like an LLM call), the server doesn't block; it yields control and serves other requests, returning to the original task only when the data is ready.
-
-% \textbf{Real-World Performance Benchmarks}
-
-% This architectural difference is not merely theoretical; it is reflected in stark performance metrics from independent, industry-standard benchmarks. According to the highly respected TechEmpower benchmarks, which test hundreds of web frameworks in realistic scenarios, FastAPI's performance is in a different league.
-
-% In the Round 22 benchmarks (testing against physical hardware), the Uvicorn server running a basic FastAPI application handled \textbf{12,567 requests per second} in the Multiple Queries test. In contrast, Django on Gunicorn (a standard synchronous setup) handled \textbf{1,623 requests per second}.
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.3\textwidth]{img/pdz/58-pipeline-architecture-overview.png}
-%     \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
-%     \label{fig:pipeline_overview}
-% \end{figure}
-
-% The system implements a sophisticated dual-pipeline architecture designed to handle heterogeneous document formats and produce RAG-ready outputs for both text-based and image-based retrieval. The architecture is divided into two primary pipelines: the Data Processing Pipeline and the Embedding-Indexing Pipeline.
-
-% This means FastAPI can handle over 8 times the traffic with the same hardware for this common task\footnote{\url{https://www.techempower.com/benchmarks/\#section=data-r22&test=query}}. For our I/O-bound application, this advantage is even more pronounced. The ability to efficiently manage concurrent waiting tasks means we can serve more users simultaneously with lower latency and significantly lower infrastructure costs. This raw performance is essential for delivering the responsive, real-time experience that users expect from an interactive AI assistant.
 
 \textbf{The Superior Developer Experience}
 
 Beyond raw performance, FastAPI is engineered with a laser focus on building APIs, which dramatically improves developer productivity and code quality.
 
 \begin{itemize}
-    \item \textbf{Automatic Data Validation \& Serialization}: FastAPI leverages the Pydantic library and Python type hints to provide automatic request validation. This is a game-changer. Developers simply define the expected data structure as a Python class, and FastAPI handles the rest: validating incoming data, returning clear JSON error messages if validation fails, serializing complex data types, and converting data seamlessly. In Django, achieving this requires the Django REST Framework (DRF), which involves writing separate Serializer classes, adding boilerplate and cognitive load.
+    \item \textbf{Automatic Data Validation \& Serialization}: FastAPI leverages the Pydantic library and Python type hints to provide automatic request validation. Developers simply define the expected data structure as a Python class, and FastAPI handles the rest: validating incoming data, returning clear JSON error messages if validation fails, serializing complex data types, and converting data seamlessly.
     \item \textbf{Automatic Interactive API Documentation}: Out of the box, FastAPI generates interactive API documentation based on the OpenAPI standard. As soon as an endpoint is written, a fully functional documentation page is available at \texttt{/docs}, allowing frontend developers and consumers to test endpoints and understand the API without manual effort. This tight feedback loop is invaluable for rapid development.
 \end{itemize}
-
-% \textbf{Architectural Philosophy and Future-Proofing}
-
-% The choice between FastAPI and Django represents a fundamental decision between a modern, microservices-first architecture and a traditional, monolithic one.
-
-% Django's philosophy is geared towards building monolithic, full-stack applications with server-rendered templates, an admin panel, and a built-in ORM. These are excellent features for certain projects, but they are less critical for our API-first, decoupled architecture.
-
-% FastAPI's lightweight and unopinionated nature makes it a natural fit for building independent, scalable microservices. This allows for a logical separation of concerns. We can develop, deploy, and scale the user authentication service independently from the RAG pipeline service. This modularity offers significant long-term advantages in scalability and maintainability, preventing the need for a costly and disruptive rewrite as the platform grows.
-
-% \textbf{Head-to-Head Comparison Matrix}
-
-% The following table provides a clear, at-a-glance comparison to justify the selection of FastAPI for our specific application context.
-
-% \begin{table}[H]
-%     \centering
-%     \caption{FastAPI vs. Django Comparison for RAG Application.}
-%     \label{tab:fastapi_vs_django}
-%     \begin{adjustbox}{max width=\linewidth}
-%     \begin{tabular}{p{3cm}p{4.5cm}p{4.5cm}p{6cm}}
-%         \toprule
-%         \textbf{Criterion} & \textbf{FastAPI} & \textbf{Django} & \textbf{Justification for RAG Application} \\
-%         \midrule
-%         Performance (Req/s) & Very High ($\sim$12,500+) & Moderate ($\sim$1,600) & RAG requires high concurrency for I/O-bound tasks. FastAPI's 8x+ performance is a decisive advantage. \\
-%         Asynchronous Support & Native, built-in (\texttt{async/await}) & Supported via Channels (adds complexity) & Native async is simpler and more performant for orchestrating LLM and database calls. \\
-%         API Documentation & Automatic (Swagger UI, ReDoc) & Requires external library (DRF) & Automatic documentation accelerates development, reduces friction, and simplifies API integration. \\
-%         Data Validation & Built-in via Pydantic Type Hints & Built-in Forms / DRF Serializers & Pydantic is more modern, concise, and integrated, reducing boilerplate and potential errors. \\
-%         Architectural Fit & Microservices, API-first & Monolithic, full-stack & A microservices approach is inherently more scalable and maintainable for our project's distinct components. \\
-%         Learning Curve & Low & Moderate to High & A lower learning curve allows for faster onboarding of new developers and contributors. \\
-%         \bottomrule
-%     \end{tabular}
-%     \end{adjustbox}
-% \end{table}
 
 \subsection{Cloud Vector Database: Qdrant}
 
@@ -272,10 +191,6 @@ Transitioning to production demands rigorous evaluation of latency, scalability,
     }
 \end{table}
 
-% \textbf{Developer Experience and Integration}
-
-% Developer experience dictates integration speed. While Weaviate offers simplified APIs, it can lack granular configurability. Vespa provides deep tensor control but suffers from an exceptionally steep learning curve. \textbf{Qdrant} strikes the perfect balance. It features straightforward Docker deployments, highly readable Python SDKs, and deep integration with the \texttt{FastEmbed} library. This allows developers to generate dense and sparse embeddings locally without heavy external dependencies, vastly simplifying the creation of multi-vector RAG pipelines.
-
 \textbf{Final Selection and Strategic Recommendation}
 
 \begin{table}[H]
@@ -298,17 +213,14 @@ Transitioning to production demands rigorous evaluation of latency, scalability,
 
 After an exhaustive analysis of architectural design, search mechanism breadth, economic efficiency, and specific multi-vector handling capabilities, we have selected \textbf{Qdrant} as the primary cloud Vector Database for the production environment.
 
-% \textbf{Strategic Rationale for Selecting Qdrant}:
-% Qdrant serves as the optimal highly performant alternative for our multimodal RAG architecture. Its architectural decision to bypass HNSW indexing for heavy multi-vector payloads demonstrates a deep understanding of memory economics, ensuring high-speed ingestion and reduced RAM overhead. For our team, Qdrant's native support for late-interaction multi-vector embeddings makes ColQwen integration exceptionally streamlined, while its Rust-powered engine provides the necessary latency and throughput performance for the system.
-
-Having selected the core technology stack (React frontend, FastAPI backend, and Qdrant vector database), the following section presents empirical benchmarks of embedding and retrieval configurations to validate these technology choices and inform the architectural design decisions.
+The following section presents empirical benchmarks of embedding and retrieval configurations to validate these technology choices and inform the architectural design decisions.
 
 \section{Experiments on Embeddings and Retrieval Methods}
 
 \subsection{Experimental Methodology}
 
 \textbf{Dataset and Computing Environment}
-To benchmark the performance of different retrieval architectures, we utilized the \textbf{Microsoft MS MARCO} (Machine Reading Comprehension) dataset\footnote{Microsoft. (2026, June 1). microsoft/ms\_marco. Hugging Face. Retrieved June 24, 2026, from \url{https://huggingface.co/datasets/microsoft/ms_marco}}. This dataset is a standard benchmark for information retrieval tasks.
+To benchmark the performance of different retrieval architectures, we utilized the \textbf{Microsoft MS MARCO} (Machine Reading Comprehension) dataset\footnote{Microsoft. (2026, June 1). microsoft/ms\_marco. Hugging Face, from \url{https://huggingface.co/datasets/microsoft/ms_marco}}. This dataset is a standard benchmark for information retrieval tasks.
 
 Due to computational constraints and to facilitate rapid iterative testing, we curated a representative subset of the data:
 \begin{itemize}
@@ -360,7 +272,7 @@ To quantitatively assess the pipelines, we adhere to two standard information re
 
 \subsection{Pipeline Analysis and Results}
 
-\textbf{Important Note on Implementation Status:} The following benchmark results represent experimental evaluations of different retrieval pipeline configurations. However, in the current Phase 2 production deployment, \textbf{reranking is globally disabled} by default (\texttt{SKIP\_RERANKER=true}) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during standard search operations. These experimental results are preserved for reference and historical context, but readers should be aware that the production system operates without the reranking stage.
+% \textbf{Important Note on Implementation Status:} The following benchmark results represent experimental evaluations of different retrieval pipeline configurations. However, in the current Phase 2 production deployment, \textbf{reranking is globally disabled} by default (\texttt{SKIP\_RERANKER=true}) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during standard search operations. These experimental results are preserved for reference and historical context, but readers should be aware that the production system operates without the reranking stage.
 
 We conducted a comprehensive evaluation of Lexical, Dense, Hybrid, and Reranking pipelines. The aggregate results are presented in Table \ref{tab:results}.
 
@@ -396,7 +308,7 @@ Our experiments demonstrate that Hybrid Retrieval (combining BM25 and Dense vect
     \item \textbf{Significance:} While pure dense models performed exceptionally well on this specific dataset ($0.8855$), relying solely on dense retrieval in production carries the risk of ``semantic hallucination'' (retrieving conceptually similar but factually incorrect documents). Hybrid retrieval mitigates this by anchoring the semantic search with the keyword precision of BM25. It provides a ``safety net'' that ensures documents containing critical entity names are not discarded, making it a more robust strategy for real-world applications where query intent varies.
 \end{itemize}
 
-\textbf{Important Note on Generalization}: The experimental results presented above are based on the MS MARCO dataset, a generic domain benchmark for web search contexts. HCMUT lecture materials differ significantly in their characteristics: they contain mathematical notation, domain-specific terminology, structured course hierarchies, and pedagogical content unlike general web documents. Future evaluation should include HCMUT-specific test queries and lecture content to validate whether the retrieved ranking methods (particularly hybrid vs. pure dense) perform equally well for educational domain-specific IR tasks. The generalization of these findings to educational content quality is documented in the Future Plan section (Section 7.4), where HCMUT-specific validation with student cohorts is planned.
+% \textbf{Important Note on Generalization}: The experimental results presented above are based on the MS MARCO dataset, a generic domain benchmark for web search contexts. HCMUT lecture materials differ significantly in their characteristics: they contain mathematical notation, domain-specific terminology, structured course hierarchies, and pedagogical content unlike general web documents. Future evaluation should include HCMUT-specific test queries and lecture content to validate whether the retrieved ranking methods (particularly hybrid vs. pure dense) perform equally well for educational domain-specific IR tasks. The generalization of these findings to educational content quality is documented in the Future Plan section (Section 7.4), where HCMUT-specific validation with student cohorts is planned.
 
 \textbf{Question 2: Does the addition of a Reranker significantly improve ranking quality?}
 The results strongly support the hypothesis that a two-stage ``Retrieve-then-Rerank'' pipeline outperforms single-stage retrieval, though at a significant latency cost.
@@ -434,11 +346,9 @@ This section presents the proposed architecture of the BK-MInD MRAG system, orga
 
 The BK-MInD system architecture follows a six-tier Clean Architecture pattern that separates concerns across distinct layers, enabling maintainability, testability, and independent scaling. This architecture is designed to achieve three strategic objectives: (1) \textit{multimodal data ingestion} from diverse educational materials, (2) \textit{asynchronous processing} to support concurrent user operations without bottlenecks, and (3) \textit{production-grade security and scalability} on AWS infrastructure.
 
-\textbf{Six-Tier Clean Architecture:} BK-MInD follows a six-tier Clean Architecture pattern: (1) Frontend Layer (React 19, Vite, TailwindCSS), (2) API Route Layer (FastAPI HTTP handlers), (3) Service Layer (business logic orchestrators), (4) Repository Layer (data access abstraction), (5) Data Layer (Redis, Qdrant, S3, DynamoDB), and (6) Cross-Cutting Concerns (authentication, security, LLM generation).
+\textbf{Six-Tier Clean Architecture:} BK-MInD follows a six-tier Clean Architecture pattern: (1) Frontend Layer (React 19, Vite, TailwindCSS), (2) API Route Layer (FastAPI HTTP handlers), (3) Service Layer (business logic orchestrators), (4) Repository Layer (data access abstraction), (5) Data Layer (Redis, Qdrant, S3, DynamoDB), and (6) Cross-Cutting Concerns (authentication, security, LLM generation). This layered design enables independent scaling, testability, and flexibility in deployment. Frontend communicates via HTTPS REST API. Services coordinate between repositories, which abstract storage details. Redis manages both async jobs (3 per-user, 200 global concurrency, 3600-second TTL) and search result caching. Authentication supports dual mechanisms: Firebase SSO and Local JWT (PBKDF2-SHA256). Security includes AWS WAF, CloudFront CDN, TLS encryption, and KMS-based data protection.
 
-This layered design enables independent scaling, testability, and flexibility in deployment. Frontend communicates via HTTPS REST API. Services coordinate between repositories, which abstract storage details. Redis manages both async jobs (3 per-user, 200 global concurrency, 3600-second TTL) and search result caching. Authentication supports dual mechanisms: Firebase SSO and Local JWT (PBKDF2-SHA256). Security includes AWS WAF, CloudFront CDN, TLS encryption, and KMS-based data protection.
-
-Asynchronous job management is critical to handle concurrent users: while one user's document undergoes the 7-stage pipeline (26--28 seconds), other users' queries and uploads process independently without blocking.
+Asynchronous job management is critical to handle concurrent users: while one user's document undergoes the 7-stage pipeline (26-28 seconds), other users' queries and uploads process independently without blocking.
 
 \textbf{Data Processing and Indexing Layer:} This layer implements the 7-stage conditional pipeline (detailed in Section~\ref{sec:pipeline_arch}) that transforms raw educational materials - PDFs, DOCX, PPTX, Excel spreadsheets, audio, and video - into RAG-ready artifacts. The pipeline follows three key design principles:
 
@@ -475,29 +385,6 @@ Following processing, the dual-pathway indexing module produces both text indice
 \end{itemize}
 
 Together, these four layers enable BK-MInD to ingest diverse HCMUT lecture materials, build a multimodal knowledge index, and serve interactive educational features with high availability, low latency, and enterprise-grade security.
-
-% \textbf{Processing Pipeline Data Flow:} When a student or instructor uploads a document, the system follows this asynchronous data flow:
-
-% \begin{enumerate}
-%     \item \textbf{Request Intake:} The frontend submits a document upload via REST API call (\texttt{POST /api/process}) to the backend.
-%     \item \textbf{Job Queueing:} The API service creates a job record in Redis with status \texttt{accepted} and enqueues it to the job queue. Per-user concurrency limits are checked; if the user already has 3 concurrent jobs, the request is rejected with HTTP 429 (Too Many Requests).
-%     \item \textbf{Immediate Response:} The backend immediately returns an HTTP 202 (Accepted) response with a \texttt{job\_id}, allowing the frontend to poll for progress via \texttt{GET /api/process/status/{job\_id}} without blocking.
-%     \item \textbf{Asynchronous Processing:} A FastAPI background task consumes the job from Redis queue and transitions the status to \texttt{running}. It executes the 7-stage processing pipeline, storing intermediate outputs to S3 and maintaining progress logs.
-%     \item \textbf{Embedding and Indexing:} The consolidation stage outputs are passed to the IndexingService, which generates text and image embeddings and writes them to Qdrant Cloud via the repository layer.
-%     \item \textbf{Status Update:} Upon completion, the job status in Redis is updated to \texttt{completed}. The job record expires after 3600 seconds (1 hour), automatically cleaning up old entries.
-%     \item \textbf{Availability:} The document becomes immediately queryable through the SearchOrchestrator, which retrieves embeddings from Qdrant and generates answers using the LLM.
-% \end{enumerate}
-
-% \textbf{Retrieval and Generation Data Flow:} When a student submits a query via \texttt{POST /api/search}:
-
-% \begin{enumerate}
-%     \item \textbf{Query Routing:} The request is routed to the SearchOrchestrator service layer, which delegates to TextSearchService and ImageSearchService.
-%     \item \textbf{Parallel Encoding and Retrieval:} The query is simultaneously encoded by two pathways: (a) text encoding using all-MiniLM-L6-v2 to produce 384-dimensional dense vectors, and (b) visual encoding using ColQwen's query encoder for image-text alignment. Both encoded representations search Qdrant Cloud independently.
-%     \item \textbf{Multi-Index Search:} The TextSearchService queries three indices in parallel for maximum recall: (1) sparse BM25 index for keyword matching, (2) dense FAISS index for semantic similarity, and (3) hybrid index combining both via Reciprocal Rank Fusion. The ImageSearchService queries the ColQwen visual index.
-%     \item \textbf{Result Aggregation:} The repository layers return top-K results from each index. The SearchOrchestrator merges, deduplicates, and ranks results from both text and visual streams.
-%     \item \textbf{LLM Generation:} The aggregated context (text chunks + images) is passed to the generation service (AWS Bedrock Claude 3.5 Sonnet or OpenAI GPT-4o), which synthesizes a natural-language answer grounded in the retrieved evidence.
-%     \item \textbf{Streaming Response:} The generated answer is streamed back to the frontend in real time using Server-Sent Events (SSE), along with citation metadata (source document name, page number, timestamp for video sources) enabling users to trace answers back to their source materials and verify accuracy.
-% \end{enumerate}
 
 \subsection{Pipeline Architecture}\label{sec:pipeline_arch}
 
