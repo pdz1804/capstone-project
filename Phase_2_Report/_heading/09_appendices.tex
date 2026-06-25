@@ -131,16 +131,14 @@ For each accepted section, the generator is constrained to create exactly five q
 
 \textbf{End-to-End RAG Judgment Record}
 
-End-to-end RAG evaluation stores the generated answer, retrieved context trace, and judge labels. The label set separates factual correctness from faithfulness and retrieval support.
+End-to-end RAG evaluation stores the generated answer, retrieved context trace, and judge labels. It separates factual correctness from faithfulness and retrieval support.
 
 \begin{lstlisting}[style=jsonappendix,caption={End-to-end RAG judge result format},label={lst:e2e_judgment_format}]
 {
   "question": "What is the role of smoothing before edge detection?",
   "reference_answer": "Smoothing reduces noise before derivatives are used for edge detection.",
   "generated_answer": "Smoothing suppresses noise so derivative-based edge detection is more reliable.",
-  "retrieved_context": [
-    {"id": "chunk_7", "text": "If there is excessive noise in an image..."}
-  ],
+  "retrieved_context": [{"id": "chunk_7", "text": "If there is excessive noise in an image..."}],
   "judge_result": {
     "correctness": "correct",
     "faithfulness": "faithful",
@@ -929,14 +927,11 @@ This appendix contains the complete Google PageSpeed Insights audit screenshots 
 \end{figure}
 
 \chapter{AWS Pricing Reference}\label{app:aws_pricing_reference}
-
-% To ground the cost projections, we use the following pricing reference for the AWS services and components in the deployment architecture.
-
 \begin{table}[H]
     \centering
     \caption{AWS Pricing Reference (us-west-2, Oregon, 2026).}
     \label{tab:aws_pricing_ref}
-    \small
+    \scriptsize
     \begin{adjustbox}{max width=\linewidth}
     \begin{tabular}{lllp{3.2cm}}
         \toprule
@@ -952,8 +947,8 @@ This appendix contains the complete Google PageSpeed Insights audit screenshots 
         \midrule
         AWS Bedrock\textsuperscript{4} & Claude Haiku 4.5 Input & \$0.00025 & per 1k tokens \\
         AWS Bedrock & Claude Haiku 4.5 Output & \$0.00125 & per 1k tokens \\
-        AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens \\
-        AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens \\
+        AWS Bedrock & Claude Sonnet 4.6 Input & \$0.003 & per 1k tokens \\
+        AWS Bedrock & Claude Sonnet 4.6 Output & \$0.015 & per 1k tokens \\
         \midrule
         Amazon DynamoDB\textsuperscript{5} & On-Demand Reads & \$0.25 & per 1M RRU \\
         Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU \\
@@ -969,13 +964,13 @@ This appendix contains the complete Google PageSpeed Insights audit screenshots 
         AWS WAF\textsuperscript{9} & Web ACL & \$5.00 & per month \\
         \midrule
         Amazon S3\textsuperscript{10} & Standard Storage & \$0.02 & per GB-month \\
-        Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests \\
+        Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1k requests \\
         \bottomrule
     \end{tabular}
 	\end{adjustbox}
-    \vspace{0.5em}
+    \vspace{5em}
     \begin{minipage}{\linewidth}
-    \scriptsize\raggedright
+    \tiny\raggedright
     \textsuperscript{1} AWS Fargate pricing, from \url{https://aws.amazon.com/fargate/pricing/}\\
     \textsuperscript{2} SageMaker pricing, from \url{https://aws.amazon.com/sagemaker/pricing/}\\
     \textsuperscript{3} Elastic Load Balancing, from \url{https://aws.amazon.com/elasticloadbalancing/pricing/}\\

@@ -23,7 +23,7 @@ To ensure clarity and consistency throughout this report, the following standard
 \textbf{BM25} & All Caps & The probabilistic lexical ranking function used for keyword-based sparse retrieval. \\
 \textbf{RAG} & All Caps & Retrieval-Augmented Generation; the core system architecture. \\
 \textbf{MRAG} & All Caps & Multimodal Retrieval-Augmented Generation; the specialized extension of RAG for handling non-textual data. \\
-\textbf{LLM} & All Caps & Large Language Model (e.g., GPT-4o-mini, Claude 3.5 Sonnet). \\
+\textbf{LLM} & All Caps & Large Language Model (e.g., GPT-4o-mini, Claude 4.6 Sonnet). \\
 \textbf{Multimodal} & Sentence Case & Systems or processes involving multiple data modalities (text, image, audio, video). \\
 \textbf{ASR} & All Caps & Automatic Speech Recognition; the technology used to transcribe audio/video lecture content. \\
 \textbf{OCR} & All Caps & Optical Character Recognition; the process of extracting text from rasterized document images. \\
@@ -384,7 +384,7 @@ Before RAG, open-domain QA commonly used retrieve-then-read pipelines: a sparse 
 REALM introduced differentiable retrieval during language-model pretraining, showing that an LM could consult updateable external knowledge~\cite{realm2020}. RAG then combined DPR retrieval with a BART generator and trained the retriever-generator system for knowledge-intensive tasks~\cite{lewis2020rag}.
 
 \textbf{2021--2022: Stronger Retrievers, Multi-Document Reasoning, and Lighter Readers.}
-This period improved retrieval, evidence fusion, and query reformulation. RocketQA, Condenser, Contriever, and GTR strengthened dense retrieval through hard negatives, distillation, retriever-oriented pretraining, unsupervised contrastive learning, and scaling~\cite{rocketqa2021, condenser2021, contriever2021, gtr2021}. ColBERTv2 made late-interaction retrieval more practical, while SPLADE showed the value of learned sparse representations and hybrid fusion~\cite{colbertv2, splade2021, formal2021splade}. Multi-document systems such as EMDR, MDR, FiD, KG-FiD, FiD-Light, and RETRO improved multi-hop evidence use and semi-parametric generation~\cite{emdr2021, mdr2020, fid2020, kgfid2021, fidlight2022, retro2021}. Query reformulation methods such as GAR, Self-Ask, ReAct, WebGPT, and HyDE became reusable components for improving first-stage recall and reasoning~\cite{gar2021, selfask2022, react2022, webgpt2021, hyde2022}.
+This period improved retrieval, evidence fusion, and query reformulation. RocketQA, Condenser, Contriever, and GTR strengthened dense retrieval through hard negatives, distillation, retriever-oriented pretraining, unsupervised contrastive learning, and scaling~\cite{rocketqa2021, condenser2021, contriever2021, gtr2021}. ColBERTv2 made late-interaction retrieval more practical, while SPLADE showed the value of learned sparse representations and hybrid fusion~\cite{colbertv2, splade2021}. Multi-document systems such as EMDR, MDR, FiD, KG-FiD, FiD-Light, and RETRO improved multi-hop evidence use and semi-parametric generation~\cite{emdr2021, mdr2020, fid2020, kgfid2021, fidlight2022, retro2021}. Query reformulation methods such as GAR, Self-Ask, ReAct, WebGPT, and HyDE became reusable components for improving first-stage recall and reasoning~\cite{gar2021, selfask2022, react2022, webgpt2021, hyde2022}.
 
 \textbf{2023--2024: From fixed pipelines to adaptive, verifiable, and structure-aware systems.}
 Recent RAG systems increasingly decide when, what, and how much to retrieve. FLARE, Adaptive-RAG, SEAKR, and DRAGIN trigger or route retrieval dynamically~\cite{flare2023, adaptive_rag2024, seakr2024, dragin2024}. SELF-RAG, CRAG, and CoV-RAG add critique, filtering, refusal, or verification to reduce unsupported generation~\cite{asai2023selfrag, crag2024, covrag2024, lmpriors2024}. Context compression and ranking became central through RankRAG and LLMLingua~\cite{rankrag2024, llmlingua2023}, while GraphRAG/GRAG introduced structure-aware retrieval over entities and relationships~\cite{grag2024}. LongRAG and self-routing explored how long-context LLMs and targeted retrieval can be combined~\cite{longrag2024, selfroute2024}.
@@ -426,7 +426,7 @@ MRAG extends this pipeline to text, image, video, table, and graph evidence. Rec
 
 \subsection{Retrieval}
 
-Sparse retrieval maps text into high-dimensional lexical vectors~\cite{robertson2009probabilistic, formal2021splade}. Methods such as TF-IDF, \textbf{BM25}, and SPLADE are efficient and interpretable for exact keyword matching, usually implemented with inverted indexes. Their limitation is lexical mismatch: relevant documents may be missed when they use different wording from the query.
+Sparse retrieval maps text into high-dimensional lexical vectors~\cite{robertson2009probabilistic}. Methods such as TF-IDF, \textbf{BM25}, and SPLADE are efficient and interpretable for exact keyword matching, usually implemented with inverted indexes. Their limitation is lexical mismatch: relevant documents may be missed when they use different wording from the query.
 % The \textbf{BM25} algorithm is illustrated in Figure~\ref{fig:BM25}\footnote{\url{https://www.geeksforgeeks.org/what-is-bm25-best-matching-25-algorithm/}}.
 
 % \begin{figure}[H]
@@ -437,9 +437,9 @@ Sparse retrieval maps text into high-dimensional lexical vectors~\cite{robertson
 % \end{figure}
 
 
-Dense retrieval uses neural encoders to map queries and documents into a shared embedding space where semantic similarity is measured by vector proximity~\cite{karpukhin2020dense}. Dual-encoder models such as DPR and SPECTER2 can retrieve semantically related content even when keywords differ~\cite{singh2022scirepeval}. Large-scale dense retrieval typically relies on Approximate Nearest Neighbor Search, including HNSW indexes~\cite{malkov2016efficient}. However, dense vectors can be weaker on exact term matching and may lose detail in long documents~\cite{formal2021splade}.
+Dense retrieval uses neural encoders to map queries and documents into a shared embedding space where semantic similarity is measured by vector proximity~\cite{karpukhin2020dense}. Dual-encoder models such as DPR and SPECTER2 can retrieve semantically related content even when keywords differ~\cite{singh2022scirepeval}. Large-scale dense retrieval typically relies on Approximate Nearest Neighbor Search, including HNSW indexes~\cite{malkov2016efficient}. However, dense vectors can be weaker on exact term matching and may lose detail in long documents.
 
-Hybrid retrieval combines sparse and dense signals to improve robustness in RAG systems~\cite{lewis2020rag, formal2021splade, karpukhin2020dense}. Common strategies include score fusion, merging separate sparse/dense result lists, or building unified hybrid indexes. Key challenges are score calibration, distribution mismatch, and the computational cost of high-dimensional sparse vectors; distribution alignment and adaptive two-stage search can help balance accuracy and speed~\cite{iida2022unsupervised}.
+Hybrid retrieval combines sparse and dense signals to improve robustness in RAG systems~\cite{lewis2020rag, karpukhin2020dense}. Common strategies include score fusion, merging separate sparse/dense result lists, or building unified hybrid indexes. Key challenges are score calibration, distribution mismatch, and the computational cost of high-dimensional sparse vectors; distribution alignment and adaptive two-stage search can help balance accuracy and speed~\cite{iida2022unsupervised}.
 
 Once embeddings have been generated, the retrieval module identifies and returns the most relevant
 documents for a given query. In a RAG pipeline, this step is essential because it supplies the language

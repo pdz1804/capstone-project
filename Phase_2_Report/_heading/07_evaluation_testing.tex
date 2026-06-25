@@ -351,7 +351,7 @@ The question-type breakdown shows that multi-intent questions are the most diffi
 
 \textbf{Media Evaluation Protocol}
 
-Media evaluation measures whether lecture video/audio can be converted into retrieval-ready temporal evidence. The pipeline extracts audio, transcribes speech with Whisper ASR, chunks the transcript by time span, and samples video frames at fixed intervals. ASR quality is measured using word error rate and character error rate.
+Media evaluation measures whether lecture video/audio can be converted into retrieval-ready temporal evidence. The pipeline extracts audio, transcribes speech with Whisper ASR, chunks the transcript by time span, and samples video frames at fixed intervals. ASR quality is measured using WER and CER, defined as
 \[
 \mathrm{WER}=\dfrac{S_w+D_w+I_w}{N_w},\qquad
 \mathrm{CER}=\dfrac{S_c+D_c+I_c}{N_c},
