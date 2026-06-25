@@ -140,7 +140,7 @@ where
     \item $N$ is the total number of words in the reference transcript.
 \end{itemize}
 
-Character Error Rate (CER) applies the same formulation at the character level.
+Character Error Rate (CER) applies the same formulation at the character level, computed as
 
 \begin{equation}
     \text{CER} = \dfrac{S + D + I}{N}
@@ -180,7 +180,7 @@ With advances in deep learning, end-to-end models such as CRNN and Transformer-b
 
 where $X$ denotes the input image and $Y$ is the predicted text sequence.
 
-Although OCR has improved significantly, handwritten documents, low-resolution images, multilingual text, domain-specific noise, and complex page layouts remain difficult. OCR is commonly evaluated using Character Error Rate (CER) and Word Error Rate (WER), following the same edit-distance formulation defined in Section~\ref{sec:asr}, Equations~\ref{eq:cer} and~\ref{eq:wer}. Lower CER and WER indicate better recognition performance.
+Although OCR has improved significantly, handwritten documents, low-resolution images, multilingual text, domain-specific noise, and complex page layouts remain difficult. OCR is commonly evaluated using CER and WER, following the same edit-distance formulation defined in Section~\ref{sec:asr}, Equations~\ref{eq:cer} and~\ref{eq:wer}. Lower CER and WER indicate better recognition performance.
 
 Scene text recognition (STR) extends OCR to text in natural images, where backgrounds, distortion, and lighting are uncontrolled. Modern STR often combines object detection models such as Faster R-CNN or YOLO with recognition modules to improve text localization and transcription \cite{baek2019whatiswrong}.
 
@@ -239,7 +239,7 @@ Similarity between queries and keys is computed via the dot product $QK^{T}$, fo
 \begin{equation}
 \label{eq:attention}
 \mathrm{Attention}(Q, K, V)
-= \mathrm{softmax}\left( \dfrac{QK^{T}}{\sqrt{d_{K}}} \right) V.
+= \mathrm{softmax}\left( \dfrac{QK^{T}}{\sqrt{d_{K}}} \right) V
 \end{equation}
 
 where
@@ -273,7 +273,7 @@ Cross-attentional models are especially useful for reranking. There are two main
 Cross-attention computes attention weights using queries from one sequence and key-value pairs from another. Given query matrix $Q$, key matrix $K$, and value matrix $V$, the cross-attention output is computed as
 
 \begin{equation*}
-    \text{Attention}(Q, K, V) = \text{softmax}\left(\dfrac{QK^{T}}{\sqrt{d_k}}\right)V
+    \text{Attention}(Q, K, V) = \text{softmax}\left(\dfrac{QK^{T}}{\sqrt{d_k}}\right)V.
 \end{equation*}
 
 The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}\footnote{Raschka, S. (n.d.). Understanding multimodal LLMs. Retrieved June 24, 2026, from \url{https://magazine.sebastianraschka.com/p/understanding-multimodal-llms}}.
@@ -287,7 +287,7 @@ The cross-attention mechanism is illustrated in Figure~\ref{fig:Cross-attention}
 
 Cross-attention uses the same attention mechanism defined in Section~\ref{sec:transformer} (Equation~\ref{eq:attention}), but with a key difference: queries come from one sequence (the target modality, e.g., decoder text embeddings) while keys and values come from a different sequence (the source modality, e.g., encoder speech/image features). This allows the model to attend across different modalities or sequences, enabling information flow from source to target. 
 
-Formally, for cross-attention:
+Formally, for cross-attention,
 
 \begin{itemize}
     \item $Q \in \mathbb{R}^{T_q \times d}$ are queries from the target modality (e.g., decoder text embeddings);
@@ -296,7 +296,7 @@ Formally, for cross-attention:
     \item $T_q, T_k$ are token lengths for target and source sequences.
 \end{itemize}
 
-Multimodal fusion via dual attention for two modalities $A$ and $B$, cross-attention is computed independently.
+Multimodal fusion via dual attention for two modalities $A$ and $B$, cross-attention is computed independently as
 
 \[
     H_{A} = \text{Attention}(Q, K_{A}, V_{A});
@@ -338,7 +338,7 @@ We fuse modality embeddings into a shared representation
 \end{equation*}
 where $[z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}]$ is the concatenation operator, $g([z_{\text{text}}; z_{\text{audio}}; z_{\text{vision}}])$ is a fusion network (e.g., MLP or cross-attention module), and $\phi$ denotes fusion parameters.
 
-To align representations across modalities, we use a technique called ``contrastive learning.'' To make sure the AI learns to match similar information across modalities, we use a technique called ``contrastive learning.'' It teaches the model to make similar things close together and different things far apart.
+To align representations across modalities, we use a technique called ``contrastive learning.'' To make sure the AI learns to match similar information across modalities, we use a technique called ``contrastive learning.'' It teaches the model to make similar things close together and different things far apart. The contrastive loss, which measures how well the model is doing this, is computed as
 
 \begin{equation*}
     \mathcal{L}_{\text{contrast}} = -\sum_{i=1}^{N} \log
@@ -462,7 +462,7 @@ is the normalized hidden state of the special token \texttt{[CLS]}
 \[
     e_q = \mathrm{norm}(H_q[0]).
 \]
-Similarly, for a passage $p$
+Similarly, for a passage $p$,
 \[
     e_p = \mathrm{norm}(H_p[0]).
 \]
@@ -471,11 +471,11 @@ Relevance is computed as the inner product
     s_{\mathrm{dense}} = \langle e_p, e_q \rangle.
 \]
 
-\textbf{Lexical Retrieval:} For each term $t$ in the query
+\textbf{Lexical Retrieval:} For each term $t$ in the query,
 \[
     w_{q t} = \mathrm{ReLU}(W_{\mathrm{lex}}^\top H_q[i]),
 \]
-and similarly for a passage
+and similarly for a passage,
 \[
     w_{p t} = \mathrm{ReLU}(W_{\mathrm{lex}}^\top H_p[i])
 \]
@@ -486,7 +486,7 @@ where
 \mathrm{ReLU}(x) = \max(0, x).
 \]
 
-\textbf{Multi-vector Retrieval:} Both queries and passages are represented using multiple vectors.
+\textbf{Multi-vector Retrieval:} Both queries and passages are represented using multiple vectors,
 
 \[
     E_q = \mathrm{norm}(W_{\mathrm{mul}}^\top H_q),
@@ -522,9 +522,9 @@ Rerankers are computationally expensive and therefore operate on a narrowed cand
 This separation balances scalability and accuracy: fast retrieval reduces search space, while rerankers optimize precision at the top ranks.
 
 
-Bi-encoders compute representations independently.
+Bi-encoders compute representations independently as
 \[
-\text{doc} \rightarrow \mathbf{v}_d \in \mathbb{R}^d, \quad \text{query} \rightarrow \mathbf{v}_q \in \mathbb{R}^d
+\text{doc} \rightarrow \mathbf{v}_d \in \mathbb{R}^d, \quad \text{query} \rightarrow \mathbf{v}_q \in \mathbb{R}^d.
 \]
 Similarity is computed via vector metrics (e.g., dot product), which is efficient but compresses document semantics into a single vector without query-context information.
 
@@ -571,13 +571,14 @@ The augmentation process in RAG is illustrated in Figure~\ref{fig:Augmentation}\
 
 Augmentation in RAG transforms retrieved knowledge before generation. It may summarize, compress, restructure, or expand evidence to improve relevance and reduce noise \cite{yoon2024compact, asai2023selfrag}.
 
-Given a retrieved document set $D = \{d_1, \dots, d_k\}$, augmentation produces a transformed set $D' = \mathcal{A}(D)$ where $\mathcal{A}$ is an augmentation operator such as summarization, chunk merging, entity extraction, or reasoning-based synthesis.
+Given a retrieved document set $D = \{d_1, \dots, d_k\}$, augmentation produces a transformed set
+
 \[
 D' = \mathcal{A}(D) = \{ a_1, \dots, a_m \}, \quad m \leq k \; \text{or} \; m \geq k,
 \]
-where each augmented element $a_i$ may be compressed, reformatted, or newly generated from retrieval.
+where $\mathcal{A}$ is an augmentation operator such as summarization, chunk merging, entity extraction, or reasoning-based synthesis. Each augmented element $a_i$ may be compressed, reformatted, or newly generated from retrieval.
 
-To preserve semantic coverage while reducing redundancy, augmentation can be framed as an optimization objective.
+To preserve semantic coverage while reducing redundancy, augmentation can be framed as an optimization objective, computed as
 \[
 \max_{D'} \; \text{Rel}(D', q) - \lambda \, \text{Redund}(D'),
 \]
@@ -603,7 +604,7 @@ D^{(t+1)} = \mathcal{A}\big(D^{(t)}, y^{(t)}, c^{(t)}\big),
 \]
 where $y^{(t)}$ is the generated answer and $c^{(t)}$ is a critique model output guiding refinement \cite{asai2023selfrag}.
 
-For programming tasks, retrieved demonstrations can be reformatted into template-based exemplars.
+For programming tasks, retrieved demonstrations can be reformatted into template-based exemplars
 \[
 a_i = \text{Format}\big(\text{Demo}(d_i)\big),
 \]
@@ -629,7 +630,7 @@ Formally, given a query $q$ retrieves a document set $D = \{d_1, \dots, d_k\}$, 
 P(y \mid q, D) = \prod_{t=1}^{T} P(y_t \mid y_{<t}, q, D).
 \]
 
-Instead of treating retrieved documents as a single concatenated input, marginalization across documents can be applied.
+Instead of treating retrieved documents as a single concatenated input, marginalization across documents can be applied as
 \[
 P(y_t \mid y_{<t}, q, D) = \sum_{d_i \in D} P(y_t \mid y_{<t}, q, d_i) \, P(d_i \mid q).
 \]
@@ -650,7 +651,7 @@ Modern RAG systems typically use autoregressive or encoder-decoder Transformers,
     \item \textbf{Cross-attention generation:} Retrieved representations act as separate attention sources to improve semantic alignment and reduce positional bias \cite{he2024retrieval_coding}.
 \end{itemize}
 
-In cross-attention generation, retrieved representations form a secondary attention memory.
+In cross-attention generation, retrieved representations form a secondary attention memory
 \[
 \text{Attention}(Q, K_D, V_D) = \text{softmax}\left(\dfrac{QK_D^\top}{\sqrt{d_k}}\right)V_D,
 \]
@@ -661,7 +662,7 @@ where $K_D, V_D$ are keys and values derived from retrieval encodings.
     \item \textbf{Self-reflective iterative generation:} Retrieval, generation, and critique occur recursively to enhance factual accuracy and reasoning \cite{asai2023selfrag}.
 \end{itemize}
 
-To further improve faithfulness, contrastive losses can be incorporated to prefer evidence-grounded explanations.
+To further improve faithfulness, contrastive losses can be incorporated to prefer evidence-grounded explanations, which are computed as
 \[
 \mathcal{L}_{\text{faith}} = -\log \dfrac{\exp(s(y, D^+))}{\exp(s(y, D^+)) + \exp(s(y, D^-))},
 \]
