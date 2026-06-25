@@ -116,6 +116,7 @@
 
 \usepackage{forest}
 \usepackage{enumitem}
+\usepackage[page]{appendix}
 
 % Hyphenation and spacing control
 \hyphenpenalty=10000               % Prevent hyphenation
@@ -145,6 +146,7 @@
 \begin{document}
 
 %%% edit the following commands to match your thesis %%%%%%%%%%
+\hypersetup{pageanchor=false}
 
 \begin{titlepage}
 % Temporarily adjust margins for this page only
@@ -182,7 +184,7 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \textbf{\Large CAPSTONE PROJECT (CO4337)}\\[0.5cm]
 \hline
 \\[0.4cm]
-\textbf{\LARGE BK--MIND: A MULTIMODAL}\\[4pt]
+\textbf{\LARGE BK-MIND: A MULTIMODAL}\\[4pt]
 \textbf{\LARGE DATA UNDERSTANDING SYSTEM}\\[4pt]
 \textbf{\LARGE FOR HCMUT LECTURES}\\[0.5cm]
 \hline
@@ -201,10 +203,10 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 & & M.Sc. Mai Xuan Toan \\
 & & Ph.D. Nguyen Quoc Minh \\[0.3cm]
 & Supervisors: & Ph.D. Nguyen An Khuong \\
-& & Nguyen Trang Sy Lam -- Motohashi Lab's Research Assistant \\[0.3cm]
-& Students: & Nguyen Quang Phu -- 2252621 \\
-& & Nguyen Ngoc Khoi -- 2252378 \\
-& & Nguyen Minh Khoi -- 2252377 \\
+& & Nguyen Trang Sy Lam - Motohashi Lab's Research Assistant \\[0.3cm]
+& Students: & Nguyen Quang Phu - 2252621 \\
+& & Nguyen Ngoc Khoi - 2252378 \\
+& & Nguyen Minh Khoi - 2252377 \\
 \end{tabular}
 \end{table}
 
@@ -221,6 +223,11 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newpage
+\noindent Signature: \rule{0.5\textwidth}{0.4pt} \hfill Date: \rule{0.25\textwidth}{0.4pt}\\[1em]
+\noindent\phantom{Signature: }Nguyen An Khuong, Ph.D.
+\newpage
+
 \include{_heading/00_declaration}
 \include{_heading/00_acknowledgements}
 \include{_heading/01_abstract}
@@ -228,8 +235,11 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \tableofcontents
 \listoffigures
 \listoftables
+
+\clearpage
 \pagenumbering{arabic}
 \setcounter{page}{1}
+
 \include{_heading/02_introduction}
 \include{_heading/03_preliminary}
 \include{_heading/04_related_work}
@@ -239,10 +249,18 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \include{_heading/08_conclusion}
 
 % Bibliography
-\printbibliography[title=References]
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{References}
+\printbibliography[title={References}]
+\cleardoublepage
 
-\appendix
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Appendices}
+\begin{appendices}
 \include{_heading/09_appendices}
+\end{appendices}
 
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

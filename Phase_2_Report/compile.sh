@@ -65,7 +65,7 @@ echo "=========================================="
 
 # Step 0: Clean up auxiliary files
 echo ""
-echo "[1/4] Cleaning up auxiliary files..."
+echo "[1/5] Cleaning up auxiliary files..."
 rm -f main.aux main.bbl main.bcf main.blg main.fdb_latexmk main.fls main.lof \
       main.log main.lot main.out main.run.xml main.toc main.synctex.gz \
       main.synctex.gz\(busy\)
@@ -78,12 +78,12 @@ echo "✓ Cleanup complete"
 
 # Step 1: First pdflatex pass
 echo ""
-run_pdflatex "[2/4] Running pdflatex (first pass)..." /tmp/pdflatex1.log
+run_pdflatex "[2/5] Running pdflatex (first pass)..." /tmp/pdflatex1.log
 echo "✓ First pass complete"
 
 # Step 2: Run biber for bibliography
 echo ""
-echo "[3/4] Running biber for bibliography..."
+echo "[3/5] Running biber for bibliography..."
 if command -v xmllint >/dev/null 2>&1 && ! xmllint --noout main.bcf > /tmp/bcf-validate.log 2>&1; then
     echo "⚠ Bibliography control file is incomplete; regenerating with pdflatex..."
     run_pdflatex "Regenerating bibliography control file..." /tmp/pdflatex-bcf.log
@@ -96,9 +96,14 @@ if ! biber main > /tmp/biber.log 2>&1; then
 fi
 echo "✓ Bibliography processed"
 
-# Step 3: Second pdflatex pass (resolves citations and cross-references)
+# Step 3: Second pdflatex pass (resolves citations and writes updated ToC data)
 echo ""
-run_pdflatex "[4/4] Running pdflatex (final pass)..." /tmp/pdflatex2.log
+run_pdflatex "[4/5] Running pdflatex (cross-reference pass)..." /tmp/pdflatex2.log
+echo "✓ Cross-reference pass complete"
+
+# Step 4: Final pdflatex pass (renders the updated ToC into the PDF)
+echo ""
+run_pdflatex "[5/5] Running pdflatex (final pass)..." /tmp/pdflatex3.log
 echo "✓ Final pass complete"
 
 echo ""
