@@ -60,6 +60,7 @@
 
 % Tables
 \usepackage{array, tabularx, booktabs, longtable, multirow, adjustbox, caption}
+\usepackage{tablefootnote}
 \usepackage{dcolumn}
 \newcolumntype{d}[1]{D{.}{.}{#1}}
 
@@ -114,6 +115,7 @@
 }
 
 \usepackage{forest}
+\usepackage{enumitem}
 
 % Hyphenation and spacing control
 \hyphenpenalty=10000               % Prevent hyphenation
@@ -208,7 +210,7 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 
 \vfill
 \begin{center}
-{\footnotesize HO CHI MINH CITY, MAY 2026}
+{\footnotesize HO CHI MINH CITY, JUNE 2026}
 \end{center}
 \restoregeometry
 \end{titlepage}
@@ -223,12 +225,11 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \include{_heading/00_acknowledgements}
 \include{_heading/01_abstract}
 \clearpage
-\pagenumbering{arabic}
-\setcounter{page}{1}
 \tableofcontents
 \listoffigures
 \listoftables
-
+\pagenumbering{arabic}
+\setcounter{page}{1}
 \include{_heading/02_introduction}
 \include{_heading/03_preliminary}
 \include{_heading/04_related_work}

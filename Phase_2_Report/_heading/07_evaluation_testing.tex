@@ -1,10 +1,6 @@
 ﻿\chapter{System Validation: From Components to Scale}
 
-% This chapter describes the metrics and procedures used to evaluate the effectiveness, efficiency, and usability of the proposed system. The evaluation is conducted at three levels: retriever, generator, and overall system performance.
-
 \section{Evaluation}
-
-
 \subsection{Document Parsing and Extraction Evaluation}
 
 This section evaluates the quality of document parsing and structural extraction, which form the foundation of the entire RAG pipeline. Poor parsing quality leads to missing evidence, misaligned text blocks, and incorrect reading order-all of which degrade downstream retrieval and generation. We evaluate parsing across two comprehensive benchmarks: OmniDocBench for PDF documents and OfficeDocBench for office formats (DOCX, XLSX, PPTX).
@@ -100,27 +96,6 @@ The low Text Score is mitigated downstream by the system's visual embedding path
     \end{tabular}
     }
 \end{table}
-
-% \textbf{OfficeDocBench Results}
-
-% OfficeDocBench evaluates classical office document parsing across DOCX, XLSX, and PPTX formats. We evaluated 43 files (29 DOCX, 6 XLSX, 8 PPTX) representing the locally supported Office subset of the benchmark. The evaluation measures text preservation, structural recall, element accuracy, and feature detection across various document complexities.
-
-% \begin{table}[H]
-%     \centering
-%     \caption{OfficeDocBench Results by Format}
-%     \label{tab:officedocbench_results}
-%     \scalebox{0.90}{
-%     \begin{tabular}{lrrrrr}
-%         \toprule
-%         \textbf{Format} & \textbf{Files} & \textbf{Composite} & \textbf{Text Jaccard} & \textbf{Struct Recall} & \textbf{Feature Detect} \\
-%         \midrule
-%         DOCX & 29 & 60.98\% & 78.56\% & 67.80\% & High \\
-%         PPTX & 8 & 54.10\% & Good & Moderate & Partial \\
-%         XLSX & 6 & 43.10\% & Moderate & Lower & Lower \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-% \end{table}
 
 Office-based evaluation combines three source groups: OfficeDocBench, Pandoc DOCX/PPTX tests, and DECO spreadsheet files. Table~\ref{tab:office_dataset_scale} reports the dataset scale used for the Office-based parsing evaluations, while Table~\ref{tab:office_format_distribution} groups the same files by native format. Average units denote pages for DOCX files, slides for PPTX files, and sheets for XLSX files.
 
@@ -410,39 +385,13 @@ Media parsing was evaluated on 42 MIT lecture videos (MITFLD subset, under 100MB
 
 ASR quality is good: 16.63\% WER (word error rate) is typical for Whisper tiny on CPU and acceptable for educational lecture retrieval. Temporal coverage is excellent (100\% hit rate for chunk recall), though temporal precision is moderate (34.84\% Temporal IoU), meaning chunks often span broader time windows than the exact target-acceptable for content retrieval but limiting for sub-minute precision seeking. Frame extraction succeeded on all 42 videos with proper timestamp metadata, enabling visual-temporal retrieval for video content.
 
-% \textbf{OCW Single-Lecture Media Evaluation}
-
-% To validate generalization beyond the MITFLD benchmark, media evaluation was conducted on a single MIT OpenCourseWare lecture from an alternative source. This evaluation provides comparative insights into ASR quality and temporal alignment across different audio conditions.
-
-% \begin{table}[H]
-%     \centering
-%     \caption{OCW vs. MITFLD Media Evaluation Comparison.}
-%     \label{tab:ocw_mitfld_comparison}
-%     \scalebox{0.90}{
-%     \begin{tabular}{lrrr}
-%         \toprule
-%         \textbf{Metric} & \textbf{MITFLD (42 videos)} & \textbf{OCW (1 video)} & \textbf{Interpretation} \\
-%         \midrule
-%         Mean WER & 16.63\% & 21.81\% & OCW audio lower clarity \\
-%         Mean CER & 11.26\% & 17.38\% & Reflects higher WER \\
-%         Temporal Hit Rate & 100.00\% & 100.00\% & Both achieve perfect coverage \\
-%         Mean Temporal IoU & 34.84\% & \textbf{56.59\%} & OCW has tighter boundaries \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-% \end{table}
-
-% The OCW evaluation reveals an interesting trade-off: while the audio has lower clarity (21.81\% WER vs 16.63\%), temporal alignment is substantially tighter (56.59\% IoU vs 34.84\%). This suggests clearer fragment boundaries in the OCW lecture's transcript structure, despite noisier audio. Both sources maintain 100\% temporal hit rate, confirming that the chunking strategy reliably captures all gold windows regardless of audio quality variation. This validates that the media pipeline is robust across different lecture sources and audio conditions.
-
 \textbf{Frame Extraction and Alignment Validation}
 
 Beyond ASR and temporal metrics, the system extracts frames from video content and validates their temporal alignment with transcript chunks. This subsection reports frame extraction pipeline statistics and weak-supervised frame alignment metrics.
 
-% \textbf{Frame Extraction Pipeline Statistics}
-
 \begin{table}[H]
     \centering
-    \caption{Frame Extraction and Processing Pipeline (42 Videos).}
+    \caption{Frame Extraction and Processing Pipeline.}
     \label{tab:frame_extraction_stats}
     \scalebox{0.88}{
     \begin{tabular}{lrr}
@@ -490,54 +439,9 @@ Frame alignment shows excellent attachment quality: 100\% chunk hit rate indicat
 
 \subsection{System-Level (End-to-end) Evaluation}
 
-% This section measures end-to-end RAG quality from question to final answer.
-
-% \textbf{Chunking Evaluation Protocol}
-
-% Chunking evaluation uses span-level ground truth generated from the canonical stage-4 markdown corpus. Source documents are segmented into eligible excerpts, an LLM generates factual search queries from each excerpt, and each generated \texttt{relevant\_excerpt} must be verified as an exact contiguous substring of the source document before it is admitted into the evaluation set. Each ground-truth row therefore contains a query, source document id, relevant excerpt, and exact \texttt{start\_char}/\texttt{end\_char} offsets. The ground-truth row format is shown in Appendix~\ref{chap:evaluation_gt_formats}.
-
-% For a retrieved top-K set, the evaluator maps each retrieved chunk back to one or more source character intervals. Let $G$ be the gold interval, $R_K$ be the union of retrieved intervals from the same source document, and $|\,\cdot\,|$ denote character length. The metrics are:
-% \[
-% \mathrm{Hit@K}=\mathbb{1}\{|R_K\cap G|>0\},\qquad
-% \mathrm{SpanRecall@K}=\dfrac{|R_K\cap G|}{|G|},
-% \]
-% \[
-% \mathrm{SpanPrecision@K}=\dfrac{|R_K\cap G|}{|R_K|},\qquad
-% \mathrm{SpanIoU@K}=\dfrac{|R_K\cap G|}{|R_K\cup G|}.
-% \]
-% This evaluates whether a chunking strategy retrieves the exact source span needed to answer the query, while also penalizing overly broad chunks that include excessive irrelevant context.
-
-% \textbf{Chunking Strategy Evaluation}
-
-% Document chunking determines whether a retriever finds the exact passage needed to answer a question, or must sift through irrelevant neighbors. We compared two strategies on 111 synthetic query-span pairs from 3 documents (434K characters total): recursive markdown chunking (production baseline) and semantic cluster chunking (research variant).
-
-% \begin{table}[H]
-%     \centering
-%     \caption{Chunking Quality: Recursive vs. Semantic (111 Queries)}
-%     \label{tab:chunking_results}
-%     \scalebox{0.90}{
-%     \begin{tabular}{lrrrr}
-%         \toprule
-%         \textbf{Strategy} & \textbf{Hit@1} & \textbf{Span Recall@1} & \textbf{Span IoU@1} & \textbf{Avg Chars} \\
-%         \midrule
-%         Recursive Markdown & 72.07\% & 69.43\% & 18.71\% & 755 \\
-%         Semantic Cluster & 72.97\% & 71.07\% & 15.89\% & 1,006 \\
-%         \textbf{Winner (Tie)} & \textbf{Semantic} & \textbf{Semantic} & \textbf{Recursive} & \textbf{Recursive} \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-% \end{table}
-
-% Both strategies achieve similar hit rates (72\%). Semantic chunking provides slightly better recall (71.07\% vs 69.43\%), recovering more of the target span. However, recursive chunking achieves better precision (18.71\% vs 15.89\% IoU) because it retrieves fewer irrelevant characters, improving LLM efficiency. Semantic chunking retrieves approximately 33\% more average characters per chunk (1,006 vs 755), making recursive chunking more cost-efficient for generation. The production pipeline uses recursive chunking for its balance of simplicity and precision; semantic chunking remains a research direction for improving recall on long-answer questions.
-
 \textbf{End-to-End RAG Evaluation Protocol}
 
 End-to-end evaluation tests the complete question-answering path rather than retrieval alone. The pipeline follows the same section-grounded question generation methodology as the retrieval benchmark: it selects parsed English sections with sufficient content, generates factual question/reference-answer pairs with \texttt{zai-glm-4.7-flash} through AWS Bedrock using only that section as source material, and retains only questions whose answer can be traced to explicit source evidence. The local corpus is then indexed, evidence is retrieved with the configured RAG retriever, an answer is generated, and the question, reference answer, retrieved context, and generated answer are sent to the \texttt{gpt-5.4-nano} judge. The judge returns three categorical labels: \textbf{correctness}, \textbf{faithfulness}, and \textbf{answer\_support}.
-
-% The reported rates are macro proportions over all evaluated questions. For a label set $L$ and target label $\ell$, the rate is:
-% \[
-% \mathrm{Rate}(\ell)=\dfrac{|\{q: \mathrm{judge}(q)=\ell\}|}{|\{q: q\ \mathrm{was\ evaluated}\}|}.
-% \]
 
 Correctness measures agreement with the reference answer, while faithfulness measures whether the answer is grounded in the retrieved context, and answer support measures whether the retrieved context itself contains enough evidence to justify the answer. This separation is important because an incorrect answer can be caused by missing retrieval evidence even when the generator remains faithful to the context it received.
 
@@ -574,30 +478,13 @@ The system achieves 72.7\% correctness, meaning answers are factually accurate f
 
 The 82\% fully-supported rate confirms that the retrieval system successfully locates relevant passages for most queries, validating the combination of parsing, chunking, and retrieval strategies. The 22.4\% incorrect rate is primarily driven by questions whose answers require information not retrieved (16.4\%) or only partially retrieved (1.7\%), indicating retrieval as the primary optimization target for future improvements.
 
-% \subsection{Evaluation Summary and Readiness Assessment}
-% The comprehensive evaluation across document parsing, multimodal retrieval, chunking strategy, and end-to-end RAG generation establishes that the BK-MInD system achieves \textbf{high-quality component-level performance} with clear diagnostic insights for production readiness.
-
-% \textbf{Key Findings:}
-
-% \textit{(1) Parsing Quality Establishes Foundation-Strength in Structure, Bottleneck in Text Fidelity.} OmniDocBench parsing reaches 58.91\% overall accuracy, with exceptional read-order preservation (92.60\%) and strong table extraction (76.86\%), but text-level extraction lags at 47.43\% due to formula complexity and OCR limitations. Office document parsing (DOCX: 60.98\%) significantly outperforms spreadsheets (XLSX: 43.10\%), reflecting the structural complexity of merged cells and formula content. These results confirm that the parsing pipeline sets the upper bound for all downstream retrieval and generation quality.
-
-\textit{(2) Visual Retrieval Provides Stronger Top-Ranked PDF Evidence, while Hybrid Text Maintains High Candidate Coverage.} On the updated PDF retrieval benchmark, hybrid text retrieval reaches strong Recall@10 (93.69\%), confirming that relevant evidence is usually present in the top-10 candidate pool. However, visual page-level retrieval with ColQwen performs better across all measured depths, reaching 95.66\% Recall@10 and 88.91\% nDCG@10, compared with 73.83\% nDCG@10 for hybrid text. The largest gap appears at top-1, where visual retrieval improves Recall@1 from 38.07\% to 63.06\%. This indicates that rendered-page retrieval better preserves layout, formulas, tables, and heading context, while future text retrieval improvements should prioritize reranking, page-aware chunking, and heading breadcrumb preservation.
-
-% \textit{(3) End-to-End RAG Reveals Retrieval as Primary Optimization Lever.} System correctness reaches 72.7\% with exceptional faithfulness of 99.5\% and zero hallucinations-proving that generation is grounded and reliable. The high faithfulness-to-correctness gap indicates that retrieval failures and incomplete context, not generation errors, drive the 22.4\% incorrect-answer rate. This clear diagnostic points to retrieval precision and chunking strategy as the direct path to improving correctness toward 80%+ levels.
-
-% \textit{(4) Media Parsing Demonstrates Strong Temporal Coverage with Generalizable Pipeline.} ASR quality across 42 lecture videos reaches 16.63\% WER (acceptable for educational content), temporal hit rate is perfect (100\%), and frame extraction maintains near-perfect attachment rates (97.65\%--98.32\%). OCW single-lecture validation confirms pipeline robustness across different audio sources despite WER variations (21.81\% OCW vs 16.63\% MITFLD), demonstrating the system's ability to generalize beyond controlled environments.
-
-% \textit{(5) Chunking Strategy Successfully Balances Recall and Cost.} Recursive markdown chunking and semantic clustering achieve near-equivalent hit rates (~72\%), but recursive chunking is selected for production due to superior precision (18.71\% vs 15.89\% IoU) and lower token cost (755 vs 1,006 average characters per chunk), enabling more cost-efficient generation.
-
-% \textbf{Readiness Assessment:} The evaluation phase confirms that the system is \textbf{functionally sound and diagnostically clear}. Component-level quality is established; the next validation gate is operational robustness-confirming that these metrics persist under production-scale concurrency and workload. The following section reports comprehensive performance testing results, which stress-test the system at 20--50 concurrent users and identify scalability boundaries essential for pilot deployment planning.
-
 \newpage
 
 \section{Testing}
 
 \subsection{Test Methodology}
 
-To ensure a rigorous and transparent evaluation, the performance test suite was architected using \textbf{Apache JMeter}, a leading open-source application designed to load test functional behavior and measure performance. JMeter was selected for its ability to simulate heavy concurrent workloads on the BK-MInD backend, providing high-fidelity data on response times, throughput, and resource utilization across various operational scenarios. The methodology focused on simulating high-concurrency environments to identify the system's operational boundaries, utilizing custom Python orchestration scripts to process the raw output logs into actionable insights.
+To ensure a rigorous and transparent evaluation, the performance test suite was architected using \textbf{Apache JMeter}, a leading open-source application designed to load test functional behavior and measure performance. JMeter was selected for its ability to simulate heavy concurrent workloads on the BK-MInD backend, providing high-fidelity data on response times, throughput, and resource utilization across various operational scenarios.
 
 The performance testing environment is supported by a specialized toolchain designed for high-concurrency simulation and granular metrics extraction, as summarized in Table~\ref{tab:test_tools}.
 
@@ -734,8 +621,6 @@ The file upload subsystem was tested against varying concurrency levels to evalu
 Upload latency remained under 10 seconds at P95 for the tested concurrency levels and returned 0 errors. The mean latency varies between runs because upload performance depends on network path, S3 put latency, backend worker availability, and per-user object naming/storage metadata work. The upload API is not CPU-heavy compared with document processing and indexing. Its primary dependencies are request body transfer, S3 storage, metadata creation, and backend concurrency.
 
 The upload layer is reliable up to 50 concurrent users in the available test set. It is suitable for normal user onboarding and file submission traffic. At larger scale, upload should remain protected by request-size limits, direct-to-S3 upload options, and async post-upload processing.
-
-
 
 \textbf{Document Processing Jobs}
 
@@ -918,10 +803,6 @@ Learning roadmap generation latencies and success rates under load are presented
 \end{table}
 
 Roadmap generation is stable and low-latency for an AI feature. While the 40-user run shows a temporary tail-latency spike, the 50-user run returns to a lower P95, suggesting a transient load or external dependency effect rather than a monotonic scaling failure.
-
-Roadmap generation has strong production potential, supporting many concurrent learners with acceptable latency and no observed errors in the current test set.
-
-
 
 \subsection{Cross-API Findings and Risk Mitigation}
 

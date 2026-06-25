@@ -1,9 +1,5 @@
 ﻿\chapter{Implementation}
 
-% \textbf{Phase 1 Scope and Objectives:} This chapter presents the initial implementation phase of the MRAG system. In Phase 1, the primary focus is on \textbf{establishing and validating the core system architecture}, including the data processing pipeline, embedding strategies, and retrieval mechanisms. The implementation prioritizes architectural feasibility and functional correctness. Advanced considerations such as production-grade application development, optimized database storage solutions, and comprehensive system optimization are deliberately deferred to Phase 2. This phased approach allows for iterative refinement based on empirical evaluation of the foundational architecture before committing to infrastructure-level optimizations.
-
-% \textbf{Phase 2 Finalization:} This chapter presents the complete implementation of the MRAG system, following the successful integration of the Phase 2 enhancements. The focus has transitioned from establishing the core baseline to a production-grade application featuring cloud-native storage (Amazon S3), multi-tenant vector retrieval (Qdrant Cloud), and stateful session management (DynamoDB). This chapter details the practical engineering of the 7-stage processing pipeline and the frontend application that together enable high-fidelity multimodal learning.
-
 This chapter details the practical implementation of the BK-MInD system architecture. The chapter is organized as follows: Section~\ref{sec:impl_evolution} describes the evolution from the Phase~1 prototype to the Phase~2 production system. Section~\ref{sec:impl_pipeline} covers the complete Data Processing Pipeline. Subsequent sections address chunking and embedding strategies, indexing and storage, asynchronous job handling, content safety, database schemas, core API services, system deployment, and security implementation details.
 
 \section{Implementation Evolution}\label{sec:impl_evolution}
@@ -85,15 +81,10 @@ In addition to the architectural evolution, Phase 2 integrated several productio
     }
 \end{table}
 
-
-% \newpage
-
-
 \section{Data Processing Pipeline}\label{sec:impl_pipeline}
 
 The data processing pipeline transforms diverse raw document formats into standardized RAG-ready artifacts through a 7-stage conditional workflow. This section describes the input normalization process and the stage-by-stage implementation in detail.
 
-% \subsection{Data Normalization Overview}
 \textbf{1. Interface Layer (API Gateway)}
 
 The entry point to the system is a high-performance RESTful API built on \textbf{FastAPI}. This layer is responsible for request validation, concurrency management, and protocol serialization.
@@ -149,133 +140,7 @@ To handle layout-dense documents without OCR dependencies:
     \item \textbf{Late Interaction}: Matches query tokens directly against visual patches via MaxSim scoring.
 \end{enumerate}
 
-% \section{Data Normalization}
-% Data normalization ensures that heterogeneous input formats are standardized before processing. The system implements a file-system-based normalization strategy located in the \texttt{input} directory.
-
-% Upon upload via the \texttt{/api/upload} endpoint, the following normalization steps are enforced:
-% \begin{itemize}
-%     \item \textbf{Filename Sanitization}: Incoming files are checked for naming collisions. If a file with the same name exists, the system automatically appends a numerical suffix (e.g., \texttt{file\_1.pdf}) to maintain uniqueness without overwriting existing data.
-%     \item \textbf{Format Validation}: The system currently supports PDF and image-based inputs, filtering unsupported MIME types at the entry gate.
-%     \item \textbf{Metadata Extraction}: Basic file attributes (size, modification time, MIME type) are extracted and normalized into a standard JSON structure for frontend display.
-% \end{itemize}
-
-% \section{Data Normalization}
-
-% Data normalization is a critical preprocessing step designed to reduce the entropy of input data formats. As illustrated in Figure \ref{fig:normalization}, the system accepts a wide variety of unstructured and semi-structured inputs ranging from multimedia files to office documents and funnels them into a standardized ``RAG-ready'' format.
-% The normalization pipeline is governed by the \texttt{Processor} module and utilizes a suite of open-source libraries to perform format unification.
-
-% Upon upload via the API, raw files undergo immediate sanitization:
-% \begin{itemize}
-%     \item \textbf{Filename Sanitization}: To prevent filesystem collisions and encoding errors, filenames are normalized to ASCII characters, and duplicate uploads are handled via an incremental suffix strategy.
-%     \item \textbf{Type Validation}: The system acts as a gatekeeper, filtering files based on magic numbers to ensure only supported formats proceed to the processing stage.
-% \end{itemize}
-
-
-% To facilitate both Visual (ColQwen) and Textual (Dense/Sparse) retrieval, all inputs are converted into two canonical formats: \textbf{PDF} (for visual representation) and \textbf{Markdown} (for semantic text content).
-
-% The specific normalization strategies per file type are as follows:
-
-% % \textbf{Office and Document Formats}
-
-% % Legacy office formats (DOC, DOCX, PPT, PPTX, XLS) are often difficult to parse directly. 
-% % The system utilizes \textbf{LibreOffice} in headless mode (server-side).
-% % These documents are converted into standard PDF format. This ensures that layout, fonts, and slide structures are preserved visually for the image retrieval engine.
-
-
-% % \textbf{Multimedia (Audio and Video)}
-
-% % Video (MP4, AVI) and Audio (WAV, MP3) files contain rich semantic information that must be serialized into text.
-% % \textbf{MoviePy} is employed to separate audio tracks from video containers.
-% % The \textbf{OpenAI Whisper} model (Automatic Speech Recognition) processes the audio stream to generate high-fidelity transcripts. These transcripts are saved as Markdown text files, time-stamped to allow for future temporal retrieval.
-
-% % \textbf{Structural Parsing (Docling)}
-
-% % For complex documents like scientific PDFs, HTML pages, or Table-heavy reports, simple text extraction is insufficient.
-% % The pipeline integrates \textbf{Docling}, a specialized document parsing library.
-% % Docling analyzes the document structure to distinguish between headers, paragraphs, and tables.
-% % It outputs structured \textbf{Markdown} that preserves table boundaries (CSV-style) and document hierarchy. This allows the text chunker to respect semantic boundaries rather than cutting sentences mid-table.
-
-
-% \textbf{Multimedia Processing}
-
-% To handle temporal media, the system implements a two-step transformation:
-% \begin{itemize}
-%     \item \textbf{Video Extraction}: Raw video files (e.g., MP4) are processed using \textbf{MoviePy}. This extractor separates the visual stream from the audio stream, outputting a \texttt{.WAV} file for transcription and an optional image thumbnail.
-    
-%     \begin{figure}[H]
-%         \centering
-%         \includegraphics[width=1\textwidth]{img/pdz/23-movipy.png}
-%         \caption[MoviePy Extraction Process]{MoviePy Extraction Process.}
-%         \label{fig:movipy_process}
-%     \end{figure}
-    
-%     \item \textbf{Audio Transcription}: The extracted audio or raw \texttt{.WAV} files are passed to \textbf{OpenAI Whisper} ASR engine. Whisper transcribes the speech to text, which is immediately serialized into \textbf{Markdown} format to preserve semantic structure.
-    
-%     \begin{figure}[H]
-%         \centering
-%         \includegraphics[width=1\textwidth]{img/pdz/24-whisper.png}
-%         \caption[OpenAI Whisper Audio Transcription Process]{OpenAI Whisper Audio Transcription Process.}
-%         \label{fig:whisper_process}
-%     \end{figure}
-
-% \end{itemize}
-
-% \textbf{Office Document Normalization}
-
-% Legacy office formats require conversion before structural analysis. The system utilizes \textbf{LibreOffice} in a headless server environment.
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.9\textwidth]{img/pdz/25-libre.png}
-%     \caption[LibreOffice Document Conversion Process]{LibreOffice Document Conversion Process.}
-%     \label{fig:libre_process}
-% \end{figure}
-
-% Formats such as Microsoft Word (.DOC), PowerPoint (.PPT), and HTML are normalized into standard \textbf{PDF} documents to freeze layout and fonts.
-
-% \textbf{Complex Document Parsing}
-
-% For data-dense documents, the pipeline integrates \textbf{Docling} as the central parsing engine:
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/26-docling.png}
-%     \caption[Docling Document Parsing Process]{Docling Document Parsing Process.}
-%     \label{fig:docling_process}
-% \end{figure}
-
-% \begin{itemize}
-%     \item \textbf{Inputs}: Handles 10 distinct format families including PDF, Microsoft Word (.DOCX), PowerPoint (.PPTX), Excel (.XLSX), Web Pages (.HTML), Markdown (.MD), CSV, Images (OCR-ready), AsciiDoc (.ADOC), and WebVTT (.VTT) subtitles.
-%     \item \textbf{Outputs}: Docling deconstructs these inputs into three distinct normalized artifacts:
-%     \begin{enumerate}
-%         \item \textbf{Structured Markdown}: For semantic text analysis.
-%         \item \textbf{Table Objects}: For preserving row/column relationships.
-%         \item \textbf{Isolated Images}: For downstream visual indexing.
-%     \end{enumerate}
-% \end{itemize}
-
-% % \textbf{Output Artifacts}
-
-% % Every input file results in a unified set of artifacts in the rag ready directory:
-% % \begin{enumerate}
-% %     \item \textbf{PDF}: Used for visual embedding (ColQwen) and user preview.
-% %     \item \textbf{Structured Markdown}: Used for text embedding (BM25/Dense) and LLM context injection.
-% %     \item \textbf{Extracted Metadata}: JSON sidecars containing file provenance, page counts, and processing timestamps.
-% % \end{enumerate}
-
-
-% The output of this step is a standardized set of \textbf{PDF} files (for visual processing) and \textbf{Markdown} files (for textual processing).
-
-% % The following sections detail each stage of the pipeline, including stage-specific logic, conditional execution rules, and output structures.
-
-% % \begin{figure}[H]
-% %     \centering
-% %     \includegraphics[width=0.2\textwidth]{{img/pdz/Report 252 Diagram-Pipeline Architecture Overview.drawio.png}}
-% %     \caption[Pipeline Architecture Overview]{Pipeline Architecture Overview.}
-% %     \label{fig:pipeline_overview}
-% % \end{figure}
-
 \section{Detailed Processing Stages (7-Stage Pipeline)}
-
 
 This section documents the complete 7-stage processing pipeline in detail, including stage-specific logic, conditional execution rules, and output structures.
 
@@ -323,15 +188,6 @@ This section documents the complete 7-stage processing pipeline in detail, inclu
 \textbf{Input}: Raw files in diverse formats (DOCX, XLSX, PDF, PPTX, HTML, Images, Video, Audio, etc.)
 
 \textbf{Purpose}: Detect file types, route to appropriate processors, and generate multiple canonical forms (PDF for visual processing, Markdown for text processing, specialized JSON for custom parsers).
-
-% \textbf{Processing Logic}:
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1.1\textwidth]{{img/pdz/Report 252 Diagram-File Type Routing.drawio.png}}
-%     \caption[Stage 1: File Type Routing Logic]{Stage 1: File Type Routing Logic.}
-%     \label{fig:stage1_routing_viz}
-% \end{figure}
 
 \begin{table}[H]
 \centering
@@ -382,15 +238,6 @@ LaTeX & Extension & Docling & - & - \\
 \textbf{Input}: Video and Audio files (or extracted audio from Stage 1)
 
 \textbf{Purpose}: Extract audio tracks, perform noise reduction, transcribe speech to text, extract key frames from video.
-
-% \textbf{Supported Media Types}
-
-% \begin{itemize}
-%     \item \textbf{Video Formats:} \texttt{.mp4}, \texttt{.avi}, \texttt{.mov}, \texttt{.mkv}, \texttt{.flv}, \texttt{.wmv}, \texttt{.webm}
-%     \item \textbf{Audio Formats:} \texttt{.wav}, \texttt{.mp3}, \texttt{.m4a}, \texttt{.flac}, \texttt{.ogg}, \texttt{.aac}
-% \end{itemize}
-
-% \textbf{Processing Pipeline}:
 
 \textbf{Processing}:
 
@@ -450,29 +297,7 @@ Audio (WAV, MP3) & Direct input & Noise reduction (80Hz HPF) & Cleaned WAV & Tra
 
 \textbf{Purpose}: Perform deep structural analysis, extract tables with hierarchy preservation, isolate images, handle general document types not requiring custom parsers.
 
-% \textbf{Processing Logic}:
-
 \textbf{Processing}:
-
-% Docling DocumentConverter supports these 10 format families:
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Docling DocumentConverter.drawio.png}}
-%     \caption[Docling DocumentProcessorV2 Supported Input Formats]{Docling DocumentProcessorV2 Supported Input Formats}
-%     \label{fig:docling_arch}
-% \end{figure}
-
-% Docling analyzes all normalized documents, with intelligent conditional skipping for documents already processed by Stages 3b/3c/3d (via smart deduplication).
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{{img/pdz/Report 252 Diagram-Smart Deduplication Logic.drawio.png}}
-%     \caption[Stage 3 Smart Deduplication Logic]{Stage 3 Smart Deduplication Logic.}
-%     \label{fig:smart_dedup}
-% \end{figure}
-
-% For documents NOT in the custom parser output directories, Docling performs full structural analysis. This stage utilizes the \textbf{DocumentProcessorV2} unified router, which automatically selects the optimal backend for each file type:
 
 For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling performs full structural analysis. This stage utilizes the \textbf{DocumentProcessorV2} unified router, which automatically selects the optimal backend for each file type:
 
@@ -504,16 +329,6 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \textbf{Purpose}: Parse Excel workbooks using custom XML parser to preserve table structure, column headers, and quantitative relationships.
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-Excel Processing.drawio.png}}
-%     \caption[Stage 3b: Specialized Excel Processing Workflow]{Stage 3b: Specialized Excel Processing Workflow.}
-%     \label{fig:excel_proc}
-% \end{figure}
-
-
-% \textbf{Processing Strategy}:
-
 \textbf{Processing}:
 
 \begin{itemize}
@@ -544,16 +359,6 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 
 \textbf{Purpose}: Parse Word documents using custom XML parser to respect heading hierarchies and preserve document structure.
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-DOCX Processing.drawio.png}}
-%     \caption[Stage 3c: Specialized DOCX Processing Workflow]{Stage 3c: Specialized DOCX Processing Workflow.}
-%     \label{fig:docx_proc}
-% \end{figure}
-
-
-% \textbf{Processing Strategy}:
-
 \textbf{Processing}:
 \begin{itemize}
     \item \textbf{Heading extraction}: Build heading tree (Heading 1, 2, 3, etc.)
@@ -581,16 +386,6 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
 \textbf{Trigger}: Only executes if \texttt{pdf\_parsed/} directory exists (populated in Stage 1 for structured PDFs)
 
 \textbf{Purpose}: Parse born-digital PDFs with internal structure to preserve page references and section hierarchies.
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.7\textwidth]{{img/pdz/Report 252 Diagram-PDF Processing.drawio.png}}
-%     \caption[Stage 3d: Specialized PDF Processing Workflow]{Stage 3d: Specialized PDF Processing Workflow.}
-%     \label{fig:pdf_proc}
-% \end{figure}
-
-
-% \textbf{Processing Strategy}:
 
 \textbf{Processing}:
 \begin{itemize}
@@ -631,232 +426,12 @@ For documents not processed by the custom parser (DOCX, PDF, XLSX), Docling perf
     \item \textbf{Create index}: Generate \texttt{chunks.json} with all text and \texttt{metadata.json} with complete provenance tracking
 \end{enumerate}
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/69-consolidation-logic.png}
-%     \caption[Stage 4: RAG-Ready Consolidation Logic]{Stage 4: RAG-Ready Consolidation Logic.}
-%     \label{fig:consolidation_logic}
-% \end{figure}
-
-
 \textbf{Output}:
 \begin{itemize}
     \item \texttt{stage4\_rag\_ready/document\_id/chunks.json}: Complete unified chunk list with metadata
     \item \texttt{stage4\_rag\_ready/document\_id/metadata.json}: Full provenance (source, stage, location)
     \item \texttt{stage4\_rag\_ready/document\_id/images/}: All visual elements
 \end{itemize}
-
-% \section{Chunking and Embedding Strategies}
-
-% \subsection{Indexing Pipeline}
-
-% The consolidation and indexing pipeline transforms RAG-ready chunks into searchable indices through a dual-pathway approach:
-
-% Create searchable indexes from RAG-ready content using three systems: dense text embeddings (Qdrant), keyword search (BM25), and image embeddings (ColQwen) for visual retrieval.
-
-% \begin{table}[H]
-% \centering
-% \caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
-% \label{tab:indexing_artifacts}
-% \resizebox{\textwidth}{!}{%
-% \begin{tabular}{@{}llll@{}}
-% \toprule
-% \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) & Keyword matching, TF-IDF scoring \\
-% Dense Index (Text) & FAISS IndexFlatIP & Binary file (\texttt{.bin}) & Cosine similarity, nearest-neighbor search \\
-% Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
-% Visual Index (Images) & ColQwen multi-vectors & Tensor store (\texttt{.bin}) & Late-interaction MaxSim matching \\
-% Metadata Catalog & Document + chunk + image metadata & JSON files & Source tracking, citation generation \\
-% \bottomrule
-% \end{tabular}%
-% }
-% \end{table}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/70-retrieval-systems.png}
-%     \caption[Indexing Pipeline: Text and Image Indexing]{Indexing Pipeline: Text and Image Indexing.}
-%     \label{fig:indexing_pipeline}
-% \end{figure}
-
-% \textbf{Text Indexing Workflow}:
-% \begin{enumerate}
-%     \item Chunks from Stage 4 are encoded by SBERT (all-MiniLM-L6-v2) → 384-dimensional vectors
-%     \item BM25 inverted index built from chunk text (keyword search)
-%     \item Dense vectors stored in FAISS IndexFlatIP (semantic search)
-%     \item Hybrid index pre-computed via RRF fusion for fast query-time execution
-% \end{enumerate}
-
-% \textbf{Visual Indexing Workflow}:
-% \begin{enumerate}
-%     \item PDF pages rasterized to JPEG (150 DPI, 1 page = 1 image)
-%     \item Each page encoded by ColQwen to multi-vector representation
-%     \item Vectors stored with minimal indexing (m=0 for HNSW bypass) to reduce memory overhead
-%     \item Query-time MaxSim computed on-demand for precision
-% \end{enumerate}
-
-
-% \textbf{Reranking}
-
-% As defined in the system architecture, reranking is \textbf{globally disabled} (\texttt{SKIP\_RERANKER=true} by default) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during search to maintain sub-second response times.
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.55\textwidth]{img/pdz/71-reranking.png}
-%     \caption[Cross-Encoder Reranking Architecture]{Cross-Encoder Reranking Architecture.}
-%     \label{fig:reranking_arch}
-% \end{figure}
-
-% \begin{table}[H]
-% \centering
-% \caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
-% \label{tab:indexing_artifacts}
-% \resizebox{\textwidth}{!}{%
-% \begin{tabular}{@{}llll@{}}
-% \toprule
-% \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
-% Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
-% Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
-% Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
-% Metadata Catalog & Document + chunk + image metadata & JSON files on S3 & Source tracking, citation generation \\
-% \bottomrule
-% \end{tabular}%
-% }
-% \end{table}
-
-% \textbf{Index Persistence Strategy}:
-
-% After indexing completes (Stage 4), the system:
-% \begin{enumerate}
-%     \item Uploads BM25, Dense, and Visual indices to S3 under \texttt{users/{user\_id}/documents/{doc\_id}/indices/}
-%     \item Caches indices in local filesystem for fast retrieval during query execution
-%     \item On server restart or query miss, reloads indices from S3
-% \end{enumerate}
-
-% \subsection{Search and Retrieval Pipeline}
-
-% The search pipeline orchestrates the concurrent retrieval of textual and visual information, optionally followed by generative synthesis. The workflow is designed for low-latency response times while maintaining high factual grounding.
-
-% \textbf{Retrieval Strategies}
-
-% The system supports three primary retrieval modalities to address different query types:
-% \begin{itemize}
-%     \item \textbf{Dense Retrieval}: Best for semantic understanding and handling synonymy. It uses the \texttt{all-MiniLM-L6-v2} model to match query embeddings against the Qdrant text collection.
-%     \item \textbf{Sparse Retrieval (BM25)}: Optimized for exact keyword matching, technical jargon, and specific entity retrieval.
-%     \item \textbf{Hybrid Retrieval}: Merges the results of dense and sparse retrievers using a weighted fusion approach. In Phase 2, the system utilizes an alpha weight of 0.5, providing a balanced trade-off between keyword precision and semantic recall.
-% \end{itemize}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/72-search-flow.png}
-%     \caption[Search and Retrieval Pipeline Flow]{Search and Retrieval Pipeline Flow.}
-%     \label{fig:search_flow}
-% \end{figure}
-
-% \textbf{Search Flow and Operational Modes}
-% As illustrated in Figure \ref{fig:search_flow}, the search orchestrator (\texttt{SearchService}) processes queries through a multi-step pipeline:
-% \begin{enumerate}
-%     \item \textbf{Decision Node: Search Scope}: Evaluates the query intent to target either the text index, image index, or a parallel multimodal retrieval.
-%     \item \textbf{Decision Node: Retriever Type}: Determines the retrieval algorithm (\texttt{BM25}, \texttt{Dense}, or \texttt{Hybrid}) based on the query complexity and user configuration.
-%     \item \textbf{Parallel Retrieval}:
-%     \begin{itemize}
-%         \item \textbf{Text Pathway}: Executes the selected retrieval logic on the text index, returning top $K$ chunks (default $K=10$).
-%         \item \textbf{Visual Pathway}: Executes a late-interaction search on the ColQwen image index if visual context is requested.
-%     \end{itemize}
-%     \item \textbf{Reranking (Optional)}: To further refine the results, a cross-encoder model (\texttt{bge-reranker-large}) can be applied to the merged candidate set (as illustrated in Figure \ref{fig:reranking_arch}). However, in the Phase 2 production environment, this step is \textbf{globally disabled by default} (\texttt{skip\_reranker=true}) to maintain sub-second retrieval latency.
-%     \item \textbf{Result Merging}: Contextualizes text chunks with their corresponding visual pages based on source metadata.
-%     \item \textbf{Mode Selection}:
-%     \begin{itemize}
-%         \item \textbf{Retrieval Only}: Immediately returns the merged text and image artifacts to the client.
-%         \item \textbf{Retrieval-Generation}: Injects the retrieved context into a Large Language Model (e.g., Claude 3.5 Sonnet) to synthesize a grounded answer with citations.
-%     \end{itemize}
-% \end{enumerate}
-
-% \textbf{Response Structure and Metadata Tracking}
-
-% Every search response follows a standardized schema that integrates synthesized answers with granular metadata tracking. As defined in the system's design principles, every retrieved chunk preserves its provenance (source file, page, and chunk type) to ensure factual grounding. The response includes a detailed telemetry payload tracking retrieval latencies and model inference times, providing users with transparency regarding the ``source-of-truth'' for all generated answers.
-
-
-% \subsection{Storage Architecture}
-
-% Phase 2 implements a \textbf{hybrid storage model} combining local processing cache with cloud canonical storage:
-
-% \begin{table}[H]
-% \centering
-% \caption[Hybrid Storage Architecture]{Local vs. Cloud storage division of responsibility.}
-% \label{tab:storage_architecture}
-% \resizebox{\textwidth}{!}{%
-% \begin{tabular}{@{}llll@{}}
-% \toprule
-% \textbf{Storage Tier} & \textbf{System} & \textbf{Content} & \textbf{Purpose} \\ \midrule
-% Local Cache & File system (fast SSD) & Processing artifacts (Stages 1-4) & Speed up pipeline processing \\
-% Local Indices & FAISS, ColQwen stores & BM25, Dense, Visual indices & Fast retrieval queries \\
-% Cloud Canonical & Amazon S3 & Documents, metadata, indices & Durability, multi-tenancy \\
-% Session State & DynamoDB & Chat history, job queue state & Persistent conversation tracking \\
-% \bottomrule
-% \end{tabular}%
-% }
-% \end{table}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/73-local-vs-cloud.png}
-%     \caption[Storage Architecture: Local vs. Cloud]{Storage Architecture: Local vs. Cloud.}
-%     \label{fig:storage_arch_viz}
-% \end{figure}
-
-% \textbf{Multi-Tenancy Isolation}:
-
-% Documents and indices are organized by user and document ID,this structure ensures that document retrieval and index queries are isolated per user, preventing cross-user data leakage.
-% \begin{itemize}
-%     \item Each user has isolated temp workspace during processing
-%     \item S3 prefixes prevent cross-user data access
-%     \item Optional: Qdrant collections per user (\texttt{QDRANT\_ISOLATE\_BY\_USER=true})
-% \end{itemize}
-
-
-% \section{Data Preprocessing}
-% The preprocessing module transforms raw files into machine-understandable formats. The pipeline splits the workflow into two parallel streams to handle multimodal data:
-
-% \textbf{Text Stream:}
-
-% % For textual data, the system performs OCR or direct text extraction depending on the source file type. The output is standardized into Markdown formats, stored in the \texttt{output/processing} directory.
-
-% The primary input for this stream is the structured \textbf{Markdown} files generated during the normalization phase. The preprocessing logic focuses on preparing this text for semantic vectorization:
-% Removal of artifacts introduced during OCR or file conversion.
-% The system utilizes the Markdown headers to maintain context, ensuring that section titles remain associated with their respective paragraphs during the splitting process.
-
-% \textbf{Visual Stream:}
-
-% A critical component of this pipeline is the handling of visual data within \textbf{PDF} files. The system utilizes \textbf{pdf2image} to render PDF pages into high-resolution images (defaulting to 150 DPI). This rasterization step is essential for the visual retriever (ColQwen), which treats document pages as images to preserve layout and semantic structure that text-only extractors often lose.
-
-% \section{Chunking and Embedding Strategies}
-% The system employs a sophisticated ``Hybrid + Multimodal'' retrieval strategy to maximize recall and precision.
-
-% \textbf{Textual Chunking and Embedding}
-% Textual data is segmented into chunks to fit within the context window of the embedding models. The default configuration uses a chunk size of 1000 characters with an overlap of 200 characters. The retrieval mechanism is \textit{Hybrid}, combining two distinct algorithms:
-% \begin{enumerate}
-%     \item \textbf{Sparse Retrieval (BM25)}: Utilizes keyword matching to capture exact terms and domain-specific jargon.
-%     \item \textbf{Dense Retrieval}: Utilizes vector embeddings (stored in FAISS indices) to capture semantic meaning and context. The default embedding model is \texttt{all-MiniLM-L6-v2}.
-% \end{enumerate}
-% Scores from both retrievers are combined using Min-Max normalization and a weighted sum (default $\alpha=0.5$).
-
-% \textbf{Visual Embedding (ColQwen)}
-% Unlike traditional RAG systems that only embed text, this architecture integrates \textbf{ColQwen} (based on ColBERT). This model (specifically \texttt{vidore/colqwen2-v1.0}) generates visual embeddings for document pages, allowing the system to retrieve charts, diagrams, and tables based on visual similarity and visual semantic content. These embeddings are managed via specific quantization settings (e.g., 4-bit or 8-bit) to optimize memory usage.
-
-
-% \section{Data Preprocessing}
-
-% Following normalization, the data pipeline branches into two specialized processing streams to handle the distinct requirements of textual and visual information. This separation ensures that semantic depth is preserved for text while structural layout is maintained for documents.
-
-% \textbf{Textual Preprocessing Stream}
-
-% The primary input for this stream is the structured \textbf{Markdown} files generated during the normalization phase. The preprocessing logic focuses on preparing this text for semantic vectorization:
-% \begin{itemize}
-%     \item \textbf{Cleaning}: Removal of artifacts introduced during OCR or file conversion.
-%     \item \textbf{Structure Preservation}: The system utilizes the Markdown headers to maintain context, ensuring that section titles remain associated with their respective paragraphs during the splitting process.
-% \end{itemize}
 
 \section{Chunking and Embedding Strategies}
 
@@ -867,9 +442,9 @@ The system employs a dual-pathway embedding architecture combining format-aware 
 The system employs different chunking strategies depending on the source document type, reflecting the structural differences between formats:
 
 \begin{itemize}
-    \item \textbf{Office Documents (Excel, DOCX) --- Format-Aware Custom Chunking:} Excel files processed through Stage~3b use a table-aware custom XML parser with a maximum chunk size of 2,000 characters, preserving row-column relationships. DOCX files processed through Stage~3c use a heading-aware custom parser that respects the document heading hierarchy, keeping sections semantically coherent.
-    \item \textbf{PDF Documents --- Heading-Aware Custom Chunking:} PDFs processed through Stage~3d use a custom heading-aware chunking strategy that identifies PDF heading structures and creates chunks aligned with logical document sections.
-    \item \textbf{General Documents via Docling --- Recursive Character Splitting:} For documents processed through the main Docling pipeline (Stage~3), the system uses \texttt{RecursiveCharacterTextSplitter} with a chunk size of 1,024 characters and an overlap of 200 characters. This overlap preserves semantic continuity across chunk boundaries.
+    \item \textbf{Office Documents (Excel, DOCX) - Format-Aware Custom Chunking:} Excel files processed through Stage~3b use a table-aware custom XML parser with a maximum chunk size of 2,000 characters, preserving row-column relationships. DOCX files processed through Stage~3c use a heading-aware custom parser that respects the document heading hierarchy, keeping sections semantically coherent.
+    \item \textbf{PDF Documents - Heading-Aware Custom Chunking:} PDFs processed through Stage~3d use a custom heading-aware chunking strategy that identifies PDF heading structures and creates chunks aligned with logical document sections.
+    \item \textbf{General Documents via Docling - Recursive Character Splitting:} For documents processed through the main Docling pipeline (Stage~3), the system uses \texttt{RecursiveCharacterTextSplitter} with a chunk size of 1,024 characters and an overlap of 200 characters. This overlap preserves semantic continuity across chunk boundaries.
     \item \textbf{Multimedia Transcripts (Audio/Video):} Transcripts generated by Whisper employ a dedicated \texttt{TranscriptChunker} that groups transcription segments using token-count-based accumulation (maximum 100 tokens per chunk). Each chunk carries explicit \texttt{start\_time} and \texttt{end\_time} boundaries derived from Whisper's segment timestamps, enabling temporal range-based retrieval. Associated video frames are linked to transcript chunks based on temporal overlap, creating a unified multimodal index.
 \end{itemize}
 
@@ -884,24 +459,9 @@ To process the Markdown inputs, the system utilizes a high-precision splitting s
     \label{fig:textchunk}
 \end{figure}
 
-% \textbf{Chunking Logic}
-
-% The system employs the \texttt{RecursiveCharacterTextSplitter} with the following specific configuration:
-% \begin{itemize}
-%     \item \textbf{Chunk Size}: 1024 characters.
-%     \item \textbf{Chunk Overlap}: 200 characters.
-% \end{itemize}
-
-
 Textual data is segmented into chunks to fit within the context window of the embedding models. 
 The system employs the \texttt{RecursiveCharacterTextSplitter} with the configuration using a chunk size of 1024 characters with an overlap of 200 characters. 
 This overlap ensures semantic continuity across chunk boundaries, preventing context loss for sentences that straddle the split point. 
-% The retrieval mechanism is \textit{Hybrid}, combining two distinct algorithms:
-% \begin{enumerate}
-%     \item \textbf{Sparse Retrieval (BM25)}: Utilizes keyword matching to capture exact terms and domain-specific jargon.
-%     \item \textbf{Dense Retrieval}: Utilizes vector embeddings (stored in FAISS indices) to capture semantic meaning and context. The default embedding model is \texttt{all-MiniLM-L6-v2}.
-% \end{enumerate}
-% Scores from both retrievers are combined using Min-Max normalization and a weighted sum (default $\alpha=0.5$).
 
 
 \textbf{Text Vectorization (SBERT)}
@@ -998,35 +558,6 @@ Metadata Catalog & Document + chunk + image metadata & JSON files (S3) & Source 
     \item Vectors stored with minimal indexing (m=0 for HNSW bypass) to reduce memory overhead
     \item Query-time MaxSim computed on-demand for precision
 \end{enumerate}
-
-% \textbf{Reranking}
-
-% As defined in the system architecture, reranking is \textbf{globally disabled} (\texttt{SKIP\_RERANKER=true} by default) for latency optimization. The reranker code is retained in the codebase for fast rollback if needed, but is not invoked during search to maintain sub-second response times.
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.45\textwidth]{img/pdz/Report 252 Diagram-Reranking.drawio.png}
-%     \caption[Reranking Architecture]{Reranking Architecture.}
-%     \label{fig:reranking_arch}
-% \end{figure}
-
-% \begin{table}[H]
-% \centering
-% \caption[Indexing Output Artifacts]{Artifacts produced by the indexing pipeline for each document.}
-% \label{tab:indexing_artifacts}
-% \resizebox{\textwidth}{!}{%
-% \begin{tabular}{@{}llll@{}}
-% \toprule
-% \textbf{Index Type} & \textbf{Data Structure} & \textbf{Storage Format} & \textbf{Query Mechanism} \\ \midrule
-% BM25 Index (Text) & Inverted index (term → docs) & Pickle file (\texttt{.pkl}) on S3 & Keyword matching, TF-IDF scoring \\
-% Dense Index (Text) & 384-dim Vector (all-MiniLM-L6-v2) & Qdrant Cloud Collection & Cosine similarity, HNSW search \\
-% Hybrid Index (Text) & RRF fusion results & JSON lookup table & Combined BM25 + Dense scores \\
-% Visual Index (Images) & ColQwen multi-vectors & Qdrant Cloud Collection & Late-interaction MaxSim matching \\
-% Metadata Catalog & Document + chunk + image metadata & JSON files on S3 & Source tracking, citation generation \\
-% \bottomrule
-% \end{tabular}%
-% }
-% \end{table}
 
 \textbf{Index Persistence Strategy}:
 
@@ -1168,86 +699,7 @@ Each indexing operation creates a job payload with status tracking. The service 
 \end{itemize}
 
 With asynchronous job processing established as the infrastructure for long-running indexing operations, the system requires robust schema design and storage architecture to persist all processing artifacts, embeddings, and user state. The following section describes the three-tier hybrid storage architecture.
-% \section{Chat and Conversation Management}
 
-% Phase 2 introduces a \textbf{stateful conversation system} backed by Amazon DynamoDB, enabling users to maintain multi-turn chat histories, resume interrupted sessions, and explore context across related queries.
-
-% \subsection{Session Architecture}
-
-% The chat subsystem organizes conversations into isolated \textbf{sessions}, each anchored by a \texttt{session\_id} and owned by a \texttt{user\_id}. Sessions persist key metadata including creation timestamp, human-readable title (auto-generated or user-provided), and pinned status for favorites.
-
-% Messages are stored with bidirectional references, carrying role (\texttt{user} | \texttt{assistant}), content (text body), optional traces (retrieval context, search results, citations), and optional suggestions (follow-up query recommendations).
-
-% \subsection{DynamoDB Schema}
-
-% The \texttt{ChatHistoryRepository} implements two-table schema for efficiency:
-
-% \begin{table}[H]
-%     \centering
-%     \small
-%     \begin{tabular}{p{2cm}p{3cm}p{5cm}}
-%         \toprule
-%         \textbf{Table} & \textbf{Partition Key} & \textbf{Purpose} \\
-%         \midrule
-%         \texttt{chat\_sessions} & \texttt{user\_id\#session\_id} & Session metadata, title, timestamps \\
-%         \texttt{chat\_messages} & \texttt{session\_id\#timestamp} & Message ordering, role, content, traces \\
-%         \bottomrule
-%     \end{tabular}
-% \end{table}
-
-% This design enables O(1) session lookup and updates, efficient message pagination via cursor-based queries (\texttt{limit}, \texttt{newest\_first}), and TTL-based automatic cleanup of old sessions.
-
-% \subsection{Conversation Threading}
-
-% The \texttt{ChatHistoryService} orchestrates three core workflows: (1) Session Creation via \texttt{ensure\_session(user\_id, session\_id)} for idempotent session creation, (2) Message Append via \texttt{put\_message(...)} for persisting user queries and assistant responses with optional retrieval metadata, and (3) History Traversal via \texttt{list\_messages()} for returning paginated message sequences.
-
-% When generating answers, the service injects recent message history to maintain conversation coherence, enabling natural follow-up questions without re-stating the topic.
-
-% \subsection{User Experience Benefits}
-
-% \begin{itemize}
-%     \item Multi-session support: Organize conversations by topic or date
-%     \item Resumability: Close and reopen sessions without losing context
-%     \item Searchability: Full-text search over session titles and content
-%     \item Mobile-friendly: Stateless backend enables seamless sync across devices
-% \end{itemize}
-
-% \section{Safety and Content Filtering}
-
-% Phase 2 integrates \textbf{AWS Bedrock Guardrails} to enforce safety constraints during LLM generation, mitigating risks of harmful outputs while maintaining transparency to users.
-
-% \subsection{Guardrail Integration}
-
-% The \texttt{bedrock\_guardrail\_integration} module wraps Bedrock's native guardrail API, automatically injecting safety configuration into all \texttt{converse()} requests. The guardrail identifier, version control (\texttt{GUARDRAIL\_VERSION}, default \texttt{DRAFT}), and toggle control (\texttt{GUARDRAIL\_ENABLED}) allow for policy iteration without code deployment.
-
-% \subsection{Content Filtering Mechanisms}
-
-% Bedrock Guardrails enforce multi-layer content filtering:
-
-% \begin{enumerate}
-%     \item \textbf{Input Filtering}: Scan user queries for restricted topics (e.g., violence, sexual content, illegal activities) before forwarding to the LLM.
-
-%     \item \textbf{Output Filtering}: Scan generated responses against policy taxonomy, blocking harmful completions and returning fallback messages.
-
-%     \item \textbf{Contextual Awareness}: Guardrails understand document context. For educational materials containing sensitive content, filtering policies can be relaxed with explicit user acknowledgment.
-
-%     \item \textbf{Custom Filters}: Organizations can define domain-specific filters via the Bedrock console without code changes.
-% \end{enumerate}
-
-% \subsection{Generation Safety Protocol}
-
-% When \texttt{BedrockProvider.create()} invokes the model: (1) Pre-generation validates user query and context against guardrails, returning \texttt{ContentPolicyViolation} if violated, (2) Generation passes model instructions emphasizing factuality and retrieved documents as ground truth, (3) Post-generation applies output filtering and logs violations to CloudWatch, and (4) Audit Trail enables reproducibility and compliance auditing.
-
-% \subsection{Compliance and Transparency}
-
-% \begin{itemize}
-%     \item \textbf{Deterministic Enforcement}: Guardrail decisions logged with decision\_id and policy\_version.
-%     \item \textbf{User Notification}: API responses include \texttt{filtered} flag indicating if content was restricted.
-%     \item \textbf{Policy Versioning}: Guardrail changes are trackable, enabling rollback if unintended filtering occurs.
-%     \item \textbf{Benchmark Alignment}: Guardrails align with industry standards (NIST AI RMF, EU AI Act readiness).
-% \end{itemize}
-
-% [PLACEHOLDER - Add diagram: Bedrock Guardrail filtering flow (input $\rightarrow$ validation $\rightarrow$ generation $\rightarrow$ output filter $\rightarrow$ audit log)]
 
 \section{Database Schema and Storage}
 The system implementation requires a robust schema design to manage heterogeneous data including user interactions, processed documents, and high-dimensional vector representations. We utilize a \textbf{Hybrid Storage Architecture} to balance persistence, scalability, and low-latency retrieval across three specialized layers:
@@ -1392,91 +844,6 @@ The visual index maintains geometric representations (height/width) alongside S3
 
 \subsection{Object Storage (Amazon S3)}
 The system utilizes a dual-bucket object storage architecture to manage the lifecycle of document assets. This approach decouples raw ingestion from the downstream processing pipeline, ensuring data integrity and enabling scalable multi-tenancy.
-
-% \begin{itemize}
-%     \item \textbf{Tenant Isolation}: Files are logically partitioned using the prefix for each user. This ensures strict data segregation and facilitates efficient cleanup of processing artifacts.
-%     \item \textbf{Dual-Bucket Lifecycle}: 
-%     \begin{itemize}
-%         \item \textbf{Originals Bucket}: Acts as the immutable source of truth for all raw user uploads.
-%         \item \textbf{Processed Bucket}: Stores all 7-stage normalized artifacts, metadata sidecars, and serialized indices. 
-%     \end{itemize}
-%     The orchestration layer manages the synchronization between these buckets, downloading assets to a local temporary workspace for high-speed processing before publishing the final RAG-ready documents to the Processed Bucket.
-% \end{itemize}
-
-% \begin{figure}[H]
-%     \centering
-%     \begin{forest}
-%       for tree={
-%         font=\ttfamily\scriptsize,
-%         grow'=0,
-%         anchor=west,
-%         parent anchor=east,
-%         child anchor=west,
-%         l sep=10pt,
-%         s sep=1pt,
-%         edge path={
-%           \noexpand\path [draw, \forestoption{edge}]
-%           (!u.east) -- +(3pt,0) |- (.child anchor) \forestoption{edge label};
-%         },
-%       }
-%       [
-%         [ai-service-originals-dev
-%           [users/\{uid\}/
-%             [\{doc\_name\}.pdf]
-%             [\{doc\_name\}.pdf.metadata.json]
-%           ]
-%         ]
-%         [ai-service-processed-dev
-%           [users/\{uid\}/
-%             [.processing\_cache.json]
-%             [pipeline\_stats.json]
-%             [stage1\_normalized/
-%                 [normalized\_pdfs/]
-%                 [excel\_parsed/]
-%                 [original\_files/]
-%                 [normalization\_metadata/
-%                     % [normalization\_stats.json]
-%                 ]
-%             ]
-%             [stage2\_media\_processed/
-%                 [extracted\_audio/]
-%                 [extracted\_frames/]
-%                 [transcripts/]
-%                 [media\_metadata/]
-%             ]
-%             [stage3\_document\_processed/
-%                 [\{doc\_name\}/
-%                     [\{doc\_name\}.md]
-%                     [\{doc\_name\}\_metadata.json]
-%                 ]
-%                 [logs/
-%                     [batch\_summary\_*.json]
-%                     [processing\_*.log]
-%                 ]
-%             ]
-%             [stage4\_rag\_ready/
-%                 [\{doc\_name\}/
-%                     [\{doc\_name\}.md]
-%                     [\{doc\_name\}.pdf]
-%                     [docling\_additional/
-%                         % [metadata.json]
-%                     ]
-%                 ]
-%                 [consolidation\_stats.json]
-%             ]
-%             [retrieval/
-%                 [bm25\_index.pkl]
-%                 [documents.json.pkl]
-%             ]
-%           ]
-%         ]
-%       ]
-%     \end{forest}
-%     \caption{Amazon S3 Directory Structure Tree.}
-%     \label{fig:s3_tree}
-% \end{figure}
-
-% \markdownInput{markdown/s3.md}
 
 \begin{figure}[H]
     \centering
@@ -1631,7 +998,7 @@ As illustrated in Figure~\ref{fig:deployment_diagram}, the deployment architectu
 
 \textbf{CI/CD Component:} The pipeline is fully automated via GitHub Actions. On every push to \texttt{main} or \texttt{develop}, the workflow builds Docker images for the frontend and backend, tags them with the commit SHA for traceability, and pushes them to Amazon ECR (Elastic Container Registry). AWS Secrets Manager stores all credentials and environment variables, injected securely at runtime.
 
-\textbf{AWS VPC --- Public and Private Subnets:} All user traffic first passes through \textbf{AWS WAF} (Web Application Firewall) for threat filtering, then through \textbf{AWS CloudFront} CDN (which injects X-Origin-Key headers for origin verification) before reaching the Application Load Balancer in the public subnet. A NAT Gateway handles outbound traffic for private-subnet services. The \textbf{Private Subnets App Tier} contains an \textbf{AWS ECS Cluster} running two services: the Frontend Service (React, containerized) and the Backend Service (FastAPI RAG pipeline), each with their own ECS Task Definition, IAM Task Role, Auto Scaling policies, and CloudWatch alarms for health monitoring. The backend also integrates with \textbf{Amazon Bedrock} for LLM API streaming.
+\textbf{AWS VPC - Public and Private Subnets:} All user traffic first passes through \textbf{AWS WAF} (Web Application Firewall) for threat filtering, then through \textbf{AWS CloudFront} CDN (which injects X-Origin-Key headers for origin verification) before reaching the Application Load Balancer in the public subnet. A NAT Gateway handles outbound traffic for private-subnet services. The \textbf{Private Subnets App Tier} contains an \textbf{AWS ECS Cluster} running two services: the Frontend Service (React, containerized) and the Backend Service (FastAPI RAG pipeline), each with their own ECS Task Definition, IAM Task Role, Auto Scaling policies, and CloudWatch alarms for health monitoring. The backend also integrates with \textbf{Amazon Bedrock} for LLM API streaming.
 
 \textbf{Data Component:} Persistent state is managed across three AWS managed services: \textbf{Amazon S3} (document and artifact storage with SSE-S3 encryption, block public access), \textbf{Amazon SQS} (job queue for asynchronous indexing tasks), and \textbf{Amazon DynamoDB} (chat session and message persistence with SSE encryption). All services enforce block public access policies.
 
@@ -1663,7 +1030,7 @@ The pipeline consists of multiple sequential stages that validate code quality b
 
 \textbf{Security and Secrets Management}
 
-All sensitive data---database credentials, API keys, LLM authentication tokens---is stored in \textbf{AWS Secrets Manager} rather than in the GitHub repository or environment variables. During the CI/CD pipeline execution, these secrets are injected as environment variables into the container at runtime, never exposed in logs or stored on disk. This secret rotation mechanism ensures that compromised credentials can be invalidated without redeploying the entire application.
+All sensitive data-database credentials, API keys, LLM authentication tokens-is stored in \textbf{AWS Secrets Manager} rather than in the GitHub repository or environment variables. During the CI/CD pipeline execution, these secrets are injected as environment variables into the container at runtime, never exposed in logs or stored on disk. This secret rotation mechanism ensures that compromised credentials can be invalidated without redeploying the entire application.
 
 The use of OIDC for AWS credential exchange (rather than long-lived IAM access keys) further hardens the pipeline. OIDC tokens are short-lived, automatically generated by GitHub for each workflow run, and scoped to specific AWS permissions (least privilege). This eliminates the risk of leaked credentials persisting indefinitely in GitHub's secret storage.
 
@@ -1713,406 +1080,6 @@ The runtime environment is managed by \textbf{Amazon Elastic Container Service (
 \textbf{High Availability and Auto-Scaling}: ECS ensures that the desired number of containers are always running through automated health monitoring. If a container fails its health check (e.g., the FastAPI application becomes unresponsive), ECS automatically terminates the unhealthy container and launches a replacement. For traffic spikes, the system is configured with auto-scaling policies: if CPU utilization or request count exceeds a threshold (e.g., 70\% CPU), ECS automatically increases the number of running tasks to distribute the load. Conversely, during quiet periods, idle tasks are scaled down to optimize costs.
 
 The combination of containerization, a private registry, and orchestration creates a deployment pipeline that is simultaneously secure (secrets never exposed), scalable (scale up in seconds), reliable (automatic recovery from failures), and auditable (every deployment is tracked by commit hash and timestamp).
-
-% \section{Strategic Technology Selection}
-% 
-% \subsection{Frontend: React}
-% 
-% The frontend is the face of the application, defining the user's entire interactive experience with the multimodal output of the RAG system. The choice of a modern JavaScript framework is therefore essential for building a rich, responsive, and maintainable user interface.
-% 
-% After analyzing the leading frameworks, React is the recommended choice. This decision is based on four key pillars:
-% \begin{itemize}
-%     \item \textbf{Core Architectural Suitability} for the application's specific technical demands.
-%     \item \textbf{Superior Performance} in managing frequent and complex UI updates.
-%     \item \textbf{Unmatched Ecosystem and Community Support}, which directly accelerates development and ensures long-term viability.
-%     \item \textbf{Proven Precedent} in large-scale, complex applications, particularly within the EdTech industry.
-% \end{itemize}
-% 
-% From now on, we detail the reasoning for this selection, including a direct comparison with the primary alternative, Vue.js.
-% 
-% \textbf{Architecture Suits a Multimodal RAG System}
-% The architectural principles of React are uniquely suited to the specific challenges of our application. The RAG system will return a heterogeneous mix of data: a streaming text answer, a reference to a page in a PDF, a timestamp in a lecture video, and a relevant diagram.
-% 
-% React's declarative nature, where developers describe what the UI should look like for a given state, allows the team to manage this complexity effectively. Instead of writing complex, imperative code to manually update the DOM for each data type, developers can create distinct, self-contained components for example \texttt{ChatWindow}, \texttt{SourceDocViewer}, \texttt{VideoPlayer}, \texttt{ImageViewer}. 
-% 
-% The main application component then simply manages the application's state and declaratively renders the appropriate components based on the API response. This clear separation of concerns is critical for building a robust and maintainable multimodal user interface.
-% 
-% \textbf{Core Advantages and Technical Rationale}
-% Beyond its perfect fit for our specific data model, React provides foundational advantages in performance and development efficiency.
-% 
-% \textbf{Component-Based Architecture}
-% This is the cornerstone of the selection. The user interface will be a composition of independent, reusable components (as listed above). This modularity simplifies the entire development lifecycle; each component can be built, tested, and maintained in isolation, which is critical for managing the complexity of the application.
-% 
-% \textbf{High Performance with the Virtual DOM}
-% The RAG system will generate text responses and display various media types. React's use of a Virtual Document Object Model (DOM) is a key performance feature. It creates a lightweight in-memory representation of the UI, calculates the most efficient changes (``diffing''), and minimizes direct, costly manipulations of the actual browser DOM. This results in a smooth, responsive user experience, even as the UI updates frequently with new data from the backend.
-% 
-% \textbf{Comparative Analysis: React vs. Vue.js}
-% While both React and Vue.js utilize a virtual DOM and a component-based architecture, a direct comparison reveals React's significant advantages for a project of this scale.
-% 
-% \textbf{Ecosystem, Community, and Talent Pool}
-% React boasts a significantly larger and more mature ecosystem than Vue.js. This translates into an unparalleled selection of third-party libraries, state management solutions (like Redux and Zustand), UI component kits (e.g., Material-UI, Ant Design), and development tools. For a feature-rich educational application that will require complex UI elements, such as interactive document viewers, data visualization, and chat interfaces, this vast ecosystem is a critical accelerator, reducing the need to build components from scratch.
-% 
-% Furthermore, industry surveys consistently demonstrate React's dominant position. Stack Overflow's 2023 survey showed that 42.87\% of professional developers use React, compared to 17.64\% for Vue.js. This larger talent pool is a pragmatic and significant advantage for a university-based project like us.
-% 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{img/pdz/33-react-survey.png}
-%     \caption{Most popular web frameworks and technologies among Professional Developers (Stack Overflow, 2023).}
-%     \label{fig:react_survey}
-% \end{figure}
-% 
-% \textbf{Scalability and Suitability for Complex Applications}
-% Both React and Vue.js are capable of building scalable applications. However, React's unopinionated library-based approach provides a crucial flexibility that is often favored for building large-scale, highly complex enterprise applications. This flexibility allows development teams to custom-build their architecture, selecting their own libraries for routing, state management, and data fetching, to create a stack that is perfectly optimized for unique and demanding business logic.
-% 
-% This preference is not merely theoretical; it is validated by the technology stacks of some of the world's largest and most complex web applications:
-% \begin{itemize}
-%     \item \textbf{Meta (Facebook \& Instagram)}: As the creator of React, Meta's platforms are its primary case study. The Facebook web app is a quintessential example of a complex, component-driven application, required to manage thousands of individual components, real-time data streaming, and billions of user interactions simultaneously.
-%     \item \textbf{Netflix}: The Netflix web application relies on React to deliver its high-performance, TV-like user interface. The team chose React to manage the complex state interactions of its UI, enabling them to rapidly iterate, A/B test features, and maintain performance on a wide variety of devices.
-%     \item \textbf{The New York Times}: To support modern, interactive journalism and a massive, dynamic content library, The New York Times rebuilt its website using React. This allows their development teams to create reusable components that can be shared across the organization, accelerating the development of new features and data visualizations.
-% \end{itemize}
-% 
-% While Vue is highly capable, React's architecture is battle-tested and proven to be the choice for global teams building applications where complexity and massive scale are the primary concerns.
-% 
-% \subsection{Backend: FastAPI}
-% 
-% 
-% The backend is the engine of our AI-driven educational application, responsible for orchestrating every interaction between the user, our data stores, and the core AI models. Our reliance on Python is a strategic imperative, granting us native access to the world's leading AI ecosystem, including libraries like PyTorch, Scikit-learn, and the Hugging Face ecosystem.
-% 
-% Within this ecosystem, the choice of web framework is critical. It is the layer that can either unleash the power of our AI models or become a crippling performance bottleneck. After a detailed analysis of the primary contenders, the mature, ``batteries-included'' Django framework and the modern, high-performance FastAPI, we have concluded that FastAPI is the unequivocally superior choice for this project.
-% 
-% This decision is based on three core pillars:
-% \begin{itemize}
-%     \item \textbf{Exceptional Performance}: FastAPI's asynchronous architecture delivers an order-of-magnitude performance improvement over traditional frameworks, which is essential for the I/O-bound nature of a Retrieval-Augmented Generation (RAG) application.
-%     \item \textbf{Accelerated Developer Experience}: Its modern, type-hint-driven design, featuring automatic data validation and API documentation, drastically reduces boilerplate code and minimizes common errors.
-%     \item \textbf{Future-Proof Architectural Philosophy}: FastAPI is designed for a modern, microservices-first world, providing the flexibility and scalability required to prevent technical debt and support long-term growth.
-% \end{itemize}
-% 
-% \textbf{Performance and Asynchronous Processing}
-% A RAG application is inherently I/O-bound. The server spends most of its time not computing, but waiting: waiting for a query response from the Vector Database, waiting for user data from a relational database, and, most significantly, waiting for the Large Language Model (LLM) API to stream back its generated response.
-% 
-% In a traditional synchronous framework like Django, each of these waiting periods would block an entire worker thread. This means that if 10 users send a query simultaneously, the application needs at least 10 worker threads, each consuming significant memory. This model scales poorly, leading to a rapid increase in server costs and a degradation of user experience under load.
-% 
-% FastAPI solves this problem at its core. It is built on modern Python \texttt{async/await} syntax and the Asynchronous Server Gateway Interface (ASGI) standard. This allows a single process to handle thousands of concurrent connections. When a task starts waiting for an I/O operation (like an LLM call), the server doesn't block; it yields control and serves other requests, returning to the original task only when the data is ready.
-% 
-% \textbf{Real-World Performance Benchmarks}
-% This architectural difference is not merely theoretical; it is reflected in stark performance metrics from independent, industry-standard benchmarks. According to the highly respected TechEmpower benchmarks, which test hundreds of web frameworks in realistic scenarios, FastAPI's performance is in a different league.
-% 
-% In the Round 22 benchmarks (testing against physical hardware), the Uvicorn server running a basic FastAPI application handled \textbf{12,567 requests per second} in the Multiple Queries test. In contrast, Django on Gunicorn (a standard synchronous setup) handled \textbf{1,623 requests per second}.
-% 
-% This means FastAPI can handle over 8 times the traffic with the same hardware for this common task. For our I/O-bound application, this advantage is even more pronounced. The ability to efficiently manage concurrent waiting tasks means we can serve more users simultaneously with lower latency and significantly lower infrastructure costs. This raw performance is essential for delivering the responsive, real-time experience that users expect from an interactive AI assistant.
-% 
-% \textbf{The Superior Developer Experience}
-% Beyond raw performance, FastAPI is engineered with a laser focus on building APIs, which dramatically improves developer productivity and code quality.
-% 
-% \begin{itemize}
-%     \item \textbf{Automatic Data Validation \& Serialization}: FastAPI leverages the Pydantic library and Python type hints to provide automatic request validation. This is a game-changer. Developers simply define the expected data structure as a Python class, and FastAPI handles the rest: validating incoming data, returning clear JSON error messages if validation fails, serializing complex data types, and converting data seamlessly. In Django, achieving this requires the Django REST Framework (DRF), which involves writing separate Serializer classes, adding boilerplate and cognitive load.
-%     \item \textbf{Automatic Interactive API Documentation}: Out of the box, FastAPI generates interactive API documentation based on the OpenAPI standard. As soon as an endpoint is written, a fully functional documentation page is available at \texttt{/docs}, allowing frontend developers and consumers to test endpoints and understand the API without manual effort. This tight feedback loop is invaluable for rapid development.
-% \end{itemize}
-% 
-% \textbf{Architectural Philosophy and Future-Proofing}
-% The choice between FastAPI and Django represents a fundamental decision between a modern, microservices-first architecture and a traditional, monolithic one.
-% 
-% Django's philosophy is geared towards building monolithic, full-stack applications with server-rendered templates, an admin panel, and a built-in ORM. These are excellent features for certain projects, but they are less critical for our API-first, decoupled architecture.
-% 
-% FastAPI's lightweight and unopinionated nature makes it a natural fit for building independent, scalable microservices. This allows for a logical separation of concerns. We can develop, deploy, and scale the user authentication service independently from the RAG pipeline service. This modularity offers significant long-term advantages in scalability and maintainability, preventing the need for a costly and disruptive rewrite as the platform grows.
-% 
-% \textbf{Head-to-Head Comparison Matrix}
-% The following table provides a clear, at-a-glance comparison to justify the selection of FastAPI for our specific application context.
-% 
-% \begin{table}[H]
-%     \centering
-%     \caption{FastAPI vs. Django Comparison for RAG Application.}
-%     \label{tab:fastapi_vs_django}
-%     \scalebox{0.8}{
-%     \begin{tabular}{p{3cm}p{4.5cm}p{4.5cm}p{6cm}}
-%         \toprule
-%         \textbf{Criterion} & \textbf{FastAPI} & \textbf{Django} & \textbf{Justification for RAG Application} \\
-%         \midrule
-%         Performance (Req/s) & Very High ($\sim$12,500+) & Moderate ($\sim$1,600) & RAG requires high concurrency for I/O-bound tasks. FastAPI's 8x+ performance is a decisive advantage. \\
-%         Asynchronous Support & Native, built-in (\texttt{async/await}) & Supported via Channels (adds complexity) & Native async is simpler and more performant for orchestrating LLM and database calls. \\
-%         API Documentation & Automatic (Swagger UI, ReDoc) & Requires external library (DRF) & Automatic documentation accelerates development, reduces friction, and simplifies API integration. \\
-%         Data Validation & Built-in via Pydantic Type Hints & Built-in Forms / DRF Serializers & Pydantic is more modern, concise, and integrated, reducing boilerplate and potential errors. \\
-%         Architectural Fit & Microservices, API-first & Monolithic, full-stack & A microservices approach is inherently more scalable and maintainable for our project's distinct components. \\
-%         Learning Curve & Low & Moderate to High & A lower learning curve allows for faster onboarding of new developers and contributors. \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-% \end{table}
-% 
-% \subsection{Cloud Vector Database: Qdrant}
-% 
-% The market for cloud \textbf{Vector Databases} is highly fragmented, with vendors utilizing fundamentally different programming languages, scaling architectures, and index structures. Evaluating their capacity to handle billion-scale multimodal workloads requires a granular architectural analysis of each platform.
-% 
-% \textbf{Multi-Embedding Storage and MaxSim Execution}
-% The capacity to efficiently ingest, store, and query the multi-embeddings generated by ColPali is a primary differentiator among \textbf{Vector Databases}. While platforms like \textbf{Vespa} and \textbf{Milvus} offer robust native solutions via tensor formalism and unified data types respectively, \textbf{Qdrant} uniquely excels through its decoupling of storage and indexing. Acknowledging that indexing heavy multi-vector payloads via HNSW wastes compute and RAM, Qdrant allows architects to explicitly disable graph construction for these payloads. They are utilized exclusively for in-memory, query-time MaxSim reranking against candidates retrieved via a fast single-vector pass. This architectural brilliance prevents the database from collapsing under graph maintenance during ingestion, ensuring high-speed data loading and significantly reduced RAM overhead.
-% 
-% \begin{table}[H]
-%     \centering
-%     \caption{Multi-Vector Storage and MaxSim Implementation.}
-%     \label{tab:multivector_impl}
-%     \scalebox{0.8}{
-%     \begin{tabular}{llll}
-%         \toprule
-%         \textbf{Platform} & \textbf{Native Storage} & \textbf{MaxSim Implementation} & \textbf{ColPali Optimization} \\
-%         \midrule
-%         Vespa & Yes (Tensor Formalism) & Yes (Float \& Hamming) & Phased retrieval, BQ \\
-%         Milvus & Yes (Array of Structs) & Yes (MAX\_SIM Metric) & Entity retrieval \\
-%         \textbf{Qdrant} & \textbf{Yes (Nested Arrays)} & \textbf{Yes (Query-time compute)} & \textbf{Index bypassing (m=0)} \\
-%         Weaviate & Yes (Multi-vector) & Yes & Jina AI integration \\
-%         Pinecone & Partial (Metadata) & Yes (Cascading logic) & ConstBERT mapping \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-% \end{table}
-% 
-% \textbf{Supported Search Mechanisms}
-% A robust multimodal database must support various search paradigms. All major platforms natively support dense, sparse (keyword), and hybrid search mechanisms. The critical differentiator is the underlying hybrid fusion algorithm. \textbf{Qdrant} stands out by supporting advanced fusion techniques such as Reciprocal Rank Fusion (RRF) and Distribution-Based Score Fusion (DBSF), intelligently balancing the unbounded scoring of BM25 against the normalized bounds of cosine similarity. Furthermore, Qdrant leads the industry in metadata filtering via its highly optimized payload indexing, allowing complex JSON-based logical conditions to intersect with vector search without compromising retrieval speed.
-% 
-% \begin{table}[H]
-%     \centering
-%     \caption{Search Mechanism Comparison.}
-%     \label{tab:search_mechanisms}
-%     \scalebox{0.8}{
-%     \begin{tabular}{llllll}
-%         \toprule
-%         \textbf{Mechanism} & \textbf{Vespa} & \textbf{Milvus} & \textbf{Qdrant} & \textbf{Weaviate} & \textbf{Pinecone} \\
-%         \midrule
-%         Keyword / BM25 & Yes (Native) & Yes (Sparse) & Yes (Sparse) & Yes (Inverted) & No \\
-%         Semantic Dense & Yes & Yes & Yes & Yes & Yes \\
-%         Hybrid Fusion & RRF, Tensor & Built-in Rankers & \textbf{RRF, DBSF} & Alpha weight & Sparse/Dense \\
-%         Metadata Filter & Yes & JSON Shred & \textbf{Payload Index} & Yes & High Speed \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-% \end{table}
-% 
-% \textbf{Scalability, Latency, and Economics}
-% Transitioning to production demands rigorous evaluation of latency, scalability, and Total Cost of Ownership (TCO). Driven by its \textbf{Rust-based engine}, Qdrant demonstrates exceptional performance, maintaining 30-40 millisecond p95 latencies and sustaining 8,000 to 15,000 QPS, significantly outperforming Go-based alternatives in tail latency. Economically, Qdrant offers a generous perpetual free tier for prototyping and scales cost-effectively via custom sharding and the Raft consensus protocol, whereas enterprise solutions like Milvus and Vespa carry higher base infrastructure costs.
-% 
-% \begin{table}[H]
-%     \centering
-%     \caption{Cloud Scalability, Latency, and Economic Efficiency.}
-%     \label{tab:scalability_econ}
-%     \scalebox{0.8}{
-%     \begin{tabular}{llllp{4cm}}
-%         \toprule
-%         \textbf{Platform} & \textbf{p95 Latency} & \textbf{Throughput} & \textbf{Cost (10M Vec)} & \textbf{Architecture} \\
-%         \midrule
-%         \textbf{Qdrant} & \textbf{30-40ms} & \textbf{8k - 15k} & \textbf{\$120 - \$250} & \textbf{Custom Sharding, Raft} \\
-%         Weaviate & 50-70ms & 3k - 8k & \$150 - \$300 & Sharded Index, K8s \\
-%         Milvus & 50-80ms & 10k - 20k & \$300 - \$600 & Tiered Storage \\
-%         Pinecone & Sub-100ms & Auto-scale & \$200 - \$400 & Serverless Pods \\
-%         Vespa & Sub-100ms & Extreme & Usage-based & Distributed Data Nodes \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-% \end{table}
-% 
-% \textbf{Developer Experience and Integration}
-% Developer experience dictates integration speed. While Weaviate offers simplified APIs, it can lack granular configurability. Vespa provides deep tensor control but suffers from an exceptionally steep learning curve. \textbf{Qdrant} strikes the perfect balance. It features straightforward Docker deployments, highly readable Python SDKs, and deep integration with the \texttt{FastEmbed} library. This allows developers to generate dense and sparse embeddings locally without heavy external dependencies, vastly simplifying the creation of multi-vector RAG pipelines.
-% 
-% \textbf{Final Selection and Strategic Recommendation}
-% 
-% \begin{table}[H]
-%     \centering
-%     \caption{Holistic Vector Database Comparison Summary.}
-%     \label{tab:holistic_db_comp}
-%     \scalebox{0.8}{
-%     \begin{tabular}{llllll}
-%         \toprule
-%         \textbf{Feature} & \textbf{Vespa} & \textbf{Milvus} & \textbf{Qdrant} & \textbf{Weaviate} & \textbf{Pinecone} \\
-%         \midrule
-%         Core Architecture & Hybrid C++ / Java & Go (K8s) & \textbf{Rust} & Go & SaaS \\
-%         ColPali Support & Native Tensor & Array of Structs & \textbf{Index Bypassing} & Multi-vector arrays & Metadata strings \\
-%         Pricing Model & Usage-based & Tiered Cloud & \textbf{Free Tier + Cloud} & 14-day + Cloud & Free Tier + Pods \\
-%         Developer Curve & High Complexity & Moderate & \textbf{Low} & Low & Very Low \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-% \end{table}
-% 
-% After an exhaustive analysis of architectural design, search mechanism breadth, economic efficiency, and specific multi-vector handling capabilities, we have selected \textbf{Qdrant} as the primary cloud Vector Database for the production environment. 
-% 
-% \textbf{Strategic Rationale for Selecting Qdrant}:
-% Qdrant serves as the optimal highly performant alternative for our multimodal RAG architecture. Its architectural decision to bypass HNSW indexing for heavy multi-vector payloads demonstrates a deep understanding of memory economics, ensuring high-speed ingestion and reduced RAM overhead. For our team, Qdrant's \texttt{FastEmbed} ecosystem makes ColPali integration exceptionally streamlined, while its Rust-powered engine provides the necessary latency and throughput performance for the system.
-
-
-% \section{Cloud Infrastructure Cost Estimation}
-% 
-% To ensure the economic viability of the proposed system, we have established a baseline cost estimation based on a production-grade AWS deployment. The following table summarizes the key assumptions and resource allocations used to forecast the monthly operational expenditure for the \texttt{prod} environment in the \texttt{us-west-2} region, supporting an initial cohort of 50 active users.
-% 
-% \begin{table}[H]
-%     \centering
-%     \scalebox{0.8}{
-%     \begin{tabular}{lp{2.5cm}llp{8cm}}
-%         \toprule
-%         \textbf{Parameter} & \textbf{Value} & \textbf{Unit} & \textbf{Source} & \textbf{Notes} \\
-%         \midrule
-%         Active Users & 50 & count & Target & Monthly active users for forecast. \\
-%         Hours per Month & 730 & hours & Standard & 24/7 $\times$ 365 $\div$ 12. \\
-%         AWS Region & us-west-2 & region & Config & Oregon - base pricing reference. \\
-%         Environment & prod & text & Terraform & Production environment. \\
-%         \midrule
-%         \multicolumn{5}{l}{\textbf{COMPUTE}} \\
-%         \midrule
-%         Backend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks (High Availability). \\
-%         Backend Min/Max & 1 / 10 & tasks & Terraform & Auto-scaling range. \\
-%         Backend vCPU & 0.50 & vCPU & Terraform & 512 CPU units per task. \\
-%         Backend RAM & 1 & GB & Terraform & 1024 MB per task. \\
-%         Frontend Desired Count & 2 & tasks & Terraform & ECS Fargate tasks. \\
-%         Frontend Min/Max & 1 / 5 & tasks & Terraform & Auto-scaling range (lighter). \\
-%         Frontend vCPU & 0.25 & vCPU & Terraform & 256 CPU units for Node.js. \\
-%         Frontend RAM & 0.50 & GB & Terraform & 512 MB per task. \\
-%         \midrule
-%         \multicolumn{5}{l}{\textbf{AI/ML \& INFERENCE}} \\
-%         \midrule
-%         SageMaker Enabled & Yes & boolean & Terraform & ml.g4dn.xlarge GPU inference. \\
-%         Instance Type & ml.g4dn.xlarge & text & Terraform & NVIDIA T4 GPU (1x). \\
-%         Instances (Always-On) & 1 & count & Estimate & 24/7 instance for inference. \\
-%         Bedrock Claude Usage & $\sim$6M & tokens & Estimate & Haiku + Sonnet for generation. \\
-%         \midrule
-%         \multicolumn{5}{l}{\textbf{STORAGE \& CACHE}} \\
-%         \midrule
-%         ElastiCache Serverless & Yes & boolean & Terraform & Redis search cache. \\
-%         Cache Data Size & 2.50 & GB & Estimate & BM25 + dense embeddings. \\
-%         Cache TTL & 600 & seconds & Config & 10-minute cache validity. \\
-%         S3 Bucket (storage) & 10 & GB & Terraform & Store the original files and processed files. \\
-%         S3 Bucket (requests) & 5000 & count & Terraform & Calling the original files and processed files. \\
-%         \midrule
-%         \multicolumn{5}{l}{\textbf{DATABASE}} \\
-%         \midrule
-%         DynamoDB Billing & On-Demand & text & Terraform & Flexible for 50 users. \\
-%         Read Units & 10.00 & M RRU & Estimate & Chat retrieval + insights. \\
-%         Write Units & 10.00 & M WRU & Estimate & Sessions + messages + telemetry. \\
-%         DynamoDB Storage & 5.00 & GB & Estimate & Chat history + profiles. \\
-%         \midrule
-%         \multicolumn{5}{l}{\textbf{NETWORKING}} \\
-%         \midrule
-%         ALB Enabled & Yes & boolean & Terraform & Application Load Balancer. \\
-%         ALB LCU (average) & 1.00 & LCU & Estimate & 50 users = $\sim$1 LCU load. \\
-%         HTTPS/SSL & Yes & boolean & Config & ACM certificate enabled. \\
-%         WAF Enabled & No & boolean & Terraform & Not enabled for 50 users. \\
-%         \midrule
-%         \multicolumn{5}{l}{\textbf{CONTINGENCY}} \\
-%         \midrule
-%         Buffer Percentage & 0.15 & percent & Estimate & 15\% contingency for growth. \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-%     \caption{Cost Estimation Assumptions.}
-%     \label{tab:cost_assumptions}
-% \end{table}
-% 
-% \newpage
-% 
-% To ground our cost projections in current market rates, we utilize the following pricing reference for the specific AWS services and components used in our architecture. All prices are based on the \texttt{us-west-2} (Oregon) region as of 2026.
-% 
-% \begin{table}[H]
-%     \centering
-%     \scalebox{0.8}{
-%     \begin{tabular}{lllp{3.4cm}p{6cm}}
-%         \toprule
-%         \textbf{Service} & \textbf{Component} & \textbf{Unit Price} & \textbf{Unit} & \textbf{Pricing URL} \\
-%         \midrule
-%         Amazon ECS Fargate & vCPU & \$0.04048 & per vCPU-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
-%         Amazon ECS Fargate & Memory & \$0.004445 & per GB-hour & \url{https://aws.amazon.com/fargate/pricing/} \\
-%         \midrule
-%         Amazon SageMaker & ml.g4dn.xlarge & \$0.7364 & per instance-hour & \url{https://aws.amazon.com/sagemaker/pricing/} \\
-%         \midrule
-%         Elastic Load Balancing & ALB Instance & \$0.0225 & per hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
-%         Elastic Load Balancing & ALB LCU & \$0.008 & per LCU-hour & \url{https://aws.amazon.com/elasticloadbalancing/pricing/} \\
-%         \midrule
-%         AWS Bedrock & Claude Haiku Input & \$0.00025 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-%         AWS Bedrock & Claude Haiku Output & \$0.00125 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-%         AWS Bedrock & Claude Sonnet 4 Input & \$0.003 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-%         AWS Bedrock & Claude Sonnet 4 Output & \$0.015 & per 1k tokens & \url{https://aws.amazon.com/bedrock/pricing/} \\
-%         \midrule
-%         Amazon DynamoDB & On-Demand Reads & \$0.25 & per 1M RRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-%         Amazon DynamoDB & On-Demand Writes & \$1.25 & per 1M WRU & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-%         Amazon DynamoDB & Storage & \$0.25 & per GB & \url{https://aws.amazon.com/dynamodb/pricing/on-demand/} \\
-%         \midrule
-%         Amazon ElastiCache & Serverless (Redis) & \$0.125 & per GB-hour & \url{https://aws.amazon.com/elasticache/pricing/} \\
-%         \midrule
-%         Amazon ECR & Storage & \$0.10 & per GB-month & \url{https://aws.amazon.com/ecr/pricing/} \\
-%         \midrule
-%         Amazon CloudWatch & Logs Ingest & \$0.50 & per GB & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
-%         Amazon CloudWatch & Logs Storage & \$0.03 & per GB-month & \url{https://aws.amazon.com/cloudwatch/pricing/} \\
-%         \midrule
-%         AWS WAF & Web ACL & \$5.00 & per month & \url{https://aws.amazon.com/waf/pricing/} \\
-%         \midrule
-%         Amazon S3 & Standard Storage & \$0.02 & per GB-month & \url{https://aws.amazon.com/s3/pricing/} \\
-%         Amazon S3 & S3 Requests (PUT/POST) & \$0.05 & per 1,000 requests & \url{https://aws.amazon.com/s3/pricing/} \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-%     \caption{AWS Pricing Reference (us-west-2).}
-%     \label{tab:aws_pricing_ref}
-% \end{table}
-% 
-% \newpage
-% 
-% Based on the defined assumptions and current pricing, the following table provides a granular breakdown of the estimated monthly costs for a cohort of 50 active users. This analysis highlights the distribution of expenses across compute, storage, networking, and AI services, providing a clear picture of the system's operational overhead.
-% 
-% \begin{table}[H]
-%     \centering
-%     \scalebox{0.8}{
-%     \begin{tabular}{llp{1.6cm}p{2.7cm}p{4.4cm}rr}
-%         \toprule
-%         \textbf{Category} & \textbf{Component} & \textbf{Quantity} & \textbf{Unit Price} & \textbf{Base Calculation} & \textbf{Cost} & \textbf{\%} \\
-%         \midrule
-%         NETWORKING & ALB Instance Hours & 730 hrs & \$0.0225 / hr & 730 hrs $\times$ \$0.0225 & \$16.43 & 2.40\% \\
-%         NETWORKING & ALB LCU (avg 1.0) & 730 hrs & \$0.008 / hr & 730 hrs $\times$ 1.0 $\times$ \$0.008 & \$5.84 & 0.85\% \\
-%         CACHE & ElastiCache Serverless & 730 hrs & \$0.125 / GB-hr & 730 hrs $\times$ 0.5 GB $\times$ 0.125 & \$45.63 & 6.67\% \\
-%         STORAGE & S3 Bucket (storage) & 10 GB & \$0.023 / GB & 10 $\times$ \$0.023 & \$0.23 & 0.03\% \\
-%         STORAGE & S3 Bucket (requests) & 5000 req. & \$0.05 / 1k & 5 $\times$ \$0.05 & \$0.25 & 0.04\% \\
-%         AI/ML & Bedrock - Haiku & 5 Million & \$1.50 / 1M & 5M tokens (Blended) & \$7.50 & 1.10\% \\
-%         DATABASE & DynamoDB On-Demand & 1.00 & \$5.00 / mo & RRU/WRU + Storage & \$5.00 & 0.73\% \\
-%         MONITORING & CloudWatch Logs & 1.00 & \$10.00 / mo & 15GB Ingest + Storage & \$10.00 & 1.46\% \\
-%         CONTAINER & ECR Storage & 12 GB & \$0.10 / GB & 12GB $\times$ \$0.10 & \$1.20 & 0.18\% \\
-%         COMPUTE & ECS Backend (vCPU) & 730 hrs & \$0.02024 / hr & 730 hrs $\times$ 2 $\times$ \$0.02024 & \$29.55 & 4.32\% \\
-%         COMPUTE & ECS Backend (RAM) & 730 hrs & \$0.004445 / hr & 730 hrs $\times$ 2 $\times$ \$0.004445 & \$6.49 & 0.95\% \\
-%         COMPUTE & ECS Frontend (vCPU) & 730 hrs & \$0.01012 / hr & 730 hrs $\times$ 2 $\times$ \$0.01012 & \$14.78 & 2.16\% \\
-%         COMPUTE & ECS Frontend (RAM) & 730 hrs & \$0.002223 / hr & 730 hrs $\times$ 2 $\times$ \$0.002223 & \$3.25 & 0.48\% \\
-%         COMPUTE & SageMaker (GPU) & 730 hrs & \$0.7364 / hr & 730 hrs $\times$ \$0.7364 & \$537.57 & 78.62\% \\
-%         \midrule
-%         \textbf{TOTAL} & & & & & \textbf{\$683.72} & \textbf{100.00\%} \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-%     \caption{Monthly Cost Breakdown - 50 Users.}
-%     \label{tab:monthly_cost_breakdown}
-% \end{table}
-% 
-%
-% \newpage
-% 
-% The following table provides a comparative analysis of GPU operational costs across different cloud providers. This estimation is based on a workload scenario of 50 active users, with each user initiating 20 requests per day and each request requiring 15 seconds of GPU inference time, totaling approximately 125 hours of GPU utilization per month.
-% 
-% \begin{table}[H]
-%     \centering
-%     \scalebox{0.8}{
-%     \begin{tabular}{llllrrr}
-%         \toprule
-%         \textbf{Provider} & \textbf{GPU Type} & \textbf{Pricing Model} & \textbf{Pricing Unit} & \textbf{Always-On} & \textbf{50-User Cost} & \textbf{Savings vs AWS} \\
-%         \midrule
-%         AWS SageMaker & ml.g4dn.xlarge & Dedicated & \$0.7364 / hr & \$537.57 & \$537.57 & Baseline \\
-%         RunPod Serverless & NVIDIA T4 & Pay-per-sec & \$0.000164 / s & \$0.00 & \$73.80 & \$463.77 \\
-%         Modal Labs & NVIDIA T4 & Serverless & \$0.000225 / s & \$0.00 & \$101.25 & \$436.32 \\
-%         Hyperstack & RTX A4000 & Dedicated & \$0.15 / hr & \$109.50 & \$109.50 & \$428.07 \\
-%         \bottomrule
-%     \end{tabular}
-%     }
-%     \caption{GPU Cost Optimization: AWS vs. Alternatives (50 Users, $\sim$125h GPU/month).}
-%     \label{tab:gpu_optimization}
-% \end{table}
-% 
-% \newpage
-% 
-% \section{Performance}
-% 
-% To ensure a high-quality user experience, the system's frontend performance was evaluated using \textbf{Google PageSpeed Insights}, an industry-standard tool for auditing web performance. The application was tested for both desktop and mobile environments, focusing on Core Web Vitals, accessibility, SEO, and technical best practices. This comprehensive audit ensures that the multimodal interface remains responsive and accessible across varying network conditions and device types.
-% 
-%
 
 \section{Security Architecture and Implementation}
 
