@@ -60,9 +60,7 @@
 
 % Tables
 \usepackage{array, tabularx, booktabs, longtable, multirow, adjustbox, caption}
-\usepackage{tablefootnote}
 \usepackage{dcolumn}
-\usepackage{enumitem}
 \newcolumntype{d}[1]{D{.}{.}{#1}}
 
 % Algorithm and Pseudocode
@@ -124,7 +122,17 @@
 
 %%%%%%%%%%% Bibliography %%%%%%%%%%%%
 % Note: csquotes omitted to avoid T5 encoding warnings with Vietnamese text
-\usepackage[style=ext-numeric-comp,giveninits=true,maxbibnames=10,sorting=none]{biblatex}
+% \usepackage[style=ext-numeric-comp,giveninits=true,maxbibnames=10,sorting=none]{biblatex}
+\usepackage[
+  style=ext-numeric-comp,
+  backend=biber,
+  giveninits=true,
+  maxbibnames=10,
+  sorting=none,
+  doi=true,
+  url=false,
+  isbn=false
+]{biblatex}
 \addbibresource{references.bib}
 
 
@@ -187,10 +195,10 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \begin{tabular}{rrl}
 
 \hspace{4 cm} & Committee: & Committee 10CC Computer Science \\
-& & PhD. Truong Vinh Lan \\
-& & MSc. Mai Xuan Toan \\
-& & PhD. Nguyen Quoc Minh \\[0.3cm]
-& Supervisors: & PhD. Nguyen An Khuong \\
+& & Ph.D. Truong Vinh Lan \\
+& & M.Sc. Mai Xuan Toan \\
+& & Ph.D. Nguyen Quoc Minh \\[0.3cm]
+& Supervisors: & Ph.D. Nguyen An Khuong \\
 & & Nguyen Trang Sy Lam -- Motohashi Lab's Research Assistant \\[0.3cm]
 & Students: & Nguyen Quang Phu -- 2252621 \\
 & & Nguyen Ngoc Khoi -- 2252378 \\
@@ -206,20 +214,21 @@ FACULTY OF COMPUTER SCIENCE AND ENGINEERING
 \end{titlepage}
 
 \pagenumbering{gobble}
-\tableofcontents
-\listoffigures
-\listoftables
 
 \pgfplotsset{compat=1.18}
 
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \include{_heading/00_declaration}
+\include{_heading/00_acknowledgements}
+\include{_heading/01_abstract}
 \clearpage
 \pagenumbering{arabic}
 \setcounter{page}{1}
-\include{_heading/01_abstract}
-\include{_heading/00_executive_summary}
+\tableofcontents
+\listoffigures
+\listoftables
+
 \include{_heading/02_introduction}
 \include{_heading/03_preliminary}
 \include{_heading/04_related_work}
