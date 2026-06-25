@@ -324,7 +324,7 @@ Different pipelines utilize distinct mathematical formulations to calculate the 
 
 For the sparse retrieval baseline, we employed the BM25 algorithm. This probabilistic model estimates relevance based on term frequency (TF) and inverse document frequency (IDF), normalizing for document length
 \begin{equation*}
-    \text{Score}_{\text{BM25}}(Q, D) = \sum_{t \in Q} \text{IDF}(t) \cdot \dfrac{\text{TF}(t, D) \cdot (k_1 + 1)}{\text{TF}(t, D) + k_1 \cdot \left(1 - b + b \cdot \dfrac{|D|}{\text{avgdl}}\right)}
+    \text{Score}_{\text{BM25}}(Q, D) = \sum_{t \in Q} \text{IDF}(t) \cdot \dfrac{\text{TF}(t, D) \cdot (k_1 + 1)}{\text{TF}(t, D) + k_1 \cdot \left(1 - b + b \cdot \dfrac{|D|}{\text{avgdl}}\right)}.
 \end{equation*}
 This method focuses on exact keyword matching and is highly effective for queries containing specific identifiers (e.g., proper nouns), though it lacks semantic understanding.
 
@@ -332,7 +332,7 @@ This method focuses on exact keyword matching and is highly effective for querie
 
 For dense retrieval (e.g., MiniLM, BGE), we encode both query and document into fixed-size vectors ($\vec{V}_Q, \vec{V}_D$) and calculate the Cosine Similarity. This captures semantic meaning beyond exact keyword overlap
 \begin{equation*}
-    \text{Score}_{\text{Dense}}(Q, D) = \dfrac{\vec{V}_{Q} \cdot \vec{V}_{D}}{|\vec{V}_{Q}| \cdot |\vec{V}_{D}|}
+    \text{Score}_{\text{Dense}}(Q, D) = \dfrac{\vec{V}_{Q} \cdot \vec{V}_{D}}{|\vec{V}_{Q}| \cdot |\vec{V}_{D}|}.
 \end{equation*}
 The score range is $[-1, 1]$, representing the semantic proximity in the vector space.
 
@@ -340,7 +340,7 @@ The score range is $[-1, 1]$, representing the semantic proximity in the vector 
 
 Unlike dense retrievers that compress a document into a single vector, the Late Interaction architecture (used in ColBERTv2) encodes queries and documents into bags of embedding vectors. The relevance score is the sum of the maximum similarity (MaxSim) for each query token against all document tokens
 \begin{equation*}
-    \text{Score}_{\text{MaxSim}}(Q, D) = \sum_{q \in \vec{Q}} \max_{d \in \vec{D}} (\vec{q} \cdot \vec{d})
+    \text{Score}_{\text{MaxSim}}(Q, D) = \sum_{q \in \vec{Q}} \max_{d \in \vec{D}} (\vec{q} \cdot \vec{d}).
 \end{equation*}
 This allows for fine-grained matching, ensuring that specific details in a document are not lost during vector compression.
 
@@ -348,11 +348,11 @@ This allows for fine-grained matching, ensuring that specific details in a docum
 To quantitatively assess the pipelines, we adhere to two standard information retrieval metrics:
 
 \begin{enumerate}
-    \item \textbf{Recall@k:} Measures the percentage of relevant documents successfully retrieved within the top $k$ results.
+    \item \textbf{Recall@k:} Measures the percentage of relevant documents successfully retrieved within the top $k$ results, computed as
     \[
     \text{Recall@k} = \dfrac{| \{ \text{Relevant Docs} \} \cap \{ \text{Retrieved Top-k} \} |}{| \{ \text{Total Relevant Docs} \} |}
     \]
-    \item \textbf{nDCG@k (Normalized Discounted Cumulative Gain):} This metric evaluates the \textit{ranking quality}. It rewards algorithms that place relevant documents at the top of the list.
+    \item \textbf{nDCG@k (Normalized Discounted Cumulative Gain):} This metric evaluates the \textit{ranking quality}. It rewards algorithms that place relevant documents at the top of the list, while penalizing those that rank them lower. The formula is
     \[
     \text{nDCG@k} = \dfrac{DCG@k}{IDCG@k} \quad \text{where} \quad DCG@k = \sum_{i=1}^{k} \dfrac{2^{rel_i} - 1}{\log_2(i+1)}
     \]

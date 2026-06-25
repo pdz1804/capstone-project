@@ -45,11 +45,11 @@ The main groups are text fidelity, table extraction, read order, section hierarc
 
 Text fidelity uses token multiset precision and recall:
 
-$$P=\dfrac{|T_{gt}\cap T_{pred}|}{|T_{pred}|}, \quad R=\dfrac{|T_{gt}\cap T_{pred}|}{|T_{gt}|}$$,
+$$P=\dfrac{|T_{gt}\cap T_{pred}|}{|T_{pred}|}, \quad R=\dfrac{|T_{gt}\cap T_{pred}|}{|T_{gt}|},$$
 
 combined as $F_1=\dfrac{2PR}{P+R}$. 
 
-Table quality combines detection coverage with content similarity: matched tables are scored using official OmniDocBench TEDS when available, otherwise a tree/edit fallback is used; the table group score is the average of coverage F1 and mean table-content score. Read order is pairwise order accuracy over matched components.
+Table quality combines detection coverage with content similarity: matched tables are scored using official OmniDocBench TEDS when available, otherwise a tree/edit fallback is used; the table group score is the average of coverage F1 and mean table-content score. Read order is pairwise order accuracy over matched components, computed as
 \[
 S_{\mathrm{order}} = \dfrac{\#\{(i,j): \mathrm{order}_{gt}(i,j)=\mathrm{order}_{pred}(i,j)\}}{\#\{(i,j)\}}.
 \]
@@ -271,7 +271,7 @@ The relevance judge uses \texttt{gpt-5.4-nano}. It receives the question, refere
 \[
 \mathrm{Recall@K}(q)=\dfrac{|\{e \in \mathrm{TopK}(q): rel(e)=1\}|}{|\{e: rel(e)=1\}|}.
 \]
-Ranking quality is measured with graded nDCG using the raw 0--3 relevance scores.
+Ranking quality is measured with graded nDCG using the raw 0--3 relevance scores,
 \[
 \mathrm{DCG@K}=\sum_{i=1}^{K}\dfrac{2^{r_i}-1}{\log_2(i+1)},\qquad
 \mathrm{nDCG@K}=\dfrac{\mathrm{DCG@K}}{\mathrm{IDCG@K}},
