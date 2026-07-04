@@ -1,72 +1,130 @@
-# BK-MInD Documentation Index
+## Complete Environment Setup Guide
 
-This README is only the index for `docs/`. For the project overview and repository layout, start at the root [`../README.md`](../README.md). For running the Phase 2 application, use [`../Phase_2/README.md`](../Phase_2/README.md).
+**Last Updated**: July 4, 2026
+**For**: Phase 2 maintained application stack
+**Duration**: 20-40 minutes for a local backend/frontend setup
 
-Use this page for technical review, testing evidence, deployment references, diagrams, and project reports.
+This guide matches the current codebase structure documented in [`../README.md`](../README.md), [`../Phase_2/README.md`](../Phase_2/README.md), [`../Phase_2/code/backend/README.md`](../Phase_2/code/backend/README.md), and [`../Phase_2/code/terraform/README.md`](../Phase_2/code/terraform/README.md).
 
-## Primary Sections
+## What You Need
 
-| Section | Purpose |
-|---|---|
-| [`technical/`](technical/) | Senior-level technical documentation: application overview, API reference, architecture notes, and operational guidance |
-| [`testing/`](testing/) | Final testing and performance reports intended for review and presentation |
-| [`jmeter-capacity-tests/`](jmeter-capacity-tests/) | JMeter plans, scripts, raw run exports, and performance-test runbooks |
-| [`diagram/`](diagram/) | System diagrams and architecture visuals |
-| [`report/`](report/) | Academic and progress reports |
-| [`presentation/`](presentation/) | Presentation artifacts and visual materials |
-| [`others/`](others/) | Historical implementation logs and miscellaneous archival notes |
+- Python 3.10+ for the backend
+- Node.js 18+ for the frontend
+- Git
+- Docker and Docker Compose for local Qdrant and Redis
+- Optional system binaries: FFmpeg, Tesseract, and Poppler if you run the document-processing paths locally
 
-## Rubric-Based Documentation Improvements
+## 1. Clone the Repository
 
-**Current Progress**: Phase 1 ✅ COMPLETE + Phase 2 ✅ COMPLETE
+```bash
+git clone https://github.com/pdz1804/capstone-project.git
+cd capstone-project
+```
 
-**Rubric Score**: **76/100 (B+)** → Phase 1: **80/100** → Phase 2: **81.8/100** ✅
+The maintained app lives in `Phase_2/`.
 
-### Quick Navigation
+## 2. Start Local Infrastructure
 
-**→ START HERE**: [`02_MASTER_DOCUMENTS/README_IMPROVEMENTS.md`](02_MASTER_DOCUMENTS/README_IMPROVEMENTS.md)
+From the backend folder, start the local service dependencies:
 
-### Phase 1 Documentation (5 Critical Improvements)
-- [`01_PHASE_1_IMPROVEMENTS/`](01_PHASE_1_IMPROVEMENTS/) — Core documentation:
-  - BUILD_REPRODUCIBILITY.md — Dependency management & setup
-  - EVALUATION_REPRODUCIBILITY.md — Metrics & benchmarking
-  - TECHNICAL_DESIGN_DEEP_DIVE.md — 5 hard problems solved
-  - ERROR_HANDLING_AND_FAILURES.md — Error recovery strategies
-  - OPERATIONS_RUNBOOK.md — On-call troubleshooting guide
+```bash
+cd Phase_2/code/backend
+docker compose up -d
+```
 
-### Phase 2 Documentation (API & Setup)
-- **[`API_DOCUMENTATION.md`](API_DOCUMENTATION.md)** ⭐ — Complete API reference with examples
-- **[`SETUP_GUIDE.md`](SETUP_GUIDE.md)** ⭐ — Step-by-step environment setup for new developers
-- **Backend Module Docstrings** ⭐ — 7 Python modules with comprehensive documentation
+This starts Redis and Qdrant from [`docker-compose.yml`](../Phase_2/code/backend/docker-compose.yml); it does not start the FastAPI backend itself.
 
-### Master Documents
-- [`02_MASTER_DOCUMENTS/`](02_MASTER_DOCUMENTS/) — Rubric evaluation & improvement plan
-- [`03_ARCHITECTURE_DESIGN/`](03_ARCHITECTURE_DESIGN/) — System architecture diagrams
-- [`04_PROJECT_REFERENCE/`](04_PROJECT_REFERENCE/) — Requirements, use cases, statistics
+Useful checks:
 
-## Recommended Reading Order
+```bash
+curl http://localhost:6333/health
+docker compose ps
+```
 
-1. **For project orientation**: [`../README.md`](../README.md)
-2. **For current Phase 2 setup**: [`../Phase_2/README.md`](../Phase_2/README.md)
-3. **For maintained technical overview**: [`technical/APPLICATION_OVERVIEW.md`](technical/APPLICATION_OVERVIEW.md)
-4. **For API behavior**: [`technical/API_REFERENCE.md`](technical/API_REFERENCE.md) and [`API_DOCUMENTATION.md`](API_DOCUMENTATION.md)
-5. **For setup/reproducibility**: [`SETUP_GUIDE.md`](SETUP_GUIDE.md) and [`01_PHASE_1_IMPROVEMENTS/BUILD_REPRODUCIBILITY.md`](01_PHASE_1_IMPROVEMENTS/BUILD_REPRODUCIBILITY.md)
+## 3. Configure and Run the Backend
 
----
+Create the backend environment file and fill in the values you need:
 
-## Original Documentation Structure
+```bash
+cd Phase_2/code/backend
+cp .env.example .env
+```
 
-1. [`technical/APPLICATION_OVERVIEW.md`](technical/APPLICATION_OVERVIEW.md)   product scope, feature set, architecture, and quality attributes.
-2. [`technical/API_REFERENCE.md`](technical/API_REFERENCE.md)   API surface grouped by platform capability.
-3. [`testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)   final performance evidence and scaling analysis.
-4. [`jmeter-capacity-tests/runs/README_MAIN_APIS.md`](jmeter-capacity-tests/runs/README_MAIN_APIS.md)   main API capacity-test commands and result exports.
-5. [`jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md`](jmeter-capacity-tests/runs/README_NON_MAIN_APIS.md)   non-main API capacity-test commands and JTL export flow.
+Start the backend with the maintained entrypoint:
 
-## Documentation Standards
+```bash
+python -m venv .venv
+python -m pip install -r requirements.txt
+python run_api.py
+```
 
-- Keep generated or raw output files out of high-level documentation unless they are intentionally part of the test evidence.
-- Prefer concise tables for API, performance, and operational matrices.
-- Keep final reports in `docs/testing/`.
-- Keep implementation and architecture reference material in `docs/technical/`.
-- Keep historical notes in `docs/others/` unless they are promoted into a maintained document.
-- Keep maintained deployment, backend, cache, API, and infrastructure notes in `docs/technical/`.
+Activate the virtual environment with the equivalent command for your shell before installing packages if you prefer not to use the system interpreter.
+
+The API runs on port 5001 by default. The runner accepts `--host`, `--port`, `--workers`, `--reload`, and `--no-reload` if you need to override the defaults.
+
+Common backend env values to review:
+
+- `OPENAI_API_KEY`
+- `GEMINI_API_KEY`
+- `QDRANT_MODE`, `QDRANT_HOST`, `QDRANT_PORT`, or `QDRANT_URL`
+- `REDIS_URL`
+- `FILE_STORAGE_BACKEND`
+- `USE_AWS_SAGEMAKER_INFERENCE`
+- `DYNAMODB_USERS_TABLE`, `DYNAMODB_APP_USAGE_TABLE`, `DYNAMODB_JOBS_TABLE`
+
+## 4. Configure and Run the Frontend
+
+In a separate terminal:
+
+```bash
+cd Phase_2/code/frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+The current frontend dev script is `tsx server.ts`, and the default local URL is `http://localhost:5173`. The template in [`../Phase_2/code/frontend/.env.example`](../Phase_2/code/frontend/.env.example) uses `VITE_API_BASE_URL=/api` and `API_PROXY_TARGET=http://localhost:5001`.
+
+## 5. Verify the Stack
+
+Backend health:
+
+```bash
+curl http://localhost:5001/health
+curl http://localhost:5001/api/health
+```
+
+Frontend should be reachable at `http://localhost:5173`.
+
+If you want to smoke-test search after indexing data, use the current API contract from [`../Phase_2/code/backend/README.md`](../Phase_2/code/backend/README.md) and send requests with the `X-User-Id` header.
+
+## 6. Optional Local Validation
+
+Backend tests:
+
+```bash
+cd Phase_2/code/backend
+python -m pytest tests -v
+```
+
+Terraform validation only:
+
+```bash
+cd Phase_2/code/terraform
+terraform init -backend=false
+terraform fmt -recursive
+terraform validate
+```
+
+## 7. Common Failure Points
+
+- If Qdrant is unreachable, confirm `docker compose up -d` completed and that port 6333 is free.
+- If Redis is unreachable, confirm the same compose stack is running and that the backend `REDIS_URL` points at `redis://localhost:6379/0` or your configured instance.
+- If the frontend cannot reach the API, confirm `API_PROXY_TARGET=http://localhost:5001` and that the backend is running on port 5001.
+- If `pip install` fails on large wheels, clear the pip cache or use a drive with more free space before retrying.
+
+## 8. Where To Read Next
+
+- [`Phase_2/README.md`](../Phase_2/README.md) for the maintained Phase 2 setup summary
+- [`Phase_2/code/backend/README.md`](../Phase_2/code/backend/README.md) for backend runtime, API routes, and indexing workflow
+- [`Phase_2/code/terraform/README.md`](../Phase_2/code/terraform/README.md) for infrastructure validation and deployment notes

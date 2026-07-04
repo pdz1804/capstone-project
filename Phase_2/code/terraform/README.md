@@ -33,9 +33,9 @@ This directory defines AWS infrastructure aligned with **`Phase_2`**: ECR repos,
 
 Copy the example variables file and edit values (do not commit secrets or real `terraform.tfvars` if your repo is public).
 
-```powershell
-cd "D:\PDZ\BKU\Learning\LVTN\GD1\Code\capstone-project\Phase_2\code\terraform"
-Copy-Item terraform.tfvars.example terraform.tfvars
+```bash
+cd Phase_2/code/terraform
+cp terraform.tfvars.example terraform.tfvars
 ```
 
 Important variables:
@@ -59,8 +59,8 @@ These commands **do not** create, update, or destroy cloud resources. They only 
 
 From this `terraform` directory:
 
-```powershell
-# 1) Install providers modules (writes .terraform/ locally; no AWS API required for provider download)
+```bash
+# 1) Install provider modules (writes .terraform/ locally; no AWS API required for provider download)
 terraform init -backend=false
 
 # 2) Consistent formatting (optional but recommended)
@@ -87,7 +87,7 @@ terraform validate
 
 If you later use a sandbox:
 
-```powershell
+```bash
 terraform init
 terraform plan -out=tfplan
 # Review the plan file, then only if intentional:
@@ -119,7 +119,7 @@ Useful outputs:
 
 If you already created the cache manually (for example `rag-pipeline-cache`), import it into Terraform state before apply to avoid duplicate-name errors:
 
-```powershell
+```bash
 terraform import 'aws_elasticache_serverless_cache.search_cache[0]' <existing-cache-name>
 ```
 
