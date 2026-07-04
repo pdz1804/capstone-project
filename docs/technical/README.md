@@ -19,9 +19,9 @@ This folder contains maintained technical documentation for BK-MInD. It is inten
 
 | Location | Description |
 |---|---|
-| [`../../Phase_2_FE_AI_Merge/README.md`](../../Phase_2_FE_AI_Merge/README.md) | Application folder map and local run guidance |
-| [`../../Phase_2_FE_AI_Merge/backend/README.md`](../../Phase_2_FE_AI_Merge/backend/README.md) | Backend implementation notes and API details |
-| [`../../Phase_2_FE_AI_Merge/terraform/README.md`](../../Phase_2_FE_AI_Merge/terraform/README.md) | AWS infrastructure, ALB, ECS, ECR, Terraform, and deployment notes |
+| [`../../Phase_2/README.md`](../../Phase_2/README.md) | Application folder map and local run guidance |
+| [`../../Phase_2/code/backend/README.md`](../../Phase_2/code/backend/README.md) | Backend implementation notes and API details |
+| [`../../Phase_2/code/terraform/README.md`](../../Phase_2/code/terraform/README.md) | AWS infrastructure, ALB, ECS, ECR, Terraform, and deployment notes |
 | [`../testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](../testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md) | Final performance test evidence and scaling analysis |
 
 ## Maintenance Guidelines

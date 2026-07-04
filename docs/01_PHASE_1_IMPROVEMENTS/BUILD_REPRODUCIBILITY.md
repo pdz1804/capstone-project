@@ -1,7 +1,7 @@
 # Build Reproducibility Guide
 
-**Based on Actual Code Analysis**: Phase_2_FE_AI_Merge Backend  
-**Last Updated**: May 14, 2026  
+**Based on Actual Code Analysis**: Phase_2 Backend
+**Last Updated**: May 14, 2026
 
 ---
 
@@ -15,7 +15,7 @@ The project has:
 
 ### Current Status
 
-**Requirements.txt Location**: `Phase_2_FE_AI_Merge/backend/requirements.txt` (103 lines)
+**Requirements.txt Location**: `Phase_2/code/backend/requirements.txt` (103 lines)
 
 **Current Version Constraints**:
 - Pinned: transformers==4.57.3, peft==0.14.0, sentence-transformers==3.0.1, colpali-engine==0.3.13
@@ -28,7 +28,7 @@ The project has:
 
 **Step 1: Fresh Virtual Environment**
 ```bash
-cd Phase_2_FE_AI_Merge/backend
+cd Phase_2/code/backend
 python -m venv venv_freeze
 source venv_freeze/bin/activate  # Windows: venv_freeze\Scripts\activate
 ```
@@ -88,17 +88,17 @@ docling==2.0.1  # (or whatever pip resolved)
 
 ### For Exact Reproduction (Same Versions)
 ```bash
-pip install -r Phase_2_FE_AI_Merge/backend/requirements-frozen.txt
+pip install -r Phase_2/code/backend/requirements-frozen.txt
 ```
 
-**When to use**: 
+**When to use**:
 - Debugging production issues
 - Reproducing benchmark results
 - CI/CD pipelines (guaranteed bit-identical builds)
 
 ### For Feature Updates (Compatible Versions)
 ```bash
-pip install -r Phase_2_FE_AI_Merge/backend/requirements.txt
+pip install -r Phase_2/code/backend/requirements.txt
 ```
 
 **When to use**:
@@ -114,7 +114,7 @@ pip install -r Phase_2_FE_AI_Merge/backend/requirements.txt
 
 **From requirements.txt lines 5-8**:
 ```
-PyTorch CUDA 12.8 (win_amd64 / cp311): 
+PyTorch CUDA 12.8 (win_amd64 / cp311):
 must satisfy colpali-engine==0.3.13 → torch>=2.2,<2.9
 ```
 
@@ -218,14 +218,14 @@ bedrock-agentcore[strands-agents] # Bedrock integration
 
 ### Linux/Docker (from actual Dockerfile)
 
-**Backend Dockerfile** (`Phase_2_FE_AI_Merge/backend/Dockerfile` lines 5-8):
+**Backend Dockerfile** (`Phase_2/code/backend/Dockerfile` lines 5-8):
 ```dockerfile
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
     poppler-utils
 ```
 
-**Unified SageMaker** (`Phase_2_FE_AI_Merge/sagemaker/unified/Dockerfile` lines 16-18):
+**Unified SageMaker** (`Phase_2/code/sagemaker/unified/Dockerfile` lines 16-18):
 ```dockerfile
 RUN apt-get install -y ffmpeg poppler-utils tesseract-ocr
 ```
@@ -324,7 +324,7 @@ If Errno 28: free disk space, run `pip cache purge`.
 ```yaml
 - name: Install dependencies
   run: |
-    cd Phase_2_FE_AI_Merge/backend
+    cd Phase_2/code/backend
     pip install -r requirements-frozen.txt \
       --extra-index-url https://download.pytorch.org/whl/cu128
 ```
@@ -451,6 +451,6 @@ git add requirements.txt requirements-frozen.txt
 
 ---
 
-**Generated**: May 14, 2026  
-**Based on**: Phase_2_FE_AI_Merge/backend codebase analysis  
+**Generated**: May 14, 2026
+**Based on**: Phase_2/code/backend codebase analysis
 **Next**: See EVALUATION_REPRODUCIBILITY.md for benchmark seeding

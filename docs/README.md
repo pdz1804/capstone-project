@@ -1,6 +1,8 @@
-# BK-MInD Documentation Hub
+# BK-MInD Documentation Index
 
-This folder is organized as a maintainable documentation system for the BK-MInD capstone project. Use this page as the entry point for technical review, testing evidence, deployment references, and project reports.
+This README is only the index for `docs/`. For the project overview and repository layout, start at the root [`../README.md`](../README.md). For running the Phase 2 application, use [`../Phase_2/README.md`](../Phase_2/README.md).
+
+Use this page for technical review, testing evidence, deployment references, diagrams, and project reports.
 
 ## Primary Sections
 
@@ -44,11 +46,11 @@ This folder is organized as a maintainable documentation system for the BK-MInD 
 
 ## Recommended Reading Order
 
-1. **For Rubric Understanding**: [`02_MASTER_DOCUMENTS/README_IMPROVEMENTS.md`](02_MASTER_DOCUMENTS/README_IMPROVEMENTS.md) — Quick navigation for Phase 1
-2. **For System Design**: [`01_PHASE_1_IMPROVEMENTS/TECHNICAL_DESIGN_DEEP_DIVE.md`](01_PHASE_1_IMPROVEMENTS/TECHNICAL_DESIGN_DEEP_DIVE.md) — 5 hard problems solved
-3. **For Robustness**: [`01_PHASE_1_IMPROVEMENTS/ERROR_HANDLING_AND_FAILURES.md`](01_PHASE_1_IMPROVEMENTS/ERROR_HANDLING_AND_FAILURES.md) — Error handling & recovery
-4. **For Operations**: [`01_PHASE_1_IMPROVEMENTS/OPERATIONS_RUNBOOK.md`](01_PHASE_1_IMPROVEMENTS/OPERATIONS_RUNBOOK.md) — On-call guide
-5. **For Reproducibility**: [`01_PHASE_1_IMPROVEMENTS/BUILD_REPRODUCIBILITY.md`](01_PHASE_1_IMPROVEMENTS/BUILD_REPRODUCIBILITY.md) + [`01_PHASE_1_IMPROVEMENTS/EVALUATION_REPRODUCIBILITY.md`](01_PHASE_1_IMPROVEMENTS/EVALUATION_REPRODUCIBILITY.md)
+1. **For project orientation**: [`../README.md`](../README.md)
+2. **For current Phase 2 setup**: [`../Phase_2/README.md`](../Phase_2/README.md)
+3. **For maintained technical overview**: [`technical/APPLICATION_OVERVIEW.md`](technical/APPLICATION_OVERVIEW.md)
+4. **For API behavior**: [`technical/API_REFERENCE.md`](technical/API_REFERENCE.md) and [`API_DOCUMENTATION.md`](API_DOCUMENTATION.md)
+5. **For setup/reproducibility**: [`SETUP_GUIDE.md`](SETUP_GUIDE.md) and [`01_PHASE_1_IMPROVEMENTS/BUILD_REPRODUCIBILITY.md`](01_PHASE_1_IMPROVEMENTS/BUILD_REPRODUCIBILITY.md)
 
 ---
 

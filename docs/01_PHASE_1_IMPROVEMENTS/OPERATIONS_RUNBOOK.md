@@ -1,9 +1,9 @@
 # Operations Runbook
 
-**For**: Phase_2_FE_AI_Merge deployed system  
-**Version**: 1.0  
-**Last Updated**: May 14, 2026  
-**Target Audience**: DevOps, SRE, On-Call Engineers  
+**For**: Phase_2 deployed system
+**Version**: 1.0
+**Last Updated**: May 14, 2026
+**Target Audience**: DevOps, SRE, On-Call Engineers
 
 ---
 
@@ -329,7 +329,7 @@ curl http://localhost:6333/health
 **Step 2: Restart Qdrant** (1-2 minutes)
 ```bash
 # If using Docker Compose
-docker-compose -f Phase_2_FE_AI_Merge/backend/docker-compose.yml \
+docker-compose -f Phase_2/code/backend/docker-compose.yml \
   restart qdrant
 
 # If using Kubernetes
@@ -341,7 +341,7 @@ kubectl rollout restart deployment/qdrant-deployment
 **Step 3: Verify recovery** (1 minute)
 ```bash
 # Test search again
-curl -X POST http://localhost:5000/api/search \
+curl -X POST http://localhost:5001/api/search \
   -H "Content-Type: application/json" \
   -d '{"query":"test"}' \
   -w "HTTP %{http_code}\n"
@@ -493,7 +493,7 @@ Refresh every 1 minute
 
 ```bash
 # Backend health
-curl http://localhost:5000/health
+curl http://localhost:5001/health
 # Response: {"status": "healthy"}
 
 # Qdrant health
@@ -505,7 +505,7 @@ redis-cli ping
 # Response: PONG
 
 # Full system status
-curl http://localhost:5000/status
+curl http://localhost:5001/status
 # Response: {
 #   "backend": "healthy",
 #   "qdrant": "connected",
@@ -643,6 +643,6 @@ aws ecs update-service \
 
 ---
 
-**Last Updated**: May 14, 2026  
-**Next Review**: June 14, 2026  
+**Last Updated**: May 14, 2026
+**Next Review**: June 14, 2026
 **Emergency Contact**: #incidents on Slack

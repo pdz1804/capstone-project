@@ -318,7 +318,7 @@ The system comprises five main layers:
 │ │ │  │  ├─ Log Driver: awslogs                                  │        │  │
 │ │ │  │  │  └─ Log Group: /ecs/rag-pipeline-cluster/frontend     │        │  │
 │ │ │  │  └─ Environment Variables:                               │        │  │
-│ │ │  │     ├─ REACT_APP_API_URL=http://ALB_DNS/api             │        │  │
+│ │ │  │     ├─ VITE_API_BASE_URL=/api                           │        │  │
 │ │ │  │     └─ NODE_ENV=production                               │        │  │
 │ │ │  │                                                         │        │  │
 │ │ │  │ Auto-Scaling:                                            │        │  │
@@ -476,7 +476,7 @@ The system comprises five main layers:
 
 ### 1. Frontend Layer (React 18 + Vite + TailwindCSS)
 
-**Location**: `Phase_2_FE_AI_Merge/frontend/`
+**Location**: `Phase_2/code/frontend/`
 
 **Architecture**:
 ```
@@ -512,7 +512,7 @@ src/
 
 ### 2. Backend Layer (FastAPI - Python)
 
-**Location**: `Phase_2_FE_AI_Merge/backend/`
+**Location**: `Phase_2/code/backend/`
 
 **Core Architecture**:
 ```
@@ -1299,7 +1299,7 @@ BEDROCK_MODEL_ID=anthropic.claude-3-5-haiku-20241022-v1:0
 REDIS_URL=redis://localhost:6379/0
 
 # GPU Services
-GPU_SERVER_URL=http://localhost:8000
+GPU_SERVER_URL=http://localhost:5001
 WHISPER_API_URL=http://localhost:5001
 DOCLING_API_URL=http://localhost:5002
 COLQWEN_API_URL=http://localhost:5003
@@ -1509,17 +1509,17 @@ logging:
 ```bash
 # Clone repository
 git clone https://github.com/bkumind/capstone.git
-cd Phase_2_FE_AI_Merge
+cd Phase_2
 
 # Backend setup
-cd backend
+cd code/backend
 pip install -r requirements.txt
 cp .env.example .env
 # Edit .env with your configuration
 python run_api.py
 
 # Frontend setup (in another terminal)
-cd frontend
+cd code/frontend
 npm install
 npm run dev
 
@@ -1549,11 +1549,11 @@ terraform apply
 For questions or issues, refer to:
 - **Architecture Documentation**: `docs/diagram/`
 - **Configuration**: `backend/config/default.yaml`
-- **API Documentation**: FastAPI Swagger at `http://localhost:5000/docs`
+- **API Documentation**: FastAPI Swagger at `http://localhost:5001/docs`
 - **Git Commits**: Recent commits document latest changes and optimizations
 
 ---
 
 **Document Generated**: April 23, 2026
-**System Version**: Phase 2 FE AI Merge (with async job-based indexing)
+**System Version**: Phase 2 (with async job-based indexing)
 **Last Major Update**: Async job-based indexing with 3.6x performance improvement (fbe2906)

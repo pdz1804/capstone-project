@@ -4,8 +4,8 @@
 **Status:** Current & Verified Against Implementation  
 **Scope:** Complete architecture and processing flow for Phase 2 AI Service, including 4-stage pipeline (Stage 3 with 4 conditional processing paths: main V2 router + Excel/DOCX/PDF preprocessors), indexing, and search/retrieval systems.
 Primary analyzed areas:
-- `Phase_2_FE_AI_Merge/backend`
-- `Phase_2_FE_AI_Merge/frontend`
+- `Phase_2/code/backend`
+- `Phase_2/code/frontend`
 
 ## 1. Architecture Detection and Analysis
 

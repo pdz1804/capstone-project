@@ -5,6 +5,38 @@
 
 ---
 
+## Repository Layout
+
+The repo is organized around tracked code/docs and local-only data:
+
+- `docs/` - project documentation, references, architecture notes, and report-ready supporting material.
+- `Phase_1/code/` - Phase 1 experiments and prototypes.
+- `Phase_1/data/` - Phase 1 raw inputs and generated outputs; ignored by Git and stored in Drive.
+- `Phase_1/Report/` - Phase 1 report PDF and report source; tracked.
+- `Phase_2/code/` - Phase 2 backend, frontend, deployment, Terraform, SageMaker, and scripts.
+- `Phase_2/data/` - Phase 2 raw inputs, pipeline outputs, evaluation data, indexes, model artifacts, and third-party local checkouts; ignored by Git and stored in Drive.
+- `Phase_2/Report/` and `Phase_2/Manuscript/` - final report/manuscript PDFs and sources; tracked.
+
+See [`docs/04_PROJECT_REFERENCE/data_manifest.md`](docs/04_PROJECT_REFERENCE/data_manifest.md) for Drive restore locations.
+
+---
+
+## README Map
+
+Use this root README as the project entry point. Other README files are scoped to their folder:
+
+| README | Use it for |
+|---|---|
+| [`README.md`](README.md) | Project overview, repo layout, high-level architecture, and where to go next |
+| [`docs/README.md`](docs/README.md) | Documentation index only: technical docs, reports, diagrams, testing evidence |
+| [`Phase_1/code/README.md`](Phase_1/code/README.md) | Phase 1 experiment/code map after the week-folder cleanup |
+| [`Phase_2/README.md`](Phase_2/README.md) | Phase 2 app runbook: backend, frontend, SageMaker, Terraform, scripts |
+| `Phase_2/code/*/README.md` | Component-specific instructions for backend, frontend-related scripts, SageMaker, Terraform |
+
+If two README files disagree, treat the more specific folder README as authoritative for commands inside that folder, and treat this root README as authoritative for repository structure.
+
+---
+
 ## 🎯 Project Overview
 
 This capstone builds an **educational content processing and Retrieval-Augmented Generation (RAG)** system: ingest multimodal lecture materials, align and structure them, index them for **text and visual** retrieval, and support **question answering with citations**, **lecture-aware summaries**, and **personalized learning** features behind a **modern web UI** and **production-style deployment** options.
@@ -17,7 +49,7 @@ The authoritative requirements baseline is **[`docs/requirements.md`](docs/requi
 - **Non-functional**: latency and scale targets (**NFR-001–NFR-002**); availability, integrity, UX, accessibility, security, and privacy (**NFR-003–NFR-008**).
 - **Technical**: FastAPI + async APIs, React 18 + Vite + Tailwind, vector and metadata stores, external LLM/embedding services, Docker, and **cloud-ready** infrastructure (**TR-001–TR-007**).
 
-Research-week folders (`Week03*`, `Week05*`, `Week07*`) map to these requirements incrementally; **`Phase_2_FE_AI_Merge`** is the maintained integrated app (Firebase UI, Qdrant/S3, optional **SageMaker**, **Terraform** for ECS/ALB/ECR).
+Phase 1 research milestones now live under `Phase_1/code/`; **`Phase_2`** is the maintained integrated app (Firebase UI, Qdrant/S3, optional **SageMaker**, **Terraform** for ECS/ALB/ECR).
 
 ---
 
@@ -29,7 +61,7 @@ BK-MInD follows a **six-tier Clean Architecture** pattern that separates concern
 
 The following diagram shows the complete system topology aligning with the SRS: multimodal **ingest → process → index → retrieve → generate**, organized across six architectural tiers plus cross-cutting concerns for auth, security, and persistence.
 
-![BK-MInD High-Level Architecture - Six-Tier Clean Architecture](Phase_2_Report/img/pdz/Report%20252%20Diagram-High%20Level%20Architecture.png)
+![BK-MInD High-Level Architecture - Six-Tier Clean Architecture](Phase_2/Report/img/pdz/Report%20252%20Diagram-High%20Level%20Architecture.png)
 
 **Layer summary**
 
@@ -42,7 +74,7 @@ The following diagram shows the complete system topology aligning with the SRS: 
 | Retrieval & generation | Hybrid + visual search, RAG, chat, LLM         | FR-009–FR-014, TR-004                           |
 | Deployment             | Containers, cloud LB TLS, optional managed GPU | TR-006–TR-007, NFR-002–NFR-003                 |
 
-For HTTPS and custom domains on AWS, see [`docs/deployment-alb-acm-custom-domain.md`](docs/deployment-alb-acm-custom-domain.md).
+For HTTPS and custom domains on AWS, see [`docs/technical/DOCS_deployment-alb-acm-custom-domain.md`](docs/technical/DOCS_deployment-alb-acm-custom-domain.md).
 
 ---
 
@@ -57,13 +89,13 @@ The latest deployment architecture (v4) shows production-grade cloud infrastruct
 
 ---
 
-## 📄 Academic Publication - Phase_2_Manuscript
+## 📄 Academic Publication - Phase_2/Manuscript
 
 ### BK-MInD Academic Manuscript (Ready for Conference Submission)
 
 The project includes a **complete, publication-ready academic manuscript** for submission to top-tier conferences:
 
-📜 **Folder**: [`Phase_2_Manuscript/`](Phase_2_Manuscript/)
+📜 **Folder**: [`Phase_2/Manuscript/`](Phase_2/Manuscript/)
 
 **What's Included**:
 - ✅ **main.pdf** (804 KB, 14 pages) - 2-column IEEE/ACM format paper with BibTeX references
@@ -72,7 +104,7 @@ The project includes a **complete, publication-ready academic manuscript** for s
 - ✅ **Figures** (3 professional diagrams) - System architecture, technology rationale, related work
 - ✅ **Tables** (5 comprehensive tables) - RAG alternatives, parsing, retrieval, end-to-end eval, appendix comparison
 - ✅ **Complete Documentation** - Submission guides, compilation instructions, writing standards
-- ✅ **Fact-Checked Metrics** - All 40+ performance metrics verified against Phase_2_Report
+- ✅ **Fact-Checked Metrics** - All 40+ performance metrics verified against Phase_2/Report
 
 **Manuscript Title**: *BK-MInD: Multimodal Retrieval-Augmented Generation for Institutional Educational Content*
 
@@ -93,9 +125,9 @@ The project includes a **complete, publication-ready academic manuscript** for s
 - EMNLP 2027 (Deadline: May 2027) - EXCELLENT FIT
 - Learning@Scale 2027 (Deadline: October 2026) - EXCELLENT FIT
 
-**Quick Start**: Download `main.pdf` from `Phase_2_Manuscript/` folder and submit to target conference!
+**Quick Start**: Download `main.pdf` from `Phase_2/Manuscript/` folder and submit to target conference!
 
-See [`Phase_2_Manuscript/README.md`](Phase_2_Manuscript/README.md) for detailed submission instructions.
+See [`Phase_2/Manuscript/README.md`](Phase_2/Manuscript/README.md) for detailed submission instructions.
 
 ---
 
@@ -116,7 +148,7 @@ A robust batch downloader for academic PDFs from major venues (arXiv, ACL, CVPR,
 
 ### 📅 **Week 03-04: Foundation Development**
 
-#### **MKhoi: ASR & OCR Pipeline** (`Week0304_MKhoi_OCR_ASR/`)
+#### **MKhoi: ASR & OCR Pipeline** (`Phase_1/code/asr_ocr/baseline_ocr_asr/`)
 
 Baseline implementation for extracting text from lecture videos and slides.
 
@@ -131,7 +163,7 @@ Baseline implementation for extracting text from lecture videos and slides.
 
 ---
 
-#### **NKhoi: Retrieval Systems Evaluation** (`Week0304_NKhoi_Retrieval/`)
+#### **NKhoi: Retrieval Systems Evaluation** (`Phase_1/code/retrieval/baseline_bm25_dense_hybrid/`)
 
 Comprehensive comparison of retrieval methods on MS MARCO dataset.
 
@@ -151,7 +183,7 @@ Comprehensive comparison of retrieval methods on MS MARCO dataset.
 
 ---
 
-#### **QPhu: RAG Framework Comparison** (`Week0304_QPhu_RAG_Pipeline/`)
+#### **QPhu: RAG Framework Comparison** (`Phase_1/code/processing_rag_pipeline/rag_framework_comparison/`)
 
 Systematic evaluation of three RAG implementation approaches.
 
@@ -173,7 +205,7 @@ Systematic evaluation of three RAG implementation approaches.
 
 ### 📅 **Week 05-06: Advanced Enhancements**
 
-#### **MKhoi: Multi-Model ASR/OCR** (`Week0506_Mkhoi_OCR_ASR/`)
+#### **MKhoi: Multi-Model ASR/OCR** (`Phase_1/code/asr_ocr/multi_model_benchmark/`)
 
 Expanded processing pipeline with multiple AI backends and detailed benchmarking.
 
@@ -193,7 +225,7 @@ Expanded processing pipeline with multiple AI backends and detailed benchmarking
 
 ---
 
-#### **NKhoi: Production Retrieval Systems** (`Week0506_NKhoi_Retrieval/`)
+#### **NKhoi: Production Retrieval Systems** (`Phase_1/code/retrieval/production_retrieval/`)
 
 Industrial-grade retrieval implementations using specialized tools.
 
@@ -215,7 +247,7 @@ Industrial-grade retrieval implementations using specialized tools.
 
 ### 📅 **Week 07-09: Production Pipeline**
 
-#### **QPhu: Unified Processing Pipeline** (`Week070809_QPhu_Processor/`)
+#### **QPhu: Unified Processing Pipeline** (`Phase_1/code/processing_rag_pipeline/unified_processor/`)
 
 Complete overhaul into production-ready 4-stage pipeline with enterprise features and intelligent processing.
 
@@ -265,19 +297,18 @@ stage4_rag_ready/
 
 ---
 
-### 📅 **Phase 2 Integrated Application: FE + AI + AWS (`Phase_2_FE_AI_Merge/`)**
+### 📅 **Phase 2 Integrated Application: FE + AI + AWS (`Phase_2/`)**
 
 Single tree that combines the production-style **FastAPI** backend (Qdrant, S3, optional SageMaker inference), the **React + Firebase** frontend from the FE track, **SageMaker** hosting packs (unified Docling + Whisper + ColQwen container and optional split endpoints), and **Terraform** for AWS: **ECR**, **ECS Fargate**, **Application Load Balancer** with optional **HTTPS** (ACM), auto scaling, and an optional **SageMaker endpoint** aligned with `sagemaker/unified`.
 
 | Area                                 | Path                                                        | Documentation                                                                       |
 | ------------------------------------ | ----------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Folder overview                      | `Phase_2_FE_AI_Merge/`                                    | [`Phase_2_FE_AI_Merge/README.md`](Phase_2_FE_AI_Merge/README.md)                     |
-| Integration log                      | `Phase_2_FE_AI_Merge/MERGE_SUMMARY.md`                    | Merge checklist and features                                                        |
-| Terraform (ALB, ECS, ECR, SageMaker) | `Phase_2_FE_AI_Merge/terraform/`                          | [`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md) |
-| SageMaker build / deploy             | `Phase_2_FE_AI_Merge/sagemaker/`                          | [`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md) |
+| Folder overview                      | `Phase_2/`                                    | [`Phase_2/README.md`](Phase_2/README.md)                     |
+| Terraform (ALB, ECS, ECR, SageMaker) | `Phase_2/code/terraform/`                          | [`Phase_2/code/terraform/README.md`](Phase_2/code/terraform/README.md) |
+| SageMaker build / deploy             | `Phase_2/code/sagemaker/`                                 | [`Phase_2/code/sagemaker/README.md`](Phase_2/code/sagemaker/README.md) |
 | HTTPS + custom domain runbook        | `docs/technical/DOCS_deployment-alb-acm-custom-domain.md` | ACM validation, DNS, ALB listeners                                                  |
 
-Use **`Phase_2_FE_AI_Merge`** as the maintained application tree for local development, technical review, deployment, and testing.
+Use **`Phase_2`** as the maintained application tree for local development, technical review, deployment, and testing.
 
 ---
 
@@ -287,7 +318,7 @@ Use **`Phase_2_FE_AI_Merge`** as the maintained application tree for local devel
 Start with **[`docs/README.md`](docs/README.md)** (documentation hub) → **[`docs/report/`](docs/report/)** folder for Phase 2 reports and presentation guides.
 
 **👨‍💻 For development setup:**
-Prerequisites follow **[`docs/requirements.md`](docs/requirements.md)** (TR-001–TR-005, NFR-005–NFR-006): **Python 3.9+**, **FastAPI** backend; **React 18+**, **Vite**, **Tailwind** frontend; **FFmpeg**, **Tesseract**, **Poppler** for media; **GPU** optional locally if you offload heavy inference to APIs or **SageMaker** ([`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)). **Docker** and **Terraform** are for packaging and cloud layout (TR-006–TR-007).
+Prerequisites follow **[`docs/requirements.md`](docs/requirements.md)** (TR-001–TR-005, NFR-005–NFR-006): **Python 3.9+**, **FastAPI** backend; **React 18+**, **Vite**, **Tailwind** frontend; **FFmpeg**, **Tesseract**, **Poppler** for media; **GPU** optional locally if you offload heavy inference to APIs or **SageMaker** ([`Phase_2/code/sagemaker/README.md`](Phase_2/code/sagemaker/README.md)). **Docker** and **Terraform** are for packaging and cloud layout (TR-006–TR-007).
 
 **Shell:** All commands below are **Windows PowerShell** (5.1 or 7+). From another shell, translate `Set-Location`/`Copy-Item`/`.\venv\Scripts\Activate.ps1` as needed. If script activation is blocked, run once: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` (or start Python via `.\venv\Scripts\python.exe` without activating).
 
@@ -300,30 +331,30 @@ python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
 
-### Recommended: merged app (`Phase_2_FE_AI_Merge/`)
+### Recommended: merged app (`Phase_2/`)
 
-Full UI (Firebase), Qdrant/S3-aware API, tests, **Terraform** and **SageMaker** docs see [**`Phase_2_FE_AI_Merge/README.md`**](Phase_2_FE_AI_Merge/README.md).
+Full UI (Firebase), Qdrant/S3-aware API, tests, **Terraform** and **SageMaker** docs see [**`Phase_2/README.md`**](Phase_2/README.md).
 
 ```powershell
-# Backend (see Phase_2_FE_AI_Merge/backend/README.md for uvicorn/install scripts)
-Set-Location Phase_2_FE_AI_Merge\backend
+# Backend (see Phase_2/code/backend/README.md for uvicorn/install scripts)
+Set-Location Phase_2\code\backend
 pip install -r requirements.txt
 Copy-Item .env.example .env
 # Edit .env: keys, Qdrant, S3, SageMaker flags
 
 # Frontend   new PowerShell window at the repository root, then:
-Set-Location Phase_2_FE_AI_Merge\frontend
+Set-Location Phase_2\code\frontend
 npm install
 Copy-Item .env.example .env
 npm run dev
 ```
 
-**URLs (typical):** UI `http://localhost:5173` (or Vite default), API `http://localhost:8000`, docs `http://localhost:8000/docs`. Run the API with the command in `backend/README.md` (e.g. `uvicorn` on `app.main:app`).
+**URLs (typical):** UI `http://localhost:5173` (or Vite default), API `http://localhost:5001`, docs `http://localhost:5001/docs`. Run the API with the command in `Phase_2/code/backend/README.md`.
 
 **Terraform (local validation only no apply):**
 
 ```powershell
-Set-Location Phase_2_FE_AI_Merge\terraform
+Set-Location Phase_2\code\terraform
 terraform init -backend=false
 terraform fmt -recursive
 terraform validate
@@ -332,16 +363,16 @@ terraform validate
 ### Research and pipeline folders (optional)
 
 ```powershell
-Set-Location Week0506_Mkhoi_OCR_ASR\src
+Set-Location Phase_1\code\asr_ocr\multi_model_benchmark\src
 python main.py asr --output-dir results\asr @(Get-ChildItem -Path "data\videos\*.mp4" | ForEach-Object { $_.FullName })
 
-Set-Location ..\..\Week0304_NKhoi_Retrieval
+Set-Location Phase_1\code\retrieval\baseline_bm25_dense_hybrid
 jupyter notebook manual_bm25_dense_hybrid.ipynb
 
-Set-Location ..\Week0304_QPhu_RAG_Pipeline
+Set-Location Phase_1\code\processing_rag_pipeline\rag_framework_comparison
 python setup_and_run.py
 
-Set-Location ..\Week070809_QPhu_Processor
+Set-Location Phase_1\code\processing_rag_pipeline\unified_processor
 python src\pipeline.py input\ output\
 # Optional: add --fast-mode where that script supports it
 ```
@@ -404,18 +435,17 @@ Use `Set-Location <repoRoot>` first if you are not already at the repository roo
 
 - **[`docs/others/AWS_Cost_Estimation_50_Users_Professional.xlsx`](docs/others/AWS_Cost_Estimation_50_Users_Professional.xlsx)**   Detailed cost analysis and scalability projections for 50 concurrent users.
 
-**Merged Production Application (`Phase_2_FE_AI_Merge/`)**
+**Merged Production Application (`Phase_2/`)**
 
-- **[`Phase_2_FE_AI_Merge/README.md`](Phase_2_FE_AI_Merge/README.md)**   Top-level map: frontend, backend, SageMaker pack, Terraform; local quick paths.
-- **[`Phase_2_FE_AI_Merge/MERGE_SUMMARY.md`](Phase_2_FE_AI_Merge/MERGE_SUMMARY.md)**   What was integrated from FE and AI service tracks.
-- **[`Phase_2_FE_AI_Merge/backend/README.md`](Phase_2_FE_AI_Merge/backend/README.md)**   FastAPI layout, Qdrant/BM25/hybrid/image retrieval, S3 vs local storage.
-- **[`Phase_2_FE_AI_Merge/terraform/README.md`](Phase_2_FE_AI_Merge/terraform/README.md)**   AWS resources (ECR, ECS, ALB, optional HTTPS, optional SageMaker) and Terraform checks.
-- **[`Phase_2_FE_AI_Merge/sagemaker/README.md`](Phase_2_FE_AI_Merge/sagemaker/README.md)**   Unified container, ECR push, deploy/delete scripts, and backend environment variables.
+- **[`Phase_2/README.md`](Phase_2/README.md)**   Top-level map: frontend, backend, SageMaker pack, Terraform; local quick paths.
+- **[`Phase_2/code/backend/README.md`](Phase_2/code/backend/README.md)**   FastAPI layout, Qdrant/BM25/hybrid/image retrieval, S3 vs local storage.
+- **[`Phase_2/code/terraform/README.md`](Phase_2/code/terraform/README.md)**   AWS resources (ECR, ECS, ALB, optional HTTPS, optional SageMaker) and Terraform checks.
+- **[`Phase_2/code/sagemaker/README.md`](Phase_2/code/sagemaker/README.md)**   Unified container, ECR push, deploy/delete scripts, and backend environment variables.
 
 **Research Milestones and Utilities**
 
-- READMEs inside **`Week0304_*`**, **`Week0506_*`**, **`Week070809_QPhu_Processor/`**, and **`downloads/`** directories (datasets and paper references).
-- **`Phase_1/Week0304_QPhu_RAG_Pipeline/DETAILED_PIPELINE_FLOWS.md`** — Detailed RAG pipeline flow diagrams and explanations.
+- READMEs inside **`Phase_1/code/asr_ocr/`**, **`Phase_1/code/retrieval/`**, **`Phase_1/code/processing_rag_pipeline/`**, and **`downloads/`** directories (datasets and paper references).
+- **`Phase_1/code/processing_rag_pipeline/rag_framework_comparison/DETAILED_PIPELINE_FLOWS.md`** — Detailed RAG pipeline flow diagrams and explanations.
 
 ---
 
@@ -459,7 +489,7 @@ Open-source models, APIs, and platforms that this codebase builds on (see also T
 - **IBM**   **Docling** and related document-understanding components.
 - **Qdrant**   Vector Database used in the Phase 2 AI service and merge backend.
 - **Amazon Web Services**   **S3**, **SageMaker** real-time inference, and (via Terraform) **ECS**, **ECR**, **ALB**, **ACM** for optional cloud deployment.
-- **HashiCorp**   **Terraform** for infrastructure as code in `Phase_2_FE_AI_Merge/terraform/`.
+- **HashiCorp**   **Terraform** for infrastructure as code in `Phase_2/code/terraform/`.
 - **Pyserini / Anserini & Milvus**   retrieval stacks explored in research-week milestones.
 - **LangChain & LlamaIndex**   RAG framework comparisons (early-phase notebooks and prototypes).
 - **FFmpeg, Tesseract, Poppler**   media, OCR, and PDF tooling (TR-005).
