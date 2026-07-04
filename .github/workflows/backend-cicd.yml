@@ -67,6 +67,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Log Step 2 - AWS Credentials
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         run: |
           echo "========================================"
           echo "STEP 2: AWS CREDENTIALS CONFIGURED"
@@ -82,6 +83,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Log Step 3 - ECR Login
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         run: |
           echo "========================================"
           echo "STEP 3: ECR LOGIN SUCCESSFUL"
@@ -136,6 +138,7 @@ jobs:
           cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache,mode=max
 
       - name: Log Step 5 - Docker Build
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         run: |
           echo "========================================"
           echo "STEP 5: DOCKER IMAGE BUILD COMPLETE"

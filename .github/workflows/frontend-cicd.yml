@@ -60,6 +60,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Log Step 2 - AWS Credentials
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         run: |
           echo "========================================"
           echo "STEP 2: AWS CREDENTIALS CONFIGURED"
@@ -75,6 +76,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Log Step 3 - ECR Login
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         run: |
           echo "========================================"
           echo "STEP 3: ECR LOGIN SUCCESSFUL"
@@ -183,7 +185,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./Phase_2/code/frontend
-          push: true
+          push: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
           tags: ${{ steps.image-tags.outputs.tags }}
           cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache
           cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache,mode=max
@@ -191,6 +193,7 @@ jobs:
             VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL || '/api' }}
 
       - name: Log Step 9 - Docker Build
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         run: |
           echo "========================================"
           echo "STEP 9: DOCKER IMAGE BUILD COMPLETE"
