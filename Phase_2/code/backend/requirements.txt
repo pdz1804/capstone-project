@@ -18,7 +18,7 @@ setuptools>=80.9.0,<82
 transformers==4.57.3
 peft==0.14.0
 sentence-transformers==3.0.1
-accelerate>=0.30.0
+accelerate>=1.14.0
 huggingface-hub>=0.23.0
 
 colpali-engine==0.3.13
