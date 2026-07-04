@@ -56,10 +56,4 @@ Build, push to ECR, create/update endpoint, smoke tests, backend `.env` wiring:
 
 - Root [`README.md`](../README.md)   full capstone overview and phase components
 - [`docs/technical/APPLICATION_OVERVIEW.md`](../docs/technical/APPLICATION_OVERVIEW.md)   maintained application overview
-- [`docs/technical/API_REFERENCE.md`](../docs/technical/API_REFERENCE.md)   maintained API reference
-
----
-
-## Status
-
-Maintained entry points are `code/backend`, `code/frontend`, `code/sagemaker`, `code/terraform`, and `code/scripts`.
+- [`docs/technical/API_REFERENCE.md`](../docs/technical/API_REFERENCE.md)   maintained API reference.
