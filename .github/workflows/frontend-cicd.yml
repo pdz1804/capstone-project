@@ -51,16 +51,14 @@ jobs:
           echo "Repository Contents (frontend):"
           ls -la Phase_2/code/frontend/ | head -20
 
-      # Step 2: Configure AWS credentials (only on human push to main/develop)
+      # Step 2: Configure AWS credentials
       - name: Configure AWS credentials
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' && github.event.head_commit.author.username != 'dependabot[bot]' && !contains(github.event.head_commit.message, 'dependabot') }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Log Step 2 - AWS Credentials
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' && github.event.head_commit.author.username != 'dependabot[bot]' && !contains(github.event.head_commit.message, 'dependabot') }}
         run: |
           echo "========================================"
           echo "STEP 2: AWS CREDENTIALS CONFIGURED"
@@ -69,14 +67,12 @@ jobs:
           echo "AWS Account ID: $(aws sts get-caller-identity --query Account --output text)"
           echo "IAM User/Role: $(aws sts get-caller-identity --query Arn --output text)"
 
-      # Step 3: Login to ECR (only on human push to main/develop)
+      # Step 3: Login to ECR
       - name: Login to ECR
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' && github.event.head_commit.author.username != 'dependabot[bot]' && !contains(github.event.head_commit.message, 'dependabot') }}
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Log Step 3 - ECR Login
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' && github.event.head_commit.author.username != 'dependabot[bot]' && !contains(github.event.head_commit.message, 'dependabot') }}
         run: |
           echo "========================================"
           echo "STEP 3: ECR LOGIN SUCCESSFUL"
@@ -86,7 +82,6 @@ jobs:
           aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} || echo "Repository will be created by Terraform"
 
       - name: Ensure ECR repository exists
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' && github.event.head_commit.author.username != 'dependabot[bot]' && !contains(github.event.head_commit.message, 'dependabot') }}
         run: |
           set -euo pipefail
           aws ecr describe-repositories \
@@ -172,33 +167,15 @@ jobs:
       # Step 9: Prepare image tags (only tag :latest on main)
       - name: Prepare image tags
         id: image-tags
-        env:
-          SHOULD_PUBLISH_IMAGE: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' && github.event.head_commit.author.username != 'dependabot[bot]' && !contains(github.event.head_commit.message, 'dependabot') }}
         run: |
-          if [ "$SHOULD_PUBLISH_IMAGE" = "true" ]; then
-            TAGS="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-            if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-              TAGS="${TAGS},${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest"
-            fi
-          else
-            TAGS="${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          TAGS="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            TAGS="${TAGS},${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest"
           fi
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
-      # Step 10a: Build Docker image only (PRs and Dependabot)
-      - name: Build Docker image
-        if: ${{ !(github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' && github.event.head_commit.author.username != 'dependabot[bot]' && !contains(github.event.head_commit.message, 'dependabot')) }}
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Phase_2/code/frontend
-          push: false
-          tags: ${{ steps.image-tags.outputs.tags }}
-          build-args: |
-            VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL || '/api' }}
-
-      # Step 10b: Build and push Docker image
+      # Step 10: Build and push Docker image
       - name: Build and push Docker image
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' && github.event.head_commit.author.username != 'dependabot[bot]' && !contains(github.event.head_commit.message, 'dependabot') }}
         id: docker_build
         uses: docker/build-push-action@v5
         with:
@@ -211,7 +188,6 @@ jobs:
             VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL || '/api' }}
 
       - name: Log Step 9 - Docker Build
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' && github.event.head_commit.author.username != 'dependabot[bot]' && !contains(github.event.head_commit.message, 'dependabot') }}
         run: |
           echo "========================================"
           echo "STEP 9: DOCKER IMAGE BUILD COMPLETE"
@@ -225,7 +201,7 @@ jobs:
     name: Deploy to ECS
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && github.actor != 'dependabot[bot]' && github.event.head_commit.author.username != 'dependabot[bot]' && !contains(github.event.head_commit.message, 'dependabot')
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     permissions:
       id-token: write
       contents: read
@@ -420,9 +396,7 @@ jobs:
           echo "Deployment Status: ${{ needs.deploy.result }}"
           echo "GitHub Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo ""
-          if [ "${{ needs.deploy.result }}" = "skipped" ]; then
-            echo "Deployment skipped for this event."
-          elif [ "${{ needs.deploy.result }}" != "success" ]; then
+          if [ "${{ needs.deploy.result }}" != "success" ]; then
             echo "Deployment failed. Check the logs above for detailed error messages."
           else
             echo "Deployment completed successfully!"

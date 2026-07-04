@@ -28,6 +28,7 @@ Use this root README as the project entry point. Other README files are scoped t
 | README | Use it for |
 |---|---|
 | [`README.md`](README.md) | Project overview, repo layout, high-level architecture, and where to go next |
+| [`docs/README.md`](docs/README.md) | Documentation index only: technical docs, reports, diagrams, testing evidence |
 | [`Phase_1/code/README.md`](Phase_1/code/README.md) | Phase 1 experiment/code map after the week-folder cleanup |
 | [`Phase_2/README.md`](Phase_2/README.md) | Phase 2 app runbook: backend, frontend, SageMaker, Terraform, scripts |
 | `Phase_2/code/*/README.md` | Component-specific instructions for backend, frontend-related scripts, SageMaker, Terraform |
@@ -83,147 +84,11 @@ The latest deployment architecture (v4) shows production-grade cloud infrastruct
 
 ![AWS Deployment Architecture Diagram](docs/diagram/Deployment%20Diagram_v4.png)
 
-**For capstone presentations / documentation review:** open [`docs/report/`](docs/report/) for Phase 2 reports and presentation material.
-
-**For development setup:** follow [`docs/requirements.md`](docs/requirements.md) for the baseline environment. The main pieces are Python 3.9+ for the backend, React 18 + Vite + Tailwind for the frontend, and FFmpeg / Tesseract / Poppler for media and OCR. GPU use is optional locally if you offload heavy inference to APIs or SageMaker ([`Phase_2/code/sagemaker/README.md`](Phase_2/code/sagemaker/README.md)).
-
 **Additional Diagrams:**
 - [`docs/diagram/`](docs/diagram/)   Complete diagram collection including document processing flows and system documentation
 
-## Complete Environment Setup Guide
-
-**Last Updated**: July 4, 2026
-**For**: Phase 2 maintained application stack
-**Duration**: 20-40 minutes for a local backend/frontend setup
-
-This guide matches the current codebase structure documented in [`../README.md`](../README.md), [`../Phase_2/README.md`](../Phase_2/README.md), [`../Phase_2/code/backend/README.md`](../Phase_2/code/backend/README.md), and [`../Phase_2/code/terraform/README.md`](../Phase_2/code/terraform/README.md).
-
-### What You Need
-
-- Python 3.10+ for the backend
-- Node.js 18+ for the frontend
-- Git
-- Docker and Docker Compose for local Qdrant and Redis
-- Optional system binaries: FFmpeg, Tesseract, and Poppler if you run the document-processing paths locally
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/pdz1804/capstone-project.git
-cd capstone-project
-```
-
-The maintained app lives in `Phase_2/`.
-
-### 2. Start Local Infrastructure
-
-From the backend folder, start the local service dependencies:
-
-```bash
-cd Phase_2/code/backend
-docker compose up -d
-```
-
-This starts Redis and Qdrant from [`docker-compose.yml`](../Phase_2/code/backend/docker-compose.yml); it does not start the FastAPI backend itself.
-
-Useful checks:
-
-```bash
-curl http://localhost:6333/health
-docker compose ps
-```
-
-### 3. Configure and Run the Backend
-
-Create the backend environment file and fill in the values you need:
-
-```bash
-cd Phase_2/code/backend
-cp .env.example .env
-```
-
-Start the backend with the maintained entrypoint:
-
-```bash
-python -m venv .venv
-python -m pip install -r requirements.txt
-python run_api.py
-```
-
-Activate the virtual environment with the equivalent command for your shell before installing packages if you prefer not to use the system interpreter.
-
-The API runs on port 5001 by default. The runner accepts `--host`, `--port`, `--workers`, `--reload`, and `--no-reload` if you need to override the defaults.
-
-Common backend env values to review:
-
-- `OPENAI_API_KEY`
-- `GEMINI_API_KEY`
-- `QDRANT_MODE`, `QDRANT_HOST`, `QDRANT_PORT`, or `QDRANT_URL`
-- `REDIS_URL`
-- `FILE_STORAGE_BACKEND`
-- `USE_AWS_SAGEMAKER_INFERENCE`
-- `DYNAMODB_USERS_TABLE`, `DYNAMODB_APP_USAGE_TABLE`, `DYNAMODB_JOBS_TABLE`
-
-### 4. Configure and Run the Frontend
-
-In a separate terminal:
-
-```bash
-cd Phase_2/code/frontend
-cp .env.example .env
-npm install
-npm run dev
-```
-
-The current frontend dev script is `tsx server.ts`, and the default local URL is `http://localhost:5173`. The template in [`../Phase_2/code/frontend/.env.example`](../Phase_2/code/frontend/.env.example) uses `VITE_API_BASE_URL=/api` and `API_PROXY_TARGET=http://localhost:5001`.
-
-### 5. Verify the Stack
-
-Backend health:
-
-```bash
-curl http://localhost:5001/health
-curl http://localhost:5001/api/health
-```
-
-Frontend should be reachable at `http://localhost:5173`.
-
-If you want to smoke-test search after indexing data, use the current API contract from [`../Phase_2/code/backend/README.md`](../Phase_2/code/backend/README.md) and send requests with the `X-User-Id` header.
-
-### 6. Optional Local Validation
-
-Backend tests:
-
-```bash
-cd Phase_2/code/backend
-python -m pytest tests -v
-```
-
-Terraform validation only:
-
-```bash
-cd Phase_2/code/terraform
-terraform init -backend=false
-terraform fmt -recursive
-terraform validate
-```
-
-### 7. Common Failure Points
-
-- If Qdrant is unreachable, confirm `docker compose up -d` completed and that port 6333 is free.
-- If Redis is unreachable, confirm the same compose stack is running and that the backend `REDIS_URL` points at `redis://localhost:6379/0` or your configured instance.
-- If the frontend cannot reach the API, confirm `API_PROXY_TARGET=http://localhost:5001` and that the backend is running on port 5001.
-- If `pip install` fails on large wheels, clear the pip cache or use a drive with more free space before retrying.
-
-### 8. Where To Read Next
-
-- [`Phase_2/README.md`](../Phase_2/README.md) for the maintained Phase 2 setup summary
-- [`Phase_2/code/backend/README.md`](../Phase_2/code/backend/README.md) for backend runtime, API routes, and indexing workflow
-- [`Phase_2/code/terraform/README.md`](../Phase_2/code/terraform/README.md) for infrastructure validation and deployment notes
-
-
 ---
-<!--
+
 ## 📄 Academic Publication - Phase_2/Manuscript
 
 ### BK-MInD Academic Manuscript (Ready for Conference Submission)
@@ -262,8 +127,8 @@ The project includes a **complete, publication-ready academic manuscript** for s
 
 **Quick Start**: Download `main.pdf` from `Phase_2/Manuscript/` folder and submit to target conference!
 
-See [`Phase_2/Manuscript/README.md`](Phase_2/Manuscript/README.md) for detailed submission instructions. -->
-<!--
+See [`Phase_2/Manuscript/README.md`](Phase_2/Manuscript/README.md) for detailed submission instructions.
+
 ---
 
 ## 📦 Project Components
@@ -430,9 +295,9 @@ stage4_rag_ready/
     └── tables/
 ```
 
---- -->
+---
 
-## **Phase 2 Integrated Application: FE + AI + AWS (`Phase_2/`)**
+### 📅 **Phase 2 Integrated Application: FE + AI + AWS (`Phase_2/`)**
 
 Single tree that combines the production-style **FastAPI** backend (Qdrant, S3, optional SageMaker inference), the **React + Firebase** frontend from the FE track, **SageMaker** hosting packs (unified Docling + Whisper + ColQwen container and optional split endpoints), and **Terraform** for AWS: **ECR**, **ECS Fargate**, **Application Load Balancer** with optional **HTTPS** (ACM), auto scaling, and an optional **SageMaker endpoint** aligned with `sagemaker/unified`.
 
@@ -450,50 +315,46 @@ Use **`Phase_2`** as the maintained application tree for local development, tech
 ## 🚀 Quick Start
 
 **📚 For capstone presentations / documentation review:**
-Start with **[`docs/report/`](docs/report/)** folder for Phase 2 reports and presentation guides.
+Start with **[`docs/README.md`](docs/README.md)** (documentation hub) → **[`docs/report/`](docs/report/)** folder for Phase 2 reports and presentation guides.
 
 **👨‍💻 For development setup:**
 Prerequisites follow **[`docs/requirements.md`](docs/requirements.md)** (TR-001–TR-005, NFR-005–NFR-006): **Python 3.9+**, **FastAPI** backend; **React 18+**, **Vite**, **Tailwind** frontend; **FFmpeg**, **Tesseract**, **Poppler** for media; **GPU** optional locally if you offload heavy inference to APIs or **SageMaker** ([`Phase_2/code/sagemaker/README.md`](Phase_2/code/sagemaker/README.md)). **Docker** and **Terraform** are for packaging and cloud layout (TR-006–TR-007).
 
+**Shell:** All commands below are **Windows PowerShell** (5.1 or 7+). From another shell, translate `Set-Location`/`Copy-Item`/`.\venv\Scripts\Activate.ps1` as needed. If script activation is blocked, run once: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` (or start Python via `.\venv\Scripts\python.exe` without activating).
+
 ### Clone and base setup
 
-```bash
+```powershell
 git clone https://github.com/pdz1804/capstone-project.git
-cd capstone-project
+Set-Location capstone-project
 python -m venv venv
+.\venv\Scripts\Activate.ps1
 ```
-
-Activate the virtual environment with the equivalent command for your shell.
 
 ### Recommended: merged app (`Phase_2/`)
 
 Full UI (Firebase), Qdrant/S3-aware API, tests, **Terraform** and **SageMaker** docs see [**`Phase_2/README.md`**](Phase_2/README.md).
 
-Backend:
+```powershell
+# Backend (see Phase_2/code/backend/README.md for uvicorn/install scripts)
+Set-Location Phase_2\code\backend
+pip install -r requirements.txt
+Copy-Item .env.example .env
+# Edit .env: keys, Qdrant, S3, SageMaker flags
 
-```bash
-cd Phase_2/code/backend
-python -m pip install -r requirements.txt
-cp .env.example .env
-# Edit .env with keys, Qdrant, S3, and SageMaker settings.
-python run_api.py
-```
-
-Frontend:
-
-```bash
-cd Phase_2/code/frontend
+# Frontend   new PowerShell window at the repository root, then:
+Set-Location Phase_2\code\frontend
 npm install
-cp .env.example .env
+Copy-Item .env.example .env
 npm run dev
 ```
 
-**URLs (typical):** UI `http://localhost:5173` (or your Vite default), API `http://localhost:5001`, docs `http://localhost:5001/docs`.
+**URLs (typical):** UI `http://localhost:5173` (or Vite default), API `http://localhost:5001`, docs `http://localhost:5001/docs`. Run the API with the command in `Phase_2/code/backend/README.md`.
 
-**Terraform (local validation only, no apply):**
+**Terraform (local validation only no apply):**
 
-```bash
-cd Phase_2/code/terraform
+```powershell
+Set-Location Phase_2\code\terraform
 terraform init -backend=false
 terraform fmt -recursive
 terraform validate
@@ -501,22 +362,22 @@ terraform validate
 
 ### Research and pipeline folders (optional)
 
-```bash
-cd Phase_1/code/asr_ocr/multi_model_benchmark/src
-python main.py asr --output-dir results/asr <list-of-video-files>
+```powershell
+Set-Location Phase_1\code\asr_ocr\multi_model_benchmark\src
+python main.py asr --output-dir results\asr @(Get-ChildItem -Path "data\videos\*.mp4" | ForEach-Object { $_.FullName })
 
-cd Phase_1/code/retrieval/baseline_bm25_dense_hybrid
+Set-Location Phase_1\code\retrieval\baseline_bm25_dense_hybrid
 jupyter notebook manual_bm25_dense_hybrid.ipynb
 
-cd Phase_1/code/processing_rag_pipeline/rag_framework_comparison
+Set-Location Phase_1\code\processing_rag_pipeline\rag_framework_comparison
 python setup_and_run.py
 
-cd Phase_1/code/processing_rag_pipeline/unified_processor
-python src/pipeline.py input/ output/
+Set-Location Phase_1\code\processing_rag_pipeline\unified_processor
+python src\pipeline.py input\ output\
 # Optional: add --fast-mode where that script supports it
 ```
 
-Use `cd <repoRoot>` first if you are not already at the repository root.
+Use `Set-Location <repoRoot>` first if you are not already at the repository root (replace `<repoRoot>` with your clone path, e.g. `D:\PDZ\BKU\Learning\LVTN\GD1\Code`).
 
 ---
 
@@ -542,7 +403,10 @@ Use `cd <repoRoot>` first if you are not already at the repository root.
 
 ## 📚 Documentation
 
-**📖 Start Here:** **[`docs/requirements.md`](docs/requirements.md)** ⭐   Software Requirements Specification: functional, non-functional, technical constraints (37 requirements total).
+**📖 Start Here:**
+
+- **[`docs/README.md`](docs/README.md)**   Documentation hub and overview.
+- **[`docs/requirements.md`](docs/requirements.md)** ⭐   Software Requirements Specification: functional, non-functional, technical constraints (37 requirements total).
 
 **Authoritative Technical Documents**
 
