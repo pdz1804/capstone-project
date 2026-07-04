@@ -269,3 +269,6 @@ temp/
 
 # Graphify
 .graphifyignore
+
+# GitHub Actions
+.github/workflows/
