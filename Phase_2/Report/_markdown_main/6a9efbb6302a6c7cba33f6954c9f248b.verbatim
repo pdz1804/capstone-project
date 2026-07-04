@@ -1,0 +1,35 @@
+S3/
+├── ai-service-originals-dev/
+│   └── users/{uid}/
+│       ├── {doc_name}.pdf
+│       └── {doc_name}.pdf.metadata.json
+└── ai-service-processed-dev/
+    └── users/{uid}/
+        ├── .processing_cache.json
+        ├── pipeline_stats.json
+        ├── stage1_normalized/
+        │   ├── normalized_pdfs/
+        │   ├── excel_parsed/
+        │   ├── original_files/
+        │   └── normalization_metadata/
+        ├── stage2_media_processed/
+        │   ├── extracted_audio/
+        │   ├── extracted_frames/
+        │   ├── transcripts/
+        │   └── media_metadata/
+        ├── stage3_document_processed/
+        │   ├── {doc_name}/
+        │   │   ├── {doc_name}.md
+        │   │   └── {doc_name}_metadata.json
+        │   └── logs/
+        │       ├── batch_summary_*.json
+        │       └── processing_*.log
+        ├── stage4_rag_ready/
+        │   ├── {doc_name}/
+        │   │   ├── {doc_name}.md
+        │   │   ├── {doc_name}.pdf
+        │   │   └── docling_additional/
+        │   └── consolidation_stats.json
+        └── retrieval/
+            ├── bm25_index.pkl
+            └── documents.json.pkl
