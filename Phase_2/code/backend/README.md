@@ -31,31 +31,29 @@ Per-user isolation: HTTP header **`X-User-Id`**. S3 keys default to `users/<id>/
 
 From this backend folder:
 
-```powershell
-Set-Location "D:\PDZ\BKU\Learning\LVTN\GD1\Code\capstone-project\Phase_2\code\backend"
+```bash
+cd Phase_2/code/backend
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 ```
 
-If you already use a root venv at `Code/.venv`, activate it first, then install with `python -m pip install -r requirements.txt`.
+If you already use a root venv, activate it first, then install with `python -m pip install -r requirements.txt`.
 
-Always prefer **`python -m pip`** for the exact venv you intend to use.
+Always prefer `python -m pip` for the exact venv you intend to use.
 
 ## Run locally
 
-```powershell
-Set-Location "D:\PDZ\BKU\Learning\LVTN\GD1\Code\capstone-project\Phase_2\code\backend"
-.\.venv\Scripts\Activate.ps1
-Copy-Item .env.example .env
+```bash
+cd Phase_2/code/backend
+cp .env.example .env
 # Fill keys and runtime variables before first run.
 python run_api.py
 ```
 
 Or without activating, run the API with the full interpreter:
 
-```powershell
-& ".\.venv\Scripts\python.exe" run_api.py
+```bash
+./.venv/bin/python run_api.py
 ```
 
 ```bash
@@ -152,7 +150,7 @@ If `DYNAMODB_APP_USAGE_TABLE` is not configured, these endpoints return safe emp
 
 Tests live under `tests/` (`api/` for route smoke tests with mocks, `services/` for core settings, Qdrant factory, ColQwen inference flags). Run from **`backend`** using the same active venv you used for install.
 
-```powershell
+```bash
 python -m pytest tests\ -v
 ```
 
