@@ -58,8 +58,9 @@ jobs:
           echo "Repository Contents:"
           ls -la Phase_2/code/backend/
 
-      # Step 2: Configure AWS credentials
+      # Step 2: Configure AWS credentials (only on push to main/develop)
       - name: Configure AWS credentials
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
@@ -74,8 +75,9 @@ jobs:
           echo "AWS Account ID: $(aws sts get-caller-identity --query Account --output text)"
           echo "IAM User/Role: $(aws sts get-caller-identity --query Arn --output text)"
 
-      # Step 3: Login to ECR
+      # Step 3: Login to ECR (only on push to main/develop)
       - name: Login to ECR
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
@@ -89,6 +91,7 @@ jobs:
           aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} || echo "Repository will be created by Terraform"
 
       - name: Ensure ECR repository exists
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         run: |
           set -euo pipefail
           aws ecr describe-repositories \
