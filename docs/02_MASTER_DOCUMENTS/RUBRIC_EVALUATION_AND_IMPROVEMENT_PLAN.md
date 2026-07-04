@@ -72,10 +72,10 @@
 
 **Task B2: Add Comprehensive Module Docstrings**
 - **Files to update**:
-  - `Phase_2_FE_AI_Merge/backend/src/processor/__init__.py` - Add module overview
-  - `Phase_2_FE_AI_Merge/backend/src/retrieval/__init__.py` - Add retrieval strategy docs
-  - `Phase_2_FE_AI_Merge/backend/src/generation/__init__.py` - Add generation pipeline docs
-  - `Phase_2_FE_AI_Merge/backend/src/evaluation/__init__.py` - Add metrics documentation
+  - `Phase_2/code/backend/src/processor/__init__.py` - Add module overview
+  - `Phase_2/code/backend/src/retrieval/__init__.py` - Add retrieval strategy docs
+  - `Phase_2/code/backend/src/generation/__init__.py` - Add generation pipeline docs
+  - `Phase_2/code/backend/src/evaluation/__init__.py` - Add metrics documentation
 - **Format**: Google-style docstrings with examples
 - **Impact**: +1 score (better maintainability through documentation)
 
@@ -96,9 +96,9 @@
 #### Documentation-Only Improvements:
 
 **Task C1: Create requirements-frozen.txt Documentation** ⭐ HIGH PRIORITY
-- **File**: Generate `Phase_2_FE_AI_Merge/backend/requirements-frozen.txt`
+- **File**: Generate `Phase_2/code/backend/requirements-frozen.txt`
   ```bash
-  cd Phase_2_FE_AI_Merge/backend
+  cd Phase_2/code/backend
   pip freeze > requirements-frozen.txt
   ```
 - **File**: Create `docs/BUILD_REPRODUCIBILITY.md`
@@ -107,10 +107,10 @@
   # Build Reproducibility Guide
   
   ## Exact Reproduction (Guaranteed Same Versions)
-  pip install -r Phase_2_FE_AI_Merge/backend/requirements-frozen.txt
+  pip install -r Phase_2/code/backend/requirements-frozen.txt
   
   ## Latest Compatible Versions (Features Only)
-  pip install -r Phase_2_FE_AI_Merge/backend/requirements.txt
+  pip install -r Phase_2/code/backend/requirements.txt
   
   ## Why Two Files?
   - requirements-frozen.txt: Locks ALL transitive dependencies (reproducible)
@@ -164,7 +164,7 @@
   - Disk: 5GB minimum
   
   ## Step 1: Backend Setup
-  cd Phase_2_FE_AI_Merge/backend
+  cd Phase_2/code/backend
   python -m venv venv
   source venv/bin/activate  # Windows: venv\Scripts\activate
   pip install -r requirements-frozen.txt  # Use frozen for reproducibility
@@ -187,7 +187,7 @@
   npm run dev
   
   ## Step 5: Verify
-  # Backend: curl http://localhost:5000/health
+  # Backend: curl http://localhost:5001/health
   # Frontend: http://localhost:5173
   ```
 - **Impact**: Improves C score (demonstrates reproducibility capability)
@@ -521,7 +521,7 @@
   
   **Request**:
   ```
-  curl -X POST http://localhost:5000/api/upload \
+  curl -X POST http://localhost:5001/api/upload \
     -F "file=@sample.pdf"
   ```
   
@@ -553,9 +553,9 @@
   ```markdown
   # Troubleshooting Guide
   
-  ## Issue: "Connection refused" on localhost:5000
+  ## Issue: "Connection refused" on localhost:5001
   
-  **Symptom**: curl http://localhost:5000 returns "Connection refused"
+  **Symptom**: curl http://localhost:5001 returns "Connection refused"
   
   **Diagnosis**:
   1. Check if backend is running: ps aux | grep uvicorn
@@ -563,7 +563,7 @@
   3. Check firewall: sudo ufw status
   
   **Solution**:
-  - If not running: `cd Phase_2_FE_AI_Merge/backend && python api/main.py`
+  - If not running: `cd Phase_2/code/backend && python api/main.py`
   - If port in use: Find PID killing it: `lsof -i :5000` then `kill -9 PID`
   - If firewall: `sudo ufw allow 5000`
   
@@ -668,11 +668,11 @@
 **Rubric Impact**: C. Build/Reproducibility +1.5 → 8.5/10  
 **Time**: 30 minutes  
 **Files**:
-- Generate: `Phase_2_FE_AI_Merge/backend/requirements-frozen.txt`
+- Generate: `Phase_2/code/backend/requirements-frozen.txt`
 - Create: `docs/BUILD_REPRODUCIBILITY.md`
 - **Action**:
   ```bash
-  cd Phase_2_FE_AI_Merge/backend
+  cd Phase_2/code/backend
   pip freeze > requirements-frozen.txt
   ```
 - **Documentation**: Explain why two files (frozen vs flexible)
@@ -734,10 +734,10 @@
 **Rubric Impact**: B. Code Quality +1 → 13/15  
 **Time**: 4 hours  
 **Files to Update**:
-- `Phase_2_FE_AI_Merge/backend/src/processor/__init__.py`
-- `Phase_2_FE_AI_Merge/backend/src/retrieval/__init__.py`
-- `Phase_2_FE_AI_Merge/backend/src/generation/__init__.py`
-- `Phase_2_FE_AI_Merge/backend/src/evaluation/__init__.py`
+- `Phase_2/code/backend/src/processor/__init__.py`
+- `Phase_2/code/backend/src/retrieval/__init__.py`
+- `Phase_2/code/backend/src/generation/__init__.py`
+- `Phase_2/code/backend/src/evaluation/__init__.py`
 - **Format**: Google-style docstrings with:
   - Module purpose (1 sentence)
   - Key classes/functions (bullet list)
@@ -824,7 +824,7 @@
 **Files**:
 - Create: `docs/TROUBLESHOOTING_GUIDE.md`
 - **Common Issues**:
-  - "Connection refused" on localhost:5000
+  - "Connection refused" on localhost:5001
   - "Out of memory" during processing
   - "Module not found" import errors
   - "Qdrant connection failed"

@@ -1,7 +1,7 @@
 # Backend Code Analysis Report
-**Date:** 14-04-2026  
-**Scope:** Phase_2_FE_AI_Merge/backend/  
-**Overall Code Quality Score:** 7.5/10  
+**Date:** 14-04-2026
+**Scope:** Phase_2/code/backend/
+**Overall Code Quality Score:** 7.5/10
 **Status:** Production-ready with critical fixes required
 
 ---
@@ -145,16 +145,16 @@ backend/
 - ✅ pytest suite with conftest fixtures
 - ✅ Mock-based route tests
 - ✅ Service-level integration tests
-- ✅ CI/CD scripts (run_tests.ps1, run_tests.bat)
+- ✅ Direct pytest workflow (`python -m pytest`)
 
 ---
 
 ## 3. Critical Issues (Security & Uptime Risk)
 
 ### 3.1 ⚠️ CRITICAL: Hardcoded Admin Password in Version Control
-**File:** `.env.example`  
-**Line:** 79  
-**Severity:** CRITICAL (SECURITY)  
+**File:** `.env.example`
+**Line:** 79
+**Severity:** CRITICAL (SECURITY)
 **Description:** Default admin password `quangphu1804` is exposed in the repository.
 
 ```
@@ -170,9 +170,9 @@ DEFAULT_ADMIN_PASSWORD=quangphu1804  # <-- EXPOSED
 ---
 
 ### 3.2 ⚠️ CRITICAL: Weak `LOCAL_AUTH_SECRET` Default
-**File:** `app/identity/local_auth.py`  
-**Line:** 25  
-**Severity:** CRITICAL (SECURITY)  
+**File:** `app/identity/local_auth.py`
+**Line:** 25
+**Severity:** CRITICAL (SECURITY)
 **Description:** Default secret is weak and used for HMAC-SHA256 token signing.
 
 ```python
@@ -181,7 +181,7 @@ LOCAL_AUTH_SECRET = os.getenv("LOCAL_AUTH_SECRET", "dev-local-auth-secret-change
 
 **Risk:** If not overridden in `.env`, attackers can forge valid JWT tokens via known secret.
 
-**Fix:** 
+**Fix:**
 1. Generate a random 32-byte secret on first startup if not set
 2. Raise `RuntimeError` in production if secret is default
 
@@ -190,9 +190,9 @@ LOCAL_AUTH_SECRET = os.getenv("LOCAL_AUTH_SECRET", "dev-local-auth-secret-change
 ---
 
 ### 3.3 ⚠️ CRITICAL: No Timeout on ThreadPoolExecutor Futures
-**File:** `app/services/search_orchestrator.py`  
-**Lines:** 147–150  
-**Severity:** CRITICAL (RELIABILITY)  
+**File:** `app/services/search_orchestrator.py`
+**Lines:** 147–150
+**Severity:** CRITICAL (RELIABILITY)
 **Description:** Parallel text + image search futures have no timeout.
 
 ```python
@@ -212,9 +212,9 @@ image_result = image_future.result()
 ---
 
 ### 3.4 ⚠️ CRITICAL: Unsafe Global Singleton Initialization
-**File:** `app/admin/routes.py`  
-**Line:** 39  
-**Severity:** CRITICAL (THREADING)  
+**File:** `app/admin/routes.py`
+**Line:** 39
+**Severity:** CRITICAL (THREADING)
 **Description:** `_KNOWLEDGE_SERVICE_SINGLETON` initialized without thread-safe locking.
 
 ```python
@@ -238,9 +238,9 @@ def _get_knowledge_service():
 ## 4. High Priority Issues (Code Quality & Stability)
 
 ### 4.1 ⚠️ HIGH: `print()` Statements Bypass Logging
-**File:** `app/services/metadata_integration_examples.py`  
-**Count:** 5 statements  
-**Severity:** HIGH (LOGGING)  
+**File:** `app/services/metadata_integration_examples.py`
+**Count:** 5 statements
+**Severity:** HIGH (LOGGING)
 **Description:** Raw `print()` calls bypass structured logging system.
 
 ```python
@@ -256,9 +256,9 @@ print("Fetching metadata...")  # <-- NOT IN STRUCTURED LOGS
 ---
 
 ### 4.2 ⚠️ HIGH: Broad `except Exception:` in Auth Token Verification
-**File:** `app/identity/local_auth.py`  
-**Lines:** 44, 61, 65  
-**Severity:** HIGH (ERROR HANDLING)  
+**File:** `app/identity/local_auth.py`
+**Lines:** 44, 61, 65
+**Severity:** HIGH (ERROR HANDLING)
 **Description:** Generic exception catch swallows parsing errors without logging specifics.
 
 ```python
@@ -275,9 +275,9 @@ except Exception:
 ---
 
 ### 4.3 ⚠️ HIGH: DynamoDB Scans Without Pagination Limits
-**File:** `app/identity/user_repository_dynamo.py`  
-**Lines:** 72–86, 92–107  
-**Severity:** HIGH (PERFORMANCE)  
+**File:** `app/identity/user_repository_dynamo.py`
+**Lines:** 72–86, 92–107
+**Severity:** HIGH (PERFORMANCE)
 **Description:** Unbounded `.scan()` calls without `Limit` parameter.
 
 ```python
@@ -296,9 +296,9 @@ def get_user_by_email(email: str):
 ---
 
 ### 4.4 ⚠️ HIGH: Reranker Hardcoded OFF
-**File:** `app/services/search_orchestrator.py`  
-**Line:** 83  
-**Severity:** HIGH (FEATURE PARITY)  
+**File:** `app/services/search_orchestrator.py`
+**Line:** 83
+**Severity:** HIGH (FEATURE PARITY)
 **Description:** `skip_reranker = True` overrides all configuration.
 
 ```python
@@ -314,9 +314,9 @@ skip_reranker = True  # <-- ALWAYS DISABLED, CONFIG IGNORED
 ---
 
 ### 4.5 ⚠️ HIGH: No Input Validation for `uid`/`email` in Token Creation
-**File:** `app/identity/local_auth.py`  
-**Lines:** 47–52  
-**Severity:** HIGH (SECURITY)  
+**File:** `app/identity/local_auth.py`
+**Lines:** 47–52
+**Severity:** HIGH (SECURITY)
 **Description:** Empty `uid` or `email` allowed in token payload.
 
 ```python
@@ -339,28 +339,28 @@ def create_token(uid: str, email: str, ...):
 ## 5. Medium Priority Issues
 
 ### 5.1 Chat History Optional Silently
-**File:** `app/api/routes/chat_routes.py` (line 135)  
-**Issue:** Returns None if misconfigured; API succeeds but doesn't warn user that history is lost.  
+**File:** `app/api/routes/chat_routes.py` (line 135)
+**Issue:** Returns None if misconfigured; API succeeds but doesn't warn user that history is lost.
 **Fix:** Log warning to user response or raise graceful error.
 
 ### 5.2 Pipeline Lock Returns 409 With No Retry-After
-**File:** `app/api/routes/pipeline_routes.py` (line 48)  
-**Issue:** User doesn't know how long to wait before retry.  
+**File:** `app/api/routes/pipeline_routes.py` (line 48)
+**Issue:** User doesn't know how long to wait before retry.
 **Fix:** Return estimate "Process running since HH:MM, ~NN minutes left".
 
 ### 5.3 No Startup Validation of Config Values
-**File:** `app/core/paths.py` (lines 152–200)  
-**Issue:** Invalid values (e.g., bad Qdrant mode) silently accepted.  
+**File:** `app/core/paths.py` (lines 152–200)
+**Issue:** Invalid values (e.g., bad Qdrant mode) silently accepted.
 **Fix:** Add Pydantic schema validation with informative errors.
 
 ### 5.4 No Per-User Rate Limiting
-**File:** Global (main.py)  
-**Issue:** Missing rate limiting; attackers can spam endpoints.  
+**File:** Global (main.py)
+**Issue:** Missing rate limiting; attackers can spam endpoints.
 **Fix:** Implement via middleware or RedisCache with token bucket.
 
 ### 5.5 Qdrant Timeout Hardcoded at 120s
-**File:** `app/repositories/qdrant_factory.py` (line 26)  
-**Issue:** Not tunable per operation type; could block FastAPI workers.  
+**File:** `app/repositories/qdrant_factory.py` (line 26)
+**Issue:** Not tunable per operation type; could block FastAPI workers.
 **Fix:** Make configurable per operation; read from config.yaml.
 
 ---
@@ -368,23 +368,23 @@ def create_token(uid: str, email: str, ...):
 ## 6. Low Priority Issues (Code Hygiene)
 
 ### 6.1 Incomplete Storage Metadata Code
-**File:** `app/storage/service.py` (lines 145–150)  
-**Issue:** Code appears cut off; unclear if intentional.  
+**File:** `app/storage/service.py` (lines 145–150)
+**Issue:** Code appears cut off; unclear if intentional.
 **Fix:** Complete implementation or document why incomplete.
 
 ### 6.2 Missing Explicit Return Type Hints
-**File:** `app/services/search_orchestrator.py`  
-**Issue:** Some public methods lack return type hints.  
+**File:** `app/services/search_orchestrator.py`
+**Issue:** Some public methods lack return type hints.
 **Fix:** Add explicit return types to all public methods.
 
 ### 6.3 Content Filtering Helper Not Consolidated
-**File:** `app/api/routes/chat_routes.py`  
-**Issue:** `_is_content_document()` used once; should be in shared utils.  
+**File:** `app/api/routes/chat_routes.py`
+**Issue:** `_is_content_document()` used once; should be in shared utils.
 **Fix:** Move to `app/core/` or `app/api/helpers.py`.
 
 ### 6.4 Cache TTL Hardcoded in Multiple Places
-**File:** Multiple (search_orchestrator.py, status_routes.py, etc.)  
-**Issue:** `STATUS_QDRANT_CACHE_TTL_SECONDS` hardcoded instead of config-driven.  
+**File:** Multiple (search_orchestrator.py, status_routes.py, etc.)
+**Issue:** `STATUS_QDRANT_CACHE_TTL_SECONDS` hardcoded instead of config-driven.
 **Fix:** Read once from merged_runtime_settings; pass as parameter.
 
 ---
@@ -492,6 +492,6 @@ def create_token(uid: str, email: str, ...):
 
 ---
 
-**Report Generated:** 14-04-2026  
-**Auditor:** Claude Code Backend Analysis  
+**Report Generated:** 14-04-2026
+**Auditor:** Claude Code Backend Analysis
 **Next Review:** After Phase 1 fixes applied

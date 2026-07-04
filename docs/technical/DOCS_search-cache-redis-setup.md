@@ -4,7 +4,7 @@ This project now caches retrieval contents (`text_results` and `image_results`) 
 
 ## Environment Variables
 
-Set these in `Phase_2_FE_AI_Merge/backend/.env` (or deployment env vars):
+Set these in `Phase_2/code/backend/.env` (or deployment env vars):
 
 ```dotenv
 SEARCH_CACHE_ENABLED=true
@@ -65,7 +65,7 @@ SEARCH_CACHE_REDIS_URL=redis://redis:6379/0
 
 ## AWS ElastiCache (Redis) for Deployment
 
-If you deploy via `Phase_2_FE_AI_Merge/terraform`, the recommended path is to let Terraform create and wire ElastiCache Serverless automatically (`enable_search_cache_serverless=true`).
+If you deploy via `Phase_2/code/terraform`, the recommended path is to let Terraform create and wire ElastiCache Serverless automatically (`enable_search_cache_serverless=true`).
 
 Terraform wiring now manages:
 - ElastiCache Serverless cache + cache security group

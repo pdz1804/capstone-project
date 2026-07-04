@@ -1,8 +1,0 @@
-CAPSULE
-
-struct Capsule2D
-Vector2 startPoint
-Vector2 endPoint
-tloat radius
-
-end

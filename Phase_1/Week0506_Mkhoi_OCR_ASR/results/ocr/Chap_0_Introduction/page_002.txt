@@ -1,8 +1,0 @@
-Outline
-
-* Course Introduction
-
-* Evolution of Video Game Programming
-* Game Loop
-
-° Python - Pygame

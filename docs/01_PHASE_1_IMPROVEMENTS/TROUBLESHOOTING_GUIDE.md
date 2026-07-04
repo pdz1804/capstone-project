@@ -1,7 +1,7 @@
 # Troubleshooting Guide (G3)
 
-**Based on**: Phase_2_FE_AI_Merge actual implementation  
-**Last Updated**: May 14, 2026  
+**Based on**: Phase_2 actual implementation
+**Last Updated**: May 14, 2026
 **Scope**: Extended troubleshooting beyond OPERATIONS_RUNBOOK.md
 
 ---
@@ -242,7 +242,7 @@ print("Model loaded successfully")
 ```
 
 **Resolution**:
-- **For VRAM issues**: 
+- **For VRAM issues**:
   - Reduce batch size: Modify DenseRetriever.batch_size = 16 (from 32)
   - Enable 8-bit quantization: Set `use_quantization = True` in config
   - Switch to CPU-only mode: `config.device = "cpu"` (5x slower)
@@ -491,7 +491,7 @@ for name in expected_collections:
 - **Create collections on startup**: Add initialization script that runs before indexing:
   ```python
   from qdrant_client.models import VectorParams, Distance
-  
+
   def initialize_collections(client):
       for name, size in [("text_chunks", 384), ("image_chunks", 1024)]:
           try:
@@ -641,7 +641,7 @@ torch.cuda.empty_cache()
 - **Periodic memory cleanup**: Add scheduled cleanup (every 1 hour):
   ```python
   import asyncio
-  
+
   async def cleanup_memory():
       while True:
           await asyncio.sleep(3600)  # 1 hour
@@ -778,7 +778,7 @@ for corpus_size in [1000, 10000, 100000]:
 
 ---
 
-**Generated**: May 14, 2026  
-**Scope**: Operational troubleshooting beyond OPERATIONS_RUNBOOK.md  
+**Generated**: May 14, 2026
+**Scope**: Operational troubleshooting beyond OPERATIONS_RUNBOOK.md
 **Next**: See NAMING_CONVENTIONS.md for code patterns
 

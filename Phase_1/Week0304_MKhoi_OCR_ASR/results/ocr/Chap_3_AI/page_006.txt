@@ -1,8 +1,0 @@
-Representing the Search Space
-
-* Grid of squares
-
-* Path nodes
-
-Path nodes
-(22 nodes, 41 edges)

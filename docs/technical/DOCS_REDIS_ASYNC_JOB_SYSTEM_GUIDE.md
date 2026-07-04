@@ -12,7 +12,7 @@ Single merged reference for:
 ## Quick Start
 
 ```bash
-cd Phase_2_FE_AI_Merge/backend
+cd Phase_2/code/backend
 docker-compose up -d
 docker-compose ps
 docker exec bk_mind_redis redis-cli ping
@@ -179,8 +179,8 @@ INFO memory
 ## Minimal Validation
 
 ```bash
-curl -X POST http://localhost:5000/api/index -H "X-User-Id: test_user" -H "Content-Type: application/json"
-curl http://localhost:5000/api/index/status/{job_id} -H "X-User-Id: test_user"
+curl -X POST http://localhost:5001/api/index -H "X-User-Id: test_user" -H "Content-Type: application/json"
+curl http://localhost:5001/api/index/status/{job_id} -H "X-User-Id: test_user"
 ```
 
 Expected: accepted response first, then progress, then terminal status.

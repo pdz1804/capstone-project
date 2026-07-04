@@ -5,7 +5,7 @@
 **Fixed:** `NameError: name 'requested_model' is not defined` in `app/api/routes/search_routes.py:71`
 - **Cause:** Variables `requested_model` and `configured_model` were undefined
 - **Fix:** Extract `configured_model` from `cfg.get("generation")` and use `req.generation_model` as fallback
-- **File:** `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+- **File:** `Phase_2/code/backend/app/api/routes/search_routes.py`
 - **Lines Modified:** 51-71
 
 ---

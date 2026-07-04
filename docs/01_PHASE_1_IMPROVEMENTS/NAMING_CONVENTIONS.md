@@ -1,7 +1,7 @@
 # Naming Conventions & Code Patterns (B3)
 
-**Based on**: Phase_2_FE_AI_Merge actual implementation  
-**Last Updated**: May 14, 2026  
+**Based on**: Phase_2 actual implementation
+**Last Updated**: May 14, 2026
 **Scope**: Naming conventions, patterns, and coding standards across the codebase
 
 ---
@@ -32,7 +32,7 @@ batchSize = 32  # camelCase for constants
 - **Private variables**: Prefix with `_` (single underscore)
   ```python
   _internal_cache = {}  # Private module state
-  
+
   class MyClass:
       _private_field = None  # Private instance variable
       __very_private = None  # Name mangling (avoid unless intentional)
@@ -42,11 +42,11 @@ batchSize = 32  # camelCase for constants
   # ✅ OK for loop
   for i in range(10):
       process(chunks[i])
-  
+
   # ✅ Better for non-loop
   for chunk in chunks:
       process(chunk)
-  
+
   # ❌ Avoid
   for i in results:  # 'i' suggests integer index, not clear
       process(i)
@@ -89,10 +89,10 @@ def calc_ndcg(retrieved, relevant, k):  # Abbreviated, less clear
   ```python
   def get_documents_by_user(user_id: str) -> List[Document]:
       pass
-  
+
   def retrieve_relevant_chunks(query: str) -> List[Chunk]:
       pass
-  
+
   def search_with_hybrid_retrieval(query: str) -> SearchResult:
       pass
   ```
@@ -101,10 +101,10 @@ def calc_ndcg(retrieved, relevant, k):  # Abbreviated, less clear
   ```python
   def process_document(file_path: str) -> ProcessingResult:
       pass
-  
+
   def extract_images_from_pdf(pdf_path: str) -> List[Image]:
       pass
-  
+
   def parse_xlsx_structure(file_path: str) -> ExcelMetadata:
       pass
   ```
@@ -113,10 +113,10 @@ def calc_ndcg(retrieved, relevant, k):  # Abbreviated, less clear
   ```python
   def calculate_ndcg_at_k(retrieved: List, relevant: Dict, k: int) -> float:
       pass
-  
+
   def compute_rrf_score(doc_id: str, ranks: Dict[str, int]) -> float:
       pass
-  
+
   def analyze_retrieval_quality(results: List, qrels: Dict) -> AnalysisReport:
       pass
   ```
@@ -125,10 +125,10 @@ def calc_ndcg(retrieved, relevant, k):  # Abbreviated, less clear
   ```python
   def normalize_scores(scores: Dict) -> Dict:
       pass
-  
+
   def merge_results(results1: List, results2: List) -> List:
       pass
-  
+
   def format_output(data: Dict) -> str:
       pass
   ```
@@ -171,11 +171,11 @@ class _DocumentProcessor:  # Leading underscore (private class, rarely needed)
   class DocumentProcessor:
       def process_document(self, file_path: str) -> ProcessingResult:
           pass
-  
+
   class MediaProcessor:
       def extract_audio(self, file_path: str) -> AudioData:
           pass
-  
+
   class CacheManager:
       def invalidate(self, key: str) -> None:
           pass
@@ -185,10 +185,10 @@ class _DocumentProcessor:  # Leading underscore (private class, rarely needed)
   ```python
   class BM25Retriever(BaseRetriever):
       pass
-  
+
   class DenseRetriever(BaseRetriever):
       pass
-  
+
   class SimpleHybridRetriever(BaseRetriever):
       pass
   ```
@@ -198,7 +198,7 @@ class _DocumentProcessor:  # Leading underscore (private class, rarely needed)
   class ProcessingConfig:
       chunk_size_tokens: int = 512
       ocr_engine: str = "tesseract"
-  
+
   class RetrievalConfig:
       top_k: int = 10
       retriever_type: str = "hybrid"
@@ -209,11 +209,11 @@ class _DocumentProcessor:  # Leading underscore (private class, rarely needed)
   class ProcessingMetadata:
       document_id: str
       chunk_count: int
-  
+
   class SearchResult:
       text_results: List[Chunk]
       image_results: List[Image]
-  
+
   class ChunkData:
       content: str
       page_number: int
@@ -807,27 +807,27 @@ Standard information retrieval metrics for quantifying retrieval quality...
 
 class DocumentProcessor:
     """Main document processing pipeline with 7-stage workflow.
-    
+
     Coordinates text extraction, media processing, OCR, and chunking
     for multimodal documents (PDF, DOCX, Excel, video, audio).
     """
-    
+
     def process_document(self, file_path: str) -> ProcessingResult:
         """Process a single document through the 7-stage pipeline.
-        
+
         Args:
             file_path: Path to document file (PDF, DOCX, XLSX, PPTX, etc.)
-            
+
         Returns:
             ProcessingResult with chunks, metadata, and extraction details
-            
+
         Raises:
             FileNotFoundError: If file doesn't exist
             ValueError: If document format unsupported
         """
         # Stage 1: Normalize document
         normalized = self._normalize_document(file_path)  # Inline comment only if non-obvious
-        
+
         # ❌ Avoid
         def process_document(self, file_path):  # No docstring
             # Do processing  # Vague comment
@@ -898,8 +898,8 @@ SupportedFormats = [...]  # PascalCase for constant
 
 ---
 
-**Generated**: May 14, 2026  
-**Scope**: Code naming conventions and patterns  
-**Status**: Complete B3 documentation  
+**Generated**: May 14, 2026
+**Scope**: Code naming conventions and patterns
+**Status**: Complete B3 documentation
 **Next**: Spawn subagents to validate Phase 3 work
 

@@ -4,7 +4,7 @@
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="p1_title" value="Current Architecture - Document Processing Pipelines (Phase_2_FE_AI_Merge)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=18;fontStyle=1;" parent="1" vertex="1">
+                <mxCell id="p1_title" value="Current Architecture - Document Processing Pipelines (Phase_2)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=18;fontStyle=1;" parent="1" vertex="1">
                     <mxGeometry x="40" y="20" width="1020" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="p1_lane_client" value="Client Layer" style="swimlane;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" parent="1" vertex="1">

@@ -1,7 +1,7 @@
 # Architecture Decision Records (ADRs)
 
-**Based on**: Phase_2_FE_AI_Merge actual implementation  
-**Format**: [ADR Pattern](https://adr.github.io/) (Title, Status, Decision, Consequences)  
+**Based on**: Phase_2 actual implementation
+**Format**: [ADR Pattern](https://adr.github.io/) (Title, Status, Decision, Consequences)
 **Last Updated**: May 14, 2026
 
 ---
@@ -60,7 +60,7 @@
 - ⚠️ If chosen engine unavailable, entire document fails (no graceful recovery)
 - ⚠️ User must choose engine upfront (no automatic optimization)
 
-**Implementation**: 
+**Implementation**:
 ```python
 # document_processor.py lines 434-476
 ocr_engine = self.config.ocr_engine  # Set at init, never changes
@@ -301,6 +301,6 @@ results = retriever.search(query, filters={"user_id": current_user_id})
 
 ---
 
-**Generated**: May 14, 2026  
-**Total ADRs**: 8 critical architecture decisions documented  
+**Generated**: May 14, 2026
+**Total ADRs**: 8 critical architecture decisions documented
 **Next**: See TROUBLESHOOTING_GUIDE.md for operational decisions

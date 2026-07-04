@@ -1,34 +1,21 @@
-# PDZ added 
+# Graphify should index source/docs and skip local-only data, generated output, and heavy artifacts.
 downloads/
 data/
+Phase_1/data/
+Phase_2/data/
+**/input/
+**/output/
+**/results/
+**/.work/
+**/test_parsing/
+**/uploads/
 AGENTS.md
 *.hf_cache/
-Phase_1/
-Phase_2/
-Phase_2_AI_SERVICE_FOLDER/
-Phase_2_PDZ_001_Test_Media_RAG/
-Phase_2_PDZ_002_Model_Deploy/
-Phase_2_PDZ_003_Test_Qdrant_Cloud/
 HK251-DAGD1-244.pdf
 myenv/
 .venv/
 .agent/
 CLAUDE.md
-
-# Phase 2 - Ignore large datasets and outputs
-Phase_2/backend/ms_marco_val/
-Phase_2/backend/input/
-Phase_2/backend/input copy/
-Phase_2/backend/output/
-Phase_2/backend/test_parsing/
-Phase_2/backend/output copy/
-
-Phase_2_PDZ_001/input/
-Phase_2_PDZ_001/output/
-Phase_2_PDZ_001/uploads/
-
-Phase_2_AI_SERVICE_FOLDER/backend/input/
-Phase_2_AI_SERVICE_FOLDER/backend/output/
 
 # Ignore BMAD
 _bmad/
@@ -395,8 +382,8 @@ share/python-wheels/
 MANIFEST
 
 # Keep merged frontend source utilities tracked
-!Phase_2_FE_AI_Merge/frontend/src/lib/
-!Phase_2_FE_AI_Merge/frontend/src/lib/**
+!Phase_2/code/frontend/src/lib/
+!Phase_2/code/frontend/src/lib/**
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
