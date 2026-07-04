@@ -58,16 +58,16 @@ jobs:
           echo "Repository Contents:"
           ls -la Phase_2/code/backend/
 
-      # Step 2: Configure AWS credentials (only on push to main/develop)
+      # Step 2: Configure AWS credentials (only on human push to main/develop)
       - name: Configure AWS credentials
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Log Step 2 - AWS Credentials
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' }}
         run: |
           echo "========================================"
           echo "STEP 2: AWS CREDENTIALS CONFIGURED"
@@ -76,14 +76,14 @@ jobs:
           echo "AWS Account ID: $(aws sts get-caller-identity --query Account --output text)"
           echo "IAM User/Role: $(aws sts get-caller-identity --query Arn --output text)"
 
-      # Step 3: Login to ECR (only on push to main/develop)
+      # Step 3: Login to ECR (only on human push to main/develop)
       - name: Login to ECR
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' }}
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Log Step 3 - ECR Login
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' }}
         run: |
           echo "========================================"
           echo "STEP 3: ECR LOGIN SUCCESSFUL"
@@ -93,7 +93,7 @@ jobs:
           aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} || echo "Repository will be created by Terraform"
 
       - name: Ensure ECR repository exists
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' }}
         run: |
           set -euo pipefail
           aws ecr describe-repositories \
@@ -119,15 +119,31 @@ jobs:
       # Step 5: Prepare image tags (only tag :latest on main)
       - name: Prepare image tags
         id: image-tags
+        env:
+          SHOULD_PUBLISH_IMAGE: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' }}
         run: |
-          TAGS="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            TAGS="${TAGS},${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest"
+          if [ "$SHOULD_PUBLISH_IMAGE" = "true" ]; then
+            TAGS="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+            if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+              TAGS="${TAGS},${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest"
+            fi
+          else
+            TAGS="${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
           fi
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
-      # Step 6: Build and push Docker image
+      # Step 6a: Build Docker image only (PRs and Dependabot)
+      - name: Build Docker image
+        if: ${{ !(github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]') }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Phase_2/code/backend
+          push: false
+          tags: ${{ steps.image-tags.outputs.tags }}
+
+      # Step 6b: Build and push Docker image
       - name: Build and push Docker image
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' }}
         id: docker_build
         uses: docker/build-push-action@v5
         with:
@@ -138,7 +154,7 @@ jobs:
           cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache,mode=max
 
       - name: Log Step 5 - Docker Build
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.actor != 'dependabot[bot]' }}
         run: |
           echo "========================================"
           echo "STEP 5: DOCKER IMAGE BUILD COMPLETE"
@@ -152,7 +168,7 @@ jobs:
     name: Deploy to ECS
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && github.actor != 'dependabot[bot]'
     permissions:
       id-token: write
       contents: read
@@ -327,7 +343,9 @@ jobs:
           echo "Deployment Status: ${{ needs.deploy.result }}"
           echo "GitHub Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo ""
-          if [ "${{ needs.deploy.result }}" != "success" ]; then
+          if [ "${{ needs.deploy.result }}" = "skipped" ]; then
+            echo "Deployment skipped for this event."
+          elif [ "${{ needs.deploy.result }}" != "success" ]; then
             echo "Deployment failed. Check the logs above for detailed error messages."
           else
             echo "Deployment completed successfully!"
