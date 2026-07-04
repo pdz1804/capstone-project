@@ -1,7 +1,0 @@
-Cheating
-
-* Information Cheat
-» Example: spy character, map
-* Game State Cheat
-
-* Man-in-the-middle attack

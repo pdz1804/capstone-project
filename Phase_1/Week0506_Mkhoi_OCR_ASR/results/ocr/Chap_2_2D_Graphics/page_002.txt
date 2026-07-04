@@ -1,5 +1,0 @@
-Outline
-
-° Sprites
-* Scrolling
-* Tile Maps

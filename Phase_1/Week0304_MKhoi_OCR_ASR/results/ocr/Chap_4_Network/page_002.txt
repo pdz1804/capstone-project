@@ -1,5 +1,0 @@
-Outline
-
-* Protocols
-* Topology
-* Cheating

@@ -1,4 +1,0 @@
-PHYSICS MIDDLEWARE
-
-° 3D: PhysX
-*° 2D: Box2D

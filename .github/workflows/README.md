@@ -20,24 +20,26 @@ Three automated CI/CD pipelines handle:
 2. **Frontend Build & Deploy** - React Vite application
 3. **Infrastructure as Code** - Terraform AWS resources
 
+Run the Terraform workflow first for a new environment. The backend and frontend deployment jobs update existing ECS task definitions created by `Phase_2/code/terraform`; they do not use checked-in `task-definition.json` templates in the current repo layout.
+
 ### Trigger Rules
 
 ```yaml
 Backend CI/CD:
   - Triggers on: push/PR to main/develop
-  - Watches: Phase_2_FE_AI_Merge/backend/**
+  - Watches: Phase_2/code/backend/**
   - Deploys to: rag-pipeline-cluster-backend-service
   - Auto-triggers on: manifest/code changes
 
 Frontend CI/CD:
   - Triggers on: push/PR to main/develop
-  - Watches: Phase_2_FE_AI_Merge/frontend/**
+  - Watches: Phase_2/code/frontend/**
   - Deploys to: rag-pipeline-cluster-frontend-service
   - Auto-triggers on: manifest/code changes
 
 Infrastructure CI/CD:
   - Triggers on: push to main
-  - Watches: Phase_2_FE_AI_Merge/terraform/**
+  - Watches: Phase_2/code/terraform/**
   - Deploys to: AWS via Terraform
   - Manual approval: Before apply to production
 ```
@@ -48,7 +50,7 @@ Infrastructure CI/CD:
 
 ### 1. Backend CI/CD Workflow (backend-cicd.yml)
 
-**Trigger:** Push/PR to main or develop with changes in `Phase_2_FE_AI_Merge/backend/`
+**Trigger:** Push/PR to main or develop with changes in `Phase_2/code/backend/`
 
 **Steps:**
 
@@ -61,7 +63,7 @@ Infrastructure CI/CD:
 │ ✓ Login to ECR                                          │
 │ ✓ Setup Docker Buildx                                  │
 │ ✓ Build & push Docker image (with cache)              │
-│ ✓ Create ECS task definition                          │
+│ ✓ Publish image for Terraform-created ECS service      │
 │ ✓ [LOG] Print all details for debugging               │
 └─────────────────────────────────────────────────────────┘
                            │
@@ -74,7 +76,7 @@ Infrastructure CI/CD:
 │ ✓ Checkout code                                        │
 │ ✓ Configure AWS credentials                            │
 │ ✓ Login to ECR                                         │
-│ ✓ Render task definition with new image               │
+│ ✓ Update existing Terraform-created task definition    │
 │ ✓ Deploy to ECS service                               │
 │ ✓ Wait for service stability (2/2 tasks)              │
 │ ✓ Health check via target group                       │
@@ -117,7 +119,7 @@ GitHub > Actions > backend-cicd.yml > <Run> > <Job>
 
 ### 2. Frontend CI/CD Workflow (frontend-cicd.yml)
 
-**Trigger:** Push/PR to main or develop with changes in `Phase_2_FE_AI_Merge/frontend/`
+**Trigger:** Push/PR to main or develop with changes in `Phase_2/code/frontend/`
 
 **Steps:**
 
@@ -129,12 +131,12 @@ GitHub > Actions > backend-cicd.yml > <Run> > <Job>
 │ ✓ Configure AWS credentials                             │
 │ ✓ Login to ECR                                          │
 │ ✓ Setup Node.js & npm cache                           │
-│ ✓ Install dependencies (npm ci)                        │
+│ ✓ Install dependencies (npm install)                   │
 │ ✓ Run ESLint (optional, continue on error)             │
 │ ✓ Build React app (npm run build)                      │
 │ ✓ Setup Docker Buildx                                 │
 │ ✓ Build & push Docker image                           │
-│ ✓ Create ECS task definition                          │
+│ ✓ Publish image for Terraform-created ECS service      │
 │ ✓ [LOG] Print npm versions & build artifacts          │
 └─────────────────────────────────────────────────────────┘
                            │
@@ -147,7 +149,7 @@ GitHub > Actions > backend-cicd.yml > <Run> > <Job>
 │ ✓ Checkout code                                        │
 │ ✓ Configure AWS credentials                            │
 │ ✓ Login to ECR                                         │
-│ ✓ Render task definition                              │
+│ ✓ Update existing Terraform-created task definition    │
 │ ✓ Deploy to ECS service                               │
 │ ✓ Monitor deployment progress                         │
 │ ✓ Verify service health                               │
@@ -171,7 +173,7 @@ GitHub > Actions > backend-cicd.yml > <Run> > <Job>
   - Node version, npm version
   
 ✓ STEP 5: INSTALLING DEPENDENCIES
-  - npm ci output, package count
+  - npm install output, package count
   
 ✓ STEP 7: BUILDING APPLICATION
   - npm run build output, bundle size
@@ -184,7 +186,7 @@ GitHub > Actions > backend-cicd.yml > <Run> > <Job>
 
 ### 3. Infrastructure CI/CD Workflow (infrastructure-cicd.yml)
 
-**Trigger:** Push to main with changes in `Phase_2_FE_AI_Merge/terraform/`
+**Trigger:** Push to main with changes in `Phase_2/code/terraform/`
 
 **Steps:**
 
@@ -350,7 +352,7 @@ on:
       - main          # ← Change to 'main' only, 'main|develop', etc
       - develop
     paths:
-      - 'Phase_2_FE_AI_Merge/backend/**'
+      - 'Phase_2/code/backend/**'
 ```
 
 #### Change AWS region
@@ -447,7 +449,7 @@ aws iam get-role-policy \
 **Solution:**
 ```bash
 # 1. Check Dockerfile syntax
-docker build Phase_2_FE_AI_Merge/backend/ -t test
+docker build Phase_2/code/backend/ -t test
 
 # 2. Check Dockerfile exit code
 # Ensure all RUN commands exit 0
@@ -489,7 +491,7 @@ aws ecs describe-tasks --cluster rag-pipeline-cluster --tasks <TASK_ARN> \
   | jq '.tasks[0] | {lastStatus, stoppedReason}'
 
 # 3. Check health check endpoint
-curl -f http://localhost:8000/health
+curl -f http://localhost:5000/health
 
 # 4. Check port availability
 # Ensure port is not already in use
@@ -505,10 +507,10 @@ curl -f http://localhost:8000/health
 **Solution:**
 ```bash
 # 1. Validate syntax locally
-terraform -chdir=Phase_2_FE_AI_Merge/terraform validate
+terraform -chdir=Phase_2/code/terraform validate
 
 # 2. Format check
-terraform fmt -check -recursive Phase_2_FE_AI_Merge/terraform/
+terraform fmt -check -recursive Phase_2/code/terraform/
 
 # 3. Review error message in workflow logs
 # Error message usually points to specific issue

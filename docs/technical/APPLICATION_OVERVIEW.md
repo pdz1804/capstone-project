@@ -62,4 +62,4 @@ This is a healthy system profile for an AI learning platform: interactive featur
 - API surface: [`API_REFERENCE.md`](API_REFERENCE.md)
 - Performance report: [`../testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md`](../testing/FINAL_APPLICATION_PERFORMANCE_REPORT_20260426.md)
 - JMeter runbooks: [`../jmeter-capacity-tests/runs/`](../jmeter-capacity-tests/runs/)
-- Deployment references: [`../../Phase_2_FE_AI_Merge/terraform/README.md`](../../Phase_2_FE_AI_Merge/terraform/README.md)
+- Deployment references: [`../../Phase_2/code/terraform/README.md`](../../Phase_2/code/terraform/README.md)

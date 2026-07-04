@@ -1,9 +1,0 @@
-Representing the Search Space
-
-° Turn-based strategy
-
-Node: 3
-ist: .. |Adjacency List:
-2} {1,2}
-
-- Real time action @

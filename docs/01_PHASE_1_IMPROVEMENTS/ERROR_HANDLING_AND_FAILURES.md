@@ -1,8 +1,8 @@
 # Error Handling & Failure Modes Documentation
 
-**Based on**: Phase_2_FE_AI_Merge actual error handling code  
-**Source Files**: Exact line references  
-**Last Updated**: May 14, 2026  
+**Based on**: Phase_2 actual error handling code
+**Source Files**: Exact line references
+**Last Updated**: May 14, 2026
 
 ---
 
@@ -26,7 +26,7 @@ except Exception as e:
 
 ### Principle 2: Configurable OCR Engine Selection
 
-**Example**: OCR Engine Configuration  
+**Example**: OCR Engine Configuration
 From `document_processor.py` lines 434-476:
 
 The system supports three OCR engines available via configuration, not automatic fallback:
@@ -34,24 +34,24 @@ The system supports three OCR engines available via configuration, not automatic
 ```python
 def _get_ocr_options(self):
     """OCR engine configured via config parameter"""
-    
+
     # Engine selection via config (not automatic fallback)
     ocr_engine = self.config.ocr_engine  # "tesseract", "easyocr", or "rapidocr"
-    
+
     if ocr_engine == "tesseract":
         try:
             return TesseractOcrOptions(...)  # Fastest, ~10ms
         except Exception as e:
             logger.error(f"Tesseract not available: {e}")
             raise
-    
+
     elif ocr_engine == "easyocr":
         try:
             return EasyOcrOptions(...)  # Slower, ~100ms, pure Python
         except Exception as e:
             logger.error(f"EasyOCR not available: {e}")
             raise
-    
+
     elif ocr_engine == "rapidocr":
         try:
             return RapidOcrOptions()  # ONNX-based inference
@@ -519,6 +519,6 @@ When a component fails:
 
 ---
 
-**Generated**: May 14, 2026  
-**Based on**: Actual Phase_2_FE_AI_Merge error handling code  
+**Generated**: May 14, 2026
+**Based on**: Actual Phase_2 error handling code
 **Next**: See OPERATIONS_RUNBOOK.md for recovery procedures

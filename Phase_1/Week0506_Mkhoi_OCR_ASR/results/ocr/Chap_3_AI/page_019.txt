@@ -1,6 +1,0 @@
-BEHAVIOR TREE
-
-Interruptions J} Tick (going down)
-f -Success (up)
-t “Rumning (up)
-*Failure (up)

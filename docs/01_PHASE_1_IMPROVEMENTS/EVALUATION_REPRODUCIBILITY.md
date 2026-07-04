@@ -1,18 +1,18 @@
 # Evaluation & Benchmark Reproducibility Guide
 
-**Based on Actual Code**: Phase_2_FE_AI_Merge evaluation framework  
-**Source Files**: `backend/src/evaluation/metrics.py`, `backend/src/evaluation/benchmark.py`  
-**Last Updated**: May 14, 2026  
+**Based on Actual Code**: Phase_2 evaluation framework
+**Source Files**: `backend/src/evaluation/metrics.py`, `backend/src/evaluation/benchmark.py`
+**Last Updated**: May 14, 2026
 
 ---
 
 ## Evaluation Metrics
 
-All metrics implemented in: `Phase_2_FE_AI_Merge/backend/src/evaluation/metrics.py`
+All metrics implemented in: `Phase_2/code/backend/src/evaluation/metrics.py`
 
 ### 1. Recall@K
 
-**Location**: metrics.py lines 16-38  
+**Location**: metrics.py lines 16-38
 **Definition**: Proportion of relevant documents in top K results
 
 ```python
@@ -37,7 +37,7 @@ def recall_at_k(retrieved: List[str], relevant: Set[str], k: int) -> float:
 
 ### 2. nDCG@K (Normalized Discounted Cumulative Gain)
 
-**Location**: metrics.py lines 64-90  
+**Location**: metrics.py lines 64-90
 **Definition**: Ranking quality metric considering position of relevant docs
 
 ```python
@@ -70,7 +70,7 @@ def ndcg_at_k(retrieved: List[str], relevant: Set[str], k: int) -> float:
 
 ### 3. MRR (Mean Reciprocal Rank)
 
-**Location**: metrics.py lines 93-113  
+**Location**: metrics.py lines 93-113
 **Definition**: Position of first relevant document (averaged over queries)
 
 ```python
@@ -92,7 +92,7 @@ def mrr(retrieved: List[str], relevant: Set[str]) -> float:
 
 ### 4. MAP (Mean Average Precision)
 
-**Location**: metrics.py lines 116-143  
+**Location**: metrics.py lines 116-143
 **Definition**: Average precision across all query ranks
 
 ```python
@@ -112,7 +112,7 @@ def mean_average_precision(retrieved: List[str], relevant: Set[str]) -> float:
 
 ## Benchmark Framework
 
-**Location**: `Phase_2_FE_AI_Merge/backend/src/evaluation/benchmark.py`
+**Location**: `Phase_2/code/backend/src/evaluation/benchmark.py`
 
 ### BenchmarkConfig
 
@@ -196,10 +196,10 @@ class BenchmarkResult:
 
 ### Test Configuration
 
-**Dataset**: Internal synthetic benchmark  
-**Query Count**: 2,430 synthetic queries  
-**Document Count**: 20 documents  
-**Query Types**: 4 difficulty levels  
+**Dataset**: Internal synthetic benchmark
+**Query Count**: 2,430 synthetic queries
+**Document Count**: 20 documents
+**Query Types**: 4 difficulty levels
 **Evaluation Date**: May 2026
 
 ### Baseline Metrics
@@ -371,7 +371,7 @@ config = BenchmarkConfig(
 
 ```bash
 # From backend directory
-cd Phase_2_FE_AI_Merge/backend
+cd Phase_2/code/backend
 
 # Run evaluation
 python -m src.evaluation.benchmark \
@@ -530,6 +530,6 @@ nDCG@10: 84% (plateaus)
 
 ---
 
-**Generated**: May 14, 2026  
-**Source**: Actual Phase_2_FE_AI_Merge evaluation code analysis  
+**Generated**: May 14, 2026
+**Source**: Actual Phase_2 evaluation code analysis
 **Next Step**: Run benchmark with requirements-frozen.txt and seed=42

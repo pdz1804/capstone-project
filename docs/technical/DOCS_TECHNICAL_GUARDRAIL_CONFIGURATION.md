@@ -340,7 +340,7 @@ GUARDRAIL_VERSION=DRAFT
 
 ### Files
 
-- **Config Module:** [`agent/bedrock_guardrail_integration.py`](../../Phase_2_FE_AI_Merge/backend/agent/bedrock_guardrail_integration.py)
+- **Config Module:** [`agent/bedrock_guardrail_integration.py`](../../Phase_2/code/backend/agent/bedrock_guardrail_integration.py)
 - **Integration Points:** See "API Integration" section above
 
 ---
@@ -373,8 +373,8 @@ GUARDRAIL_VERSION=DRAFT
 
 - **Bedrock Guardrails Documentation:** https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html
 - **API Parameters:** [`API_REFERENCE.md`](API_REFERENCE.md) (chat, insights, feedback endpoints)
-- **Implementation Code:** [`bedrock_guardrail_integration.py`](../../Phase_2_FE_AI_Merge/backend/agent/bedrock_guardrail_integration.py)
-- **Deployment Guide:** [`../../Phase_2_FE_AI_Merge/backend/README.md`](../../Phase_2_FE_AI_Merge/backend/README.md)
+- **Implementation Code:** [`bedrock_guardrail_integration.py`](../../Phase_2/code/backend/agent/bedrock_guardrail_integration.py)
+- **Deployment Guide:** [`../../Phase_2/code/backend/README.md`](../../Phase_2/code/backend/README.md)
 
 ---
 

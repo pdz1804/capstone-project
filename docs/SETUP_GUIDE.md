@@ -1,7 +1,7 @@
 # Complete Environment Setup Guide
 
-**Last Updated**: May 14, 2026  
-**For**: Phase_2_FE_AI_Merge Unified RAG Pipeline  
+**Last Updated**: May 14, 2026
+**For**: Phase_2 Unified RAG Pipeline
 **Duration**: 30-45 minutes for complete setup
 
 ---
@@ -49,25 +49,19 @@ choco install ffmpeg tesseract poppler
 git clone https://github.com/your-org/llm-capstone.git
 cd llm-capstone
 
-# Navigate to main directory
-cd Phase_2_FE_AI_Merge
+# Navigate to the maintained Phase 2 tree
+cd Phase_2
 
 # View structure
 tree -L 2 -I '__pycache__|*.egg-info|node_modules'
 # Output:
-# ├── backend/               # Python FastAPI backend
-# │   ├── app/
-# │   ├── src/
-# │   ├── requirements.txt
-# │   ├── Dockerfile
-# │   └── main.py
-# ├── frontend/              # React frontend
-# │   ├── src/
-# │   ├── package.json
-# │   └── Dockerfile
-# ├── sagemaker/             # AWS SageMaker deployment
-# ├── terraform/             # IaC for AWS
-# └── docker-compose.yml     # Local development stack
+# ├── code/
+# │   ├── backend/           # Python FastAPI backend
+# │   ├── frontend/          # React frontend
+# │   ├── sagemaker/         # AWS SageMaker deployment
+# │   ├── terraform/         # IaC for AWS
+# │   └── scripts/           # helper scripts
+# └── data/                  # local-only data, ignored by Git
 ```
 
 ---
@@ -77,7 +71,7 @@ tree -L 2 -I '__pycache__|*.egg-info|node_modules'
 ### 2.1 Create Python Virtual Environment
 
 ```bash
-cd backend
+cd Phase_2/code/backend
 
 # Create venv
 python3 -m venv venv
@@ -107,7 +101,7 @@ pip install -r requirements.txt \
   --extra-index-url https://download.pytorch.org/whl/cu128
 ```
 
-**Note**: Installation requires ~6-7 GB free disk space (torch wheel ~3.5 GB).  
+**Note**: Installation requires ~6-7 GB free disk space (torch wheel ~3.5 GB).
 If you get "Errno 28: No space left on device", clear pip cache:
 ```bash
 pip cache purge
@@ -133,7 +127,7 @@ python -c "import docling; import transformers; import sentence_transformers; pr
 
 ### 2.4 Set Environment Variables
 
-Create `.env` file in `backend/` directory:
+Create `.env` file in `Phase_2/code/backend/`:
 
 ```bash
 # Basic Configuration
@@ -176,7 +170,7 @@ SAGEMAKER_ENDPOINT_WHISPER=whisper-endpoint
 ### 2.5 Start Backend Services (with Docker Compose)
 
 ```bash
-# From Phase_2_FE_AI_Merge root:
+# From Phase_2/code/backend:
 docker-compose up -d
 
 # Verify services
@@ -217,13 +211,13 @@ npm list react react-dom  # Should show versions
 
 ### 3.2 Configure Frontend Environment
 
-Create `.env` file in `frontend/` directory:
+Create `.env` file in `Phase_2/code/frontend/`:
 
 ```bash
-REACT_APP_API_BASE_URL=http://localhost:8000/api
-REACT_APP_WEBSOCKET_URL=ws://localhost:8000/ws
-REACT_APP_USER_ID=dev_user_123  # For testing
-REACT_APP_ENVIRONMENT=development
+VITE_API_BASE_URL=/api
+API_PROXY_TARGET=http://localhost:5001
+GEMINI_API_KEY=your_gemini_key
+APP_URL=http://localhost:5173
 ```
 
 ### 3.3 Start Frontend Dev Server
@@ -231,7 +225,7 @@ REACT_APP_ENVIRONMENT=development
 ```bash
 npm start
 
-# Output: 
+# Output:
 # Compiled successfully!
 # You can now view the app in the browser.
 # Local: http://localhost:3000
@@ -245,11 +239,11 @@ npm start
 
 ```bash
 # From backend directory (venv activated)
-curl http://localhost:8000/health
+curl http://localhost:5001/health
 # Response: {"status":"healthy","timestamp":"2026-05-14T10:30:45Z"}
 
 # Extended health
-curl http://localhost:8000/api/health
+curl http://localhost:5001/api/health
 # Response: {"status":"healthy","components":{...},"latency_ms":145}
 ```
 
@@ -257,7 +251,7 @@ curl http://localhost:8000/api/health
 
 ```bash
 # Via curl
-curl -X POST http://localhost:8000/api/search \
+curl -X POST http://localhost:5001/api/search \
   -H "Content-Type: application/json" \
   -H "X-User-Id: dev_user_123" \
   -d '{
@@ -270,7 +264,7 @@ curl -X POST http://localhost:8000/api/search \
 python << 'EOF'
 import requests
 response = requests.post(
-    "http://localhost:8000/api/search",
+    "http://localhost:5001/api/search",
     json={"query": "test", "top_k": 1, "mode": "retrieval_only"},
     headers={"X-User-Id": "dev_user"}
 )
@@ -282,7 +276,7 @@ EOF
 ### 4.3 Check Available Models
 
 ```bash
-curl http://localhost:8000/api/search/generation-models \
+curl http://localhost:5001/api/search/generation-models \
   -H "X-User-Id: dev_user_123"
 
 # Response shows configured models (Bedrock, OpenAI, etc.)
@@ -326,7 +320,7 @@ EOF
 ### 5.2 Run Document Processing Pipeline
 
 ```bash
-cd backend
+cd Phase_2/code/backend
 
 python << 'EOF'
 from app.services.document_processor import DocumentProcessor, ProcessingConfig
@@ -492,7 +486,7 @@ export TEMP=/mnt/large        # Linux
 ### Running Tests
 
 ```bash
-cd backend
+cd Phase_2/code/backend
 
 # Unit tests
 pytest tests/unit -v
@@ -579,7 +573,7 @@ For quickest setup without all components:
 
 ```bash
 # 1. Backend only (with local files, no GPU)
-cd backend
+cd Phase_2/code/backend
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -588,13 +582,13 @@ pip install -r requirements.txt
 docker-compose up -d qdrant redis
 
 # 3. Run backend
-python main.py
+python run_api.py
 
 # 4. Test (new terminal)
-curl http://localhost:8000/health
+curl http://localhost:5001/health
 
 # 5. Try search (requires indexed documents first)
-curl -X POST http://localhost:8000/api/search \
+curl -X POST http://localhost:5001/api/search \
   -H "Content-Type: application/json" \
   -d '{"query":"test","top_k":5}'
 ```
@@ -620,6 +614,6 @@ curl -X POST http://localhost:8000/api/search \
 
 ---
 
-**Generated**: May 14, 2026  
-**Version**: 1.0  
+**Generated**: May 14, 2026
+**Version**: 1.0
 **Status**: Ready for development use

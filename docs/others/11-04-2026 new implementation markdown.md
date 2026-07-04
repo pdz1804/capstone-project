@@ -8,7 +8,7 @@ Update rule:
 ## 2026-04-11 - Terraform-Managed ElastiCache Serverless Wiring For ECS Backend Cache
 
 ### Scope
-- Move ElastiCache Serverless configuration and ECS connectivity into `Phase_2_FE_AI_Merge/terraform` so cache networking is managed declaratively.
+- Move ElastiCache Serverless configuration and ECS connectivity into `Phase_2/code/terraform` so cache networking is managed declaratively.
 - Ensure backend ECS task definition receives `SEARCH_CACHE_*` env vars directly from Terraform outputs.
 - Update related READMEs/docs to match the new infrastructure-managed flow.
 
@@ -28,26 +28,26 @@ Update rule:
 	- Added outputs for cache name, endpoint, port, SG ID, and computed backend Redis URL.
 
 4. Documentation updates:
-	- Updated `Phase_2_FE_AI_Merge/terraform/README.md` with managed ECS->ElastiCache wiring details.
-	- Updated `Phase_2_FE_AI_Merge/README.md` to include ElastiCache Serverless in stack summary.
+	- Updated `Phase_2/code/terraform/README.md` with managed ECS->ElastiCache wiring details.
+	- Updated `Phase_2/README.md` to include ElastiCache Serverless in stack summary.
 	- Updated `docs/others/search-cache-redis-setup.md` to document Terraform-managed path and TLS `rediss://` usage.
 
 ### Files changed
-- `Phase_2_FE_AI_Merge/terraform/main.tf`
-- `Phase_2_FE_AI_Merge/terraform/variables.tf`
-- `Phase_2_FE_AI_Merge/terraform/outputs.tf`
-- `Phase_2_FE_AI_Merge/terraform/terraform.tfvars.example`
-- `Phase_2_FE_AI_Merge/terraform/modules/ecs/main.tf`
-- `Phase_2_FE_AI_Merge/terraform/README.md`
-- `Phase_2_FE_AI_Merge/README.md`
+- `Phase_2/code/terraform/main.tf`
+- `Phase_2/code/terraform/variables.tf`
+- `Phase_2/code/terraform/outputs.tf`
+- `Phase_2/code/terraform/terraform.tfvars.example`
+- `Phase_2/code/terraform/modules/ecs/main.tf`
+- `Phase_2/code/terraform/README.md`
+- `Phase_2/README.md`
 - `docs/others/search-cache-redis-setup.md`
 - `docs/others/11-04-2026 new implementation markdown.md`
 
 ### Validation
-- `terraform fmt -recursive` ran in `Phase_2_FE_AI_Merge/terraform`.
+- `terraform fmt -recursive` ran in `Phase_2/code/terraform`.
 - `terraform init -backend=false` and `terraform validate` completed successfully.
 
-## 2026-04-11 - Knowledge Explorer Enhancements (Phase_2_FE_AI_Merge)
+## 2026-04-11 - Knowledge Explorer Enhancements (Phase_2)
 
 ### Scope
 - Improve citation behavior in generated answers so citations are placed at end of supporting sentences.
@@ -58,29 +58,29 @@ Update rule:
 ### Implemented
 1. Citation prompt updated for sentence-level citation placement.
 - Added explicit rules and good/bad examples in generation prompt.
-- File: `Phase_2_FE_AI_Merge/backend/src/generation/generator.py`
+- File: `Phase_2/code/backend/src/generation/generator.py`
 
 2. Media-original rendering support metadata.
 - During metadata enrichment, media chunks now keep `original_storage_uri` when resolvable from original input file.
 - API metadata sanitizer now keeps `preview_source_path` fallback while stripping raw `original_file` key when `storage_uri` is present.
-- File: `Phase_2_FE_AI_Merge/backend/app/services/citation_uris.py`
+- File: `Phase_2/code/backend/app/services/citation_uris.py`
 
 3. Local preview source security + scope expanded.
 - `/api/search/image-preview` now accepts local source paths under processing and input roots (for local backend media playback).
-- File: `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+- File: `Phase_2/code/backend/app/api/routes/search_routes.py`
 
 4. Retrieval-only chunk rendering on frontend.
 - Search page now builds citation/chunk cards from `text_results` + `image_results` when `contents` is absent.
-- File: `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`
+- File: `Phase_2/code/frontend/src/views/SearchView.tsx`
 
 5. Media chunk playback in Knowledge Explorer.
 - For text citations with `document_type=media`, UI can load original media source.
 - Renders `<video>`/`<audio>` and seeks to chunk `start_time` on metadata load.
-- File: `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`
+- File: `Phase_2/code/frontend/src/views/SearchView.tsx`
 
 6. Accurate retrieval telemetry rendering.
 - Frontend uses `retrieval_total` when available, with fallback for older responses.
-- File: `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`
+- File: `Phase_2/code/frontend/src/views/SearchView.tsx`
 
 ### Related previously-implemented optimization context (same date)
 - Text/image branch parallel retrieval wall-clock telemetry added.
@@ -107,7 +107,7 @@ Update rule:
 3. Citation header rendering updated to use normalized display names for both text and image rows.
 
 ### Files changed
-- `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`
+- `Phase_2/code/frontend/src/views/SearchView.tsx`
 
 ### Validation
 - Frontend static diagnostics report no errors for updated file.
@@ -128,8 +128,8 @@ Update rule:
 	- If no valid source is available, UI shows a clear message instead of attempting broken preview.
 
 ### Files changed
-- `Phase_2_FE_AI_Merge/backend/app/services/text_search_service.py`
-- `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`
+- `Phase_2/code/backend/app/services/text_search_service.py`
+- `Phase_2/code/frontend/src/views/SearchView.tsx`
 
 ### Validation
 - Frontend build passed (`vite build`).
@@ -148,12 +148,12 @@ Update rule:
 ### Implemented
 1. Backend media URI fallback synthesis:
 	- If direct local->S3 mapping fails, infer original media URI using filename basename (or `doc_id` + `original_file_format`) under tenant input prefix.
-	- File: `Phase_2_FE_AI_Merge/backend/app/services/text_search_service.py`
+	- File: `Phase_2/code/backend/app/services/text_search_service.py`
 
 2. Frontend deployed guard:
 	- For media preview, only allow `source_path` fallback on localhost.
 	- On deployed hosts, rely on `storage_uri`/`original_storage_uri` only.
-	- File: `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`
+	- File: `Phase_2/code/frontend/src/views/SearchView.tsx`
 
 ## 2026-04-11 - S3 NoSuchKey Fix For Media Preview
 
@@ -170,11 +170,11 @@ Update rule:
 1. Cross-platform basename extraction for URI synthesis:
 	- Added OS-agnostic basename helper that normalizes both `\\` and `/` separators.
 	- Media URI synthesis now uses basename only (e.g. `05_NLP_Basic_4.mp4`).
-	- File: `Phase_2_FE_AI_Merge/backend/app/services/text_search_service.py`
+	- File: `Phase_2/code/backend/app/services/text_search_service.py`
 
 2. Safer preview API error behavior:
 	- `/api/search/image-preview` now catches S3 `NoSuchKey` and returns HTTP 404 instead of 500.
-	- File: `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+	- File: `Phase_2/code/backend/app/api/routes/search_routes.py`
 
 ## 2026-04-11 - Redis Query Result Cache (10-minute TTL)
 
@@ -188,21 +188,21 @@ Update rule:
 	- Added `SearchCacheClient` with deterministic key hashing by `user_id + full search request payload`.
 	- Supports configurable TTL (default 600 seconds = 10 minutes).
 	- Fails open: if Redis unavailable, search still executes normally.
-	- File: `Phase_2_FE_AI_Merge/backend/app/services/search_cache.py`
+	- File: `Phase_2/code/backend/app/services/search_cache.py`
 
 2. Search route integration:
 	- `/api/search` now checks cache before invoking orchestrator.
 	- On miss, executes search and writes result to cache.
 	- Response includes cache metadata (`enabled`, `hit`, `backend`, `ttl_seconds`).
-	- File: `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+	- File: `Phase_2/code/backend/app/api/routes/search_routes.py`
 
 3. Environment configuration:
 	- Added cache env vars to backend `.env` with 10-minute default TTL.
-	- File: `Phase_2_FE_AI_Merge/backend/.env`
+	- File: `Phase_2/code/backend/.env`
 
 4. Dependency update:
 	- Added `redis>=5.0.0` to backend requirements.
-	- File: `Phase_2_FE_AI_Merge/backend/requirements.txt`
+	- File: `Phase_2/code/backend/requirements.txt`
 
 5. Setup guide for local Docker + ElastiCache:
 	- Added operational doc with exact values and commands.
@@ -210,7 +210,7 @@ Update rule:
 
 6. Tests:
 	- Added route-level cache hit/miss unit tests.
-	- File: `Phase_2_FE_AI_Merge/backend/tests/api/test_search_cache.py`
+	- File: `Phase_2/code/backend/tests/api/test_search_cache.py`
 
 ### Validation
 - Python syntax compile passed for updated modules.
@@ -230,7 +230,7 @@ Update rule:
 	- Included TLS variant guidance using `rediss://`.
 
 ### Files changed
-- `Phase_2_FE_AI_Merge/backend/.env`
+- `Phase_2/code/backend/.env`
 
 ### Validation
 - Manual `.env` review confirms local default remains `redis://localhost:6379/0` and deployment alternative is documented inline.
@@ -247,14 +247,14 @@ Update rule:
 	- cache hit
 	- cache miss
 	- cache write success/failure
-	- File: `Phase_2_FE_AI_Merge/backend/app/services/search_cache.py`
+	- File: `Phase_2/code/backend/app/services/search_cache.py`
 
 2. Added route-level cache decision logs:
 	- cache-check status per `/api/search` request
 	- served-from-cache log
 	- miss-path completion log with `write_ok`
 	- Response cache metadata now includes `write_ok`.
-	- File: `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+	- File: `Phase_2/code/backend/app/api/routes/search_routes.py`
 
 ### Validation
 - Python syntax compile passed for updated modules.
@@ -269,17 +269,17 @@ Update rule:
 1. Namespace-aware cache keys:
 	- `SearchCacheClient` now supports cache namespaces (`search`, `retrieval`) in key construction.
 	- Cache logs now include namespace to distinguish route-response cache vs retrieval-content cache events.
-	- File: `Phase_2_FE_AI_Merge/backend/app/services/search_cache.py`
+	- File: `Phase_2/code/backend/app/services/search_cache.py`
 
 2. Orchestrator-level retrieval caching:
 	- `SearchOrchestrator.run(...)` now performs cache `get`/`set` for retrieval results (`text_results`, `image_results`) using namespace `retrieval`.
 	- Applies uniformly to both `/api/search` and chat tool calls (`text_rag`, `image_rag`) because both execute through the same orchestrator.
 	- Added telemetry metadata under `telemetry.cache.retrieval` (`enabled`, `hit`, `backend`, `ttl_seconds`, `write_ok`).
-	- File: `Phase_2_FE_AI_Merge/backend/app/services/search_orchestrator.py`
+	- File: `Phase_2/code/backend/app/services/search_orchestrator.py`
 
 3. Unit tests for shared scope:
 	- Added tests verifying retrieval cache reuse across separate orchestrator instances (simulating different API surfaces) and per-user isolation.
-	- File: `Phase_2_FE_AI_Merge/backend/tests/services/test_orchestrator_retrieval_cache.py`
+	- File: `Phase_2/code/backend/tests/services/test_orchestrator_retrieval_cache.py`
 
 ### Validation
 - Added/updated unit tests for orchestrator retrieval cache behavior.
@@ -294,29 +294,29 @@ Update rule:
 ### Implemented
 1. Removed route-level full-response cache from `/api/search`:
 	- The route now always invokes `SearchOrchestrator` and no longer serves/stores whole API response objects from Redis.
-	- File: `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+	- File: `Phase_2/code/backend/app/api/routes/search_routes.py`
 
 2. Added explicit timing logs at route level:
 	- Logs now print `retrieval_ms`, `generation_ms`, `total_ms`, and retrieval cache hit status for each `/api/search` call.
-	- File: `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+	- File: `Phase_2/code/backend/app/api/routes/search_routes.py`
 
 3. Added explicit timing logs inside orchestrator:
 	- Logs now print retrieval/generation/total timings for all execution branches (`retrieval_only`, no-results, and full completion).
-	- File: `Phase_2_FE_AI_Merge/backend/app/services/search_orchestrator.py`
+	- File: `Phase_2/code/backend/app/services/search_orchestrator.py`
 
 4. Reduced repeated Qdrant collection/index ensure calls:
 	- Text retrieval now prepares each text collection once per process before dense/hybrid queries.
 	- Image retrieval now prepares each image collection once per process before search.
 	- This removes repeated `get_collections` + `create_payload_index` traffic on every request.
 	- Files:
-	  - `Phase_2_FE_AI_Merge/backend/app/services/text_search_service.py`
-	  - `Phase_2_FE_AI_Merge/backend/app/services/image_search_service.py`
+	  - `Phase_2/code/backend/app/services/text_search_service.py`
+	  - `Phase_2/code/backend/app/services/image_search_service.py`
 
 5. Updated tests/docs to match corrected cache scope:
 	- Updated route tests for no top-level route cache behavior.
 	- Updated Redis setup doc to describe retrieval-content caching semantics.
 	- Files:
-	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_search_cache.py`
+	  - `Phase_2/code/backend/tests/api/test_search_cache.py`
 	  - `docs/others/search-cache-redis-setup.md`
 
 ### Validation
@@ -339,26 +339,26 @@ Update rule:
 	  - `anthropic.claude-3-5-haiku-20241022-v1:0`
 	- `/api/search/generation-models` now returns this curated list (plus configured model deduped).
 	- `/api/search` rejects non-allowlisted `generation_model` overrides for Bedrock provider.
-	- File: `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+	- File: `Phase_2/code/backend/app/api/routes/search_routes.py`
 
 2. Knowledge Explorer UI model selection:
 	- Kept model selection in Knowledge Explorer (`SearchView`) and made it clearly visible whenever mode is `retrieval_generation`.
-	- File: `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`
+	- File: `Phase_2/code/frontend/src/views/SearchView.tsx`
 
 3. Answer action buttons (between answer and citations):
 	- Added `Copy answer` button (copies generated markdown text).
 	- Added `Download rendered PDF` button (exports rendered markdown view via browser print-to-PDF flow).
 	- Inserted immediately after answer panel and before citations section.
-	- File: `Phase_2_FE_AI_Merge/frontend/src/views/SearchView.tsx`
+	- File: `Phase_2/code/frontend/src/views/SearchView.tsx`
 
 4. Test coverage:
 	- Added endpoint test for curated generation model list.
 	- Added validation test for rejecting unsupported generation model override.
-	- File: `Phase_2_FE_AI_Merge/backend/tests/api/test_generation_models_allowlist.py`
+	- File: `Phase_2/code/backend/tests/api/test_generation_models_allowlist.py`
 
 5. Config comment update:
 	- Updated `.env` cache comment to reflect retrieval-chunk cache scope.
-	- File: `Phase_2_FE_AI_Merge/backend/.env`
+	- File: `Phase_2/code/backend/.env`
 
 ## 2026-04-11 - Bedrock Generation Crash Fix (Vision Payload / JSON Serialization)
 
@@ -380,20 +380,20 @@ Update rule:
 1. JSON-safe error path in generator:
 	- Added shared `contents` serializer that always emits string keys (`[X.Y]`).
 	- Error path now returns same JSON-safe `files` and `contents` shape as success path.
-	- File: `Phase_2_FE_AI_Merge/backend/src/generation/generator.py`
+	- File: `Phase_2/code/backend/src/generation/generator.py`
 
 2. Bedrock vision guard + retry behavior:
 	- Added model capability gate to skip image preparation/attachments for text-only models (currently Gemma family).
 	- Added fallback retry in Bedrock call: if vision request fails due body length, retry once with text-only content.
-	- File: `Phase_2_FE_AI_Merge/backend/src/generation/generator.py`
+	- File: `Phase_2/code/backend/src/generation/generator.py`
 
 3. Allowlist alias compatibility:
 	- Expanded Knowledge Explorer Bedrock model allowlist to accept both global and `us.`-prefixed Anthropic IDs.
-	- File: `Phase_2_FE_AI_Merge/backend/app/api/routes/search_routes.py`
+	- File: `Phase_2/code/backend/app/api/routes/search_routes.py`
 
 4. Tests:
 	- Added generator tests for JSON-safe error output and text-only model vision skip behavior.
-	- File: `Phase_2_FE_AI_Merge/backend/tests/services/test_generator_error_and_vision_guard.py`
+	- File: `Phase_2/code/backend/tests/services/test_generator_error_and_vision_guard.py`
 
 ### Validation
 - Targeted tests passed:
@@ -421,11 +421,11 @@ Update rule:
 	  - `GET /api/feedback` list current user's feedback.
 	  - `GET /api/feedback/{feedback_id}` get detail for one feedback.
 	- Files:
-	  - `Phase_2_FE_AI_Merge/backend/app/repositories/feedback_repository_dynamo.py`
-	  - `Phase_2_FE_AI_Merge/backend/app/services/feedback_service.py`
-	  - `Phase_2_FE_AI_Merge/backend/app/api/routes/feedback_routes.py`
-	  - `Phase_2_FE_AI_Merge/backend/app/api/schemas.py`
-	  - `Phase_2_FE_AI_Merge/backend/app/main.py`
+	  - `Phase_2/code/backend/app/repositories/feedback_repository_dynamo.py`
+	  - `Phase_2/code/backend/app/services/feedback_service.py`
+	  - `Phase_2/code/backend/app/api/routes/feedback_routes.py`
+	  - `Phase_2/code/backend/app/api/schemas.py`
+	  - `Phase_2/code/backend/app/main.py`
 
 2. Non-blocking Bedrock classification (Haiku 4.5):
 	- Feedback submission returns immediately; analysis runs in background thread executor.
@@ -449,7 +449,7 @@ Update rule:
 	  - Dislike
 	- Dislike opens modal with predefined reasons and optional custom text.
 	- Feedback payload includes user query + AI response + session/message identifiers when available.
-	- File: `Phase_2_FE_AI_Merge/frontend/src/views/ChatAssistantView.tsx`
+	- File: `Phase_2/code/frontend/src/views/ChatAssistantView.tsx`
 
 4. Feedbacks navigation and user view:
 	- Added new left nav item/tab: `Feedbacks`.
@@ -459,14 +459,14 @@ Update rule:
 	  - feedback table
 	  - detail panel (time, category, suggested action, query, response)
 	- Files:
-	  - `Phase_2_FE_AI_Merge/frontend/src/App.tsx`
-	  - `Phase_2_FE_AI_Merge/frontend/src/views/FeedbacksView.tsx`
-	  - `Phase_2_FE_AI_Merge/frontend/src/api/ragApi.ts`
+	  - `Phase_2/code/frontend/src/App.tsx`
+	  - `Phase_2/code/frontend/src/views/FeedbacksView.tsx`
+	  - `Phase_2/code/frontend/src/api/ragApi.ts`
 
 5. Redis timeout behavior improvement for no-blocking requirement:
 	- Added cache reconnect cooldown to avoid repeated per-request Redis timeout attempts when cache endpoint is unreachable.
 	- Service now serves uncached responses immediately during cooldown and retries later.
-	- File: `Phase_2_FE_AI_Merge/backend/app/services/search_cache.py`
+	- File: `Phase_2/code/backend/app/services/search_cache.py`
 
 6. Environment/config updates:
 	- Added:
@@ -474,18 +474,18 @@ Update rule:
 	  - `FEEDBACK_CLASSIFIER_MODEL`
 	  - `SEARCH_CACHE_REDIS_RETRY_COOLDOWN_SECONDS`
 	- Files:
-	  - `Phase_2_FE_AI_Merge/backend/.env`
-	  - `Phase_2_FE_AI_Merge/backend/.env.example`
+	  - `Phase_2/code/backend/.env`
+	  - `Phase_2/code/backend/.env.example`
 
 7. Tests:
 	- Added feedback route tests.
 	- Existing cache + model + generator tests kept passing.
 	- Files:
-	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_feedback_routes.py`
-	  - `Phase_2_FE_AI_Merge/backend/tests/services/test_generator_error_and_vision_guard.py`
-	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_generation_models_allowlist.py`
-	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_search_cache.py`
-	  - `Phase_2_FE_AI_Merge/backend/tests/services/test_orchestrator_retrieval_cache.py`
+	  - `Phase_2/code/backend/tests/api/test_feedback_routes.py`
+	  - `Phase_2/code/backend/tests/services/test_generator_error_and_vision_guard.py`
+	  - `Phase_2/code/backend/tests/api/test_generation_models_allowlist.py`
+	  - `Phase_2/code/backend/tests/api/test_search_cache.py`
+	  - `Phase_2/code/backend/tests/services/test_orchestrator_retrieval_cache.py`
 
 ### Validation
 - Backend targeted pytest suite passed (10 tests total).
@@ -504,25 +504,25 @@ Update rule:
 	- Rendered `suggested_action`, `query`, and `response` as markdown (`react-markdown` + `remark-gfm` + `remark-breaks`) instead of plain text.
 	- Added styled content cards to improve readability for long responses and markdown headings/lists.
 	- File:
-	  - `Phase_2_FE_AI_Merge/frontend/src/views/FeedbacksView.tsx`
+	  - `Phase_2/code/frontend/src/views/FeedbacksView.tsx`
 
 2. Better copy/like/dislike interaction effects in chat:
 	- Added stronger visual states and transitions:
 	  - Copy: success/failure state with clearer label and icon feedback.
 	  - Like/Dislike: active highlighting, loading spinner while submitting, and post-submit `Saved` indicator.
 	- File:
-	  - `Phase_2_FE_AI_Merge/frontend/src/views/ChatAssistantView.tsx`
+	  - `Phase_2/code/frontend/src/views/ChatAssistantView.tsx`
 
 3. Hydrate feedback when loading chat history:
 	- Added session-scoped feedback query support in backend and frontend API:
 	  - `GET /api/feedback?session_id=...`
 	- On `selectSession`, chat now fetches feedback for that session and maps vote state by `message_id` so existing reactions are visible when reopening the chat.
 	- Files:
-	  - `Phase_2_FE_AI_Merge/backend/app/api/routes/feedback_routes.py`
-	  - `Phase_2_FE_AI_Merge/backend/app/services/feedback_service.py`
-	  - `Phase_2_FE_AI_Merge/backend/app/repositories/feedback_repository_dynamo.py`
-	  - `Phase_2_FE_AI_Merge/frontend/src/api/ragApi.ts`
-	  - `Phase_2_FE_AI_Merge/frontend/src/views/ChatAssistantView.tsx`
+	  - `Phase_2/code/backend/app/api/routes/feedback_routes.py`
+	  - `Phase_2/code/backend/app/services/feedback_service.py`
+	  - `Phase_2/code/backend/app/repositories/feedback_repository_dynamo.py`
+	  - `Phase_2/code/frontend/src/api/ragApi.ts`
+	  - `Phase_2/code/frontend/src/views/ChatAssistantView.tsx`
 
 4. ElastiCache private endpoint guard for local runtime:
 	- Added cache client guard to avoid repeated timeout attempts when `SEARCH_CACHE_REDIS_URL` points to an AWS `.cache.amazonaws.com` endpoint while app is running outside AWS runtime.
@@ -530,14 +530,14 @@ Update rule:
 	- Added optional override env var comment:
 	  - `SEARCH_CACHE_ALLOW_PRIVATE_ENDPOINT_LOCAL`
 	- Files:
-	  - `Phase_2_FE_AI_Merge/backend/app/services/search_cache.py`
-	  - `Phase_2_FE_AI_Merge/backend/.env`
-	  - `Phase_2_FE_AI_Merge/backend/.env.example`
+	  - `Phase_2/code/backend/app/services/search_cache.py`
+	  - `Phase_2/code/backend/.env`
+	  - `Phase_2/code/backend/.env.example`
 
 5. Test compatibility update:
 	- Updated feedback route unit-test fake service signature to include `session_id` filter argument.
 	- File:
-	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_feedback_routes.py`
+	  - `Phase_2/code/backend/tests/api/test_feedback_routes.py`
 
 ### Validation
 - Diagnostics check on changed frontend/backend files: no errors found.
@@ -556,21 +556,21 @@ Update rule:
 	- For `general` feedback: `feedback_text` is required.
 	- For `like/dislike` feedback: `query` and `response` remain required.
 	- Files:
-	  - `Phase_2_FE_AI_Merge/backend/app/api/schemas.py`
-	  - `Phase_2_FE_AI_Merge/backend/app/api/routes/feedback_routes.py`
+	  - `Phase_2/code/backend/app/api/schemas.py`
+	  - `Phase_2/code/backend/app/api/routes/feedback_routes.py`
 
 2. Persistence/service support:
 	- Repository now stores and returns `scope` + `feedback_text`.
 	- Service create path and classifier prompt now include these fields.
 	- Files:
-	  - `Phase_2_FE_AI_Merge/backend/app/repositories/feedback_repository_dynamo.py`
-	  - `Phase_2_FE_AI_Merge/backend/app/services/feedback_service.py`
+	  - `Phase_2/code/backend/app/repositories/feedback_repository_dynamo.py`
+	  - `Phase_2/code/backend/app/services/feedback_service.py`
 
 3. Frontend API/types updated:
 	- `FeedbackVote` now includes `general`.
 	- `createFeedback` accepts optional `scope` and `feedback_text`.
 	- Files:
-	  - `Phase_2_FE_AI_Merge/frontend/src/api/ragApi.ts`
+	  - `Phase_2/code/frontend/src/api/ragApi.ts`
 
 4. Feedbacks tab UI composer:
 	- Added `Send General Feedback` section in `Feedbacks` tab.
@@ -581,12 +581,12 @@ Update rule:
 	- Added `scope` display in list table and detail panel.
 	- Added `general` count card.
 	- File:
-	  - `Phase_2_FE_AI_Merge/frontend/src/views/FeedbacksView.tsx`
+	  - `Phase_2/code/frontend/src/views/FeedbacksView.tsx`
 
 5. Unit test update:
 	- Added coverage for creating `general` feedback payload.
 	- File:
-	  - `Phase_2_FE_AI_Merge/backend/tests/api/test_feedback_routes.py`
+	  - `Phase_2/code/backend/tests/api/test_feedback_routes.py`
 
 ### Validation
 - Diagnostics check on changed files: no errors found.

@@ -1,8 +1,8 @@
 # Technical Design Deep Dive
 
-**Based on**: Phase_2_FE_AI_Merge actual codebase  
-**Analysis Date**: May 14, 2026  
-**Code Files Referenced**: Exact paths and line numbers  
+**Based on**: Phase_2 actual codebase
+**Analysis Date**: May 14, 2026
+**Code Files Referenced**: Exact paths and line numbers
 
 ---
 
@@ -14,7 +14,7 @@
 
 **Solution**: Unified metadata schema with temporal alignment
 
-**Implementation** (`Phase_2_FE_AI_Merge/backend/src/processor/`):
+**Implementation** (`Phase_2/code/backend/src/processor/`):
 
 1. **Text Path** (document_processor.py):
    - Docling extracts text with layout analysis
@@ -57,7 +57,7 @@
    - Ranks via hybrid fusion (BM25 text + ColQwen image scores)
    - Returns combined results with cross-modal context
 
-**Why Not Simpler**: 
+**Why Not Simpler**:
 - Separate indexes (text-only, image-only) lose cross-modal context
 - Can't answer: "Find images of X mentioned in section Y"
 - Hybrid ranking ensures best results from both modalities
@@ -338,7 +338,7 @@ class BaseRetriever(ABC):
     @abstractmethod
     def index_documents(self, chunks: List[Dict]):
         pass
-    
+
     @abstractmethod
     def search(self, query: str, top_k: int) -> List[Dict]:
         pass
@@ -367,7 +367,7 @@ def create_rag_retriever(retriever_type: str) -> BaseRetriever:
 class Reranker:
     def __init__(self, model_name: str):
         self.model = CrossEncoderModel(model_name)
-    
+
     def rerank(self, query: str, candidates: List[Dict]) -> List[Dict]:
         scores = self.model.predict(query, [c["text"] for c in candidates])
         return sorted(candidates, key=lambda x: scores[i], reverse=True)
@@ -459,6 +459,6 @@ class UnifiedRAGPipeline:
 
 ---
 
-**Generated**: May 14, 2026  
-**Based on**: Actual Phase_2_FE_AI_Merge codebase  
+**Generated**: May 14, 2026
+**Based on**: Actual Phase_2 codebase
 **Status**: All implementations verified by line number references

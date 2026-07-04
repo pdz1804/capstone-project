@@ -1,0 +1,61 @@
+# Phase 2 local data root
+data/
+
+# Phase 2 generated/raw data folders
+**/input/
+**/output/
+**/outputs/
+**/result/
+**/results/
+**/.work/
+**/test_parsing/
+**/ms_marco_val/
+
+# Models, vector indexes, arrays, generated data
+*.pkl
+*.pickle
+*.bin
+*.faiss
+*.index
+*.onnx
+*.pt
+*.pth
+*.safetensors
+*.npy
+*.npz
+*.parquet
+*.jsonl
+
+# Local dependencies/caches
+node_modules/
+dist/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.deepeval/
+.DS_Store
+
+# Keep templates, ignore real secrets
+.env
+.env.*
+!.env.example
+!*.env.example
+
+# Report build products; keep PDFs and sources
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdv
+
+# External benchmark checkouts stay local
+third_party/
+code/third_party/

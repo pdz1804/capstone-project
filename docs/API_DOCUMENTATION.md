@@ -1,7 +1,7 @@
 # Search API Documentation
 
-**Base URL**: `http://localhost:8000` (local) or deployment URL  
-**Auth**: User ID required via `X-User-Id` header or query parameter  
+**Base URL**: `http://localhost:5001` (local) or deployment URL
+**Auth**: User ID required via `X-User-Id` header or query parameter
 **Content-Type**: `application/json` for all POST requests
 
 ---
@@ -129,7 +129,7 @@ Execute a unified search query combining text and image retrieval with optional 
 
 cURL:
 ```bash
-curl -X POST http://localhost:8000/api/search \
+curl -X POST http://localhost:5001/api/search \
   -H "Content-Type: application/json" \
   -H "X-User-Id: user_123" \
   -d '{
@@ -144,7 +144,7 @@ Python:
 import requests
 
 response = requests.post(
-    "http://localhost:8000/api/search",
+    "http://localhost:5001/api/search",
     json={
         "query": "what is clustering?",
         "top_k": 5,
@@ -184,7 +184,7 @@ Returns the list of available language models for generation based on current co
 
 cURL:
 ```bash
-curl http://localhost:8000/api/search/generation-models \
+curl http://localhost:5001/api/search/generation-models \
   -H "X-User-Id: user_123"
 ```
 
@@ -193,7 +193,7 @@ Python:
 import requests
 
 response = requests.get(
-    "http://localhost:8000/api/search/generation-models",
+    "http://localhost:5001/api/search/generation-models",
     headers={"X-User-Id": "user_123"}
 )
 models = response.json()["models"]
@@ -214,7 +214,7 @@ Fetch the actual image file or PDF page from indexed documents.
 | `source_path` | string | Conditional | Local file path (fallback for local backend) |
 | `page` | integer | No | 1-based page number for PDF sources (default: 1) |
 
-**Response**: 
+**Response**:
 
 - **200 OK**: Binary image file with appropriate `Content-Type` header
   - PNG: `image/png`
@@ -233,14 +233,14 @@ Fetch the actual image file or PDF page from indexed documents.
 
 cURL (retrieve image):
 ```bash
-curl "http://localhost:8000/api/search/image-preview?storage_uri=s3%3A%2F%2Fbucket%2Fpath%2Fimage.png" \
+curl "http://localhost:5001/api/search/image-preview?storage_uri=s3%3A%2F%2Fbucket%2Fpath%2Fimage.png" \
   -H "X-User-Id: user_123" \
   -o image.png
 ```
 
 HTML (display in browser):
 ```html
-<img src="http://localhost:8000/api/search/image-preview?storage_uri=s3%3A%2F%2Fbucket%2Fpath%2Fimage.png&user_id=user_123" />
+<img src="http://localhost:5001/api/search/image-preview?storage_uri=s3%3A%2F%2Fbucket%2Fpath%2Fimage.png&user_id=user_123" />
 ```
 
 ---
@@ -377,12 +377,12 @@ All endpoints require one of:
 
 **Option 1: Header**
 ```bash
-curl -H "X-User-Id: user_123" http://localhost:8000/api/search
+curl -H "X-User-Id: user_123" http://localhost:5001/api/search
 ```
 
 **Option 2: Query Parameter**
 ```bash
-curl "http://localhost:8000/api/search?user_id=user_123"
+curl "http://localhost:5001/api/search?user_id=user_123"
 ```
 
 **Per-User Isolation**: Each user_id gets isolated document index, cache, and quota.
@@ -409,7 +409,7 @@ Use these for billing, monitoring, and model selection tracking.
 ### Single Question with Context
 ```python
 # Retrieve documents, then generate answer with inline context
-response = requests.post("http://localhost:8000/api/search", json={
+response = requests.post("http://localhost:5001/api/search", json={
     "query": "What is the capital of France?",
     "mode": "retrieval_generation",
     "top_k": 3
@@ -421,7 +421,7 @@ print(answer)
 ### Retrieval Only (No Generation)
 ```python
 # Just get documents, process them yourself
-response = requests.post("http://localhost:8000/api/search", json={
+response = requests.post("http://localhost:5001/api/search", json={
     "query": "solar energy applications",
     "mode": "retrieval_only",
     "search_scope": "text"
@@ -434,7 +434,7 @@ for chunk in chunks:
 ### Image-Focused Search
 ```python
 # Find images relevant to query
-response = requests.post("http://localhost:8000/api/search", json={
+response = requests.post("http://localhost:5001/api/search", json={
     "query": "solar panel installation diagram",
     "search_scope": "image",
     "include_images": True,
@@ -448,10 +448,10 @@ for img in images:
 ### Model Comparison
 ```python
 # Test multiple generation models
-models = requests.get("http://localhost:8000/api/search/generation-models").json()["models"]
+models = requests.get("http://localhost:5001/api/search/generation-models").json()["models"]
 results = {}
 for model in models[:3]:  # Test first 3 models
-    resp = requests.post("http://localhost:8000/api/search", json={
+    resp = requests.post("http://localhost:5001/api/search", json={
         "query": "explain quantum computing",
         "generation_model": model
     })
@@ -460,6 +460,6 @@ for model in models[:3]:  # Test first 3 models
 
 ---
 
-**Generated**: May 14, 2026  
-**API Version**: 1.0  
+**Generated**: May 14, 2026
+**API Version**: 1.0
 **Next**: See ERROR_HANDLING_AND_FAILURES.md for detailed error recovery procedures

@@ -57,7 +57,7 @@ waf_log_retention_days = 30
 
 If the WAF was created manually in AWS first, import it before `terraform apply`.
 
-From `Phase_2_FE_AI_Merge/terraform`:
+From `Phase_2/code/terraform`:
 
 ```powershell
 terraform init
