@@ -1,6 +1,7 @@
 import argparse
 import base64
 import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 import time
 
@@ -48,12 +49,38 @@ def payload_for(service: str, audio_file: str | None) -> dict:
     raise ValueError(f"Unsupported service: {service}")
 
 
+def run_concurrent(runtime, endpoint_name: str, service: str, users: int, audio_file: str | None) -> None:
+    print(f"Running concurrent smoke test: service={service}, users={users}")
+    payloads = []
+    for idx in range(users):
+        if service == "colqwen":
+            payloads.append({"operation": "embed-query", "query": f"Concurrent request {idx + 1}"})
+        else:
+            payloads.append(payload_for(service, audio_file))
+
+    latencies = []
+    with ThreadPoolExecutor(max_workers=users) as executor:
+        futures = [executor.submit(invoke, runtime, endpoint_name, payload) for payload in payloads]
+        for future in as_completed(futures):
+            result = future.result()
+            if result["status"] != 200:
+                raise RuntimeError(f"Concurrent invoke failed: {result}")
+            latencies.append(result["elapsed_ms"])
+
+    latencies.sort()
+    p50 = latencies[len(latencies) // 2]
+    p95 = latencies[max(0, int(len(latencies) * 0.95) - 1)]
+    print(f"Concurrent latency p50: {p50:.1f} ms")
+    print(f"Concurrent latency p95: {p95:.1f} ms")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Smoke test a SageMaker endpoint")
     parser.add_argument("--region", default="us-west-2")
     parser.add_argument("--endpoint-name", required=True)
     parser.add_argument("--service", choices=["colqwen", "docling", "whisper"], required=True)
     parser.add_argument("--audio-file", default=None, help="Required to test whisper transcription operation")
+    parser.add_argument("--concurrent-users", type=int, default=1, help="Run N concurrent smoke-test invokes")
     args = parser.parse_args()
 
     runtime = boto3.client("sagemaker-runtime", region_name=args.region)
@@ -66,6 +93,9 @@ def main() -> None:
 
     if result["status"] != 200:
         raise SystemExit(1)
+
+    if args.concurrent_users > 1:
+        run_concurrent(runtime, args.endpoint_name, args.service, args.concurrent_users, args.audio_file)
 
 
 if __name__ == "__main__":

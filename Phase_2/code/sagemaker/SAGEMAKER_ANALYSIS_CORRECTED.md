@@ -590,7 +590,7 @@ Timeout at: 420s → Rare but happens with 3+ concurrent users
 
 **Code Changes Required:**
 
-File: `Phase_2_FE_AI_Merge/backend/src/processor/docling_remote.py`
+File: `Phase_2/code/backend/src/processor/docling_remote.py`
 
 ```python
 # Line 98 - CHANGE FROM:
@@ -600,7 +600,7 @@ retries={"max_attempts": 0},
 retries={"max_attempts": 2, "mode": "standard"},
 ```
 
-File: `Phase_2_FE_AI_Merge/backend/src/processor/whisper_remote.py`
+File: `Phase_2/code/backend/src/processor/whisper_remote.py`
 
 ```python
 # Line 89 - CHANGE FROM:

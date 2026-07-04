@@ -172,9 +172,9 @@ aws application-autoscaling describe-scalable-targets \
 - **Full Analysis**: `SAGEMAKER_ANALYSIS_CORRECTED.md`
 - **Quick Checklist**: `QUICK_FIX_CHECKLIST.md`
 - **Code Files to Edit**:
-  - `Phase_2_FE_AI_Merge/backend/.env`
-  - `Phase_2_FE_AI_Merge/backend/src/processor/docling_remote.py`
-  - `Phase_2_FE_AI_Merge/backend/src/processor/whisper_remote.py`
+  - `Phase_2/code/backend/.env`
+  - `Phase_2/code/backend/src/processor/docling_remote.py`
+  - `Phase_2/code/backend/src/processor/whisper_remote.py`
 
 ---
 

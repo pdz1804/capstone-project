@@ -44,7 +44,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host "Building image from repo root context..."
-docker build -f "Phase_2_FE_AI_Merge/sagemaker/unified/Dockerfile" -t "$REPO_NAME`:$IMAGE_TAG" .
+docker build -f "Phase_2/code/sagemaker/unified/Dockerfile" -t "$REPO_NAME`:$IMAGE_TAG" .
 if ($LASTEXITCODE -ne 0) {
     throw "Docker build failed."
 }

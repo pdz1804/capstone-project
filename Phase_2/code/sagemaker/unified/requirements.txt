@@ -1,4 +1,4 @@
-# Unified endpoint dependencies (aligned with backend local stack + PDZ_002 Docker base)
+# Unified endpoint dependencies aligned with the backend local stack and SageMaker Docker base.
 # torch/torchvision are installed in Dockerfile with cu126 wheels.
 
 # API / runtime
