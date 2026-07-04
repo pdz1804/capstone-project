@@ -55,6 +55,7 @@ __pycache__/
 *.synctex.gz
 *.toc
 *.xdv
+*/_markdown_main
 
 # External benchmark checkouts stay local
 third_party/
