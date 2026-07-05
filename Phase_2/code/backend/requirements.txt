@@ -13,7 +13,7 @@
 --extra-index-url https://download.pytorch.org/whl/cu128
 
 # llama-index-core needs setuptools>=80.9; cap <82 if a future torch wheel pins setuptools again:
-setuptools>=80.9.0,<82
+setuptools>=83.0.0,<84
 
 transformers==4.57.3
 peft==0.14.0
