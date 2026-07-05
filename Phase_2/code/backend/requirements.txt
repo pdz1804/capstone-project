@@ -2,7 +2,7 @@
 # FAISS: CPU build for portability (rag_retrievers still imports faiss for legacy helpers).
 #
 # ------------------------------------------------------------------------------
-# PyTorch CUDA 12.8 (win_amd64 / cp311): must satisfy colpali-engine==0.3.13 → torch>=2.2,<2.9.
+# PyTorch CUDA 12.8 (win_amd64 / cp311): must satisfy colpali-engine==0.3.17 → torch>=2.2,<2.9.
 # So use 2.8.x+cu128 (NOT 2.11+cu128 — pip raises ResolutionImpossible with colpali).
 # Newer colpali-engine 0.3.14 allows torch<2.11 but requires transformers>=5, peft>=0.18 (bigger bump).
 # CUDA: --extra-index-url is required for +cu128 wheels.
@@ -21,7 +21,7 @@ sentence-transformers==3.0.1
 accelerate>=0.30.0
 huggingface-hub>=0.23.0
 
-colpali-engine==0.3.13
+colpali-engine==0.3.17
 ragatouille>=0.0.8
 # voyager==2.1.0
 
